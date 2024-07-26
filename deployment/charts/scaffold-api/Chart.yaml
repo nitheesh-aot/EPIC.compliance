@@ -1,6 +1,6 @@
 apiVersion: v2
-name: scaffold-api
-description: Deployment Config for scaffold-api
+name: compliance-api
+description: Deployment Config for compliance-api
 
 # A chart can be either an 'application' or a 'library' chart.
 #
