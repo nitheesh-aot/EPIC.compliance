@@ -7,7 +7,6 @@ import { OidcConfig } from "@/utils/config";
 import { theme } from "@/styles/theme";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "@/routeTree.gen";
-import React from "react";
 
 const queryClient = new QueryClient();
 
