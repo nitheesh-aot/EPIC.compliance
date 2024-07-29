@@ -15,10 +15,10 @@
 from flask_restx import Namespace, Resource
 from sqlalchemy import exc, text
 
-from api.models import db
+from submit_api.models import db
 
 
-API = Namespace('OPS', description='Service - OPS checks')
+API = Namespace('ops', description='Service - OPS checks')
 
 SQL = text('select 1')
 

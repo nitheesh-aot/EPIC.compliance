@@ -41,6 +41,7 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
     # pylint: disable=import-outside-toplevel
     from compliance_api.resources import (
         API_BLUEPRINT,
+        OPS_BLUEPRINT,
     )
 
     # Flask app initialize
@@ -53,6 +54,7 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
 
     # Register blueprints
     app.register_blueprint(API_BLUEPRINT)  # Create the database (run once)
+    app.register_blueprint(OPS_BLUEPRINT)
 
     # Setup jwt for keycloak
     if os.getenv("FLASK_ENV", "production") != "testing":

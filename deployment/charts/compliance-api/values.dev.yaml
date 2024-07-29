@@ -1,0 +1,61 @@
+replicaCount: 1
+
+image:
+  repository: compliance-api
+  pullPolicy: Always
+  namespace: c8b80a-tools
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "dev"
+
+resources:
+  cpu:
+    limit: 250m
+    request: 150m
+  memory:
+    limit: 384Mi
+    request: 256Mi
+
+database:
+  secret: compliance-patroni
+  service:
+    name: submit-patroni
+    port: 5432
+  patroni:
+    name: compliance-patroni
+    appDbName: YXBw
+    appDbPassword: WjFCZUZHNlVrdzlzUG1BMkh2NFFvUnQ4THkzTnhEY0s=
+    appDbUsername: Y29tcGxpYW5jZV91c2Vy
+    replicationPassword: c3lXTTVBa1Y2ak1pZzJLRVJuR3NDc1RJZGw0N1dpT2M=
+    replicationUsername: cmVwbGljYXRpb24=
+    superuserPassword: bGtmdG5RT1loRlJwQXZrSDltaW1NTWVsUW5Qb2VWdzM=
+    superuserUsername: cG9zdGdyZXM=
+
+
+
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+auth:
+  jwt:
+    alg: RS256
+    aud: epic-compliance
+    cacheEnabled: true
+    issuer: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic
+    cacheTimeout: "300"
+    wellKnownConfig: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic/.well-known/openid-configuration
+  keycloak:
+    uri: https://dev.loginproxy.gov.bc.ca
+    realm: eao-epic
+    adminClientId:
+    adminClientSecret:
+python:
+  pythonBuffered: 1
+  connectTimeout: 60
+cdogs:  
+  tokenEndpoint: https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+  apiEndpoint: https://cdogs-test.api.gov.bc.ca/api/v2
+  clientId:
+  clientSecret:

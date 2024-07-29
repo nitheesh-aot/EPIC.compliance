@@ -32,11 +32,11 @@ auth:
     alg: RS256
     aud: compliance-web
     cacheEnabled: true
-    issuer: https://test.loginproxy.gov.bc.ca/auth/realms/eao-epic
+    issuer: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic
     cacheTimeout: "300"
-    wellKnownConfig: https://test.loginproxy.gov.bc.ca/auth/realms/eao-epic/.well-known/openid-configuration
+    wellKnownConfig: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic/.well-known/openid-configuration
   keycloak:
-    uri: https://test.loginproxy.gov.bc.ca
+    uri: https://dev.loginproxy.gov.bc.ca
     realm:
     adminClientId:
     adminClientSecret:
@@ -44,7 +44,7 @@ python:
   pythonBuffered: 1
   connectTimeout: 60
 cdogs:  
-  tokenEndpoint: https://test.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+  tokenEndpoint: https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
   apiEndpoint: https://cdogs-test.api.gov.bc.ca/api/v2
   clientId:
   clientSecret:

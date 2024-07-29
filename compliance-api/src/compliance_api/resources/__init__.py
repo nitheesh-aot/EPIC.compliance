@@ -27,11 +27,22 @@ from flask import Blueprint
 from .apihelper import Api
 
 from .user import API as USER_API
+from .ops import API as OPS_API
 
-__all__ = ('API_BLUEPRINT',)
+__all__ = ('API_BLUEPRINT', 'OPS_BLUEPRINT')
 
 URL_PREFIX = '/api/'
 API_BLUEPRINT = Blueprint('API', __name__, url_prefix=URL_PREFIX)
+
+OPS_BLUEPRINT = Blueprint("API_OPS", __name__, url_prefix='/ops')
+API_OPS = Api(
+    OPS_BLUEPRINT,
+    title="Service OPS API",
+    version="1.0",
+    description="The Core API for the Reports System",
+)
+
+API_OPS.add_namespace(OPS_API, path="/")
 
 authorizations = {
     'Bearer Auth': {
@@ -49,7 +60,5 @@ API = Api(
     description='The Core API for COMPLIANCE',
     authorizations=authorizations
 )
-
-# HANDLER = ExceptionHandler(API)
 
 API.add_namespace(USER_API)

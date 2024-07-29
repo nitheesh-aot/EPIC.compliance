@@ -43,7 +43,7 @@ class Users(Resource):
     @staticmethod
     @API.response(code=200, description="Success", model=[user_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all users")
-    # @auth.require
+    @auth.require
     def get():
         """Fetch all users."""
         users = UserService.get_all_users()
