@@ -18,20 +18,8 @@ resources:
 database:
   secret: compliance-patroni
   service:
-    name: submit-patroni
-    port: 5432
-  patroni:
     name: compliance-patroni
-    appDbName: YXBw
-    appDbPassword: WjFCZUZHNlVrdzlzUG1BMkh2NFFvUnQ4THkzTnhEY0s=
-    appDbUsername: Y29tcGxpYW5jZV91c2Vy
-    replicationPassword: c3lXTTVBa1Y2ak1pZzJLRVJuR3NDc1RJZGw0N1dpT2M=
-    replicationUsername: cmVwbGljYXRpb24=
-    superuserPassword: bGtmdG5RT1loRlJwQXZrSDltaW1NTWVsUW5Qb2VWdzM=
-    superuserUsername: cG9zdGdyZXM=
-
-
-
+    port: 5432
 
 service:
   type: ClusterIP

@@ -22,7 +22,6 @@ from compliance_api.schemas.user import UserSchema, UserRequestSchema
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.auth import auth
 from .apihelper import Api as ApiHelper
-
 API = Namespace("users", description="Endpoints for User Management")
 """Custom exception messages
 """

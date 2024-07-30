@@ -13,10 +13,8 @@
 # limitations under the License.
 """Endpoints to check and manage the health of the service."""
 from flask_restx import Namespace, Resource
+from flask import current_app
 from sqlalchemy import exc, text
-
-from submit_api.models import db
-
 
 API = Namespace('ops', description='Service - OPS checks')
 
@@ -34,9 +32,9 @@ class Healthz(Resource):
     def get():
         """Return a JSON object stating the health of the Service and dependencies."""
         try:
-            db.session.execute(SQL)
+            current_app.extensions['sqlalchemy'].session.execute(SQL)
         except exc.SQLAlchemyError:
-            return {'message': 'api is down'}, 500
+            return {"message": "api is down"}, 500
 
         # made it here, so all checks passed
         return {'message': 'api is healthy'}, 200

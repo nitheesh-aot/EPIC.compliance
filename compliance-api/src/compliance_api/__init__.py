@@ -52,10 +52,6 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
 
     CORS(app, resources={r"/*": {"origins": allowedorigins()}}, supports_credentials=True)
 
-    # Register blueprints
-    app.register_blueprint(API_BLUEPRINT)  # Create the database (run once)
-    app.register_blueprint(OPS_BLUEPRINT)
-
     # Setup jwt for keycloak
     if os.getenv("FLASK_ENV", "production") != "testing":
         setup_jwt_manager(app, jwt)
@@ -65,11 +61,13 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
 
     # # Database migrate initialize
     migrate.init_app(app, db)
-    with app.app_context():
-        db.create_all()
 
     # Marshmallow initialize
     ma.init_app(app)
+    # Register blueprints
+    app.register_blueprint(API_BLUEPRINT)  # Create the database (run once)
+    app.register_blueprint(OPS_BLUEPRINT)
+    register_shellcontext(app)
 
     @app.before_request
     def set_origin():
@@ -93,7 +91,6 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
             raise err
         current_app.logger.error(str(err))
         return "Internal server error", HTTPStatus.INTERNAL_SERVER_ERROR
-
     # Return App for run in run.py file
     return app
 
@@ -111,3 +108,13 @@ def setup_jwt_manager(app_context, jwt_manager):
 
     app_context.config["JWT_ROLE_CALLBACK"] = get_roles
     jwt_manager.init_app(app_context)
+
+def register_shellcontext(app):
+    """Register shell context objects."""
+    from api import models  # pylint: disable=import-outside-toplevel
+
+    def shell_context():
+        """Shell context objects."""
+        return {'app': app, 'jwt': jwt, 'db': db, 'models': models}  # pragma: no cover
+
+    app.shell_context_processor(shell_context)
