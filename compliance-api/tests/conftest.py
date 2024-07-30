@@ -19,7 +19,7 @@ import pytest
 from flask_migrate import Migrate, upgrade
 from sqlalchemy import event, text
 
-from api import create_app, setup_jwt_manager
+from compliance_api import create_app, setup_jwt_manager
 from compliance_api.auth import jwt as _jwt
 from compliance_api.models import db as _db
 
