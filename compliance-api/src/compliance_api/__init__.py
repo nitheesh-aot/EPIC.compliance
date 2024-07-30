@@ -111,7 +111,7 @@ def setup_jwt_manager(app_context, jwt_manager):
 
 def register_shellcontext(app):
     """Register shell context objects."""
-    from api import models  # pylint: disable=import-outside-toplevel
+    from compliance_api import models  # pylint: disable=import-outside-toplevel
 
     def shell_context():
         """Shell context objects."""
