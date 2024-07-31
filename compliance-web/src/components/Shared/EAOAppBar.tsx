@@ -1,33 +1,64 @@
-import { AppBar, Box, Button, Grid, Typography } from "@mui/material";
-import EAO_Logo from "@/assets/images/EAO_Logo.png";
+import {
+  AppBar as MuiAppBar,
+  AppBarProps as MuiAppBarProps,
+  Box,
+  Button,
+  Grid,
+  styled,
+  Typography,
+  Avatar,
+  useTheme,
+} from "@mui/material";
+import BC_Logo from "@/assets/images/bcgovLogoWhite.svg";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { AppConfig } from "@/utils/config";
 import { useAuth } from "react-oidc-context";
+import EnvironmentBanner from "./EnvironmentBanner";
+
+interface AppBarProps extends MuiAppBarProps {
+  open?: boolean;
+}
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== "open",
+})<AppBarProps>(({ theme }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  transition: theme.transitions.create(["width", "margin"], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+}));
 
 export default function EAOAppBar() {
+  const theme = useTheme();
   const auth = useAuth();
   return (
     <>
-      <AppBar position="static" color="inherit" elevation={2}>
+      <AppBar position="static" color="primary" open={true}>
         <Grid
           container
-          padding={"0.5rem"}
+          padding={"0.938rem 1.5rem"}
           margin={0}
+          height={72}
           justifyContent="space-between"
         >
           <Grid display="flex" justifyContent="start" alignItems="center">
-            <img src={EAO_Logo} height={72} />
+            <img src={BC_Logo} height={42} />
             <Typography
-              variant="h2"
+              variant="h3"
               color="inherit"
               component="div"
-              paddingLeft={"0.5rem"}
+              paddingLeft={"2.5rem"}
               fontWeight={"bold"}
             >
               {AppConfig.appTitle}
             </Typography>
           </Grid>
-          <Grid display="flex" justifyContent="center" alignItems="center" paddingRight={"0.75rem"}>
+          <Grid
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            paddingRight={"0.75rem"}
+          >
             <AccountCircleIcon
               fontSize="large"
               color="primary"
@@ -38,27 +69,37 @@ export default function EAOAppBar() {
                 <Box
                   display={"flex"}
                   flexDirection={"column"}
-                  marginRight={"0.75rem"}
+                  marginRight={"1rem"}
                 >
-                  <Typography variant="body1" color="inherit">
-                    Hi, <b>{auth.user?.profile.name}</b>
-                  </Typography>
-                  <Typography variant="caption" color="inherit">
-                    {auth.user?.profile.email}
+                  <Typography variant="h6" color="inherit">
+                    Hello, {auth.user?.profile.name}
                   </Typography>
                 </Box>
-                <Button
+                {/* <Button
                   variant="outlined"
-                  color="primary"
+                  color="inherit"
                   onClick={() => auth.signoutRedirect()}
                 >
                   Sign Out
-                </Button>
+                </Button> */}
+                <Avatar
+                  sx={{
+                    bgcolor: theme.palette.background.default,
+                    color: theme.palette.primary.main,
+                    width: "2rem",
+                    height: "2rem",
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    fontWeight={700}
+                  >{`${auth.user?.profile?.given_name?.charAt(0)}${auth.user?.profile?.family_name?.charAt(0)}`}</Typography>
+                </Avatar>
               </>
             ) : (
               <Button
                 variant="outlined"
-                color="primary"
+                color="inherit"
                 onClick={() => auth.signinRedirect()}
               >
                 Sign In
@@ -66,6 +107,7 @@ export default function EAOAppBar() {
             )}
           </Grid>
         </Grid>
+        <EnvironmentBanner></EnvironmentBanner>
       </AppBar>
     </>
   );
