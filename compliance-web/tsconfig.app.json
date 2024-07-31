@@ -28,5 +28,10 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "node_modules",
+    "**/*.test.tsx", // Update this pattern if your tests use a different extension
+    "**/*.cy.tsx" // Or whichever extension you use for Cypress tests
+  ],
 }

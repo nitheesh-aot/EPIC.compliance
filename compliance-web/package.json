@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cy:open": "cypress open",
+    "cy:run-unit": "cypress run --component"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -20,7 +22,7 @@
     "@tanstack/router-devtools": "^1.45.7",
     "@tanstack/router-plugin": "^1.45.7",
     "axios": "^1.7.2",
-    "epic.theme": "^1.0.3",
+    "epic.theme": "^1.0.4",
     "keycloak-js": "^25.0.1",
     "oidc-client-ts": "^3.0.1",
     "react": "^18.2.0",
