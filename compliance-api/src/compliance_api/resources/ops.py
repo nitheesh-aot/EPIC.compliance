@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Endpoints to check and manage the health of the service."""
-from flask_restx import Namespace, Resource
 from flask import current_app
+from flask_restx import Namespace, Resource
 from sqlalchemy import exc, text
+
 
 API = Namespace('ops', description='Service - OPS checks')
 

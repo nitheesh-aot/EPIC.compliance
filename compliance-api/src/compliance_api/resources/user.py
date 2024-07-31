@@ -16,12 +16,16 @@
 from http import HTTPStatus
 
 from flask_restx import Namespace, Resource
-from compliance_api.services.user_service import UserService
-from compliance_api.utils.util import cors_preflight
-from compliance_api.schemas.user import UserSchema, UserRequestSchema
-from compliance_api.exceptions import ResourceNotFoundError
+
 from compliance_api.auth import auth
+from compliance_api.exceptions import ResourceNotFoundError
+from compliance_api.schemas import UserRequestSchema, UserSchema
+from compliance_api.services import UserService
+from compliance_api.utils.util import cors_preflight
+
 from .apihelper import Api as ApiHelper
+
+
 API = Namespace("users", description="Endpoints for User Management")
 """Custom exception messages
 """
@@ -66,7 +70,7 @@ class Users(Resource):
 @API.route("/<user_id>", methods=["PATCH", "GET", "OPTIONS", "DELETE"])
 @API.doc(params={"user_id": "The user identifier"})
 class User(Resource):
-    """Resource for managing a single user"""
+    """Resource for managing a single user."""
 
     @staticmethod
     @auth.require

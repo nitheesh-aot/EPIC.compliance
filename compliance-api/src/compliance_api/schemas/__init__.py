@@ -11,26 +11,5 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Test Utils.
-
-Test Utility for creating model factory.
-"""
-from faker import Faker
-from flask import g
-
-from compliance_api.config import get_named_config
-
-
-CONFIG = get_named_config('testing')
-fake = Faker()
-
-JWT_HEADER = {
-    'alg': CONFIG.JWT_OIDC_TEST_ALGORITHMS,
-    'typ': 'JWT',
-    'kid': CONFIG.JWT_OIDC_TEST_AUDIENCE
-}
-
-
-def set_global_tenant(tenant_id=1):
-    """Set the global tenant id."""
-    g.tenant_id = tenant_id
+"""Exposes all of the schemas in the compliance_api."""
+from .user import UserRequestSchema, UserSchema

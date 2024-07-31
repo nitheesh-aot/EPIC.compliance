@@ -4,8 +4,8 @@ This module is for the initiation of the flask app.
 """
 
 import os
-
 from http import HTTPStatus
+
 import secure
 from flask import Flask, current_app, g, request
 from flask_cors import CORS
@@ -15,6 +15,7 @@ from compliance_api.config import get_named_config
 from compliance_api.models import db, ma, migrate
 from compliance_api.utils.cache import cache
 from compliance_api.utils.util import allowedorigins
+
 
 # Security Response headers
 csp = (
@@ -39,10 +40,7 @@ secure_headers = secure.Secure(
 def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
     """Create flask app."""
     # pylint: disable=import-outside-toplevel
-    from compliance_api.resources import (
-        API_BLUEPRINT,
-        OPS_BLUEPRINT,
-    )
+    from compliance_api.resources import API_BLUEPRINT, OPS_BLUEPRINT
 
     # Flask app initialize
     app = Flask(__name__)
@@ -50,7 +48,9 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
     # All configuration are in config file
     app.config.from_object(get_named_config(run_mode))
 
-    CORS(app, resources={r"/*": {"origins": allowedorigins()}}, supports_credentials=True)
+    CORS(
+        app, resources={r"/*": {"origins": allowedorigins()}}, supports_credentials=True
+    )
 
     # Setup jwt for keycloak
     if os.getenv("FLASK_ENV", "production") != "testing":
@@ -91,6 +91,7 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
             raise err
         current_app.logger.error(str(err))
         return "Internal server error", HTTPStatus.INTERNAL_SERVER_ERROR
+
     # Return App for run in run.py file
     return app
 
@@ -109,12 +110,13 @@ def setup_jwt_manager(app_context, jwt_manager):
     app_context.config["JWT_ROLE_CALLBACK"] = get_roles
     jwt_manager.init_app(app_context)
 
+
 def register_shellcontext(app):
     """Register shell context objects."""
     from compliance_api import models  # pylint: disable=import-outside-toplevel
 
     def shell_context():
         """Shell context objects."""
-        return {'app': app, 'jwt': jwt, 'db': db, 'models': models}  # pragma: no cover
+        return {"app": app, "jwt": jwt, "db": db, "models": models}  # pragma: no cover
 
     app.shell_context_processor(shell_context)
