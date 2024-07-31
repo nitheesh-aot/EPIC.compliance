@@ -12,7 +12,7 @@ resources:
     request: 100Mi
 image:
   name: compliance-web
-  tag: latest
+  tag: dev
   namespace: c8b80a-tools
   repository: image-registry.openshift-image-registry.svc:5000/c72cba-tools/
 keycloak:

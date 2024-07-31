@@ -20,6 +20,7 @@ spec:
   failedBuildsHistoryLimit: 5
   runPolicy: Serial
   source:
+    type: Git
     contextDir: {{ .Values.context.dir }}
     git:
       ref: {{ .Values.repository.ref }}
