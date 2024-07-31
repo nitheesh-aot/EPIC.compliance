@@ -13,6 +13,7 @@ resources:
 image:
   name: compliance-web
   tag: latest
+  namespace: c8b80a-tools
   repository: image-registry.openshift-image-registry.svc:5000/c72cba-tools/
 keycloak:
   url: "https://dev.loginproxy.gov.bc.ca"

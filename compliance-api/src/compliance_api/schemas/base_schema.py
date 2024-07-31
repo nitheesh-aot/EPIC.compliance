@@ -13,12 +13,10 @@
 # limitations under the License.
 """Super class to handle all operations related to base schema."""
 
-from marshmallow import fields, post_dump
-
-from compliance_api.models import ma
+from marshmallow import Schema, fields, post_dump
 
 
-class BaseSchema(ma.ModelSchema):  # pylint: disable=too-many-ancestors
+class BaseSchema(Schema):  # pylint: disable=too-many-ancestors, too-few-public-methods
     """Base Schema."""
 
     def __init__(self, *args, **kwargs):
@@ -43,7 +41,7 @@ class BaseSchema(ma.ModelSchema):  # pylint: disable=too-many-ancestors
     )
 
     @post_dump(pass_many=True)
-    def _remove_empty(self, data, many):
+    def _remove_empty(self, data, many):  # pylint: disable=no-self-use
         """Remove all empty values and versions from the dumped dict."""
         if not many:
             for key in list(data):

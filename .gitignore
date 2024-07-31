@@ -130,6 +130,7 @@ dmypy.json
 .DS_Store
 compliance-api/.DS_Store
 compliance-api/.DS_Store
+deployment/charts/compliance-api/values.dev.yaml
 /.idea/vcs.xml
 /.idea/inspectionProfiles/profiles_settings.xml
 /.idea/inspectionProfiles/Project_Default.xml

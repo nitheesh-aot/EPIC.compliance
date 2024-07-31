@@ -6,8 +6,8 @@
 MKFILE_PATH:=$(abspath $(lastword $(MAKEFILE_LIST)))
 CURRENT_ABS_DIR:=$(patsubst %/,%,$(dir $(MKFILE_PATH)))
 
-PROJECT_NAME:=api
-DOCKER_NAME:=api
+PROJECT_NAME:=compliance_api
+DOCKER_NAME:=compliance_api
 
 #################################################################################
 # COMMANDS -- license                                                           #
@@ -71,7 +71,7 @@ pylint: ## Linting with pylint
 	. venv/bin/activate && pylint --rcfile=setup.cfg  src/$(PROJECT_NAME)
 
 flake8: ## Linting with flake8
-	. venv/bin/activate && flake8 src/$(PROJECT_NAME) tests
+	. venv/bin/activate && flake8 --ignore=Q000 src/$(PROJECT_NAME) tests
 
 lintfix: ## Linting fix
 	. venv/bin/activate && autopep8 -i -a src/**/*.py tests/**/*.py
