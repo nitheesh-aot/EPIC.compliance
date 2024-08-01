@@ -19,7 +19,7 @@ function Layout() {
   return (
     <>
       <EAOAppBar />
-      <Box display={"flex"}>
+      <Box display={"flex"} height={"calc(100vh - 112px)"} overflow={"hidden"}>
         <SideNavBar />
         <Box
           display={"flex"}
