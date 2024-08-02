@@ -1,5 +1,4 @@
 import { Assessment, Settings, List } from "@mui/icons-material";
-import { useAuth } from "react-oidc-context";
 
 export interface RouteMenuItem {
   routeName: string;
@@ -9,30 +8,28 @@ export interface RouteMenuItem {
 }
 
 export default function RouteItemsList() {
-  const { isAuthenticated } = useAuth();
-
-  let routeMenuItems: RouteMenuItem[] = [
+  const routeMenuItems: RouteMenuItem[] = [
     {
       routeName: "C&E Database",
       icon: <List />,
       subRoutes: [
         {
           routeName: "Case Files",
-          path: "/",
+          path: "/ce-database/case-files",
         },
         {
           routeName: "Inspections",
-          path: "/link1",
+          path: "/ce-database/inspection",
         },
         {
           routeName: "Complaints",
-          path: "/link2",
+          path: "/ce-database/compliants",
         },
       ],
     },
     {
       routeName: "IR Board",
-      path: "/about",
+      path: "/ir-board",
       icon: <Assessment sx={{ transform: "rotate(180deg)" }} />,
     },
     {
@@ -41,29 +38,23 @@ export default function RouteItemsList() {
       subRoutes: [
         {
           routeName: "Staff",
-          path: "/newpage",
+          path: "/admin/staff",
         },
         {
           routeName: "Proponents",
-          path: "/link1",
+          path: "/admin/proponents",
         },
         {
           routeName: "Agencies",
-          path: "/link2",
+          path: "/admin/agencies",
         },
         {
           routeName: "Topics",
-          path: "/link3",
+          path: "/admin/topics",
         },
       ],
     },
   ];
-
-  const authenticatedRouteMenuItems: RouteMenuItem[] = [];
-
-  if (isAuthenticated) {
-    routeMenuItems = routeMenuItems.concat(authenticatedRouteMenuItems);
-  }
 
   return routeMenuItems;
 }
