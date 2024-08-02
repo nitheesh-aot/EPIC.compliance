@@ -1,6 +1,6 @@
 import EAOAppBar from "@/components/Shared/EAOAppBar";
 import PageNotFound from "@/components/Shared/PageNotFound";
-import SideNavBar from "@/components/Shared/SideNavBar";
+import SideNavBar from "@/components/Shared/SideNav/SideNavBar";
 import { Box } from "@mui/system";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
@@ -25,7 +25,9 @@ function Layout() {
           display={"flex"}
           flexDirection={"column"}
           flex={1}
-          padding={"1rem"}
+          padding={"3.625rem 2.5rem 0 0"}
+          marginBottom={"1rem"}
+          overflow={"auto"}
         >
           <Outlet />
         </Box>
