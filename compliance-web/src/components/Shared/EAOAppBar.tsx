@@ -14,7 +14,10 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { AppConfig } from "@/utils/config";
 import { useAuth } from "react-oidc-context";
 import EnvironmentBanner from "./EnvironmentBanner";
+import { forwardRef, HTMLProps } from "react";
 
+
+type EAOAppBarProps = HTMLProps<HTMLDivElement>;
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
 }
@@ -28,12 +31,12 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-export default function EAOAppBar() {
+const EAOAppBar = forwardRef<HTMLDivElement, EAOAppBarProps>((_props, ref) => {
   const theme = useTheme();
   const auth = useAuth();
   return (
     <>
-      <AppBar position="static" color="primary" open={true}>
+      <AppBar ref={ref} position="static" color="primary" open={true}>
         <Grid
           container
           padding={"0.938rem 1.5rem"}
@@ -111,4 +114,6 @@ export default function EAOAppBar() {
       </AppBar>
     </>
   );
-}
+});
+
+export default EAOAppBar;

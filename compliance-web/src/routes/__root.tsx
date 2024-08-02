@@ -4,6 +4,7 @@ import SideNavBar from "@/components/Shared/SideNav/SideNavBar";
 import { Box } from "@mui/system";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { useState, useRef, useEffect } from "react";
 import { AuthContextProps } from "react-oidc-context";
 
 type RouterContext = {
@@ -16,10 +17,25 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function Layout() {
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const appBarRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (appBarRef.current) {
+      setHeaderHeight(appBarRef.current.offsetHeight);
+    }
+  }, []);
+
   return (
     <>
-      <EAOAppBar />
-      <Box display={"flex"} height={"calc(100vh - 112px)"} overflow={"hidden"}>
+      <EAOAppBar ref={appBarRef} />
+      <Box
+        sx={{
+          display: "flex",
+          overflow: "hidden",
+          height: `calc(100vh - ${headerHeight}px)`,
+        }}
+      >
         <SideNavBar />
         <Box
           display={"flex"}
