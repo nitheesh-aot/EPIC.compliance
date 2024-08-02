@@ -1,69 +1,82 @@
-import { Assessment, Settings, List } from "@mui/icons-material";
-import { useAuth } from "react-oidc-context";
+import { theme } from "@/styles/theme";
+import { ListItem, Box, Collapse, List, styled } from "@mui/material";
+import { Fragment } from "react/jsx-runtime";
+import RouteItemsList, { RouteMenuItem } from "./RouteItemsList";
+import { Link } from "@tanstack/react-router";
+import { useMenuStore } from "@/store/menuStore";
+import { ExpandLess, ExpandMore } from "@mui/icons-material";
 
-export interface RouteMenuItem {
-  routeName: string;
-  path?: string;
-  icon?: JSX.Element;
-  subRoutes?: RouteMenuItem[];
-}
+export default function MenuItems() {
+  const routeMenuItems: RouteMenuItem[] = RouteItemsList();
 
-export default function MenuItemsList() {
-  const { isAuthenticated } = useAuth();
+  const { openMenus, toggleMenu } = useMenuStore();
 
-  let routeMenuItems: RouteMenuItem[] = [
-    {
-      routeName: "C&E Database",
-      icon: <List />,
-      subRoutes: [
-        {
-          routeName: "Case Files",
-          path: "/",
-        },
-        {
-          routeName: "Inspections",
-          path: "/link1",
-        },
-        {
-          routeName: "Complaints",
-          path: "/link2",
-        },
-      ],
+  const routeMenuTextStyle = {
+    color: theme.palette.common.white,
+    width: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "1rem 1.5rem",
+    "&:hover": {
+      color: theme.palette.secondary.main,
     },
-    {
-      routeName: "IR Board",
-      path: "/about",
-      icon: <Assessment sx={{ transform: "rotate(180deg)" }} />,
-    },
-    {
-      routeName: "Admin",
-      icon: <Settings />,
-      subRoutes: [
-        {
-          routeName: "Staff",
-          path: "/newpage",
-        },
-        {
-          routeName: "Proponents",
-          path: "/link1",
-        },
-        {
-          routeName: "Agencies",
-          path: "/link2",
-        },
-        {
-          routeName: "Topics",
-          path: "/link3",
-        },
-      ],
-    },
-  ];
+  };
 
-  const authenticatedRouteMenuItems: RouteMenuItem[] = [];
+  const StyledLink = styled(Link)(() => routeMenuTextStyle);
 
-  if (isAuthenticated) {
-    routeMenuItems = routeMenuItems.concat(authenticatedRouteMenuItems);
-  }
+  const routeMenuText = (route: RouteMenuItem) => (
+    <>
+      <Box display={"flex"} alignItems={"center"} gap={1}>
+        {route.icon ?? route.icon}
+        {route.routeName}
+      </Box>
+      {route.subRoutes &&
+        (openMenus[route.routeName] ? <ExpandLess /> : <ExpandMore />)}
+    </>
+  );
 
-  return routeMenuItems;
+  const renderMenuItems = (items: RouteMenuItem[]) => {
+    return items.map((route) => {
+      return (
+        <Fragment key={route.routeName}>
+          <ListItem
+            key={route.routeName}
+            onClick={() => toggleMenu(route.routeName)}
+            disablePadding
+            sx={{ cursor: "pointer" }}
+          >
+            {!route.path && route.subRoutes ? (
+              <Box sx={routeMenuTextStyle}>{routeMenuText(route)}</Box>
+            ) : (
+              <StyledLink
+                to={route.path}
+                activeProps={{
+                  style: {
+                    color: theme.palette.secondary.main,
+                    width: "100%",
+                  },
+                }}
+              >
+                {routeMenuText(route)}
+              </StyledLink>
+            )}
+          </ListItem>
+          {route.subRoutes && (
+            <Collapse
+              in={openMenus[route.routeName]}
+              timeout="auto"
+              unmountOnExit
+            >
+              <List disablePadding sx={{ marginLeft: "2rem" }}>
+                {renderMenuItems(route.subRoutes)}
+              </List>
+            </Collapse>
+          )}
+        </Fragment>
+      );
+    });
+  };
+
+  return <List>{renderMenuItems(routeMenuItems)}</List>;
 }
