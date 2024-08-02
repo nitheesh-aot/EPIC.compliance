@@ -1,5 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router'
+import ComingSoon from "@/components/Shared/ComingSoon";
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/_authenticated/ce-database/inspection')({
-  component: () => <div>Hello /_authenticated/ce-database/inspection!</div>
-})
+export const Route = createFileRoute("/_authenticated/ce-database/inspection")({
+  component: Inspection,
+});
+
+function Inspection() {
+  return <ComingSoon />;
+}

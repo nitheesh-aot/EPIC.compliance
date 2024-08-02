@@ -1,5 +1,10 @@
+import ComingSoon from '@/components/Shared/ComingSoon';
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated/admin/topics')({
-  component: () => <div>Hello /_authenticated/admin/topics!</div>
+  component: Topics
 })
+
+function Topics() {
+  return <ComingSoon />;
+}
