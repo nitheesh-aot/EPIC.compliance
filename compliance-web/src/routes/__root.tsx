@@ -1,4 +1,4 @@
-import EAOAppBar from "@/components/Shared/EAOAppBar";
+import EAOAppBar from "@/components/Shared/Header/EAOAppBar";
 import PageNotFound from "@/components/Shared/PageNotFound";
 import SideNavBar from "@/components/Shared/SideNav/SideNavBar";
 import { Box } from "@mui/system";
