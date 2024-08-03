@@ -42,6 +42,6 @@ describe("<App />", () => {
       // add other necessary mocks here
     };
     mount(<TestApp authentication={mockAuth} />);
-    cy.contains("Users");
+    cy.contains("Version");
   });
 });
