@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import { IconButton } from "@mui/material";
 import { FileCopy, FileCopyOutlined } from "@mui/icons-material";
 import { BCPalette } from "epic.theme";
@@ -13,7 +13,7 @@ const CopyButton = ({ ...props }) => {
     navigator.clipboard.writeText(text);
   };
 
-  const [hover, setHover] = React.useState<boolean>(false);
+  const [hover, setHover] = useState<boolean>(false);
 
   return (
     <IconButton
