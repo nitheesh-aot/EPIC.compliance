@@ -46,6 +46,8 @@ const EAOAppBar = forwardRef<HTMLDivElement, EAOAppBarProps>((_props, ref) => {
     setProfileMenuAnchorEl(null);
   };
 
+  const userInitials = `${auth.user?.profile?.given_name?.charAt(0)}${auth.user?.profile?.family_name?.charAt(0)}`;
+  
   return (
     <>
       <AppBar ref={ref} position="static" color="primary" open={true}>
@@ -81,7 +83,7 @@ const EAOAppBar = forwardRef<HTMLDivElement, EAOAppBarProps>((_props, ref) => {
                 onMouseEnter={handleOpenProfileMenu}
               >
                 <Typography variant="h6" color="inherit" marginRight={"1rem"}>
-                  Hello, {auth.user?.profile.name}
+                  Hello, {auth.user?.profile.given_name}
                 </Typography>
                 <Avatar
                   sx={{
@@ -94,7 +96,7 @@ const EAOAppBar = forwardRef<HTMLDivElement, EAOAppBarProps>((_props, ref) => {
                     variant="body1"
                     fontWeight={700}
                     color={theme.palette.primary.main}
-                  >{`${auth.user?.profile?.given_name?.charAt(0)}${auth.user?.profile?.family_name?.charAt(0)}`}</Typography>
+                  >{userInitials}</Typography>
                 </Avatar>
               </Box>
             ) : (
