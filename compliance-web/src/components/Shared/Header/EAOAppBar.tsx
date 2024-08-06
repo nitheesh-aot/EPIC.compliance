@@ -10,17 +10,17 @@ import {
   useTheme,
 } from "@mui/material";
 import BC_Logo from "@/assets/images/bcgovLogoWhite.svg";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { AppConfig } from "@/utils/config";
 import { useAuth } from "react-oidc-context";
 import EnvironmentBanner from "./EnvironmentBanner";
-import { forwardRef, HTMLProps } from "react";
-
+import { forwardRef, HTMLProps, useState } from "react";
+import UserProfileMenu from "./UserProfileMenu";
 
 type EAOAppBarProps = HTMLProps<HTMLDivElement>;
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
 }
+
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })<AppBarProps>(({ theme }) => ({
@@ -34,6 +34,20 @@ const AppBar = styled(MuiAppBar, {
 const EAOAppBar = forwardRef<HTMLDivElement, EAOAppBarProps>((_props, ref) => {
   const theme = useTheme();
   const auth = useAuth();
+
+  const [profileMenuAnchorEl, setProfileMenuAnchorEl] =
+    useState<null | HTMLElement>(null);
+
+  const handleOpenProfileMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setProfileMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseProfileMenu = () => {
+    setProfileMenuAnchorEl(null);
+  };
+
+  const userInitials = `${auth.user?.profile?.given_name?.charAt(0)}${auth.user?.profile?.family_name?.charAt(0)}`;
+  
   return (
     <>
       <AppBar ref={ref} position="static" color="primary" open={true}>
@@ -62,33 +76,18 @@ const EAOAppBar = forwardRef<HTMLDivElement, EAOAppBarProps>((_props, ref) => {
             alignItems="center"
             paddingRight={"0.75rem"}
           >
-            <AccountCircleIcon
-              fontSize="large"
-              color="primary"
-              sx={{ marginRight: "0.25rem" }}
-            ></AccountCircleIcon>
             {auth.isAuthenticated ? (
-              <>
-                <Box
-                  display={"flex"}
-                  flexDirection={"column"}
-                  marginRight={"1rem"}
-                >
-                  <Typography variant="h6" color="inherit">
-                    Hello, {auth.user?.profile.name}
-                  </Typography>
-                </Box>
-                {/* <Button
-                  variant="outlined"
-                  color="inherit"
-                  onClick={() => auth.signoutRedirect()}
-                >
-                  Sign Out
-                </Button> */}
+              <Box
+                display={"flex"}
+                alignItems={"center"}
+                onMouseEnter={handleOpenProfileMenu}
+              >
+                <Typography variant="h6" color="inherit" marginRight={"1rem"}>
+                  Hello, {auth.user?.profile.given_name}
+                </Typography>
                 <Avatar
                   sx={{
                     bgcolor: theme.palette.background.default,
-                    color: theme.palette.primary.main,
                     width: "2rem",
                     height: "2rem",
                   }}
@@ -96,9 +95,10 @@ const EAOAppBar = forwardRef<HTMLDivElement, EAOAppBarProps>((_props, ref) => {
                   <Typography
                     variant="body1"
                     fontWeight={700}
-                  >{`${auth.user?.profile?.given_name?.charAt(0)}${auth.user?.profile?.family_name?.charAt(0)}`}</Typography>
+                    color={theme.palette.primary.main}
+                  >{userInitials}</Typography>
                 </Avatar>
-              </>
+              </Box>
             ) : (
               <Button
                 variant="outlined"
@@ -110,7 +110,11 @@ const EAOAppBar = forwardRef<HTMLDivElement, EAOAppBarProps>((_props, ref) => {
             )}
           </Grid>
         </Grid>
-        <EnvironmentBanner></EnvironmentBanner>
+        <UserProfileMenu
+          anchorEl={profileMenuAnchorEl}
+          handleClose={handleCloseProfileMenu}
+        />
+        <EnvironmentBanner />
       </AppBar>
     </>
   );
