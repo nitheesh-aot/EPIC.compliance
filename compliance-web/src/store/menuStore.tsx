@@ -4,8 +4,10 @@ import { persist } from "zustand/middleware";
 interface MenuState {
   openMenus: { [key: string]: boolean };
   expandMenu: boolean;
+  appHeaderHeight: number;
   toggleMenu: (routeName: string) => void;
   toggleExpandMenu: () => void;
+  setAppHeaderHeight: (height: number) => void;
 }
 
 export const useMenuStore = create<MenuState>()(
@@ -13,6 +15,7 @@ export const useMenuStore = create<MenuState>()(
     (set) => ({
       openMenus: {},
       expandMenu: true,
+      appHeaderHeight: 0,
       toggleMenu: (routeName: string) => {
         set((state) => ({
           openMenus: {
@@ -26,6 +29,11 @@ export const useMenuStore = create<MenuState>()(
           expandMenu: !state.expandMenu,
         }));
       },
+      setAppHeaderHeight: (height: number) => {
+        set(() => ({
+          appHeaderHeight: height,
+        }));
+      }
     }),
     {
       name: "menu-storage", // name of the item in the storage

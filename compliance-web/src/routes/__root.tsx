@@ -1,10 +1,11 @@
 import EAOAppBar from "@/components/Shared/Header/EAOAppBar";
 import PageNotFound from "@/components/Shared/PageNotFound";
 import SideNavBar from "@/components/Shared/SideNav/SideNavBar";
+import { useMenuStore } from "@/store/menuStore";
 import { Box } from "@mui/system";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { AuthContextProps } from "react-oidc-context";
 
 type RouterContext = {
@@ -17,14 +18,16 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function Layout() {
-  const [headerHeight, setHeaderHeight] = useState(0);
+  const { appHeaderHeight, setAppHeaderHeight } =
+    useMenuStore();
+
   const appBarRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (appBarRef.current) {
-      setHeaderHeight(appBarRef.current.offsetHeight);
+      setAppHeaderHeight(appBarRef.current.offsetHeight);
     }
-  }, []);
+  }, [setAppHeaderHeight]);
 
   return (
     <>
@@ -33,7 +36,7 @@ function Layout() {
         sx={{
           display: "flex",
           overflow: "hidden",
-          height: `calc(100vh - ${headerHeight}px)`,
+          height: `calc(100vh - ${appHeaderHeight}px)`,
         }}
       >
         <SideNavBar />

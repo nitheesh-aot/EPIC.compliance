@@ -5,6 +5,7 @@ import ExpandMenuButton from "./ExpandMenuButton";
 import MenuItemsList from "./MenuItemsList";
 import { AppConfig } from "@/utils/config";
 import MenuItemIconsList from "./MenuItemIconsList";
+import { APP_SIDE_NAV_WIDTH, APP_SIDE_NAV_WIDTH_COLLAPSED } from "@/utils/constants";
 
 export default function SideNavBar() {
   const { expandMenu } = useMenuStore();
@@ -16,7 +17,7 @@ export default function SideNavBar() {
       <Box
         sx={{
           bgcolor: theme.palette.primary.main,
-          width: expandMenu ? 260 : 68,
+          width: expandMenu ? APP_SIDE_NAV_WIDTH : APP_SIDE_NAV_WIDTH_COLLAPSED,
           height: "100%",
           display: "flex",
           flexDirection: "column",
