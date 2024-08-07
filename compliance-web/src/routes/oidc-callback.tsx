@@ -17,6 +17,6 @@ function OidcCallback() {
   }
 
   if(!isLoading && isAuthenticated) {
-    return <Navigate to="/"></Navigate>
+    return <Navigate to="/ce-database/case-files"></Navigate>
   }
 }

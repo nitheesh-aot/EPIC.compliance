@@ -1,9 +1,11 @@
-import EAOAppBar from "@/components/Shared/EAOAppBar";
+import EAOAppBar from "@/components/Shared/Header/EAOAppBar";
 import PageNotFound from "@/components/Shared/PageNotFound";
-import SideNavBar from "@/components/Shared/SideNavBar";
+import SideNavBar from "@/components/Shared/SideNav/SideNavBar";
+import { useMenuStore } from "@/store/menuStore";
 import { Box } from "@mui/system";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { useRef, useEffect } from "react";
 import { AuthContextProps } from "react-oidc-context";
 
 type RouterContext = {
@@ -16,16 +18,35 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function Layout() {
+  const { appHeaderHeight, setAppHeaderHeight } =
+    useMenuStore();
+
+  const appBarRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (appBarRef.current) {
+      setAppHeaderHeight(appBarRef.current.offsetHeight);
+    }
+  }, [setAppHeaderHeight]);
+
   return (
     <>
-      <EAOAppBar />
-      <Box display={"flex"}>
+      <EAOAppBar ref={appBarRef} />
+      <Box
+        sx={{
+          display: "flex",
+          overflow: "hidden",
+          height: `calc(100vh - ${appHeaderHeight}px)`,
+        }}
+      >
         <SideNavBar />
         <Box
           display={"flex"}
           flexDirection={"column"}
           flex={1}
-          padding={"1rem"}
+          padding={"3.625rem 2.5rem 0 0"}
+          marginBottom={"1rem"}
+          overflow={"auto"}
         >
           <Outlet />
         </Box>
