@@ -14,13 +14,9 @@
 """Super class to handle all operations related to base model."""
 from datetime import datetime
 
-from sqlalchemy import Column
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy import Boolean, Column, DateTime, String
 
 from .db import db
-
-
-TENANT_ID = 'tenant_id'
 
 
 class BaseModel(db.Model):
@@ -28,18 +24,19 @@ class BaseModel(db.Model):
 
     __abstract__ = True
 
-    created_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_date = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=True)
+    created_date = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_date = Column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=True
+    )
+    created_by = Column(String(100), nullable=False)
+    updated_by = Column(String(100), nullable=True)
+    is_active = Column(Boolean, default=True, server_default="t", nullable=False)
+    is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
 
-    @declared_attr
-    def created_by(cls):  # pylint:disable=no-self-argument, no-self-use, # noqa: N805
-        """Return foreign key for created by."""
-        return Column(db.String(50))
-
-    @declared_attr
-    def updated_by(cls):  # pylint:disable=no-self-argument, no-self-use, # noqa: N805
-        """Return foreign key for modified by."""
-        return Column(db.String(50))
+    @classmethod
+    def get_all(cls):
+        """Fetch list of users by access type."""
+        return cls.query.all()
 
     @classmethod
     def find_by_id(cls, identifier: int):
@@ -66,6 +63,14 @@ class BaseModel(db.Model):
         db.session.add(self)
         db.session.flush()
         db.session.commit()
+
+    def update(self, payload: dict, commit=True):
+        """Update and commit."""
+        for key, value in payload.items():
+            if key != "id":
+                setattr(self, key, value)
+        if commit:
+            self.commit()
 
     def delete(self):
         """Delete and commit."""

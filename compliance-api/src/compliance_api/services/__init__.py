@@ -12,4 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Exposes all of the Services used in the compliance_api."""
-from .user_service import UserService
+from .auth_service import AuthService
+from .position import PositionService
+from .staff_user import StaffUserService
