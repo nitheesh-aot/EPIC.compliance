@@ -17,7 +17,7 @@ function Staff() {
           </Typography>
           <Button startIcon={<AddRounded />}>Staff Member</Button>
         </Box>
-        <Box sx={{ background: BCPalette.theme.gray[30], marginTop: "1.5rem" }}>Table</Box>
+        {/* <Box sx={{ background: BCPalette.theme.gray[30], marginTop: "1.5rem" }}>Table</Box> */}
       </Stack>
     </>
   );
