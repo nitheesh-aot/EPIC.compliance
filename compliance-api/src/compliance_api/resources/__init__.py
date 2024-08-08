@@ -25,7 +25,8 @@ from flask import Blueprint
 
 from .apihelper import Api
 from .ops import API as OPS_API
-from .user import API as USER_API
+from .position import API as POSITION_API
+from .staff_user import API as USER_API
 
 
 __all__ = ("API_BLUEPRINT", "OPS_BLUEPRINT")
@@ -61,3 +62,4 @@ API = Api(
 )
 
 API.add_namespace(USER_API)
+API.add_namespace(POSITION_API)

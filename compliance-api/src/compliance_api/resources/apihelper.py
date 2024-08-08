@@ -21,6 +21,7 @@ from flask import url_for
 from flask_restx import Api as BaseApi
 from flask_restx import apidoc, fields
 from marshmallow import fields as ma_fields
+from marshmallow_enum import EnumField
 
 
 class Api(BaseApi):
@@ -62,12 +63,27 @@ class Api(BaseApi):
         model_fields = {}
         for field_name, field in schema.fields.items():
             field_type = type(field)
-            restx_field = type_mapping.get(field_type)
-            if restx_field:
-                model_fields[field_name] = restx_field(
+            if isinstance(field, EnumField):
+                model_fields[field_name] = fields.String(
                     required=field.required,
                     description=field.metadata.get("description", ""),
+                    enum=[member.value for member in field.enum],
                 )
+            elif isinstance(field, ma_fields.Nested):
+                nested_model_name = f"{name}_{field_name}"
+                nested_model = cls.convert_ma_schema_to_restx_model(
+                    api, field.schema, nested_model_name
+                )
+                model_fields[field_name] = fields.Nested(
+                    nested_model, required=field.required
+                )
+            else:
+                restx_field = type_mapping.get(field_type)
+                if restx_field:
+                    model_fields[field_name] = restx_field(
+                        required=field.required,
+                        description=field.metadata.get("description", ""),
+                    )
             # Add more field types as needed
 
         return api.model(name, model_fields)

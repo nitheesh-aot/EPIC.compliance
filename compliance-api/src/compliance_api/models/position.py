@@ -11,6 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Exposes all of the schemas in the compliance_api."""
-from .common import KeyValueSchema
-from .staff_user import StaffUserCreateSchema, StaffUserSchema
+"""Position Model."""
+from sqlalchemy import Column
+
+from .base_model import BaseModel
+from .db import db
+
+
+class Position(BaseModel):
+    """Definition of Position Entity."""
+
+    __tablename__ = "positions"
+    id = Column(db.Integer, primary_key=True, autoincrement=True)
+    name = Column(db.String(100), nullable=True)
+    description = Column(db.String(500), nullable=True)

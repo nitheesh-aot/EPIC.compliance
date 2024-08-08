@@ -14,4 +14,4 @@
 
 """The Test-Suite used to ensure that the Model objects are working correctly."""
 
-from ....src.compliance_api.models.user import StaffUser
+from ....src.compliance_api.models.staff_user import StaffUser

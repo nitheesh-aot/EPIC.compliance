@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""API endpoints for managing an user resource."""
+"""API endpoints for managing staff user resource."""
 
 from http import HTTPStatus
 
@@ -19,28 +19,29 @@ from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
-from compliance_api.schemas import UserRequestSchema, UserSchema
-from compliance_api.services import UserService
+from compliance_api.schemas import KeyValueSchema, StaffUserCreateSchema, StaffUserSchema
+from compliance_api.services import StaffUserService
 from compliance_api.utils.util import cors_preflight
 
 from .apihelper import Api as ApiHelper
 
 
-API = Namespace("users", description="Endpoints for User Management")
-"""Custom exception messages
-"""
+API = Namespace("staff-users", description="Endpoints for Staff User Management")
 
 user_request_model = ApiHelper.convert_ma_schema_to_restx_model(
-    API, UserRequestSchema(), "User"
+    API, StaffUserCreateSchema(), "StaffUser"
 )
 user_list_model = ApiHelper.convert_ma_schema_to_restx_model(
-    API, UserSchema(), "UserListItem"
+    API, StaffUserSchema(), "StaffUserList"
+)
+key_value_list_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, KeyValueSchema(), "List"
 )
 
 
 @cors_preflight("GET, OPTIONS, POST")
 @API.route("", methods=["POST", "GET", "OPTIONS"])
-class Users(Resource):
+class StaffUsers(Resource):
     """Resource for managing users."""
 
     @staticmethod
@@ -49,8 +50,8 @@ class Users(Resource):
     @auth.require
     def get():
         """Fetch all users."""
-        users = UserService.get_all_users()
-        user_list_schema = UserSchema(many=True)
+        users = StaffUserService.get_all_users()
+        user_list_schema = StaffUserSchema(many=True)
         return user_list_schema.dump(users), HTTPStatus.OK
 
     @staticmethod
@@ -61,15 +62,15 @@ class Users(Resource):
     @API.response(400, "Bad Request")
     def post():
         """Create a user."""
-        user_data = UserRequestSchema().load(API.payload)
-        created_user = UserService.create_user(user_data)
-        return UserSchema().dump(created_user), HTTPStatus.CREATED
+        user_data = StaffUserCreateSchema().load(API.payload)
+        created_user = StaffUserService.create_user(user_data)
+        return StaffUserSchema().dump(created_user), HTTPStatus.CREATED
 
 
 @cors_preflight("GET, OPTIONS, PATCH, DELETE")
-@API.route("/<user_id>", methods=["PATCH", "GET", "OPTIONS", "DELETE"])
+@API.route("/<int:user_id>", methods=["PATCH", "GET", "OPTIONS", "DELETE"])
 @API.doc(params={"user_id": "The user identifier"})
-class User(Resource):
+class StaffUser(Resource):
     """Resource for managing a single user."""
 
     @staticmethod
@@ -79,10 +80,10 @@ class User(Resource):
     @API.response(404, "Not Found")
     def get(user_id):
         """Fetch a user by id."""
-        user = UserService.get_user_by_id(user_id)
+        user = StaffUserService.get_user_by_id(user_id)
         if not user:
             raise ResourceNotFoundError(f"User with {user_id} not found")
-        return UserSchema().dump(user), HTTPStatus.OK
+        return StaffUserSchema().dump(user), HTTPStatus.OK
 
     @staticmethod
     @auth.require
@@ -93,11 +94,11 @@ class User(Resource):
     @API.response(404, "Not Found")
     def patch(user_id):
         """Update a user by id."""
-        user_data = UserRequestSchema().load(API.payload)
-        updated_user = UserService.update_user(user_id, user_data)
+        user_data = StaffUserCreateSchema().load(API.payload)
+        updated_user = StaffUserService.update_user(user_id, user_data)
         if not updated_user:
             raise ResourceNotFoundError(f"User with {user_id} not found")
-        return UserSchema().dump(updated_user), HTTPStatus.OK
+        return StaffUserSchema().dump(updated_user), HTTPStatus.OK
 
     @staticmethod
     @auth.require
@@ -106,7 +107,22 @@ class User(Resource):
     @API.response(404, "Not Found")
     def delete(user_id):
         """Delete a user by id."""
-        deleted_user = UserService.delete_user(user_id)
+        deleted_user = StaffUserService.delete_user(user_id)
         if not deleted_user:
             raise ResourceNotFoundError(f"User with {user_id} not found")
-        return UserSchema().dump(deleted_user), HTTPStatus.OK
+        return StaffUserSchema().dump(deleted_user), HTTPStatus.OK
+
+
+@cors_preflight("GET")
+@API.route("/permissions", methods=["GET"])
+class StaffUserPermissions(Resource):
+    """Resources to manage permission level of staff user."""
+
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get the permission levels")
+    @API.response(code=200, model=key_value_list_model, description="Success")
+    def get():
+        """Fetch the permission levels."""
+        permissions = StaffUserService.get_permission_levels()
+        return KeyValueSchema(many=True).dump(permissions), HTTPStatus.OK

@@ -8,10 +8,10 @@ services:
     environment:
       - POSTGRES_USER=compliance
       - POSTGRES_PASSWORD=compliance
-      - POSTGRES_DB=compliance
+      - POSTGRES_DB=compliance-db
       - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
-      - 54332:5432/tcp
+      - 44332:5432/tcp
     restart: unless-stopped
 
   compliance-api-db-test:
