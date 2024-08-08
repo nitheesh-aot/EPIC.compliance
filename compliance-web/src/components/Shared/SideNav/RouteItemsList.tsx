@@ -1,4 +1,4 @@
-import { Assessment, Settings, List } from "@mui/icons-material";
+import { FormatListBulletedRounded, AssessmentRounded, SettingsRounded } from "@mui/icons-material";
 
 export interface RouteMenuItem {
   routeName: string;
@@ -11,7 +11,7 @@ export default function RouteItemsList() {
   const routeMenuItems: RouteMenuItem[] = [
     {
       routeName: "C&E Database",
-      icon: <List />,
+      icon: <FormatListBulletedRounded />,
       subRoutes: [
         {
           routeName: "Case Files",
@@ -30,11 +30,11 @@ export default function RouteItemsList() {
     {
       routeName: "IR Board",
       path: "/ir-board",
-      icon: <Assessment sx={{ transform: "rotate(180deg)" }} />,
+      icon: <AssessmentRounded sx={{ transform: "rotate(180deg)" }} />,
     },
     {
       routeName: "Admin",
-      icon: <Settings />,
+      icon: <SettingsRounded />,
       subRoutes: [
         {
           routeName: "Staff",
