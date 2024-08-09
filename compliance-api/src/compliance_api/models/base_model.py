@@ -14,7 +14,7 @@
 """Super class to handle all operations related to base model."""
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, String
+from sqlalchemy import Boolean, Column, DateTime, String, asc
 
 from .db import db
 
@@ -34,9 +34,28 @@ class BaseModel(db.Model):
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
 
     @classmethod
-    def get_all(cls):
+    def get_all(cls, default_filters=True):
         """Fetch list of users by access type."""
-        return cls.query.all()
+        query = {}
+        if default_filters and hasattr(cls, "is_active"):
+            query["is_active"] = True
+        if hasattr(cls, "is_deleted"):
+            query["is_deleted"] = False
+        rows = cls.query.filter_by(**query).all()  # pylint: disable=no-member
+        return rows
+
+    @classmethod
+    def get_by_params(cls, params: dict, default_filters=True):
+        """Return based on the params."""
+        query = {}
+        for key, value in params.items():
+            query[key] = value
+        if default_filters and hasattr(cls, "is_active"):
+            query["is_active"] = True
+        if hasattr(cls, "is_deleted"):
+            query["is_deleted"] = False
+        rows = cls.query.filter_by(**query).order_by(asc("id")).all()
+        return rows
 
     @classmethod
     def find_by_id(cls, identifier: int):

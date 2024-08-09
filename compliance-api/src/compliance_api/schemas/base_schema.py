@@ -15,29 +15,40 @@
 
 from marshmallow import Schema, fields, post_dump
 
+from compliance_api.models.db import ma
+
 
 class BaseSchema(Schema):  # pylint: disable=too-many-ancestors, too-few-public-methods
     """Base Schema."""
 
     def __init__(self, *args, **kwargs):
         """Excludes versions. Otherwise database will query <name>_versions table."""
-        if hasattr(self.opts.model, 'versions') and (len(self.opts.fields) == 0):
-            self.opts.exclude += ('versions',)
+        meta = getattr(self, "Meta", None)
+        if (
+            meta and hasattr(meta, "model") and hasattr(meta["model"], "versions") and not self.fields
+        ):
+            self.exclude = getattr(self.Meta, "exclude", ()) + ("versions",)
         super().__init__(*args, **kwargs)
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Meta class to declare any class attributes."""
 
-        datetimeformat = '%Y-%m-%dT%H:%M:%S+00:00'  # Default output date format.
+        datetimeformat = "%Y-%m-%dT%H:%M:%S+00:00"  # Default output date format.
 
     created_by = fields.Function(
-        lambda obj: f'{obj.created_by.firstname} {obj.created_by.lastname}' if getattr(obj, 'created_by',
-                                                                                       None) else None
+        lambda obj: (
+            f"{obj.created_by.firstname} {obj.created_by.lastname}"
+            if getattr(obj, "created_by", None)
+            else None
+        )
     )
 
     updated_by = fields.Function(
-        lambda obj: f'{obj.updated_by.firstname} {obj.updated_by.lastname}' if getattr(obj, 'updated_by',
-                                                                                       None) else None
+        lambda obj: (
+            f"{obj.updated_by.firstname} {obj.updated_by.lastname}"
+            if getattr(obj, "updated_by", None)
+            else None
+        )
     )
 
     @post_dump(pass_many=True)
@@ -45,16 +56,40 @@ class BaseSchema(Schema):  # pylint: disable=too-many-ancestors, too-few-public-
         """Remove all empty values and versions from the dumped dict."""
         if not many:
             for key in list(data):
-                if key == 'versions':
+                if key == "versions":
                     data.pop(key)
 
-            return {
-                key: value for key, value in data.items()
-                if value is not None
-            }
+            return {key: value for key, value in data.items() if value is not None}
         for item in data:
             for key in list(item):
-                if (key == 'versions') or (item[key] is None):
+                if (key == "versions") or (item[key] is None):
                     item.pop(key)
 
         return data
+
+
+class AutoSchemaBase(ma.SQLAlchemyAutoSchema):  # pylint: disable=too-many-ancestors
+    """Representation of a base SQL alchemy auto schema with basic functions."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Meta information applicable to all schemas."""
+
+        model = None
+        exclude = (
+            "created_date",
+            "created_by",
+            "updated_date",
+            "updated_by",
+            "is_deleted",
+        )
+        # abstract=True
+
+    def on_bind_field(self, field_name, field_obj):
+        """on_bind_field method."""
+        # Get the SQLAlchemy column associated with this field
+        column = self.Meta.model.__table__.columns.get(field_name)
+        if column is not None and column.comment:
+            # Set the description meta attribute to the column's comment
+            field_obj.metadata["description"] = column.comment
+
+        super().on_bind_field(field_name, field_obj)
