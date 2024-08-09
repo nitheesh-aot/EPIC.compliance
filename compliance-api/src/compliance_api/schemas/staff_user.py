@@ -15,54 +15,28 @@
 from marshmallow import EXCLUDE, Schema, fields
 from marshmallow_enum import EnumField
 
-from compliance_api.models.staff_user import PERMISSION_MAP, PermissionEnum, StaffUser
+from compliance_api.models.staff_user import PermissionEnum, StaffUser
 
+from .base_schema import AutoSchemaBase
 from .common import KeyValueSchema
 
 
-class StaffUserSchema(Schema):
+class StaffUserSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     """Staff User schema."""
 
-    class Meta:  # pylint: disable=too-few-public-methods
+    class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
 
         unknown = EXCLUDE
         model = StaffUser
         include_fk = True
 
-    id = fields.Int(
-        metadata={"description": "The unique identifier of the staff user."}
-    )
-    first_name = fields.Str(
-        metadata={"description": "The firstname of the staff user."}
-    )
-    last_name = fields.Str(metadata={"description": "The lastname of the staff user."})
-    position_id = fields.Int(
-        metadata={
-            "description": "The unique identifier of the position of the staff user."
-        }
-    )
-    position = fields.Nested(
-        KeyValueSchema, dump_only=True
-    )
-    deputy_director_id = fields.Int(
-        metadata={"description": "The unique identifier of the deputy director."}
-    )
-    supervisor_id = fields.Int(
-        metadata={"description": "The unique identifier of the supervisor."}
-    )
-    auth_user_id = fields.Str(
-        metadata={"description": "The unique identifier from the identity provider."}
-    )
-    full_name = fields.Str(
-        metadata={"description": "Fullname of the staff user"}
-    )
-    # permission = fields.Method("get_user_permission", required=True)
+    position = fields.Nested(KeyValueSchema, dump_only=True)
+    full_name = fields.Method("get_full_name")
 
-    def get_user_permission(self, staff_user: StaffUser):  # pylint: disable=no-self-use
-        """Extract the permission value from the enum."""
-        permission_value = PERMISSION_MAP[staff_user.permission]
-        return permission_value
+    def get_full_name(self, obj):  # pylint: disable=no-self-use
+        """Derive fullname."""
+        return f"{obj.first_name} {obj.last_name}"
 
 
 class StaffUserCreateSchema(Schema):
