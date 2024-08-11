@@ -9,6 +9,7 @@ from sqlalchemy import Column, Integer, String
 
 from .base_model import BaseModel
 
+
 class Agency(BaseModel):
     """Definition of the Agency entity."""
 

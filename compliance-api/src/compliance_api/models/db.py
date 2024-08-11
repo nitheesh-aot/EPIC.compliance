@@ -35,7 +35,7 @@ def session_scope():
         raise
 
 
-@event.listens_for(db.session, "before_commit")
+@event.listens_for(db.session, "before_flush")
 def before_commit(session, *args):  # pylint: disable=unused-argument
     """Listen to the  and updates the created_by/updated_by fields."""
     new_objects = session.new

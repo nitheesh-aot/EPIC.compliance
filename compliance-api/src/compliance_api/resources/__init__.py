@@ -23,6 +23,7 @@ That are used to expose operational health information about the service, and me
 
 from flask import Blueprint
 
+from .agency import API as AGENCY_API
 from .apihelper import Api
 from .ops import API as OPS_API
 from .position import API as POSITION_API
@@ -63,3 +64,4 @@ API = Api(
 
 API.add_namespace(USER_API)
 API.add_namespace(POSITION_API)
+API.add_namespace(AGENCY_API)

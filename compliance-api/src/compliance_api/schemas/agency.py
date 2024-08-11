@@ -12,86 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Agency Schema."""
-from marshmallow import EXCLUDE, Schema, fields
-from marshmallow_enum import EnumField
+from marshmallow import EXCLUDE, Schema, fields, pre_load
 
 from compliance_api.models.agency import Agency
 
-from .common import KeyValueSchema
+from .base_schema import AutoSchemaBase
 
 
-class AgencySchema(Schema):
+class AgencySchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     """Agency schema."""
 
-    class Meta:  # pylint: disable=too-few-public-methods
+    class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
 
         unknown = EXCLUDE
         model = Agency
         include_fk = True
 
-    id = fields.Int(
-        metadata={"description": "The unique identifier of the staff user."}
-    )
-    first_name = fields.Str(
-        metadata={"description": "The firstname of the staff user."}
-    )
-    last_name = fields.Str(metadata={"description": "The lastname of the staff user."})
-    position_id = fields.Int(
-        metadata={
-            "description": "The unique identifier of the position of the staff user."
-        }
-    )
-    position = fields.Nested(
-        KeyValueSchema, dump_only=True
-    )
-    deputy_director_id = fields.Int(
-        metadata={"description": "The unique identifier of the deputy director."}
-    )
-    supervisor_id = fields.Int(
-        metadata={"description": "The unique identifier of the supervisor."}
-    )
-    auth_user_id = fields.Str(
-        metadata={"description": "The unique identifier from the identity provider."}
-    )
-    full_name = fields.Str(
-        metadata={"description": "Fullname of the staff user"}
-    )
-    # permission = fields.Method("get_user_permission", required=True)
 
-    def get_user_permission(self, staff_user: StaffUser):  # pylint: disable=no-self-use
-        """Extract the permission value from the enum."""
-        permission_value = PERMISSION_MAP[staff_user.permission]
-        return permission_value
+class AgencyCreateSchema(Schema):  # pylint: disable=too-many-ancestors
+    """Agency create Schema."""
 
+    name = fields.Str(metadata={"description": "The name of the agency"})
+    abbreviation = fields.Str(metadata={"description": "The "})
 
-class StaffUserCreateSchema(Schema):
-    """User Request Schema."""
-
-    class Meta:  # pylint: disable=too-few-public-methods
-        """Exclude unknown fields in the deserialized output."""
-
-        unknown = EXCLUDE
-
-    position_id = fields.Int(
-        metadata={
-            "description": "The unique identifier of the position of the staff user."
-        },
-        required=True,
-    )
-    deputy_director_id = fields.Int(
-        metadata={"description": "The unique identifier of the deputy director."}
-    )
-    supervisor_id = fields.Int(
-        metadata={"description": "The unique identifier of the supervisor."}
-    )
-    auth_user_id = fields.Str(
-        metadata={"description": "The unique identifier from the identity provider."},
-        required=True,
-    )
-    permission = EnumField(
-        PermissionEnum,
-        metadata={"description": "The permission level of the staff user."},
-        by_value=True,
-        required=True,
-    )
+    @pre_load
+    def uppercase_abbreviation(self, data, **kwargs):  # pylint: disable=no-self-use, unused-argument
+        """Convert the abbreviation to uppercase before loading."""
+        if "abbreviation" in data and data["abbreviation"]:
+            data["abbreviation"] = data["abbreviation"].upper()
+        return data
