@@ -1,10 +1,13 @@
 """Service for user management."""
 
 from compliance_api.exceptions import UnprocessableEntityError
+from compliance_api.models import db
+from compliance_api.models.db import session_scope
 from compliance_api.models.staff_user import PERMISSION_MAP, PermissionEnum
 from compliance_api.models.staff_user import StaffUser as UserModel
+from compliance_api.utils.constant import AUTH_APP
 
-from .auth_service import AuthService
+from .authorize_service.auth_service import AuthService
 
 
 class StaffUserService:
@@ -23,7 +26,7 @@ class StaffUserService:
         return users
 
     @classmethod
-    def create_user(cls, user_data):
+    def create_user(cls, user_data: dict):
         """Create user."""
         auth_user_id = user_data.get("auth_user_id", None)
         auth_user = AuthService.get_epic_user_by_id(auth_user_id)
@@ -31,9 +34,14 @@ class StaffUserService:
             raise UnprocessableEntityError(
                 f"No user found from EPIC.Authorize corresponding to the given {auth_user_id}"
             )
-        user_data["first_name"] = auth_user.get("first_name", None)
-        user_data["last_name"] = auth_user.get("last_name", None)
-        created_user = UserModel.create_user(user_data)
+        user_obj = _create_staff_user_object(user_data, auth_user)
+        group_payload = {
+            "app_name": AUTH_APP,
+            "group_name": user_data.get("permission", None),
+        }
+        with session_scope() as session:
+            created_user = UserModel.create_user(user_obj, session)
+            AuthService.update_user_group(auth_user_id, group_payload)
         return created_user
 
     @classmethod
@@ -45,20 +53,28 @@ class StaffUserService:
             raise UnprocessableEntityError(
                 f"No user found from EPIC.Authorize corresponding to the given {auth_user_id}"
             )
-        user_data["first_name"] = auth_user.get("first_name", None)
-        user_data["last_name"] = auth_user.get("last_name", None)
-        updated_user = UserModel.update_user(user_id, user_data)
+        user_obj = _create_staff_user_object(user_data, auth_user)
+        group_payload = {
+            "auth_user_id": auth_user_id,
+            "app": AUTH_APP,
+            "group": user_data.get("permission", None),
+        }
+        with session_scope() as session:
+            updated_user = UserModel.update_user(user_id, user_obj, session)
+            AuthService.update_user_group(auth_user_id, group_payload)
         return updated_user
 
     @classmethod
-    def delete_user(cls, user_id):
+    def delete_user(cls, user_id, commit=True):
         """Update user."""
         user = UserModel.find_by_id(user_id)
         if not user:
             return None
 
         user.is_deleted = True
-        user.save()
+        user.flush()
+        if commit:
+            db.session.commit()
         return user
 
     @classmethod
@@ -67,3 +83,15 @@ class StaffUserService:
         return [
             {"id": perm.name, "name": PERMISSION_MAP[perm]} for perm in PermissionEnum
         ]
+
+
+def _create_staff_user_object(user_data: dict, auth_user: dict):
+    """Create a staff user object."""
+    return {
+        "first_name": auth_user.get("first_name", None),
+        "last_name": auth_user.get("last_name", None),
+        "position_id": user_data.get("position_id", None),
+        "deputy_director_id": user_data.get("deputy_director_id"),
+        "supervisor_id": user_data.get("supervisor_id", None),
+        "auth_user_id": user_data.get("auth_user_id", None),
+    }
