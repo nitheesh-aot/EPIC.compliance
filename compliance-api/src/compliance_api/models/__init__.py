@@ -14,6 +14,7 @@
 
 """This exports all of the models and schemas used by the application."""
 
+from .agency import Agency
 from .db import db, ma, migrate
 from .position import Position
 from .staff_user import PERMISSION_MAP, PermissionEnum, StaffUser

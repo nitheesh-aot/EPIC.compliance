@@ -1,6 +1,7 @@
 """Service for user management."""
 
 from compliance_api.exceptions import UnprocessableEntityError
+from compliance_api.models import db
 from compliance_api.models.db import session_scope
 from compliance_api.models.staff_user import PERMISSION_MAP, PermissionEnum
 from compliance_api.models.staff_user import StaffUser as UserModel
@@ -35,9 +36,8 @@ class StaffUserService:
             )
         user_obj = _create_staff_user_object(user_data, auth_user)
         group_payload = {
-            "auth_user_id": auth_user_id,
-            "app": AUTH_APP,
-            "group": user_data.get("permission", None),
+            "app_name": AUTH_APP,
+            "group_name": user_data.get("permission", None),
         }
         with session_scope() as session:
             created_user = UserModel.create_user(user_obj, session)
@@ -65,14 +65,16 @@ class StaffUserService:
         return updated_user
 
     @classmethod
-    def delete_user(cls, user_id):
+    def delete_user(cls, user_id, commit=True):
         """Update user."""
         user = UserModel.find_by_id(user_id)
         if not user:
             return None
 
         user.is_deleted = True
-        user.save()
+        user.flush()
+        if commit:
+            db.session.commit()
         return user
 
     @classmethod

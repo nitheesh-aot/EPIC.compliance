@@ -40,7 +40,7 @@ class StaffUserSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
 
 
 class StaffUserCreateSchema(Schema):
-    """User Request Schema."""
+    """User create Schema."""
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
