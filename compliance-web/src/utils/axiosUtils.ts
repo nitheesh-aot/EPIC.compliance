@@ -1,42 +1,42 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AppConfig, OidcConfig } from '@/utils/config'
-import axios, { AxiosError } from 'axios'
-import { User } from "oidc-client-ts"
+import { AppConfig, OidcConfig } from "@/utils/config";
+import axios, { AxiosError } from "axios";
+import { User } from "oidc-client-ts";
 
 export type OnErrorType = (error: AxiosError) => void;
 export type OnSuccessType = (data: any) => void;
 
 const client = axios.create({ baseURL: AppConfig.apiUrl });
 
-
 function getUser() {
-  const oidcStorage = sessionStorage.getItem(`oidc.user:${OidcConfig.authority}:${OidcConfig.client_id}`)
+  const oidcStorage = sessionStorage.getItem(
+    `oidc.user:${OidcConfig.authority}:${OidcConfig.client_id}`
+  );
   if (!oidcStorage) {
-      return null;
+    return null;
   }
 
   return User.fromStorageString(oidcStorage);
 }
 
 export const request = ({ ...options }) => {
-  
   const user = getUser();
-  
-  if(user?.access_token) {
-    client.defaults.headers.common.Authorization = `Bearer ${user?.access_token}`
+
+  if (user?.access_token) {
+    client.defaults.headers.common.Authorization = `Bearer ${user?.access_token}`;
   } else {
-    throw new Error('No access token!')
+    throw new Error("No access token!");
   }
-  
-  const onSuccess = (response: any) => response
+
+  const onSuccess = (response: any) => response?.data ?? response.data;
   const onError = (error: AxiosError) => {
     // optionaly catch errors and add additional logging here
     if (!error.response) {
       // CORS error or network error
-      throw new Error('Network error or CORS issue');
+      throw new Error("Network error or CORS issue");
     }
-    throw error
-  }
+    throw error;
+  };
 
-  return client(options).then(onSuccess).catch(onError)
-}
+  return client(options).then(onSuccess).catch(onError);
+};
