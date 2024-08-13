@@ -58,7 +58,7 @@ class StaffUsers(Resource):
     @auth.require
     @ApiHelper.swagger_decorators(API, endpoint_description="Create a user")
     @API.expect(user_request_model)
-    @API.response(code=201, model=user_request_model, description="UserCreated")
+    @API.response(code=201, model=user_list_model, description="UserCreated")
     @API.response(400, "Bad Request")
     def post():
         """Create a user."""

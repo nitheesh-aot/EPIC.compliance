@@ -8,7 +8,7 @@ from __future__ import annotations
 import enum
 from typing import Optional
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModel
@@ -63,10 +63,22 @@ class StaffUser(BaseModel):
     auth_user_guid = Column(
         String(100),
         index=True,
-        unique=True,
         comment="The unique identifier from the identity provider.",
     )
     position = relationship("Position", foreign_keys=[position_id], lazy="select")
+    deputy_director = relationship(
+        "StaffUser", foreign_keys=[deputy_director_id], lazy="select"
+    )
+    supervisor = relationship("StaffUser", foreign_keys=[supervisor_id], lazy="select")
+    is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
+    __table_args__ = (
+        Index(
+            "uq_auth_user_guid_is_deleted_false",
+            "auth_user_guid",
+            unique=True,
+            postgresql_where=(is_deleted is False),
+        ),
+    )
 
     @classmethod
     def create_user(cls, user_data, session=None) -> StaffUser:
@@ -84,7 +96,7 @@ class StaffUser(BaseModel):
         """Update user."""
         query = StaffUser.query.filter_by(id=user_id)
         user: StaffUser = query.first()
-        if not user:
+        if not user or user.is_deleted:
             return None
         query.update(user_dict)
         if session:
@@ -92,3 +104,11 @@ class StaffUser(BaseModel):
         else:
             cls.session.commit()
         return user
+
+    @classmethod
+    def get_staff_user_by_auth_guid(cls, auth_guid: str) -> StaffUser:
+        """Retrieve the staff user by auth_guid."""
+        staff_user = StaffUser.query.filter_by(
+            auth_user_guid=auth_guid, is_deleted=False
+        ).first()
+        return staff_user

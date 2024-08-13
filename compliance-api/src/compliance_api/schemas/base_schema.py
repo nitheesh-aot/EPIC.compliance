@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Super class to handle all operations related to base schema."""
-
+from flask import json
 from marshmallow import Schema, fields, post_dump
 
+from compliance_api.exceptions import BadRequestError
 from compliance_api.models.db import ma
 
 
@@ -29,6 +30,10 @@ class BaseSchema(Schema):  # pylint: disable=too-many-ancestors, too-few-public-
         ):
             self.exclude = getattr(self.Meta, "exclude", ()) + ("versions",)
         super().__init__(*args, **kwargs)
+
+    def handle_error(self, error, data, **kwargs):
+        """Log and raise our custom exception when validation fails."""
+        raise BadRequestError(json.dumps(error.messages))
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Meta class to declare any class attributes."""

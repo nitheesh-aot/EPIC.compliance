@@ -12,12 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Schema for user representation from epic.authorize."""
-from marshmallow import Schema, fields
+from marshmallow import EXCLUDE, Schema, fields
 
 
 class AuthUserSchema(Schema):
     """Schema for the auth user."""
 
-    first_name = fields.Str(metadata={"description": "The first name of the user"}, required=True)
-    last_name = fields.Str(metadata={"description": "The lastname of the user"}, required=True)
-    id = fields.Str(metadata={"description": "The unique id of the user"}, required=True)
+    class Meta:
+        """Meta for AuthUserSchema."""
+
+        unknown = EXCLUDE
+
+    first_name = fields.Str(
+        metadata={"description": "The first name of the user"}, required=True
+    )
+    last_name = fields.Str(
+        metadata={"description": "The lastname of the user"}, required=True
+    )
+    id = fields.Str(
+        data_key="username",
+        metadata={"description": "The unique id of the user"},
+        required=True,
+    )
