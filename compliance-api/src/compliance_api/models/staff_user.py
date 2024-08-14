@@ -67,9 +67,9 @@ class StaffUser(BaseModel):
     )
     position = relationship("Position", foreign_keys=[position_id], lazy="select")
     deputy_director = relationship(
-        "StaffUser", foreign_keys=[deputy_director_id], lazy="select"
+        "StaffUser", foreign_keys=[deputy_director_id], uselist=False, lazy="select"
     )
-    supervisor = relationship("StaffUser", foreign_keys=[supervisor_id], lazy="select")
+    supervisor = relationship("StaffUser", foreign_keys=[supervisor_id], uselist=False, lazy="select")
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
     __table_args__ = (
         Index(
