@@ -4,9 +4,9 @@ import requests
 from flask import current_app, g
 
 from compliance_api.exceptions import BusinessError
+from compliance_api.utils.constant import AUTH_APP
 from compliance_api.utils.enum import HttpMethod
 
-from .auth_user_schema import AuthUserSchema
 from .constant import API_REQUEST_TIMEOUT
 
 
@@ -21,7 +21,15 @@ class AuthService:
             raise BusinessError(
                 f"Error finding user with ID {auth_user_guid} from auth server"
             )
-        return AuthUserSchema().load(auth_user_response.json())
+        return auth_user_response.json()
+
+    @staticmethod
+    def get_epic_users_by_app():
+        """Return the users belong to COMPLIANCE app in identity server."""
+        auth_users_response = _request_auth_service(f"users?app_name={AUTH_APP}")
+        if auth_users_response.status_code != 200:
+            raise BusinessError(f"Error fetching users for the app {AUTH_APP}")
+        return auth_users_response.json()
 
     @staticmethod
     def update_user_group(auth_user_guid: str, payload: dict):
@@ -47,6 +55,7 @@ def _request_auth_service(
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {token}",
+        "App-Id": AUTH_APP,
     }
 
     url = f"{auth_base_url}/api/{relative_url}"

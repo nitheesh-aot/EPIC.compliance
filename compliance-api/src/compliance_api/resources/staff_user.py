@@ -50,7 +50,7 @@ class StaffUsers(Resource):
     @auth.require
     def get():
         """Fetch all users."""
-        users = StaffUserService.get_all_users()
+        users = StaffUserService.get_all_staff_users()
         user_list_schema = StaffUserSchema(many=True)
         return user_list_schema.dump(users), HTTPStatus.OK
 
@@ -64,6 +64,7 @@ class StaffUsers(Resource):
         """Create a user."""
         user_data = StaffUserCreateSchema().load(API.payload)
         created_user = StaffUserService.create_user(user_data)
+        setattr(created_user, "permission", user_data.get("permission", None))
         return StaffUserSchema().dump(created_user), HTTPStatus.CREATED
 
 

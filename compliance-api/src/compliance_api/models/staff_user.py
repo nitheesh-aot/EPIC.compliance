@@ -8,8 +8,8 @@ from __future__ import annotations
 import enum
 from typing import Optional
 
-from sqlalchemy import Boolean, Column, ForeignKey, Index, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import Boolean, Column, ForeignKey, Index, Integer, String, and_
+from sqlalchemy.orm import aliased, relationship
 
 from .base_model import BaseModel
 
@@ -65,11 +65,7 @@ class StaffUser(BaseModel):
         index=True,
         comment="The unique identifier from the identity provider.",
     )
-    position = relationship("Position", foreign_keys=[position_id], lazy="select")
-    deputy_director = relationship(
-        "StaffUser", foreign_keys=[deputy_director_id], lazy="select"
-    )
-    supervisor = relationship("StaffUser", foreign_keys=[supervisor_id], lazy="select")
+    position = relationship("Position", foreign_keys=[position_id], lazy="joined")
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
     __table_args__ = (
         Index(
@@ -112,3 +108,23 @@ class StaffUser(BaseModel):
             auth_user_guid=auth_guid, is_deleted=False
         ).first()
         return staff_user
+
+    @classmethod
+    def get_all(cls, default_filters=True):
+        """Return all the non-deleted staff users."""
+        query = {}
+        if default_filters and hasattr(cls, "is_active"):
+            query["is_active"] = True
+        if hasattr(cls, "is_deleted"):
+            query["is_deleted"] = False
+        supervisors = aliased(StaffUser)
+        deputy_directors = aliased(StaffUser)
+        return (
+            cls.query.outerjoin(supervisors, supervisors.id == StaffUser.supervisor_id)
+            .outerjoin(
+                deputy_directors, deputy_directors.id == StaffUser.deputy_director_id
+            )
+            .add_columns(supervisors, deputy_directors)
+            .filter(and_(cls.is_active.is_(True), cls.is_deleted.is_(False)))
+            .all()
+        )
