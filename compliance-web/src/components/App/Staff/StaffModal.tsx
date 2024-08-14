@@ -4,7 +4,7 @@ import {
   useDeputyDirectorsData,
   usePermissionsData,
   usePositionsData,
-  useStaffUsersData,
+  useUsersData,
   useSupervisorsData,
 } from "@/hooks/useStaff";
 import { Permission } from "@/models/Permission";
@@ -40,7 +40,7 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
     useState<Omit<StaffFormData, "id">>(initFormData);
   const { setClose } = useModal();
 
-  const { data: staffUsersList } = useStaffUsersData();
+  const { data: usersList } = useUsersData();
   const { data: positionsList } = usePositionsData();
   const { data: permissionsList } = usePermissionsData();
   const { data: deputyDirectorsList } = useDeputyDirectorsData();
@@ -49,7 +49,7 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
   useEffect(() => {
     if (staff) {
       setFormData({
-        name: staffUsersList?.find((item) => item.id === staff.name) || null,
+        name: usersList?.find((item) => item.id === staff.name) || null,
         position:
           positionsList?.find((item) => item.id === staff.position) || null,
         permission:
@@ -69,7 +69,7 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
     permissionsList,
     positionsList,
     staff,
-    staffUsersList,
+    usersList,
     supervisorsList,
   ]);
 
@@ -112,7 +112,7 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
           formData={formData}
           existingStaff={staff}
           handleAutocompleteChange={handleAutocompleteChange}
-          staffUsersList={staffUsersList}
+          staffUsersList={usersList}
           positionsList={positionsList}
           permissionsList={permissionsList}
           deputyDirectorsList={deputyDirectorsList}

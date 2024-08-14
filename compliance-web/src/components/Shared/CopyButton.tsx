@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { IconButton } from "@mui/material";
 import { FileCopy, FileCopyOutlined } from "@mui/icons-material";
-import { BCPalette } from "epic.theme";
+import { BCDesignTokens } from "epic.theme";
 
-const iconStyles = { color: BCPalette.theme.primaryBlue[90], fontSize: "1rem" };
+const iconStyles = { color: BCDesignTokens.themeBlue90, fontSize: "1rem" };
 
 const CopyButton = ({ ...props }) => {
   const copyHandler = (text: string) => {

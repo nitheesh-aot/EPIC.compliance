@@ -1,6 +1,6 @@
 import { DesignServices } from "@mui/icons-material";
 import { Box, Typography } from "@mui/material";
-import { BCPalette } from "epic.theme";
+import { BCDesignTokens } from "epic.theme";
 
 export default function ComingSoon() {
   return (
@@ -17,13 +17,13 @@ export default function ComingSoon() {
       <Box
         sx={{
           padding: "1rem",
-          background: BCPalette.components.background.lightGray,
+          background: BCDesignTokens.surfaceColorBackgroundLightGray,
           marginBottom: "2.5rem",
         }}
       >
         <DesignServices
           fontSize="large"
-          sx={{ color: BCPalette.components.border.active }}
+          sx={{ color: BCDesignTokens.surfaceColorBorderActive }}
         />
       </Box>
       <Typography variant="h3" marginBottom={"0.5rem"}>
