@@ -26,22 +26,16 @@ class StaffUserService:
     @classmethod
     def get_all_staff_users(cls):
         """Get all users."""
-        result = []
         # Get users from compliance database
         users = StaffUser.get_all()
         # Get compliance users from epic system
         auth_users = AuthService.get_epic_users_by_app()
         # Merge the two sets of users to set the permission in the result
         index_auth_users = {user["username"]: user for user in auth_users}
-        for user, supervisor, deputy_director in users:
+        for user in users:
             auth_user = index_auth_users.get(user.auth_user_guid, None)
             user = _set_permission_level_in_compliance_user_obj(user, auth_user)
-            if supervisor:
-                setattr(user, "supervisor", supervisor)
-            if deputy_director:
-                setattr(user, "deputy_director", deputy_director)
-            result.append(user)
-        return result
+        return users
 
     @classmethod
     def create_user(cls, user_data: dict):
