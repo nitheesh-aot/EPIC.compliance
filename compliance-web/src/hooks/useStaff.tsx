@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { request } from "@/utils/axiosUtils";
 import { Position } from "@/models/Position";
 import { Permission } from "@/models/Permission";
+import { StaffUser } from "@/models/Staff";
 
 export interface MockUser {
   id: number;
@@ -15,7 +16,11 @@ const mockUsersList: MockUser[] = [
   { name: "Blake", id: 4 },
 ];
 
-const fetchStaffUsers = (): Promise<MockUser[]> => {
+const fetchStaffUsers = (): Promise<StaffUser[]> => {
+  return request({ url: "/staff-users" });
+};
+
+const fetchUsersList = (): Promise<MockUser[]> => {
   // return request({ url: "/staff-users" });
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -54,6 +59,13 @@ export const useStaffUsersData = () => {
   return useQuery({
     queryKey: ["staff-users"],
     queryFn: fetchStaffUsers,
+  });
+};
+
+export const useUsersData = () => {
+  return useQuery({
+    queryKey: ["users"],
+    queryFn: fetchUsersList,
   });
 };
 

@@ -1,5 +1,5 @@
 import { Menu, Box, Avatar, Typography } from "@mui/material";
-import { BCPalette } from "epic.theme";
+import { BCDesignTokens } from "epic.theme";
 import CopyButton from "@/components/Shared/CopyButton";
 import { theme } from "@/styles/theme";
 import { useAuth } from "react-oidc-context";
@@ -27,8 +27,8 @@ export default function UserProfileMenu({ ...props }) {
             display: "flex",
             gap: "0.5rem",
             padding: "1rem",
-            bgcolor: BCPalette.components.background.lightGray,
-            borderBottom: `1px solid ${BCPalette.components.border.light}`,
+            bgcolor: BCDesignTokens.surfaceColorBackgroundLightGray,
+            borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
             alignItems: "center",
           }}
         >
@@ -85,7 +85,7 @@ export default function UserProfileMenu({ ...props }) {
             alignItems: "center",
           }}
         >
-          <Typography variant="body2" color={BCPalette.theme.primaryBlue[90]}>
+          <Typography variant="body2" color={BCDesignTokens.themeBlue90}>
             {detail}
           </Typography>
           <CopyButton copyText={detail} />
