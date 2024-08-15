@@ -65,11 +65,9 @@ class StaffUser(BaseModel):
         index=True,
         comment="The unique identifier from the identity provider.",
     )
-    position = relationship("Position", foreign_keys=[position_id], lazy="select")
-    deputy_director = relationship(
-        "StaffUser", foreign_keys=[deputy_director_id], uselist=False, lazy="select"
-    )
-    supervisor = relationship("StaffUser", foreign_keys=[supervisor_id], uselist=False, lazy="select")
+    position = relationship("Position", foreign_keys=[position_id], lazy="joined")
+    deputy_director = relationship("StaffUser", remote_side=[id], foreign_keys=[deputy_director_id])
+    supervisor = relationship("StaffUser", remote_side=[id], foreign_keys=[supervisor_id])
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
     __table_args__ = (
         Index(
