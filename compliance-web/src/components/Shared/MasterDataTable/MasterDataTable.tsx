@@ -128,6 +128,9 @@ const MasterDataTable = <TData extends MRT_RowData>({
         },
       },
     },
+    muiTablePaperProps:{
+      sx: { boxShadow: 'none' },
+    },
     muiTableProps: {
       sx: {
         tableLayout: "fixed",
@@ -153,14 +156,10 @@ const MasterDataTable = <TData extends MRT_RowData>({
     muiFilterTextFieldProps: ({ column }) => ({
       placeholder: column.columnDef.header,
       variant: "outlined",
+      size: "small",
       sx: {
         backgroundColor: BCDesignTokens.surfaceColorBackgroundWhite,
-        "& .MuiInputBase-input::placeholder": {
-          color: BCDesignTokens.surfaceColorBackgroundLightGray,
-          fontSize: "0.875rem",
-          lineHeight: "1rem",
-          opacity: 1,
-        },
+        mb: 0,
         "& .MuiInputAdornment-root": {
           display: "none",
         },
@@ -172,6 +171,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
     muiTableContainerProps: () => ({
       sx: {
         maxHeight: "100%",
+        marginTop: "1rem",
       },
     }),
     muiTableBodyProps: {
@@ -207,13 +207,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
     renderEmptyRowsFallback: ({ table }) => <NoDataComponent table={table} />,
     renderTopToolbarCustomActions: ({ table }) => {
       return (
-        <Box
-          sx={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "right",
-          }}
-        >
+        <>
           {renderTopToolbarCustomActions &&
             renderTopToolbarCustomActions({ table })}
           {enableExport && (
@@ -232,7 +226,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
               </IconButton>
             </Tooltip>
           )}
-        </Box>
+        </>
       );
     }, // Provide an empty function as the initializer
     initialState: {
