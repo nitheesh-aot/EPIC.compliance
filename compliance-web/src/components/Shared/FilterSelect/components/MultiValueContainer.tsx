@@ -10,7 +10,6 @@ const MultiValue = (props: MultiValueProps) => {
         <Box
           sx={{
             display: "flex",
-            height: "2.25rem",
             alignItems: "center",
             alignSelf: "stretch",
             borderRadius: "4px",
@@ -42,7 +41,7 @@ const MultiValue = (props: MultiValueProps) => {
         <Typography
           variant="body2"
           align="left"
-          sx={{ color: BCDesignTokens.themeGray80 }}
+          sx={{ color: BCDesignTokens.typographyColorPlaceholder }}
         >
           {props.selectProps.placeholder}
         </Typography>

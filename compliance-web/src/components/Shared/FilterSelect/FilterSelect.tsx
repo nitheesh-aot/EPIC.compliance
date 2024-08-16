@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useRef, useState } from "react";
 import Select from "react-select";
 import Menu from "./components/Menu";
@@ -19,9 +20,7 @@ const FilterSelect = (props: SelectProps) => {
     defaultValue ?? standardDefault
   );
   const menuRef = useRef<HTMLDivElement | null>(null);
-  const [menuIsOpen, setMenuIsOpen] = useState<boolean>(
-    !!props.menuIsOpen
-  );
+  const [menuIsOpen, setMenuIsOpen] = useState<boolean>(!!props.menuIsOpen);
   const [menuStyle, setMenuStyle] = useState<any>({}); // eslint-disable-line
   const selectRef = useRef<any | null>(null);
 
@@ -212,8 +211,7 @@ const FilterSelect = (props: SelectProps) => {
             display: "flex",
             alignItems: "center",
             padding: ".5rem .75rem .5rem 0px",
-            fontWeight: "normal",
-            fontSize: "1rem",
+            fontSize: BCDesignTokens.typographyFontSizeBody,
             maxWidth: props.maxWidth ?? "100%",
             background: provided.isFocused
               ? BCDesignTokens.themeGray20
@@ -228,16 +226,18 @@ const FilterSelect = (props: SelectProps) => {
             background: props.hasValue
               ? BCDesignTokens.surfaceColorBackgroundLightBlue
               : BCDesignTokens.themeGrayWhite,
-            borderWidth: "2px",
+            height: "2.25rem",
+            minHeight: "2.25rem",
+            borderWidth: "1px",
             borderStyle: props.hasValue ? "none" : "solid",
             borderColor:
               props.isFocused || props.menuIsOpen
-                ? BCDesignTokens.themeBlue70
-                : BCDesignTokens.themeGray60,
+                ? BCDesignTokens.surfaceColorBorderActive
+                : BCDesignTokens.surfaceColorBorderDefault,
             boxShadow: "none",
             ...(props.selectProps.filterProps?.variant === "bar" && {
               borderColor: props.isFocused
-                ? BCDesignTokens.themeBlue70
+                ? BCDesignTokens.surfaceColorBorderActive
                 : "transparent",
             }),
           }),
@@ -245,14 +245,14 @@ const FilterSelect = (props: SelectProps) => {
             ...base,
             position: "relative",
             marginBlock: "0px",
-            border: `1px solid ${BCDesignTokens.themeGray60}`,
+            border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
             borderRadius: "4px",
             ...menuStyle,
           }),
           placeholder: (base, props) => ({
             ...base,
             fontWeight: BCDesignTokens.typographyFontWeightsRegular,
-            color: BCDesignTokens.surfaceColorBackgroundLightGray,
+            color: BCDesignTokens.typographyColorPlaceholder,
             fontSize: BCDesignTokens.typographyFontSizeSmallBody,
             lineHeight: "1rem",
             ...(props.selectProps.filterProps?.variant == "bar" && {

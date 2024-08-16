@@ -94,6 +94,7 @@ function Staff() {
               column={column}
               variant="inline"
               name="positionFilter"
+              placeholder="Filter Positions"
             />
           );
         },

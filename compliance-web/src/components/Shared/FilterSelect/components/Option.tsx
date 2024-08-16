@@ -39,12 +39,6 @@ const Option = ({
           <Checkbox
             name={`${rest.label}`}
             checked={isSelected}
-            // indeterminate={
-            //   data.value === "<SELECT_ALL>" &&
-            //   !isSelected &&
-            //   filterProps?.selectedOptions &&
-            //   filterProps?.selectedOptions?.length > 0
-            // }
           />
         )}
         {!isMulti && (
