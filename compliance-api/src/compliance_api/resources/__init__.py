@@ -25,6 +25,7 @@ from flask import Blueprint
 
 from .agency import API as AGENCY_API
 from .apihelper import Api
+from .case_file import API as CASE_FILE_API
 from .ops import API as OPS_API
 from .position import API as POSITION_API
 from .staff_user import API as USER_API
@@ -65,3 +66,4 @@ API = Api(
 API.add_namespace(USER_API)
 API.add_namespace(POSITION_API)
 API.add_namespace(AGENCY_API)
+API.add_namespace(CASE_FILE_API)

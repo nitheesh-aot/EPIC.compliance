@@ -13,5 +13,6 @@
 # limitations under the License.
 """Exposes all of the Services used in the compliance_api."""
 from .agency import AgencyService
+from .case_file import CaseFileService
 from .position import PositionService
 from .staff_user import StaffUserService
