@@ -15,7 +15,10 @@
 import enum
 
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer
+<<<<<<< HEAD
 from sqlalchemy.orm import relationship
+=======
+>>>>>>> 2e8a10415d00301886d1bc54bb41d100b9fd7b3f
 
 from .base_model import BaseModel
 
