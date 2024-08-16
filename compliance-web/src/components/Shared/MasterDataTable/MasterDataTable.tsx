@@ -45,7 +45,7 @@ const NoDataComponent = ({ ...props }) => {
             No results found
           </Typography>
           {table.options.data.length > 0 && (
-            <Typography color="#6D7274">
+            <Typography variant="h4">
               Adjust your parameters and try again
             </Typography>
           )}
@@ -81,6 +81,13 @@ const MasterDataTable = <TData extends MRT_RowData>({
   useEffect(() => {
     setOtherPropsData(otherProps);
   }, [columns, data, otherProps]);
+
+  const checkBoxStyle = {
+    width: "2.75rem !important",
+    height: "2rem",
+    padding: "8px !important",
+    borderRadius: "4px",
+  };
 
   const table = useMaterialReactTable({
     columns: columns,
@@ -120,21 +127,17 @@ const MasterDataTable = <TData extends MRT_RowData>({
         "& .MuiTextField-root": {
           minWidth: "0",
         },
-        "& .MuiCheckbox-root": {
-          width: "2.75rem !important",
-          height: "2rem",
-          padding: "8px !important",
-          borderRadius: "4px",
-        },
+        "& .MuiCheckbox-root": checkBoxStyle,
       },
     },
-    muiTablePaperProps:{
-      sx: { boxShadow: 'none' },
+    muiTopToolbarProps: {
+      sx: { padding: 0 },
+    },
+    muiTablePaperProps: {
+      sx: { boxShadow: "none" },
     },
     muiTableProps: {
-      sx: {
-        tableLayout: "fixed",
-      },
+      sx: { tableLayout: "fixed" },
     },
     muiTableBodyCellProps: () => ({
       disabled: true,
@@ -143,13 +146,10 @@ const MasterDataTable = <TData extends MRT_RowData>({
         paddingLeft: "1rem",
         height: "3rem",
         "& .MuiCheckbox-root": {
-          width: "2.75rem !important",
-          height: "2rem",
-          borderRadius: "4px",
-          padding: "8px !important",
+          ...checkBoxStyle,
           "&.Mui-disabled": {
             svg: {
-              fill: BCDesignTokens.surfaceColorBackgroundLightGray,
+              fill: BCDesignTokens.surfaceColorFormsDisabled,
             },
           },
         },

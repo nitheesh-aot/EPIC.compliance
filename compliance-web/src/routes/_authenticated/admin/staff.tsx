@@ -100,16 +100,42 @@ function Staff() {
         },
       },
       {
-        accessorKey: "supervisor.full_name",
+        accessorFn: (row) => row.supervisor?.full_name,
+        id: "supervisor.full_name",
         header: "Supervisor",
         filterVariant: "multi-select",
         filterSelectOptions: supervisorList,
+        Filter: ({ header, column }) => {
+          return (
+            <TableFilter
+              isMulti
+              header={header}
+              column={column}
+              variant="inline"
+              name="supervisorFilter"
+              placeholder="Filter Supervisors"
+            />
+          );
+        },
       },
       {
-        accessorKey: "deputy_director.full_name",
+        accessorFn: (row) => row.deputy_director?.full_name,
+        id: "deputy_director.full_name",
         header: "Deputy Director",
         filterVariant: "multi-select",
         filterSelectOptions: deputyList,
+        Filter: ({ header, column }) => {
+          return (
+            <TableFilter
+              isMulti
+              header={header}
+              column={column}
+              variant="inline"
+              name="deputyFilter"
+              placeholder="Filter Deputy Directors"
+            />
+          );
+        },
       },
       {
         accessorKey: "auth_user_guid",

@@ -255,6 +255,7 @@ const FilterSelect = (props: SelectProps) => {
             color: BCDesignTokens.typographyColorPlaceholder,
             fontSize: BCDesignTokens.typographyFontSizeSmallBody,
             lineHeight: "1rem",
+            paddingLeft: "0.25rem",
             ...(props.selectProps.filterProps?.variant == "bar" && {
               color: BCDesignTokens.themePrimaryBlue,
               fontWeight: BCDesignTokens.typographyFontWeightsBold,
@@ -269,6 +270,7 @@ const FilterSelect = (props: SelectProps) => {
             ...base,
             fontWeight: "400",
             fontSize: BCDesignTokens.typographyFontSizeSmallBody,
+            paddingLeft: "0.25rem",
           }),
         }}
         isClearable={false}
