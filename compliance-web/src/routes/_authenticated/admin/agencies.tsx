@@ -1,7 +1,10 @@
+import AgencyModal from '@/components/App/Agencies/AgencyModal';
 import MasterDataTable from '@/components/Shared/MasterDataTable/MasterDataTable';
 import { searchFilter } from '@/components/Shared/MasterDataTable/utils';
 import { useAgenciesData } from '@/hooks/useAgencies';
 import { Agency } from '@/models/Agency';
+import { useModal } from '@/store/modalStore';
+import { notify } from '@/store/snackbarStore';
 import { EditOutlined, DeleteOutlineRounded, AddRounded } from '@mui/icons-material';
 import { Box, IconButton, Typography, Button } from '@mui/material';
 import { createFileRoute } from '@tanstack/react-router'
@@ -14,6 +17,7 @@ export const Route = createFileRoute('/_authenticated/admin/agencies')({
 })
 
 function Agencies() {
+  const { setOpen } = useModal();
   const { data: agenciesList, isLoading } = useAgenciesData();
 
   const columns = useMemo<MRT_ColumnDef<Agency>[]>(
@@ -34,8 +38,17 @@ function Agencies() {
     []
   );
 
+  const handleOnSubmit = () => {
+    // if (selectedUser) {
+    //   notify.success("User updated successfully!");
+    // } else {
+    //   notify.success("User created successfully!");
+    // }
+    notify.success("Submit button click!");
+  };
+
   const handleOpenModal = () => {
-    //TODO: OPEN MODAL
+    setOpen(<AgencyModal onSubmit={handleOnSubmit} />);
   };
 
   const handleDelete = (id: number) => {
