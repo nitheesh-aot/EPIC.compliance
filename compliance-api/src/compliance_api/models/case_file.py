@@ -15,6 +15,7 @@
 import enum
 
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer
+from sqlalchemy.orm import relationship
 
 from .base_model import BaseModel
 
@@ -69,6 +70,9 @@ class CaseFile(BaseModel):
         nullable=False,
         comment="The unique case file number",
     )
+    lead_officer = relationship(
+        "StaffUser", foreign_keys=[lead_officer_id], lazy="joined"
+    )
 
 
 class CaseFileOfficer(BaseModel):
@@ -93,3 +97,6 @@ class CaseFileOfficer(BaseModel):
         nullable=False,
         comment="The unique identifier of the associated staff user",
     )
+
+    case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
+    officer = relationship("StaffUser", foreign_keys=[officer_id], lazy="joined")
