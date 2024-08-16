@@ -112,10 +112,10 @@ const MasterDataTable = <TData extends MRT_RowData>({
         backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
         padding: "1rem 0.5rem 0.5rem 1rem !important",
         "& .Mui-TableHeadCell-Content-Labels": {
-          fontSize: "1rem",
+          fontSize: BCDesignTokens.typographyFontSizeBody,
           fontWeight: BCDesignTokens.typographyFontWeightsBold,
           color: BCDesignTokens.themeGray90,
-          paddingBottom: "0.5rem",
+          paddingBottom: BCDesignTokens.layoutPaddingSmall,
         },
         "& .MuiTextField-root": {
           minWidth: "0",
@@ -139,7 +139,9 @@ const MasterDataTable = <TData extends MRT_RowData>({
     muiTableBodyCellProps: () => ({
       disabled: true,
       sx: {
-        padding: "0.5rem 0.5rem 0.5rem 1rem",
+        padding: "0",
+        paddingLeft: "1rem",
+        height: "3rem",
         "& .MuiCheckbox-root": {
           width: "2.75rem !important",
           height: "2rem",
