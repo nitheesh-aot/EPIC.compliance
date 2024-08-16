@@ -21,7 +21,7 @@ const FilterSelect = (props: SelectProps) => {
   );
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [menuIsOpen, setMenuIsOpen] = useState<boolean>(!!props.menuIsOpen);
-  const [menuStyle, setMenuStyle] = useState<any>({}); // eslint-disable-line
+  const [menuStyle, setMenuStyle] = useState<any>({});
   const selectRef = useRef<any | null>(null);
 
   const selectAllOption = useMemo(
