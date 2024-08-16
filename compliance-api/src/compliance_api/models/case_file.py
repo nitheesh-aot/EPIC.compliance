@@ -23,8 +23,14 @@ from .base_model import BaseModel
 class CaseFileInitiationEnum(enum.Enum):
     """Enum for CaseFileInitiation Options."""
 
-    INSPECTION = "Inspection"
-    COMPLAINT = "Complaint"
+    INSPECTION = "INSPECTION"
+    COMPLAINT = "COMPLAINT"
+
+
+CASE_FILE_INITIATION_MAP = {
+    CaseFileInitiationEnum.INSPECTION: "Inspection",
+    CaseFileInitiationEnum.COMPLAINT: "Complaint",
+}
 
 
 class CaseFile(BaseModel):
