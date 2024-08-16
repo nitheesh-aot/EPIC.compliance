@@ -15,9 +15,10 @@
 from marshmallow import EXCLUDE, fields, post_dump, post_load
 from marshmallow_enum import EnumField
 
-from compliance_api.models.staff_user import PermissionEnum, StaffUser
+from compliance_api.models import CaseFile, CaseFileInitiationEnum
 
 from .base_schema import AutoSchemaBase, BaseSchema
+from .staff_user import StaffUserSchema
 from .common import KeyValueSchema
 
 
@@ -28,69 +29,49 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         """Meta."""
 
         unknown = EXCLUDE
-        model = StaffUser
+        model = CaseFile
         include_fk = True
 
-    position = fields.Nested(KeyValueSchema, dump_only=True)
-    permission = fields.Str(
-        metadata={"description": "The permission level of the user in the app"}
-    )
-    full_name = fields.Method("get_full_name")
-
-    def get_full_name(self, obj):  # pylint: disable=no-self-use
-        """Derive fullname."""
-        return f"{obj.first_name} {obj.last_name}" if obj else ""
-
-    @post_dump
-    def nullify_nested(
-        self, data, **kwargs
-    ):  # pylint: disable=no-self-use, unused-argument
-        """Make nested objects null if the referenced ID is null."""
-        if data.get("deputy_director_id") is None:
-            data["deputy_director"] = None
-        if data.get("supervisor_id") is None:
-            data["supervisor"] = None
-        return data
+    lead_officer = fields.Nested(StaffUserSchema, dump_only=True)
 
 
-class StaffUserSchema(StaffUserSchemaSkeleton):  # pylint: disable=too-many-ancestors
-    """Staff User schema."""
-
-    deputy_director = fields.Nested(StaffUserSchemaSkeleton, dump_only=True)
-    supervisor = fields.Nested(StaffUserSchemaSkeleton, dump_only=True)
-
-
-class StaffUserCreateSchema(BaseSchema):
-    """User create Schema."""
+class CaseFileCreateSchema(BaseSchema):
+    """CaseFile create Schema."""
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
 
         unknown = EXCLUDE
 
-    position_id = fields.Int(
+    project_id = fields.Int(
         metadata={
-            "description": "The unique identifier of the position of the staff user."
+            "description": "The unique identifier for the project associated with the case file."
         },
         required=True,
     )
-    deputy_director_id = fields.Int(
-        metadata={"description": "The unique identifier of the deputy director."},
-        allow_none=True,
-    )
-    supervisor_id = fields.Int(
-        metadata={"description": "The unique identifier of the supervisor."},
-        allow_none=True,
-    )
-    auth_user_guid = fields.Str(
-        metadata={"description": "The unique identifier from the identity provider."},
+    date_created = fields.DateTime(
+        metadata={"description": "The date on which the case file is created."},
         required=True,
     )
-    permission = EnumField(
-        PermissionEnum,
-        metadata={"description": "The permission level of the staff user."},
+    lead_officer_id = fields.Int(
+        metadata={"description": "The lead officer who created the case file."},
+        allow_none=True,
+    )
+    initiation = EnumField(
+        CaseFileInitiationEnum,
+        metadata={"description": "The case file initiation options."},
         by_value=True,
         required=True,
+    )
+    case_file_number = fields.Int(
+        metadata={"description": "The unique case file number"}, required=True
+    )
+    officer_ids = fields.List(
+        fields.Int(
+            metadata={
+                "description": "The list of unique identifiers of the other officers associated with the case file"
+            }
+        )
     )
 
     @post_load
@@ -98,7 +79,7 @@ class StaffUserCreateSchema(BaseSchema):
         self, data, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of the permission enum."""
-        permission_enum = data.get("permission")
-        if permission_enum:
-            data["permission"] = permission_enum.value
+        initiation_enum = data.get("initiation")
+        if initiation_enum:
+            data["initiation"] = initiation_enum.value
         return data
