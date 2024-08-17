@@ -8,11 +8,11 @@ data:
   config.js: |-
     // runtime-config.js vars
       window["_env_"] =  {
-        "ENV": "dev",
-        "NODE_ENV": "production",
-        "VITE_APP_API_URL": "{{ .Values.app.api }}",
-        "VITE_APP_KEYCLOAK_URL": "{{ .Values.keycloak.url }}",
-        "VITE_APP_KEYCLOAK_CLIENT": "{{ .Values.keycloak.client }}",
-        "VITE_APP_KEYCLOAK_REALM": "{{ .Values.keycloak.realm }}",
-        "VITE_APP_ENV": "{{ .Values.app.env }}",
+        "VITE_API_URL": "{{ .Values.app.api }}",
+        "VITE_ENV": "{{ .Values.app.env}}",
+        "VITE_VERSION": "{{ .Values.app.version }}",
+        "VITE_APP_TITLE": "EPIC.compliance",
+        "VITE_APP_URL": "https://{{ .Values.app.url }}",
+        "VITE_OIDC_AUTHORITY": "{{ .Values.keycloak.url }}",
+        "VITE_CLIENT_ID": "{{ .Values.keycloak.client }}",
       }
