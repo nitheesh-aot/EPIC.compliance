@@ -20,6 +20,10 @@ const updateAgency = ({
   return request({ url: `/agencies/${id}`, method: "patch", data: agency });
 };
 
+const deleteAgency = (id: number) => {
+  return request({ url: `/agencies/${id}`, method: "delete" });
+};
+
 export const useAgenciesData = () => {
   return useQuery({
     queryKey: ["agencies"],
@@ -44,6 +48,17 @@ export const useUpdateAgency = (
 ) => {
   return useMutation({
     mutationFn: updateAgency,
+    onSuccess,
+    onError,
+  });
+};
+
+export const useDeleteAgency = (
+  onSuccess: OnSuccessType,
+  onError: OnErrorType
+) => {
+  return useMutation({
+    mutationFn: deleteAgency,
     onSuccess,
     onError,
   });
