@@ -1,8 +1,9 @@
 app:
   name: compliance
-  url: compliance-web-{{ .Release.Namespace }}.apps.gold.devops.gov.bc.ca
-  api: https://compliance-api-{{ .Release.Namespace }}.apps.gold.devops.gov.bc.ca
+  url: https://compliance-web-c8b80a-dev.apps.gold.devops.gov.bc.ca
+  api: https://compliance-api-c8b80a-dev.apps.gold.devops.gov.bc.ca/api
   env: dev
+  version: 1.0.0
 resources:
   cpu:
     limit: 300m
@@ -16,9 +17,8 @@ image:
   namespace: c8b80a-tools
   repository: image-registry.openshift-image-registry.svc:5000/c72cba-tools/
 keycloak:
-  url: "https://dev.loginproxy.gov.bc.ca"
-  realm: eao-epic
-  client: compliance-web
+  url: "https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic"
+  client: epic-compliance
 service:
   port: 8080
 replicas:
