@@ -11,9 +11,10 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Agency } from "@/models/Agency";
+import { useAddAgency, useUpdateAgency } from "@/hooks/useAgencies";
 
 type AgencyModalProps = {
-  onSubmit: () => void;
+  onSubmit: (submitMsg: string) => void;
   agency?: Agency;
 };
 
@@ -28,11 +29,27 @@ const AgencyModal: React.FC<AgencyModalProps> = ({ onSubmit, agency }) => {
 
   useEffect(() => {
     if (agency) {
-      setFormData(agency);
+      setFormData({
+        name: agency.name,
+        abbreviation: agency.abbreviation,
+      });
     } else {
       setFormData(initFormData);
     }
   }, [agency]);
+
+  const onSuccess = () => {
+    setFormData(initFormData);
+    onSubmit(agency ? "Successfully updated!" : "Successfully added!");
+  };
+
+  const onError = (err: unknown) => {
+    // eslint-disable-next-line no-console
+    console.log(err);
+  };
+
+  const { mutate: addAgency, reset } = useAddAgency(onSuccess, onError);
+  const { mutate: updateAgency } = useUpdateAgency(onSuccess, onError);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -44,18 +61,15 @@ const AgencyModal: React.FC<AgencyModalProps> = ({ onSubmit, agency }) => {
 
   const handleSubmit = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    // eslint-disable-next-line no-console
-    console.log(formData);
-    // if (user) {
-    //   updateUser({ ...user, ...formData });
-    // } else {
-    //   addUser(formData);
-    // }
-    onSubmit();
+    if (agency) {
+      updateAgency({ id: agency.id, agency: formData });
+    } else {
+      addAgency(formData);
+    }
   };
 
   const handleClose = () => {
-    // reset();
+    reset();
     setFormData(initFormData);
     setClose();
   };

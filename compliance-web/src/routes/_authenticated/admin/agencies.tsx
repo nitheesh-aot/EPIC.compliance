@@ -7,6 +7,7 @@ import { useModal } from '@/store/modalStore';
 import { notify } from '@/store/snackbarStore';
 import { EditOutlined, DeleteOutlineRounded, AddRounded } from '@mui/icons-material';
 import { Box, IconButton, Typography, Button } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
 import { createFileRoute } from '@tanstack/react-router'
 import { BCDesignTokens } from 'epic.theme';
 import { MRT_ColumnDef } from 'material-react-table';
@@ -17,7 +18,8 @@ export const Route = createFileRoute('/_authenticated/admin/agencies')({
 })
 
 function Agencies() {
-  const { setOpen } = useModal();
+  const queryClient = useQueryClient();
+  const { setOpen, setClose } = useModal();
   const { data: agenciesList, isLoading } = useAgenciesData();
 
   const columns = useMemo<MRT_ColumnDef<Agency>[]>(
@@ -38,13 +40,10 @@ function Agencies() {
     []
   );
 
-  const handleOnSubmit = () => {
-    // if (selectedUser) {
-    //   notify.success("User updated successfully!");
-    // } else {
-    //   notify.success("User created successfully!");
-    // }
-    notify.success("Submit button click!");
+  const handleOnSubmit = (submitMsg: string) => {
+    queryClient.invalidateQueries({ queryKey: ["agencies"] });
+    setClose();
+    notify.success(submitMsg);
   };
 
   const handleOpenModal = () => {
@@ -57,10 +56,8 @@ function Agencies() {
     console.log(id);
   };
 
-  const handleEdit = (id: number) => {
-    // TODO: EDIT
-    // eslint-disable-next-line no-console
-    console.log(id);
+  const handleEdit = (agency: Agency) => {
+    setOpen(<AgencyModal onSubmit={handleOnSubmit} agency={agency} />);
   };
 
   return (
@@ -85,7 +82,7 @@ function Agencies() {
           <Box gap={".25rem"} display={"flex"}>
             <IconButton
               aria-label="edit"
-              onClick={() => handleEdit(row.original.id)}
+              onClick={() => handleEdit(row.original)}
             >
               <EditOutlined />
             </IconButton>
