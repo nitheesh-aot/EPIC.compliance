@@ -15,11 +15,21 @@
 from marshmallow import EXCLUDE, fields, post_dump, post_load
 from marshmallow_enum import EnumField
 
-from compliance_api.models import CaseFile, CaseFileInitiationEnum
+from compliance_api.models import CaseFile, CaseFileInitiationEnum, CaseFileOfficer
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .staff_user import StaffUserSchema
-from .common import KeyValueSchema
+
+
+class CaseFileOfficerSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
+    """Schema for CaseFileOfficer."""
+
+    class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
+        """Meta for CaseFileOfficer Schema."""
+
+        unknown = EXCLUDE
+        model = CaseFileOfficer
+        include_fk = True
 
 
 class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
@@ -34,8 +44,15 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
 
     lead_officer = fields.Nested(StaffUserSchema, dump_only=True)
 
+    @post_dump
+    def handle_initiation_enum(self, data, **kwargs):# pylint: disable=unused-argument
+        """Convert the initiation enum to its string representation."""
+        if 'initiation' in data and isinstance(data['initiation'], CaseFileInitiationEnum):
+            data['initiation'] = data['initiation'].value
+        return data
 
-class CaseFileCreateSchema(BaseSchema):
+
+class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     """CaseFile create Schema."""
 
     class Meta:  # pylint: disable=too-few-public-methods

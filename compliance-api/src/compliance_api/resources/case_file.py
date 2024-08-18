@@ -18,9 +18,9 @@ from http import HTTPStatus
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
-from compliance_api.schemas import KeyValueSchema, CaseFileCreateSchema, CaseFileSchema
-from compliance_api.services import CaseFileService
 from compliance_api.exceptions import ResourceNotFoundError
+from compliance_api.schemas import CaseFileCreateSchema, CaseFileSchema, KeyValueSchema
+from compliance_api.services import CaseFileService
 from compliance_api.utils.util import cors_preflight
 
 from .apihelper import Api as ApiHelper
@@ -51,7 +51,7 @@ class CaseFileInitiation(Resource):
     )
     @auth.require
     def get():
-        """Fetch all users."""
+        """Fetch all case initiation optoins."""
         initiation_options = CaseFileService.get_initiation_options()
         key_val_schema = KeyValueSchema(many=True)
         return key_val_schema.dump(initiation_options), HTTPStatus.OK
@@ -88,7 +88,7 @@ class CaseFiles(Resource):
 @cors_preflight("GET, OPTIONS, PATCH, DELETE")
 @API.route("/<int:case_file_id>", methods=["PATCH", "GET", "OPTIONS", "DELETE"])
 @API.doc(params={"case_file_id": "The unique identifier for the case file"})
-class StaffUser(Resource):
+class CaseFile(Resource):
     """Resource for managing a single CaseFile."""
 
     @staticmethod
@@ -113,7 +113,28 @@ class StaffUser(Resource):
     def patch(case_file_id):
         """Update a CaseFile by id."""
         case_file_data = CaseFileCreateSchema().load(API.payload)
-        updated_case_file = CaseFileService.update_case_file(case_file_id, case_file_data)
+        updated_case_file = CaseFileService.update_case_file(
+            case_file_id, case_file_data
+        )
         if not updated_case_file:
             raise ResourceNotFoundError(f"CaseFile with {case_file_id} not found")
         return CaseFileSchema().dump(updated_case_file), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/case-file-numbers/<int:case_file_number>", methods=["GET", "OPTIONS"])
+@API.doc(params={"case_file_number": "The unique file number for the case file"})
+class CaseFileNumber(Resource):
+    """Resource for managing a single CaseFile."""
+
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch a CaseFile by id")
+    @API.response(code=200, model=case_file_list_model, description="Success")
+    @API.response(404, "Not Found")
+    def get(case_file_number):
+        """Fetch a CaseFile by number."""
+        case_file = CaseFileService.get_case_file_by_file_number(case_file_number)
+        if not case_file:
+            raise ResourceNotFoundError(f"CaseFile with case file number {case_file_number} not found")
+        return CaseFileSchema().dump(case_file), HTTPStatus.OK

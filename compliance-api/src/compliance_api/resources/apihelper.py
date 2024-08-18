@@ -77,6 +77,15 @@ class Api(BaseApi):
                 model_fields[field_name] = fields.Nested(
                     nested_model, required=field.required
                 )
+            elif isinstance(field, ma_fields.List):
+                # Handle list fields
+                list_item_type = type(field.inner)
+                if list_item_type in type_mapping:
+                    model_fields[field_name] = fields.List(
+                        type_mapping[list_item_type](),
+                        required=field.required,
+                        description=field.metadata.get("description", ""),
+                    )
             else:
                 restx_field = type_mapping.get(field_type)
                 if restx_field:

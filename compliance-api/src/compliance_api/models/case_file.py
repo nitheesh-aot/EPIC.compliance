@@ -74,10 +74,16 @@ class CaseFile(BaseModel):
     lead_officer = relationship(
         "StaffUser", foreign_keys=[lead_officer_id], lazy="joined"
     )
+    case_file_officers = relationship(
+        "CaseFileOfficer",
+        back_populates="case_file",
+        cascade="all, delete-orphan",
+        lazy="joined",
+    )
 
     @classmethod
     def create_case_file(cls, case_file_data, session=None):
-        """Persist case file data in database"""
+        """Persist case file data in database."""
         case_file = CaseFile(**case_file_data)
         if session:
             session.add(case_file)
@@ -88,7 +94,7 @@ class CaseFile(BaseModel):
 
     @classmethod
     def update_case_file(cls, case_file_id, case_file_data, session=None):
-        """Update the case file data in database"""
+        """Update the case file data in database."""
         query = cls.query.filter_by(id=case_file_id)
         case_file: CaseFile = query.first()
         if not case_file or case_file.is_deleted:
@@ -102,7 +108,7 @@ class CaseFile(BaseModel):
 
     @classmethod
     def get_case_file_by_file_number(cls, case_file_number):
-        """Retrieve case file information based on given case file number"""
+        """Retrieve case file information based on given case file number."""
         return cls.query.filter_by(case_file_number=case_file_number).first()
 
 
@@ -129,20 +135,24 @@ class CaseFileOfficer(BaseModel):
         comment="The unique identifier of the associated staff user",
     )
 
-    case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
+    case_file = relationship(
+        "CaseFile",
+        back_populates="case_file_officers",
+        lazy="joined",
+    )
     officer = relationship("StaffUser", foreign_keys=[officer_id], lazy="joined")
 
     @classmethod
     def get_all_officers_by_case_file_id(cls, case_file_id: int):
-        """Retrieve all case file officers by case file id"""
+        """Retrieve all case file officers by case file id."""
         return cls.query.filter_by(case_file_id=case_file_id, is_deleted=False).all()
 
     @classmethod
     def bulk_delete_officers_by_ids(
         cls, case_file_id: int, officer_ids: list[int], session=None
     ):
-        """Delete officer ids by id per case file"""
-        query = session.query if session else cls.query
+        """Delete officer ids by id per case file."""
+        query = session.query(CaseFileOfficer) if session else cls.query
         query.filter(
             cls.case_file_id == case_file_id, cls.officer_id.in_(officer_ids)
         ).update({cls.is_active: False, cls.is_deleted: True})
@@ -151,14 +161,14 @@ class CaseFileOfficer(BaseModel):
     def bulk_insert_officers_per_case_file(
         cls, case_file_id: int, officer_ids: list[int], session=None
     ):
-        """Insert officers per case file"""
+        """Insert officers per case file."""
         case_file_officer_data = [
-            {"case_file_id": case_file_id, "officer_id": officer_id}
+            CaseFileOfficer(**{"case_file_id": case_file_id, "officer_id": officer_id})
             for officer_id in officer_ids
         ]
         if session:
-            session.bulk_insert_mappings(CaseFileOfficer, case_file_officer_data)
+            session.add_all(case_file_officer_data)
             session.flush()
         else:
-            cls.session.bulk_save_objects(case_file_officer_data)
+            cls.session.add_all(case_file_officer_data)
             cls.session.commit()
