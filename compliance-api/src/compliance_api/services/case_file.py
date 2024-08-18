@@ -1,12 +1,7 @@
 """Service for handle CaseFile."""
 
 from compliance_api.exceptions import ResourceExistsError
-from compliance_api.models import (
-    CASE_FILE_INITIATION_MAP,
-    CaseFile,
-    CaseFileInitiationEnum,
-    CaseFileOfficer,
-)
+from compliance_api.models import CASE_FILE_INITIATION_MAP, CaseFile, CaseFileInitiationEnum, CaseFileOfficer
 from compliance_api.models.db import session_scope
 
 

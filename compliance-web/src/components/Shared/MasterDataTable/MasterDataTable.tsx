@@ -45,7 +45,7 @@ const NoDataComponent = ({ ...props }) => {
             No results found
           </Typography>
           {table.options.data.length > 0 && (
-            <Typography color="#6D7274">
+            <Typography variant="h4">
               Adjust your parameters and try again
             </Typography>
           )}
@@ -82,6 +82,13 @@ const MasterDataTable = <TData extends MRT_RowData>({
     setOtherPropsData(otherProps);
   }, [columns, data, otherProps]);
 
+  const checkBoxStyle = {
+    width: "2.75rem !important",
+    height: "2rem",
+    padding: "8px !important",
+    borderRadius: "4px",
+  };
+
   const table = useMaterialReactTable({
     columns: columns,
     data: data,
@@ -112,39 +119,37 @@ const MasterDataTable = <TData extends MRT_RowData>({
         backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
         padding: "1rem 0.5rem 0.5rem 1rem !important",
         "& .Mui-TableHeadCell-Content-Labels": {
-          fontSize: "1rem",
+          fontSize: BCDesignTokens.typographyFontSizeBody,
           fontWeight: BCDesignTokens.typographyFontWeightsBold,
           color: BCDesignTokens.themeGray90,
-          paddingBottom: "0.5rem",
+          paddingBottom: BCDesignTokens.layoutPaddingSmall,
         },
         "& .MuiTextField-root": {
           minWidth: "0",
         },
-        "& .MuiCheckbox-root": {
-          width: "2.75rem !important",
-          height: "2rem",
-          padding: "8px !important",
-          borderRadius: "4px",
-        },
+        "& .MuiCheckbox-root": checkBoxStyle,
       },
     },
+    muiTopToolbarProps: {
+      sx: { padding: 0 },
+    },
+    muiTablePaperProps: {
+      sx: { boxShadow: "none" },
+    },
     muiTableProps: {
-      sx: {
-        tableLayout: "fixed",
-      },
+      sx: { tableLayout: "fixed" },
     },
     muiTableBodyCellProps: () => ({
       disabled: true,
       sx: {
-        padding: "0.5rem 0.5rem 0.5rem 1rem",
+        padding: "0",
+        paddingLeft: "1rem",
+        height: "3rem",
         "& .MuiCheckbox-root": {
-          width: "2.75rem !important",
-          height: "2rem",
-          borderRadius: "4px",
-          padding: "8px !important",
+          ...checkBoxStyle,
           "&.Mui-disabled": {
             svg: {
-              fill: BCDesignTokens.surfaceColorBackgroundLightGray,
+              fill: BCDesignTokens.surfaceColorFormsDisabled,
             },
           },
         },
@@ -153,14 +158,10 @@ const MasterDataTable = <TData extends MRT_RowData>({
     muiFilterTextFieldProps: ({ column }) => ({
       placeholder: column.columnDef.header,
       variant: "outlined",
+      size: "small",
       sx: {
         backgroundColor: BCDesignTokens.surfaceColorBackgroundWhite,
-        "& .MuiInputBase-input::placeholder": {
-          color: BCDesignTokens.surfaceColorBackgroundLightGray,
-          fontSize: "0.875rem",
-          lineHeight: "1rem",
-          opacity: 1,
-        },
+        mb: 0,
         "& .MuiInputAdornment-root": {
           display: "none",
         },
@@ -172,6 +173,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
     muiTableContainerProps: () => ({
       sx: {
         maxHeight: "100%",
+        marginTop: "1rem",
       },
     }),
     muiTableBodyProps: {
@@ -207,13 +209,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
     renderEmptyRowsFallback: ({ table }) => <NoDataComponent table={table} />,
     renderTopToolbarCustomActions: ({ table }) => {
       return (
-        <Box
-          sx={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "right",
-          }}
-        >
+        <>
           {renderTopToolbarCustomActions &&
             renderTopToolbarCustomActions({ table })}
           {enableExport && (
@@ -232,7 +228,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
               </IconButton>
             </Tooltip>
           )}
-        </Box>
+        </>
       );
     }, // Provide an empty function as the initializer
     initialState: {

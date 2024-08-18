@@ -104,6 +104,10 @@ spec:
                   key: app-db-name
             - name: DATABASE_HOST
               value: {{ .Values.database.service.name }}
+            - name: AUTH_BASE_URL
+              value: {{ .Values.authorize.base_url }}
+            - name: CORS_ORIGIN
+              value: {{ .Values.cors_origin }}
             - name: DATABASE_PORT
               value: "{{ .Values.database.service.port }}"
             - name: JWT_OIDC_ALGORITHMS

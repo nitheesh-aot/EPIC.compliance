@@ -45,7 +45,7 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     lead_officer = fields.Nested(StaffUserSchema, dump_only=True)
 
     @post_dump
-    def handle_initiation_enum(self, data, **kwargs):# pylint: disable=unused-argument
+    def handle_initiation_enum(self, data, **kwargs):  # pylint: disable=unused-argument, no-self-use
         """Convert the initiation enum to its string representation."""
         if 'initiation' in data and isinstance(data['initiation'], CaseFileInitiationEnum):
             data['initiation'] = data['initiation'].value
