@@ -110,7 +110,7 @@ def _create_staff_user_object(user_data: dict, auth_user: dict):
         "position_id": user_data.get("position_id", None),
         "deputy_director_id": user_data.get("deputy_director_id"),
         "supervisor_id": user_data.get("supervisor_id", None),
-        "auth_user_guid": auth_user.get("id", None),
+        "auth_user_guid": auth_user.get("username", None),
     }
 
 

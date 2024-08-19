@@ -30,13 +30,7 @@ class CaseFileService:
     def create_case_file(cls, case_file_data: dict):
         """Create case file."""
         case_file_obj = _create_case_file_object(case_file_data)
-        existing_case_file = cls.get_case_file_by_file_number(
-            case_file_obj.get("case_file_number", None)
-        )
-        if existing_case_file:
-            raise ResourceExistsError(
-                f"Case file with the number {case_file_obj['case_file_number']} exists"
-            )
+        _validate_case_file_existence(case_file_obj.get("case_file_number", None))
         with session_scope() as session:
             created_case_file = CaseFile.create_case_file(case_file_obj, session)
             cls.insert_or_update_officers(
@@ -48,13 +42,9 @@ class CaseFileService:
     def update_case_file(cls, case_file_id: int, case_file_data: dict):
         """Update case file."""
         case_file_obj = _create_case_file_object(case_file_data)
-        existing_case_file = cls.get_case_file_by_file_number(
-            case_file_obj.get("case_file_number", None)
+        _validate_case_file_existence(
+            case_file_obj.get("case_file_number", None), case_file_id
         )
-        if existing_case_file and existing_case_file.id != case_file_id:
-            raise ResourceExistsError(
-                f"Case file with the number {case_file_obj['case_file_number']} exists"
-            )
         with session_scope() as session:
             updated_case_file = CaseFile.update_case_file(
                 case_file_id, case_file_obj, session
@@ -101,3 +91,14 @@ def _create_case_file_object(case_file_data: dict):
     case_file_data_copy = case_file_data.copy()
     case_file_data_copy.pop("officer_ids")
     return case_file_data_copy
+
+
+def _validate_case_file_existence(case_file_number: int, case_file_id: int = None):
+    """Check if the case file exists."""
+    existing_case_file = CaseFile.get_case_file_by_file_number(case_file_number)
+    if existing_case_file and (
+        not case_file_id or existing_case_file.id != case_file_id
+    ):
+        raise ResourceExistsError(
+            f"Case file with the number {case_file_number} exists"
+        )
