@@ -1,15 +1,13 @@
 import ModalCloseIconButton from "@/components/Shared/Modals/ModalCloseIconButton";
 import {
-  MockUser,
-  useDeputyDirectorsData,
   usePermissionsData,
   usePositionsData,
-  useUsersData,
-  useSupervisorsData,
+  useAuthUsersData,
+  useAddStaff,
 } from "@/hooks/useStaff";
 import { Permission } from "@/models/Permission";
 import { Position } from "@/models/Position";
-import { Staff, StaffFormData } from "@/models/Staff";
+import { Staff, StaffAPIData, StaffFormData } from "@/models/Staff";
 import { useModal } from "@/store/modalStore";
 import {
   Box,
@@ -19,8 +17,11 @@ import {
   DialogTitle,
   Divider,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import StaffForm from "./StaffForm";
+import { AuthUser } from "@/models/AuthUser";
+import { notify } from "@/store/snackbarStore";
+import { AxiosError } from "axios";
 
 type StaffModalProps = {
   onSubmit: () => void;
@@ -40,44 +41,57 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
     useState<Omit<StaffFormData, "id">>(initFormData);
   const { setClose } = useModal();
 
-  const { data: usersList } = useUsersData();
+  const { data: usersList } = useAuthUsersData();
   const { data: positionsList } = usePositionsData();
   const { data: permissionsList } = usePermissionsData();
-  const { data: deputyDirectorsList } = useDeputyDirectorsData();
-  const { data: supervisorsList } = useSupervisorsData();
 
-  useEffect(() => {
-    if (staff) {
-      setFormData({
-        name: usersList?.find((item) => item.id === staff.name) || null,
-        position:
-          positionsList?.find((item) => item.id === staff.position) || null,
-        permission:
-          permissionsList?.find((item) => item.id === staff.permission) || null,
-        deputyDirector:
-          deputyDirectorsList?.find(
-            (item) => item.id === staff.deputyDirector
-          ) || null,
-        supervisor:
-          supervisorsList?.find((item) => item.id === staff.supervisor) || null,
-      });
-    } else {
-      setFormData(initFormData);
-    }
-  }, [
-    deputyDirectorsList,
-    permissionsList,
-    positionsList,
-    staff,
-    usersList,
-    supervisorsList,
-  ]);
+  // useEffect(() => {
+  //   if (staff) {
+  //     setFormData({
+  //       name: usersList?.find((item) => item.id === staff.name) || null,
+  //       position:
+  //         positionsList?.find((item) => item.id === staff.position) || null,
+  //       permission:
+  //         permissionsList?.find((item) => item.id === staff.permission) || null,
+  //       deputyDirector:
+  //         deputyDirectorsList?.find(
+  //           (item) => item.id === staff.deputyDirector
+  //         ) || null,
+  //       supervisor:
+  //         supervisorsList?.find((item) => item.id === staff.supervisor) || null,
+  //     });
+  //   } else {
+  //     setFormData(initFormData);
+  //   }
+  // }, [
+  //   deputyDirectorsList,
+  //   permissionsList,
+  //   positionsList,
+  //   staff,
+  //   usersList,
+  //   supervisorsList,
+  // ]);
+
+  const onSuccess = () => {
+    onSubmit();
+  };
+
+  const onError = (err: AxiosError) => {
+    // eslint-disable-next-line no-console
+    console.log(typeof err);
+    notify.error(err?.message);
+  };
+
+  const { mutate: addStaff, reset: resetAddStaff } = useAddStaff(
+    onSuccess,
+    onError
+  );
 
   const handleAutocompleteChange =
     (key: keyof StaffFormData) =>
     (
       _event: React.SyntheticEvent,
-      newVal: MockUser | Position | Permission | null
+      newVal: Position | Permission | AuthUser | null
     ) => {
       setFormData((prevValues) => ({ ...prevValues, [key]: newVal }));
     };
@@ -86,16 +100,21 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
     e.preventDefault();
     // eslint-disable-next-line no-console
     console.log(formData);
-    // if (user) {
-    //   updateUser({ ...user, ...formData });
-    // } else {
-    //   addUser(formData);
-    // }
+    const staffData: StaffAPIData = {
+      auth_user_guid: formData.name?.username ?? "",
+      permission: formData.permission?.id ?? "",
+      position_id: formData.position?.id ?? "",
+    };
+    if (staff) {
+      // updateUser({ ...user, ...formData });
+    } else {
+      addStaff(staffData);
+    }
     onSubmit();
   };
 
   const handleClose = () => {
-    // reset();
+    resetAddStaff();
     setFormData(initFormData);
     setClose();
   };
@@ -103,7 +122,9 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
   return (
     <Box width="520px">
       <DialogTitle>
-        {staff ? formData.name?.name : "Add Staff Member"}
+        {staff
+          ? `${formData.name?.first_name} ${formData.name?.last_name}`
+          : "Add Staff Member"}
       </DialogTitle>
       <ModalCloseIconButton handleClose={handleClose} />
       <Divider />
@@ -112,11 +133,9 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
           formData={formData}
           existingStaff={staff}
           handleAutocompleteChange={handleAutocompleteChange}
-          staffUsersList={usersList}
+          authUsersList={usersList}
           positionsList={positionsList}
           permissionsList={permissionsList}
-          deputyDirectorsList={deputyDirectorsList}
-          supervisorsList={supervisorsList}
         />
       </DialogContent>
       <Divider />

@@ -1,32 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
-import { request } from "@/utils/axiosUtils";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { OnErrorType, OnSuccessType, request, requestAuthAPI } from "@/utils/axiosUtils";
 import { Position } from "@/models/Position";
 import { Permission } from "@/models/Permission";
-import { StaffUser } from "@/models/Staff";
-
-export interface MockUser {
-  id: number;
-  name: string;
-}
-
-const mockUsersList: MockUser[] = [
-  { name: "Shawn", id: 1 },
-  { name: "Ryan", id: 2 },
-  { name: "Hugh", id: 3 },
-  { name: "Blake", id: 4 },
-];
+import { StaffAPIData, StaffUser } from "@/models/Staff";
+import { AuthUser } from "@/models/AuthUser";
 
 const fetchStaffUsers = (): Promise<StaffUser[]> => {
   return request({ url: "/staff-users" });
 };
 
-const fetchUsersList = (): Promise<MockUser[]> => {
-  // return request({ url: "/staff-users" });
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockUsersList);
-    }, 300);
-  });
+/** FETCH users from AUTH API */
+const fetchAuthUsers = (): Promise<AuthUser[]> => {
+  return requestAuthAPI({ url: "/users" });
 };
 
 const fetchPositions = (): Promise<Position[]> => {
@@ -37,22 +22,8 @@ const fetchPermissions = (): Promise<Permission[]> => {
   return request({ url: "/staff-users/permissions" });
 };
 
-const fetchDeputyDirectors = (): Promise<MockUser[]> => {
-  // return request({ url: "/staff-users" });
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockUsersList);
-    }, 300);
-  });
-};
-
-const fetchSupervisors = (): Promise<MockUser[]> => {
-  // return request({ url: "/staff-users" });
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockUsersList);
-    }, 300);
-  });
+const addStaff = (staff: StaffAPIData) => {
+  return request({ url: "/staff-users", method: "post", data: staff });
 };
 
 export const useStaffUsersData = () => {
@@ -62,10 +33,10 @@ export const useStaffUsersData = () => {
   });
 };
 
-export const useUsersData = () => {
+export const useAuthUsersData = () => {
   return useQuery({
-    queryKey: ["users"],
-    queryFn: fetchUsersList,
+    queryKey: ["auth-users"],
+    queryFn: fetchAuthUsers,
   });
 };
 
@@ -83,16 +54,13 @@ export const usePermissionsData = () => {
   });
 };
 
-export const useDeputyDirectorsData = () => {
-  return useQuery({
-    queryKey: ["deputy-directors"],
-    queryFn: fetchDeputyDirectors,
-  });
-};
-
-export const useSupervisorsData = () => {
-  return useQuery({
-    queryKey: ["supervisors"],
-    queryFn: fetchSupervisors,
+export const useAddStaff = (
+  onSuccess: OnSuccessType,
+  onError: OnErrorType
+) => {
+  return useMutation({
+    mutationFn: addStaff,
+    onSuccess,
+    onError,
   });
 };

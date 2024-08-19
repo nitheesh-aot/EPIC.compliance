@@ -1,6 +1,6 @@
-import { MockUser } from "@/hooks/useStaff";
 import { Position } from "./Position";
 import { Permission } from "./Permission";
+import { AuthUser } from "./AuthUser";
 
 export interface Staff {
   id: number;
@@ -27,9 +27,17 @@ export interface StaffUser {
 
 export interface StaffFormData {
   id: number;
-  name: MockUser | null;
+  name: AuthUser | null;
   position: Position | null;
-  deputyDirector: MockUser | null;
-  supervisor: MockUser | null;
+  deputyDirector: AuthUser | null;
+  supervisor: AuthUser | null;
   permission: Permission | null;
+}
+
+export interface StaffAPIData {
+  auth_user_guid: string;
+  position_id: string;
+  permission: string;
+  supervisor_id?: string;
+  deputy_director_id?: string;
 }
