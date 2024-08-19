@@ -131,7 +131,10 @@ const MasterDataTable = <TData extends MRT_RowData>({
       },
     },
     muiTopToolbarProps: {
-      sx: { padding: 0 },
+      sx: { p: 0, m: "-0.5rem" },
+    },
+    muiBottomToolbarProps: {
+      sx: { boxShadow: "none" },
     },
     muiTablePaperProps: {
       sx: { boxShadow: "none" },
@@ -173,7 +176,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
     muiTableContainerProps: () => ({
       sx: {
         maxHeight: "100%",
-        marginTop: "1rem",
+        marginTop: "1.5rem",
       },
     }),
     muiTableBodyProps: {
