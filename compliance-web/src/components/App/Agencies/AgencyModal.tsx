@@ -7,70 +7,67 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
-  TextField,
 } from "@mui/material";
-import { useEffect, useState } from "react";
 import { Agency } from "@/models/Agency";
 import { useAddAgency, useUpdateAgency } from "@/hooks/useAgencies";
+import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
+import { FormProvider, useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { notify } from "@/store/snackbarStore";
+import { AxiosError } from "axios";
 
 type AgencyModalProps = {
   onSubmit: (submitMsg: string) => void;
   agency?: Agency;
 };
 
-const initFormData: Omit<Agency, "id"> = {
-  name: "",
-  abbreviation: "",
-};
+const agencySchema = yup.object().shape({
+  name: yup.string().required("Name is required").max(150, "Max length exceeded"),
+  abbreviation: yup.string().optional().max(10, "Max length exceeded"),
+});
+
+type AgencyForm = yup.InferType<typeof agencySchema>;
 
 const AgencyModal: React.FC<AgencyModalProps> = ({ onSubmit, agency }) => {
-  const [formData, setFormData] = useState<Omit<Agency, "id">>(initFormData);
   const { setClose } = useModal();
 
-  useEffect(() => {
-    if (agency) {
-      setFormData({
-        name: agency.name,
-        abbreviation: agency.abbreviation,
-      });
-    } else {
-      setFormData(initFormData);
-    }
-  }, [agency]);
-
   const onSuccess = () => {
-    setFormData(initFormData);
     onSubmit(agency ? "Successfully updated!" : "Successfully added!");
   };
 
-  const onError = (err: unknown) => {
+  const onError = (err: AxiosError) => {
     // eslint-disable-next-line no-console
-    console.log(err);
+    console.log(typeof err);
+    notify.error(err?.message);
   };
 
-  const { mutate: addAgency, reset } = useAddAgency(onSuccess, onError);
-  const { mutate: updateAgency } = useUpdateAgency(onSuccess, onError);
+  const { mutate: addAgency, reset: resetAddQuery } = useAddAgency(onSuccess, onError);
+  const { mutate: updateAgency, reset: resetUpdateQuery } = useUpdateAgency(onSuccess, onError);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
-  };
+  const methods = useForm({
+    resolver: yupResolver(agencySchema),
+    mode: "onBlur",
+    defaultValues: agency,
+  });
 
-  const handleSubmit = (e: React.FormEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const { handleSubmit } = methods;
+
+  const onSubmitHandler = async (data: AgencyForm) => {
+    const agencyData = {
+      name: data.name,
+      abbreviation: data.abbreviation,
+    };
     if (agency) {
-      updateAgency({ id: agency.id, agency: formData });
+      updateAgency({ id: agency.id, agency: agencyData });
     } else {
-      addAgency(formData);
+      addAgency(agencyData);
     }
   };
 
   const handleClose = () => {
-    reset();
-    setFormData(initFormData);
+    agency ? resetUpdateQuery() : resetAddQuery();
+    methods.reset();
     setClose();
   };
 
@@ -79,31 +76,27 @@ const AgencyModal: React.FC<AgencyModalProps> = ({ onSubmit, agency }) => {
       <DialogTitle>{agency ? agency.name : "Add Agency"}</DialogTitle>
       <ModalCloseIconButton handleClose={handleClose} />
       <Divider />
-      <DialogContent>
-        <TextField
-          label="Name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          fullWidth
-        />
-        <TextField
-          label="Abbreviation (optional)"
-          name="abbreviation"
-          value={formData.abbreviation}
-          onChange={handleChange}
-          fullWidth
-        />
-      </DialogContent>
-      <Divider />
-      <DialogActions sx={{ paddingX: "1.5rem", paddingY: "1rem" }}>
-        <Button variant={"text"} onClick={handleClose}>
-          Cancel
-        </Button>
-        <Button variant={"contained"} onClick={handleSubmit}>
-          {agency ? "Save" : "Add"}
-        </Button>
-      </DialogActions>
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmitHandler)}>
+          <DialogContent>
+            <ControlledTextField label="Name" name="name" fullWidth />
+            <ControlledTextField
+              label="Abbreviation (optional)"
+              name="abbreviation"
+              fullWidth
+            />
+          </DialogContent>
+          <Divider />
+          <DialogActions sx={{ paddingX: "1.5rem", paddingY: "1rem" }}>
+            <Button variant={"text"} onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button variant={"contained"} type="submit">
+              {agency ? "Save" : "Add"}
+            </Button>
+          </DialogActions>
+        </form>
+      </FormProvider>
     </Box>
   );
 };
