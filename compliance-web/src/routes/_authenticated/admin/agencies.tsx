@@ -36,12 +36,14 @@ function Agencies() {
         header: "Name",
         sortingFn: "sortFn",
         filterFn: searchFilter,
+        size: 450,
       },
       {
         accessorKey: "abbreviation",
         header: "Abbreviation",
         sortingFn: "sortFn",
         filterFn: searchFilter,
+        size: 200,
       },
     ],
     []

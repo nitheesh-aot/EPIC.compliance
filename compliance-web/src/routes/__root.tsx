@@ -4,7 +4,7 @@ import SideNavBar from "@/components/Shared/SideNav/SideNavBar";
 import { useMenuStore } from "@/store/menuStore";
 import { Box } from "@mui/system";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+// import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { useRef, useEffect } from "react";
 import { AuthContextProps } from "react-oidc-context";
 
@@ -51,7 +51,7 @@ function Layout() {
           <Outlet />
         </Box>
       </Box>
-      <TanStackRouterDevtools />
+      {/* <TanStackRouterDevtools /> */}
     </>
   );
 }
