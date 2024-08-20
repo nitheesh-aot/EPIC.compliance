@@ -9,20 +9,22 @@ import {
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
-import { Staff as StaffModel, StaffUser } from "@/models/Staff";
+import { StaffUser } from "@/models/Staff";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { MRT_ColumnDef } from "material-react-table";
 import { useEffect, useMemo, useState } from "react";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/admin/staff")({
   component: Staff,
 });
 
 function Staff() {
-  const { setOpen } = useModal();
+  const queryClient = useQueryClient();
+  const { setOpen, setClose } = useModal();
   const { data: staffUsersList, isLoading } = useStaffUsersData();
 
   const [positionList, setPositionList] = useState<string[]>([]);
@@ -48,17 +50,15 @@ function Staff() {
     setDeputyList(deputies);
   }, [staffUsersList]);
 
-  const handleOnSubmit = () => {
-    // if (selectedUser) {
-    //   notify.success("User updated successfully!");
-    // } else {
-    //   notify.success("User created successfully!");
-    // }
-    notify.success("Submit button click!");
+
+  const handleOnSubmit = (submitMsg: string) => {
+    queryClient.invalidateQueries({ queryKey: ["staff-users"] });
+    setClose();
+    notify.success(submitMsg);
   };
 
-  const handleOpenModal = (staff?: StaffModel) => {
-    setOpen(<StaffModal staff={staff} onSubmit={handleOnSubmit} />);
+  const handleAddStaffModal = () => {
+    setOpen(<StaffModal onSubmit={handleOnSubmit} />);
   };
 
   const handleDelete = (id: number) => {
@@ -67,10 +67,8 @@ function Staff() {
     console.log(id);
   };
 
-  const handleEdit = (id: number) => {
-    // TODO: EDIT
-    // eslint-disable-next-line no-console
-    console.log(id);
+  const handleEdit = (staff: StaffUser) => {
+    setOpen(<StaffModal staff={staff} onSubmit={handleOnSubmit} />);
   };
 
   const columns = useMemo<MRT_ColumnDef<StaffUser>[]>(
@@ -167,7 +165,7 @@ function Staff() {
           <Box gap={".25rem"} display={"flex"}>
             <IconButton
               aria-label="edit"
-              onClick={() => handleEdit(row.original.id)}
+              onClick={() => handleEdit(row.original)}
             >
               <EditOutlined />
             </IconButton>
@@ -196,7 +194,7 @@ function Staff() {
             </Typography>
             <Button
               startIcon={<AddRounded />}
-              onClick={() => handleOpenModal()}
+              onClick={() => handleAddStaffModal()}
             >
               Staff Member
             </Button>

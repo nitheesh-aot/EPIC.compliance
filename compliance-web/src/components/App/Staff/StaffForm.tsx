@@ -2,7 +2,7 @@ import React from "react";
 import { Autocomplete, Stack, TextField } from "@mui/material";
 import { Permission } from "@/models/Permission";
 import { Position } from "@/models/Position";
-import { Staff, StaffFormData as StaffFormModel } from "@/models/Staff";
+import { StaffFormData as StaffFormModel, StaffUser } from "@/models/Staff";
 import { AuthUser } from "@/models/AuthUser";
 
 type StaffFormProps = {
@@ -13,7 +13,7 @@ type StaffFormProps = {
     _event: React.SyntheticEvent,
     newVal: Position | Permission | AuthUser | null
   ) => void;
-  existingStaff?: Staff;
+  existingStaff?: StaffUser;
   authUsersList?: AuthUser[];
   positionsList?: Position[];
   permissionsList?: Permission[];
@@ -47,6 +47,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
         options={positionsList ?? []}
         onChange={handleAutocompleteChange("position")}
         getOptionLabel={(option) => option.name}
+        isOptionEqualToValue={(option, value) => option.id === value.id}
         value={formData.position}
         renderInput={(params) => (
           <TextField {...params} label="Position" name="position" />

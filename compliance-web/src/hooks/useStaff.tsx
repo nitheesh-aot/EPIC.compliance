@@ -26,6 +26,16 @@ const addStaff = (staff: StaffAPIData) => {
   return request({ url: "/staff-users", method: "post", data: staff });
 };
 
+const updateStaff = ({
+  id,
+  staff,
+}: {
+  id: number;
+  staff: StaffAPIData;
+}) => {
+  return request({ url: `/staff-users/${id}`, method: "patch", data: staff });
+};
+
 export const useStaffUsersData = () => {
   return useQuery({
     queryKey: ["staff-users"],
@@ -60,6 +70,17 @@ export const useAddStaff = (
 ) => {
   return useMutation({
     mutationFn: addStaff,
+    onSuccess,
+    onError,
+  });
+};
+
+export const useUpdateStaff = (
+  onSuccess: OnSuccessType,
+  onError: OnErrorType
+) => {
+  return useMutation({
+    mutationFn: updateStaff,
     onSuccess,
     onError,
   });

@@ -4,10 +4,11 @@ import {
   usePositionsData,
   useAuthUsersData,
   useAddStaff,
+  useUpdateStaff,
 } from "@/hooks/useStaff";
 import { Permission } from "@/models/Permission";
 import { Position } from "@/models/Position";
-import { Staff, StaffAPIData, StaffFormData } from "@/models/Staff";
+import { StaffAPIData, StaffFormData, StaffUser } from "@/models/Staff";
 import { useModal } from "@/store/modalStore";
 import {
   Box,
@@ -17,15 +18,15 @@ import {
   DialogTitle,
   Divider,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import StaffForm from "./StaffForm";
 import { AuthUser } from "@/models/AuthUser";
 import { notify } from "@/store/snackbarStore";
 import { AxiosError } from "axios";
 
 type StaffModalProps = {
-  onSubmit: () => void;
-  staff: Staff | undefined;
+  onSubmit: (submitMsg: string) => void;
+  staff?: StaffUser;
 };
 
 const initFormData: Omit<StaffFormData, "id"> = {
@@ -45,44 +46,37 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
   const { data: positionsList } = usePositionsData();
   const { data: permissionsList } = usePermissionsData();
 
-  // useEffect(() => {
-  //   if (staff) {
-  //     setFormData({
-  //       name: usersList?.find((item) => item.id === staff.name) || null,
-  //       position:
-  //         positionsList?.find((item) => item.id === staff.position) || null,
-  //       permission:
-  //         permissionsList?.find((item) => item.id === staff.permission) || null,
-  //       deputyDirector:
-  //         deputyDirectorsList?.find(
-  //           (item) => item.id === staff.deputyDirector
-  //         ) || null,
-  //       supervisor:
-  //         supervisorsList?.find((item) => item.id === staff.supervisor) || null,
-  //     });
-  //   } else {
-  //     setFormData(initFormData);
-  //   }
-  // }, [
-  //   deputyDirectorsList,
-  //   permissionsList,
-  //   positionsList,
-  //   staff,
-  //   usersList,
-  //   supervisorsList,
-  // ]);
+  useEffect(() => {
+    if (staff) {
+      setFormData({
+        name:
+          usersList?.find((item) => item.username === staff.auth_user_guid) ||
+          null,
+        position: staff.position || null,
+        permission:
+          permissionsList?.find((item) => item.id === staff.permission) || null,
+        deputyDirector: null,
+        supervisor: null,
+      });
+    } else {
+      setFormData(initFormData);
+    }
+  }, [permissionsList, positionsList, staff, usersList]);
 
   const onSuccess = () => {
-    onSubmit();
+    onSubmit(staff ? "Successfully updated!" : "Successfully added!");
   };
 
   const onError = (err: AxiosError) => {
-    // eslint-disable-next-line no-console
-    console.log(typeof err);
     notify.error(err?.message);
   };
 
   const { mutate: addStaff, reset: resetAddStaff } = useAddStaff(
+    onSuccess,
+    onError
+  );
+
+  const { mutate: updateStaff, reset: resetUpdateStaff } = useUpdateStaff(
     onSuccess,
     onError
   );
@@ -98,23 +92,22 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
 
   const handleSubmit = (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    // eslint-disable-next-line no-console
-    console.log(formData);
     const staffData: StaffAPIData = {
       auth_user_guid: formData.name?.username ?? "",
       permission: formData.permission?.id ?? "",
       position_id: formData.position?.id ?? "",
+      deputy_director_id: formData.deputyDirector?.username,
+      supervisor_id: formData.supervisor?.username,
     };
     if (staff) {
-      // updateUser({ ...user, ...formData });
+      updateStaff({ id: staff.id, staff: staffData });
     } else {
       addStaff(staffData);
     }
-    onSubmit();
   };
 
   const handleClose = () => {
-    resetAddStaff();
+    staff ? resetUpdateStaff() : resetAddStaff();
     setFormData(initFormData);
     setClose();
   };
