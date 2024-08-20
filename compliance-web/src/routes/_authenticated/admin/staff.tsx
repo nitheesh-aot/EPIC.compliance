@@ -10,13 +10,15 @@ import { Box, Button, IconButton, Typography } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { StaffUser } from "@/models/Staff";
-import { useStaffUsersData } from "@/hooks/useStaff";
+import { useDeleteStaff, useStaffUsersData } from "@/hooks/useStaff";
 import { MRT_ColumnDef } from "material-react-table";
 import { useEffect, useMemo, useState } from "react";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import { useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 export const Route = createFileRoute("/_authenticated/admin/staff")({
   component: Staff,
@@ -68,16 +70,44 @@ function Staff() {
   const handleAddStaffModal = () => {
     setOpen(<StaffModal onSubmit={handleOnSubmit} />);
   };
-
-  const handleDelete = (id: number) => {
-    // TODO: DELETE
-    // eslint-disable-next-line no-console
-    console.log(id);
-  };
-
+  
   const handleEdit = (staff: StaffUser) => {
     setOpen(<StaffModal staff={staff} onSubmit={handleOnSubmit} />);
   };
+
+  /** Agency Deletion START */
+
+  const onDeleteSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["staff-users"] });
+    setClose();
+    notify.success("Staff deleted successfully!");
+  };
+
+  const onDeleteError = (error: AxiosError) => {
+    notify.error(`Staff deletion failed! ${error.message}`);
+  };
+
+  const { mutate: deleteUser } = useDeleteStaff(
+    onDeleteSuccess,
+    onDeleteError
+  );
+
+  const handleDelete = (id: number) => {
+    setOpen(
+      <ConfirmationModal
+        title="Delete Staff User?"
+        description="You are about to delete this staff user. Are you sure?"
+        confirmButtonText="Delete"
+        onConfirm={() => {
+          if (id !== null) {
+            deleteUser(id);
+          }
+        }}
+      />
+    );
+  };
+
+  /** Agency Deletion END */
 
   const columns = useMemo<MRT_ColumnDef<StaffUser>[]>(
     () => [

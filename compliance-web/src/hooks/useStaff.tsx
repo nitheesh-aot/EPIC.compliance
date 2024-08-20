@@ -36,6 +36,10 @@ const updateStaff = ({
   return request({ url: `/staff-users/${id}`, method: "patch", data: staff });
 };
 
+const deleteStaff = (id: number) => {
+  return request({ url: `/staff-users/${id}`, method: "delete" });
+};
+
 export const useStaffUsersData = () => {
   return useQuery({
     queryKey: ["staff-users"],
@@ -81,6 +85,17 @@ export const useUpdateStaff = (
 ) => {
   return useMutation({
     mutationFn: updateStaff,
+    onSuccess,
+    onError,
+  });
+};
+
+export const useDeleteStaff = (
+  onSuccess: OnSuccessType,
+  onError: OnErrorType
+) => {
+  return useMutation({
+    mutationFn: deleteStaff,
     onSuccess,
     onError,
   });
