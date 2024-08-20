@@ -1,7 +1,8 @@
 app:
   name: compliance
   url: https://compliance-web-c8b80a-dev.apps.gold.devops.gov.bc.ca
-  api: https://compliance-api-c8b80a-dev.apps.gold.devops.gov.bc.ca/api
+  api: https://compliance-api-c8b80a-dev.apps.gold.devops.gov.bc.ca
+  auth_url: https://auth-api-c72cba-dev.apps.gold.devops.gov.bc.ca
   env: dev
   version: 1.0.0
 resources:
