@@ -1,4 +1,4 @@
 #! /bin/sh
 cd /opt/app-root
-echo 'starting upgrade'
+echo 'starting flas upgrade'
 flask db upgrade
