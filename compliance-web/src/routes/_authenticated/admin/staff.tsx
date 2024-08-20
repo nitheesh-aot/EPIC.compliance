@@ -9,69 +9,105 @@ import {
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
-import { Staff as StaffModel, StaffUser } from "@/models/Staff";
-import { useStaffUsersData } from "@/hooks/useStaff";
+import { StaffUser } from "@/models/Staff";
+import { useDeleteStaff, useStaffUsersData } from "@/hooks/useStaff";
 import { MRT_ColumnDef } from "material-react-table";
 import { useEffect, useMemo, useState } from "react";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
+import { useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 export const Route = createFileRoute("/_authenticated/admin/staff")({
   component: Staff,
 });
 
 function Staff() {
-  const { setOpen } = useModal();
+  const queryClient = useQueryClient();
+  const { setOpen, setClose } = useModal();
   const { data: staffUsersList, isLoading } = useStaffUsersData();
 
   const [positionList, setPositionList] = useState<string[]>([]);
   const [supervisorList, setSupervisorList] = useState<string[]>([]);
   const [deputyList, setDeputyList] = useState<string[]>([]);
+  const [permissionList, setPermissionList] = useState<string[]>([]);
 
   useEffect(() => {
-    const positions = [
-      ...new Set(staffUsersList?.map((staff) => staff.position?.name ?? "")),
-    ].filter(Boolean);
-    setPositionList(positions);
-    const supervisors = [
-      ...new Set(
-        staffUsersList?.map((staff) => staff.supervisor?.full_name ?? "")
-      ),
-    ].filter(Boolean);
-    setSupervisorList(supervisors);
-    const deputies = [
-      ...new Set(
-        staffUsersList?.map((staff) => staff.deputy_director?.full_name ?? "")
-      ),
-    ].filter(Boolean);
-    setDeputyList(deputies);
+    setPositionList(
+      [
+        ...new Set(staffUsersList?.map((staff) => staff.position?.name ?? "")),
+      ].filter(Boolean)
+    );
+    setSupervisorList(
+      [
+        ...new Set(
+          staffUsersList?.map((staff) => staff.supervisor?.full_name ?? "")
+        ),
+      ].filter(Boolean)
+    );
+    setDeputyList(
+      [
+        ...new Set(
+          staffUsersList?.map((staff) => staff.deputy_director?.full_name ?? "")
+        ),
+      ].filter(Boolean)
+    );
+    setPermissionList(
+      [
+        ...new Set(staffUsersList?.map((staff) => staff.permission ?? "")),
+      ].filter(Boolean)
+    );
   }, [staffUsersList]);
 
-  const handleOnSubmit = () => {
-    // if (selectedUser) {
-    //   notify.success("User updated successfully!");
-    // } else {
-    //   notify.success("User created successfully!");
-    // }
-    notify.success("Submit button click!");
+  const handleOnSubmit = (submitMsg: string) => {
+    queryClient.invalidateQueries({ queryKey: ["staff-users"] });
+    setClose();
+    notify.success(submitMsg);
   };
 
-  const handleOpenModal = (staff?: StaffModel) => {
+  const handleAddStaffModal = () => {
+    setOpen(<StaffModal onSubmit={handleOnSubmit} />);
+  };
+  
+  const handleEdit = (staff: StaffUser) => {
     setOpen(<StaffModal staff={staff} onSubmit={handleOnSubmit} />);
   };
 
-  const handleDelete = (id: number) => {
-    // TODO: DELETE
-    // eslint-disable-next-line no-console
-    console.log(id);
+  /** Agency Deletion START */
+
+  const onDeleteSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ["staff-users"] });
+    setClose();
+    notify.success("Staff deleted successfully!");
   };
 
-  const handleEdit = (id: number) => {
-    // TODO: EDIT
-    // eslint-disable-next-line no-console
-    console.log(id);
+  const onDeleteError = (error: AxiosError) => {
+    notify.error(`Staff deletion failed! ${error.message}`);
   };
+
+  const { mutate: deleteUser } = useDeleteStaff(
+    onDeleteSuccess,
+    onDeleteError
+  );
+
+  const handleDelete = (id: number) => {
+    setOpen(
+      <ConfirmationModal
+        title="Delete Staff User?"
+        description="You are about to delete this staff user. Are you sure?"
+        confirmButtonText="Delete"
+        onConfirm={() => {
+          if (id !== null) {
+            deleteUser(id);
+          }
+        }}
+      />
+    );
+  };
+
+  /** Agency Deletion END */
 
   const columns = useMemo<MRT_ColumnDef<StaffUser>[]>(
     () => [
@@ -138,11 +174,25 @@ function Staff() {
         },
       },
       {
-        accessorKey: "auth_user_guid",
+        accessorKey: "permission",
         header: "Permission Level",
+        filterVariant: "multi-select",
+        filterSelectOptions: permissionList,
+        Filter: ({ header, column }) => {
+          return (
+            <TableFilter
+              isMulti
+              header={header}
+              column={column}
+              variant="inline"
+              name="permissionFilter"
+              placeholder="Filter Permissions"
+            />
+          );
+        },
       },
     ],
-    [deputyList, positionList, supervisorList]
+    [deputyList, permissionList, positionList, supervisorList]
   );
 
   return (
@@ -167,7 +217,7 @@ function Staff() {
           <Box gap={".25rem"} display={"flex"}>
             <IconButton
               aria-label="edit"
-              onClick={() => handleEdit(row.original.id)}
+              onClick={() => handleEdit(row.original)}
             >
               <EditOutlined />
             </IconButton>
@@ -196,7 +246,7 @@ function Staff() {
             </Typography>
             <Button
               startIcon={<AddRounded />}
-              onClick={() => handleOpenModal()}
+              onClick={() => handleAddStaffModal()}
             >
               Staff Member
             </Button>
