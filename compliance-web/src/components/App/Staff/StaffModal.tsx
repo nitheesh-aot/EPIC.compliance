@@ -117,11 +117,7 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
 
   return (
     <Box width="520px">
-      <DialogTitle>
-        {staff
-          ? `${formData.name?.first_name} ${formData.name?.last_name}`
-          : "Add Staff Member"}
-      </DialogTitle>
+      <DialogTitle>{staff ? staff.full_name : "Add Staff Member"}</DialogTitle>
       <ModalCloseIconButton handleClose={handleClose} />
       <Divider />
       <DialogContent>
