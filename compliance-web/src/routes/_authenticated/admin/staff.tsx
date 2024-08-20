@@ -30,26 +30,34 @@ function Staff() {
   const [positionList, setPositionList] = useState<string[]>([]);
   const [supervisorList, setSupervisorList] = useState<string[]>([]);
   const [deputyList, setDeputyList] = useState<string[]>([]);
+  const [permissionList, setPermissionList] = useState<string[]>([]);
 
   useEffect(() => {
-    const positions = [
-      ...new Set(staffUsersList?.map((staff) => staff.position?.name ?? "")),
-    ].filter(Boolean);
-    setPositionList(positions);
-    const supervisors = [
-      ...new Set(
-        staffUsersList?.map((staff) => staff.supervisor?.full_name ?? "")
-      ),
-    ].filter(Boolean);
-    setSupervisorList(supervisors);
-    const deputies = [
-      ...new Set(
-        staffUsersList?.map((staff) => staff.deputy_director?.full_name ?? "")
-      ),
-    ].filter(Boolean);
-    setDeputyList(deputies);
+    setPositionList(
+      [
+        ...new Set(staffUsersList?.map((staff) => staff.position?.name ?? "")),
+      ].filter(Boolean)
+    );
+    setSupervisorList(
+      [
+        ...new Set(
+          staffUsersList?.map((staff) => staff.supervisor?.full_name ?? "")
+        ),
+      ].filter(Boolean)
+    );
+    setDeputyList(
+      [
+        ...new Set(
+          staffUsersList?.map((staff) => staff.deputy_director?.full_name ?? "")
+        ),
+      ].filter(Boolean)
+    );
+    setPermissionList(
+      [
+        ...new Set(staffUsersList?.map((staff) => staff.permission ?? "")),
+      ].filter(Boolean)
+    );
   }, [staffUsersList]);
-
 
   const handleOnSubmit = (submitMsg: string) => {
     queryClient.invalidateQueries({ queryKey: ["staff-users"] });
@@ -136,11 +144,25 @@ function Staff() {
         },
       },
       {
-        accessorKey: "auth_user_guid",
+        accessorKey: "permission",
         header: "Permission Level",
+        filterVariant: "multi-select",
+        filterSelectOptions: permissionList,
+        Filter: ({ header, column }) => {
+          return (
+            <TableFilter
+              isMulti
+              header={header}
+              column={column}
+              variant="inline"
+              name="permissionFilter"
+              placeholder="Filter Permissions"
+            />
+          );
+        },
       },
     ],
-    [deputyList, positionList, supervisorList]
+    [deputyList, permissionList, positionList, supervisorList]
   );
 
   return (
