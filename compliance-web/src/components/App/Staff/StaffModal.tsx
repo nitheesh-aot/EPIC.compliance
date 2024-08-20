@@ -23,6 +23,7 @@ import StaffForm from "./StaffForm";
 import { AuthUser } from "@/models/AuthUser";
 import { notify } from "@/store/snackbarStore";
 import { AxiosError } from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 
 type StaffModalProps = {
   onSubmit: (submitMsg: string) => void;
@@ -40,11 +41,13 @@ const initFormData: Omit<StaffFormData, "id"> = {
 const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
   const [formData, setFormData] =
     useState<Omit<StaffFormData, "id">>(initFormData);
+  const queryClient = useQueryClient();
   const { setClose } = useModal();
 
   const { data: usersList } = useAuthUsersData();
   const { data: positionsList } = usePositionsData();
   const { data: permissionsList } = usePermissionsData();
+  const staffUsersList: StaffUser[] | undefined = queryClient.getQueryData(["staff-users"]);
 
   useEffect(() => {
     if (staff) {
@@ -55,13 +58,13 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
         position: staff.position || null,
         permission:
           permissionsList?.find((item) => item.id === staff.permission) || null,
-        deputyDirector: null,
-        supervisor: null,
+        deputyDirector: staffUsersList?.find((item) => item.id === staff.deputy_director_id) || null,
+        supervisor: staffUsersList?.find((item) => item.id === staff.supervisor_id) || null,
       });
     } else {
       setFormData(initFormData);
     }
-  }, [permissionsList, positionsList, staff, usersList]);
+  }, [permissionsList, positionsList, staff, staffUsersList, usersList]);
 
   const onSuccess = () => {
     onSubmit(staff ? "Successfully updated!" : "Successfully added!");
@@ -85,7 +88,7 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
     (key: keyof StaffFormData) =>
     (
       _event: React.SyntheticEvent,
-      newVal: Position | Permission | AuthUser | null
+      newVal: Position | Permission | AuthUser | StaffUser | null
     ) => {
       setFormData((prevValues) => ({ ...prevValues, [key]: newVal }));
     };
@@ -96,8 +99,8 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
       auth_user_guid: formData.name?.username ?? "",
       permission: formData.permission?.id ?? "",
       position_id: formData.position?.id ?? "",
-      deputy_director_id: formData.deputyDirector?.username,
-      supervisor_id: formData.supervisor?.username,
+      deputy_director_id: formData.deputyDirector?.id,
+      supervisor_id: formData.supervisor?.id,
     };
     if (staff) {
       updateStaff({ id: staff.id, staff: staffData });
@@ -129,6 +132,7 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
           authUsersList={usersList}
           positionsList={positionsList}
           permissionsList={permissionsList}
+          staffUsersList={staffUsersList}
         />
       </DialogContent>
       <Divider />

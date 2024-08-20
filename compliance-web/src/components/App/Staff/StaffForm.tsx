@@ -11,12 +11,13 @@ type StaffFormProps = {
     key: keyof StaffFormModel
   ) => (
     _event: React.SyntheticEvent,
-    newVal: Position | Permission | AuthUser | null
+    newVal: Position | Permission | AuthUser | StaffUser | null
   ) => void;
   existingStaff?: StaffUser;
   authUsersList?: AuthUser[];
   positionsList?: Position[];
   permissionsList?: Permission[];
+  staffUsersList?: StaffUser[];
 };
 
 const StaffForm: React.FC<StaffFormProps> = ({
@@ -26,6 +27,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
   permissionsList,
   positionsList,
   authUsersList,
+  staffUsersList,
 }) => {
   return (
     <>
@@ -56,11 +58,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
       <Stack direction="row" spacing={1}>
         <Autocomplete
           id="deputyDirector"
-          options={authUsersList ?? []}
+          options={staffUsersList ?? []}
           onChange={handleAutocompleteChange("deputyDirector")}
-          getOptionLabel={(option) =>
-            `${option.first_name} ${option.last_name}`
-          }
+          getOptionLabel={(option) => option.full_name ?? ""}
           getOptionKey={(option) => option.id}
           isOptionEqualToValue={(option, value) => option.id === value.id}
           value={formData.deputyDirector}
@@ -75,11 +75,9 @@ const StaffForm: React.FC<StaffFormProps> = ({
         />
         <Autocomplete
           id="supervisor"
-          options={authUsersList ?? []}
+          options={staffUsersList ?? []}
           onChange={handleAutocompleteChange("supervisor")}
-          getOptionLabel={(option) =>
-            `${option.first_name} ${option.last_name}`
-          }
+          getOptionLabel={(option) => option.full_name ?? ""}
           getOptionKey={(option) => option.id}
           isOptionEqualToValue={(option, value) => option.id === value.id}
           value={formData.supervisor}

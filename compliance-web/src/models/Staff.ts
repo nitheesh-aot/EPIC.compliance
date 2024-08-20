@@ -30,8 +30,8 @@ export interface StaffFormData {
   id: number;
   name: AuthUser | null;
   position: Position | null;
-  deputyDirector: AuthUser | null;
-  supervisor: AuthUser | null;
+  deputyDirector: StaffUser | null;
+  supervisor: StaffUser | null;
   permission: Permission | null;
 }
 
@@ -39,6 +39,6 @@ export interface StaffAPIData {
   auth_user_guid: string;
   position_id: string;
   permission: string;
-  supervisor_id?: string;
-  deputy_director_id?: string;
+  supervisor_id?: number;
+  deputy_director_id?: number;
 }
