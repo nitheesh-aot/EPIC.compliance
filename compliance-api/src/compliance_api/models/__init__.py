@@ -18,4 +18,5 @@ from .agency import Agency
 from .case_file import CASE_FILE_INITIATION_MAP, CaseFile, CaseFileInitiationEnum, CaseFileOfficer
 from .db import db, ma, migrate
 from .position import Position
+from .project import Project
 from .staff_user import PERMISSION_MAP, PermissionEnum, StaffUser
