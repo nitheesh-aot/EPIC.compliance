@@ -1,5 +1,5 @@
 """Service for position."""
-from compliance_api.models import Position
+from compliance_api.models import Position as PositionModel
 
 
 class PositionService:
@@ -8,4 +8,4 @@ class PositionService:
     @classmethod
     def get_all_positions(cls):
         """Get all positions."""
-        return Position.get_all()
+        return PositionModel.get_all()
