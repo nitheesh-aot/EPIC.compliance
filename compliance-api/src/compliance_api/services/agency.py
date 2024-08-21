@@ -8,13 +8,13 @@ class AgencyService:
 
     @classmethod
     def get_agency_by_id(cls, agency_id):
-        """Get user by id."""
+        """Get agency by id."""
         agency = Agency.find_by_id(agency_id)
         return agency
 
     @classmethod
     def get_all_agencies(cls):
-        """Get all users."""
+        """Get all agencies."""
         users = Agency.get_all()
         return users
 
@@ -40,7 +40,7 @@ class AgencyService:
 
     @classmethod
     def delete_agency(cls, agency_id, commit=True):
-        """Update agency."""
+        """Delete agency."""
         agency = Agency.find_by_id(agency_id)
         if not agency or agency.is_deleted:
             return None

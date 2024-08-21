@@ -18,6 +18,7 @@ from marshmallow_enum import EnumField
 from compliance_api.models import CaseFile, CaseFileInitiationEnum, CaseFileOfficer
 
 from .base_schema import AutoSchemaBase, BaseSchema
+from .project import ProjectSchema
 from .staff_user import StaffUserSchema
 
 
@@ -43,12 +44,21 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         include_fk = True
 
     lead_officer = fields.Nested(StaffUserSchema, dump_only=True)
+    project = fields.Nested(
+        ProjectSchema,
+        dump_only=True,
+        exclude=["description", "ea_certificate", "proponent_name", "is_active"],
+    )
 
     @post_dump
-    def handle_initiation_enum(self, data, **kwargs):  # pylint: disable=unused-argument, no-self-use
+    def handle_initiation_enum(
+        self, data, **kwargs
+    ):  # pylint: disable=unused-argument, no-self-use
         """Convert the initiation enum to its string representation."""
-        if 'initiation' in data and isinstance(data['initiation'], CaseFileInitiationEnum):
-            data['initiation'] = data['initiation'].value
+        if "initiation" in data and isinstance(
+            data["initiation"], CaseFileInitiationEnum
+        ):
+            data["initiation"] = data["initiation"].value
         return data
 
 
