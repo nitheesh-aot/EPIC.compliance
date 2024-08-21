@@ -18,53 +18,88 @@ import {
   DialogTitle,
   Divider,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import StaffForm from "./StaffForm";
 import { AuthUser } from "@/models/AuthUser";
 import { notify } from "@/store/snackbarStore";
 import { AxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
+import * as yup from "yup";
+import { FormProvider, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 type StaffModalProps = {
   onSubmit: (submitMsg: string) => void;
   staff?: StaffUser;
 };
 
-const initFormData: Omit<StaffFormData, "id"> = {
-  name: null,
-  position: null,
-  deputyDirector: null,
-  supervisor: null,
-  permission: null,
+const staffFormSchema = yup.object().shape({
+  name: yup.object<AuthUser>().nullable().required("Name is required"),
+  position: yup.object<Position>().nullable().required("Position is required"),
+  deputyDirector: yup.object<StaffUser>().nullable(),
+  supervisor: yup.object<StaffUser>().nullable(),
+  permission: yup
+    .object<Permission>()
+    .nullable()
+    .required("Permission is required"),
+});
+
+type StaffSchemaType = yup.InferType<typeof staffFormSchema>;
+
+const initFormData: StaffFormData = {
+  name: undefined,
+  position: undefined,
+  deputyDirector: undefined,
+  supervisor: undefined,
+  permission: undefined,
 };
 
 const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
-  const [formData, setFormData] =
-    useState<Omit<StaffFormData, "id">>(initFormData);
   const queryClient = useQueryClient();
   const { setClose } = useModal();
 
   const { data: usersList } = useAuthUsersData();
   const { data: positionsList } = usePositionsData();
   const { data: permissionsList } = usePermissionsData();
-  const staffUsersList: StaffUser[] | undefined = queryClient.getQueryData(["staff-users"]);
+  const staffUsersList: StaffUser[] | undefined = queryClient.getQueryData([
+    "staff-users",
+  ]);
+
+  const defaultValues = useMemo<StaffFormData>(() => {
+    if (staff) {
+      return {
+        name:
+          usersList?.find((item) => item.username === staff.auth_user_guid) ||
+          undefined,
+        position: staff.position || undefined,
+        permission:
+          permissionsList?.find((item) => item.id === staff.permission) ||
+          undefined,
+        deputyDirector:
+          staffUsersList?.find(
+            (item) => item.id === staff.deputy_director_id
+          ) || undefined,
+        supervisor:
+          staffUsersList?.find((item) => item.id === staff.supervisor_id) ||
+          undefined,
+      };
+    }
+    return initFormData;
+  }, [staff, usersList, permissionsList, staffUsersList]);
+
+  const methods = useForm<StaffSchemaType>({
+    resolver: yupResolver(staffFormSchema),
+    mode: "onBlur",
+    defaultValues,
+  });
+
+  const { handleSubmit, reset } = methods;
 
   useEffect(() => {
     if (staff) {
-      setFormData({
-        name:
-          usersList?.find((item) => item.username === staff.auth_user_guid) ||
-          null,
-        position: staff.position || null,
-        permission:
-          permissionsList?.find((item) => item.id === staff.permission) || null,
-        deputyDirector: staffUsersList?.find((item) => item.id === staff.deputy_director_id) || null,
-        supervisor: staffUsersList?.find((item) => item.id === staff.supervisor_id) || null,
-      });
-    } else {
-      setFormData(initFormData);
+      reset(defaultValues);
     }
-  }, [permissionsList, positionsList, staff, staffUsersList, usersList]);
+  }, [defaultValues, reset, staff]);
 
   const onSuccess = () => {
     onSubmit(staff ? "Successfully updated!" : "Successfully added!");
@@ -74,33 +109,16 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
     notify.error(err?.message);
   };
 
-  const { mutate: addStaff, reset: resetAddStaff } = useAddStaff(
-    onSuccess,
-    onError
-  );
+  const { mutate: addStaff } = useAddStaff(onSuccess, onError);
+  const { mutate: updateStaff } = useUpdateStaff(onSuccess, onError);
 
-  const { mutate: updateStaff, reset: resetUpdateStaff } = useUpdateStaff(
-    onSuccess,
-    onError
-  );
-
-  const handleAutocompleteChange =
-    (key: keyof StaffFormData) =>
-    (
-      _event: React.SyntheticEvent,
-      newVal: Position | Permission | AuthUser | StaffUser | null
-    ) => {
-      setFormData((prevValues) => ({ ...prevValues, [key]: newVal }));
-    };
-
-  const handleSubmit = (e: React.FormEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const onSubmitHandler = (data: StaffSchemaType) => {
     const staffData: StaffAPIData = {
-      auth_user_guid: formData.name?.username ?? "",
-      permission: formData.permission?.id ?? "",
-      position_id: formData.position?.id ?? "",
-      deputy_director_id: formData.deputyDirector?.id,
-      supervisor_id: formData.supervisor?.id,
+      auth_user_guid: (data.name as AuthUser)?.username ?? "",
+      permission: (data.permission as Permission)?.id ?? "",
+      position_id: (data.position as Position)?.id ?? "",
+      deputy_director_id: (data.deputyDirector as StaffUser)?.id,
+      supervisor_id: (data.supervisor as StaffUser)?.id,
     };
     if (staff) {
       updateStaff({ id: staff.id, staff: staffData });
@@ -110,8 +128,6 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
   };
 
   const handleClose = () => {
-    staff ? resetUpdateStaff() : resetAddStaff();
-    setFormData(initFormData);
     setClose();
   };
 
@@ -120,26 +136,26 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
       <DialogTitle>{staff ? staff.full_name : "Add Staff Member"}</DialogTitle>
       <ModalCloseIconButton handleClose={handleClose} />
       <Divider />
-      <DialogContent>
-        <StaffForm
-          formData={formData}
-          existingStaff={staff}
-          handleAutocompleteChange={handleAutocompleteChange}
-          authUsersList={usersList}
-          positionsList={positionsList}
-          permissionsList={permissionsList}
-          staffUsersList={staffUsersList}
-        />
-      </DialogContent>
-      <Divider />
-      <DialogActions sx={{ paddingX: "1.5rem", paddingY: "1rem" }}>
-        <Button variant={"text"} onClick={handleClose}>
-          Cancel
-        </Button>
-        <Button variant={"contained"} onClick={handleSubmit}>
-          {staff ? "Save" : "Add"}
-        </Button>
-      </DialogActions>
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmitHandler)}>
+          <DialogContent>
+            <StaffForm
+              existingStaff={staff}
+              authUsersList={usersList}
+              positionsList={positionsList}
+              permissionsList={permissionsList}
+              staffUsersList={staffUsersList}
+            />
+          </DialogContent>
+          <Divider />
+          <DialogActions sx={{ paddingX: "1.5rem", paddingY: "1rem" }}>
+            <Button variant="text" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button type="submit">{staff ? "Save" : "Add"}</Button>
+          </DialogActions>
+        </form>
+      </FormProvider>
     </Box>
   );
 };
