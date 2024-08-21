@@ -3,11 +3,8 @@
 from compliance_api.exceptions import ResourceExistsError, UnprocessableEntityError
 from compliance_api.models import db
 from compliance_api.models.db import session_scope
-from compliance_api.models.staff_user import (
-    PERMISSION_MAP,
-    PermissionEnum,
-    StaffUser as StaffUserModel,
-)
+from compliance_api.models.staff_user import PERMISSION_MAP, PermissionEnum
+from compliance_api.models.staff_user import StaffUser as StaffUserModel
 from compliance_api.utils.constant import AUTH_APP
 
 from .authorize_service.auth_service import AuthService
@@ -45,11 +42,7 @@ class StaffUserService:
     def create_user(cls, user_data: dict):
         """Create user."""
         auth_user_guid = user_data.get("auth_user_guid", None)
-        existing_staff_user = StaffUserModel.get_staff_user_by_auth_guid(auth_user_guid)
-        if existing_staff_user:
-            raise ResourceExistsError(
-                f"User with auth guid {auth_user_guid} already exists"
-            )
+        _validate_staff_user_existence(auth_user_guid)
         auth_user = AuthService.get_epic_user_by_guid(auth_user_guid)
         if not auth_user:
             raise UnprocessableEntityError(
@@ -69,6 +62,7 @@ class StaffUserService:
     def update_user(cls, user_id, user_data):
         """Update staff user."""
         auth_user_guid = user_data.get("auth_user_guid", None)
+        _validate_staff_user_existence(auth_user_guid, staff_user_id=user_id)
         auth_user = AuthService.get_epic_user_by_guid(auth_user_guid)
         if not auth_user:
             raise UnprocessableEntityError(
@@ -136,3 +130,12 @@ def _set_permission_level_in_compliance_user_obj(
         if sorted_groups[0] and sorted_groups[0]["name"]:
             setattr(compliance_user, "permission", sorted_groups[0]["name"])
     return compliance_user
+
+
+def _validate_staff_user_existence(auth_user_guid: str, staff_user_id: int = None):
+    """Check if the staff user exists."""
+    existing_staff_user = StaffUserModel.get_staff_user_by_auth_guid(auth_user_guid)
+    if existing_staff_user and (
+        not staff_user_id or existing_staff_user.id != staff_user_id
+    ):
+        raise ResourceExistsError(f"Staff user with the guid {auth_user_guid} exists")

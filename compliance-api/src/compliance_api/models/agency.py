@@ -18,3 +18,8 @@ class Agency(BaseModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(150), nullable=False)
     abbreviation = Column(String(10), nullable=True)
+
+    @classmethod
+    def get_agency_by_name(cls, agency_name: str) -> Agency:
+        """Get agency by name."""
+        return cls.query.filter_by(name=agency_name).first()
