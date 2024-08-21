@@ -26,13 +26,12 @@ export interface StaffUser {
   supervisor?: StaffUser;
 }
 
-export interface StaffFormData {
-  id: number;
-  name: AuthUser | null;
-  position: Position | null;
-  deputyDirector: StaffUser | null;
-  supervisor: StaffUser | null;
-  permission: Permission | null;
+export type StaffFormData = {
+  name?: AuthUser;
+  position?: Position;
+  deputyDirector?: StaffUser;
+  supervisor?: StaffUser;
+  permission?: Permission;
 }
 
 export interface StaffAPIData {
