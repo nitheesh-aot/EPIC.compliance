@@ -1,7 +1,9 @@
 """Service for handle CaseFile."""
 
 from compliance_api.exceptions import ResourceExistsError
-from compliance_api.models import CASE_FILE_INITIATION_MAP, CaseFile, CaseFileInitiationEnum, CaseFileOfficer
+from compliance_api.models import CASE_FILE_INITIATION_MAP
+from compliance_api.models import CaseFile as CaseFileModel
+from compliance_api.models import CaseFileInitiationEnum, CaseFileOfficer
 from compliance_api.models.db import session_scope
 
 
@@ -19,12 +21,12 @@ class CaseFileService:
     @classmethod
     def get_all_case_files(cls):
         """Return all the case files."""
-        return CaseFile.get_all()
+        return CaseFileModel.get_all()
 
     @classmethod
     def get_case_file_by_id(cls, case_file_id: int):
         """Return case file by id."""
-        return CaseFile.find_by_id(case_file_id)
+        return CaseFileModel.find_by_id(case_file_id)
 
     @classmethod
     def create_case_file(cls, case_file_data: dict):
@@ -32,7 +34,7 @@ class CaseFileService:
         case_file_obj = _create_case_file_object(case_file_data)
         _validate_case_file_existence(case_file_obj.get("case_file_number", None))
         with session_scope() as session:
-            created_case_file = CaseFile.create_case_file(case_file_obj, session)
+            created_case_file = CaseFileModel.create_case_file(case_file_obj, session)
             cls.insert_or_update_officers(
                 created_case_file.id, case_file_data.get("officer_ids", None), session
             )
@@ -46,7 +48,7 @@ class CaseFileService:
             case_file_obj.get("case_file_number", None), case_file_id
         )
         with session_scope() as session:
-            updated_case_file = CaseFile.update_case_file(
+            updated_case_file = CaseFileModel.update_case_file(
                 case_file_id, case_file_obj, session
             )
             cls.insert_or_update_officers(
@@ -57,7 +59,7 @@ class CaseFileService:
     @classmethod
     def get_case_file_by_file_number(cls, case_file_number: int):
         """Return case file information by file number."""
-        return CaseFile.get_case_file_by_file_number(case_file_number)
+        return CaseFileModel.get_case_file_by_file_number(case_file_number)
 
     @classmethod
     def insert_or_update_officers(
@@ -95,7 +97,7 @@ def _create_case_file_object(case_file_data: dict):
 
 def _validate_case_file_existence(case_file_number: int, case_file_id: int = None):
     """Check if the case file exists."""
-    existing_case_file = CaseFile.get_case_file_by_file_number(case_file_number)
+    existing_case_file = CaseFileModel.get_case_file_by_file_number(case_file_number)
     if existing_case_file and (
         not case_file_id or existing_case_file.id != case_file_id
     ):
