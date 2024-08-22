@@ -63,7 +63,6 @@ const EAOAppBar = forwardRef<HTMLDivElement, EAOAppBarProps>((_props, ref) => {
             <Typography
               variant="h3"
               color="inherit"
-              component="div"
               paddingLeft={"2.5rem"}
               fontWeight={"bold"}
             >
@@ -96,6 +95,7 @@ const EAOAppBar = forwardRef<HTMLDivElement, EAOAppBarProps>((_props, ref) => {
                     variant="body1"
                     fontWeight={700}
                     color={theme.palette.primary.main}
+                    aria-label="user-initials"
                   >{userInitials}</Typography>
                 </Avatar>
               </Box>
