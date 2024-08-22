@@ -8,7 +8,7 @@ export type OnSuccessType = (data: any) => void;
 
 
 
-function getUser() {
+export function getUser() {
   const oidcStorage = sessionStorage.getItem(
     `oidc.user:${OidcConfig.authority}:${OidcConfig.client_id}`
   );
@@ -30,7 +30,7 @@ const onError = (error: AxiosError) => {
   throw error;
 };
 
-function setAuthToken(client: AxiosInstance) {
+export function setAuthToken(client: AxiosInstance) {
   const user = getUser();
   if (user?.access_token) {
     client.defaults.headers.common.Authorization = `Bearer ${user?.access_token}`;
