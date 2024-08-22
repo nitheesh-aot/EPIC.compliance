@@ -8,6 +8,7 @@ import { theme } from "@/styles/theme";
 import RouterProviderWithAuthContext from "@/router";
 import ModalProvider from "@/components/Shared/Modals/ModalProvider";
 import SnackBarProvider from "@/components/Shared/Popups/SnackBarProvider";
+import DrawerProvider from "@/components/Shared/Drawer/DrawerProvider";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +18,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={theme}>
           <AuthProvider {...OidcConfig}>
+            <DrawerProvider />
             <ModalProvider />
             <SnackBarProvider />
             <RouterProviderWithAuthContext />
