@@ -15,4 +15,5 @@
 from .agency import AgencyCreateSchema, AgencySchema
 from .case_file import CaseFileCreateSchema, CaseFileSchema
 from .common import KeyValueSchema
+from .project import ProjectSchema
 from .staff_user import StaffUserCreateSchema, StaffUserSchema

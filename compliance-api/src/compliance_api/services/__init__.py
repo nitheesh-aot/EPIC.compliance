@@ -15,4 +15,5 @@
 from .agency import AgencyService
 from .case_file import CaseFileService
 from .position import PositionService
+from .project import ProjectService
 from .staff_user import StaffUserService
