@@ -15,19 +15,12 @@
 """This exports all of the models and schemas used by the application."""
 
 from .agency import Agency
-from .case_file import (
-    CaseFile,
-    CaseFileOfficer,
-    CaseFileInitiationOption,
-)
+from .case_file import CaseFile, CaseFileInitiationOption, CaseFileOfficer
 from .db import db, ma, migrate
-from .position import Position
-from .staff_user import PERMISSION_MAP, PermissionEnum, StaffUser
 from .inspection import (
-    Inspection,
-    InspectionAttendanceOption,
-    InspectionInitiationOption,
-    IRStatusOption,
-    IRTypeOption,
-)
+    Inspection, InspectionAttendance, InspectionAttendanceOption, InspectionInitiationOption, InspectionOfficer,
+    IRStatusOption, IRTypeOption)
+from .position import Position
+from .project import Project
 from .project_status import ProjectStatusOption
+from .staff_user import PERMISSION_MAP, PermissionEnum, StaffUser

@@ -10,13 +10,13 @@ class AgencyService:
 
     @classmethod
     def get_agency_by_id(cls, agency_id):
-        """Get user by id."""
+        """Get agency by id."""
         agency = AgencyModel.find_by_id(agency_id)
         return agency
 
     @classmethod
     def get_all_agencies(cls):
-        """Get all users."""
+        """Get all agencies."""
         users = AgencyModel.get_all()
         return users
 

@@ -13,9 +13,12 @@
 # limitations under the License.
 """Project Status Model."""
 from sqlalchemy import Column, Integer, String
+
 from .base_model import BaseModel
+
+
 class ProjectStatusOption(BaseModel):
-    """ProjectStatus options"""
+    """ProjectStatus options."""
 
     __tablename__ = "project_status_options"
     id = Column(

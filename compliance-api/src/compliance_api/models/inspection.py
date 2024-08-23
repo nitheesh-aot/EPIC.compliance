@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inspection Model."""
-from sqlalchemy import Column, Integer, ForeignKey, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from .base_model import BaseModel
 
 
 class Inspection(BaseModel):
-    """Inspection Model Class"""
+    """Inspection Model Class."""
 
     __tablename__ = "inspections"
     id = Column(
@@ -50,14 +51,36 @@ class Inspection(BaseModel):
         ),
         nullable=False,
     )
+    start_date = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        comment="The inspection start date",
+    )
+    end_date = Column(
+        DateTime(timezone=True), nullable=False, comment="The inspection end date"
+    )
     initiation_id = Column(
         Integer,
-        ForeignKey("inspection_initiation_id_inspection_initiation_options_id_fkey"),
+        ForeignKey(
+            "inspection_initiation_options.id",
+            name="inspection_initiation_id_inspection_initiation_options_id_fkey",
+        ),
         nullable=False,
     )
     ir_status_id = Column(
         Integer,
-        ForeignKey("inspection_ir_status_id_ir_status_options_id_fkey"),
+        ForeignKey(
+            "ir_status_options.id",
+            name="inspection_ir_status_id_ir_status_options_id_fkey",
+        ),
+        nullable=True,
+    )
+    project_status_id = Column(
+        Integer,
+        ForeignKey(
+            "project_status_options.id",
+            name="inspection_project_status_id_project_status_options_id_fkey",
+        ),
         nullable=True,
     )
 
@@ -69,15 +92,23 @@ class Inspection(BaseModel):
         back_populates="inspection",
         lazy="select",
     )
+    inspection_attendance = relationship(
+        "InspectionAttendance",
+        back_populates="inspection",
+        lazy="select"
+    )
     ir_type = relationship("IRTypeOption", foreign_keys=[ir_type_id], lazy="joined")
     ir_status = relationship(
         "IRStatusOption", foreign_keys=[ir_status_id], lazy="joined"
     )
     project = relationship("Project", foreign_keys=[project_id], lazy="joined")
+    project_status = relationship(
+        "ProjectStatusOption", foreign_keys=[project_status_id], lazy="joined"
+    )
 
 
 class InspectionOfficer(BaseModel):
-    """Other officers associated with the inspection"""
+    """Other officers associated with the inspection."""
 
     __tablename__ = "inspection_officers"
     id = Column(
@@ -103,7 +134,7 @@ class InspectionOfficer(BaseModel):
     )
 
     inspection = relationship(
-        "Inpsection",
+        "Inspection",
         back_populates="inspection_officers",
         lazy="joined",
     )
@@ -144,7 +175,7 @@ class InspectionOfficer(BaseModel):
 
 
 class InspectionAttendanceOption(BaseModel):
-    """Inspection attendance option categories"""
+    """Inspection attendance option categories."""
 
     __tablename__ = "attendance_options"
     id = Column(
@@ -161,7 +192,7 @@ class InspectionAttendanceOption(BaseModel):
 
 
 class IRTypeOption(BaseModel):
-    """Inspection Record type options"""
+    """Inspection Record type options."""
 
     __tablename__ = "ir_type_options"
     id = Column(
@@ -178,7 +209,7 @@ class IRTypeOption(BaseModel):
 
 
 class InspectionInitiationOption(BaseModel):
-    """Initiation options for creating an inspection"""
+    """Initiation options for creating an inspection."""
 
     __tablename__ = "inspection_initiation_options"
     id = Column(
@@ -195,7 +226,7 @@ class InspectionInitiationOption(BaseModel):
 
 
 class IRStatusOption(BaseModel):
-    """IR Status options"""
+    """IR Status options."""
 
     __tablename__ = "ir_status_options"
     id = Column(
@@ -212,7 +243,7 @@ class IRStatusOption(BaseModel):
 
 
 class InspectionAttendance(BaseModel):
-    """Inspection attendance category mapping"""
+    """Inspection attendance category mapping."""
 
     __tablename__ = "inspection_attendance_mappings"
     id = Column(
@@ -238,8 +269,8 @@ class InspectionAttendance(BaseModel):
         nullable=False,
     )
     inspection = relationship(
-        "Inpsection",
-        back_populates="inspection_attendance_mappings",
+        "Inspection",
+        back_populates="inspection_attendance",
         lazy="joined",
     )
     attendance_option = relationship(

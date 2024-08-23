@@ -13,11 +13,11 @@
 # limitations under the License.
 """CaseFile Schema."""
 from marshmallow import EXCLUDE, fields
-from marshmallow_enum import EnumField
 
 from compliance_api.models import CaseFile, CaseFileOfficer
 
 from .base_schema import AutoSchemaBase, BaseSchema
+from .project import ProjectSchema
 from .staff_user import StaffUserSchema
 
 
@@ -43,6 +43,11 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         include_fk = True
 
     lead_officer = fields.Nested(StaffUserSchema, dump_only=True)
+    project = fields.Nested(
+        ProjectSchema,
+        dump_only=True,
+        exclude=["description", "ea_certificate", "proponent_name", "is_active"],
+    )
 
 
 class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
@@ -71,7 +76,7 @@ class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
         metadata={"description": "The unique identifier for the initiation options"},
         required=True,
     )
-    case_file_number = fields.StrInt(
+    case_file_number = fields.Str(
         metadata={"description": "The unique case file number"}, required=True
     )
     officer_ids = fields.List(

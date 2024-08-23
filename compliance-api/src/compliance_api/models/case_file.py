@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Case file Model."""
-import enum
-
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
@@ -32,6 +30,7 @@ class CaseFile(BaseModel):
     )
     project_id = Column(
         Integer,
+        ForeignKey("projects.id", name="case_files_project_id_projects_id_fkey"),
         nullable=False,
         comment="The unique identifier of the project associated with the case file",
     )
@@ -64,6 +63,9 @@ class CaseFile(BaseModel):
     )
     lead_officer = relationship(
         "StaffUser", foreign_keys=[lead_officer_id], lazy="joined"
+    )
+    project = relationship(
+        "Project", foreign_keys=[project_id], lazy="joined"
     )
     case_file_officers = relationship(
         "CaseFileOfficer",
@@ -165,7 +167,7 @@ class CaseFileOfficer(BaseModel):
 
 
 class CaseFileInitiationOption(BaseModel):
-    """Initiation Options for creating CaseFile"""
+    """Initiation Options for creating CaseFile."""
 
     __tablename__ = "case_file_initiation_options"
     id = Column(
