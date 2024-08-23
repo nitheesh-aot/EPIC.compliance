@@ -1,3 +1,4 @@
+import { ExpandMore } from "@mui/icons-material";
 import { Autocomplete, TextField, AutocompleteProps } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 
@@ -38,6 +39,7 @@ const ControlledAutoComplete = <T,>({
           isOptionEqualToValue={isOptionEqualToValue}
           value={field.value ?? null}
           onChange={(_event, newVal) => field.onChange(newVal)}
+          popupIcon={<ExpandMore />}
           renderInput={(params) => (
             <TextField
               {...params}

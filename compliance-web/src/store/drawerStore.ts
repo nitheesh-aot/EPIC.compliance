@@ -25,7 +25,6 @@ export const useDrawer = create<DrawerStore>((set) => ({
   setClose: () => {
     set({
       isOpen: false,
-      drawerContent: null,
     })
   },
 }))
