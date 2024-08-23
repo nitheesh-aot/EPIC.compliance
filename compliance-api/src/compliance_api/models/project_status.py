@@ -11,23 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Project Status Model."""
+from sqlalchemy import Column, Integer, String
+from .base_model import BaseModel
+class ProjectStatusOption(BaseModel):
+    """ProjectStatus options"""
 
-"""This exports all of the models and schemas used by the application."""
-
-from .agency import Agency
-from .case_file import (
-    CaseFile,
-    CaseFileOfficer,
-    CaseFileInitiationOption,
-)
-from .db import db, ma, migrate
-from .position import Position
-from .staff_user import PERMISSION_MAP, PermissionEnum, StaffUser
-from .inspection import (
-    Inspection,
-    InspectionAttendanceOption,
-    InspectionInitiationOption,
-    IRStatusOption,
-    IRTypeOption,
-)
-from .project_status import ProjectStatusOption
+    __tablename__ = "project_status_options"
+    id = Column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        comment="The unique identifier of the project status option",
+    )
+    name = Column(String, unique=True, comment="The name of the option")
+    sort_order = Column(
+        Integer,
+        comment="Order of priority. Mainly used order the options while listing",
+    )

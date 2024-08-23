@@ -14,23 +14,10 @@
 """Case file Model."""
 import enum
 
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModel
-
-
-class CaseFileInitiationEnum(enum.Enum):
-    """Enum for CaseFileInitiation Options."""
-
-    INSPECTION = "INSPECTION"
-    COMPLAINT = "COMPLAINT"
-
-
-CASE_FILE_INITIATION_MAP = {
-    CaseFileInitiationEnum.INSPECTION: "Inspection",
-    CaseFileInitiationEnum.COMPLAINT: "Complaint",
-}
 
 
 class CaseFile(BaseModel):
@@ -59,13 +46,17 @@ class CaseFile(BaseModel):
         nullable=True,
         comment="The lead officer who created the case file",
     )
-    initiation = Column(
-        Enum(CaseFileInitiationEnum),
+    initiation_id = Column(
+        Integer,
+        ForeignKey(
+            "case_file_initiation_options.id",
+            name="case_files_initation_id_case_file_initiation_options_id_fkey",
+        ),
         nullable=False,
         comment="Case file initiation options",
     )
     case_file_number = Column(
-        Integer,
+        String,
         unique=True,
         index=True,
         nullable=False,
@@ -77,8 +68,7 @@ class CaseFile(BaseModel):
     case_file_officers = relationship(
         "CaseFileOfficer",
         back_populates="case_file",
-        cascade="all, delete-orphan",
-        lazy="joined",
+        lazy="select",
     )
 
     @classmethod
@@ -172,3 +162,20 @@ class CaseFileOfficer(BaseModel):
         else:
             cls.session.add_all(case_file_officer_data)
             cls.session.commit()
+
+
+class CaseFileInitiationOption(BaseModel):
+    """Initiation Options for creating CaseFile"""
+
+    __tablename__ = "case_file_initiation_options"
+    id = Column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        comment="The unique identifier of the case file initiation options",
+    )
+    name = Column(String, unique=True, comment="The name of the option")
+    sort_order = Column(
+        Integer,
+        comment="Order of priority. Mainly used order the options while listing",
+    )
