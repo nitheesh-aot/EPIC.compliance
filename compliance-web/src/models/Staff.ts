@@ -2,15 +2,6 @@ import { Position } from "./Position";
 import { Permission } from "./Permission";
 import { AuthUser } from "./AuthUser";
 
-export interface Staff {
-  id: number;
-  name?: number;
-  position?: string;
-  deputyDirector?: number;
-  supervisor?: number;
-  permission?: string;
-}
-
 export interface StaffUser {
   id: number;
   full_name?: string;
