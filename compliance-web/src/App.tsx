@@ -8,6 +8,9 @@ import { theme } from "@/styles/theme";
 import RouterProviderWithAuthContext from "@/router";
 import ModalProvider from "@/components/Shared/Modals/ModalProvider";
 import SnackBarProvider from "@/components/Shared/Popups/SnackBarProvider";
+import DrawerProvider from "@/components/Shared/Drawer/DrawerProvider";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 const queryClient = new QueryClient();
 
@@ -17,9 +20,12 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={theme}>
           <AuthProvider {...OidcConfig}>
-            <ModalProvider />
-            <SnackBarProvider />
-            <RouterProviderWithAuthContext />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DrawerProvider />
+              <ModalProvider />
+              <SnackBarProvider />
+              <RouterProviderWithAuthContext />
+            </LocalizationProvider>
           </AuthProvider>
         </ThemeProvider>
         {/* <ReactQueryDevtools initialIsOpen={false}  /> */}
