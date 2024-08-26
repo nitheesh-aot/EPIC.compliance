@@ -1,9 +1,6 @@
-import {
-  useCreateCaseFile,
-  useInitiationsData,
-  useProjectsData,
-} from "@/hooks/useCaseFiles";
+import { useCreateCaseFile, useInitiationsData } from "@/hooks/useCaseFiles";
 import { useStaffUsersData } from "@/hooks/useStaff";
+import { useProjectsData } from "@/hooks/useProjects";
 import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
 import { Project } from "@/models/Project";
