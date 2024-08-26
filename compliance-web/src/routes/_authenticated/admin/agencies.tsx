@@ -9,13 +9,11 @@ import { notify } from "@/store/snackbarStore";
 import {
   EditOutlined,
   DeleteOutlineRounded,
-  AddRounded,
 } from "@mui/icons-material";
-import { Box, IconButton, Typography, Button } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { AxiosError } from "axios";
-import { BCDesignTokens } from "epic.theme";
 import { MRT_ColumnDef } from "material-react-table";
 import { useMemo } from "react";
 
@@ -133,29 +131,11 @@ function Agencies() {
             </IconButton>
           </Box>
         )}
-        renderTopToolbarCustomActions={() => (
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              variant="h5"
-              sx={{ color: BCDesignTokens.typographyColorLink }}
-            >
-              Agencies
-            </Typography>
-            <Button
-              startIcon={<AddRounded />}
-              onClick={() => handleOpenModal()}
-            >
-              Agency
-            </Button>
-          </Box>
-        )}
+        titleToolbarProps={{
+          tableTitle: "Agencies",
+          tableAddRecordButtonText: "Agency",
+          tableAddRecordFunction: () => handleOpenModal(),
+        }}
       />
     </>
   );

@@ -2,13 +2,11 @@ import StaffModal from "@/components/App/Staff/StaffModal";
 import { useModal } from "@/store/modalStore";
 import { notify } from "@/store/snackbarStore";
 import {
-  AddRounded,
   DeleteOutlineRounded,
   EditOutlined,
 } from "@mui/icons-material";
-import { Box, Button, IconButton, Typography } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
-import { BCDesignTokens } from "epic.theme";
 import { StaffUser } from "@/models/Staff";
 import { useDeleteStaff, useStaffUsersData } from "@/hooks/useStaff";
 import { MRT_ColumnDef } from "material-react-table";
@@ -70,7 +68,7 @@ function Staff() {
   const handleAddStaffModal = () => {
     setOpen(<StaffModal onSubmit={handleOnSubmit} />);
   };
-  
+
   const handleEdit = (staff: StaffUser) => {
     setOpen(<StaffModal staff={staff} onSubmit={handleOnSubmit} />);
   };
@@ -87,10 +85,7 @@ function Staff() {
     notify.error(`Staff deletion failed! ${error.message}`);
   };
 
-  const { mutate: deleteUser } = useDeleteStaff(
-    onDeleteSuccess,
-    onDeleteError
-  );
+  const { mutate: deleteUser } = useDeleteStaff(onDeleteSuccess, onDeleteError);
 
   const handleDelete = (id: number) => {
     setOpen(
@@ -229,29 +224,11 @@ function Staff() {
             </IconButton>
           </Box>
         )}
-        renderTopToolbarCustomActions={() => (
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              variant="h5"
-              sx={{ color: BCDesignTokens.typographyColorLink }}
-            >
-              Staff
-            </Typography>
-            <Button
-              startIcon={<AddRounded />}
-              onClick={() => handleAddStaffModal()}
-            >
-              Staff Member
-            </Button>
-          </Box>
-        )}
+        titleToolbarProps={{
+          tableTitle: "Staff",
+          tableAddRecordButtonText: "Staff Member",
+          tableAddRecordFunction: () => handleAddStaffModal(),
+        }}
       />
     </>
   );
