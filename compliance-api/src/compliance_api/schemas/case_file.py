@@ -17,6 +17,7 @@ from marshmallow import EXCLUDE, fields
 from compliance_api.models import CaseFile, CaseFileOfficer
 
 from .base_schema import AutoSchemaBase, BaseSchema
+from .common import KeyValueSchema
 from .project import ProjectSchema
 from .staff_user import StaffUserSchema
 
@@ -48,6 +49,7 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         dump_only=True,
         exclude=["description", "ea_certificate", "proponent_name", "is_active"],
     )
+    initiation = fields.Nested(KeyValueSchema)
 
 
 class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors

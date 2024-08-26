@@ -64,13 +64,14 @@ class CaseFile(BaseModel):
     lead_officer = relationship(
         "StaffUser", foreign_keys=[lead_officer_id], lazy="joined"
     )
-    project = relationship(
-        "Project", foreign_keys=[project_id], lazy="joined"
-    )
+    project = relationship("Project", foreign_keys=[project_id], lazy="joined")
     case_file_officers = relationship(
         "CaseFileOfficer",
         back_populates="case_file",
         lazy="select",
+    )
+    initiation = relationship(
+        "CaseFileInitiationOption", foreign_keys=[initiation_id], lazy="joined"
     )
 
     @classmethod
