@@ -34,15 +34,17 @@ class BaseModel(db.Model):
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
 
     @classmethod
-    def get_all(cls, default_filters=True):
+    def get_all(cls, default_filters=True, sort_by=None):
         """Fetch list of users by access type."""
         query = {}
         if default_filters and hasattr(cls, "is_active"):
             query["is_active"] = True
         if hasattr(cls, "is_deleted"):
             query["is_deleted"] = False
-        rows = cls.query.filter_by(**query).all()  # pylint: disable=no-member
-        return rows
+        query_obj = cls.query.filter_by(**query)  # pylint: disable=no-member
+        if sort_by and hasattr(cls, sort_by):
+            query_obj = query_obj.order_by(getattr(cls, sort_by))
+        return query_obj.all()
 
     @classmethod
     def get_by_params(cls, params: dict, default_filters=True):

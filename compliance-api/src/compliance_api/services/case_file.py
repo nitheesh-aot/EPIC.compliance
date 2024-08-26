@@ -1,9 +1,9 @@
 """Service for handle CaseFile."""
 
 from compliance_api.exceptions import ResourceExistsError
-from compliance_api.models import CASE_FILE_INITIATION_MAP
 from compliance_api.models import CaseFile as CaseFileModel
-from compliance_api.models import CaseFileInitiationEnum, CaseFileOfficer
+from compliance_api.models import CaseFileInitiationOption as CaseFileInitiationOptionModel
+from compliance_api.models import CaseFileOfficer
 from compliance_api.models.db import session_scope
 
 
@@ -13,10 +13,7 @@ class CaseFileService:
     @classmethod
     def get_initiation_options(cls):
         """Return the case file initiation options."""
-        return [
-            {"id": case.name, "name": CASE_FILE_INITIATION_MAP[case]}
-            for case in CaseFileInitiationEnum
-        ]
+        return CaseFileInitiationOptionModel.get_all(sort_by="sort_order")
 
     @classmethod
     def get_all_case_files(cls):

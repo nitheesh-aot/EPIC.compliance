@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """CaseFile Schema."""
-from marshmallow import EXCLUDE, fields, post_dump, post_load
-from marshmallow_enum import EnumField
+from marshmallow import EXCLUDE, fields
 
-from compliance_api.models import CaseFile, CaseFileInitiationEnum, CaseFileOfficer
+from compliance_api.models import CaseFile, CaseFileOfficer
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .project import ProjectSchema
@@ -50,17 +49,6 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         exclude=["description", "ea_certificate", "proponent_name", "is_active"],
     )
 
-    @post_dump
-    def handle_initiation_enum(
-        self, data, **kwargs
-    ):  # pylint: disable=unused-argument, no-self-use
-        """Convert the initiation enum to its string representation."""
-        if "initiation" in data and isinstance(
-            data["initiation"], CaseFileInitiationEnum
-        ):
-            data["initiation"] = data["initiation"].value
-        return data
-
 
 class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     """CaseFile create Schema."""
@@ -84,13 +72,11 @@ class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
         metadata={"description": "The lead officer who created the case file."},
         allow_none=True,
     )
-    initiation = EnumField(
-        CaseFileInitiationEnum,
-        metadata={"description": "The case file initiation options."},
-        by_value=True,
+    initiation_id = fields.Int(
+        metadata={"description": "The unique identifier for the initiation options"},
         required=True,
     )
-    case_file_number = fields.Int(
+    case_file_number = fields.Str(
         metadata={"description": "The unique case file number"}, required=True
     )
     officer_ids = fields.List(
@@ -100,13 +86,3 @@ class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
             }
         )
     )
-
-    @post_load
-    def extract_permission_value(
-        self, data, **kwargs
-    ):  # pylint: disable=no-self-use, unused-argument
-        """Extract the value of the permission enum."""
-        initiation_enum = data.get("initiation")
-        if initiation_enum:
-            data["initiation"] = initiation_enum.value
-        return data

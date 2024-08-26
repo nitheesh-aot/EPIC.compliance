@@ -1,0 +1,28 @@
+{
+    "case_file_initiation_options": ["Inspection", "Complaints"],
+    "attendance_options": [
+        "Agencies",
+        "First Nations",
+        "Municipal",
+        "Independent Environmental Monitor",
+        "Certificate Holder Representative",
+        "Regulated Party Representative",
+        "Other"
+    ],
+    "ir_type_options": ["Field", "Administrative"],
+    "inspection_initiation_options": [
+        "Planned inspection",
+        "Follow up inspection",
+        "Complaint response",
+        "Agency referral"
+    ],
+    "ir_status_options": ["Preliminary", "Final"],
+    "project_status_options": [
+        "Certified — preconstruction",
+        "Certified — construction",
+        "Certified — operations",
+        "Certified — decommissioning",
+        "No Certificate Issued",
+        "Exemption Under Section 10(1)(b)"
+    ]
+}
