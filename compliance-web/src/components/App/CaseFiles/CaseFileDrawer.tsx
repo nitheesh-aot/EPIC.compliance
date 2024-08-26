@@ -59,6 +59,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
 
   const onSuccess = () => {
     onSubmit(caseFile ? "Successfully updated!" : "Successfully added!");
+    methods.reset();
   };
 
   const onError = (err: AxiosError) => {
@@ -81,8 +82,6 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
       lead_officer_id: (data.leadOfficer as StaffUser)?.id,
       officer_ids: (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
     };
-    // eslint-disable-next-line no-console
-    console.log(data);
     if (caseFile) {
       // TODO update
     } else {
