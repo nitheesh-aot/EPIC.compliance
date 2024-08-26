@@ -9,14 +9,12 @@ import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import dateUtils from "@/utils/dateUtils";
 import {
-  AddRounded,
   DeleteOutlineRounded,
   EditOutlined,
 } from "@mui/icons-material";
-import { Box, Button, Chip, IconButton, Typography } from "@mui/material";
+import { Box, Chip, IconButton } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { BCDesignTokens } from "epic.theme";
 import { MRT_ColumnDef } from "material-react-table";
 import { useEffect, useMemo, useState } from "react";
 
@@ -41,7 +39,7 @@ function CaseFiles() {
       )
     );
     setInitiationList(
-      [...new Set(caseFilesList?.map((cf) => cf.initiation ?? ""))].filter(
+      [...new Set(caseFilesList?.map((cf) => cf.initiation?.name ?? ""))].filter(
         Boolean
       )
     );
@@ -110,7 +108,7 @@ function CaseFiles() {
         },
       },
       {
-        accessorKey: "initiation",
+        accessorKey: "initiation.name",
         header: "Initiation",
         filterVariant: "multi-select",
         filterSelectOptions: initiationList,
@@ -235,29 +233,11 @@ function CaseFiles() {
             </IconButton>
           </Box>
         )}
-        renderTopToolbarCustomActions={() => (
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              variant="h5"
-              sx={{ color: BCDesignTokens.typographyColorLink }}
-            >
-              Case Files
-            </Typography>
-            <Button
-              startIcon={<AddRounded />}
-              onClick={() => handleOpenModal()}
-            >
-              Case File
-            </Button>
-          </Box>
-        )}
+        titleToolbarProps={{
+          tableTitle: "Case Files",
+          tableAddRecordButtonText: "Case File",
+          tableAddRecordFunction: () => handleOpenModal(),
+        }}
       />
     </>
   );
