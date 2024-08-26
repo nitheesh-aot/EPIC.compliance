@@ -68,7 +68,7 @@ class CaseFiles(Resource):
     @auth.require
     def get():
         """Fetch all casefiles."""
-        case_files = CaseFileService.get_all_case_files()
+        case_files = CaseFileService.get_all_case_files(default_filters=False)
         case_file_list_schema = CaseFileSchema(many=True)
         return case_file_list_schema.dump(case_files), HTTPStatus.OK
 
@@ -136,5 +136,7 @@ class CaseFileNumber(Resource):
         """Fetch a CaseFile by number."""
         case_file = CaseFileService.get_case_file_by_file_number(case_file_number)
         if not case_file:
-            raise ResourceNotFoundError(f"CaseFile with case file number {case_file_number} not found")
+            raise ResourceNotFoundError(
+                f"CaseFile with case file number {case_file_number} not found"
+            )
         return CaseFileSchema().dump(case_file), HTTPStatus.OK
