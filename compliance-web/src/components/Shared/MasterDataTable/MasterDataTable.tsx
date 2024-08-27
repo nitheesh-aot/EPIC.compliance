@@ -7,11 +7,22 @@ import {
   MRT_TableOptions,
   useMaterialReactTable,
 } from "material-react-table";
-import { Box, Container, IconButton, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  IconButton,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { FiltersCache } from "./FiltersCache";
 import { exportToCsv } from "./utils";
 import { BCDesignTokens } from "epic.theme";
-import { DownloadRounded, SearchRounded } from "@mui/icons-material";
+import {
+  AddRounded,
+  DownloadRounded,
+  SearchRounded,
+} from "@mui/icons-material";
 
 const NoDataComponent = ({ ...props }) => {
   const { table } = props;
@@ -55,6 +66,12 @@ const NoDataComponent = ({ ...props }) => {
   );
 };
 
+interface MRT_EAO_TitleToolbarProps {
+  tableTitle: string;
+  tableAddRecordButtonText: string;
+  tableAddRecordFunction: () => void;
+}
+
 export interface MaterialReactTableProps<TData extends MRT_RowData>
   extends MRT_TableOptions<TData> {
   columns: MRT_ColumnDef<TData>[];
@@ -63,6 +80,7 @@ export interface MaterialReactTableProps<TData extends MRT_RowData>
   onCacheFilters?: (columnFilters: unknown) => void;
   enableExport?: boolean;
   tableName?: string;
+  titleToolbarProps?: MRT_EAO_TitleToolbarProps;
 }
 
 const MasterDataTable = <TData extends MRT_RowData>({
@@ -71,6 +89,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
   setTableInstance,
   onCacheFilters,
   tableName,
+  titleToolbarProps,
   enableExport,
   renderTopToolbarCustomActions,
   ...rest
@@ -213,9 +232,32 @@ const MasterDataTable = <TData extends MRT_RowData>({
     renderTopToolbarCustomActions: ({ table }) => {
       return (
         <>
-          {renderTopToolbarCustomActions &&
+          {titleToolbarProps && !renderTopToolbarCustomActions && ( // generic title toolbar of all EAO tables
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Typography
+                variant="h5"
+                sx={{ color: BCDesignTokens.typographyColorLink }}
+              >
+                {titleToolbarProps?.tableTitle}
+              </Typography>
+              <Button
+                startIcon={<AddRounded />}
+                onClick={titleToolbarProps?.tableAddRecordFunction}
+              >
+                {titleToolbarProps?.tableAddRecordButtonText}
+              </Button>
+            </Box>
+          )}
+          {renderTopToolbarCustomActions && // custom title toolbar
             renderTopToolbarCustomActions({ table })}
-          {enableExport && (
+          {enableExport && ( //common for both toolbars
             <Tooltip title="Export to csv">
               <IconButton
                 aria-label="download"

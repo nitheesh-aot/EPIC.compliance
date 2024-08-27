@@ -23,12 +23,6 @@ type CaseFileDrawerProps = {
   caseFile?: CaseFile;
 };
 
-const blockTitleStyles = {
-  fontWeight: BCDesignTokens.typographyFontWeightsBold,
-  color: BCDesignTokens.typographyColorPrimary,
-  marginBottom: BCDesignTokens.layoutMarginMedium,
-};
-
 const caseFileFormSchema = yup.object().shape({
   project: yup.object<Project>().nullable().required("Project is required"),
   dateCreated: yup.date().nullable().required("Date Created is required"),
@@ -39,10 +33,9 @@ const caseFileFormSchema = yup.object().shape({
     .nullable()
     .required("Initiation is required"),
   caseFileNumber: yup
-    .number()
+    .string()
     .nullable()
-    .required("Case file number is required")
-    .typeError("Case file number must be a number"),
+    .required("Case file number is required"),
 });
 
 type CaseFileSchemaType = yup.InferType<typeof caseFileFormSchema>;
@@ -66,6 +59,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
 
   const onSuccess = () => {
     onSubmit(caseFile ? "Successfully updated!" : "Successfully added!");
+    methods.reset();
   };
 
   const onError = (err: AxiosError) => {
@@ -83,13 +77,11 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
     const caseFileData: CaseFileAPIData = {
       project_id: (data.project as Project)?.id ?? "",
       date_created: dateUtils.dateToUTC(data.dateCreated),
-      initiation: (data.initiation as Initiation).id,
+      initiation_id: (data.initiation as Initiation).id,
       case_file_number: data.caseFileNumber,
       lead_officer_id: (data.leadOfficer as StaffUser)?.id,
       officer_ids: (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
     };
-    // eslint-disable-next-line no-console
-    console.log(data);
     if (caseFile) {
       // TODO update
     } else {
@@ -141,7 +133,14 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
             staffUsersList={staffUserList ?? []}
           ></CaseFileForm>
           <Box marginTop={"0.5rem"} paddingX={"2rem"}>
-            <Typography variant="body2" sx={blockTitleStyles}>
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: BCDesignTokens.typographyFontWeightsBold,
+                color: BCDesignTokens.typographyColorPrimary,
+                marginBottom: BCDesignTokens.layoutMarginMedium,
+              }}
+            >
               Inspection Records
             </Typography>
             <Alert
