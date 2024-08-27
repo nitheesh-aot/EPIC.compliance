@@ -84,6 +84,11 @@ class CaseFileService:
                 case_file_id, list(officer_ids_to_be_added), session
             )
 
+    @classmethod
+    def get_case_files_by_project(cls, project_id: int):
+        """Return case files based on project id."""
+        return CaseFileModel.get_case_files_by_project(project_id)
+
 
 def _create_case_file_object(case_file_data: dict):
     """Create a case file object."""

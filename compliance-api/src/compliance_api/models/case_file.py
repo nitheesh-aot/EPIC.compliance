@@ -104,6 +104,11 @@ class CaseFile(BaseModel):
         """Retrieve case file information based on given case file number."""
         return cls.query.filter_by(case_file_number=case_file_number).first()
 
+    @classmethod
+    def get_case_files_by_project(cls, project_id: int):
+        """Retrieve case files by project."""
+        return cls.query.filter_by(project_id=project_id).all()
+
 
 class CaseFileOfficer(BaseModel):
     """Other officers associated with the Casefile."""

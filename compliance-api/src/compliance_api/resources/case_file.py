@@ -15,6 +15,7 @@
 
 from http import HTTPStatus
 
+from flask import request
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
@@ -63,12 +64,19 @@ class CaseFiles(Resource):
     """Resource for managing CaseFiles."""
 
     @staticmethod
+    @API.doc(params={
+        "project_id": {"description": "The unique identifier of the project", "type": "integer", "required": False}
+    })
     @API.response(code=200, description="Success", model=[case_file_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all case files")
     @auth.require
     def get():
         """Fetch all casefiles."""
-        case_files = CaseFileService.get_all_case_files(default_filters=False)
+        project_id = request.args.get("project_id", None)
+        if project_id:
+            case_files = CaseFileService.get_case_files_by_project(project_id)
+        else:
+            case_files = CaseFileService.get_all_case_files(default_filters=False)
         case_file_list_schema = CaseFileSchema(many=True)
         return case_file_list_schema.dump(case_files), HTTPStatus.OK
 
