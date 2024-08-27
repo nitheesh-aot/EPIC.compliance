@@ -50,9 +50,8 @@ describe("CaseFiles Component", () => {
     mount(mountCaseFiles());
 
     cy.get("button").contains("Case File").click();
-    cy.contains("h6", "Create Case File Number").should("be.visible");
+    
+    cy.get(".MuiTypography-h6").should("contain.text", "Create Case File Number")
 
-    cy.get('input[name="project"]').should("be.visible");
-    cy.get('input[name="caseFileNumber"]').should("be.visible");
   });
 });

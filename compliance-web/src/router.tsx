@@ -3,7 +3,7 @@ import { routeTree } from "@/routeTree.gen";
 import { useAuth } from "react-oidc-context";
 
 // Create a new router instance
-const router = createRouter({
+export const router = createRouter({
   routeTree,
   context: {
     // authentication will initially be undefined
