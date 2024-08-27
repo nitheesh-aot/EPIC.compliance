@@ -2,7 +2,7 @@ import React from "react";
 import { mount } from "cypress/react18";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CaseFiles } from "../../../routes/_authenticated/ce-database/case-files";
-import { router } from "../../../router";
+import router from "../../../router/router";
 import DrawerProvider from "../../../components/Shared/Drawer/DrawerProvider";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";

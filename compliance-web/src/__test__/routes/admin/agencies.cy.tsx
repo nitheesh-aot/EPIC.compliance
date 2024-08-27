@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Agencies } from "../../../routes/_authenticated/admin/agencies";
 import ModalProvider from "../../../components/Shared/Modals/ModalProvider";
 import SnackBarProvider from "../../../components/Shared/Popups/SnackBarProvider";
-import { router } from "../../../router";
+import router from "../../../router/router";
 import { AuthProvider } from "react-oidc-context";
 import { OidcConfig } from "../../../utils/config";
 
@@ -49,7 +49,7 @@ describe("Agencies Component", () => {
 
     cy.get("button").contains("Agency").click();
     cy.contains("h2", "Add Agency").should("be.visible");
-    
+
     cy.get('input[name="name"]').should("be.visible");
   });
 });

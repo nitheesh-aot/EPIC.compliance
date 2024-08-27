@@ -2,7 +2,7 @@ import React from "react";
 import { mount } from "cypress/react18";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Staff } from "../../../routes/_authenticated/admin/staff";
-import { router } from "../../../router";
+import router from "../../../router/router";
 import ModalProvider from "../../../components/Shared/Modals/ModalProvider";
 
 describe("Staff Component", () => {
