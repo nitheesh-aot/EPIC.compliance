@@ -37,8 +37,6 @@ const AgencyModal: React.FC<AgencyModalProps> = ({ onSubmit, agency }) => {
   };
 
   const onError = (err: AxiosError) => {
-    // eslint-disable-next-line no-console
-    console.log(typeof err);
     notify.error(err?.message);
   };
 

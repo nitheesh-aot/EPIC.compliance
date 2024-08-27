@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/ce-database/case-files")({
   component: CaseFiles,
 });
 
-function CaseFiles() {
+export function CaseFiles() {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
   const { data: caseFilesList, isLoading } = useCaseFilesData();

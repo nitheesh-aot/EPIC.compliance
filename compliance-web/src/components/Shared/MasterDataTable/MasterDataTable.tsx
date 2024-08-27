@@ -248,6 +248,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
                 {titleToolbarProps?.tableTitle}
               </Typography>
               <Button
+                id="addActionButton"
                 startIcon={<AddRounded />}
                 onClick={titleToolbarProps?.tableAddRecordFunction}
               >

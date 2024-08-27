@@ -17,6 +17,8 @@ import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import CaseFileForm from "./CaseFileForm";
 import dateUtils from "@/utils/dateUtils";
+import { useModal } from "@/store/modalStore";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 type CaseFileDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -45,6 +47,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   caseFile,
 }) => {
   const { setClose } = useDrawer();
+  const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
 
   const { data: projectList } = useProjectsData();
   const { data: initiationList } = useInitiationsData();
@@ -55,7 +58,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
     mode: "onBlur",
   });
 
-  const { handleSubmit } = methods;
+  const { handleSubmit, formState } = methods;
 
   const onSuccess = () => {
     onSubmit(caseFile ? "Successfully updated!" : "Successfully added!");
@@ -69,9 +72,28 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   const { mutate: createCaseFile } = useCreateCaseFile(onSuccess, onError);
 
   const handleClose = () => {
+    if(formState.isDirty) {
+      setModalOpen(
+        <ConfirmationModal
+          title="Discard Changes?"
+          description="You have unsaved changes. Are you sure you want to discard them?"
+          confirmButtonText="Yes"
+          cancelButtonText="No"
+          onConfirm={() => {
+            closeDrawer();
+            setModalClose();
+          }}
+        />
+      );
+    } else {
+      closeDrawer();
+    }
+  };
+
+  const closeDrawer = () => {
     methods.reset();
     setClose();
-  };
+  }
 
   const onSubmitHandler = (data: CaseFileSchemaType) => {
     const caseFileData: CaseFileAPIData = {
