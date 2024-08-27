@@ -6,8 +6,6 @@ import { User } from "oidc-client-ts";
 export type OnErrorType = (error: AxiosError) => void;
 export type OnSuccessType = (data: any) => void;
 
-
-
 export function getUser() {
   const oidcStorage = sessionStorage.getItem(
     `oidc.user:${OidcConfig.authority}:${OidcConfig.client_id}`

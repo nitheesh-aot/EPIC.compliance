@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/admin/staff")({
   component: Staff,
 });
 
-function Staff() {
+export function Staff() {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
   const { data: staffUsersList, isLoading } = useStaffUsersData();

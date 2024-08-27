@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/admin/agencies")({
   component: Agencies,
 });
 
-function Agencies() {
+export function Agencies() {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
 
