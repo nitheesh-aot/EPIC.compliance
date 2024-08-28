@@ -1,24 +1,21 @@
 import { useCreateCaseFile, useInitiationsData } from "@/hooks/useCaseFiles";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
-import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
+import { CaseFile, CaseFileAPIData, CaseFileFormData } from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
 import { Project } from "@/models/Project";
 import { StaffUser } from "@/models/Staff";
-import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
-import { theme } from "@/styles/theme";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Close } from "@mui/icons-material";
-import { Alert, Box, Button, IconButton, Typography } from "@mui/material";
+import { Alert, Box, Button, Typography } from "@mui/material";
 import { AxiosError } from "axios";
 import { BCDesignTokens } from "epic.theme";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import CaseFileForm from "./CaseFileForm";
 import dateUtils from "@/utils/dateUtils";
-import { useModal } from "@/store/modalStore";
-import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
+import { useEffect, useMemo } from "react";
 
 type CaseFileDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -42,27 +39,45 @@ const caseFileFormSchema = yup.object().shape({
 
 type CaseFileSchemaType = yup.InferType<typeof caseFileFormSchema>;
 
+const initFormData: CaseFileFormData = {
+  project: undefined,
+  dateCreated: undefined,
+  leadOfficer: undefined,
+  officers: [],
+  initiation: undefined,
+  caseFileNumber: undefined,
+};
+
 const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   onSubmit,
   caseFile,
 }) => {
-  const { setClose } = useDrawer();
-  const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
-
   const { data: projectList } = useProjectsData();
   const { data: initiationList } = useInitiationsData();
   const { data: staffUserList } = useStaffUsersData();
 
+  const defaultValues = useMemo<CaseFileFormData>(() => {
+    if (caseFile) {
+      // TDOD: Map existing data
+    }
+    return initFormData;
+  }, [caseFile]);
+
   const methods = useForm<CaseFileSchemaType>({
     resolver: yupResolver(caseFileFormSchema),
     mode: "onBlur",
+    defaultValues,
   });
 
-  const { handleSubmit, formState } = methods;
+  const { handleSubmit, reset } = methods;
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const onSuccess = () => {
     onSubmit(caseFile ? "Successfully updated!" : "Successfully added!");
-    methods.reset();
+    reset();
   };
 
   const onError = (err: AxiosError) => {
@@ -70,30 +85,6 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   };
 
   const { mutate: createCaseFile } = useCreateCaseFile(onSuccess, onError);
-
-  const handleClose = () => {
-    if(formState.isDirty) {
-      setModalOpen(
-        <ConfirmationModal
-          title="Discard Changes?"
-          description="You have unsaved changes. Are you sure you want to discard them?"
-          confirmButtonText="Yes"
-          cancelButtonText="No"
-          onConfirm={() => {
-            closeDrawer();
-            setModalClose();
-          }}
-        />
-      );
-    } else {
-      closeDrawer();
-    }
-  };
-
-  const closeDrawer = () => {
-    methods.reset();
-    setClose();
-  }
 
   const onSubmitHandler = (data: CaseFileSchemaType) => {
     const caseFileData: CaseFileAPIData = {
@@ -115,29 +106,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
     <Box width="718px">
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmitHandler)}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "0.75rem 2rem",
-              borderBottom: "1px solid",
-              borderColor: BCDesignTokens.supportBorderColorInfo,
-            }}
-          >
-            <Typography variant="h6" color="primary">
-              Create Case File Number
-            </Typography>
-            <IconButton
-              aria-label="close"
-              onClick={handleClose}
-              sx={{
-                color: theme.palette.text.primary,
-              }}
-            >
-              <Close />
-            </IconButton>
-          </Box>
+          <DrawerTitleBar title="Create Case File Number" isFormDirtyCheck />
           <Box
             sx={{
               backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,

@@ -16,11 +16,11 @@ export interface CaseFile {
 
 export interface CaseFileFormData {
   project?: Project;
-  date_created?: Date;
-  lead_officer?: StaffUser;
+  dateCreated?: Date;
+  leadOfficer?: StaffUser;
   officers?: StaffUser[];
   initiation?: Initiation;
-  case_file_number?: string;
+  caseFileNumber?: string;
 }
 
 export interface CaseFileAPIData {
