@@ -6,10 +6,7 @@ import { useAgenciesData, useDeleteAgency } from "@/hooks/useAgencies";
 import { Agency } from "@/models/Agency";
 import { useModal } from "@/store/modalStore";
 import { notify } from "@/store/snackbarStore";
-import {
-  EditOutlined,
-  DeleteOutlineRounded,
-} from "@mui/icons-material";
+import { EditOutlined, DeleteOutlineRounded } from "@mui/icons-material";
 import { Box, IconButton } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -20,6 +17,8 @@ import { useMemo } from "react";
 export const Route = createFileRoute("/_authenticated/admin/agencies")({
   component: Agencies,
 });
+
+const AGENCY_MODAL_WIDTH = "520px";
 
 export function Agencies() {
   const queryClient = useQueryClient();
@@ -54,11 +53,17 @@ export function Agencies() {
   };
 
   const handleOpenModal = () => {
-    setOpen(<AgencyModal onSubmit={handleOnSubmit} />);
+    setOpen({
+      content: <AgencyModal onSubmit={handleOnSubmit} />,
+      width: AGENCY_MODAL_WIDTH,
+    });
   };
 
   const handleEdit = (agency: Agency) => {
-    setOpen(<AgencyModal onSubmit={handleOnSubmit} agency={agency} />);
+    setOpen({
+      content: <AgencyModal onSubmit={handleOnSubmit} agency={agency} />,
+      width: AGENCY_MODAL_WIDTH,
+    });
   };
 
   /** Agency Deletion START */
@@ -79,14 +84,16 @@ export function Agencies() {
   );
 
   const handleDelete = (id: number) => {
-    setOpen(
-      <ConfirmationModal
-        title="Delete Agency?"
-        description="You are about to delete this Agency. Are you sure?"
-        confirmButtonText="Delete"
-        onConfirm={() => handleDeleteUser(id)}
-      />
-    );
+    setOpen({
+      content: (
+        <ConfirmationModal
+          title="Delete Agency?"
+          description="You are about to delete this Agency. Are you sure?"
+          confirmButtonText="Delete"
+          onConfirm={() => handleDeleteUser(id)}
+        />
+      ),
+    });
   };
 
   const handleDeleteUser = (id: number) => {

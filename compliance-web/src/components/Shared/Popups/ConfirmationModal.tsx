@@ -1,20 +1,12 @@
-import { useModal } from "@/store/modalStore";
-import {
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Button,
-  Divider,
-  Box,
-} from "@mui/material";
+import { DialogContent, DialogContentText } from "@mui/material";
+import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
+import ModalActions from "@/components/Shared/Modals/ModalActions";
 
 type ConfirmationModalProps = {
   title: string;
   description: string;
   confirmButtonText?: string;
   cancelButtonText?: string;
-  width?: number;
   onConfirm: () => void;
 };
 
@@ -23,27 +15,20 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   description,
   confirmButtonText,
   cancelButtonText,
-  width,
   onConfirm,
 }) => {
-  const { setClose } = useModal();
   return (
-    <Box width={width ?? 400}>
-      <DialogTitle>{title}</DialogTitle>
-      <Divider />
-      <DialogContent>
+    <>
+      <ModalTitleBar title={title} />
+      <DialogContent dividers>
         <DialogContentText>{description}</DialogContentText>
       </DialogContent>
-      <Divider />
-      <DialogActions sx={{ padding: "1rem" }}>
-        <Button onClick={setClose} color="primary" variant="text">
-          {cancelButtonText ?? 'Cancel'}
-        </Button>
-        <Button onClick={onConfirm}>
-          {confirmButtonText ?? 'Confirm'}
-        </Button>
-      </DialogActions>
-    </Box>
+      <ModalActions
+        primaryActionButtonText={confirmButtonText}
+        secondaryActionButtonText={cancelButtonText}
+        onPrimaryAction={onConfirm}
+      />
+    </>
   );
 };
 

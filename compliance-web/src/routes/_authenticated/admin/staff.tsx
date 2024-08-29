@@ -1,10 +1,7 @@
 import StaffModal from "@/components/App/Staff/StaffModal";
 import { useModal } from "@/store/modalStore";
 import { notify } from "@/store/snackbarStore";
-import {
-  DeleteOutlineRounded,
-  EditOutlined,
-} from "@mui/icons-material";
+import { DeleteOutlineRounded, EditOutlined } from "@mui/icons-material";
 import { Box, IconButton } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import { StaffUser } from "@/models/Staff";
@@ -21,6 +18,8 @@ import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 export const Route = createFileRoute("/_authenticated/admin/staff")({
   component: Staff,
 });
+
+const STAFF_MODAL_WIDTH = "520px";
 
 export function Staff() {
   const queryClient = useQueryClient();
@@ -66,14 +65,20 @@ export function Staff() {
   };
 
   const handleAddStaffModal = () => {
-    setOpen(<StaffModal onSubmit={handleOnSubmit} />);
+    setOpen({
+      content: <StaffModal onSubmit={handleOnSubmit} />,
+      width: STAFF_MODAL_WIDTH,
+    });
   };
 
   const handleEdit = (staff: StaffUser) => {
-    setOpen(<StaffModal staff={staff} onSubmit={handleOnSubmit} />);
+    setOpen({
+      content: <StaffModal staff={staff} onSubmit={handleOnSubmit} />,
+      width: STAFF_MODAL_WIDTH,
+    });
   };
 
-  /** Agency Deletion START */
+  /** Staff Deletion START */
 
   const onDeleteSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ["staff-users"] });
@@ -88,21 +93,23 @@ export function Staff() {
   const { mutate: deleteUser } = useDeleteStaff(onDeleteSuccess, onDeleteError);
 
   const handleDelete = (id: number) => {
-    setOpen(
-      <ConfirmationModal
-        title="Delete Staff User?"
-        description="You are about to delete this staff user. Are you sure?"
-        confirmButtonText="Delete"
-        onConfirm={() => {
-          if (id !== null) {
-            deleteUser(id);
-          }
-        }}
-      />
-    );
+    setOpen({
+      content: (
+        <ConfirmationModal
+          title="Delete Staff User?"
+          description="You are about to delete this staff user. Are you sure?"
+          confirmButtonText="Delete"
+          onConfirm={() => {
+            if (id !== null) {
+              deleteUser(id);
+            }
+          }}
+        />
+      )
+    });
   };
 
-  /** Agency Deletion END */
+  /** Staff Deletion END */
 
   const columns = useMemo<MRT_ColumnDef<StaffUser>[]>(
     () => [

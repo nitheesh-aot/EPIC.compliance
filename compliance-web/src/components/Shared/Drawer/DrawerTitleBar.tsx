@@ -30,18 +30,20 @@ const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
 
   const handleClose = useCallback(() => {
     if (isFormDirtyCheck && isDirty) {
-      setModalOpen(
-        <ConfirmationModal
-          title="Discard Changes?"
-          description="You have unsaved changes. Are you sure you want to discard them?"
-          confirmButtonText="Yes"
-          cancelButtonText="No"
-          onConfirm={() => {
-            setClose();
-            setModalClose();
-          }}
-        />
-      );
+      setModalOpen({
+        content: (
+          <ConfirmationModal
+            title="Discard Changes?"
+            description="You have unsaved changes. Are you sure you want to discard them?"
+            confirmButtonText="Yes"
+            cancelButtonText="No"
+            onConfirm={() => {
+              setClose();
+              setModalClose();
+            }}
+          />
+        ),
+      });
     } else {
       setClose();
     }
@@ -54,8 +56,7 @@ const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
         justifyContent: "space-between",
         alignItems: "center",
         padding: "0.75rem 2rem",
-        borderBottom: "1px solid",
-        borderColor: BCDesignTokens.supportBorderColorInfo,
+        borderBottom: `1px solid ${BCDesignTokens.supportBorderColorInfo}`,
       }}
     >
       <Typography variant="h6" color="primary">
