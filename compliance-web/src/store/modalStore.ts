@@ -1,24 +1,27 @@
-import {create} from 'zustand'
+import { create } from "zustand";
 
 // Define the store state and actions
 interface ModalStore {
-  isOpen: boolean
-  modalContent: React.ReactNode | null
-  setOpen: (modal: React.ReactNode) => Promise<void>
-  setClose: () => void
+  isOpen: boolean;
+  modalContent: React.ReactNode | null;
+  modalWidth: string;
+  setOpen: (args: { content: React.ReactNode; width?: string }) => Promise<void>;
+  setClose: () => void;
 }
 
 // Create the Zustand store
 export const useModal = create<ModalStore>((set) => ({
   isOpen: false,
   modalContent: null,
+  modalWidth: "",
 
-  setOpen: async (modal) => {
-    if (modal) {
+  setOpen: async ({ content, width = "400px" }) => {
+    if (content) {
       set(() => ({
-        modalContent: modal,
+        modalWidth: width,
+        modalContent: content,
         isOpen: true,
-      }))
+      }));
     }
   },
 
@@ -26,6 +29,6 @@ export const useModal = create<ModalStore>((set) => ({
     set({
       isOpen: false,
       modalContent: null,
-    })
+    });
   },
-}))
+}));
