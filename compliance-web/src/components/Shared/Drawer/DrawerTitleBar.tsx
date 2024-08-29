@@ -6,7 +6,7 @@ import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
 import { useFormContext } from "react-hook-form";
 import { useDrawer } from "@/store/drawerStore";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useCallback } from "react";
 
 type DrawerTitleBarProps = {
   title: string;
@@ -25,12 +25,10 @@ const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
   } = useFormContext();
 
   useEffect(() => {
-    if (!isOpen) {
-      reset(defaultValues);
-    }
+    if (!isOpen) reset(defaultValues);
   }, [isOpen, reset, defaultValues]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (isFormDirtyCheck && isDirty) {
       setModalOpen(
         <ConfirmationModal
@@ -47,7 +45,7 @@ const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
     } else {
       setClose();
     }
-  };
+  }, [isFormDirtyCheck, isDirty, setModalOpen, setModalClose, setClose]);
 
   return (
     <Box
@@ -66,9 +64,7 @@ const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
       <IconButton
         aria-label="close"
         onClick={handleClose}
-        sx={{
-          color: theme.palette.text.primary,
-        }}
+        sx={{ color: theme.palette.text.primary }}
       >
         <Close />
       </IconButton>

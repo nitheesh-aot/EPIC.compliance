@@ -8,10 +8,7 @@ import { StaffUser } from "@/models/Staff";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import dateUtils from "@/utils/dateUtils";
-import {
-  DeleteOutlineRounded,
-  EditOutlined,
-} from "@mui/icons-material";
+import { DeleteOutlineRounded, EditOutlined } from "@mui/icons-material";
 import { Box, Chip, IconButton } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -39,9 +36,9 @@ export function CaseFiles() {
       )
     );
     setInitiationList(
-      [...new Set(caseFilesList?.map((cf) => cf.initiation?.name ?? ""))].filter(
-        Boolean
-      )
+      [
+        ...new Set(caseFilesList?.map((cf) => cf.initiation?.name ?? "")),
+      ].filter(Boolean)
     );
     setStatusList(
       [
@@ -60,7 +57,10 @@ export function CaseFiles() {
   }, [caseFilesList]);
 
   const handleOpenModal = () => {
-    setOpen(<CaseFileDrawer onSubmit={handleOnSubmit} />);
+    setOpen({
+      modal: <CaseFileDrawer onSubmit={handleOnSubmit} />,
+      width: "718px",
+    });
   };
 
   const handleOnSubmit = (submitMsg: string) => {

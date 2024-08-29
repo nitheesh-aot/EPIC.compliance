@@ -15,7 +15,7 @@ import * as yup from "yup";
 import CaseFileForm from "./CaseFileForm";
 import dateUtils from "@/utils/dateUtils";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 
 type CaseFileDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -75,80 +75,82 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
     reset(defaultValues);
   }, [defaultValues, reset]);
 
-  const onSuccess = () => {
+  const onSuccess = useCallback(() => {
     onSubmit(caseFile ? "Successfully updated!" : "Successfully added!");
     reset();
-  };
+  }, [caseFile, onSubmit, reset]);
 
-  const onError = (err: AxiosError) => {
+  const onError = useCallback((err: AxiosError) => {
     notify.error(err?.message);
-  };
+  }, []);
 
   const { mutate: createCaseFile } = useCreateCaseFile(onSuccess, onError);
 
-  const onSubmitHandler = (data: CaseFileSchemaType) => {
-    const caseFileData: CaseFileAPIData = {
-      project_id: (data.project as Project)?.id ?? "",
-      date_created: dateUtils.dateToUTC(data.dateCreated),
-      initiation_id: (data.initiation as Initiation).id,
-      case_file_number: data.caseFileNumber,
-      lead_officer_id: (data.leadOfficer as StaffUser)?.id,
-      officer_ids: (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
-    };
-    if (caseFile) {
-      // TODO update
-    } else {
-      createCaseFile(caseFileData);
-    }
-  };
+  const onSubmitHandler = useCallback(
+    (data: CaseFileSchemaType) => {
+      const caseFileData: CaseFileAPIData = {
+        project_id: (data.project as Project)?.id ?? "",
+        date_created: dateUtils.dateToUTC(data.dateCreated),
+        initiation_id: (data.initiation as Initiation).id,
+        case_file_number: data.caseFileNumber,
+        lead_officer_id: (data.leadOfficer as StaffUser)?.id,
+        officer_ids:
+          (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
+      };
+      if (caseFile) {
+        // TODO: Add update logic here
+      } else {
+        createCaseFile(caseFileData);
+      }
+    },
+    [caseFile, createCaseFile]
+  );
 
   return (
-    <Box width="718px">
-      <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(onSubmitHandler)}>
-          <DrawerTitleBar title="Create Case File Number" isFormDirtyCheck />
-          <Box
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit(onSubmitHandler)}>
+        <DrawerTitleBar title="Create Case File Number" isFormDirtyCheck />
+        <Box
+          sx={{
+            backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
+            padding: "0.75rem 2rem",
+            textAlign: "right",
+          }}
+        >
+          <Button variant={"contained"} type="submit">
+            Create
+          </Button>
+        </Box>
+        <CaseFileForm
+          projectList={projectList ?? []}
+          initiationList={initiationList ?? []}
+          staffUsersList={staffUserList ?? []}
+        ></CaseFileForm>
+        <Box marginTop={"0.5rem"} paddingX={"2rem"}>
+          <Typography
+            variant="body2"
             sx={{
-              backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
-              padding: "0.75rem 2rem",
-              textAlign: "right",
+              fontWeight: BCDesignTokens.typographyFontWeightsBold,
+              color: BCDesignTokens.typographyColorPrimary,
+              marginBottom: BCDesignTokens.layoutMarginMedium,
             }}
           >
-            <Button variant={"contained"} type="submit">
-              Create
-            </Button>
-          </Box>
-          <CaseFileForm
-            projectList={projectList ?? []}
-            initiationList={initiationList ?? []}
-            staffUsersList={staffUserList ?? []}
-          ></CaseFileForm>
-          <Box marginTop={"0.5rem"} paddingX={"2rem"}>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: BCDesignTokens.typographyFontWeightsBold,
-                color: BCDesignTokens.typographyColorPrimary,
-                marginBottom: BCDesignTokens.layoutMarginMedium,
-              }}
-            >
-              Inspection Records
-            </Typography>
-            <Alert
-              severity="info"
-              variant="outlined"
-              sx={{
-                borderColor: BCDesignTokens.supportBorderColorInfo,
-                backgroundColor: BCDesignTokens.supportSurfaceColorInfo,
-                color: BCDesignTokens.typographyColorPrimary,
-              }}
-            >
-              Once Inspections are created and linked, they will appear here
-            </Alert>
-          </Box>
-        </form>
-      </FormProvider>
-    </Box>
+            Inspection Records
+          </Typography>
+          <Alert
+            severity="info"
+            variant="outlined"
+            sx={{
+              borderColor: BCDesignTokens.supportBorderColorInfo,
+              backgroundColor: BCDesignTokens.supportSurfaceColorInfo,
+              color: BCDesignTokens.typographyColorPrimary,
+            }}
+          >
+            Once Inspections are created and linked, they will appear here
+          </Alert>
+        </Box>
+      </form>
+    </FormProvider>
   );
 };
 
