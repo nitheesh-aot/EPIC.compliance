@@ -48,7 +48,7 @@ describe("Agencies Component", () => {
     mount(mountAgency());
 
     cy.get("button").contains("Agency").click();
-    cy.contains("h2", "Add Agency").should("be.visible");
+    cy.contains("h5", "Add Agency").should("be.visible");
 
     cy.get('input[name="name"]').should("be.visible");
   });
