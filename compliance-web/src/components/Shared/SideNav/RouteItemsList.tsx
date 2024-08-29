@@ -19,7 +19,7 @@ export default function RouteItemsList() {
         },
         {
           routeName: "Inspections",
-          path: "/ce-database/inspection",
+          path: "/ce-database/inspections",
         },
         {
           routeName: "Complaints",
