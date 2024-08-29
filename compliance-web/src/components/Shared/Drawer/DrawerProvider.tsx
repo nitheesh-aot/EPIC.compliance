@@ -5,7 +5,7 @@ import { useMenuStore } from "@/store/menuStore";
 import { BCDesignTokens } from "epic.theme";
 
 const DrawerProvider: React.FC = () => {
-  const { drawerContent, setClose, isOpen } = useDrawer();
+  const { drawerContent, setClose, isOpen, drawerWidth } = useDrawer();
   const { appHeaderHeight } = useMenuStore();
 
   return (
@@ -24,7 +24,7 @@ const DrawerProvider: React.FC = () => {
         },
       }}
     >
-      <Box role="presentation" sx={{}}>
+      <Box role="presentation" sx={{ width: drawerWidth, mb: "2rem" }}>
         {drawerContent}
       </Box>
     </Drawer>

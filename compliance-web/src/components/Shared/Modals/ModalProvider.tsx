@@ -4,7 +4,7 @@ import { useModal } from "@/store/modalStore";
 import { theme } from "@/styles/theme";
 
 const ModalProvider: React.FC = () => {
-  const { modalContent, setClose, isOpen } = useModal();
+  const { modalContent, setClose, isOpen, modalWidth } = useModal();
 
   return (
     <Modal open={isOpen} onClose={setClose}>
@@ -22,7 +22,7 @@ const ModalProvider: React.FC = () => {
           color: theme.palette.text.primary,
         }}
       >
-        {modalContent}
+        <Box width={modalWidth}>{modalContent}</Box>
       </Box>
     </Modal>
   );

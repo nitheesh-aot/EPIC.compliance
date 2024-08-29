@@ -1,24 +1,21 @@
 import { useCreateCaseFile, useInitiationsData } from "@/hooks/useCaseFiles";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
-import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
+import { CaseFile, CaseFileAPIData, CaseFileFormData } from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
 import { Project } from "@/models/Project";
 import { StaffUser } from "@/models/Staff";
-import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
-import { theme } from "@/styles/theme";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Close } from "@mui/icons-material";
-import { Alert, Box, Button, IconButton, Typography } from "@mui/material";
+import { Alert, Box, Button, Typography } from "@mui/material";
 import { AxiosError } from "axios";
 import { BCDesignTokens } from "epic.theme";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import CaseFileForm from "./CaseFileForm";
 import dateUtils from "@/utils/dateUtils";
-import { useModal } from "@/store/modalStore";
-import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
+import { useCallback, useEffect, useMemo } from "react";
 
 type CaseFileDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -42,144 +39,118 @@ const caseFileFormSchema = yup.object().shape({
 
 type CaseFileSchemaType = yup.InferType<typeof caseFileFormSchema>;
 
+const initFormData: CaseFileFormData = {
+  project: undefined,
+  dateCreated: undefined,
+  leadOfficer: undefined,
+  officers: [],
+  initiation: undefined,
+  caseFileNumber: undefined,
+};
+
 const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   onSubmit,
   caseFile,
 }) => {
-  const { setClose } = useDrawer();
-  const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
-
   const { data: projectList } = useProjectsData();
   const { data: initiationList } = useInitiationsData();
   const { data: staffUserList } = useStaffUsersData();
 
+  const defaultValues = useMemo<CaseFileFormData>(() => {
+    if (caseFile) {
+      // TDOD: Map existing data
+    }
+    return initFormData;
+  }, [caseFile]);
+
   const methods = useForm<CaseFileSchemaType>({
     resolver: yupResolver(caseFileFormSchema),
     mode: "onBlur",
+    defaultValues,
   });
 
-  const { handleSubmit, formState } = methods;
+  const { handleSubmit, reset } = methods;
 
-  const onSuccess = () => {
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
+
+  const onSuccess = useCallback(() => {
     onSubmit(caseFile ? "Successfully updated!" : "Successfully added!");
-    methods.reset();
-  };
+    reset();
+  }, [caseFile, onSubmit, reset]);
 
-  const onError = (err: AxiosError) => {
+  const onError = useCallback((err: AxiosError) => {
     notify.error(err?.message);
-  };
+  }, []);
 
   const { mutate: createCaseFile } = useCreateCaseFile(onSuccess, onError);
 
-  const handleClose = () => {
-    if(formState.isDirty) {
-      setModalOpen(
-        <ConfirmationModal
-          title="Discard Changes?"
-          description="You have unsaved changes. Are you sure you want to discard them?"
-          confirmButtonText="Yes"
-          cancelButtonText="No"
-          onConfirm={() => {
-            closeDrawer();
-            setModalClose();
-          }}
-        />
-      );
-    } else {
-      closeDrawer();
-    }
-  };
-
-  const closeDrawer = () => {
-    methods.reset();
-    setClose();
-  }
-
-  const onSubmitHandler = (data: CaseFileSchemaType) => {
-    const caseFileData: CaseFileAPIData = {
-      project_id: (data.project as Project)?.id ?? "",
-      date_created: dateUtils.dateToUTC(data.dateCreated),
-      initiation_id: (data.initiation as Initiation).id,
-      case_file_number: data.caseFileNumber,
-      lead_officer_id: (data.leadOfficer as StaffUser)?.id,
-      officer_ids: (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
-    };
-    if (caseFile) {
-      // TODO update
-    } else {
-      createCaseFile(caseFileData);
-    }
-  };
+  const onSubmitHandler = useCallback(
+    (data: CaseFileSchemaType) => {
+      const caseFileData: CaseFileAPIData = {
+        project_id: (data.project as Project)?.id ?? "",
+        date_created: dateUtils.dateToUTC(data.dateCreated),
+        initiation_id: (data.initiation as Initiation).id,
+        case_file_number: data.caseFileNumber,
+        lead_officer_id: (data.leadOfficer as StaffUser)?.id,
+        officer_ids:
+          (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
+      };
+      if (caseFile) {
+        // TODO: Add update logic here
+      } else {
+        createCaseFile(caseFileData);
+      }
+    },
+    [caseFile, createCaseFile]
+  );
 
   return (
-    <Box width="718px">
-      <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(onSubmitHandler)}>
-          <Box
+    <FormProvider {...methods}>
+      <form onSubmit={handleSubmit(onSubmitHandler)}>
+        <DrawerTitleBar title="Create Case File Number" isFormDirtyCheck />
+        <Box
+          sx={{
+            backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
+            padding: "0.75rem 2rem",
+            textAlign: "right",
+          }}
+        >
+          <Button variant={"contained"} type="submit">
+            Create
+          </Button>
+        </Box>
+        <CaseFileForm
+          projectList={projectList ?? []}
+          initiationList={initiationList ?? []}
+          staffUsersList={staffUserList ?? []}
+        ></CaseFileForm>
+        <Box marginTop={"0.5rem"} paddingX={"2rem"}>
+          <Typography
+            variant="body2"
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "0.75rem 2rem",
-              borderBottom: "1px solid",
+              fontWeight: BCDesignTokens.typographyFontWeightsBold,
+              color: BCDesignTokens.typographyColorPrimary,
+              marginBottom: BCDesignTokens.layoutMarginMedium,
+            }}
+          >
+            Inspection Records
+          </Typography>
+          <Alert
+            severity="info"
+            variant="outlined"
+            sx={{
               borderColor: BCDesignTokens.supportBorderColorInfo,
+              backgroundColor: BCDesignTokens.supportSurfaceColorInfo,
+              color: BCDesignTokens.typographyColorPrimary,
             }}
           >
-            <Typography variant="h6" color="primary">
-              Create Case File Number
-            </Typography>
-            <IconButton
-              aria-label="close"
-              onClick={handleClose}
-              sx={{
-                color: theme.palette.text.primary,
-              }}
-            >
-              <Close />
-            </IconButton>
-          </Box>
-          <Box
-            sx={{
-              backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
-              padding: "0.75rem 2rem",
-              textAlign: "right",
-            }}
-          >
-            <Button variant={"contained"} type="submit">
-              Create
-            </Button>
-          </Box>
-          <CaseFileForm
-            projectList={projectList ?? []}
-            initiationList={initiationList ?? []}
-            staffUsersList={staffUserList ?? []}
-          ></CaseFileForm>
-          <Box marginTop={"0.5rem"} paddingX={"2rem"}>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: BCDesignTokens.typographyFontWeightsBold,
-                color: BCDesignTokens.typographyColorPrimary,
-                marginBottom: BCDesignTokens.layoutMarginMedium,
-              }}
-            >
-              Inspection Records
-            </Typography>
-            <Alert
-              severity="info"
-              variant="outlined"
-              sx={{
-                borderColor: BCDesignTokens.supportBorderColorInfo,
-                backgroundColor: BCDesignTokens.supportSurfaceColorInfo,
-                color: BCDesignTokens.typographyColorPrimary,
-              }}
-            >
-              Once Inspections are created and linked, they will appear here
-            </Alert>
-          </Box>
-        </form>
-      </FormProvider>
-    </Box>
+            Once Inspections are created and linked, they will appear here
+          </Alert>
+        </Box>
+      </form>
+    </FormProvider>
   );
 };
 

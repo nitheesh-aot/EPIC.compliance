@@ -15,7 +15,7 @@ import { Route as OidcCallbackImport } from './routes/oidc-callback'
 import { Route as AuthenticatedImport } from './routes/_authenticated'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthenticatedIrBoardImport } from './routes/_authenticated/ir-board'
-import { Route as AuthenticatedCeDatabaseInspectionImport } from './routes/_authenticated/ce-database/inspection'
+import { Route as AuthenticatedCeDatabaseInspectionsImport } from './routes/_authenticated/ce-database/inspections'
 import { Route as AuthenticatedCeDatabaseCompliantsImport } from './routes/_authenticated/ce-database/compliants'
 import { Route as AuthenticatedCeDatabaseCaseFilesImport } from './routes/_authenticated/ce-database/case-files'
 import { Route as AuthenticatedAdminTopicsImport } from './routes/_authenticated/admin/topics'
@@ -45,9 +45,9 @@ const AuthenticatedIrBoardRoute = AuthenticatedIrBoardImport.update({
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 
-const AuthenticatedCeDatabaseInspectionRoute =
-  AuthenticatedCeDatabaseInspectionImport.update({
-    path: '/ce-database/inspection',
+const AuthenticatedCeDatabaseInspectionsRoute =
+  AuthenticatedCeDatabaseInspectionsImport.update({
+    path: '/ce-database/inspections',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -160,11 +160,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCeDatabaseCompliantsImport
       parentRoute: typeof AuthenticatedImport
     }
-    '/_authenticated/ce-database/inspection': {
-      id: '/_authenticated/ce-database/inspection'
-      path: '/ce-database/inspection'
-      fullPath: '/ce-database/inspection'
-      preLoaderRoute: typeof AuthenticatedCeDatabaseInspectionImport
+    '/_authenticated/ce-database/inspections': {
+      id: '/_authenticated/ce-database/inspections'
+      path: '/ce-database/inspections'
+      fullPath: '/ce-database/inspections'
+      preLoaderRoute: typeof AuthenticatedCeDatabaseInspectionsImport
       parentRoute: typeof AuthenticatedImport
     }
   }
@@ -182,7 +182,7 @@ export const routeTree = rootRoute.addChildren({
     AuthenticatedAdminTopicsRoute,
     AuthenticatedCeDatabaseCaseFilesRoute,
     AuthenticatedCeDatabaseCompliantsRoute,
-    AuthenticatedCeDatabaseInspectionRoute,
+    AuthenticatedCeDatabaseInspectionsRoute,
   }),
   OidcCallbackRoute,
 })
@@ -213,7 +213,7 @@ export const routeTree = rootRoute.addChildren({
         "/_authenticated/admin/topics",
         "/_authenticated/ce-database/case-files",
         "/_authenticated/ce-database/compliants",
-        "/_authenticated/ce-database/inspection"
+        "/_authenticated/ce-database/inspections"
       ]
     },
     "/oidc-callback": {
@@ -247,8 +247,8 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "_authenticated/ce-database/compliants.tsx",
       "parent": "/_authenticated"
     },
-    "/_authenticated/ce-database/inspection": {
-      "filePath": "_authenticated/ce-database/inspection.tsx",
+    "/_authenticated/ce-database/inspections": {
+      "filePath": "_authenticated/ce-database/inspections.tsx",
       "parent": "/_authenticated"
     }
   }

@@ -51,7 +51,7 @@ describe("Staff Component", () => {
     mount(mountStaff());
 
     cy.get("button").contains("Staff Member").click();
-    cy.contains("h2", "Add Staff Member").should("be.visible");
+    cy.contains("h5", "Add Staff Member").should("be.visible");
 
     cy.get('input[name="name"]').should("be.visible");
   });

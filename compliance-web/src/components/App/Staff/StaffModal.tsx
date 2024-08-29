@@ -1,4 +1,3 @@
-import ModalCloseIconButton from "@/components/Shared/Modals/ModalCloseIconButton";
 import {
   usePermissionsData,
   usePositionsData,
@@ -9,15 +8,7 @@ import {
 import { Permission } from "@/models/Permission";
 import { Position } from "@/models/Position";
 import { StaffAPIData, StaffFormData, StaffUser } from "@/models/Staff";
-import { useModal } from "@/store/modalStore";
-import {
-  Box,
-  Button,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-} from "@mui/material";
+import { DialogContent } from "@mui/material";
 import { useEffect, useMemo } from "react";
 import StaffForm from "./StaffForm";
 import { AuthUser } from "@/models/AuthUser";
@@ -27,6 +18,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
+import ModalActions from "@/components/Shared/Modals/ModalActions";
 
 type StaffModalProps = {
   onSubmit: (submitMsg: string) => void;
@@ -56,7 +49,6 @@ const initFormData: StaffFormData = {
 
 const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
   const queryClient = useQueryClient();
-  const { setClose } = useModal();
 
   const { data: usersList } = useAuthUsersData();
   const { data: positionsList } = usePositionsData();
@@ -127,18 +119,14 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
     }
   };
 
-  const handleClose = () => {
-    setClose();
-  };
-
   return (
-    <Box width="520px">
-      <DialogTitle>{staff ? staff.full_name : "Add Staff Member"}</DialogTitle>
-      <ModalCloseIconButton handleClose={handleClose} />
-      <Divider />
+    <>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmitHandler)}>
-          <DialogContent>
+          <ModalTitleBar
+            title={staff ? (staff.full_name ?? "") : "Add Staff Member"}
+          />
+          <DialogContent dividers>
             <StaffForm
               existingStaff={staff}
               authUsersList={usersList}
@@ -147,16 +135,10 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
               staffUsersList={staffUsersList}
             />
           </DialogContent>
-          <Divider />
-          <DialogActions sx={{ paddingX: "1.5rem", paddingY: "1rem" }}>
-            <Button variant="text" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button type="submit">{staff ? "Save" : "Add"}</Button>
-          </DialogActions>
+          <ModalActions primaryActionButtonText={staff ? "Save" : "Add"} />
         </form>
       </FormProvider>
-    </Box>
+    </>
   );
 };
 

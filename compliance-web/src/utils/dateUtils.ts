@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { DATE_FORMAT } from "./constants";
 
 type UnitOfTime = "seconds" | "minutes" | "hours" | "days" | "months" | "years";
 
@@ -10,7 +11,7 @@ dayjs.extend(utc);
  * @returns Formatted date string
  */
 const formatDate = (date: string, format?: string) => {
-  return dayjs(date).format(format || "YYYY-MM-DD");
+  return dayjs(date).format(format || DATE_FORMAT);
 };
 
 const diff = (fromDate: string, toDate: string, unitOfTime: UnitOfTime) => {

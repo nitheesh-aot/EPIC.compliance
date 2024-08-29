@@ -156,7 +156,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
       sx: { boxShadow: "none" },
     },
     muiTablePaperProps: {
-      sx: { boxShadow: "none" },
+      sx: { boxShadow: "none", pb: "1rem" },
     },
     muiTableProps: {
       sx: { tableLayout: "fixed" },
