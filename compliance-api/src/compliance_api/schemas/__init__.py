@@ -17,3 +17,4 @@ from .case_file import CaseFileCreateSchema, CaseFileSchema
 from .common import KeyValueSchema
 from .project import ProjectSchema
 from .staff_user import StaffUserCreateSchema, StaffUserSchema
+from .topic import TopicCreateSchema, TopicSchema

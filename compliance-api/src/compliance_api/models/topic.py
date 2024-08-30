@@ -1,0 +1,24 @@
+"""Staff topic model class.
+
+Manages the topic
+"""
+
+from __future__ import annotations
+
+from sqlalchemy import Column, Integer, String
+
+from .base_model import BaseModel
+
+
+class Topic(BaseModel):
+    """Definition of the Topic entity."""
+
+    __tablename__ = "topics"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(150), nullable=False)
+
+    @classmethod
+    def get_topic_by_name(cls, topic: str) -> Topic:
+        """Get topic by name."""
+        return cls.query.filter_by(name=topic).first()
