@@ -3,30 +3,17 @@ from compliance_api.exceptions import UnprocessableEntityError
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionAgency as InspectionAgencyModel
 from compliance_api.models import InspectionAttendance as InspectionAttendanceModel
-from compliance_api.models import (
-    InspectionAttendanceOption as InspectionAttendanceOptionModel,
-)
+from compliance_api.models import InspectionAttendanceOption as InspectionAttendanceOptionModel
 from compliance_api.models import InspectionFirstnation as InspectionFirstnationModel
-from compliance_api.models import (
-    InspectionInitiationOption as InspectionInitiationOptionModel,
-)
+from compliance_api.models import InspectionInitiationOption as InspectionInitiationOptionModel
 from compliance_api.models import InspectionOfficer as InspectionOfficerModel
-from compliance_api.models import (
-    InspectionOtherAttendance as InspectionOtherAttendanceModel,
-)
-from compliance_api.models import (
-    InspectionUnapprovedProject as InspectionUnapprovedProjectModel,
-)
+from compliance_api.models import InspectionOtherAttendance as InspectionOtherAttendanceModel
+from compliance_api.models import InspectionUnapprovedProject as InspectionUnapprovedProjectModel
 from compliance_api.models import IRStatusOption as IRStatusOptionModel
 from compliance_api.models import IRTypeOption as IRTypeOptionModel
 from compliance_api.models.db import session_scope
-from compliance_api.models.inspection.inspection_constant import (
-    UNAPPROVED_PROJECT_CODE,
-    UNAPPROVED_PROJECT_NAME,
-)
-from compliance_api.models.inspection.inspection_enum import (
-    InspectionAttendanceOptionEnum,
-)
+from compliance_api.models.inspection.inspection_constant import UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
+from compliance_api.models.inspection.inspection_enum import InspectionAttendanceOptionEnum
 
 from .case_file import CaseFileService
 from .epic_track_service.track_service import TrackService
