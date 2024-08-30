@@ -11,7 +11,7 @@ export default function ComingSoon() {
         alignItems: "center",
         justifyContent: "center",
         height: "100%",
-        marginBottom: 16,
+        mx: 4,
       }}
     >
       <Box
@@ -29,7 +29,7 @@ export default function ComingSoon() {
       <Typography variant="h3" marginBottom={"0.5rem"}>
         Coming soon!
       </Typography>
-      <Typography variant="h5" fontWeight="400">
+      <Typography variant="h5" fontWeight="400" mb={20}>
         Our team is developing this feature and plans to launch it soon
       </Typography>
     </Box>

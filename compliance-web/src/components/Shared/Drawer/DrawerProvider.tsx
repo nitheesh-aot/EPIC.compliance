@@ -24,7 +24,7 @@ const DrawerProvider: React.FC = () => {
         },
       }}
     >
-      <Box role="presentation" sx={{ width: drawerWidth, mb: "2rem" }}>
+      <Box role="presentation" sx={{ width: drawerWidth }}>
         {drawerContent}
       </Box>
     </Drawer>
