@@ -23,7 +23,7 @@ const ControlledDateField: FC<IFormDateInputProps> = ({
     <Controller
       name={name}
       control={control}
-      defaultValue={null}  // Since we're dealing with a date, default to null
+      defaultValue={null}
       render={({ field }) => (
         <DatePicker
           {...field}

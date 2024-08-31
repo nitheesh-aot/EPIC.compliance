@@ -6,8 +6,8 @@ import { BCDesignTokens } from "epic.theme";
 import { Project } from "@/models/Project";
 import { Initiation } from "@/models/Initiation";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
-import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
 import { IRType } from "@/models/IRType";
+import ControlledDateRangePicker from "@/components/Shared/Controlled/ControlledDateRangePicker";
 
 type InspectionFormLeftProps = {
   projectList: Project[];
@@ -100,11 +100,7 @@ const InspectionFormLeft: React.FC<InspectionFormLeftProps> = ({
             isOptionEqualToValue={(option, value) => option.id === value.id}
             fullWidth
           />
-          <ControlledDateField
-            name="dateCreated"
-            label="Date Created"
-            sx={{ width: "100%" }}
-          />
+          <ControlledDateRangePicker label="Dates" name="dateRange" fullWidth/>
         </Stack>
         <ControlledAutoComplete
           name="initiation"

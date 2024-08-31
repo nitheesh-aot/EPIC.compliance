@@ -36,7 +36,15 @@ const inspectionFormSchema = yup.object().shape({
   leadOfficer: yup.object<StaffUser>().nullable().required("Lead Officer is required"),
   officers: yup.array().of(yup.object<StaffUser>()).nullable(),
   irType: yup.object<IRType>().nullable().required("Type is required"),
-  dateCreated: yup.date().nullable().required("Date Created is required"),
+  dateCreated: yup.date().nullable(),
+  dateRange: yup.object().shape({
+    startDate: yup.date().required('Start date is required').typeError('Invalid date'),
+    endDate: yup
+      .date()
+      .required('End date is required')
+      .typeError('Invalid date')
+      .min(yup.ref('startDate'), 'End date cannot be before start date'),
+  }),
   initiation: yup
     .object<Initiation>()
     .nullable()
@@ -98,9 +106,11 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
   const onSubmitHandler = useCallback(
     (data: InspectionSchemaType) => {
+      // eslint-disable-next-line no-console
+      console.log(data);
       const caseFileData: CaseFileAPIData = {
         project_id: (data.project as Project)?.id ?? "",
-        date_created: dateUtils.dateToUTC(data.dateCreated),
+        date_created: dateUtils.dateToUTC(data.dateCreated ?? new Date()),
         initiation_id: (data.initiation as Initiation).id,
         case_file_number: "",
         lead_officer_id: (data.leadOfficer as StaffUser)?.id,
