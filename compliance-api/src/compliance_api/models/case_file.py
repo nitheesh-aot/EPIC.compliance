@@ -12,10 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Case file Model."""
+import enum
+
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModel
+
+
+class CaseFileInitiationEnum(enum.Enum):
+    """Enum for case file initiation."""
+
+    INSPECTION = 1
+    COMPLIANT = 2
 
 
 class CaseFile(BaseModel):

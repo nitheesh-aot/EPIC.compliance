@@ -1,0 +1,2882 @@
+[
+	{
+		"id" : 75,
+		"name" : "Debolt Saline Water",
+		"description" : "The Project consists of three saline groundwater wells drilled into the Debolt aquifer, a sour water treatment plant; a water storage facility; water pipelines between the three groundwater wells and the treatment plant; and monitoring wells.",
+		"ea_certificate" : "X11-01",
+		"proponent_name" : "Encana Corporation",
+		"abbreviation" : "DEBSAL"
+	},
+	{
+		"id" : 304,
+		"name" : "Timicw Good Earth Recycling Landfill",
+		"description" : "Bonaparte First Nation and 357999 BC LTD proposes to develop the Timicw Good Earth Recycling Landfill, a solid waste management facility located approximately 3 kilometers south of the Village of Cache Creek, B.C. The proposed project is anticipated to store approximately 190,000 tonnes of solid waste per year for 75 years. It would include a double-lined landfill basin, leachate and stormwater management systems, double-lined leachate evaporation pond(s), and a waste recovery area and scale house.",
+		"ea_certificate" : null,
+		"proponent_name" : "Bonaparte First Nation and 357999 BC LTD",
+		"abbreviation" : "TIMGOO"
+	},
+	{
+		"id" : 4,
+		"name" : "Aley Mine",
+		"description" : "Proposed 10,000 tonne per day open pit niobium mine 130 km north of Mackenzie, with a 25 year mine life.",
+		"ea_certificate" : null,
+		"proponent_name" : "Aley Corporation Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 100,
+		"name" : "Fortune Creek Gas",
+		"description" : "Quicksilver Resources Canada Inc. (the original Proponent) proposed to construct and operate a natural gas-processing facility in northeast British Columbia. On October 7, 2018 the current Certificate Holder (Nabors Drilling Canada Limited) confirmed that it had no interest in developing Fortune Creek Gas and operating the plant and let EAC E13-03 expire.",
+		"ea_certificate" : "E13-03",
+		"proponent_name" : "Nabors Drilling Canada Limited",
+		"abbreviation" : "FORCRE"
+	},
+	{
+		"id" : 6,
+		"name" : "Arctos Anthracite",
+		"description" : "The proposed Project would involve developing a new open pit coal mine in north-western BC located about 90 km southeast of Iskut. With a production capacity of approximately 8,200 tonnes per day of clean coal, and a mine footprint of about 4000 ha, including an open pit of about 730 ha, the mine would produce about 3 million tonnes of coal for about 25 years. Transportation of the coal would be by rail to Ridley Terminals in Prince Rupert. The proposed Project would also include constructing a 147 km extension of an existing railway from its current terminus to the mine site.",
+		"ea_certificate" : null,
+		"proponent_name" : "Arctos Anthracite Joint Venture",
+		"abbreviation" : null
+	},
+	{
+		"id" : 7,
+		"name" : "Ashcroft Ranch Landfill",
+		"description" : "EA Application referred to Ministers on February 2, 2005.  Assessment suspended on June 7, 2005 pending substantial completion of the Greater Vancouver Regional Solid Waste Management Plan amendment process.",
+		"ea_certificate" : "REFUSED",
+		"proponent_name" : "Greater Vancouver Sewerage and Drainage District",
+		"abbreviation" : "ASHRAN"
+	},
+	{
+		"id" : 9,
+		"name" : "Aurora LNG Digby Island",
+		"description" : "Aurora Liquefied Natural Gas Ltd. proposes a Liquefied Natural Gas (LNG) export facility with a full build out capacity to process up to 24 mtpa of LNG, including up to four LNG processing units, LNG storage tanks, and marine berth for loading of LNG vessels. The proposed project will be located in the Prince Rupert region sited at Digby Island.",
+		"ea_certificate" : "N\/A",
+		"proponent_name" : "Nexen Energy ULC",
+		"abbreviation" : "ALDIGB"
+	},
+	{
+		"id" : 3,
+		"name" : "Ajax Mine",
+		"description" : "KGHM Ajax Mining Inc. proposed to develop a new open-pit copper and gold mine with a production capacity of up to 24 million tonnes of ore per year and a life expectancy of 23 years.",
+		"ea_certificate" : "REFUSED",
+		"proponent_name" : "KGHM Ajax Mining Incorporated",
+		"abbreviation" : "AJAMIN"
+	},
+	{
+		"id" : 33,
+		"name" : "Bull River Mine",
+		"description" : "Ktunaxa Nation submitted a request under Section 11 of the Environmental Assessment Act, 2018 for proposed amendments to Mines Act and Environmental Management Act permits and associated activities at he Bull River Mine be designated as a reviewable project under the Act.",
+		"ea_certificate" : null,
+		"proponent_name" : "Bul River Mineral Corporation",
+		"abbreviation" : "BULRIV"
+	},
+	{
+		"id" : 11,
+		"name" : "Babkirk Secure Landfill",
+		"description" : "Upgrading three existing bioremediation cells at the facility to achieve the requirements of the Hazardous Waste Regulation for Secure Landfill Cells, providing a direct waste disposal option for the oil and gas industry. The Project will accept soil from the same sources as the existing facility, as well as desiccant material, sulphur catalyst and salt-impacted soil. The Proponents intend to retain current bioremediation capacity, while adding capacity for the permanent storage of 750,000 tonnes of waste soil. The Project has an anticipated lifespan of 25-30 years.",
+		"ea_certificate" : "WD08-03",
+		"proponent_name" : "Babkirk Land Services Incorporated",
+		"abbreviation" : "BABSEC"
+	},
+	{
+		"id" : 12,
+		"name" : "Babkirk Special Waste Treatment Facility",
+		"description" : "Upgrading three existing bioremediation cells at the facility to achieve the requirements of the Hazardous Waste Regulation for Secure Landfill Cells, providing a direct waste disposal option for the oil and gas industry. The Project will accept soil from the same sources as the existing facility, as well as desiccant material, sulphur catalyst and salt-impacted soil. The Proponents intend to retain current bioremediation capacity, while adding capacity for the permanent storage of 750,000 tonnes of waste soil. The Project has an anticipated lifespan of 25-30 years.",
+		"ea_certificate" : "WD98-01",
+		"proponent_name" : "Tervita Corporation",
+		"abbreviation" : "BABSPE"
+	},
+	{
+		"id" : 1,
+		"name" : "29694 Marshall Road Extension",
+		"description" : "A sand and gravel pit located near the Abbotsford Airport.",
+		"ea_certificate" : "X08-01",
+		"proponent_name" : "Rigby Farmlands Limited and Little Rock Quarries",
+		"abbreviation" : "296MAR"
+	},
+	{
+		"id" : 279,
+		"name" : "Spanish Mountain Gold Project",
+		"description" : "Spanish Mountain Gold Ltd. (SMG) proposes to develop the Spanish Mountain Gold Project (Spanish Mountain), an open pit gold mine with a production capacity of 20,000 tonnes per day, located six km southeast of Likely, British Columbia. Spanish Mountain is estimated to produce 7.3 million tonnes of ore\/year with an operating mine life of 14 years, in addition to construction (2 years) and site decommissioning and reclamation (4 years) at a capital cost of $897.7 million. **Note: A similar project named Spanish Mountain Gold entered the EA process in 2011 and was withdrawn in 2019 at the proponent’s request.",
+		"ea_certificate" : null,
+		"proponent_name" : "Spanish Mountain Gold Ltd.",
+		"abbreviation" : "SMGOLD"
+	},
+	{
+		"id" : 16,
+		"name" : "Banks Island North Wind Energy",
+		"description" : "North Coast Wind Energy Corp. proposes to develop and operate a 700 MW wind power generation facility on Banks Island. Project consists of approx 250 to 350, 2.0 to 2.5 MW wind turbines and a transmission line to the BCTC grid south of the Skeena River",
+		"ea_certificate" : null,
+		"proponent_name" : "North Coast Wind Energy Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 15,
+		"name" : "Bamberton Town Development",
+		"description" : "Application withdrawn by proponent.",
+		"ea_certificate" : "N\/A",
+		"proponent_name" : "South Island Development Corporation",
+		"abbreviation" : "BAMTOW"
+	},
+	{
+		"id" : 19,
+		"name" : "Bear River Gravel",
+		"description" : "Glacier Aggregates Inc. proposed to develop a gravel mine with a production capacity of up to 3.5 million tonnes per year from the lower reaches of the Bear River at Stewart, in northwestern B.C.",
+		"ea_certificate" : null,
+		"proponent_name" : "Glacier Aggregates Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 20,
+		"name" : "Bethlehem Extension",
+		"description" : "The Bethlehem Extension project involves restarting open-pit mining in the existing Iona and Jersey pits using the existing mine workforce. The project is an extension of the outer rim of the pits, typically 75 to 200 metres (m) in width, but potentially exceeding 600 m in the southeast direction.",
+		"ea_certificate" : null,
+		"proponent_name" : "Teck Resources Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 25,
+		"name" : "Black Mountain Reservoir",
+		"description" : "The proposed Black Mountain Reservoir Project is an open surface raw water storage reservoir and associated pipelines. The reservoir site would be located in Gopher Flats at the foot of Black Knight Mountain north of Highway 33 in the City of Kelowna.",
+		"ea_certificate" : "X09-01",
+		"proponent_name" : "Black Mountain Irrigation District",
+		"abbreviation" : "BLAMOU"
+	},
+	{
+		"id" : 23,
+		"name" : "Big White Ski Resort Expansion",
+		"description" : "Westbank First Nation has submitted an application under s.11 of the Environmental Assessment Act, 2018 for a proposed expansion of Big White Ski Resort to be designated as a Reviewable Project under the Act.",
+		"ea_certificate" : null,
+		"proponent_name" : "Big White Ski Resort",
+		"abbreviation" : null
+	},
+	{
+		"id" : 24,
+		"name" : "Bingay Main Coal",
+		"description" : "Project proposes to develop a surface and underground coal mine with an annual production capacity of two million tonnes (Mt) in the Elk River valley, approximately 21 km north of Elkford, southeastern British Columbia.",
+		"ea_certificate" : null,
+		"proponent_name" : "Centermount Coal Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 28,
+		"name" : "Boundary Lake Sour Gas Plant",
+		"description" : "Boundary Lake Sour Gas Plant",
+		"ea_certificate" : null,
+		"proponent_name" : "Placer CEGO Petroleum Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 30,
+		"name" : "Bronson Slope Gold and Copper Mine",
+		"description" : "The company is proposing to develop a copper\/gold\/silver\/molybdenum mine on Bronson Slope near the existing Snip Mine, at Bronson Creek.",
+		"ea_certificate" : null,
+		"proponent_name" : "Skyline Gold Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 17,
+		"name" : "Basal Aquifer Dewatering",
+		"description" : "The Basal Aquifer Dewatering project increased the rate of groundwater extraction from the Basal Aquifer to extend the Highland Valley Copper Mine life. See the HVC 2040 project site for more information on a proposed amendment: https:\/\/projects.eao.gov.bc.ca\/p\/5cd9b4b56a15600025df0cc8\/project-details",
+		"ea_certificate" : "W02-01",
+		"proponent_name" : "Highland Valley Copper Corporation",
+		"abbreviation" : "BASAQU"
+	},
+	{
+		"id" : 18,
+		"name" : "Bear Mountain Wind Park",
+		"description" : "The Project involves the construction and operation of a 120 megawatt wind park consisting of wind turbines, access roads, a transmission network and substation located 16 kilometres southwest of the City of Dawson Creek.",
+		"ea_certificate" : "E07-03",
+		"proponent_name" : "Bear Mountain Wind Limited Partnership",
+		"abbreviation" : "BEAMOU"
+	},
+	{
+		"id" : 21,
+		"name" : "Bevan Avenue Wells Groundwater Supply Development",
+		"description" : "The Project consists of a modification to four existing groundwater wells. The project involves the Abbotsford-Sumas aquifer, and is in response to recent low surface reservoir levels associated with peak water usage in the summer months.",
+		"ea_certificate" : "WD11-01",
+		"proponent_name" : "City of Abbotsford",
+		"abbreviation" : "BEVAVE"
+	},
+	{
+		"id" : 22,
+		"name" : "Big Silver Creek Waterpower",
+		"description" : "Run of River Project with a new transmission line in the Harrison Lake Area. Aggregate nameplate capacity is 79 MW.",
+		"ea_certificate" : "E12-03",
+		"proponent_name" : "Big Silver Creek Power Limited Partnership",
+		"abbreviation" : "BIGSIL"
+	},
+	{
+		"id" : 27,
+		"name" : "Bodie Waste Dump",
+		"description" : "The Bodie Dump covers about 230 hectares and, upon completion, will contain some 127 million cubic meters of waste rock to support the continued mining of the Elkview Operations coal mine.",
+		"ea_certificate" : "M96-02",
+		"proponent_name" : "Elkview Coal Corporation",
+		"abbreviation" : "BODWAS"
+	},
+	{
+		"id" : 29,
+		"name" : "Brilliant Powerplant Expansion",
+		"description" : "Construction and operation of a new power plant adjacent to the existing Brilliant Dam and Brilliant Generating Station (BGS) on the Kootenay River located approximately 3 km upstream of its confluence with the Columbia River.",
+		"ea_certificate" : "E01-01",
+		"proponent_name" : "Brilliant Expansion Power Corporation",
+		"abbreviation" : "BRIPOW"
+	},
+	{
+		"id" : 32,
+		"name" : "Brule Mine",
+		"description" : "Brule Mine is an open pit coal mine, with a production capacity of up to 2 million tonnes of PCI (pulverized coal injection) coal per year.",
+		"ea_certificate" : "M06-02",
+		"proponent_name" : "Conuma Coal Resources Limited",
+		"abbreviation" : "BRUMIN"
+	},
+	{
+		"id" : 148,
+		"name" : "Kemess Underground",
+		"description" : "The proposed mine would produce 9 million tonnes per year and make use of the existing Kemess South open pit for tailings and waste rock storage, camp and processing facilities, electricity supply and roads. New infrastructure would include a 0.7 km tunnel, a 4 km access road as well as underground mining operations and processing facilities.",
+		"ea_certificate" : "M17-01",
+		"proponent_name" : "AuRico Metals Incorporated",
+		"abbreviation" : "KEMUND"
+	},
+	{
+		"id" : 35,
+		"name" : "Burnaby Lake Rejuvenation Program",
+		"description" : "To rejuvenate the Burnaby Lake through a dredging program that will remove up to 400 000 cubic metres of sediment over an area of about 36 hectares and dispose of that sediment.",
+		"ea_certificate" : "W02-02",
+		"proponent_name" : "City of Burnaby",
+		"abbreviation" : "BURLAK"
+	},
+	{
+		"id" : 52,
+		"name" : "Chasm Solar and Energy Storage",
+		"description" : "Chasm BC Solar Project Limited Partnership proposes to develop the Chasm Solar and Energy Storage, a solar power-generation facility located approximately 10 kilometres north from Clinton, B.C.. The proposed project is anticipated to produce approximately 100 megawatts per year of alternating current power generation. It would include solar panel arrays, battery storage system, overhead transmission lines, and access roads. ",
+		"ea_certificate" : null,
+		"proponent_name" : "Chasm BC Solar Project Limited Partnership",
+		"abbreviation" : "CHASOL"
+	},
+	{
+		"id" : 37,
+		"name" : "Bute Inlet Hydroelectric",
+		"description" : "Plutonic Power Corporation's Hydroelectric Project will produce 914 MW through 3 groups of interconnected hydro facilities.",
+		"ea_certificate" : null,
+		"proponent_name" : "Alterra Power Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 43,
+		"name" : "Carbon Creek Coal Mine",
+		"description" : "Cardero Coal Ltd. proposes to develop a metallurgical coal mine with an average annual production rate of 4.3 million metric tonnes of clean coal. The Project is located in northeastern BC, approximately 40 kilometres west of Hudson's Hope.",
+		"ea_certificate" : null,
+		"proponent_name" : "Cardero Coal Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 44,
+		"name" : "Cariboo Gold",
+		"description" : "Proposed open pit gold mine in Cariboo region. **NOTE: this is a project that was terminated in 2009. A new 'Cariboo Gold Project' (2020) is currently in the EA process: see https:\/\/projects.eao.gov.bc.ca\/p\/5d40cc5b4cb2c7001b1336b8.",
+		"ea_certificate" : null,
+		"proponent_name" : "International Wayside Gold Mines Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 48,
+		"name" : "CCS Sunrise Secure Landfill",
+		"description" : "CCS Corporation (Proponent) proposes to develop a new 65-hectare secure landfill located approximately 15 kilometers west of Dawson Creek, British Columbia.",
+		"ea_certificate" : null,
+		"proponent_name" : "CCS Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 51,
+		"name" : "Central South Mine",
+		"description" : "First Coal Corporation proposed to develop a new coal mine with a production capacity of 1.5 million tonnes per year and a life expectancy of 12 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Xstrata Coal Canada Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 34,
+		"name" : "Bulrush Natural Gas Production and Processing Facility",
+		"description" : "Construction and operation of a new raw gas processing plant and ancillary pipeline facilities in the Bulrush gas field, located approximately 100 kilometers north of Fort St. John",
+		"ea_certificate" : "E95-01",
+		"proponent_name" : "Morrison Petroleums Limited",
+		"abbreviation" : "BULNAT"
+	},
+	{
+		"id" : 36,
+		"name" : "Burnco Aggregate",
+		"description" : "Burnco Aggregate Project is a sand and gravel mining operation, with a production capacity of up to 1.25 million tonnes per year of construction aggregates, over a 16 year life of mine.",
+		"ea_certificate" : "M18-02",
+		"proponent_name" : "BURNCO Rock Products Limited",
+		"abbreviation" : "BURAGG"
+	},
+	{
+		"id" : 39,
+		"name" : "Cache Creek Landfill Extension",
+		"description" : "Extension of the existing Cache Creek Landfill by 40 ha to provide an additional 15 million tonnes of disposal capacity.",
+		"ea_certificate" : "WD09-02",
+		"proponent_name" : "Belkorp Environmental Services Incorporated and the Village of Cache Creek",
+		"abbreviation" : "CACCRE"
+	},
+	{
+		"id" : 41,
+		"name" : "Canada Line Rapid Transit",
+		"description" : "Ministers issued Environmental Assessment Certificate T05-01 on June 7, 2005.  Amendment No. 01 issued on Oct 20, 2005. Amendment No. 02 issued on Nov 29, 2005. Formally know as Richmond Airport Vancouver Rapid Transit Project. RAVP",
+		"ea_certificate" : "T05-01",
+		"proponent_name" : "Canada Line Rapid Transit Incorporated",
+		"abbreviation" : "CANLIN"
+	},
+	{
+		"id" : 42,
+		"name" : "Cape Scott Wind Farm",
+		"description" : "The Cape Scott Wind Farm Project (Project) formally know as Knobb Hill, was granted an EA Certificate September 21, 2004, to construct and operate a 450 MW wind farm comprised of 150 wind turbines.",
+		"ea_certificate" : "E04-01",
+		"proponent_name" : "Sea Breeze Energy Incorporated",
+		"abbreviation" : "CAPSCO"
+	},
+	{
+		"id" : 46,
+		"name" : "Caribou Gas Processing Plant",
+		"description" : "Caribou Gas Processing Plant",
+		"ea_certificate" : "E96-04",
+		"proponent_name" : "Keyspan Energy Canada Company",
+		"abbreviation" : "CARGAS"
+	},
+	{
+		"id" : 47,
+		"name" : "Cascade Heritage Power",
+		"description" : "Cascade Heritage Hydro Project receives an Environmental Assessment Certificate for a proposed 25 MW run-of-river hydroelectric project on the Kettle River near Christina Lake",
+		"ea_certificate" : "E06-02",
+		"proponent_name" : "Powerhouse Developments Incorporated",
+		"abbreviation" : "CASHER"
+	},
+	{
+		"id" : 49,
+		"name" : "Cedar LNG",
+		"description" : "Cedar LNG Partners LP proposes to develop, construct and operate a liquefied natural gas (LNG) facility and marine export terminal, including related infrastructure.",
+		"ea_certificate" : "E23-01",
+		"proponent_name" : "Cedar LNG Partners LP",
+		"abbreviation" : "CEDLNG"
+	},
+	{
+		"id" : 166,
+		"name" : "Line Creek Coal",
+		"description" : "Mine Development Certificates 92-12, 93-09, and 95-05,  issued prior to the enactment of the first BC Environmental Assessment Act, continue in force collectively as Project Approval Certificate M97-03 for Line Creek Coal.",
+		"ea_certificate" : "M97-03",
+		"proponent_name" : "Line Creek Mine Limited",
+		"abbreviation" : "LINCRE"
+	},
+	{
+		"id" : 69,
+		"name" : "Crown Mountain Coking Coal",
+		"description" : "NWP Coal Canada Limited proposes to develop the Crown Mountain Coking Coal Project, a metallurgical coal mine located approximately 12 kilometres  northeast from Sparwood, B.C.. The proposed project is anticipated to produce approximately 2 million tonnes per year of clean coal. It would include an open pit coal mine, featuring surface extraction areas, a rail load-out facility and a clean coal transportation route as well as related infrastructure.",
+		"ea_certificate" : null,
+		"proponent_name" : "NWP Coal Canada Limited",
+		"abbreviation" : "CROMOU"
+	},
+	{
+		"id" : 55,
+		"name" : "Chu Molybdenum Mine",
+		"description" : "Proposed open pit molybdenum mine 80 km southwest of Vanderhoof, BC, with an anticipated production of up to 90,000 tonnes per day",
+		"ea_certificate" : null,
+		"proponent_name" : "TTM Resources Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 56,
+		"name" : "Coal Mountain Phase 2",
+		"description" : "The proposed Project would involve an extension of the Coal Mountain Operations mine, and would be located approximately 15 km south of Sparwood, BC. As an extension of existing operations, it would use the existing mine infrastructure at the Coal Mountain Operations mine. The production capacity would be approximately 2.25 million metric tonnes\/year of clean coal with a mine footprint of about 1,000 ha. The mine would produce a total of 76.5 million metric tonnes of clean coal over the estimated mine life of 34 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Teck Coal Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 67,
+		"name" : "Cranbrook Airport Expansion",
+		"description" : "The Corporation of the City of Cranbrook (Proponent) proposes to increase the length of the Cranbrook Airport runway from 6,000 ft (1,829 m) to 8,000 ft (2,438 m) and increase the size of the terminal from 851 m2 to 1,980 m2.",
+		"ea_certificate" : "X06-01",
+		"proponent_name" : "City of Cranbrook",
+		"abbreviation" : "CRAAIR"
+	},
+	{
+		"id" : 58,
+		"name" : "Cogburn Magnesium",
+		"description" : "North Pacific Alloys Limited proposes to develop a quarry and construct a magnesium processing facility near Ruby Creek. Proponent has requested a hold on this project untill after 2010.",
+		"ea_certificate" : null,
+		"proponent_name" : "North Pacific Alloys Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 60,
+		"name" : "Container Terminal 2",
+		"description" : "New container port with a completely separate terminal to the existing Deltaport Container Terminal located at  Roberts Bank.",
+		"ea_certificate" : null,
+		"proponent_name" : "Vancouver Fraser Port Authority",
+		"abbreviation" : null
+	},
+	{
+		"id" : 54,
+		"name" : "Chilliwack Well 9",
+		"description" : "Municipal groundwater supply.",
+		"ea_certificate" : "X09-02",
+		"proponent_name" : "City of Chilliwack",
+		"abbreviation" : "CHIWEL"
+	},
+	{
+		"id" : 62,
+		"name" : "Coquihalla Pass Resort Development",
+		"description" : "Westscapes Development Incorporated proposes to develop an all-season resort located halfway between Hope and Merritt, near the summit of the Coquihalla Highway. The resort would consist of base village, golf course, ski lifts, and alpine trails.",
+		"ea_certificate" : null,
+		"proponent_name" : "Westscapes Development Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 66,
+		"name" : "Crab\/Europa Hydroelectric Development",
+		"description" : "Kitamaat Renewable Energy Corporation proposes to construct and operate 2 run-of-river hydroelectric projects on the Crab (32 MW) and Europa (102 MW) rivers.",
+		"ea_certificate" : null,
+		"proponent_name" : "Kitamaat Renewable Energy Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 61,
+		"name" : "Copper Mountain New Ingerbelle Extension",
+		"description" : "The Copper Mountain Mine is an operating open pit copper\/gold mine located in south-central British Columbia adjacent to and on either side of the Similkameen River approximately 20 km south of the Town of Princeton, B.C. This mine has been in operation since 1972 (prior to the Environmental Assessment Act) under authorizations through the Mines Act, Environmental Management Act, and other regulatory authorities. The proposed New Ingerbelle Extension would be an extension of the existing New Ingerbelle Pit and associated infrastructure by 298 ha, approximately 13% of the existing area of disturbance. The current designation request by Lower Similkameen Indian Band under review by the EAO requests for the Extension itself to undergo an environmental assessment process, in addition to Mines Act and Environmental Management Act authorizations.",
+		"ea_certificate" : null,
+		"proponent_name" : "Copper Mountain Mine (BC) Ltd.",
+		"abbreviation" : "COPMOU"
+	},
+	{
+		"id" : 53,
+		"name" : "Chemainus Wells Water Supply",
+		"description" : "New water supply for the District of North Cowichan near the Chemainus River to replace the aging Banon Creek water supply.",
+		"ea_certificate" : "W09-01",
+		"proponent_name" : "District of North Cowichan",
+		"abbreviation" : "CHEWEL"
+	},
+	{
+		"id" : 63,
+		"name" : "Cougar South\/Main Pits and West Spoil Coal",
+		"description" : "The Project consists of open pit mining of coal from the Cougar South Pit and Main Pit, and the establishment of the West Spoil waste dump at the existing Greenhills Operations mine located approximately 8 km northeast of Elkford, B.C.",
+		"ea_certificate" : "M97-01",
+		"proponent_name" : "Elk Valley Coal Corporation",
+		"abbreviation" : "COUSOU"
+	},
+	{
+		"id" : 64,
+		"name" : "Coursier Dam Decommissioning",
+		"description" : "Project to decommission the Coursier Dam located near the outlet of Coursier Lake in the Columbia-Shuswap Regional District approximately\\n30 kilometres due south of Revelstoke",
+		"ea_certificate" : "E03-02",
+		"proponent_name" : "BC Hydro and Power Authority",
+		"abbreviation" : "COUDAM"
+	},
+	{
+		"id" : 68,
+		"name" : "Cranbrook Deep Wells",
+		"description" : "Certified October 15, 2004",
+		"ea_certificate" : "W04-05",
+		"proponent_name" : "City of Cranbrook",
+		"abbreviation" : "CRADEE"
+	},
+	{
+		"id" : 70,
+		"name" : "Crowsnest Co-generation Plant",
+		"description" : "Project terminated by proponent",
+		"ea_certificate" : null,
+		"proponent_name" : "TransAlta Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 71,
+		"name" : "Crystal Peak Garnet",
+		"description" : "The Transition Order for the Crystal Peak Garnet Project has lapsed and the Project has been withdrawn from the environmental assessment process.",
+		"ea_certificate" : null,
+		"proponent_name" : "Polestar Exploration Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 72,
+		"name" : "Davidson",
+		"description" : "Blue Pearl Mining Inc. (Proponent) proposes to develop an underground molybdenum mine with an anticipated production of 2000 tonnes per day with a mine life expectancy of 10 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Thompson Creek Metals Company",
+		"abbreviation" : null
+	},
+	{
+		"id" : 123,
+		"name" : "Hermann Mine",
+		"description" : "Conuma Coal Resources Limited proposed to develop an open pit metallurgical coal mine with an estimated production capacity of 1 million tonnes per year and an estimated mine life of 10 years.",
+		"ea_certificate" : "M08-01",
+		"proponent_name" : "Conuma Coal Resources Limited",
+		"abbreviation" : "HERMIN"
+	},
+	{
+		"id" : 74,
+		"name" : "Dawson Liquids Extraction",
+		"description" : "The project consists of a natural gas liquids extraction facility with a design inlet capacity of 11.34 million m3\/d (400 MMscf\/d) of natural gas and a short interconnecting sales gas pipeline of up to 1,500 m in length.",
+		"ea_certificate" : "X13-01",
+		"proponent_name" : "Spectra Energy Midstream Corporation",
+		"abbreviation" : "DAWLIQ"
+	},
+	{
+		"id" : 79,
+		"name" : "Dokie Wind Energy",
+		"description" : "Proponent receives provincial approval for construction of a new wind farm with a nominal capacity of 300 MW with a preliminary layout of 200 1.5 MW turbines.",
+		"ea_certificate" : null,
+		"proponent_name" : "EarthFirst Canada Inc.",
+		"abbreviation" : null
+	},
+	{
+		"id" : 178,
+		"name" : "McLymont Creek Hydroelectric",
+		"description" : "Coast Mountain Renewable Energy Incorporated proposes to develop McLymont Creek Hydroelectric, a hydroelectric facility located approximately 100 kilometres northwest of Stewart, B.C. The proposed project is anticipated to generate approximately 55 – 70 megawatts per year of alternating current power. It would include an intake structure, diversion channel, sluiceway, water conveyance system, powerhouse, tailrace, switchyard, transmission line, and access roads.",
+		"ea_certificate" : "E12-02",
+		"proponent_name" : "AltaGas Renewable Energy Incorporated",
+		"abbreviation" : "MCLCRE"
+	},
+	{
+		"id" : 83,
+		"name" : "East Toba River Montrose Creek Hydroelectric",
+		"description" : "Hydroelectric Project located in the vicinity of Toba Inlet",
+		"ea_certificate" : null,
+		"proponent_name" : "Toba Montrose Hydro Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 84,
+		"name" : "Echo Hill Coal",
+		"description" : "Hillsborough Resources Limited proposed to develop a thermal coal mine with a production capacity of one million tonnes per year over an estimated mine life of 10-14 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Hillsborough Resources Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 85,
+		"name" : "Elk Gold",
+		"description" : "Gold Mountain Mining Corp. submitted a request under Section 12 of the Environmental Assessment Act (2018) for the proposed expansion of the Elk Gold Project to be designated as Reviewable Project.",
+		"ea_certificate" : null,
+		"proponent_name" : "Gold Mountain Mining Corp.",
+		"abbreviation" : null
+	},
+	{
+		"id" : 87,
+		"name" : "Enbridge Northern Gateway",
+		"description" : "The Northern Gateway Project would involve the construction and operation of a terminal at Kitimat, British Columbia, and two 1,170 km pipelines between Bruderheim, Alberta and Kitimat. A 36 inch diameter export pipeline would carry oil products west to Kitimat, and a parallel 20 inch import pipeline would carry condensate east to Bruderheim",
+		"ea_certificate" : null,
+		"proponent_name" : "Northern Gateway Pipelines Limited Partnership",
+		"abbreviation" : null
+	},
+	{
+		"id" : 77,
+		"name" : "Deltaport Third Berth",
+		"description" : "Expansion of existing terminal at Roberts Bank. The project resumed the review of application on February 13 2006.",
+		"ea_certificate" : "T06-01",
+		"proponent_name" : "Vancouver Fraser Port Authority",
+		"abbreviation" : "DELTHI"
+	},
+	{
+		"id" : 78,
+		"name" : "District of Chilliwack Groundwater Well",
+		"description" : "The Project consists of the following: well drilling and installation, pump house construction and electrical connection, water transmission main connection, and well operation.",
+		"ea_certificate" : "W98-01",
+		"proponent_name" : "City of Chilliwack",
+		"abbreviation" : "DCGWEL"
+	},
+	{
+		"id" : 82,
+		"name" : "Eagle Rock Quarry",
+		"description" : "Eagle Rock Materials Limited proposed to develop a rock quarry with a production capacity of 6 million tonnes per year.",
+		"ea_certificate" : "M03-01",
+		"proponent_name" : "Eagle Rock Materials Limited",
+		"abbreviation" : "EAGROC"
+	},
+	{
+		"id" : 86,
+		"name" : "Elkhorn Quarry Extension",
+		"description" : "The Project consists of an open pit gypsum mine, waste dumps, and an expanded sediment control system, located adjacent to an existing gypsum quarry operation on Windermere Creek.",
+		"ea_certificate" : "M95-01",
+		"proponent_name" : "Westrock Industries Limited",
+		"abbreviation" : "ELKQUA"
+	},
+	{
+		"id" : 98,
+		"name" : "Forrest Kerr Hydroelectric",
+		"description" : "Hydroelectric Project 100 km NW of Stewart on the Iskut River",
+		"ea_certificate" : "E03-01",
+		"proponent_name" : "Coast Mountain Hydro Corporation",
+		"abbreviation" : "FORKER"
+	},
+	{
+		"id" : 99,
+		"name" : "Fort Nelson Electrical Generation",
+		"description" : "The Project will include the design, construction, operation, dismantling and abandonment of a 45 megawatt (MW) thermal powerplant to be located approximately 20 kilometres south of Fort Nelson, British Columbia.",
+		"ea_certificate" : "E98-05",
+		"proponent_name" : "BC Hydro and Power Authority",
+		"abbreviation" : "FORNEL"
+	},
+	{
+		"id" : 92,
+		"name" : "Europa Creek Hydroelectric",
+		"description" : "A 230 KV transmission line from the Europa project to connect either near Kemano or near Kitimat and a new 83 MW Hydroelectric facility.",
+		"ea_certificate" : null,
+		"proponent_name" : "Alterra Power Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 227,
+		"name" : "Pingston Creek Hydroelectric",
+		"description" : "The Project will consist of a 25 MW hydroelectric power plant on the western shore of the Upper Arrow Lake, about 60 km. south of Revelstoke. Water will be diverted from the Pingston Creek, a tributary of the Columbia River watershed, through a tunnel and a covered penstock. The power plant is expected to produce 130 GWh annually.",
+		"ea_certificate" : "E99-02",
+		"proponent_name" : "Pingston Power Incorporated",
+		"abbreviation" : "PINCRE"
+	},
+	{
+		"id" : 94,
+		"name" : "Farrell Creek 88-I South Gas Plant",
+		"description" : "The proposed Project involves a gas plant that will remove water and natural gas liquids from raw gas to meet transmission pipeline requirements.  The proposed Project would be developed in two or more stages, to an eventual build-out processing capacity of approximately 14.16 million cubic metres per day.",
+		"ea_certificate" : null,
+		"proponent_name" : "Talisman Energy Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 89,
+		"name" : "Encana 8-21 Refrigeration",
+		"description" : "Encana Corporation is proposing to construct a new natural gas processing facility located approximately 11 km west of Dawson Creek, British Columbia (BC). The proposed approximately 11 km west of Dawson Creek, British Columbia (BC). The proposed refrigeration facility would remove water and hydrocarbon liquids from 11.327 x 106 m3\/day (400 MMscfd) of sweet raw gas produced from Encana's fields to meet transmission pipeline requirements.",
+		"ea_certificate" : "X14-03",
+		"proponent_name" : "Encana Corporation",
+		"abbreviation" : "ENC821"
+	},
+	{
+		"id" : 101,
+		"name" : "Fraser River Forcemain Crossing",
+		"description" : "The Fraser River Sanitary Crossing Forcemain Upgrade is a proposed 90 centimeter diameter steel forcemain (pipe) under the Fraser River, which includes approximately 1,070 meter of main to be buried in the riverbed and 85 meter of main on land.",
+		"ea_certificate" : "X19-03",
+		"proponent_name" : "District of Mission",
+		"abbreviation" : "FRARIV"
+	},
+	{
+		"id" : 102,
+		"name" : "Fraser River Tunnel Project",
+		"description" : "Ministry of Transportation and Infrastructure proposes to develop the Fraser River Tunnel project, an eight-lane immersed tube tunnel that will replace the George Massey Tunnel connecting Richmond and Delta, B.C. The proposed project is anticipated to include an eight-lane immersed tube tunnel, a new eight-lane Deas Island bridge, associated connections to the existing Highway 99, and temporary construction facilities.",
+		"ea_certificate" : null,
+		"proponent_name" : "Ministry of Transportation and Infrastructure",
+		"abbreviation" : "FRTUNN"
+	},
+	{
+		"id" : 96,
+		"name" : "Fording River Extension (Castle)",
+		"description" : "Teck Coal Limited proposes to extend the lifespan of Fording River Operations, a coal mine located approximately 15 kilometers northeast from Elkford. The proposed project is anticipated to maintain a production rate of approximately 10 million metric tonnes per year of clean coal. It would include the use of existing infrastructure while mining directly south of existing operations in a proposed new mining area.",
+		"ea_certificate" : null,
+		"proponent_name" : "Teck Coal Limited",
+		"abbreviation" : "FREXTE"
+	},
+	{
+		"id" : 103,
+		"name" : "Frontier Project",
+		"description" : "Enbridge proposes to construct a natural gas liquids straddle plant, 130 to 170 kilometre (km) pipeline, and associated infrastructure in northeastern British Columbia. The straddle plant and initiating pump station are located approximately 36 km west of Chetwynd, and the pipeline is proposed to span from the straddle plant to Taylor.",
+		"ea_certificate" : null,
+		"proponent_name" : "Enbridge Frontier Inc.",
+		"abbreviation" : null
+	},
+	{
+		"id" : 90,
+		"name" : "Eskay Creek Mine",
+		"description" : "Mine Mill Expansion",
+		"ea_certificate" : "MD94-01",
+		"proponent_name" : "Skeena Resources Limited",
+		"abbreviation" : "ESKCRE"
+	},
+	{
+		"id" : 93,
+		"name" : "Evergreen Line Rapid Transit",
+		"description" : "Ministry of Transportation and Infrastructure is proposing to construct and operate an Advanced Light Rapid Transit (ALRT) connecting Burnaby,  Port Moody and Coquitlam, between Lougheed Town Centre in Burnaby and Douglas College in Coquitlam.",
+		"ea_certificate" : "T10-01",
+		"proponent_name" : "Ministry of Transportation and Infrastructure",
+		"abbreviation" : "EVELIN"
+	},
+	{
+		"id" : 95,
+		"name" : "Fiberco Pulp Mill Expansion",
+		"description" : "Pulp Mill Expansion",
+		"ea_certificate" : "IND95-01",
+		"proponent_name" : "Slocan Forest Products Limited",
+		"abbreviation" : "FIBPUL"
+	},
+	{
+		"id" : 97,
+		"name" : "Fording River Operations Swift",
+		"description" : "Fording River Operations Swift is an extension of Fording River Operations, producing a total of 170 million metric tonnes of clean coal over 25 years, and disturbing 1, 200 hectares of land not previously permitted for mining.",
+		"ea_certificate" : "M15-02",
+		"proponent_name" : "Teck Coal Limited",
+		"abbreviation" : "FORRIV"
+	},
+	{
+		"id" : 105,
+		"name" : "Garibaldi at Squamish",
+		"description" : "Garibaldi at Squamish consists of a year-round destination mountain resort community that includes a system of ski lifts and ski trails, a network of multi-use trails, resort accommodation and housing units, extensive guest services, public amenities, a groundwater supply system and associated infrastructure, and other recreation facilities.",
+		"ea_certificate" : "TD16-01",
+		"proponent_name" : "Garibaldi at Squamish Incorporated",
+		"abbreviation" : "GASQUA"
+	},
+	{
+		"id" : 107,
+		"name" : "George Massey Tunnel Replacement",
+		"description" : "The BC Ministry of Transportation and Infrastructure proposes to replace the existing George Massey Tunnel across the South Arm of the Fraser River with a new bridge, replace the Westminster Highway, Steveston Highway and Highway 17A interchanges and widen Highway 99 to accommodate dedicated transit\/HOV lanes between Bridgeport Road in Richmond and Highway 91 in Delta.",
+		"ea_certificate" : "T17-01",
+		"proponent_name" : "Ministry of Transportation and Infrastructure",
+		"abbreviation" : "GEOMAS"
+	},
+	{
+		"id" : 108,
+		"name" : "Gething Coal",
+		"description" : "CKD Mines Co. Ltd. is proposing to develop an underground coal mine with a production capacity of 2 million tonnes per year and an estimated mine life of 40 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "CKD Mines Co. Ltd.",
+		"abbreviation" : null
+	},
+	{
+		"id" : 109,
+		"name" : "Giant Copper",
+		"description" : "Proposed exploration mining activities in Upper Skagit River watershed.",
+		"ea_certificate" : null,
+		"proponent_name" : "Imperial Metals Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 114,
+		"name" : "Gold River Power",
+		"description" : "The Proponent is proposing to convert the former Gold River pulp and paper mill into a thermal electric power plant that burns refuse-derived fuel produced from municipal waste.",
+		"ea_certificate" : "X09-03",
+		"proponent_name" : "Covanta Energy Corporation",
+		"abbreviation" : "GOLRIV"
+	},
+	{
+		"id" : 111,
+		"name" : "Glacier\/Howser",
+		"description" : "Two interconnected hydroelectric facilities diverting water from Glacier and Howser Creeks, with a total generating capacity of approximately 99.5 MW, and a transmission line approximately 90 km in length, crossing the Purcell Mountains",
+		"ea_certificate" : null,
+		"proponent_name" : "Purcell Green Power Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 113,
+		"name" : "GM Shrum Units 1 to 5 TRP",
+		"description" : "Proposed Project does not require an EA Certificate.",
+		"ea_certificate" : "X10-01",
+		"proponent_name" : "BC Hydro and Power Authority",
+		"abbreviation" : "GSUNIT"
+	},
+	{
+		"id" : 115,
+		"name" : "Grassy Point LNG",
+		"description" : "Proposed construction and operation of a liquefied natural gas export facility and associated marine terminal at Grassy Point, 30 km north of Prince Rupert. Maximum production of 20 million tonnes per year of liquefied natural gas. Note: Does not include pipeline to supply LNG facility. Pipeline (to be determined) would be provided by a 3rd party.",
+		"ea_certificate" : null,
+		"proponent_name" : "Woodside Energy Holdings Pty Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 13,
+		"name" : "Baldy Ridge Extension",
+		"description" : "Teck Coal Limited proposes to expand Elkview Operations, an open coal mine located approximately 2.5 kilometres east of Sparwood. The proposed project is anticipated to increase production by approximately 6.8 million tonnes per year of clean coal. It would include expansions of existing infrastructure including mine pit excavations, waste rock spoils, storage and management of coal rejects and the potential relocation of administrative buildings and a utility corridor.",
+		"ea_certificate" : "MD16-01",
+		"proponent_name" : "Teck Coal Limited",
+		"abbreviation" : "BALRID"
+	},
+	{
+		"id" : 117,
+		"name" : "Hackney Hills Wind",
+		"description" : "Hackney Hills Wind Limited Partnership  proposes to develop a wind farm east of Fort St. John. The wind park has an estimated generating capacity of 370 MW.",
+		"ea_certificate" : null,
+		"proponent_name" : "Hackney Hills Wind Limited Partnership",
+		"abbreviation" : null
+	},
+	{
+		"id" : 118,
+		"name" : "Hackney Wind",
+		"description" : "Hackney Hills Wind Limited Partnership proposes to construct and operate the Hackney Wind Project, a 200-Megawatt wind turbine power-generating facility that would be located northwest of the District of Hudson’s Hope community.",
+		"ea_certificate" : null,
+		"proponent_name" : "Hackney Hills Wind Limited Partnership",
+		"abbreviation" : null
+	},
+	{
+		"id" : 119,
+		"name" : "Harper Creek",
+		"description" : "Proposing to build a copper-gold-silver mine with an annual production capacity of up to 25,000,000 tonnes of ore over an anticipated active life span of 23 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Harper Creek Mining Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 121,
+		"name" : "Hawkeye Energy Corporation Green Energy Grid",
+		"description" : "Hawkeye Energy Corporation (Proponent) proposes to construct an independent 151 MW hydroelectric project in the vicinity of the Toba and Jervis Inlets.",
+		"ea_certificate" : null,
+		"proponent_name" : "Hawkeye Energy Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 122,
+		"name" : "Heritage Secure Landfill",
+		"description" : "Secure Energy Services Inc. is proposing to develop the Heritage Secure Landfill Project approximately five kilometres south of Tupper, BC.  The Project would provide long-term containment of upstream oil and gas and other industrial waste streams.",
+		"ea_certificate" : null,
+		"proponent_name" : "Secure Energy Services Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 110,
+		"name" : "Giscome Quarry and Lime Plant",
+		"description" : "Giscome Quarry and Lime Plant consists of a lime processing facility and quarry with a production capacity of 600,000 tonnes per year and an estimated mine life of 25 years.",
+		"ea_certificate" : "M16-02",
+		"proponent_name" : "Graymont Western Canada Incorporated",
+		"abbreviation" : "GISQUA"
+	},
+	{
+		"id" : 116,
+		"name" : "Greenville to Kincolith Road",
+		"description" : "Public Highway Improvements",
+		"ea_certificate" : "T99-01",
+		"proponent_name" : "Ministry of Transportation and Infrastructure",
+		"abbreviation" : "GKROAD"
+	},
+	{
+		"id" : 120,
+		"name" : "Hart Water Supply Improvements Fishtrap Island Collector Well",
+		"description" : "The City of Prince George proposes the construction and operation of a groundwater collector well and pump station that has a proposed 1,079 litres\/second volume of groundwater extraction. Ancillary components will include two water transmission mains in the vicinity of the Nechako River approximately 7km upstream of its confluence with the Fraser River.",
+		"ea_certificate" : "W04-01",
+		"proponent_name" : "City of Prince George",
+		"abbreviation" : "HARWAT"
+	},
+	{
+		"id" : 112,
+		"name" : "GM Shrum Generating Station Upgrade",
+		"description" : "This project was determined not reviewable by the Environmental Assessment Office; therefore, a Section 10(1)(b) was issued on March 12, 2007.",
+		"ea_certificate" : "X07-01",
+		"proponent_name" : "BC Hydro and Power Authority",
+		"abbreviation" : "GSGENE"
+	},
+	{
+		"id" : 125,
+		"name" : "Highland Valley Centre for Sustainable Waste Management",
+		"description" : "Regional landfill proposed on a waste rock and overburden dump at the Highland Valley copper\/molybdenum mine with a capacity of 50 million tonnes of municipal solid waste (up to 600,000 tonnes per year) from throughout south-western BC.",
+		"ea_certificate" : "WD08-01",
+		"proponent_name" : "Highland Valley Copper Corporation",
+		"abbreviation" : "HIGVAL"
+	},
+	{
+		"id" : 141,
+		"name" : "Jumbo Glacier Resort",
+		"description" : "Glacier Resorts Limited proposed to develop a year-round ski resort development in the Jumbo Creek valley, 55 kilometres west of Invermere.",
+		"ea_certificate" : "TD04-01",
+		"proponent_name" : "Glacier Resorts Limited",
+		"abbreviation" : "JUMGLA"
+	},
+	{
+		"id" : 128,
+		"name" : "Highway Gas and Liquids Plant and Pipeline",
+		"description" : "Highway Gas and Liquids Plant and Pipeline",
+		"ea_certificate" : "E97-02",
+		"proponent_name" : "Westcoast Gas Services Incorporated",
+		"abbreviation" : "HIGGAS"
+	},
+	{
+		"id" : 127,
+		"name" : "Highland Valley Copper Refinery",
+		"description" : "Project involves the construction and operation of hydrometallurgical copper refinery on its existing mine site. If constructed the refinery would produce copper cathode plates and be in operation by 2010.",
+		"ea_certificate" : null,
+		"proponent_name" : "Highland Valley Copper Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 140,
+		"name" : "Jedney Gas Processing Plant and Pipeline Facilities",
+		"description" : "Plant",
+		"ea_certificate" : "E96-02",
+		"proponent_name" : "Westcoast Gas Services Incorporated",
+		"abbreviation" : "JEDGAS"
+	},
+	{
+		"id" : 129,
+		"name" : "Hills Bar Aggregate Quarrying",
+		"description" : "Qualark Resources Incorporated proposed to develop an aggregate quarry with an anticipated sand and gravel production capacity of 8 to 12 million tonnes per year and an estimated mine life of  50 to 70 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Qualark Resources Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 131,
+		"name" : "Horizon Mine Coal",
+		"description" : "Peace River Coal Incorporated proposed to develop several open pit coal mines with an estimated production capacity of 1.6 million tonnes per year.",
+		"ea_certificate" : null,
+		"proponent_name" : "Peace River Coal Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 132,
+		"name" : "Hot Springs Road Gravel Quarry",
+		"description" : "Hot Springs Road Gravel Quarry consists of a 7 hectare gravel pit with a production capacity of 120,000 tonnes of gravel per year. It is located 4.2 kilometres north of Agassiz, BC, on private land.",
+		"ea_certificate" : null,
+		"proponent_name" : "TC Merritt Valley Farms",
+		"abbreviation" : null
+	},
+	{
+		"id" : 134,
+		"name" : "Inland Pacific Connector",
+		"description" : "Awaiting supplementary information from proponent. Proponent has until March 2013 to supply supplementary information to resume review.",
+		"ea_certificate" : null,
+		"proponent_name" : "FortisBC",
+		"abbreviation" : null
+	},
+	{
+		"id" : 137,
+		"name" : "Isle Pierre Wind",
+		"description" : "Kruger Energy Inc. is proposing to develop the Isle Pierre Wind Project, an approximately 100 Megawatt wind energy facility, 35 km west of Prince George and approximately 37 east of Vanderhoof, north of Highway 16 and south of the Nechako River.",
+		"ea_certificate" : null,
+		"proponent_name" : "Kruger Energy Isle Pierre Limited Partnership",
+		"abbreviation" : null
+	},
+	{
+		"id" : 139,
+		"name" : "Jedney Gas Plant & Pipeline Expansion",
+		"description" : "The proposed Jedney Expansion Project consists of a raw gas pipeline, a gas processing facility, an acid gas disposal scheme, a hydrocarbon liquids pipeline and truck loading facilities, a small expansion of the existing Jedney camp, and associated facilities.",
+		"ea_certificate" : null,
+		"proponent_name" : "Westcoast Gas Services Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 143,
+		"name" : "Kamloops Energy Recovery",
+		"description" : "Project terminated by proponent",
+		"ea_certificate" : null,
+		"proponent_name" : "Weyerhaeuser Company Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 130,
+		"name" : "Holberg Wind Energy",
+		"description" : "58.5 MW wind power project with a total of 39 wind turbines. Project was certified on October 22nd, 2004.",
+		"ea_certificate" : "E04-02",
+		"proponent_name" : "Holberg Wind Energy GP Incorporated",
+		"abbreviation" : "HOLWIN"
+	},
+	{
+		"id" : 133,
+		"name" : "Huckleberry Copper and Gold Mine",
+		"description" : "Copper and Gold Mine",
+		"ea_certificate" : "M95-02",
+		"proponent_name" : "Huckleberry Mines Limited",
+		"abbreviation" : "HUCCOP"
+	},
+	{
+		"id" : 135,
+		"name" : "Interior-Lower Mainland Transmission",
+		"description" : "Proposed new 255 km 500 kV transmission line from near Merritt to Coquitlam BC, with the majority of the route running along existing right-of-ways. See project description for more detail located in Proponent Correspondence section below.",
+		"ea_certificate" : "E09-03",
+		"proponent_name" : "BC Hydro and Power Authority",
+		"abbreviation" : "INTMAI"
+	},
+	{
+		"id" : 136,
+		"name" : "Island Cogeneration",
+		"description" : "A cogeneration project to produce steam for the Fletcher Challenge Elk Falls paper mill and electricity for sale to B.C. Hydro.",
+		"ea_certificate" : "E98-02",
+		"proponent_name" : "V.I. Power Limited Partnership",
+		"abbreviation" : "ISLCOG"
+	},
+	{
+		"id" : 138,
+		"name" : "James White Park Wells",
+		"description" : "Drilling a well or wells in James White Park in order to extract water from the underlying aquifer to supply domestic water to the City of Fernie",
+		"ea_certificate" : "W15-01",
+		"proponent_name" : "City of Fernie",
+		"abbreviation" : "JAMWHI"
+	},
+	{
+		"id" : 142,
+		"name" : "Kamloops Airport Expansion",
+		"description" : "The Kamloops Airport Authority Society proposes to expand the Kamloops Airport to accommodate larger jet aircraft.  The project includes expansion of the main runway and airport terminal building, as well as improvements to navigational aids.",
+		"ea_certificate" : "X08-02",
+		"proponent_name" : "Kamloops Airport Authority Society",
+		"abbreviation" : "KAMAIR"
+	},
+	{
+		"id" : 153,
+		"name" : "Kitimat LNG Terminal",
+		"description" : "Kitimat LNG Inc. Operating Partnership proposes to construct and operate the Kitimat LNG Terminal, a liquefied natural gas import regasification and pumping terminal at Emsley Cove,14 kilometres south of Kitimat, B.C. The proposed project is anticipated to receive and store LNG unloaded from tankers, regasify the LNG into natural gas and deliver the gas via an 18 kilometre pipeline to Kitimat. The Kitimat LNG import terminal will be designed to receive LNG carriers with a capacity of up to 250,000 metric tonnes and have a send-out capacity of 610 million standard cubic feet per day.",
+		"ea_certificate" : "E06-01",
+		"proponent_name" : "KM LNG Operating Partnership",
+		"abbreviation" : "KITLNG"
+	},
+	{
+		"id" : 359,
+		"name" : "Rocky Creek Metallurgical Coal Project",
+		"description" : "CTI Plus Resources Ltd. Proposes to develop the Rocky Creek Coal Mine, a Metallurgical Coal Mine located approximately 60 south of Chetwynd BC. The proposed project is anticipated to include an annual production of 3 million tonnes of raw coal over a mine life of up to 16 years. CTI Plus Resources Ltd. is a Canadian resource company based in Calgary, Alberta.",
+		"ea_certificate" : "",
+		"proponent_name" : "CTI Plus Resources Ltd.",
+		"abbreviation" : "RCCOAL"
+	},
+	{
+		"id" : 146,
+		"name" : "Kemess North Copper-Gold Mine",
+		"description" : "Open pit copper\/gold mine with an estimated production of 120,000 tonnes per day. Final report of Joint Review Panel completed, awaiting Ministers' decision. 450 km NW of Prince George, 250 km NE of Smithers.",
+		"ea_certificate" : null,
+		"proponent_name" : "Northgate Minerals Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 144,
+		"name" : "Kamloops Groundwater",
+		"description" : "EA Certificate was issued on April 13, 2004.",
+		"ea_certificate" : "W04-02",
+		"proponent_name" : "City of Kamloops",
+		"abbreviation" : "KAMGRO"
+	},
+	{
+		"id" : 149,
+		"name" : "Kingsvale to Oliver Natural Gas Pipeline Reinforcement",
+		"description" : "FortisBC Energy Inc. proposes to build and operate a new pipeline to loop its existing natural gas transmission pipeline system between Kingsvale, BC and Oliver, BC (approximately 161 km), with additional supporting facilities near Yahk and Trail.",
+		"ea_certificate" : null,
+		"proponent_name" : "FortisBC",
+		"abbreviation" : null
+	},
+	{
+		"id" : 150,
+		"name" : "Kinskuch Hydro",
+		"description" : "The proposed Project includes 39 km of new road construction, 10 km of upgrades to existing forestry roads, a 10 metre high concrete dam, tunnel, penstocks, power house and tailrace, and 39 km of 138-kilovolt transmission line connecting with an existing line.",
+		"ea_certificate" : null,
+		"proponent_name" : "Syntaris Power Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 145,
+		"name" : "Keenleyside Powerplant",
+		"description" : "Name change. Now known as Arrow Lakes Generating Station.",
+		"ea_certificate" : "E98-04",
+		"proponent_name" : "Columbia Power Corporation",
+		"abbreviation" : "KEEPOW"
+	},
+	{
+		"id" : 152,
+		"name" : "Kitimat Clean Refinery",
+		"description" : "Kitimat Clean Ltd. (Proponent) proposes to develop and operate an oil refinery and associated infrastructure to supply refined fuels to Asian markets. Refined fuel products would be delivered from the refinery site, approximately 13 km north of Kitimat, to a new marine terminal, approximately 12 km south of Kitimat harbour, using three 23 km long pipelines and from there transported by ship to Asia. The Kitimat Clean Refinery Project (Kitimat Clean) would be in operation for up to 50 years, following a construction period of up to 5 years. The Proponent expects decommissioning to take an additional 5 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Kitimat Clean Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 147,
+		"name" : "Kemess South",
+		"description" : "A gold\/copper mine project in north central B.C. approximately 300 kilometres northwest of Mackenzie. The project is estimated to contain a mineable reserve of 4.1 million ounces of gold and 990 million pounds of copper.",
+		"ea_certificate" : "M96-03",
+		"proponent_name" : "AuRico Metals Incorporated",
+		"abbreviation" : "KEMSOU"
+	},
+	{
+		"id" : 155,
+		"name" : "Klinaklini Hydroelectric",
+		"description" : "New run-of-river hydroelectric project with an average generatiing capacity of 280 MW of power.",
+		"ea_certificate" : null,
+		"proponent_name" : "Kleana Power Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 154,
+		"name" : "Kitsault Mine",
+		"description" : "Avanti Kitsault Mine Ltd.  proposes to construct and operate an open pit mine -extraction 40,000 tonnes of ore\/day, explosives manufacturing, mill processing, ancillary facilities.",
+		"ea_certificate" : "M13-01",
+		"proponent_name" : "Avanti Kitsault Mine Limited",
+		"abbreviation" : "KITMIN"
+	},
+	{
+		"id" : 156,
+		"name" : "Kokish River Hydroelectric",
+		"description" : "Proposed amendment to increase the maximum diversion rate from 23.3 cubic metres per second to 25 cubic metres per second.",
+		"ea_certificate" : "E11-02",
+		"proponent_name" : "Kwagis Power Limited Partnership",
+		"abbreviation" : "KOKRIV"
+	},
+	{
+		"id" : 159,
+		"name" : "KSM",
+		"description" : "The Kerr-Sulpherets-Mitchell Project is a proposed copper and gold open pit mining project located 65 km NW of Stewart BC.",
+		"ea_certificate" : "M14-01",
+		"proponent_name" : "KSM Mining ULC",
+		"abbreviation" : "KERSUL"
+	},
+	{
+		"id" : 161,
+		"name" : "Kutcho Copper-Zinc-Silver-Gold Mine",
+		"description" : "Kutcho Copper Corp. proposes to develop a copper-zinc-silver-gold deposit with an anticipated production capacity of 912,500 tonnes per year and a mine life expectency of approx. twelve years. Note: this project is withdrawn. For information on the current Kutcho Project, please see:  https:\/\/www.projects.eao.gov.bc.ca\/p\/5d9774f9862e090021f6057b",
+		"ea_certificate" : null,
+		"proponent_name" : "Kutcho Copper Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 160,
+		"name" : "Kutcho",
+		"description" : "An underground copper-zinc mine with a production capacity of approximately 3,500 tonnes of ore per day, yielding an annual average of 33 million pounds of copper and 46 million pounds of zinc over a mine life of up 14 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Kutcho Copper Corporation",
+		"abbreviation" : "KUTCHO"
+	},
+	{
+		"id" : 162,
+		"name" : "Kwispaa LNG",
+		"description" : "The Proponent proposes to develop, construct and operate a liquefied natural gas (LNG) export facility that will produce and export up to 24 million tonnes of LNG per annum at full build-out and will have an initial lifespan of approximately 25 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Kwispaa LNG (CF) Limited Partnership",
+		"abbreviation" : null
+	},
+	{
+		"id" : 180,
+		"name" : "McMillan Island Erosion",
+		"description" : "The Proponent intends to undertake shoreline erosion protection works along 1.29 kilometers of shoreline at the east extent of McMillan Island.",
+		"ea_certificate" : "X16-05",
+		"proponent_name" : "Kwantlen First Nation",
+		"abbreviation" : "MCMISL"
+	},
+	{
+		"id" : 348,
+		"name" : "Record Ridge Industrial Mineral Mine",
+		"description" : "West High Yield Resources Ltd. proposes to develop the Record Ridge Industrial Mineral Mine project, located approximately 7 kilometres west-southwest of Rossland. The proposed project would have the capacity to produce approximately 200 thousand tonnes per year of magnesium-bearing ore. It would include open pit mining over two years, road access, and power supply. It would not include processing the ore.",
+		"ea_certificate" : "",
+		"proponent_name" : "West High Yield Resources Ltd.",
+		"abbreviation" : "RECRID"
+	},
+	{
+		"id" : 163,
+		"name" : "Kwoiek Creek Hydroelectric",
+		"description" : "Proposed 50 MW Run-of-River Hydroelectric project on Kwoiek Creek. Application submitted and reviewed in 2001.  Following project and proponent changes, additional information as an Amended Application was accepted for review September 11, 2008.",
+		"ea_certificate" : "E09-01",
+		"proponent_name" : "Kwoiek Creek Resources Limited Partnership",
+		"abbreviation" : "KWOCRE"
+	},
+	{
+		"id" : 164,
+		"name" : "Lafarge Cement Plant Modernization",
+		"description" : "Cement Plant Modernization",
+		"ea_certificate" : "IND96-01",
+		"proponent_name" : "Lafarge Canada Incorporated",
+		"abbreviation" : "LAFCEM"
+	},
+	{
+		"id" : 169,
+		"name" : "Lodgepole Coal Mine",
+		"description" : "Cline Mining Corporation proposed an open pit coal mine with a production capacity of 2 million tonnes per year. The Project has been withdrawn from the environmental assessment process.",
+		"ea_certificate" : null,
+		"proponent_name" : "Cline Mining Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 170,
+		"name" : "Lumby Muscovite",
+		"description" : null,
+		"ea_certificate" : null,
+		"proponent_name" : "Quinto Mining Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 172,
+		"name" : "Mainland Coast Bottled Water",
+		"description" : "Mainland Coast Bottled Water",
+		"ea_certificate" : null,
+		"proponent_name" : "Kwiakah First Nation, Da'naxda'xw\/Awaetlala First Nation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 173,
+		"name" : "Marten Ridge Wind Energy",
+		"description" : "Premier Renewable Energy proposes to develop a wind power generation facility, consisting of approx 40 2.0 MW wind turbines, an interconnecting collector system, access roads, and an overhead transmission line to connect to the existing Fernie substation.",
+		"ea_certificate" : null,
+		"proponent_name" : "Premier Renewable Energy",
+		"abbreviation" : null
+	},
+	{
+		"id" : 177,
+		"name" : "McGregor\/Herrick Hydroelectric",
+		"description" : "TransCanada Energy Ltd. proposes to construct a 49.8 MW on the McGregor River and a 33.2 MW hydroelectric facilities on Herrick Creek with approximately 110 km of transmission line connecting the two facilities.",
+		"ea_certificate" : null,
+		"proponent_name" : "TransCanada Energy Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 165,
+		"name" : "Laredo Limestone",
+		"description" : "Transfer to EAO of Mine Development Certificate 93-04",
+		"ea_certificate" : "M97-02",
+		"proponent_name" : "North Pacific Stone Limited",
+		"abbreviation" : "LARLIM"
+	},
+	{
+		"id" : 181,
+		"name" : "Meadows Quarry",
+		"description" : "Meadows Quarry is a 7.5 ha quarry on the south side of Sheridan Hill in the City of Pitt Meadows, with an annual extraction rate of 240,000 tonnes\/year of construction aggregate. The Project has been designated not reviewable.",
+		"ea_certificate" : null,
+		"proponent_name" : "Meadows Quarry Group",
+		"abbreviation" : null
+	},
+	{
+		"id" : 171,
+		"name" : "Mackenzie Green Energy Centre",
+		"description" : "Mackenzie Green Energy LP. proposes to construct a new biomass cogeneration project capable of producing on average of 59 MW of power. The plant will utilize waste wood and beetle kill wood to generate electricity and steam for BC Hydro and forestry mills.",
+		"ea_certificate" : "E07-05",
+		"proponent_name" : "Mackenzie Green Energy Limited Partnership",
+		"abbreviation" : "MACGRE"
+	},
+	{
+		"id" : 175,
+		"name" : "Maxhamish Pipeline",
+		"description" : "The Project comprises a 164 kilometres long, 323.9 mm OD (12 inch) pipeline. This residue natural gas gathering pipeline will run from a sweet gas processing facility northeast of Lake Maxhamish to an interconnection with the Westcoast Energy Inc. (WEI) pipeline transmission system downstream of the WEI Fort Nelson processing complex.",
+		"ea_certificate" : "E99-05",
+		"proponent_name" : "Paramount Resources Limited",
+		"abbreviation" : "MAXPIP"
+	},
+	{
+		"id" : 176,
+		"name" : "McGillivray Coal",
+		"description" : "McGillivray Coal consists of an open pit coal mine, with a production capacity of approximately 200,000 tonnes of raw coal per year over a 4 year mine life.",
+		"ea_certificate" : "M96-04",
+		"proponent_name" : "McGillivray Mining Limited",
+		"abbreviation" : "MCGCOA"
+	},
+	{
+		"id" : 179,
+		"name" : "McMahon Co-Generation",
+		"description" : "Amendment",
+		"ea_certificate" : "E98-01",
+		"proponent_name" : "Westcoast Power Incorporated",
+		"abbreviation" : "MCMCOG"
+	},
+	{
+		"id" : 200,
+		"name" : "NaiKun Offshore Wind Energy",
+		"description" : "NaiKun Wind Development Inc. proposes to develop and operate a 396 MW offshore wind energy project in Hecate Strait off the north-east shores of Haida Gwaii connecting to the BCTC grid near Prince Rupert on the mainland side and near Tlell on Haida Gwaii.",
+		"ea_certificate" : "E09-04",
+		"proponent_name" : "NaiKun Wind Development Incorporated",
+		"abbreviation" : "NAIOFF"
+	},
+	{
+		"id" : 174,
+		"name" : "Masset Bulk Fuel Plant",
+		"description" : "The EAO is reviewing a Designation Application from Lyons Law on behalf of the Concerns Citizens of Masset under Section 11 of the Environmental Assessment Act requesting to designate the Masset Bulk Fuel Plant, built in three phases that may have up to 26 fuel storage tanks of 80,000 L each for a total capacity of 2,080, 000 L as a reviewable project. The first phase consists of 10 fuel storage tanks.",
+		"ea_certificate" : null,
+		"proponent_name" : "North Arm Transportation Ltd.",
+		"abbreviation" : null
+	},
+	{
+		"id" : 196,
+		"name" : "Mt. Polley Copper",
+		"description" : "The development consists of an open pit copper\/gold mine, waste dumps, tailings storage, milling site, transmission line, water collection structures and access roads.",
+		"ea_certificate" : "M15-03",
+		"proponent_name" : "Mount Polley Mining Corporation",
+		"abbreviation" : "MPCOPP"
+	},
+	{
+		"id" : 197,
+		"name" : "Mud Bay Nature-Based Foreshore Enhancement",
+		"description" : "The City of Surrey proposes to develop the Mud Bay Nature-Based Foreshore Enhancement project, a shoreline modification project located on the northern shore of Mud Bay. The proposed project is anticipated to modify 790 metres of linear shoreline and includes sediment placement and stabilization, and vegetation planting. ",
+		"ea_certificate" : "X24-01",
+		"proponent_name" : "City of Surrey",
+		"abbreviation" : "MUDBAY"
+	},
+	{
+		"id" : 345,
+		"name" : "Woodfibre LNG",
+		"description" : "Woodfibre LNG General Partner Inc. is developing Woodfibre LNG, a liquefied natural gas export facility located approximately 7 kilometres southwest of Squamish, B.C. The project is to be supplied by the Woodfibre-Eagle Mountain pipeline and is anticipated to produce up to 2.1 million tonnes per year of natural gas that will be exported to over sea markets. It will also include land-based natural gas processing and liquefication facility, condensate storage, floating storage tanks to store up to 250,000 cubic metres, and offloading unit with an associated jetty, proposed floating accommodations for workers, and the construction of supporting buildings. ",
+		"ea_certificate" : "E15-02",
+		"proponent_name" : "Woodfibre LNG General Partner Inc.",
+		"abbreviation" : "WOOLNG"
+	},
+	{
+		"id" : 182,
+		"name" : "Meikle Wind Energy",
+		"description" : "Meikle Wind Energy Limited Partnership proposes to construct and operate 68 wind turbines with a maximum generating capacity of 187 MW, located about 33 km northwest of Tumbler Ridge. The project initial operational life span is expected to 25 years.",
+		"ea_certificate" : "E14-01",
+		"proponent_name" : "Meikle Wind Energy Limited Partnership",
+		"abbreviation" : "MEIWIN"
+	},
+	{
+		"id" : 183,
+		"name" : "Melvin Creek\/Cayoosh Mountain Resort",
+		"description" : "NGR Resort Consultants Inc. proposed to develop a year-round mountain tourism resort between Pemberton and Lillooet. The Environmental Assessment Certificate expired on May 14, 2020.",
+		"ea_certificate" : "T00-01",
+		"proponent_name" : "NGR Resort Consultants Incorporated",
+		"abbreviation" : "MELCRE"
+	},
+	{
+		"id" : 188,
+		"name" : "Morrison Copper\/Gold",
+		"description" : "Copper, gold and molybdenum project with an estimated production of up to 11,000,000 tonnes per year.",
+		"ea_certificate" : null,
+		"proponent_name" : "Pacific Booker Minerals Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 189,
+		"name" : "Mount Clifford Wind Energy",
+		"description" : "Finavera Renewables Inc. (the proponent) requested that the project be withdrawn from the EA process on June 23\/10",
+		"ea_certificate" : null,
+		"proponent_name" : "Finavera Wind Energy Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 190,
+		"name" : "Mount George Wind Park",
+		"description" : "Fred. Olson Renewables Ltd. proposes to construct and operate a new wind farm with a nominal capacity of 300 MW.",
+		"ea_certificate" : null,
+		"proponent_name" : "Northland Power Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 191,
+		"name" : "Mount Kathleen Wind Park",
+		"description" : "Fred. Olson Renewables Ltd. proposes to construct and operate a new wind farm with a nominal capacity of 250 MW.",
+		"ea_certificate" : null,
+		"proponent_name" : "Northland Power Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 192,
+		"name" : "Mount Klappan Coal",
+		"description" : "The environmental assessment for the Mount Klappan Coal Project has been terminated at the request of Fortune Coal Limited. The Mount Klappan Coal Project has been replaced by the proposed Arctos Anthracite Project, which incorporates substantial design changes including a different transportation mode (rail) and port (Prince Rupert).",
+		"ea_certificate" : null,
+		"proponent_name" : "Fortune Coal Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 193,
+		"name" : "Mount McDonald Wind Power",
+		"description" : "Proposed wind farm with an estimated installed capacity of 250 megawatts with between 100-150 wind turbine generators and associated new infrastructure and roads.",
+		"ea_certificate" : null,
+		"proponent_name" : "Rupert Peace Power Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 184,
+		"name" : "Mica Generating Station Unit 5",
+		"description" : "BC Hydro is proposing to install an approximately 500 MW turbine into an existing turbine bay at the Mica Generating Station and a capacitor station on the existing Mica-Nicola 500 kV transmission line.",
+		"ea_certificate" : "E09-08",
+		"proponent_name" : "BC Hydro and Power Authority",
+		"abbreviation" : "MGSU05"
+	},
+	{
+		"id" : 185,
+		"name" : "Mica Generating Station Unit 6",
+		"description" : "BC Hydro is proposing to install an approximately 500 MW turbine into an existing turbine bay at the Mica Generating Station.",
+		"ea_certificate" : "E09-09",
+		"proponent_name" : "BC Hydro and Power Authority",
+		"abbreviation" : "MGSU06"
+	},
+	{
+		"id" : 198,
+		"name" : "Murray River Coal",
+		"description" : "The Murray River Coal Project consists of an underground metallurgical coal mine with an estimated production capacity of up to 4.8 million tonnes of clean coal per year, over an estimated 31 year mine life.",
+		"ea_certificate" : null,
+		"proponent_name" : "HD Mining International Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 187,
+		"name" : "More Creek Hydroelectric",
+		"description" : "Alaska Hydro Corporation proposes to develop the More Creek Hydroelectric Project, a 75 megawatt hydroelectric project with reservoir storage with an approximate average annual energy output of 348 gigawatt hour (GWh). The proposed reservoir storage would inundate an area of approximately 2104 ha extending 20 km upstream from the Project intake and create a reservoir with a total surface area of 2680 ha. The proposed Project is located 130 km north of the town of Stewart in northwestern British Columbia and 95 km east from the border of British Columbia and Alaska.",
+		"ea_certificate" : null,
+		"proponent_name" : "Alaska Hydro Corporation",
+		"abbreviation" : "MORCRE"
+	},
+	{
+		"id" : 194,
+		"name" : "Mount Milligan Copper\/Gold",
+		"description" : "This project's Environmental Assessment Certificate expired on November 3, 1993.  A new project for a proposed mine in the same location entered the EA process in 2006 and can found at: https:\/\/projects.eao.gov.bc.ca\/p\/58851117aaecd9001b81a8b2\/project-details;",
+		"ea_certificate" : "M96-06",
+		"proponent_name" : "Terrane Metals Corporation",
+		"abbreviation" : "MOUMIL"
+	},
+	{
+		"id" : 199,
+		"name" : "Nahwitti Wind Farm",
+		"description" : "Proposed new wind farm located 45 km NW of Port Hardy on Northern Vancouver Island. In operation, the capacity would be 100 MW from 40-45 wind turbines.",
+		"ea_certificate" : "E11-03",
+		"proponent_name" : "Nomis Power Corporation",
+		"abbreviation" : "NAHWIN"
+	},
+	{
+		"id" : 202,
+		"name" : "Nascall River Hydroelectric",
+		"description" : "445026 BC Ltd. proposes to construct and operate a hydroelectric project located on the Nascall River. This project will have a capacity of 68 MW of power to supply the communities of Bella Coola and Anahim Lake.",
+		"ea_certificate" : null,
+		"proponent_name" : "445026 BC Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 205,
+		"name" : "New Polaris Gold Mine",
+		"description" : "Canagold Resources Ltd. proposes to develop the New Polaris Gold Mine, an underground gold mine located approximately 100 kilometres south from Atlin, B.C. and 60 kilometres northeast of Juneau, Alaska. The proposed project has an anticipated production capacity of approximately 1,000 tonnes per day of ore. It would include the mine site and associated facilities, ancillary infrastructure, as well as an airstrip and barge landing site.",
+		"ea_certificate" : null,
+		"proponent_name" : "Canagold Resources Ltd.",
+		"abbreviation" : "NEWPOL"
+	},
+	{
+		"id" : 201,
+		"name" : "Narrows Inlet Hydro",
+		"description" : "Narrows Inlet Hydro Project (formerly known as Stl'ixwim Renewable Energy) located in the Sechelt area. The project cluster consists of 5 interrelated projects on 4 creeks - located within a radius of 5 - 7 km, centered at the confluence of Tzoonie River and Tyson Creek.",
+		"ea_certificate" : "E13-04",
+		"proponent_name" : "tems sayamkwu Limited Partnership",
+		"abbreviation" : "NARINL"
+	},
+	{
+		"id" : 206,
+		"name" : "Nicola Valley Aggregates Gravel Pit",
+		"description" : "The Nicola Valley Aggregates Gravel Pit consists of a 4.06 hectare gravel pit, located 2.2 kilometres west of Merritt, BC on private land adjacent to Highway 8.",
+		"ea_certificate" : null,
+		"proponent_name" : "Nicola Valley Aggregates",
+		"abbreviation" : null
+	},
+	{
+		"id" : 207,
+		"name" : "Nicomen Wind Energy",
+		"description" : "Proponent proposes to construct 35 - 2.0 MW wind turbines, an interconnecting collector system, a substation, access roads, and an overhead transmission line to connect to the existing BCTC substation at Spences Bridge.",
+		"ea_certificate" : null,
+		"proponent_name" : "Premier Renewable Energy",
+		"abbreviation" : null
+	},
+	{
+		"id" : 216,
+		"name" : "Orca Sand and Gravel",
+		"description" : "Orca Sand and Gravel Limited proposes to change the Orca Sand and Gravel sand and gravel quarry located approximately 4 kilometres west from Port McNeill. The proposed project is anticipated to produce approximately 8 million tonnes per year of sand and gravel. It would include a quarry, featuring an aggregate pit, associated conveyor transport system, a dedicated marine loading facility for bulk carrier shipping and related infrastructure.",
+		"ea_certificate" : "M05-01",
+		"proponent_name" : "Orca Sand and Gravel Limited",
+		"abbreviation" : "ORCSAN"
+	},
+	{
+		"id" : 203,
+		"name" : "Nazko Lava Quarry Extension",
+		"description" : "The Nazko Lava Quarry Extension Project is an expansion of a pre-existing lava rock quarry around the cone of an extinct volcano located at Nazko, BC.",
+		"ea_certificate" : "M96-01",
+		"proponent_name" : "CanLava Mining Corporation",
+		"abbreviation" : "NAZLAV"
+	},
+	{
+		"id" : 215,
+		"name" : "Nulki Hills Wind",
+		"description" : "Innergex Wind Energy Inc. (Proponent) proposes to develop and operate a wind power project with a nameplate capacity ranging from 105 to 210 megawatts. The proposed Project would be located in the Nulki Hills, 30 km south of Vanderhoof, British Columbia.",
+		"ea_certificate" : null,
+		"proponent_name" : "Innergex Renewable Energy Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 204,
+		"name" : "New Fraser River Crossing",
+		"description" : "Name change. Now known as Golden Ears Bridge.",
+		"ea_certificate" : "W04-03",
+		"proponent_name" : "Fraser Bridge Project Limited",
+		"abbreviation" : "NEWFRA"
+	},
+	{
+		"id" : 209,
+		"name" : "North Lakeside Well",
+		"description" : "The Project will increase the reliability of the water supply system of the City of Williams Lake and will allow for future growth, and includes: 500 mm well drilled to a depth of 71 m with a design capacity of 130 L\/sec, Outlet for water discharge, 5 m x 10 m concrete building to house the well, pump, valves, flowmeter, standby diesel generator, disinfection facilities, connection to the existing powerline, connection to the existing trunk watermain, demolition and removal of a lake pump station and a lake level monitoring station, both of which have been decommissioned and abandoned.",
+		"ea_certificate" : "W01-01",
+		"proponent_name" : "City of Williams Lake",
+		"abbreviation" : "NORLAK"
+	},
+	{
+		"id" : 212,
+		"name" : "Northeast British Columbia (NEBC) Expansion",
+		"description" : "Plateau Pipe Line Ltd. proposes to construct and operate a transmission pipeline facility approximately 160 km in length and 323.9 mm in diameter to transport condensate and natural gas liquids from the Highway 97 \/ Blair Creek area, north of Wonowon, BC, to an existing terminal near Taylor, BC.",
+		"ea_certificate" : "E16-02",
+		"proponent_name" : "Plateau Pipe Line Limited",
+		"abbreviation" : "NORBRI"
+	},
+	{
+		"id" : 213,
+		"name" : "Northern Rockies Secure Landfill",
+		"description" : "CCS Inc. proposes to build a secure landfill within its existing landfill\/ treatment facility for up to 2.2 million cubic metres of hazardous waste (e.g. contaminated soils and other wastes from oil and gas industry) over a projected lifespan of 25 years.",
+		"ea_certificate" : "WD09-01",
+		"proponent_name" : "Tervita Corporation",
+		"abbreviation" : "NORROC"
+	},
+	{
+		"id" : 214,
+		"name" : "Northwest Transmission Line",
+		"description" : "The British Columbia Transmission Corporation (BCTC)  proposes to install a 344 km 287 kV transmission along Highway 37 from Terrace to Bob Quinn Lake. New substation at Bob Quinn Lake with upgrades to Skeena substation.",
+		"ea_certificate" : "E11-01",
+		"proponent_name" : "BC Hydro and Power Authority",
+		"abbreviation" : "NORTRA"
+	},
+	{
+		"id" : 318,
+		"name" : "Upper Lillooet Hydro",
+		"description" : "Creek Power Inc. proposes to develop three run-of-river hydroelectric facilities on the Upper Lillooet River, Boulder (Pebble) Creek, and North Creek that would have a combined nameplate capacity of approximately 113 megawatts (MW) and an associated 72-kilometer 230-kilovolt (kV) transmission line.",
+		"ea_certificate" : "E13-01",
+		"proponent_name" : "Upper Lillooet River Power Limited Partnership, Boulder Creek Power Limited Partnership, North Creek Hydro Power Limited Partnership",
+		"abbreviation" : "UPPLIL"
+	},
+	{
+		"id" : 217,
+		"name" : "Pacific Future Energy Refinery",
+		"description" : "Vancouver-based Pacific Future Energy Corporation is proposing to build and operate a petroleum oil refinery in northwest B.C. between the City of Terrace and the District Municipality of Kitimat within an industrial-zoned site locally known as Dubose Flats. The proposed project would refine up to 200,000 barrels per day (or 31,795 cubic meters per day (m3\/d)) of Canadian bitumen into diesel, gasoline, and other products for domestic and international markets. Bitumen would be shipped in a near-solid form called neatbit in rail cars using existing rail infrastructure.zoned site locally known as Dubose Flats. The proposed project would refine Canadian bitumen into diesel, gasoline, and other products. Bitumen would be shipped from Alberta and Saskatchewan in a near-solid form called neatbit in rail cars using existing rail infrastructure.",
+		"ea_certificate" : null,
+		"proponent_name" : "Pacific Future Energy Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 218,
+		"name" : "Pacific Northern Gas Looping",
+		"description" : "Pacific Northern Gas Ltd. (Proponent) proposes to construct and operate an approximately 525km long, 610mm (24\") diameter natural gas pipeline from Summit Lake, BC to Kitimat, BC to loop the Proponent's existing natural gas pipeline. The proposed Project would supply natural gas to proposed liquefied natural gas (LNG) export facilities as well as the Proponent's existing customers. The proposed Project would include the replacement of four existing compressor stations and would have an initial capacity of 600 million standard cubic feet per day (MMscfd).",
+		"ea_certificate" : null,
+		"proponent_name" : "Pacific Northern Gas Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 228,
+		"name" : "Point Grey Tidal Marsh",
+		"description" : "Proposed creation of a habitat banking site along the North Arm of the Fraser River.",
+		"ea_certificate" : "X16-02",
+		"proponent_name" : "Vancouver Fraser Port Authority",
+		"abbreviation" : "POIGRE"
+	},
+	{
+		"id" : 221,
+		"name" : "PAC-RIM Pipeline",
+		"description" : "Pipeline",
+		"ea_certificate" : null,
+		"proponent_name" : "PAC-RIM LNG Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 219,
+		"name" : "Pacific NorthWest LNG",
+		"description" : "Pacific NorthWest LNG Limited Partnership proposes to construct and operate an LNG export facility on Lelu Island at the Port of Prince Rupert, BC. The project would be developed in two phases with a total capital cost of US $18 billion, and would include a marine terminal and liquefaction plant with three trains (production units), and a storage capacity of 540,000 m3 with a production capacity of up to 18 million tonnes per year of liquefied natural gas.",
+		"ea_certificate" : "E14-04",
+		"proponent_name" : "Pacific Northwest LNG Limited Partnership",
+		"abbreviation" : "PACNOR"
+	},
+	{
+		"id" : 220,
+		"name" : "Pacific Trail Pipelines",
+		"description" : "Project consists of construction of a new 470 km, 36\" natural gas pipeline between Summit Lake and Kitimat BC along current and new rights-of-way. Project may also include one or more new compressor stations along the pipeline. (formerly known as Kitimat-Summit Lake Pipeline Looping Project)",
+		"ea_certificate" : "E08-01",
+		"proponent_name" : "Pacific Trail Pipelines Limited Partnership",
+		"abbreviation" : "PACTRA"
+	},
+	{
+		"id" : 223,
+		"name" : "Pattullo Bridge Replacement",
+		"description" : "The Ministry of Transportation and Infrastructure (MoTI) is proposing the Pattullo Bridge Replacement Project which would involve the construction of a new four lane bridge and the demolition of the existing bridge that spans the Fraser River between New Westminster and Surrey BC.",
+		"ea_certificate" : "E19-01",
+		"proponent_name" : "Ministry of Transportation and Infrastructure",
+		"abbreviation" : "PATBRI"
+	},
+	{
+		"id" : 225,
+		"name" : "Peejay Secure Landfill",
+		"description" : "New secure landfill to store hydrocarbon- and salt-contaminated solid waste. Estimated capacity of 50,000 - 75,000 tonnes per year, and lifespan of 40 years.",
+		"ea_certificate" : "WD08-02",
+		"proponent_name" : "Canadian Natural Resources",
+		"abbreviation" : "PEESEC"
+	},
+	{
+		"id" : 226,
+		"name" : "Pembina Condensate Pipeline",
+		"description" : "Pembina proposes to construct a new 465 km pipeline to transport condensate from Kitimat to Summit Lake. Proposed route will largely follow other linear facilities and rights-of-way with a lifespan of 50 years. Application ETA unknown at this time.",
+		"ea_certificate" : null,
+		"proponent_name" : "Pembina Pipeline Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 230,
+		"name" : "Port Alberni Generation",
+		"description" : "Withdrawn by proponent on November 27, 2001.",
+		"ea_certificate" : null,
+		"proponent_name" : "PAGP Partnership",
+		"abbreviation" : null
+	},
+	{
+		"id" : 229,
+		"name" : "Port Alberni Cogeneration",
+		"description" : "The Project comprises the construction and operation of a 290 MW natural gas\/steam cogeneration plant located at the Pacifica Papers Inc. mill site in Port Alberni. Electricity will be generated by an advanced 170 MW combustion turbine generator. A heat recovery steam generator and a 120 MW steam turbine generator will use waste heat from this process to generate additional electricity and provide steam to Pacifica Papers",
+		"ea_certificate" : "E99-04",
+		"proponent_name" : "PanCanadian Petroleum Limited and ATCO Power Canada Limited",
+		"abbreviation" : "PACOGE"
+	},
+	{
+		"id" : 231,
+		"name" : "Port Mann\/Highway 1",
+		"description" : "The Port Mann\/Highway 1 project will include the construction of a new 10 lane bridge plus an additional 2 to 4 traffic lanes to the existing Highway 1 for a distance of 37 km. The project is anticipated to begin in 2009 and be completed in 2013.",
+		"ea_certificate" : "T08-01",
+		"proponent_name" : "Ministry of Transportation and Infrastructure",
+		"abbreviation" : "PORMAN"
+	},
+	{
+		"id" : 272,
+		"name" : "Site C Clean Energy",
+		"description" : "BC Hydro is proposing to construct and operate an up to 1,100 megawatt hydroelectric generating station on the Peace River.",
+		"ea_certificate" : "E14-02",
+		"proponent_name" : "BC Hydro and Power Authority",
+		"abbreviation" : "SITE C"
+	},
+	{
+		"id" : 342,
+		"name" : "Wolverine Coal Mine",
+		"description" : "Proponent receives provincial approval to construct a new coal mine near Tumbler Ridge. Amendment to Environmental Assessment Certificate M04-01, and Mine Permit No. C-223 received June 3 2005.",
+		"ea_certificate" : "M04-01",
+		"proponent_name" : "Conuma Coal Resources Limited",
+		"abbreviation" : "WOLCOA"
+	},
+	{
+		"id" : 232,
+		"name" : "Prince George Wood Residue Fired Cogeneration",
+		"description" : "This project was waived out of the EA process with the issuance of a Section 10(1)(b) Order on 2003-11-17",
+		"ea_certificate" : "X03-03",
+		"proponent_name" : "Canadian Forest Products Limited",
+		"abbreviation" : "PRIGEO"
+	},
+	{
+		"id" : 241,
+		"name" : "Quality Wind",
+		"description" : "Capital Power LP proposes to construct and operate 100-200 MW wind energy project consisting of 80-120 wind turbines.",
+		"ea_certificate" : "E10-01",
+		"proponent_name" : "Capital Power L.P.",
+		"abbreviation" : "QUAWIN"
+	},
+	{
+		"id" : 234,
+		"name" : "Prince Rupert LNG",
+		"description" : "Prince Rupert LNG Limited (Proponent) proposes to construct and operate a liquefied natural gas export facility on Ridley Island at the Port of Prince Rupert, BC. The project would be developed in two phases with a total capital cost of US $16 billion, and would include a marine terminal and liquefaction plant with three trains (production units), and a storage capacity of 540,000 m3 with a production capacity of up to 21 million tonnes per year of liquefied natural gas.",
+		"ea_certificate" : null,
+		"proponent_name" : "Prince Rupert LNG Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 235,
+		"name" : "Prince Rupert Terminal",
+		"description" : "A propane storage and marine export facility.",
+		"ea_certificate" : null,
+		"proponent_name" : "Pembina Infrastructure and Logistics LP",
+		"abbreviation" : null
+	},
+	{
+		"id" : 236,
+		"name" : "Princeton Power",
+		"description" : "Compliance Power Corporation is proposing a 56 MW wood residue and coal power generation plant at the former Similco mine site south of Princeton. Estimated project lifespan is 30 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Compliance Power Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 251,
+		"name" : "Revelstoke Generating Station Unit 5",
+		"description" : "BC Hydro and Power Authority receive an environmental assessment (EA) certificate for a fifth power plant unit in the Revelstoke Dam powerhouse on June 5th 2007.",
+		"ea_certificate" : "E07-02",
+		"proponent_name" : "BC Hydro and Power Authority",
+		"abbreviation" : "RGSU05"
+	},
+	{
+		"id" : 239,
+		"name" : "Town North Gas Plant",
+		"description" : "Progress Energy Canada Ltd. is proposing to construct a new natural gas processing facility located approximately 117 km northwest of Fort St. John, British Columbia (BC). The Project would be built in one phase and would process 350 Million Standard Cubic Feet per Day (MMscfd) of natural gas, supplied from three existing compressor stations within a 15 km radius of the proposed Project.",
+		"ea_certificate" : "X14-04",
+		"proponent_name" : "PETRONAS Energy Canada Ltd.",
+		"abbreviation" : "PROTOW"
+	},
+	{
+		"id" : 237,
+		"name" : "Progress Energy Lily Dam",
+		"description" : "The Lily Dam is a water management project to divert fresh water into ponds\/storage reservoirs to be used in oil and gas fracking operations.",
+		"ea_certificate" : "X18-01",
+		"proponent_name" : "PETRONAS Energy Canada Ltd.",
+		"abbreviation" : "PELILY"
+	},
+	{
+		"id" : 244,
+		"name" : "Raven Underground Coal",
+		"description" : "Compliance Coal Corporation proposed to develop a new underground coal mine with a production capacity of up to 1.88 million tonnes of a combination of raw and clean coal per year and an expected mine life of 17 years. The environmental assessment was terminated on April 6, 2016.",
+		"ea_certificate" : null,
+		"proponent_name" : "Compliance Coal Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 245,
+		"name" : "Red Chris Copper and Gold Mine",
+		"description" : "Copper and Gold Mine",
+		"ea_certificate" : null,
+		"proponent_name" : "bcMetals Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 247,
+		"name" : "Red Mountain Gold",
+		"description" : "Gold Mine",
+		"ea_certificate" : null,
+		"proponent_name" : "Royal Oak Mines Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 243,
+		"name" : "Raising of Sooke Reservoir Dam by One Metre",
+		"description" : "This project was waived out of the EA process with the issuance of a Section 10(1)(b) Order on 2003-05-21.",
+		"ea_certificate" : "X03-01",
+		"proponent_name" : "Capital Regional District",
+		"abbreviation" : "RSRDAM"
+	},
+	{
+		"id" : 249,
+		"name" : "Red Willow Wind",
+		"description" : "Red Willow Wind Limited Partnership is proposing to construct and operate a 200 megawatt wind energy facility in the Peace River region in BC. The Project is located southeast of the District of Tumbler Ridge and within the traditional territory of Treaty 8 First Nations.",
+		"ea_certificate" : null,
+		"proponent_name" : "Red Willow Wind Limited Partnership",
+		"abbreviation" : null
+	},
+	{
+		"id" : 238,
+		"name" : "Progress Energy Town Dam",
+		"description" : "The Town Dam is a water management project to divert fresh water into ponds\/storage reservoirs to be used in oil and gas fracking operations.",
+		"ea_certificate" : "X18-02",
+		"proponent_name" : "PETRONAS Energy Canada Ltd.",
+		"abbreviation" : "PETOWN"
+	},
+	{
+		"id" : 242,
+		"name" : "Quesnel Water Wells",
+		"description" : "Proposed construction and operation of two new groundwater wells, an increase in production capacity of three existing groundwater wells, the decommissioning of two groundwater wells, and other associated upgrades to the water supply and distribution system for the City of Quesnel",
+		"ea_certificate" : "X20-01",
+		"proponent_name" : "City of Quesnel",
+		"abbreviation" : "QUEWAT"
+	},
+	{
+		"id" : 246,
+		"name" : "Red Chris Porphyry Copper-Gold Mine",
+		"description" : "Newmont Corp. operates the Red Chris Porphyry Copper-Gold Project, an open pit copper and gold mine located approximately 18 kilometres southeast of Iskut, B.C. The mine produces XXXX annually for an expected XX years.",
+		"ea_certificate" : "M05-02",
+		"proponent_name" : "Newcrest Red Chris Mining Limited",
+		"abbreviation" : "RCPORP"
+	},
+	{
+		"id" : 253,
+		"name" : "Revelstoke Sand and Gravel Pits",
+		"description" : "The Revelstoke Sand and Gravel Pits consist of a 12 hectare expansion of the Revelstoke West Side Road Gravel Pit operated by Interoute Construction Ltd. and a new 8 hectare gravel pit proposed by Revelstoke Sand and Gravel.",
+		"ea_certificate" : null,
+		"proponent_name" : "Interoute Construction Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 263,
+		"name" : "Saturn 15-27 Sweet Gas Plant",
+		"description" : "Encana Corporation is proposing to construct a new sweet gas processing facility co-located with an existing compressor station approximately 25 km northwest of Dawson Creek. The proposed facility would remove water and hydrocarbon liquids from sweet raw gas produced from Encana's Saturn gas field to meet transmission pipeline requirements.",
+		"ea_certificate" : "X15-01",
+		"proponent_name" : "Encana Corporation",
+		"abbreviation" : "S15SGP"
+	},
+	{
+		"id" : 255,
+		"name" : "Ring Border Gas Plant Expansion",
+		"description" : "Canadian Hunter Exploration Ltd. is applying for a Certificate for the planned Ring Border Gas Plant Expansion Project. The scope of the Expansion Project consists of modifications to the existing Ring Border Processing Plant, in order to increase its processing capacity to 3680 e3m3\/d.",
+		"ea_certificate" : "E97-07",
+		"proponent_name" : "Canadian Hunter Exploration Limited",
+		"abbreviation" : "RINBOR"
+	},
+	{
+		"id" : 257,
+		"name" : "Rocky Creek Energy",
+		"description" : "Rupert Peace Power Corporation (Proponent) proposes to develop a new 500 MW wind energy project located approximately 40 kilometers south of Chetwynd and 80 kilometers northwest of Tumbler Ridge, British Columbia.",
+		"ea_certificate" : null,
+		"proponent_name" : "Invenergy LLC",
+		"abbreviation" : null
+	},
+	{
+		"id" : 259,
+		"name" : "Royal Bay Development",
+		"description" : "Construction Aggregates Ltd. proposed to redevelop a 250 hectare gravel pit into a residential community called Royal Bay, with housing, community facilities, a park, and buffer zones.",
+		"ea_certificate" : null,
+		"proponent_name" : "Construction Aggregates Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 261,
+		"name" : "Ruddock Creek Mine",
+		"description" : "Underground zinc-lead mine with proposed annual production rate of 1,050,000 tonnes per year projected over 8 year life.  Includes onsite process facilities, access roads, mill, tailings storage facility and camp facilities.",
+		"ea_certificate" : null,
+		"proponent_name" : "Ruddock Creek Mining Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 262,
+		"name" : "Ryan River Hydro",
+		"description" : "A run-of-river hydroelectric facility with a generating capacity of approximately 145 megawatts and 26.5 kilometre transmission line",
+		"ea_certificate" : null,
+		"proponent_name" : "Regional Power Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 264,
+		"name" : "Schaft Creek Mine",
+		"description" : "Proposed open pit copper-gold-molybdenum-silver mine in northwest BC (approximately 60 km south of Telegraph Creek), with an anticipated production capacity up to 150,000 tonnes per day.  Expected mine life of 15 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Teck Resources Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 265,
+		"name" : "Seabird Island",
+		"description" : "The Seabird Island Sediment Removal Program is the extraction of 55,000m3 of gravel from Seabird Island Bar in the Fraser River, 12 km upstream of the near Agassiz-Rosedale Bridge. The project would occur between February 6th to March 15th, 2017. The project also includes a 680m access road and a pre-existing gravel storage area.",
+		"ea_certificate" : null,
+		"proponent_name" : "Seabird Island Band",
+		"abbreviation" : null
+	},
+	{
+		"id" : 267,
+		"name" : "Sechelt Carbonate",
+		"description" : "Project consists of development of a large carbonate rock resource to produce chemical (calcium\/magnesium) rock to export to coastal markets of North America. Production capacity of up to 6 million tonnes per year with a mine life expectancy of 25 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Pan Pacific Aggregates Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 258,
+		"name" : "Roman Coal Mine",
+		"description" : "The Roman Coal Mine Project is an expansion of the Trend Coal Mine. It consists of an open pit coal mine with a production capacity of between 2 and 4 million tonnes per year, and a mine life of 15 years.",
+		"ea_certificate" : "M12-02",
+		"proponent_name" : "Peace River Coal Incorporated",
+		"abbreviation" : "ROMCOA"
+	},
+	{
+		"id" : 271,
+		"name" : "Silvertip Silver\/Lead\/Zinc Mine",
+		"description" : "This project has been withdrawn from the EAO.",
+		"ea_certificate" : null,
+		"proponent_name" : "Silvertip Mining Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 260,
+		"name" : "Ruby Creek Molybdenum",
+		"description" : "Open pit molybdenum mine and mill with a capacity of 20,000 tonnes per day. Mine life expectancy is 20 years.",
+		"ea_certificate" : "M07-01",
+		"proponent_name" : "Global Drilling Solutions Incorporated",
+		"abbreviation" : "RUBCRE"
+	},
+	{
+		"id" : 266,
+		"name" : "Sea-To-Sky Highway Upgrade",
+		"description" : "Referred to Ministers'  May 20, 2004. Certificate was issued June 4, 2004.",
+		"ea_certificate" : "T04-01",
+		"proponent_name" : "Ministry of Transportation and Infrastructure",
+		"abbreviation" : "SEAHIG"
+	},
+	{
+		"id" : 268,
+		"name" : "Seven Mile Generating Station Unit 4",
+		"description" : "Generating Station",
+		"ea_certificate" : "E96-01",
+		"proponent_name" : "BC Hydro and Power Authority",
+		"abbreviation" : "SEVMIL"
+	},
+	{
+		"id" : 269,
+		"name" : "Shovel Creek Waterpower",
+		"description" : "Run of River Project with a new transmission line in the Harrison Lake Area. Aggregate nameplate capacity is 79 MW.",
+		"ea_certificate" : "E12-04",
+		"proponent_name" : "Innergex Renewable Energy Incorporated",
+		"abbreviation" : "SHOCRE"
+	},
+	{
+		"id" : 208,
+		"name" : "NorskeCanada's Crofton De-Inking Plant",
+		"description" : "This project was waived out of the EA process with the issuance of a Section 10(1)(b) Order on 2003-08-15",
+		"ea_certificate" : "X03-02",
+		"proponent_name" : "NorskeCanada",
+		"abbreviation" : "NORCRO"
+	},
+	{
+		"id" : 281,
+		"name" : "Squamish Oceanfront Park Development",
+		"description" : "The Squamish Oceanfront Park Development Corporation is proposing to construct the Squamish Oceanfront Park, an 8.8-hectare oceanfront park with walkways, public beaches, access for wind sports, a monument, and community amenity space in Squamish, BC.",
+		"ea_certificate" : "X10-02",
+		"proponent_name" : "Squamish Oceanfront Development Corporation",
+		"abbreviation" : "SQUOCE"
+	},
+	{
+		"id" : 276,
+		"name" : "South Meager Geothermal",
+		"description" : "Proposed geothermal power generation plant with transmission line.",
+		"ea_certificate" : null,
+		"proponent_name" : "Polaris Infrastructure Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 274,
+		"name" : "South Arm Jetty Tidal Marsh",
+		"description" : "Proposed creation of a habitat banking site on the jetty on the South Arm of the Fraser River.",
+		"ea_certificate" : "X16-03",
+		"proponent_name" : "Vancouver Fraser Port Authority",
+		"abbreviation" : "SOUARM"
+	},
+	{
+		"id" : 278,
+		"name" : "Spanish Mountain Gold",
+		"description" : "**NOTE: This project was withdrawn in 2019. A new Spanish Mountain project has been proposed - please search for 'Spanish Mountain Gold Project'.\\n\\nThe proposed project would involve construction and operation of an open pit gold mine with a production capacity of 14.6 million tonnes of ore per year, located approximately 70 km northeast of Williams Lake, BC at Spanish Mountain.",
+		"ea_certificate" : null,
+		"proponent_name" : "Spanish Mountain Gold Ltd.",
+		"abbreviation" : null
+	},
+	{
+		"id" : 275,
+		"name" : "South Fraser Perimeter Road",
+		"description" : "Project proposed as a 80 km\/h four-lane facility with grade-separated interchanges in Delta and Surrey along the south bank of the Fraser River.",
+		"ea_certificate" : "T08-02",
+		"proponent_name" : "Ministry of Transportation and Infrastructure",
+		"abbreviation" : "SOUFRA"
+	},
+	{
+		"id" : 282,
+		"name" : "Squamish Terminals Berth 2 Dredge",
+		"description" : "Proposed renewal dredge of the existing navigation corridor and approach channel of Berth 2 at Squamish Terminals.",
+		"ea_certificate" : "X19-04",
+		"proponent_name" : "Squamish Terminals Ltd.",
+		"abbreviation" : "SQUTER"
+	},
+	{
+		"id" : 283,
+		"name" : "Statlu Creek Waterpower",
+		"description" : "One of four hydroelectric projects that was being reviewed concurrently (with Tretheway Creek, Shovel Creek and Big Silver Creek). After the pre-Application stage the proponent decided to not move this project ahead with the others.",
+		"ea_certificate" : null,
+		"proponent_name" : "Innergex Renewable Energy Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 285,
+		"name" : "Steveston Island Tidal Marsh",
+		"description" : "Proposed creation of a habitat banking site on the north bank of the South Arm of the Fraser River, near Steveston.",
+		"ea_certificate" : null,
+		"proponent_name" : "Vancouver Fraser Port Authority",
+		"abbreviation" : null
+	},
+	{
+		"id" : 277,
+		"name" : "Southern Crossing Pipeline",
+		"description" : "Pipeline between Yahk and Oliver.",
+		"ea_certificate" : "E99-03",
+		"proponent_name" : "BC Gas Utility Limited",
+		"abbreviation" : "SOUCRO"
+	},
+	{
+		"id" : 290,
+		"name" : "Sundance Wind",
+		"description" : "The Sundance Wind Project (proposed Project) would be located in the Peace River Region, approximately 20 km north of Tumbler Ridge and would have a nominal power production capacity of up to 250 MW.",
+		"ea_certificate" : null,
+		"proponent_name" : "Sundance Wind Project Limited Partnership",
+		"abbreviation" : null
+	},
+	{
+		"id" : 291,
+		"name" : "Sustut Copper",
+		"description" : "Open pit copper mine with a proposed 10 km haul road.",
+		"ea_certificate" : null,
+		"proponent_name" : "Doublestar Resources Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 295,
+		"name" : "Taylor Wind",
+		"description" : "Taylor Wind Project (proposed Project) would be located on private land in the Peace River Region approximately 10 km south of the District of Taylor. The proposed Project would have a nominal power production capacity of up to 400 MW.",
+		"ea_certificate" : null,
+		"proponent_name" : "Taylor Wind Project Limited Partnership",
+		"abbreviation" : null
+	},
+	{
+		"id" : 280,
+		"name" : "Squamish Groundwater Well",
+		"description" : "The Project consists of two well field sites, the Powerhouse Springs Site and the Mamquam River Site.",
+		"ea_certificate" : "W99-01",
+		"proponent_name" : "District of Squamish",
+		"abbreviation" : "SQUGRO"
+	},
+	{
+		"id" : 284,
+		"name" : "Stave Falls Powerplant",
+		"description" : "Powerplant",
+		"ea_certificate" : "E95-01",
+		"proponent_name" : "BC Hydro and Power Authority",
+		"abbreviation" : "STAFAL"
+	},
+	{
+		"id" : 286,
+		"name" : "Stewart Bulk Terminals Wharf Expansion",
+		"description" : "An operating bulk storage and loading marine terminal located near the Salmon River delta at Stewart, BC.",
+		"ea_certificate" : "T02-01",
+		"proponent_name" : "Stewart Bulk Terminals Limited",
+		"abbreviation" : "STEBUL"
+	},
+	{
+		"id" : 287,
+		"name" : "Stronsay Lead\/Zinc",
+		"description" : "An open-pit mine operation",
+		"ea_certificate" : "M99-01",
+		"proponent_name" : "Cirque Operation Corporation",
+		"abbreviation" : "STRLEA"
+	},
+	{
+		"id" : 289,
+		"name" : "Sulphurets Gold\/Silver",
+		"description" : "Located north of Stewart in northern British Columbia.  An underground gold mine and onsite processing facilities.",
+		"ea_certificate" : "M98-03",
+		"proponent_name" : "Newhawk Gold Mines Limited",
+		"abbreviation" : "SULGOL"
+	},
+	{
+		"id" : 292,
+		"name" : "Swamp Point Aggregate Mine",
+		"description" : "Swamp Point Aggregate Mine consists of an aggregate quarry and ship-loading facility, located 50 kilometres south of Stewart, BC. The Project's lifespan is anticipated to be 18 years, with a maximum production capacity of 3.3 million tonnes of aggregate per year.",
+		"ea_certificate" : "M06-01",
+		"proponent_name" : "Ascot Resources Limited",
+		"abbreviation" : "SWAPOI"
+	},
+	{
+		"id" : 293,
+		"name" : "Taiga Forest Products Lumber Treatment Facility",
+		"description" : "Lumber Treatment Facility",
+		"ea_certificate" : "IND97-01",
+		"proponent_name" : "EnviroFor Preservers (BC) Limited",
+		"abbreviation" : "TAIFOR"
+	},
+	{
+		"id" : 294,
+		"name" : "Taylor Straddle Plant",
+		"description" : "Energy Storage Facilities",
+		"ea_certificate" : "E97-06",
+		"proponent_name" : "Novagas Canada Limited",
+		"abbreviation" : "TAYSTR"
+	},
+	{
+		"id" : 80,
+		"name" : "Dunkley Lumber Mill Expansion",
+		"description" : "This project was waived out of the EA process with the issuance of a Section 10(1)(b) Order on 2004-09-30",
+		"ea_certificate" : "X04-01",
+		"proponent_name" : "Dunkley Lumber Limited",
+		"abbreviation" : "DUNLUM"
+	},
+	{
+		"id" : 296,
+		"name" : "Telkwa Coal 2003",
+		"description" : "The environmental assessment for Telkwa Coal 2003 was terminated as the Proponent, Luscar Ltd., failed to provide additional information by Aug 31, 2003, as required by Transition Order #02-16. PLEASE NOTE: To comment on Telkwa Coal’s Tenas project, go to https:\/\/projects.eao.gov.bc.ca\/p\/5b905af23965330024d5b706\/project-details. DO NOT COMMENT HERE. This is a previous project that was withdrawn from the environmental assessment process.",
+		"ea_certificate" : null,
+		"proponent_name" : "Luscar Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 298,
+		"name" : "Terminal A Extension",
+		"description" : "Proposed extension of an existing marine terminal and the construction of a barge ramp, tug dock and a replacement laydown facility for the import and export of bulk materials. The proposed Project will be located on industrial lands owned by the Proponent at the Port of Kitimat.  The proposed Project is required as the Proponent has entered into an agreement with LNG Canada to allow existing terminal facilities to be leased for LNG purposes.",
+		"ea_certificate" : "T15-01",
+		"proponent_name" : "Rio Tinto Alcan",
+		"abbreviation" : "TERAEX"
+	},
+	{
+		"id" : 299,
+		"name" : "Terrace Green Street Well",
+		"description" : "The City of Terrace (the Proponent) proposed to develop and operate a groundwater well in Terrace. The proponent has formally withdrawn their application for an EA Certificate at this time and from this location thus not proceeding with this project.",
+		"ea_certificate" : null,
+		"proponent_name" : "City of Terrace",
+		"abbreviation" : null
+	},
+	{
+		"id" : 300,
+		"name" : "Terrace Groundwater",
+		"description" : "The City of Terrace (Terrace) proposes to build a groundwater well with an average daily demand of 42.7 Litres per second (L\/s) and a maximum daily demand of water supply 95.4L\/s. Terrace is seeking an exemption from the Environmental Assessment process under Section 10(1)(b) of the Environmental Assessment Act.",
+		"ea_certificate" : null,
+		"proponent_name" : "City of Terrace",
+		"abbreviation" : null
+	},
+	{
+		"id" : 301,
+		"name" : "Thunder Mountain Wind",
+		"description" : "Thunder Mountain Wind Limited Partnership proposes to develop a 320 MW wind energy generating facility southeast of Tumbler Ridge, connecting to the BCTC grid with a 230 kV transmission line near Tumbler Ridge at TLR substation.",
+		"ea_certificate" : "E09-05",
+		"proponent_name" : "Thunder Mountain Wind Limited Partnership",
+		"abbreviation" : "THUMOU"
+	},
+	{
+		"id" : 306,
+		"name" : "Towerbirch Expansion",
+		"description" : "The Towerbirch project would include the construction and operation of 87 km of new gas pipelines and associated facilities including meter stations, valves sites and pipeline tie-ins in northwest Alberta and northeast British Columbia. The project would include two sections: the Tower Lake Section (32 km of 762 mm diameter pipe) and the Groundbirch Mainline Loop (55 km of 914 mm diameter pipe).NEB Website link:  http:\/\/www.neb-one.gc.ca\/pplctnflng\/mjrpp\/twrbrch\/index-eng.html",
+		"ea_certificate" : "E17-03",
+		"proponent_name" : "NOVA Gas Transmission Limited",
+		"abbreviation" : "TOWEXP"
+	},
+	{
+		"id" : 305,
+		"name" : "Tom MacKay Lake Waste Rock & Tailings",
+		"description" : "The Project will use Tom MacKay Lake for disposal of waste rock and tailings of the existing Eskay Creek Mine. This operation involves a shore line modification, which triggers a review under the Act, and includes: Construction of a tailings slurry pipeline from the existing mill at Eskay Creek Mine to Tom MacKay Lake, Construction of a new access road from the existing mine road to the Lake, Disposal of waste rock and mine tailings in the Lake.",
+		"ea_certificate" : null,
+		"proponent_name" : "Homestake Canada Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 307,
+		"name" : "Tranquille on the Lake",
+		"description" : "Stk’emlupsemc te Secwépemc Nation submitted an application to the Minister of Environment and Climate Change Strategy to designate Ignition Tranquille Developments Ltd.’s proposed housing development Tranquille on the Lake project a reviewable project. Reviewable projects require an environmental assessment certificate to proceed. \nTranquille is a proposed residential development with resort-like amenities planned on approximately 190 hectares of land within the municipal boundaries of the City of Kamloops, in and around the Tranquille River and bordering the north shore of Kamloops Lake. The project includes approximately 1500 permanent homes, a 266-acre mixed use farm, a winery, a guest house with a maximum of 24 beds, a hotel or country inn with a range of 80 to 120 rooms and and residential amenities such as convenience stores. The construction work force will bean estimated average of 154 full time jobs per year for approximately 14 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Ignition Group of Companies",
+		"abbreviation" : "TRANQU"
+	},
+	{
+		"id" : 297,
+		"name" : "Tenas",
+		"description" : "Telkwa Mining Limited proposes to develop the Tenas Project, an open pit coal mine located approximately seven kilometres southwest from the villge of Telkwa, B.C. The proposed project is anticipated to produce approximately 825,000 tonnes per year of metallurgical or coking coal used in steel production. It would include a coal processing plant and an open pit mine, featuring storage piles, surface water management features, water supply wells, mine haul roads, a power line, a rail loadout facility and rail loop, and related infrastructure.",
+		"ea_certificate" : null,
+		"proponent_name" : "Telkwa Coal Limited",
+		"abbreviation" : "TENPRO"
+	},
+	{
+		"id" : 10,
+		"name" : "Aurora LNG Grassy Point",
+		"description" : "Aurora Liquefied Natural Gas Ltd. proposes a Liquefied Natural Gas (LNG) export facility with a full build out capacity to process up to 24 mtpa of LNG, including up to four LNG processing units, LNG storage tanks, and marine berth for loading of LNG vessels. The proposed project will be located in the Prince Rupert region sited at Grassy Point.",
+		"ea_certificate" : "N\/A",
+		"proponent_name" : "Aurora Liquefied Natural Gas Limited",
+		"abbreviation" : "ALGRAS"
+	},
+	{
+		"id" : 309,
+		"name" : "Trans Mountain Pipe Line Modification",
+		"description" : "Trans Mountain Pipe Line Modification",
+		"ea_certificate" : "E97-04",
+		"proponent_name" : "Trans Mountain Enterprises of British Columbia Limited",
+		"abbreviation" : "TRAMOU"
+	},
+	{
+		"id" : 316,
+		"name" : "UBC Okanagan Geoexchange",
+		"description" : "UBC Okanagan (Proponent) wishes to modify an existing geoexchange system which extracts water from the aquifer to heat and cool campus buildings on the Okanagan Campus in Kelowna. The Proponent is currently extracting water at an annual average rate of  49 litres\/second for the geo-exchange system and would like to increase the extraction rate to an annual average rate of 64.2 litres\/second with extraction rates up to 189 litres\/second for short periods of time during peak demand periods",
+		"ea_certificate" : "X12-01",
+		"proponent_name" : "University of British Columbia Okanagan",
+		"abbreviation" : "UBCOKA"
+	},
+	{
+		"id" : 310,
+		"name" : "Trend Coal",
+		"description" : "The Trend Coal Project has been withdrawn from the environmental assessment process. Northern Energy and Mining Incorporated withdrew their project description on February 11, 2005 and the Section 10(1)(c) Order was repealed on February 23, 2005.",
+		"ea_certificate" : null,
+		"proponent_name" : "NEMI Northern Energy and Mining Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 312,
+		"name" : "Tsawwassen Eelgrass",
+		"description" : "Proposed creation of a habitat banking site on the southeast side of the Tsawwassen Ferry Terminal, near Tsawwassen",
+		"ea_certificate" : "X16-04",
+		"proponent_name" : "Vancouver Fraser Port Authority",
+		"abbreviation" : "TSAEEL"
+	},
+	{
+		"id" : 313,
+		"name" : "Tsilhqot'in Power Development",
+		"description" : "Proposed new 60 MW biomass fired, thermal electric project near Hanceville, British Columbia.  The Project includes approximately 70 km. 230 kV transmission line to connect to the BC Hydro grid.",
+		"ea_certificate" : null,
+		"proponent_name" : "Tsilhqot'in Power Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 319,
+		"name" : "Upper Pitt River Water Power",
+		"description" : "Seven interconnected run-of-river hydroelectric facilities with a total generating capacity of approximately 180 MW and transmission line approximately 42 km in length.",
+		"ea_certificate" : null,
+		"proponent_name" : "Run of River Power Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 311,
+		"name" : "Tretheway Creek Waterpower",
+		"description" : "Run of River Project with a new transmission line in the Harrison Lake Area. Aggregate nameplate capacity is 79 MW.",
+		"ea_certificate" : "E12-05",
+		"proponent_name" : "Tretheway Creek Power Limited Partnership",
+		"abbreviation" : "TRECRE"
+	},
+	{
+		"id" : 323,
+		"name" : "Vancouver Island Cable",
+		"description" : "Proposed High Voltage Direct Current ( HVDC ) Light transmission system between Vancouver Island and the lower mainland.",
+		"ea_certificate" : null,
+		"proponent_name" : "Sea Breeze Victoria Converter Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 314,
+		"name" : "Tulsequah Chief Mine",
+		"description" : "The Project is an underground copper, gold, zinc lead and silver mine located in northwestern BC, approximately 30km from the Canada-US border, 64 KM northeast of Juneau, Alaska.",
+		"ea_certificate" : "M02-01",
+		"proponent_name" : "Chieftain Metals Incorporated",
+		"abbreviation" : "TULCHI"
+	},
+	{
+		"id" : 315,
+		"name" : "Tumbler Ridge Wind Energy",
+		"description" : "Tumbler Ridge Wind Energy Limited Partnership (the proponent) proposes to construct and operate 33 wind turbines with an installed capacity of 49.6 MW. The purpose is to provide clean energy for BC and has a life span of at least 25 years.",
+		"ea_certificate" : "E12-01",
+		"proponent_name" : "Finavera Wind Energy Incorporated",
+		"abbreviation" : "TUMRID"
+	},
+	{
+		"id" : 317,
+		"name" : "Upper Harrison Water Power",
+		"description" : "Proponent receives provincial approval to construct five interconnected run-of-river hydroelectric facilities at the north end of Harrison Lake, with a combined generating capacity of 102 MW. Projected investment is between $225,000,000 and $300,000,000.",
+		"ea_certificate" : "E06-05",
+		"proponent_name" : "Tipella Creek Project Limited Partnership, Lamont Creek Project Limited Partnership and Upper Stave Project Limited Partnership.",
+		"abbreviation" : "UPPHAR"
+	},
+	{
+		"id" : 320,
+		"name" : "Upper Toba Valley Hydroelectric",
+		"description" : "Upper Toba Hydro Inc.  proposes to construct 3 run-of-river hydroelectric projects with a total capacity of 120MW. Major components include Dalgleish Creek 30MW, Jimmie Creek 50MW, and Upper Toba River 40 MW with 230KV transmission line",
+		"ea_certificate" : "E09-02",
+		"proponent_name" : "Toba Hydro Incorporated",
+		"abbreviation" : "UPPTOB"
+	},
+	{
+		"id" : 321,
+		"name" : "Vancouver Airport Fuel Delivery",
+		"description" : "The Vancouver Airport Fuel Facilities Corporation proposes a marine terminal on the south arm of the Fraser River, an adjacent fuel storage facility, and a 15 kilometre pipeline to YVR to meet future demand for fuel at the airport.",
+		"ea_certificate" : "E13-02",
+		"proponent_name" : "Vancouver Airport Fuel Facilities Corporation",
+		"abbreviation" : "VANAIR"
+	},
+	{
+		"id" : 322,
+		"name" : "Vancouver Convention Centre Expansion",
+		"description" : "Certificate signed by Ministers' July 28 2004.",
+		"ea_certificate" : "W04-04",
+		"proponent_name" : "Vancouver Convention Centre Expansion Project Limited",
+		"abbreviation" : "VANCON"
+	},
+	{
+		"id" : 324,
+		"name" : "Vancouver Island Generation",
+		"description" : "Powerplant",
+		"ea_certificate" : "E03-03",
+		"proponent_name" : "Vancouver Island Energy Corporation",
+		"abbreviation" : "VIGENE"
+	},
+	{
+		"id" : 325,
+		"name" : "Vancouver Island Transmission Reinforcement",
+		"description" : "Upgrade of existing tranmission corridor (69 km) with two new 230 kV circuits with a life span of 50 years.",
+		"ea_certificate" : "E06-06",
+		"proponent_name" : "British Columbia Transmission Corporation",
+		"abbreviation" : "VITRAN"
+	},
+	{
+		"id" : 326,
+		"name" : "Vintage Landing Resort and Wellness Village",
+		"description" : "622664 BC Ltd. proposed to develop a resort and wellness village with hotel(s) and conference centre; hillside and beach bungalow resort accommodation units; beach club facility and marina; and a golf course and associated clubhouse in Kelowna, BC. This project was determined not reviewable by the Environmental Assessment Office and an Exemption Order, under Section 10(1)(b) of the Environmental Assessment Act (2002), was issued on November 3 2005.",
+		"ea_certificate" : "X05-01",
+		"proponent_name" : "622664 BC Limited",
+		"abbreviation" : "VINLAN"
+	},
+	{
+		"id" : 337,
+		"name" : "Westham Canoe Pass Tidal Marsh",
+		"description" : "Proposed creation of a habitat banking site along the southeast shore of Westham Island in Canoe Pass by Port Metro Vancouver.",
+		"ea_certificate" : "X13-02",
+		"proponent_name" : "Vancouver Fraser Port Authority",
+		"abbreviation" : "WESCAN"
+	},
+	{
+		"id" : 330,
+		"name" : "Wapiti Power Development",
+		"description" : "AESWapiti Energy Corporation proposed to develop the Wapiti Power Development Project, comprised of a 184 MW thermal electric power plant, a 35 kilometre transmission line and a surface coal mine with a production capacity of 750,000 to 850,000 tonnes per year. The Project was withdrawn from the B.C. environmental assessment process on June 7, 2012.",
+		"ea_certificate" : null,
+		"proponent_name" : "AES Wapiti Energy Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 332,
+		"name" : "WCC LNG",
+		"description" : "WCC LNG Project Ltd. (Proponent) is proposing the development and operation of the WCC LNG  Project in Tuck Inlet, within the city limits of Prince Rupert. The proposed Project will include production, storage, transfer, and loading of LNG onto LNG vessels for marine transportation to offshore markets.",
+		"ea_certificate" : null,
+		"proponent_name" : "WCC LNG Project Limited",
+		"abbreviation" : null
+	},
+	{
+		"id" : 333,
+		"name" : "WCOL Natural Gas Liquids (NGL) Recovery",
+		"description" : "West Coast Olefins Ltd. (WCOL) is proposing to construct a Natural Gas Liquids (NGL) Recovery Project which includes an NGL extraction plant and an NGL separation plant to recover propane, butane and natural gas condensate (collectively known as natural gas liquids, or NGLs). The Project is located near Prince George, BC.",
+		"ea_certificate" : null,
+		"proponent_name" : "West Coast Olefins Ltd.",
+		"abbreviation" : null
+	},
+	{
+		"id" : 328,
+		"name" : "Waneta Generating Station Upgrade",
+		"description" : "Amendment to Mitigation and Compensation plan as required under EAC E97-01. Original Project consisted of three replacement turbines and related equipment at Waneta Generating Station increasing capacity approximately 106 MW, utilizing diversion of an additional 224 cubic metres per second of water",
+		"ea_certificate" : "E97-01",
+		"proponent_name" : "Teck Metals Limited and BC Hydro and Power Authority",
+		"abbreviation" : "WANGEN"
+	},
+	{
+		"id" : 329,
+		"name" : "Waneta Hydroelectric Expansion",
+		"description" : "Proposed new 435 MW hydroelectric generation station on the right bank of the Pend d'Oreille River.",
+		"ea_certificate" : "E07-04",
+		"proponent_name" : "Waneta Expansion General Partner Limited",
+		"abbreviation" : "WANHYD"
+	},
+	{
+		"id" : 340,
+		"name" : "Wildmare Wind Energy",
+		"description" : "Finavera Renewables Inc. proposes to construct and operate 37 wind turbines with an installed capacity of 74 MW. The purpose is to provide clean energy for BC and has a life span of at least 25 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "Solar Alliance Energy Incorporated",
+		"abbreviation" : null
+	},
+	{
+		"id" : 331,
+		"name" : "Wartenbe Wind Energy",
+		"description" : "Construction of a new wind farm, with a nominal capacity of 70.5 MW with a preliminary layout of 47 turbines.",
+		"ea_certificate" : "E06-04",
+		"proponent_name" : "Wartenbe Wind Project Limited Partnership",
+		"abbreviation" : "WARWIN"
+	},
+	{
+		"id" : 343,
+		"name" : "Wolverine Secure Landfill",
+		"description" : "Tervita Corporation is proposing to develop a secure landfill approximately 48 km northwest of Dawson Creek, BC (formerly known as CCS Wolverine Secure Landfill Project).",
+		"ea_certificate" : null,
+		"proponent_name" : "Tervita Corporation",
+		"abbreviation" : null
+	},
+	{
+		"id" : 335,
+		"name" : "West Stoddart Gas Processing Facility",
+		"description" : "Gas Processing Facility",
+		"ea_certificate" : "E98-03",
+		"proponent_name" : "Novagas Canada Limited",
+		"abbreviation" : "WESSTO"
+	},
+	{
+		"id" : 336,
+		"name" : "Westcoast Connector Gas Transmission",
+		"description" : "The Proponent plans to develop a natural gas transmission system from the Cypress area in northeast BC to the Prince Rupert area. It will include 851 km to 872 km of 912 mm to 1219 mm diameter pipeline and up to five compressor stations.",
+		"ea_certificate" : "E14-05",
+		"proponent_name" : "Westcoast Connector Gas Transmission Limited",
+		"abbreviation" : "WESCON"
+	},
+	{
+		"id" : 338,
+		"name" : "WGSI LNG Storage",
+		"description" : "LNG Storage Facility",
+		"ea_certificate" : "E99-01",
+		"proponent_name" : "Duke Energy",
+		"abbreviation" : "WGSLNG"
+	},
+	{
+		"id" : 346,
+		"name" : "Younger NGL Plant Expansion",
+		"description" : "The Project will consist of the installation of a third natural gas processing train within the existing plant boundary.",
+		"ea_certificate" : "E96-03",
+		"proponent_name" : "Taylor Gas Liquids Limited Partnership",
+		"abbreviation" : "YOUNGL"
+	},
+	{
+		"id" : 339,
+		"name" : "Whistler Nordic Centre",
+		"description" : "The Whistler Nordic Centre, a component of the 2010 Winter Olympic and Paralympic Games, consists of Nordic competition facilities, trails and associated infrastructure and roads, and non-competition recreation trails and facilities.",
+		"ea_certificate" : "TD05-01",
+		"proponent_name" : "VANOC 2010",
+		"abbreviation" : "WHINOR"
+	},
+	{
+		"id" : 341,
+		"name" : "Willow Creek",
+		"description" : "Willow Creek Coal Mine consists of an open pit coal mine with a production capacity of 900,000 tonnes per year and a 15 year mine life.",
+		"ea_certificate" : "M98-01",
+		"proponent_name" : "Conuma Coal Resources Limited",
+		"abbreviation" : "WILCRE"
+	},
+	{
+		"id" : 14,
+		"name" : "Bamberton Projects",
+		"description" : "The EAO is reviewing an application from the Saanich Inlet Protection Society under Section 11 of the Environmental Assessment Act requesting to designate a proposed expansion of a rock quarry for construction aggregate, an extension of a marine dock on the Saanich Inlet, and an expansion of a soil deposition site as a reviewable project. Please note that comments from the public are only considered through the Public Comment page on the EAO's website.",
+		"ea_certificate" : "N\/A",
+		"proponent_name" : "Malahat Investment Corporation",
+		"abbreviation" : "BAMPRO"
+	},
+	{
+		"id" : 273,
+		"name" : "Smithers Regional Airport Runway Expansion",
+		"description" : "This project was determined not reviewable by the Environmental Assessment Office therefore a Section 10(1)(b) was issued on September 20, 2007",
+		"ea_certificate" : "X07-02",
+		"proponent_name" : "Town of Smithers",
+		"abbreviation" : "SMIREG"
+	},
+	{
+		"id" : 65,
+		"name" : "Coyote Hydrogen",
+		"description" : "Canada Fortescue Future Industries proposes to develop Coyote Hydrogen, a hydrogen and ammonia processing facility located approximately 12 kilometres from Prince George, B.C. The proposed project is anticipated to produce approximately 140,000 tonnes of hydrogen per year and 700,000 tonnes of ammonia per year through the use of sustainable hydroelectric energy. The proposed green project would include production, storage and unloading components for hydrogen and ammonia, infrastructure to divert water and wastewater treatment, process cooling units, and power supply systems.",
+		"ea_certificate" : null,
+		"proponent_name" : "Canada Fortescue Future Industries",
+		"abbreviation" : "COYHYD"
+	},
+	{
+		"id" : 57,
+		"name" : "Coastal GasLink Pipeline",
+		"description" : "Coastal GasLink Pipeline Limited has completed the Coastal GasLink Pipeline, a natural gas transmission pipeline running 650-kilometer between the community of Groundbirch near Dawson Creek, to the LNG Canada export facility near Kitimat, B.C. The project is anticipated to transport 2.1 billion cubic feet day with the potential for expansion up to approximately 5 billion cubic feet day. It will also include up to 8 compressor stations.",
+		"ea_certificate" : "E14-03",
+		"proponent_name" : "Coastal GasLink Pipeline Limited",
+		"abbreviation" : "COAGAS"
+	},
+	{
+		"id" : 38,
+		"name" : "Cabin Gas Plant",
+		"description" : "Enbridge G&P Canada Limited Partnership is constructing the Cabin Gas Plant, a natural gas processing plant located approximately 60 kilometres northeast of Fort Nelson in the Horn River Basin. It is comprised of two gas plants: Gas Plant 1 which is nearing completion and partially operating, and Gas Plant 2, which is partially constructed. When complete, Cabin Gas is expected to produce over 5.5 million cubic metres of natural gas a day.",
+		"ea_certificate" : "E09-06",
+		"proponent_name" : "Enbridge G&P Canada Limited Partnership",
+		"abbreviation" : "CABGAS"
+	},
+	{
+		"id" : 168,
+		"name" : "LNG Canada Export Terminal",
+		"description" : "The proposed Project consists of the construction and operation of a liquefied natural gas (LNG) plant and associated marine terminal facilities for the export of LNG to Asian markets. To review more regulatory information please visit https:\/\/lng.gov.bc.ca\/",
+		"ea_certificate" : "E15-01",
+		"proponent_name" : "LNG Canada Development Incorporated",
+		"abbreviation" : "LNGCAN"
+	},
+	{
+		"id" : 81,
+		"name" : "Eagle Mountain - Woodfibre Gas Pipeline",
+		"description" : "Fortis BC Energy Vancouver Island Inc. (the Proponent) is proposing to construct and operate an approximately 47 km long 24 inch diametre natural gas pipeline from the area north of the Coquitlam Watershed in the Greater Vancouver Regional District (Metro Vancouver) to the Woodfibre Liquefied Natural Gas (LNG) facility, southwest of Squamish, British Columbia (B.C.); additional compression at existing compressor stations at Eagle Mountain in Coquitlam; a new compressor station in Squamish; and metering facilities at the receipt and delivery points.",
+		"ea_certificate" : "E16-01",
+		"proponent_name" : "FortisBC",
+		"abbreviation" : "EAGMOU"
+	},
+	{
+		"id" : 158,
+		"name" : "Ksi Lisims LNG",
+		"description" : "Nisga'a Nation, Rockies LNG Limited Partnership and Western LNG LLC proposes to jointly develop Ksi Lisims LNG, a liquified natural gas processing plant and marine terminal, located on the northern end of Pearse Island near Kitimat, B.C. Ksi Lisims LNG proposes to process 12 million tonnes per year of liquefied natural gas project to create approximately 575 to 695 billion cubic feet per year of natural gas. The project includes temporary storage facilities on two permanently installed floating liquid natural gas structures.",
+		"ea_certificate" : null,
+		"proponent_name" : "Nisga'a Nation, Rockies LNG Limited Partnership and Western LNG LLC",
+		"abbreviation" : "KSILIS"
+	},
+	{
+		"id" : 210,
+		"name" : "North Montney Mainline Pipeline",
+		"description" : "The North Montney Mainline Pipeline Project would include the construction and operation of a 305 km, 42 inch diameter natural gas pipeline in the Peace River Regional District, along with associated metering facilities, valve sites and possible compression facilities. The project would connect with the existing Groundbirch Mainline (Saturn Section), located about 35 km southwest of Fort St. John.NEB Website link:https:\/\/www.neb-one.gc.ca\/pplctnflng\/mjrpp\/nrthmntn\/index-eng.html",
+		"ea_certificate" : "E17-02",
+		"proponent_name" : "NOVA Gas Transmission Limited",
+		"abbreviation" : "NORMON"
+	},
+	{
+		"id" : 73,
+		"name" : "Dawson Creek Liquid Nitrogen Plant",
+		"description" : "The Project is a modification to the already substantially complete liquid nitrogen plant being built within the city boundaries of the City of Dawson Creek. The major inputs in the creation of liquid nitrogen are air and electricity. The only by-product of the process is clean water and oxygen. The land on which the project is situated is privately owned by Ferus Inc. (the Proponent) and is zoned for industrial use. The existing facility will produce 180 tonnes of liquid nitrogen per day, and the additional facility will produce the same, bringing the total to 260 tonnes\/day or 131,400 tonnes\/year. The Proponent has been advised by the BC Archeology Branch that archaeological records for the parcel of land on which the project site is located do not indicate the presence of a known archaelogical site, nor any potential for an unrecorded archaeological site.",
+		"ea_certificate" : "X11-02",
+		"proponent_name" : "Ferus Group of Companies",
+		"abbreviation" : "DAWCRE"
+	},
+	{
+		"id" : 347,
+		"name" : "Jordan Solar and Energy Storage ",
+		"description" : "Jordan BC Solar Project Limited Partnership proposes to develop the Jordan Solar and Energy Storage, a solar power-generating facility located approximately 20 kilometres northwest of Sooke, B.C. The proposed project is anticipated to produce approximately 100 megawatts per year of alternating current power generation. It would include solar panel arrays, a battery storage system, overhead transmission lines, and access roads.",
+		"ea_certificate" : "",
+		"proponent_name" : "Jordan BC Solar Project Limited Partnership",
+		"abbreviation" : "JORSOL"
+	},
+	{
+		"id" : 334,
+		"name" : "West Coast Olefins Ethylene",
+		"description" : "West Coast Olefins Ltd. proposes to construct and operate an ethylene production plant located in Prince George, British Columbia. The West Coast Olefins Ethylene project is anticipated to produce 1 million tonnes per year of polymer grade ethylene, with an expected lifespan of 25 years.",
+		"ea_certificate" : null,
+		"proponent_name" : "West Coast Olefins Ltd.",
+		"abbreviation" : "WESCOA"
+	},
+	{
+		"id" : 288,
+		"name" : "Sukunka Coal Mine",
+		"description" : "Glencore plc proposed to develop and operate a surface mining operation and coal handling and processing plant to produce hard coking coal for export to overseas steel manufacturers. A B.C. environmental assessment certificate will not be issued for the Sukunka Coal Mine Project.",
+		"ea_certificate" : null,
+		"proponent_name" : "Glencore plc",
+		"abbreviation" : "SUKCOA"
+	},
+	{
+		"id" : 224,
+		"name" : "Peace Valley Oriented Strand Board",
+		"description" : "Peace Valley OSB is located on the southeast side of Fort St. John, B.C., 1.5 kilometres (km) north of the Alaska Highway and 1 km southwest of the Fort St. John airport, on Swanson Lumber Road. It has been in operation since 2005 and produces commodity thicknesses of Oriented Strand Board (OSB).",
+		"ea_certificate" : "IND02-01",
+		"proponent_name" : "Louisiana-Pacific OSB Limited Partnership",
+		"abbreviation" : "PEAVAL"
+	},
+	{
+		"id" : 248,
+		"name" : "Red Mountain Underground Gold",
+		"description" : "IDM Mining Ltd. proposes to develop an underground gold mine in the Bitter Creek Valley located near Stewart, in northwest British Columbia. The Project will extract high-grade gold and silver ore to be processed on-site in the Bitter Creek Valley",
+		"ea_certificate" : "M18-03",
+		"proponent_name" : "IDM Mining Limited",
+		"abbreviation" : "RMUNDE"
+	},
+	{
+		"id" : 254,
+		"name" : "Richmond Island Milltown Marina and Boatyard",
+		"description" : "The Musqueam Indian Band and Bastion Development Corporation are proposing to develop a commercial marina for recreational vessels at Richmond Island.  The proposed development would include boat launch, boat gantry crane, gangway and ramps, dredging of slough, approximately 9,000 linear feet of dock space for 174 in-water moorage slips, dry-stack storage for up to 250 boats, parking for 228 vehicles, 5,000 square feet (280 sq. m) space for a marine trades and boat repairs, 7,000 square feet  (650 sq. m) space for a cafe, marine supplies store, caretaker's residences and other commercial uses. Installation of water, sanitary and electric connections,  creation of a habitat island,  pedestrian and cycling pathway along an existing access road connecting Bentley Street to Richmond Island,  public observation point, and an accessible park.",
+		"ea_certificate" : "X12-02",
+		"proponent_name" : "Musqueam Indian Band and Bastion Development Corporation",
+		"abbreviation" : "RICISL"
+	},
+	{
+		"id" : 360,
+		"name" : "Ch́’ḵw’elhp Well Field",
+		"description" : "Sunshine Coast Regional District (SCRD) proposes to develop the Ch́’ḵw’elhp Well Field project, a groundwater extraction project located approximately 3 kilometers northeast of Gibsons, BC. The proposed project is anticipated to transport 74 liters per second and transport the water off site to a water treatment and storage facility. It would include the development of three production wells, a pump station, water treatment infrastructure, and two water mains - one for untreated water and one for treated water - to connect the well field to the municipal water supply system.",
+		"ea_certificate" : "",
+		"proponent_name" : "Sunshine Coast Regional District",
+		"abbreviation" : "CHWEL"
+	},
+	{
+		"id" : 303,
+		"name" : "Tilbury Phase 2 LNG Expansion",
+		"description" : "FortisBC proposes to expand Tilbury Phase 2 LNG, a liquid natural gas facility located on Tilbury Island in Delta, BC. The proposed project is anticipated to increase the capacity of the current facility by over 160,000 cubic meters of liquid natural gas and increase the LNG production capacity of the facility up to 11,000 tonnes per day through the construction of a storage tank, liquefaction facilities and supporting infrastructure.",
+		"ea_certificate" : null,
+		"proponent_name" : "FortisBC",
+		"abbreviation" : "TILPHA"
+	},
+	{
+		"id" : 240,
+		"name" : "Prosperity Gold-Copper",
+		"description" : "Taseko Mines Limited of BC proposes to develop a high volume open pit gold-copper mine located 125 km SW of Williams Lake in South Central British Columbia.",
+		"ea_certificate" : "M09-02",
+		"proponent_name" : "Taseko Mines Limited",
+		"abbreviation" : "PROGOL"
+	},
+	{
+		"id" : 2,
+		"name" : "Air Liquide Liquid Nitrogen Plant",
+		"description" : "The Project is a modification to the already substantially completed liquid nitrogen plant being built within the city boundaries of the City of Dawson Creek.  The major inputs in the creation of liquid nitrogen are air and electricity.  The only by-product of the process is clean water and oxygen.  The land on which the project is situated is privately owned by Air Liquide Canada Inc. (the Proponent) and is zoned for industrial use. The existing facility will produce 200 tonnes of liquid nitrogen per day, and the additional facility will produce 250 tonnes\/daily, bringing the total to 450 tonnes\/day or 164,250 tonnes\/year.",
+		"ea_certificate" : "X12-03",
+		"proponent_name" : "Air Liquide Canada Inc.",
+		"abbreviation" : "AIRLIQ"
+	},
+	{
+		"id" : 104,
+		"name" : "Galore Creek Copper-Gold-Silver",
+		"description" : "Galore Creek Mining Corporation proposes to develop Galore Creek Copper-Gold-Silver project, an open pit copper, gold and silver mine located approximately 150 kilometres northwest of Stewart, B.C. The project has an anticipated production capacity of approximately 60,000 tonnes per day of ore over the anticipated 25-year lifespan of the mine. It would include open pits, a processing plant, a tailings storage facility, and an access road that is approximately 140kilometre long.",
+		"ea_certificate" : "M06-03",
+		"proponent_name" : "Galore Creek Mining Corporation",
+		"abbreviation" : "GALCRE"
+	},
+	{
+		"id" : 126,
+		"name" : "Highland Valley Copper Mine Life Extension",
+		"description" : "Teck Highland Valley Copper Partnership proposes to modify the operating Highland Valley Copper (HVC) mine by developing Highland Valley Copper Mine Life Extension, an expansion of the existing copper and molybdenum mine located approximately 17 kilometres west of Logan Lake, B.C. The proposed project is anticipated to increase the mine’s production capacity and extend HVC’s mine life by at least 18 years and would produce an average of approximately 178,000 tonnes per day of ore. It would include an extension to the existing open pit, as well as expansions to some mine site infrastructure and processing facilities to support the increased production capacity.",
+		"ea_certificate" : null,
+		"proponent_name" : "Teck Highland Valley Copper Partnership",
+		"abbreviation" : "HV2040"
+	},
+	{
+		"id" : 31,
+		"name" : "Brucejack Mine",
+		"description" : "Pretium Resources Inc owns and operates the Brucejack Mine, an underground gold and silver mine located approximately 65 kilometres north-northwest from Stewart, B.C.. The project is able to produce approximately 2,700 tonnes per day of ore over a minimum 16-year lifespan of the mine. It includes the mine site and associated facilities, an access road and ancillary infrastructure.",
+		"ea_certificate" : "M15-01",
+		"proponent_name" : "Pretium Resources Inc",
+		"abbreviation" : "BRUCEJ"
+	},
+	{
+		"id" : 91,
+		"name" : "Eskay Creek Revitalization",
+		"description" : "Skeena Resources Ltd. proposes to develop the Eskay Creek Revitalization Project, an open pit gold-silver mine located approximately 135 kilometres south of Iskut, B.C. and 83 kilometres northwest of Stewart, at the site of the past-producing underground Eskay Creek Mine. The proposed project would have the capacity to produce approximately 3.7 million tonnes per year of gold and silver-bearing ore. It would include the development of mine site and associated infrastructure, transmission line upgrades, and the transportation of concentrate to the port facilities in Stewart. ",
+		"ea_certificate" : null,
+		"proponent_name" : "Skeena Resources Limited",
+		"abbreviation" : "ECREVI"
+	},
+	{
+		"id" : 195,
+		"name" : "Mt. Milligan Copper-Gold",
+		"description" : "Thompson Creek Metals Company Inc. operates the Mt. Milligan Copper-Gold project, a mineral mine located approximately 90 kilometres northeast of Fort St. James, B.C. The project has the capacity to process approximately 21.9 million tonnes per year of copper and gold-bearing ore. It includes open pit mining over 15 years, road access, a transmission line from Mackenzie to the mine site, and a rail shipping facility at Mackenzie.",
+		"ea_certificate" : "M09-01",
+		"proponent_name" : "Thompson Creek Metals Company",
+		"abbreviation" : "MMCOPP"
+	},
+	{
+		"id" : 88,
+		"name" : "Encana 4-26 Refrigeration",
+		"description" : "Encana Corporation is proposing to construct a new natural gas processing facility located on the 241 Road approximately 16 km west of Dawson Creek, British Columbia (BC). The proposed refrigeration facility would remove water and hydrocarbon liquids from 11.327 x 106 m3\/day (400 MMscfd) of sweet raw gas produced from Encana's fields to meet transmission pipeline requirements.",
+		"ea_certificate" : "X13-02",
+		"proponent_name" : "Encana Corporation",
+		"abbreviation" : "ENC426"
+	},
+	{
+		"id" : 8,
+		"name" : "Aspen Solar and Energy Storage",
+		"description" : "Aspen BC Solar Project Limited Partnership proposes to develop the Aspen Solar and Energy Storage, a solar power-generating facility located approximately 50 kilometres southeast from Merritt, B.C. The proposed project is anticipated to produce approximately 100 megawatts per year of alternating current power generation. It would include solar panel arrays, battery storage system, overhead transmission lines, and access roads.",
+		"ea_certificate" : null,
+		"proponent_name" : "Aspen BC Solar Project Limited Partnership",
+		"abbreviation" : "ASPSOL"
+	},
+	{
+		"id" : 106,
+		"name" : "GCT Deltaport Expansion - Berth Four",
+		"description" : "GCT Canada Limited Partnership proposes to expand the existing marine shipping facility at the GCT Deltaport Terminal with Berth Four, a marine terminal located approximately 12 kilometres southwest from Delta, B.C. The proposed project is anticipated to increase the international shipping capacity of the facility to up to two million twenty-foot shipping containers per year. It will include the expansion of the existing terminal container storage and handling area, the addition of a fourth berth on the southeast side of the Roberts Bank Causeway, and expansion of the existing intermodal rail yard. It would include a 44-hectare expansion of the terminal for container handling and storage, a 560 metres berth extension, a 12 hectare expansion of the existing intermodal rail yard, and a barge berth to accommodate future potential demand for short distance sea shipping capability.",
+		"ea_certificate" : null,
+		"proponent_name" : "Global Container Terminals",
+		"abbreviation" : "GCTDEL"
+	},
+	{
+		"id" : 26,
+		"name" : "Blackwater Gold",
+		"description" : "Project consists of the extraction of gold and silver from an open pit mine, and ore processing facilities with a milling rate capacity of 60,000 t\/d (22 Mt\/y), over 17 years. The proposed Project is located approximately 110 km south of Vanderhoof. Project footprint consists of the mine site, mine access road and a new 133 km transmission line that connects the mine site with the existing substation to provide power to the Project.",
+		"ea_certificate" : "M19-01",
+		"proponent_name" : "BW Gold Ltd.",
+		"abbreviation" : "BLAGOL"
+	},
+	{
+		"id" : 167,
+		"name" : "Line Creek Operations Phase II",
+		"description" : "Teck Coal Limited proposes to expand Line Creek Operations, a coal mine located approximately 22 kilometers northeast from Sparwood, B.C. The proposed project is anticipated to produce approximately 3.5 million tonnes per year of clean coal. It would include an open pit mine, featuring transportation and electrical infrastructure, waste rock spoils, surface water management systems and related infrastructure.",
+		"ea_certificate" : "M13-02",
+		"proponent_name" : "Teck Coal Limited",
+		"abbreviation" : "LCOPER"
+	},
+	{
+		"id" : 5,
+		"name" : "Angus",
+		"description" : "Vitreo Minerals Ltd. proposes to develop the Angus silica sand mine located approximately 60 kilometres north of Prince George near Bear Lake. The proposed project is anticipated to produce approximately two million tonnes per year of silica sand. Silica sand, sometimes called ‘proppant,’ is used in hydraulic fracturing to prop open the fractures that are created during crude oil and natural gas extraction. The project would include an industrial mine quarry featuring a raw sand plant, water management infrastructure, waste rock and fines stockpiles, finishing plant and related infrastructure.",
+		"ea_certificate" : null,
+		"proponent_name" : "Vitreo Minerals Ltd.",
+		"abbreviation" : "ANGPSQ"
+	},
+	{
+		"id" : 186,
+		"name" : "Michel Coal",
+		"description" : "North Coal Limited proposes to develop the Michel Coal Project, a coal mine located approximately 15 kilometres (km) southeast from Sparwood, B.C. The proposed project is anticipated to produce approximately 2.3-4 million tonnes per year of raw coal. It would include an open pit mine, featuring mine pit excavations, rock stockpile areas, water management systems and related infrastructure.",
+		"ea_certificate" : null,
+		"proponent_name" : "North Coal Limited",
+		"abbreviation" : "MICCOA"
+	},
+	{
+		"id" : 308,
+		"name" : "Trans Mountain Expansion",
+		"description" : "Trans Mountain Pipeline ULC has completed the Trans Mountain Expansion, an approximately 1,000 kilometer pipeline between Edmonton, AB and Burnaby, B.C. The expansion is anticipated to triple the capacity of the Trans Mountain pipeline system and will increase the capacity of the Westridge Marine Terminal in Burrard Inlet from 5 medium-sized tankers per month, to a maximum of 34.",
+		"ea_certificate" : "E17-01",
+		"proponent_name" : "Trans Mountain Pipeline ULC",
+		"abbreviation" : "TMEXPA"
+	},
+	{
+		"id" : 151,
+		"name" : "Kinskuch Hydroelectric",
+		"description" : "WindRiver Power Corporation proposes to develop the Kinskuch Hydroelectric Project, a 50 to 80 megawatt power project located approximately 150 kilometres north of Terrace, BC. The Project consists of a dam and storage reservoir at Kinskuch Lake and a tunnel, penstock, power house and transmission line in the upper Kinskuch River system and Nass Valley.",
+		"ea_certificate" : null,
+		"proponent_name" : "WindRiver Power Corporation",
+		"abbreviation" : "KINSKU"
+	},
+	{
+		"id" : 211,
+		"name" : "North Thompson Emergency Water Intake",
+		"description" : "Proposed by the City of Kamloops; project involves diverting water into wells for retrieval during drought periods. Project proposes to divert water from the North Thompson River for emergency water supply use should the primary water source for the City of Kamloops be unavailable.",
+		"ea_certificate" : "X14-02",
+		"proponent_name" : "City of Kamloops",
+		"abbreviation" : "NORTHO"
+	},
+	{
+		"id" : 124,
+		"name" : "Highland Solar and Energy Storage",
+		"description" : "Highland BC Solar Project Limited Partnership proposes to develop the Highland Solar and Energy Storage, a solar power-generation facility located approximately 15 kilometres south of Ashcroft, B.C. The proposed project is anticipated to produce approximately 150 megawatts per year of alternating current power generation. It would include solar panel arrays, battery storage system, overhead transmission lines, and access roads. ",
+		"ea_certificate" : null,
+		"proponent_name" : "Highland BC Solar Project Limited Partnership",
+		"abbreviation" : "HIGSOL"
+	},
+	{
+		"id" : 256,
+		"name" : "Roberts Bank Terminal 2",
+		"description" : "This is a new container terminal proposed by Port Metro Vancouver at Roberts Bank in Delta, BC, approximately 35 kilometres south of Vancouver. The proposed Project is a new three-berth marine container terminal that would provide additional capacity of 2.4 million Twenty-foot Equivalent Units (TEUs) of containers per year to meet anticipated demand until 2030.",
+		"ea_certificate" : "T23-01",
+		"proponent_name" : "Vancouver Fraser Port Authority",
+		"abbreviation" : "ROBBAN"
+	},
+	{
+		"id" : 353,
+		"name" : "Altares Gas Plant Expansion",
+		"description" : "Pacific Canbriam Energy Ltd. proposes to expand the Altares Gas Plant, a natural gas processing plant located approximately 50 kilometers north from Hudson Hope. The proposed project is anticipated to increase production to 7080 E3m3(cubed) per day of natural gas. The expansion will be within the existing fence line and utilize some existing process equipment and major infrastructure.",
+		"ea_certificate" : "N\/A",
+		"proponent_name" : "Pacific Canbriam Energy Ltd.",
+		"abbreviation" : "ALTGAS"
+	},
+	{
+		"id" : 222,
+		"name" : "Parkland Burnaby Refinery",
+		"description" : "Parkland Refining (BC) Limited, a division of Parkland corporation, is proposing the construction of 8 storage tanks at the Parkland Burnaby Refinery.",
+		"ea_certificate" : null,
+		"proponent_name" : "Parkland Refining",
+		"abbreviation" : "PARBUR"
+	},
+	{
+		"id" : 45,
+		"name" : "Cariboo Gold Project",
+		"description" : "Osisko Development Corp. is developing the Cariboo Gold project, an underground mineral mine located at Wells. The project will have the capacity to process approximately 1.1 million tonnes per year of gold-bearing ore. It will include underground mining over 16 years, ore milling at the Quesnel River mine approximately 58 kilometres southeast of Quesnel, storage of waste rock at the Bonanza Ledge Mine near Barkerville, and a transmission line from the Quesnel area to the mine.",
+		"ea_certificate" : "M23-01",
+		"proponent_name" : "Barkerville Gold Mines Ltd.",
+		"abbreviation" : "CJPROJ"
+	},
+	{
+		"id" : 351,
+		"name" : "Church Road Wellfield Development",
+		"description" : "Sunshine Coast Regional District proposes to construct the Church Road Wellfield Development, a groundwater extraction project located approximately 1.5 kilometers NE from town of Gibsons. The proposed project is anticipated to extract approximately 74.3 Litres per second of groundwater. It would include three groundwater wells, water transmission lines, a power supply, a Water Treatment Plant and mitigation pipe to Soamas Creek.",
+		"ea_certificate" : "",
+		"proponent_name" : "Sunshine Coast Regional District",
+		"abbreviation" : "CHUROA"
+	},
+	{
+		"id" : 40,
+		"name" : "Campbell River Water Supply",
+		"description" : "The Campbell River Water Supply Project includes construction and operation of approximately 2.5 km of 1.2m diameter water main pipe, intake, diversion of approximately 12 million cubic meters of surface water, control structure\/pump station and relocated water treatment processes.",
+		"ea_certificate" : "X16-01",
+		"proponent_name" : "City of Campbell River",
+		"abbreviation" : "CAMRIV"
+	},
+	{
+		"id" : 354,
+		"name" : "Surrey Langley SkyTrain",
+		"description" : "[Proponent name] proposes to develop the [project name], a [project type] located approximately [distance] kilometers [N\/E\/S\/W] from [known near population centre\/known near landmark\/start and end locations of project]. The proposed project is anticipated to [produce\/store\/etc] approximately [storage capacity\/production yield\/etc.] per year of [product]. It would include [describe major project components].",
+		"ea_certificate" : "",
+		"proponent_name" : "Transportation Investment Corporation",
+		"abbreviation" : "SURLAN"
+	},
+	{
+		"id" : 352,
+		"name" : "Town North Gas Plant Expansion",
+		"description" : "PETRONAS Energy Canada Ltd. proposes to expand the Town North Gas Plant, a natural gas processing plant located approximately 44 kilometers NW from Wonowon. The proposed project is anticipated to expand the processing capacity to 555 million standard cubic feet per day of natural gas. It would add one natural gas processing train to the facility.",
+		"ea_certificate" : "",
+		"proponent_name" : "PETRONAS Energy Canada Ltd.",
+		"abbreviation" : "TNGPEX"
+	},
+	{
+		"id" : 157,
+		"name" : "Kootenay West Mine",
+		"description" : "CertainTeed Canada Inc.’s Kootenay West Mine gypsum quarry is located approximately 12 kilometres northeast from Canal Flats, B.C. and anticipated to produce approximately 400,000 tonnes per year of gypsum. The project includes an open pit gypsum quarry featuring mine site access roads, mine rock storage facilities, stockpiles and related infrastructure.",
+		"ea_certificate" : "M18-01",
+		"proponent_name" : "CertainTeed Canada Inc.",
+		"abbreviation" : "KOOWES"
+	},
+	{
+		"id" : 355,
+		"name" : "Kimberly Water Reclamation Centre",
+		"description" : "[Proponent name] proposes to develop the [project name], a [project type] located approximately [distance] kilometers [N\/E\/S\/W] from [known near population centre\/known near landmark\/start and end locations of project]. The proposed project is anticipated to [produce\/store\/etc] approximately [storage capacity\/production yield\/etc.] per year of [product]. It would include [describe major project components].",
+		"ea_certificate" : "",
+		"proponent_name" : "City of Kimberly",
+		"abbreviation" : "KIMWAT"
+	},
+	{
+		"id" : 302,
+		"name" : "Tilbury Marine Jetty",
+		"description" : "Tilbury Jetty LP proposes to develop the Tilbury Marine Jetty, a marine port facility, located at Tilbury Island on the Fraser River in Delta, B.C. The proposed project is anticipated to transfer up to 4.83 billion cubic metres of natural gas per year. It would include the construction of a permanent jetty, a temporary floating bunker berth and supporting infrastructure, the shipping of liquified natural gas, and dredging.",
+		"ea_certificate" : "E24-01",
+		"proponent_name" : "Tilbury Jetty LP",
+		"abbreviation" : "TILMAR"
+	},
+	{
+		"id" : 350,
+		"name" : "Nass Valley Regional Transmission Line",
+		"description" : "[Proponent] proposes to develop the [Project name], a [project type] which would be located approximately [distance]km from [known near population centre\/known near landmark] within the boundaries of [the QQQ Region]. The proposed project is anticipated to produce approximately [production yield] per year of [product], and would include [describe major project components].",
+		"ea_certificate" : "",
+		"proponent_name" : "Nisga’a Nation as represented by the Nisga’a Lisims Government",
+		"abbreviation" : "NASVAL"
+	},
+	{
+		"id" : 59,
+		"name" : "Comox Valley Water Treatment",
+		"description" : "Comox Valley Regional District proposes the construction and operation of a water treatment plant near the City of Courtenay, on the central east coast of Vancouver Island. The CVWT project consists of a water intake, pumping station, the water treatment plan, and connecting pipelines.",
+		"ea_certificate" : "X19-01",
+		"proponent_name" : "Comox Valley Regional District",
+		"abbreviation" : "COMVAL"
+	},
+	{
+		"id" : 357,
+		"name" : "Inga North Gas Plant Modification",
+		"description" : "ConocoPhillips Canada is proposing to add sulfur removing equipment to the Inga North Gas Plant, an existing natural gas processing plant near Wonowon. approximately 90 km northwest from the city of Fort St. John. The proposed modifications to the Inga North Gas Plant do not meet the thresholds to automatically require an environmental assessment; however, because the Inga North Gas Plant produces more than 125,000 tonnes of greenhouse gasses per year, the proponent is required to notify the Environmental Assessment Office (EAO) of any modifications, to determine if an environmental assessment is necessary.",
+		"ea_certificate" : "",
+		"proponent_name" : "ConocoPhillips Canada Resource Corporation",
+		"abbreviation" : "INGNOR"
+	},
+	{
+		"id" : 50,
+		"name" : "Centerm Expansion",
+		"description" : "The Vancouver Fraser Port Authority proposes to construct a series of improvements to the existing Centerm container terminal, as well as to off-terminal road and rail. The expansion to container capacity and related off-terminal improvements are intended to meet anticipated near-term demand for containers to be shipped through Vancouver.",
+		"ea_certificate" : "X19-02",
+		"proponent_name" : "Vancouver Fraser Port Authority",
+		"abbreviation" : "CENEXP"
+	},
+	{
+		"id" : 349,
+		"name" : "Summit Lake PG LNG Project",
+		"description" : "JX LNG Canada Ltd. proposes to develop Summit Lake PG LNG, a liquid natural gas processing plant located approximately 30 kilometers north from Prince George, B.C. The proposed project is anticipated to produce approximately 10,060 thousand cubic metres per day of natural gas and 2.7 million tonnes per year of liquid natural gas. It would include incoming gas facilities, gas treatment facilities, liquefaction facilities, LNG storage facilities, product loading facilities, cooling systems, flare systems, fire and gas systems, and firefighting facilities.",
+		"ea_certificate" : "",
+		"proponent_name" : "JX LNG Canada Ltd.",
+		"abbreviation" : "SUMLAK"
+	},
+	{
+		"id" : 344,
+		"name" : "Wonowon Landfill",
+		"description" : "Secure Energy Services Incorporated proposes to develop the Wonowon Landfill, located approximately 9 kilometers southeast of the community of Wonowon in the Peace River Regional District. The proposed hazardous waste project is anticipated to have direct disposal capabilities to accept contaminated soils (including those containing more that 3% hydrocarbon) from spill cleanups and site remediation, drilling waste from oil and gas exploration and production, industrial waste, and forestry waste. Based on the site’s acceptance, it is proposed that the site will have approximately 200,000 tonnes of waste annually for 25 to 75 years depending on usage.  ",
+		"ea_certificate" : null,
+		"proponent_name" : "Secure Energy Services Incorporated",
+		"abbreviation" : "WONLAN"
+	},
+	{
+		"id" : 250,
+		"name" : "Resort Municipality of Whistler - Drinking Water Well Enhancement",
+		"description" : "The Resort Municipality of Whistler is requesting an exemption under S.10(1)(b) for a new groundwater extraction project, well 219, which will exceed the Reviewable Projects Regulation of 75l\/s for groundwater extraction.",
+		"ea_certificate" : "X21-01",
+		"proponent_name" : "Resort Municipality of Whistler",
+		"abbreviation" : "RESMUN"
+	},
+	{
+		"id" : 233,
+		"name" : "Prince Rupert Gas Transmission",
+		"description" : "Prince Rupert Gas Transmission Limited proposes to develop the Prince Rupert Gas Transmission pipeline between Hudson’s Hope to the proposed Pacific NorthWest LNG natural gas liquefaction and export facility on Lelu Island near Prince Rupert. The project consists of both land-based and marine sections of pipeline. Depending on the final route, the pipeline could include up to 780 kilometres of land-based pipeline with a diameter of over 1.2 metres and up to 120 kilometres of twin marine pipelines approximately a meter in diameter. The proposed project is anticipated to produce approximately 2 billion cubic feet per day with the potential of expansion up to approximately 3.6 billion cubic feet per day. ",
+		"ea_certificate" : "E14-06",
+		"proponent_name" : "Prince Rupert Gas Transmission Limited",
+		"abbreviation" : "PRGTRA"
+	},
+	{
+		"id" : 327,
+		"name" : "Ridley Island Energy Export Facility",
+		"description" : "Ridley Island Energy Export Facility GP Inc., on behalf of Ridley Island Energy Export Facility Limited Partnership, is building Vopak Pacific Canada, a bulk liquid petroleum storage and marine export facility located approximately 10 kilometres south of Prince Rupert near Port Edward. The project is anticipated to store up to 98,000 cubic metres of liquified petroleum gas, 260,000 cubic metres of light diesel and gasoline, and 220,000 cubic metres of methanol. It would include the construction and operation of bulk liquids storage facility, including a new jetty at Ridley Island. The proposed project is anticipated to store liquified petroleum gas (e.g., propane, ethane, butane), methanol, light diesel and\/or gasoline.",
+		"ea_certificate" : "E21-01",
+		"proponent_name" : "Vopak Development Canada Inc.",
+		"abbreviation" : "VOPPAC"
+	},
+	{
+		"id" : 76,
+		"name" : "Delta Grinding Facility",
+		"description" : "Heidelberg Materials Canada Limited proposes to develop the Delta Grinding Facility, an industrial grinding facility with a marine terminal located approximately 5 kilometres north of Delta, B.C., on Tilbury Island. The proposed project is anticipated to manufacture 650,000 tonnes of supplementary cementitious material (SCM) per year, a key resource for less energy intensive concrete. It would include a facility for manufacturing SCM adjacent to its existing cement production facility, a new marine terminal, stockpile areas, mill system, truck loadout facility and related infrastructure.",
+		"ea_certificate" : null,
+		"proponent_name" : "Heidelberg Materials Canada Limited",
+		"abbreviation" : "DELGRI"
+	},
+	{
+		"id" : 358,
+		"name" : "Sparwood Wells #04",
+		"description" : "The District of Sparwood constructed a water system that may trigger the Reviewable Project Regulation. The EAO is currently waiting for information on the design to understand if the project triggers the threshold. The water system is located approximately 4 kilometres northeast of the junction of highways 3 & 43, within the District of Sparwood. It includes a well, pumphouse and related infrastructure.",
+		"ea_certificate" : "",
+		"proponent_name" : "District of Sparwood",
+		"abbreviation" : "SPAWEL"
+	},
+	{
+		"id" : 252,
+		"name" : "Revelstoke Generating Station Unit 6",
+		"description" : "BC Hydro and Power Authority proposes to develop the Revelstoke Generating Station Unit 6, a modification to an existing hydroelectric facility located on the Columbia River, approximately 5 kilometres north of Revelstoke, B.C. The proposed project is anticipated to produce an additional 500 megawatts of power per year at the Revelstoke Generating Station. It would include installing a 500 megawatt generating unit and related equipment and the construction of office buildings, parking areas and warehouse facilities. ",
+		"ea_certificate" : "E18-01",
+		"proponent_name" : "BC Hydro and Power Authority",
+		"abbreviation" : "RGSU06"
+	},
+	{
+		"id" : 270,
+		"name" : "Silverberry Secure Landfill",
+		"description" : "Tervita Corporation proposes to expand the Silverberry Secure Landfill, a solid waste management facility, located approximately 50 kilometres northwest of Fort St. John, B.C. The proposed project is anticipated to store up to 5,275,000 cubic metres of additional waste. Infrastructure and facilities already in operation for the existing landfill will be used for the expansion. Stormwater, leachate management and monitoring systems will be expanded or upgraded where appropriate. ",
+		"ea_certificate" : "WD02-01",
+		"proponent_name" : "Tervita Corporation",
+		"abbreviation" : "SILSEC"
+	},
+	{
+		"id" : 356,
+		"name" : "Inga Gas Plant Expansion",
+		"description" : "ConocoPhillips Canada is proposing to expand the Inga Gas Plant, an existing natural gas processing plant southeast of Wonowon, B.C. and northwest from the city of Fort St. John, B.C. The proposed expansion would increase the capacity of the Inga Gas Plant to receive and process natural gas, natural gas liquids and produced water. This proposed expansion of the Inga Gas Plant does not meet the thresholds to automatically require an environmental assessment; however, because the Inga Gas Plant produces more than 125,000 tonnes of greenhouse gasses per year, the proponent is required to notify the Environmental Assessment Office of any modifications, to determine if an environmental assessment is necessary.",
+		"ea_certificate" : "",
+		"proponent_name" : "ConocoPhillips Canada Resource Corporation",
+		"abbreviation" : "INGGAS"
+	}
+]

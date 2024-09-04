@@ -15,10 +15,11 @@
 
 from http import HTTPStatus
 
+from flask import current_app
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
-from compliance_api.schemas import KeyValueSchema
+from compliance_api.schemas import InspectionCreateSchema, InspectionSchema, KeyValueSchema
 from compliance_api.services import InspectionService
 from compliance_api.utils.util import cors_preflight
 
@@ -29,6 +30,13 @@ API = Namespace("inspections", description="Endpoints for Inspection Management"
 
 keyvalue_list_schema = ApiHelper.convert_ma_schema_to_restx_model(
     API, KeyValueSchema(), "List"
+)
+
+inspection_create_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, InspectionCreateSchema(), "Inspection"
+)
+inspection_list_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, InspectionSchema(), "InspectionList"
 )
 
 
@@ -102,3 +110,24 @@ class IRStatusOptions(Resource):
         ir_status_options = InspectionService.get_ir_status_options()
         ir_status_options_schema = KeyValueSchema(many=True)
         return ir_status_options_schema.dump(ir_status_options), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS, POST")
+@API.route("", methods=["POST", "GET", "OPTIONS"])
+class Inspection(Resource):
+    """Resource for managing inspection."""
+
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(API, endpoint_description="Create an inspection")
+    @API.expect(inspection_create_model)
+    @API.response(
+        code=201, model=inspection_list_model, description="InspectionCreated"
+    )
+    @API.response(400, "Bad Request")
+    def post():
+        """Create an inspection."""
+        current_app.logger.info(f"Creating Inspection with payload: {API.payload}")
+        inspection_data = InspectionCreateSchema().load(API.payload)
+        created_inspection = InspectionService.create_inspection(inspection_data)
+        return InspectionSchema().dump(created_inspection), HTTPStatus.CREATED
