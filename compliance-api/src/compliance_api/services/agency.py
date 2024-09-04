@@ -1,4 +1,4 @@
-"""Service for user management."""
+"""Service for agency management."""
 
 from compliance_api.exceptions import ResourceExistsError
 from compliance_api.models import db
@@ -48,7 +48,7 @@ class AgencyService:
         agency = AgencyModel.find_by_id(agency_id)
         if not agency or agency.is_deleted:
             return None
-        db.session.delete(agency)
+        agency.is_deleted = True
         db.session.flush()
         if commit:
             db.session.commit()

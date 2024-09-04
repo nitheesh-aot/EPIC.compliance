@@ -19,3 +19,4 @@ from .position import PositionService
 from .project import ProjectService
 from .project_status import ProjectStatusService
 from .staff_user import StaffUserService
+from .topic import TopicService

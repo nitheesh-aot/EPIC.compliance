@@ -25,3 +25,4 @@ from .position import Position
 from .project import Project
 from .project_status import ProjectStatusOption
 from .staff_user import PERMISSION_MAP, PermissionEnum, StaffUser
+from .topic import Topic

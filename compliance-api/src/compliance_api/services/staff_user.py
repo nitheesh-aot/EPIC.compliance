@@ -85,7 +85,7 @@ class StaffUserService:
         user = StaffUserModel.find_by_id(user_id)
         if not user or user.is_deleted:
             return None
-        db.session.delete(user)
+        user.is_deleted = True
         db.session.flush()
         if commit:
             db.session.commit()
