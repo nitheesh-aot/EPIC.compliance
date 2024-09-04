@@ -3,6 +3,7 @@ declare global {
     _env_: {
       VITE_API_URL: string;
       VITE_AUTH_API_URL: string;
+      VITE_TRACK_API_URL: string;
       VITE_ENV: string;
       VITE_VERSION: string;
       VITE_APP_TITLE: string;
@@ -16,6 +17,8 @@ const API_URL =
   window._env_?.VITE_API_URL || import.meta.env.VITE_API_URL || "";
 const AUTH_API_URL =
   window._env_?.VITE_AUTH_API_URL || import.meta.env.VITE_AUTH_API_URL || "";
+const TRACK_API_URL =
+  window._env_?.VITE_TRACK_API_URL || import.meta.env.VITE_TRACK_API_URL || "";
 const APP_ENVIRONMENT =
   window._env_?.VITE_ENV || import.meta.env.VITE_ENV || "";
 const APP_VERSION =
@@ -29,6 +32,7 @@ const CLIENT_ID = window._env_?.VITE_CLIENT_ID || import.meta.env.VITE_CLIENT_ID
 export const AppConfig = {
   apiUrl: `${API_URL}/api`,
   authAPIUrl: `${AUTH_API_URL}/api`,
+  trackAPIUrl: `${TRACK_API_URL}/api/v1`,
   environment: APP_ENVIRONMENT,
   version: APP_VERSION,
   appTitle: APP_TITLE,
