@@ -76,7 +76,7 @@ class CaseFiles(Resource):
         if project_id:
             case_files = CaseFileService.get_case_files_by_project(project_id)
         else:
-            case_files = CaseFileService.get_all_case_files(default_filters=False)
+            case_files = CaseFileService.get_all_case_files()
         case_file_list_schema = CaseFileSchema(many=True)
         return case_file_list_schema.dump(case_files), HTTPStatus.OK
 

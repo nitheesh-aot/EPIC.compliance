@@ -16,9 +16,9 @@ class CaseFileService:
         return CaseFileInitiationOptionModel.get_all(sort_by="sort_order")
 
     @classmethod
-    def get_all_case_files(cls, default_filters=True):
+    def get_all_case_files(cls):
         """Return all the case files."""
-        return CaseFileModel.get_all(default_filters)
+        return CaseFileModel.get_all(default_filters=False)
 
     @classmethod
     def get_case_file_by_id(cls, case_file_id: int):

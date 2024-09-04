@@ -111,7 +111,9 @@ class CaseFile(BaseModel):
     @classmethod
     def get_case_file_by_file_number(cls, case_file_number):
         """Retrieve case file information based on given case file number."""
-        return cls.query.filter_by(case_file_number=case_file_number).first()
+        return cls.query.filter_by(
+            case_file_number=case_file_number, is_deleted=False
+        ).first()
 
     @classmethod
     def get_case_files_by_project(cls, project_id: int):
