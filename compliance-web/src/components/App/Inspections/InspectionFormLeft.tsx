@@ -10,6 +10,7 @@ import { IRType } from "@/models/IRType";
 import ControlledDateRangePicker from "@/components/Shared/Controlled/ControlledDateRangePicker";
 import { useProjectById } from "@/hooks/useProjects";
 import { useFormContext } from "react-hook-form";
+import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
 
 type InspectionFormLeftProps = {
   projectList: Project[];
@@ -24,23 +25,37 @@ const InspectionFormLeft: React.FC<InspectionFormLeftProps> = ({
   staffUsersList,
   irTypeList,
 }) => {
-  const { setValue } = useFormContext();
+  const { setValue, resetField } = useFormContext();
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
     null
   );
+  const [isUnapprovedProject, setIsUnapprovedProject] =
+    useState<boolean>(false);
 
   const { data: projectData } = useProjectById(selectedProjectId!);
 
   useEffect(() => {
-    if (selectedProjectId) {
-      // eslint-disable-next-line no-console
-      console.log(projectData);
+    if (selectedProjectId && projectData) {
+      setValue("isProjectDetailsDisabled", true);
       setValue("authorization", projectData?.ea_certificate ?? "");
       setValue("certificateHolder", projectData?.proponent?.name ?? "");
       setValue("projectDescription", projectData?.description ?? "");
-      setValue("isProjectDetailsDisabled", true);
+    } else {
+      resetField("isProjectDetailsDisabled");
+      resetField("authorization");
+      resetField("certificateHolder");
+      resetField("projectDescription");
     }
-  }, [projectData, selectedProjectId, setValue]);
+    if (isUnapprovedProject) {
+      setValue("isProjectDetailsDisabled", false);
+    }
+  }, [
+    isUnapprovedProject,
+    projectData,
+    resetField,
+    selectedProjectId,
+    setValue,
+  ]);
 
   return (
     <>
@@ -63,7 +78,13 @@ const InspectionFormLeft: React.FC<InspectionFormLeftProps> = ({
             isOptionEqualToValue={(option, value) => option.id === value.id}
             fullWidth
             onChange={(_, value) => {
-              setSelectedProjectId(value ? (value as Project).id : null);
+              const projId = (value as Project)?.id;
+              if (projId === UNAPPROVED_PROJECT_ID) {
+                setIsUnapprovedProject(true);
+                setSelectedProjectId(null);
+              } else {
+                setSelectedProjectId(projId);
+              }
             }}
           />
           <ControlledTextField
@@ -127,7 +148,7 @@ const InspectionFormLeft: React.FC<InspectionFormLeftProps> = ({
             multiple
             fullWidth
           />
-          <ControlledDateRangePicker label="Dates" name="dateRange" fullWidth />
+          <ControlledDateRangePicker name="dateRange" label="Dates" fullWidth />
         </Stack>
         <ControlledAutoComplete
           name="initiation"
