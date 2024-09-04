@@ -16,13 +16,20 @@ import InspectionFormLeft from "./InspectionFormLeft";
 import dateUtils from "@/utils/dateUtils";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import ComingSoon from "@/components/Shared/ComingSoon";
 import { useMenuStore } from "@/store/menuStore";
 import { IRType } from "@/models/IRType";
-import { useCreateInspection, useIRTypesData } from "@/hooks/useInspections";
+import {
+  useCreateInspection,
+  useIRStatusesData,
+  useIRTypesData,
+  useProjectStatusesData,
+} from "@/hooks/useInspections";
 import { InspectionAPIData, InspectionFormData } from "@/models/Inspection";
 import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
 import { DateRange } from "@/models/DateRange";
+import { IRStatus } from "@/models/IRStatus";
+import { ProjectStatus } from "@/models/ProjectStatus";
+import InspectionFormRight from "./InspectionFormRight";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -90,6 +97,8 @@ const inspectionFormSchema = yup.object().shape({
     .object<Initiation>()
     .nullable()
     .required("Initiation is required"),
+  irStatus: yup.object<IRStatus>().nullable(),
+  projectStatus: yup.object<ProjectStatus>().nullable(),
   isProjectDetailsDisabled: yup.boolean().default(false),
 });
 
@@ -100,8 +109,11 @@ const initFormData: InspectionFormData = {
   dateRange: undefined,
   leadOfficer: undefined,
   officers: [],
+  irType: [],
   initiation: undefined,
-  caseFileNumber: undefined,
+  irStatus: undefined,
+  projectStatus: undefined,
+  caseFileId: undefined,
 };
 
 const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
@@ -115,6 +127,8 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const { data: initiationList } = useInitiationsData();
   const { data: staffUserList } = useStaffUsersData();
   const { data: irTypeList } = useIRTypesData();
+  const { data: irStatusList } = useIRStatusesData();
+  const { data: projectStatusList } = useProjectStatusesData();
 
   const defaultValues = useMemo<InspectionFormData>(() => {
     if (inspection) {
@@ -166,13 +180,13 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
         location_description: data.locationDescription ?? "",
         utm: data.utm ?? "",
       };
-      if(projectId === UNAPPROVED_PROJECT_ID) {
+      if (projectId === UNAPPROVED_PROJECT_ID) {
         inspectionData = {
           unapproved_project_authorization: data.authorization ?? "",
           unapproved_project_proponent_name: data.certificateHolder ?? "",
           unapproved_project_description: data.projectDescription ?? "",
-          ...inspectionData
-        }
+          ...inspectionData,
+        };
       }
       if (inspection) {
         // TODO: Add update logic here
@@ -210,16 +224,11 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
             initiationList={initiationList ?? []}
             staffUsersList={staffUserList ?? []}
             irTypeList={irTypeList ?? []}
-          ></InspectionFormLeft>
-          <Box
-            sx={{
-              width: "399px",
-              boxSizing: "border-box",
-              overflow: "auto",
-            }}
-          >
-            <ComingSoon />
-          </Box>
+          />
+          <InspectionFormRight
+            irStatusList={irStatusList ?? []}
+            projectStatusList={projectStatusList ?? []}
+          />
         </Stack>
       </form>
     </FormProvider>

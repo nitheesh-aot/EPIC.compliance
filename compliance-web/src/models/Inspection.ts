@@ -1,6 +1,9 @@
 import { DateRange } from "./DateRange";
 import { Initiation } from "./Initiation";
+import { IRStatus } from "./IRStatus";
+import { IRType } from "./IRType";
 import { Project } from "./Project";
+import { ProjectStatus } from "./ProjectStatus";
 import { StaffUser } from "./Staff";
 
 export interface Inspection {
@@ -21,7 +24,10 @@ export interface InspectionFormData {
   leadOfficer?: StaffUser;
   officers?: StaffUser[];
   initiation?: Initiation;
-  caseFileNumber?: string;
+  irType?: IRType[];
+  irStatus?: IRStatus;
+  projectStatus?: ProjectStatus;
+  caseFileId?: string;
 }
 
 export interface InspectionAPIData {

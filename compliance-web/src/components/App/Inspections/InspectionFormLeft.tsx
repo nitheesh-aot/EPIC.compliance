@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Box, Stack } from "@mui/material";
 import { StaffUser } from "@/models/Staff";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
@@ -19,7 +19,7 @@ type InspectionFormLeftProps = {
   irTypeList: IRType[];
 };
 
-const InspectionFormLeft: React.FC<InspectionFormLeftProps> = ({
+const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
   projectList,
   initiationList,
   staffUsersList,
