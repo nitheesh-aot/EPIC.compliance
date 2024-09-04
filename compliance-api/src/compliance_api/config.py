@@ -66,7 +66,7 @@ class _Config:  # pylint: disable=too-few-public-methods
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{int(DB_PORT)}/{DB_NAME}"
     )
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
 
@@ -89,6 +89,7 @@ class _Config:  # pylint: disable=too-few-public-methods
     KEYCLOAK_ADMIN_USERNAME = os.getenv("MET_ADMIN_CLIENT_ID")
     KEYCLOAK_ADMIN_SECRET = os.getenv("MET_ADMIN_CLIENT_SECRET")
     AUTH_BASE_URL = os.getenv("AUTH_BASE_URL")
+    EPIC_TRACK_URL = os.getenv("EPIC_TRACK_URL")
 
 
 class DevConfig(_Config):  # pylint: disable=too-few-public-methods
