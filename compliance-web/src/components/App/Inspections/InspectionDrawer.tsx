@@ -1,7 +1,7 @@
-import { useCreateCaseFile, useInitiationsData } from "@/hooks/useCaseFiles";
+import { useInitiationsData } from "@/hooks/useCaseFiles";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
-import { CaseFile, CaseFileAPIData, CaseFileFormData } from "@/models/CaseFile";
+import { CaseFile } from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
 import { Project } from "@/models/Project";
 import { StaffUser } from "@/models/Staff";
@@ -19,8 +19,10 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import ComingSoon from "@/components/Shared/ComingSoon";
 import { useMenuStore } from "@/store/menuStore";
 import { IRType } from "@/models/IRType";
-import { useIRTypesData } from "@/hooks/useInspections";
-import { DateRange } from "@/components/Shared/Controlled/DateRangePicker";
+import { useCreateInspection, useIRTypesData } from "@/hooks/useInspections";
+import { InspectionAPIData, InspectionFormData } from "@/models/Inspection";
+import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
+import { DateRange } from "@/models/DateRange";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -65,23 +67,25 @@ const inspectionFormSchema = yup.object().shape({
     .of(yup.object<IRType>())
     .min(1, "At least one Type is required")
     .required("Type is required"),
-  dateCreated: yup.date().nullable(),
-  dateRange: yup.object<DateRange>().shape({
-    startDate: yup
-      .date()
-      .required("Start date is required")
-      .typeError("Invalid date"),
-    endDate: yup
-      .date()
-      .required("End date is required")
-      .typeError("Invalid date")
-      .min(yup.ref("startDate"), "End date cannot be before start date"),
-  }).test(
-    "required",
-    "Date is required",
-    (value) => !!value?.startDate || !!value?.endDate
-  )
-  .nullable(),
+  dateRange: yup
+    .object<DateRange>()
+    .shape({
+      startDate: yup
+        .date()
+        .required("Start date is required")
+        .typeError("Invalid date"),
+      endDate: yup
+        .date()
+        .required("End date is required")
+        .typeError("Invalid date")
+        .min(yup.ref("startDate"), "End date cannot be before start date"),
+    })
+    .test(
+      "required",
+      "Date is required",
+      (value) => !!value?.startDate || !!value?.endDate
+    )
+    .nullable(),
   initiation: yup
     .object<Initiation>()
     .nullable()
@@ -91,9 +95,9 @@ const inspectionFormSchema = yup.object().shape({
 
 type InspectionSchemaType = yup.InferType<typeof inspectionFormSchema>;
 
-const initFormData: CaseFileFormData = {
+const initFormData: InspectionFormData = {
   project: undefined,
-  dateCreated: undefined,
+  dateRange: undefined,
   leadOfficer: undefined,
   officers: [],
   initiation: undefined,
@@ -107,12 +111,12 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const { appHeaderHeight } = useMenuStore();
   const drawerTopRef = useRef<HTMLDivElement | null>(null);
 
-  const { data: projectList } = useProjectsData({includeUnapproved: true});
+  const { data: projectList } = useProjectsData({ includeUnapproved: true });
   const { data: initiationList } = useInitiationsData();
   const { data: staffUserList } = useStaffUsersData();
   const { data: irTypeList } = useIRTypesData();
 
-  const defaultValues = useMemo<CaseFileFormData>(() => {
+  const defaultValues = useMemo<InspectionFormData>(() => {
     if (inspection) {
       // TDOD: Map existing data
     }
@@ -140,28 +144,43 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     notify.error(err?.message);
   }, []);
 
-  const { mutate: createCaseFile } = useCreateCaseFile(onSuccess, onError);
+  const { mutate: createInspection } = useCreateInspection(onSuccess, onError);
 
   const onSubmitHandler = useCallback(
     (data: InspectionSchemaType) => {
       // eslint-disable-next-line no-console
       console.log(data);
-      const caseFileData: CaseFileAPIData = {
-        project_id: (data.project as Project)?.id ?? "",
-        date_created: dateUtils.dateToUTC(data.dateCreated ?? new Date()),
+      const projectId = (data.project as Project)?.id ?? "";
+      let inspectionData: InspectionAPIData = {
+        project_id: projectId,
+        ir_type_id: (data.irType[0] as IRType).id,
         initiation_id: (data.initiation as Initiation).id,
-        case_file_number: "",
+        start_date: dateUtils.dateToUTC(
+          data.dateRange?.startDate ?? new Date()
+        ),
+        end_date: dateUtils.dateToUTC(data.dateRange?.endDate ?? new Date()),
         lead_officer_id: (data.leadOfficer as StaffUser)?.id,
-        officer_ids:
+        inspection_officer_ids:
           (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
+        case_file_id: 0,
+        location_description: data.locationDescription ?? "",
+        utm: data.utm ?? "",
       };
+      if(projectId === UNAPPROVED_PROJECT_ID) {
+        inspectionData = {
+          unapproved_project_authorization: data.authorization ?? "",
+          unapproved_project_proponent_name: data.certificateHolder ?? "",
+          unapproved_project_description: data.projectDescription ?? "",
+          ...inspectionData
+        }
+      }
       if (inspection) {
         // TODO: Add update logic here
       } else {
-        createCaseFile(caseFileData);
+        createInspection(inspectionData);
       }
     },
-    [inspection, createCaseFile]
+    [inspection, createInspection]
   );
 
   return (
