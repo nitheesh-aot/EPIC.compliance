@@ -22,7 +22,7 @@ const ControlledDateRangePicker: FC<IFormDateRangeInputProps> = ({
     <Controller
       name={name}
       control={control}
-      defaultValue={{ startDate: null, endDate: null }} // DateRange default value
+      defaultValue={{ startDate: null, endDate: null }}
       render={({ field }) => (
         <DateRangePicker
           {...field}
@@ -32,7 +32,13 @@ const ControlledDateRangePicker: FC<IFormDateRangeInputProps> = ({
             field.onChange(value);
           }}
           error={!!errors[name]}
-          helperText={String(errors[name]?.message ?? "")}
+          helperText={String(
+            errors[name] && "startDate" in errors[name]
+              ? (errors[name].startDate?.message as string)
+              : errors[name] && "endDate" in errors[name]
+                ? (errors[name].endDate?.message as string)
+                : errors[name]?.message || ""
+          )}
           {...otherProps}
         />
       )}

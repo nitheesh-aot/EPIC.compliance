@@ -20,6 +20,7 @@ import ComingSoon from "@/components/Shared/ComingSoon";
 import { useMenuStore } from "@/store/menuStore";
 import { IRType } from "@/models/IRType";
 import { useIRTypesData } from "@/hooks/useInspections";
+import { DateRange } from "@/components/Shared/Controlled/DateRangePicker";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -62,10 +63,10 @@ const inspectionFormSchema = yup.object().shape({
   irType: yup
     .array()
     .of(yup.object<IRType>())
-    .nullable()
+    .min(1, "At least one Type is required")
     .required("Type is required"),
   dateCreated: yup.date().nullable(),
-  dateRange: yup.object().shape({
+  dateRange: yup.object<DateRange>().shape({
     startDate: yup
       .date()
       .required("Start date is required")
@@ -75,7 +76,12 @@ const inspectionFormSchema = yup.object().shape({
       .required("End date is required")
       .typeError("Invalid date")
       .min(yup.ref("startDate"), "End date cannot be before start date"),
-  }),
+  }).test(
+    "required",
+    "Date is required",
+    (value) => !!value?.startDate || !!value?.endDate
+  )
+  .nullable(),
   initiation: yup
     .object<Initiation>()
     .nullable()
@@ -101,7 +107,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const { appHeaderHeight } = useMenuStore();
   const drawerTopRef = useRef<HTMLDivElement | null>(null);
 
-  const { data: projectList } = useProjectsData();
+  const { data: projectList } = useProjectsData({includeUnapproved: true});
   const { data: initiationList } = useInitiationsData();
   const { data: staffUserList } = useStaffUsersData();
   const { data: irTypeList } = useIRTypesData();
