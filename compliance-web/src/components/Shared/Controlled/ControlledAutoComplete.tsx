@@ -50,7 +50,12 @@ const ControlledAutoComplete = <T,>({
           getOptionLabel={getOptionLabel}
           isOptionEqualToValue={isOptionEqualToValue}
           value={field.value ?? (multiple ? [] : null)}
-          onChange={(_event, newVal) => field.onChange(newVal)}
+          onChange={(_event, newVal) => {
+            field.onChange(newVal);
+            if (props.onChange) {
+              props.onChange(_event, newVal, "selectOption");
+            }
+          }}
           multiple={multiple}
           disableCloseOnSelect={multiple}
           limitTags={multiple ? 1 : undefined}
