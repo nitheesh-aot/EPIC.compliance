@@ -28,27 +28,59 @@ type InspectionDrawerProps = {
 
 const inspectionFormSchema = yup.object().shape({
   project: yup.object<Project>().nullable().required("Project is required"),
-  authorization: yup.string().nullable(),
-  certificateHolder: yup.string().nullable(),
-  projectDescription: yup.string().nullable(),
+  authorization: yup
+    .string()
+    .nullable()
+    .when("isProjectDetailsDisabled", {
+      is: true,
+      then: (schema) => schema.nullable(),
+      otherwise: (schema) => schema.required("Authorization is required"),
+    }),
+  certificateHolder: yup
+    .string()
+    .nullable()
+    .when("isProjectDetailsDisabled", {
+      is: true,
+      then: (schema) => schema.nullable(),
+      otherwise: (schema) => schema.required("Certificate Holder is required"),
+    }),
+  projectDescription: yup
+    .string()
+    .nullable()
+    .when("isProjectDetailsDisabled", {
+      is: true,
+      then: (schema) => schema.nullable(),
+      otherwise: (schema) => schema.required("Project Description is required"),
+    }),
   locationDescription: yup.string().nullable(),
   utm: yup.string().nullable(),
-  leadOfficer: yup.object<StaffUser>().nullable().required("Lead Officer is required"),
+  leadOfficer: yup
+    .object<StaffUser>()
+    .nullable()
+    .required("Lead Officer is required"),
   officers: yup.array().of(yup.object<StaffUser>()).nullable(),
-  irType: yup.object<IRType>().nullable().required("Type is required"),
+  irType: yup
+    .array()
+    .of(yup.object<IRType>())
+    .nullable()
+    .required("Type is required"),
   dateCreated: yup.date().nullable(),
   dateRange: yup.object().shape({
-    startDate: yup.date().required('Start date is required').typeError('Invalid date'),
+    startDate: yup
+      .date()
+      .required("Start date is required")
+      .typeError("Invalid date"),
     endDate: yup
       .date()
-      .required('End date is required')
-      .typeError('Invalid date')
-      .min(yup.ref('startDate'), 'End date cannot be before start date'),
+      .required("End date is required")
+      .typeError("Invalid date")
+      .min(yup.ref("startDate"), "End date cannot be before start date"),
   }),
   initiation: yup
     .object<Initiation>()
     .nullable()
     .required("Initiation is required"),
+  isProjectDetailsDisabled: yup.boolean().default(false),
 });
 
 type InspectionSchemaType = yup.InferType<typeof inspectionFormSchema>;

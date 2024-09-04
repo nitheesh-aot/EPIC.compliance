@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Stack } from "@mui/material";
 import { StaffUser } from "@/models/Staff";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
@@ -8,6 +8,8 @@ import { Initiation } from "@/models/Initiation";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import { IRType } from "@/models/IRType";
 import ControlledDateRangePicker from "@/components/Shared/Controlled/ControlledDateRangePicker";
+import { useProjectById } from "@/hooks/useProjects";
+import { useFormContext } from "react-hook-form";
 
 type InspectionFormLeftProps = {
   projectList: Project[];
@@ -22,6 +24,24 @@ const InspectionFormLeft: React.FC<InspectionFormLeftProps> = ({
   staffUsersList,
   irTypeList,
 }) => {
+  const { setValue } = useFormContext();
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
+    null
+  );
+
+  const { data: projectData } = useProjectById(selectedProjectId!);
+
+  useEffect(() => {
+    if (selectedProjectId) {
+      // eslint-disable-next-line no-console
+      console.log(projectData);
+      setValue("authorization", projectData?.ea_certificate ?? "");
+      setValue("certificateHolder", projectData?.proponent?.name ?? "");
+      setValue("projectDescription", projectData?.description ?? "");
+      setValue("isProjectDetailsDisabled", true);
+    }
+  }, [projectData, selectedProjectId, setValue]);
+
   return (
     <>
       <Box
@@ -42,15 +62,20 @@ const InspectionFormLeft: React.FC<InspectionFormLeftProps> = ({
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             fullWidth
+            onChange={(_, value) => {
+              setSelectedProjectId(value ? (value as Project).id : null);
+            }}
           />
           <ControlledTextField
             name="authorization"
             label="Authorization"
+            disabled={!!selectedProjectId}
             sx={{ width: "70%" }}
           />
           <ControlledTextField
             name="certificateHolder"
             label="Certificate Holder"
+            disabled={!!selectedProjectId}
             fullWidth
           />
         </Stack>
@@ -58,6 +83,7 @@ const InspectionFormLeft: React.FC<InspectionFormLeftProps> = ({
           name="projectDescription"
           label="Project Description"
           multiline
+          disabled={!!selectedProjectId}
           fullWidth
           minRows={2}
         />
@@ -98,9 +124,10 @@ const InspectionFormLeft: React.FC<InspectionFormLeftProps> = ({
             getOptionLabel={(option) => option.name}
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
+            multiple
             fullWidth
           />
-          <ControlledDateRangePicker label="Dates" name="dateRange" fullWidth/>
+          <ControlledDateRangePicker label="Dates" name="dateRange" fullWidth />
         </Stack>
         <ControlledAutoComplete
           name="initiation"
