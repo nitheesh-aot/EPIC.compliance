@@ -48,3 +48,9 @@ export const requestAuthAPI = ({ ...options }) => {
   setAuthToken(client);
   return client(options).then(onSuccess).catch(onError);
 };
+
+export const requestTrackAPI = ({ ...options }) => {
+  const client = axios.create({ baseURL: AppConfig.trackAPIUrl });
+  setAuthToken(client);
+  return client(options).then(onSuccess).catch(onError);
+};
