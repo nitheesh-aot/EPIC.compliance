@@ -11,11 +11,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Exposes all of the schemas in the compliance_api."""
-from .agency import AgencyCreateSchema, AgencySchema
-from .case_file import CaseFileCreateSchema, CaseFileSchema
-from .common import KeyValueSchema
-from .inspection import InspectionCreateSchema, InspectionSchema
-from .project import ProjectSchema
-from .staff_user import StaffUserCreateSchema, StaffUserSchema
-from .topic import TopicCreateSchema, TopicSchema
+"""Base model for options."""
+from sqlalchemy import Column, Integer, String
+
+from .base_model import BaseModel
+
+
+class OptionModel(BaseModel):
+    """Base Model for the option type of tables."""
+
+    __abstract__ = True
+    id = Column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        comment="The unique identifier of the option",
+    )
+    name = Column(String, unique=True, comment="The name of the option")
+    sort_order = Column(
+        Integer,
+        comment="Order of priority. Mainly used order the options while listing",
+    )

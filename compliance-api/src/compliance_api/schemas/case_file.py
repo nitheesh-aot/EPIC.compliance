@@ -34,7 +34,7 @@ class CaseFileOfficerSchema(AutoSchemaBase):  # pylint: disable=too-many-ancesto
 
 
 class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
-    """Basic schema for staff user."""
+    """Basic schema for case file."""
 
     class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
         """Meta."""
@@ -67,6 +67,7 @@ class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
         required=True,
     )
     date_created = fields.DateTime(
+        format="%Y-%m-%dT%H:%M:%S.%fZ",
         metadata={"description": "The date on which the case file is created."},
         required=True,
     )
