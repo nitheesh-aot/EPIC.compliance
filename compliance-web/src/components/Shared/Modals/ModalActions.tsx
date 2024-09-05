@@ -17,9 +17,9 @@ const ModalActions: FC<ModalActionsProps> = ({
   isButtonValidation,
 }) => {
   const { setClose } = useModal();
-  const {
-    formState: { isValid },
-  } = useFormContext();
+  const formContext = useFormContext();
+
+  const isValid = isButtonValidation ? formContext?.formState.isValid : true;
 
   return (
     <DialogActions sx={{ padding: "1rem 1.5rem" }}>
@@ -29,7 +29,7 @@ const ModalActions: FC<ModalActionsProps> = ({
       <Button
         type={onPrimaryAction ? "button" : "submit"}
         onClick={onPrimaryAction}
-        disabled={isButtonValidation && !isValid}
+        disabled={!!isButtonValidation && !isValid}
       >
         {primaryActionButtonText ?? "Ok"}
       </Button>
