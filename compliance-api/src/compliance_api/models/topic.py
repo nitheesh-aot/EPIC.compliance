@@ -19,6 +19,6 @@ class Topic(BaseModel):
     name = Column(String(150), nullable=False)
 
     @classmethod
-    def get_topic_by_name(cls, topic: str) -> Topic:
+    def get_by_name(cls, topic: str) -> Topic:
         """Get topic by name."""
         return cls.query.filter_by(name=topic).first()

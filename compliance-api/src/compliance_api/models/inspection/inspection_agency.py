@@ -32,12 +32,12 @@ class InspectionAgency(BaseModel):
     agency = relationship("Agency", foreign_keys=[agency_id], lazy="select")
 
     @classmethod
-    def get_all_agencies_inspection_id(cls, inspection_id: int):
+    def get_all_by_inspection(cls, inspection_id: int):
         """Retrieve all agencies by inspection id."""
         return cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
 
     @classmethod
-    def bulk_delete_agencies_by_ids(
+    def bulk_delete(
         cls, inspection_id: int, agency_ids: list[int], session=None
     ):
         """Delete agency ids by id per inspection."""
@@ -47,7 +47,7 @@ class InspectionAgency(BaseModel):
         ).update({cls.is_active: False, cls.is_deleted: True})
 
     @classmethod
-    def bulk_insert_agency_per_inspection(
+    def bulk_insert(
         cls, inspection_id: int, agency_ids: list[int], session=None
     ):
         """Insert agencies per inspection."""

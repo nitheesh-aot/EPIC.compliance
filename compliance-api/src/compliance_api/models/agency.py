@@ -20,6 +20,6 @@ class Agency(BaseModel):
     abbreviation = Column(String(10), nullable=True)
 
     @classmethod
-    def get_agency_by_name(cls, agency_name: str) -> Agency:
+    def get_by_name(cls, agency_name: str) -> Agency:
         """Get agency by name."""
         return cls.query.filter_by(name=agency_name).first()

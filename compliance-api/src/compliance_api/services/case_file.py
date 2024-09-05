@@ -16,20 +16,20 @@ class CaseFileService:
         return CaseFileInitiationOptionModel.get_all(sort_by="sort_order")
 
     @classmethod
-    def get_all_case_files(cls, default_filters=True):
+    def get_all(cls, default_filters=True):
         """Return all the case files."""
         return CaseFileModel.get_all(default_filters)
 
     @classmethod
-    def get_case_file_by_id(cls, case_file_id: int):
+    def get_by_id(cls, case_file_id: int):
         """Return case file by id."""
         return CaseFileModel.find_by_id(case_file_id)
 
     @classmethod
-    def create_case_file(cls, case_file_data: dict):
+    def create(cls, case_file_data: dict):
         """Create case file."""
         case_file_obj = _create_case_file_object(case_file_data)
-        _validate_case_file_existence(case_file_obj.get("case_file_number", None))
+        _validate_existence_by_file_number(case_file_obj.get("case_file_number", None))
         with session_scope() as session:
             created_case_file = CaseFileModel.create_case_file(case_file_obj, session)
             cls.insert_or_update_officers(
@@ -38,10 +38,10 @@ class CaseFileService:
         return created_case_file
 
     @classmethod
-    def update_case_file(cls, case_file_id: int, case_file_data: dict):
+    def update(cls, case_file_id: int, case_file_data: dict):
         """Update case file."""
         case_file_obj = _create_case_file_object(case_file_data)
-        _validate_case_file_existence(
+        _validate_existence_by_file_number(
             case_file_obj.get("case_file_number", None), case_file_id
         )
         with session_scope() as session:
@@ -54,7 +54,7 @@ class CaseFileService:
         return updated_case_file
 
     @classmethod
-    def get_case_file_by_file_number(cls, case_file_number: int):
+    def get_by_file_number(cls, case_file_number: int):
         """Return case file information by file number."""
         return CaseFileModel.get_case_file_by_file_number(case_file_number)
 
@@ -85,9 +85,9 @@ class CaseFileService:
             )
 
     @classmethod
-    def get_case_files_by_project(cls, project_id: int):
+    def get_by_project(cls, project_id: int):
         """Return case files based on project id."""
-        return CaseFileModel.get_case_files_by_project(project_id)
+        return CaseFileModel.get_by_project(project_id)
 
 
 def _create_case_file_object(case_file_data: dict):
@@ -97,9 +97,9 @@ def _create_case_file_object(case_file_data: dict):
     return case_file_data_copy
 
 
-def _validate_case_file_existence(case_file_number: int, case_file_id: int = None):
+def _validate_existence_by_file_number(case_file_number: int, case_file_id: int = None):
     """Check if the case file exists."""
-    existing_case_file = CaseFileModel.get_case_file_by_file_number(case_file_number)
+    existing_case_file = CaseFileModel.get_by_file_number(case_file_number)
     if existing_case_file and (
         not case_file_id or existing_case_file.id != case_file_id
     ):

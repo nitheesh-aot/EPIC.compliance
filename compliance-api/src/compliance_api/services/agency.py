@@ -9,21 +9,21 @@ class AgencyService:
     """Agency management service."""
 
     @classmethod
-    def get_agency_by_id(cls, agency_id):
+    def get_by_id(cls, agency_id):
         """Get agency by id."""
         agency = AgencyModel.find_by_id(agency_id)
         return agency
 
     @classmethod
-    def get_all_agencies(cls):
+    def get_all(cls):
         """Get all agencies."""
         users = AgencyModel.get_all()
         return users
 
     @classmethod
-    def create_agency(cls, agency_data: dict, commit=True):
+    def create(cls, agency_data: dict, commit=True):
         """Create agency."""
-        _check_agency_existence(agency_data.get("name", None))
+        _check_existence_by_name(agency_data.get("name", None))
         agency = AgencyModel(**agency_data)
         agency.flush()
         if commit:
@@ -31,9 +31,9 @@ class AgencyService:
         return agency
 
     @classmethod
-    def update_agency(cls, agency_id, agency_data, commit=True):
+    def update(cls, agency_id, agency_data, commit=True):
         """Update agency."""
-        _check_agency_existence(agency_data.get("name", None), agency_id)
+        _check_existence_by_name(agency_data.get("name", None), agency_id)
         agency = AgencyModel.find_by_id(agency_id)
         if not agency or agency.is_deleted:
             return None
@@ -43,7 +43,7 @@ class AgencyService:
         return agency
 
     @classmethod
-    def delete_agency(cls, agency_id, commit=True):
+    def delete(cls, agency_id, commit=True):
         """Delete the agency entity permenantly from database."""
         agency = AgencyModel.find_by_id(agency_id)
         if not agency or agency.is_deleted:
@@ -55,8 +55,8 @@ class AgencyService:
         return agency
 
 
-def _check_agency_existence(agency_name: str, agency_id: int = None):
+def _check_existence_by_name(agency_name: str, agency_id: int = None):
     """Check if the agency exists."""
-    existing_agency = AgencyModel.get_agency_by_name(agency_name)
+    existing_agency = AgencyModel.get_by_name(agency_name)
     if existing_agency and (not agency_id or existing_agency.id != agency_id):
         raise ResourceExistsError(f"Agency with the name {agency_name} exists")

@@ -96,16 +96,25 @@ class Inspection(BaseModel):
         "InspectionInitiationOption", foreign_keys=[initiation_id], lazy="joined"
     )
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
-    inspection_officers = relationship(
+    other_officers = relationship(
         "InspectionOfficer",
         back_populates="inspection",
         lazy="select",
     )
-    inspection_attendance = relationship(
+    attendance = relationship(
         "InspectionAttendance", back_populates="inspection", lazy="select"
     )
-    inspection_ir_types = relationship(
-        "InspectionIRType", back_populates="inspection", lazy="select"
+    agencies = relationship(
+        "InspectionAgency", back_populates="inspection", lazy="select"
+    )
+    first_nations = relationship(
+        "InspectionFirstnation", back_populates="inspection", lazy="select"
+    )
+    unapproved_project_info = relationship(
+        "InspectionUnapprovedProject", back_populates="inspection", lazy="select"
+    )
+    types = relationship(
+        "InspectionType", back_populates="inspection", lazy="select"
     )
     ir_status = relationship(
         "IRStatusOption", foreign_keys=[ir_status_id], lazy="joined"
@@ -136,7 +145,7 @@ class Inspection(BaseModel):
         return result.inspection_count if result else 0
 
     @classmethod
-    def create_inspection(cls, inspection_obj, session=None):
+    def create(cls, inspection_obj, session=None):
         """Persist inspection in database."""
         inspection = Inspection(**inspection_obj)
         if session:

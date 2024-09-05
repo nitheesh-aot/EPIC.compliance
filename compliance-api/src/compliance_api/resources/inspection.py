@@ -19,7 +19,11 @@ from flask import current_app
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
-from compliance_api.schemas import InspectionCreateSchema, InspectionSchema, KeyValueSchema
+from compliance_api.schemas import (
+    InspectionCreateSchema,
+    InspectionSchema,
+    KeyValueSchema,
+)
 from compliance_api.services import InspectionService
 from compliance_api.utils.util import cors_preflight
 
@@ -59,7 +63,7 @@ class AttendanceOptions(Resource):
 
 
 @cors_preflight("GET, OPTIONS")
-@API.route("/ir-type-options", methods=["GET", "OPTIONS"])
+@API.route("/type-options", methods=["GET", "OPTIONS"])
 class IRTypeOptions(Resource):
     """Resource for managing IRType options."""
 
@@ -71,7 +75,7 @@ class IRTypeOptions(Resource):
     @auth.require
     def get():
         """Fetch all inspection IRType options."""
-        ir_type_options = InspectionService.get_ir_type_options()
+        ir_type_options = InspectionService.get_inspection_type_options()
         ir_type_options_schema = KeyValueSchema(many=True)
         return ir_type_options_schema.dump(ir_type_options), HTTPStatus.OK
 
@@ -123,7 +127,7 @@ class Inspections(Resource):
     @auth.require
     def get():
         """Fetch all inspections."""
-        inspections = InspectionService.get_all_inspetions()
+        inspections = InspectionService.get_all()
         inspection_list_schema = InspectionSchema(many=True)
         return inspection_list_schema.dump(inspections), HTTPStatus.OK
 
@@ -139,5 +143,5 @@ class Inspections(Resource):
         """Create an inspection."""
         current_app.logger.info(f"Creating Inspection with payload: {API.payload}")
         inspection_data = InspectionCreateSchema().load(API.payload)
-        created_inspection = InspectionService.create_inspection(inspection_data)
+        created_inspection = InspectionService.create(inspection_data)
         return InspectionSchema().dump(created_inspection), HTTPStatus.CREATED

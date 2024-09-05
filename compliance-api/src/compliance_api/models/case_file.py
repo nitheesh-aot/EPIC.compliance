@@ -84,7 +84,7 @@ class CaseFile(BaseModel):
     )
 
     @classmethod
-    def create_case_file(cls, case_file_data, session=None):
+    def create(cls, case_file_data, session=None):
         """Persist case file data in database."""
         case_file = CaseFile(**case_file_data)
         if session:
@@ -95,7 +95,7 @@ class CaseFile(BaseModel):
         return case_file
 
     @classmethod
-    def update_case_file(cls, case_file_id, case_file_data, session=None):
+    def update(cls, case_file_id, case_file_data, session=None):
         """Update the case file data in database."""
         query = cls.query.filter_by(id=case_file_id)
         case_file: CaseFile = query.first()
@@ -109,12 +109,12 @@ class CaseFile(BaseModel):
         return case_file
 
     @classmethod
-    def get_case_file_by_file_number(cls, case_file_number):
+    def get_by_file_number(cls, case_file_number):
         """Retrieve case file information based on given case file number."""
         return cls.query.filter_by(case_file_number=case_file_number).first()
 
     @classmethod
-    def get_case_files_by_project(cls, project_id: int):
+    def get_by_project(cls, project_id: int):
         """Retrieve case files by project."""
         return cls.query.filter_by(project_id=project_id).all()
 
@@ -150,12 +150,12 @@ class CaseFileOfficer(BaseModel):
     officer = relationship("StaffUser", foreign_keys=[officer_id], lazy="joined")
 
     @classmethod
-    def get_all_officers_by_case_file_id(cls, case_file_id: int):
+    def get_all_by_case_file_id(cls, case_file_id: int):
         """Retrieve all case file officers by case file id."""
         return cls.query.filter_by(case_file_id=case_file_id, is_deleted=False).all()
 
     @classmethod
-    def bulk_delete_officers_by_ids(
+    def bulk_delete(
         cls, case_file_id: int, officer_ids: list[int], session=None
     ):
         """Delete officer ids by id per case file."""
@@ -165,7 +165,7 @@ class CaseFileOfficer(BaseModel):
         ).update({cls.is_active: False, cls.is_deleted: True})
 
     @classmethod
-    def bulk_insert_officers_per_case_file(
+    def bulk_insert(
         cls, case_file_id: int, officer_ids: list[int], session=None
     ):
         """Insert officers per case file."""
