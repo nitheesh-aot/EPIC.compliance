@@ -47,7 +47,7 @@ class Agencies(Resource):
     @auth.require
     def get():
         """Fetch all agencies."""
-        agencies = AgencyService.get_all_agencies()
+        agencies = AgencyService.get_all()
         agency_list_schema = AgencySchema(many=True)
         return agency_list_schema.dump(agencies), HTTPStatus.OK
 

@@ -84,7 +84,7 @@ class CaseFile(BaseModel):
     )
 
     @classmethod
-    def create(cls, case_file_data, session=None):
+    def create_case_file(cls, case_file_data, session=None):
         """Persist case file data in database."""
         case_file = CaseFile(**case_file_data)
         if session:
@@ -95,7 +95,7 @@ class CaseFile(BaseModel):
         return case_file
 
     @classmethod
-    def update(cls, case_file_id, case_file_data, session=None):
+    def update_case_file(cls, case_file_id, case_file_data, session=None):
         """Update the case file data in database."""
         query = cls.query.filter_by(id=case_file_id)
         case_file: CaseFile = query.first()

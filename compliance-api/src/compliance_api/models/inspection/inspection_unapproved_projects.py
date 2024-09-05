@@ -41,7 +41,7 @@ class InspectionUnapprovedProject(BaseModel):
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
 
     @classmethod
-    def create(cls, project_data, session=None):
+    def create_project_info(cls, project_data, session=None):
         """Persist inspection in database."""
         unapproved_project = InspectionUnapprovedProject(**project_data)
         if session:

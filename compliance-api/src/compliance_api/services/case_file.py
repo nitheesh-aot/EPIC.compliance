@@ -56,14 +56,14 @@ class CaseFileService:
     @classmethod
     def get_by_file_number(cls, case_file_number: int):
         """Return case file information by file number."""
-        return CaseFileModel.get_case_file_by_file_number(case_file_number)
+        return CaseFileModel.get_by_file_number(case_file_number)
 
     @classmethod
     def insert_or_update_officers(
         cls, case_file_id: int, officer_ids: list[int], session=None
     ):
         """Insert/Update case file officers associated with a given case file."""
-        existing_officers = CaseFileOfficer.get_all_officers_by_case_file_id(
+        existing_officers = CaseFileOfficer.get_all_by_case_file_id(
             case_file_id
         )
         existing_officer_ids = {
@@ -76,11 +76,11 @@ class CaseFileService:
         officer_ids_to_be_deleted = existing_officer_ids.difference(new_officer_ids)
         officer_ids_to_be_added = new_officer_ids.difference(existing_officer_ids)
         if officer_ids_to_be_deleted:
-            CaseFileOfficer.bulk_delete_officers_by_ids(
+            CaseFileOfficer.bulk_delete(
                 case_file_id, list(officer_ids_to_be_deleted), session
             )
         if officer_ids_to_be_added:
-            CaseFileOfficer.bulk_insert_officers_per_case_file(
+            CaseFileOfficer.bulk_insert(
                 case_file_id, list(officer_ids_to_be_added), session
             )
 

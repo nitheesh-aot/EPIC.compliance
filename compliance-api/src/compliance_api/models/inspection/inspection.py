@@ -145,7 +145,7 @@ class Inspection(BaseModel):
         return result.inspection_count if result else 0
 
     @classmethod
-    def create(cls, inspection_obj, session=None):
+    def create_inspection(cls, inspection_obj, session=None):
         """Persist inspection in database."""
         inspection = Inspection(**inspection_obj)
         if session:

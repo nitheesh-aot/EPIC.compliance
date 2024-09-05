@@ -19,11 +19,7 @@ from flask import current_app
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
-from compliance_api.schemas import (
-    InspectionCreateSchema,
-    InspectionSchema,
-    KeyValueSchema,
-)
+from compliance_api.schemas import InspectionCreateSchema, InspectionSchema, KeyValueSchema
 from compliance_api.services import InspectionService
 from compliance_api.utils.util import cors_preflight
 
