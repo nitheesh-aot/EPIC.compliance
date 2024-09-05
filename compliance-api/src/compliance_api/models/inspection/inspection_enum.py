@@ -13,3 +13,10 @@ class InspectionAttendanceOptionEnum(enum.Enum):
     CERTIFICATE_HOLDER_REPRESENTATIVE = 5
     REGULATED_PARTY_REPRESENTATIVE = 6
     OTHER = 7
+
+
+class InspectionStatusEnum(enum.Enum):
+    """Inspection Status."""
+
+    OPEN = "Open"
+    CLOSED = "Closed"

@@ -12,10 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inspection Model."""
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModel
+from .inspection_enum import InspectionStatusEnum
 
 
 class Inspection(BaseModel):
@@ -57,13 +58,6 @@ class Inspection(BaseModel):
         nullable=False,
         comment="The lead officer who created the inspection",
     )
-    ir_type_id = Column(
-        Integer,
-        ForeignKey(
-            "ir_type_options.id", name="inspection_ir_type_id_ir_type_options_id_fkey"
-        ),
-        nullable=False,
-    )
     start_date = Column(
         DateTime(timezone=True),
         nullable=False,
@@ -88,6 +82,7 @@ class Inspection(BaseModel):
         ),
         nullable=True,
     )
+    inspection_status = Column(Enum(InspectionStatusEnum), nullable=True)
     project_status_id = Column(
         Integer,
         ForeignKey(
@@ -98,9 +93,9 @@ class Inspection(BaseModel):
     )
 
     initiation = relationship(
-        "InspectionInitiationOption", foreign_keys=[initiation_id], lazy="select"
+        "InspectionInitiationOption", foreign_keys=[initiation_id], lazy="joined"
     )
-    case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="select")
+    case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
     inspection_officers = relationship(
         "InspectionOfficer",
         back_populates="inspection",
@@ -109,13 +104,18 @@ class Inspection(BaseModel):
     inspection_attendance = relationship(
         "InspectionAttendance", back_populates="inspection", lazy="select"
     )
-    ir_type = relationship("IRTypeOption", foreign_keys=[ir_type_id], lazy="joined")
+    inspection_ir_types = relationship(
+        "InspectionIRType", back_populates="inspection", lazy="select"
+    )
     ir_status = relationship(
         "IRStatusOption", foreign_keys=[ir_status_id], lazy="joined"
     )
     project = relationship("Project", foreign_keys=[project_id], lazy="joined")
     project_status = relationship(
         "ProjectStatusOption", foreign_keys=[project_status_id], lazy="joined"
+    )
+    lead_officer = relationship(
+        "StaffUser", foreign_keys=[lead_officer_id], lazy="joined"
     )
 
     @classmethod
@@ -125,7 +125,9 @@ class Inspection(BaseModel):
             cls.query.with_entities(
                 Inspection.case_file_id,
                 Inspection.project_id,
-                func.count(Inspection.id).label("inspection_count"),  # pylint: disable=not-callable
+                func.count(Inspection.id).label(  # pylint: disable=not-callable
+                    "inspection_count"
+                ),
             )
             .filter_by(project_id=project_id, case_file_id=case_file_id)
             .group_by(Inspection.case_file_id, Inspection.project_id)

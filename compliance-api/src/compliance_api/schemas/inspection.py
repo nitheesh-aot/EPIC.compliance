@@ -12,12 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inspection Schema Schema."""
-from marshmallow import EXCLUDE, ValidationError, fields, validates_schema
+from marshmallow import EXCLUDE, ValidationError, fields, post_load, validates_schema
+from marshmallow_enum import EnumField
 
-from compliance_api.models.inspection import Inspection, InspectionAttendanceOptionEnum
+from compliance_api.models.inspection import Inspection, InspectionAttendanceOptionEnum, InspectionStatusEnum
 from compliance_api.models.inspection.inspection_constant import UNAPPROVED_PROJECT_NAME
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from .base_schema import AutoSchemaBase, BaseSchema
+from .case_file import CaseFileSchema
+from .common import KeyValueSchema
+from .staff_user import StaffUserSchema
 
 
 class InspectionCreateSchema(BaseSchema):
@@ -48,27 +53,34 @@ class InspectionCreateSchema(BaseSchema):
         },
         required=True,
     )
-    ir_type_id = fields.Int(
-        metadata={
-            "description": "The unique identifier of the inspection record type."
-        },
-        required=True,
-    )
     start_date = fields.DateTime(
-        format="%Y-%m-%dT%H:%M:%S.%fZ",
+        format=INPUT_DATE_TIME_FORMAT,
         metadata={"description": "The inspection start date in ISO 8601 format."},
         required=True,
+        error_messages={
+            "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
+        },
     )
     end_date = fields.DateTime(
-        format="%Y-%m-%dT%H:%M:%S.%fZ",
+        format=INPUT_DATE_TIME_FORMAT,
         metadata={"description": "The inspection end date in ISO 8601 format."},
         required=True,
+        error_messages={
+            "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
+        },
     )
     initiation_id = fields.Int(
         metadata={
             "description": "The unique identifier of the initiation option for creating the inspection."
         },
         required=True,
+    )
+    inspectoin_status = EnumField(
+        InspectionStatusEnum,
+        metadata={"description": "The status of the inspection"},
+        by_value=True,
+        required=False,
+        allow_none=True,
     )
     ir_status_id = fields.Int(
         metadata={
@@ -102,6 +114,14 @@ class InspectionCreateSchema(BaseSchema):
         ),
         required=False,
     )
+    ir_type_ids = fields.List(
+        fields.Int(
+            metadata={
+                "description": "The list of unique identifier of the IR type options"
+            }
+        ),
+        required=True,
+    )
     attendance_municipal = fields.Str(
         metadata={"description": "The municipal attendance"}, allow_none=True
     )
@@ -131,10 +151,22 @@ class InspectionCreateSchema(BaseSchema):
         allow_none=True,
     )
 
+    @post_load
+    def extract_permission_value(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Extract the value of the inspection status enum."""
+        inspection_status_enum = data.get("inspection_status")
+        if inspection_status_enum:
+            data["inspection_status"] = inspection_status_enum.value
+        return data
+
     @validates_schema
-    def validate_attendance_other(self, data, **kwargs):  # pylint: disable=no-self-use, unused-argument
+    def validate_attendance_other(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
         """Ensure that the other attendance info is entered is OTHER is chosen as attendance option."""
-        value = data.get("attendance_option_ids", None)
+        value = data.get("attendance_option_ids", [])
         attendance_other = data.get("attendance_other", None)
         other_in_option = InspectionAttendanceOptionEnum.OTHER.value in value
         if not attendance_other and other_in_option:
@@ -148,7 +180,7 @@ class InspectionCreateSchema(BaseSchema):
         self, data, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
         """Ensure that the municipal attendance info is entered is MUNICIPAL is chosen as attendance option."""
-        value = data.get("attendance_option_ids", None)
+        value = data.get("attendance_option_ids", [])
         attendance_municipal = data.get("attendance_municipal", None)
         municipal_in_option = InspectionAttendanceOptionEnum.MUNICIPAL.value in value
         if not attendance_municipal and municipal_in_option:
@@ -197,7 +229,9 @@ class InspectionCreateSchema(BaseSchema):
             )
 
     @validates_schema
-    def validate_dates(self, data, **kwargs):  # pylint: disable=no-self-use, unused-argument
+    def validate_dates(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
         """Ensure that end_date is after start_date."""
         start_date = data.get("start_date")
         end_date = data.get("end_date")
@@ -213,7 +247,7 @@ class InspectionCreateSchema(BaseSchema):
     ):  # pylint: disable=no-self-use, unused-argument
         """Ensure that all attendance option IDs are valid."""
         valid_values = {member.value for member in InspectionAttendanceOptionEnum}
-        value = data.get("attendance_option_ids", None)
+        value = data.get("attendance_option_ids", [])
         if not isinstance(value, list):
             raise ValidationError("attendance_option_ids must be a list.")
         # Check if AGENCIES is included and validate the conditions
@@ -281,3 +315,13 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         unknown = EXCLUDE
         model = Inspection
         include_fk = True
+
+    case_file = fields.Nested(CaseFileSchema, only=("case_file_number", "id"))
+    lead_officer = fields.Nested(
+        StaffUserSchema, only=("id", "first_name", "last_name", "full_name")
+    )
+    project = fields.Nested(
+        KeyValueSchema,
+    )
+    ir_status = fields.Nested(KeyValueSchema)
+    initiation = fields.Nested(KeyValueSchema)
