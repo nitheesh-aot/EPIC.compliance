@@ -19,8 +19,8 @@ from .case_file import CaseFile, CaseFileInitiationEnum, CaseFileInitiationOptio
 from .db import db, ma, migrate
 from .inspection import (
     Inspection, InspectionAgency, InspectionAttendance, InspectionAttendanceOption, InspectionAttendanceOptionEnum,
-    InspectionFirstnation, InspectionInitiationOption, InspectionOfficer, InspectionOtherAttendance,
-    InspectionUnapprovedProject, IRStatusOption, IRTypeOption)
+    InspectionFirstnation, InspectionInitiationOption, InspectionIRType, InspectionOfficer, InspectionOtherAttendance,
+    InspectionStatusEnum, InspectionUnapprovedProject, IRStatusOption, IRTypeOption)
 from .position import Position
 from .project import Project
 from .project_status import ProjectStatusOption

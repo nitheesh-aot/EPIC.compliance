@@ -15,6 +15,7 @@
 from marshmallow import EXCLUDE, fields
 
 from compliance_api.models import CaseFile, CaseFileOfficer
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .common import KeyValueSchema
@@ -67,9 +68,12 @@ class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
         required=True,
     )
     date_created = fields.DateTime(
-        format="%Y-%m-%dT%H:%M:%S.%fZ",
+        format=INPUT_DATE_TIME_FORMAT,
         metadata={"description": "The date on which the case file is created."},
         required=True,
+        error_messages={
+            "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
+        },
     )
     lead_officer_id = fields.Int(
         metadata={"description": "The lead officer who created the case file."},

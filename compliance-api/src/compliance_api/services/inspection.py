@@ -1,4 +1,5 @@
 """Service for managing Inspection."""
+
 from compliance_api.exceptions import UnprocessableEntityError
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionAgency as InspectionAgencyModel
@@ -6,6 +7,7 @@ from compliance_api.models import InspectionAttendance as InspectionAttendanceMo
 from compliance_api.models import InspectionAttendanceOption as InspectionAttendanceOptionModel
 from compliance_api.models import InspectionFirstnation as InspectionFirstnationModel
 from compliance_api.models import InspectionInitiationOption as InspectionInitiationOptionModel
+from compliance_api.models import InspectionIRType as InspectionIRTypeModel
 from compliance_api.models import InspectionOfficer as InspectionOfficerModel
 from compliance_api.models import InspectionOtherAttendance as InspectionOtherAttendanceModel
 from compliance_api.models import InspectionUnapprovedProject as InspectionUnapprovedProjectModel
@@ -43,6 +45,11 @@ class InspectionService:
         return IRStatusOptionModel.get_all(sort_by="sort_order")
 
     @classmethod
+    def get_all_inspetions(cls):
+        """Get all inspections."""
+        return InspectionModel.get_all(default_filters=False)
+
+    @classmethod
     def create_inspection(cls, inspection_data: dict):
         """Create inspection."""
         inspection_obj = _create_inspection_object(inspection_data)
@@ -58,7 +65,7 @@ class InspectionService:
                 InspectionUnapprovedProjectModel.create_inspection_unapproved_project(
                     unapproved_project_obj, session
                 )
-            attendance_option_ids = inspection_data.get("attendance_option_ids", None)
+            attendance_option_ids = inspection_data.get("attendance_option_ids", [])
             _insert_or_update_inspection_attendance(
                 created_inspection.id,
                 attendance_option_ids,
@@ -66,18 +73,21 @@ class InspectionService:
             )
             _insert_or_update_officers(
                 created_inspection.id,
-                inspection_data.get("inspection_officer_ids", None),
+                inspection_data.get("inspection_officer_ids", []),
                 session,
             )
             _insert_or_update_inspection_agencies(
                 created_inspection.id,
-                inspection_data.get("agency_attendance_ids", None),
+                inspection_data.get("agency_attendance_ids", []),
                 session,
             )
             _insert_or_update_inspection_firstnations(
                 created_inspection.id,
-                inspection_data.get("firstnation_attendance_ids", None),
+                inspection_data.get("firstnation_attendance_ids", []),
                 session,
+            )
+            _insert_or_update_inspection_ir_types(
+                created_inspection.id, inspection_data.get("ir_type_ids", []), session
             )
             if {
                 InspectionAttendanceOptionEnum.MUNICIPAL.value,
@@ -143,6 +153,30 @@ def _insert_or_update_inspection_agencies(
     if agency_ids_to_be_added:
         InspectionAgencyModel.bulk_insert_agency_per_inspection(
             inspection_id, list(agency_ids_to_be_added), session
+        )
+
+
+def _insert_or_update_inspection_ir_types(
+    inspection_id: int, ir_type_ids: list[int], session=None
+):
+    """Insert/Update inspection ir type."""
+    existing_ir_types = InspectionIRTypeModel.get_all_ir_types_inspection_id(
+        inspection_id
+    )
+    existing_ir_type_ids = {
+        ir_type.ir_type_id for ir_type in existing_ir_types if ir_type.is_active is True
+    }
+
+    new_ir_type_ids = set(ir_type_ids)
+    ir_type_ids_to_be_deleted = existing_ir_type_ids.difference(new_ir_type_ids)
+    ir_type_ids_to_be_added = new_ir_type_ids.difference(existing_ir_type_ids)
+    if ir_type_ids_to_be_deleted:
+        InspectionIRTypeModel.bulk_delete_ir_type_by_ids(
+            inspection_id, list(ir_type_ids_to_be_deleted), session
+        )
+    if ir_type_ids_to_be_added:
+        InspectionIRTypeModel.bulk_insert_ir_type_per_inspection(
+            inspection_id, list(ir_type_ids_to_be_added), session
         )
 
 
@@ -218,7 +252,6 @@ def _create_inspection_object(inspection_data: dict):
         "location_description": inspection_data.get("location_description", None),
         "utm": inspection_data.get("utm", None),
         "lead_officer_id": inspection_data.get("lead_officer_id"),
-        "ir_type_id": inspection_data.get("ir_type_id"),
         "start_date": inspection_data.get("start_date"),
         "end_date": inspection_data.get("end_date"),
         "initiation_id": inspection_data.get("initiation_id"),

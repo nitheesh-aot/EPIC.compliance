@@ -114,8 +114,18 @@ class IRStatusOptions(Resource):
 
 @cors_preflight("GET, OPTIONS, POST")
 @API.route("", methods=["POST", "GET", "OPTIONS"])
-class Inspection(Resource):
-    """Resource for managing inspection."""
+class Inspections(Resource):
+    """Resource for managing inspections."""
+
+    @staticmethod
+    @API.response(code=200, description="Success", model=[inspection_list_model])
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all inspections")
+    @auth.require
+    def get():
+        """Fetch all inspections."""
+        inspections = InspectionService.get_all_inspetions()
+        inspection_list_schema = InspectionSchema(many=True)
+        return inspection_list_schema.dump(inspections), HTTPStatus.OK
 
     @staticmethod
     @auth.require
