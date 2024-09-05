@@ -71,7 +71,7 @@ const inspectionFormSchema = yup.object().shape({
     .nullable()
     .required("Lead Officer is required"),
   officers: yup.array().of(yup.object<StaffUser>()).nullable(),
-  irType: yup
+  irTypes: yup
     .array()
     .of(yup.object<IRType>())
     .min(1, "At least one Type is required")
@@ -111,7 +111,7 @@ const initFormData: InspectionFormData = {
   dateRange: undefined,
   leadOfficer: undefined,
   officers: [],
-  irType: [],
+  irTypes: [],
   initiation: undefined,
   irStatus: undefined,
   projectStatus: undefined,
@@ -178,7 +178,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
       let inspectionData: InspectionAPIData = {
         project_id: projectId,
         case_file_id: caseFileId,
-        ir_type_id: (formData.irType[0] as IRType).id,
+        ir_type_ids: (formData.irTypes as IRType[])?.map((ir) => ir.id) ?? [],
         initiation_id: (formData.initiation as Initiation).id,
         start_date: dateUtils.dateToISO(
           formData.dateRange?.startDate ?? new Date()

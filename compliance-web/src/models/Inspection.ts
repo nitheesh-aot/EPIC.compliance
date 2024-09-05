@@ -24,7 +24,7 @@ export interface InspectionFormData {
   leadOfficer?: StaffUser;
   officers?: StaffUser[];
   initiation?: Initiation;
-  irType?: IRType[];
+  irTypes?: IRType[];
   irStatus?: IRStatus;
   projectStatus?: ProjectStatus;
   caseFileId?: string;
@@ -36,7 +36,7 @@ export interface InspectionAPIData {
   utm?: string;
   lead_officer_id: number;
   case_file_id: number;
-  ir_type_id: string;
+  ir_type_ids: string[];
   start_date: string;
   end_date: string;
   initiation_id: string;

@@ -139,7 +139,7 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
         </Stack>
         <Stack direction={"row"} gap={2}>
           <ControlledAutoComplete
-            name="irType"
+            name="irTypes"
             label="Type"
             options={irTypeList}
             getOptionLabel={(option) => option.name}
