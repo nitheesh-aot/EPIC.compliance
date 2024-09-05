@@ -11,6 +11,7 @@ import ControlledDateRangePicker from "@/components/Shared/Controlled/Controlled
 import { useProjectById } from "@/hooks/useProjects";
 import { useFormContext } from "react-hook-form";
 import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
+import { useDrawer } from "@/store/drawerStore";
 
 type InspectionFormLeftProps = {
   projectList: Project[];
@@ -25,6 +26,7 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
   staffUsersList,
   irTypeList,
 }) => {
+  const { isOpen } = useDrawer();
   const { setValue, resetField } = useFormContext();
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
     null
@@ -56,6 +58,14 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
     selectedProjectId,
     setValue,
   ]);
+
+  // Resetting states when the drawer closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedProjectId(null);
+      setIsUnapprovedProject(false);
+    }
+  }, [isOpen]);
 
   return (
     <>
