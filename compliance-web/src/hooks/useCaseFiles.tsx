@@ -3,9 +3,8 @@ import { Initiation } from "@/models/Initiation";
 import { OnErrorType, OnSuccessType, request } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
-
-const fetchCaseFiles = (): Promise<CaseFile[]> => {
-  return request({ url: "/case-files" });
+const fetchCaseFiles = (projectId?: number): Promise<CaseFile[]> => {
+  return request({ url: "/case-files", params: { project_id: projectId } });
 };
 
 const fetchInitiations = (): Promise<Initiation[]> => {
@@ -19,7 +18,15 @@ const createCaseFile = (caseFile: CaseFileAPIData) => {
 export const useCaseFilesData = () => {
   return useQuery({
     queryKey: ["case-files"],
-    queryFn: fetchCaseFiles,
+    queryFn: () => fetchCaseFiles(),
+  });
+};
+
+export const useCaseFilesByProjectId = (projectId: number) => {
+  return useQuery({
+    queryKey: ["case-files-by-projectId", projectId],
+    queryFn: () => fetchCaseFiles(projectId),
+    enabled: !!projectId,
   });
 };
 
