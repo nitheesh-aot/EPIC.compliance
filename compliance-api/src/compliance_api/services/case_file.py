@@ -1,5 +1,7 @@
 """Service for handle CaseFile."""
 
+from datetime import datetime
+
 from compliance_api.exceptions import ResourceExistsError
 from compliance_api.models import CaseFile as CaseFileModel
 from compliance_api.models import CaseFileInitiationOption as CaseFileInitiationOptionModel
@@ -63,9 +65,7 @@ class CaseFileService:
         cls, case_file_id: int, officer_ids: list[int], session=None
     ):
         """Insert/Update case file officers associated with a given case file."""
-        existing_officers = CaseFileOfficer.get_all_by_case_file_id(
-            case_file_id
-        )
+        existing_officers = CaseFileOfficer.get_all_by_case_file_id(case_file_id)
         existing_officer_ids = {
             officer.officer_id
             for officer in existing_officers
@@ -93,8 +93,18 @@ class CaseFileService:
 def _create_case_file_object(case_file_data: dict):
     """Create a case file object."""
     case_file_data_copy = case_file_data.copy()
+    if not case_file_data_copy["case_file_number"]:
+        case_file_data_copy["case_file_number"] = _generate_case_file_number(
+            datetime.now().year
+        )
     case_file_data_copy.pop("officer_ids")
     return case_file_data_copy
+
+
+def _generate_case_file_number(year):
+    """Generate case file number."""
+    max_number = CaseFileModel.get_max_case_file_number_by_year(year)
+    return str(max_number + 1 if max_number > 0 else f"{year}{1:04d}")
 
 
 def _validate_existence_by_file_number(case_file_number: int, case_file_id: int = None):

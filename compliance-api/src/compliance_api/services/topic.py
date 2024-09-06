@@ -57,6 +57,6 @@ class TopicService:
 
 def _check_existence_by_name(topic_name: str, topic_id: int = None):
     """Check if the topic exists."""
-    existing_topic = TopicModel.get_topic_by_name(topic_name)
+    existing_topic = TopicModel.get_by_name(topic_name)
     if existing_topic and (not topic_id or existing_topic.id != topic_id):
         raise ResourceExistsError(f"Topic with the name {topic_name} exists")

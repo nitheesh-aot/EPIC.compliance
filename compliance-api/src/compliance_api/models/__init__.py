@@ -15,7 +15,7 @@
 """This exports all of the models and schemas used by the application."""
 
 from .agency import Agency
-from .case_file import CaseFile, CaseFileInitiationEnum, CaseFileInitiationOption, CaseFileOfficer
+from .case_file import CaseFile, CaseFileInitiationEnum, CaseFileInitiationOption, CaseFileOfficer, CaseFileStatusEnum
 from .db import db, ma, migrate
 from .inspection import (
     Inspection, InspectionAgency, InspectionAttendance, InspectionAttendanceOption, InspectionAttendanceOptionEnum,
