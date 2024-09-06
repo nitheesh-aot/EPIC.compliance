@@ -24,7 +24,7 @@ import {
   useIRTypesData,
   useProjectStatusesData,
 } from "@/hooks/useInspections";
-import { InspectionAPIData, InspectionFormData } from "@/models/Inspection";
+import { Inspection, InspectionAPIData, InspectionFormData } from "@/models/Inspection";
 import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
 import { DateRange } from "@/models/DateRange";
 import { IRStatus } from "@/models/IRStatus";
@@ -158,8 +158,12 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     reset(defaultValues);
   }, [defaultValues, reset]);
 
-  const onSuccess = useCallback(() => {
-    onSubmit(inspection ? "Successfully updated!" : "Successfully added!");
+  const onSuccess = useCallback((data: Inspection) => {
+    onSubmit(
+      inspection
+        ? "Successfully updated!"
+        : `Inspection File ${data.ir_number} was successfully created`
+    );
     reset();
   }, [inspection, onSubmit, reset]);
 
@@ -220,7 +224,6 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
   const onSubmitHandler = useCallback(
     (data: InspectionSchemaType) => {
-
       const caseFileData: CaseFileAPIData = {
         project_id: (data.project as Project)?.id,
         date_created: dateUtils.dateToISO(

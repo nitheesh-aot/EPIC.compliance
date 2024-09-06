@@ -44,6 +44,7 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
   const { handleSubmit, reset } = methods;
 
   const onSuccess = useCallback((data: CaseFile) => {
+    notify.success(`Case File ${data.case_file_number} was successfully created`)
     onSubmit(data.id);
     reset();
   }, [onSubmit, reset]);
