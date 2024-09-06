@@ -231,7 +231,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
         date_created: dateUtils.dateToISO(
           data.dateRange?.startDate ?? new Date()
         ),
-        initiation_id: (data.initiation as Initiation).id,
+        initiation_id: "", // should be mapped from the case file modal
         case_file_number: Math.floor(Math.random() * 12345678).toString(), // TODO - temporary untill autogeneration from backend is implemented
         lead_officer_id: (data.leadOfficer as StaffUser)?.id,
         officer_ids:

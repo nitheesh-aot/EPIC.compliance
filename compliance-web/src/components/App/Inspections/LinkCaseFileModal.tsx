@@ -5,11 +5,16 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
 import { FC, useCallback, useEffect } from "react";
-import { useCaseFilesByProjectId, useCreateCaseFile } from "@/hooks/useCaseFiles";
+import {
+  useCaseFilesByProjectId,
+  useCreateCaseFile,
+  useInitiationsData,
+} from "@/hooks/useCaseFiles";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
 import { notify } from "@/store/snackbarStore";
 import { AxiosError } from "axios";
+import { INITIATION } from "@/utils/constants";
 
 type LinkCaseFileModalProps = {
   onSubmit: (caseFileId: number) => void;
@@ -33,7 +38,10 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
   onSubmit,
   caseFileData,
 }) => {
-  const { data: caseFilesList } = useCaseFilesByProjectId(caseFileData.project_id!);
+  const { data: initiationList } = useInitiationsData();
+  const { data: caseFilesList } = useCaseFilesByProjectId(
+    caseFileData.project_id!
+  );
 
   const methods = useForm<LinkCaseFileFormType>({
     resolver: yupResolver(linkCaseFileSchema),
@@ -43,11 +51,16 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
 
   const { handleSubmit, reset } = methods;
 
-  const onSuccess = useCallback((data: CaseFile) => {
-    notify.success(`Case File ${data.case_file_number} was successfully created`)
-    onSubmit(data.id);
-    reset();
-  }, [onSubmit, reset]);
+  const onSuccess = useCallback(
+    (data: CaseFile) => {
+      notify.success(
+        `Case File ${data.case_file_number} was successfully created`
+      );
+      onSubmit(data.id);
+      reset();
+    },
+    [onSubmit, reset]
+  );
 
   const onError = useCallback((err: AxiosError) => {
     notify.error(err?.message);
@@ -64,9 +77,11 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
     onSubmit(caseFileId);
   };
 
-  const createNewCaseFile = ()=> {
+  const createNewCaseFile = () => {
+    caseFileData.initiation_id =
+      initiationList?.find((inititation) => inititation.id === INITIATION.INSPECTION_ID)?.id ?? "";
     createCaseFile(caseFileData);
-  }
+  };
 
   return (
     <FormProvider {...methods}>
@@ -87,7 +102,12 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
           <Typography variant="body1" textAlign={"center"} mb={"1rem"}>
             OR
           </Typography>
-          <Button color="secondary" fullWidth sx={{ mb: "2.5rem" }} onClick={createNewCaseFile}>
+          <Button
+            color="secondary"
+            fullWidth
+            sx={{ mb: "2.5rem" }}
+            onClick={createNewCaseFile}
+          >
             Create New Case File
           </Button>
         </DialogContent>
