@@ -78,7 +78,7 @@ export function Agencies() {
     notify.error(`Agency deletion failed! ${error.message}`);
   };
 
-  const { mutate: deleteUser } = useDeleteAgency(
+  const { mutate: deleteAgency } = useDeleteAgency(
     onDeleteSuccess,
     onDeleteError
   );
@@ -90,15 +90,15 @@ export function Agencies() {
           title="Delete Agency?"
           description="You are about to delete this Agency. Are you sure?"
           confirmButtonText="Delete"
-          onConfirm={() => handleDeleteUser(id)}
+          onConfirm={() => handleAgency(id)}
         />
       ),
     });
   };
 
-  const handleDeleteUser = (id: number) => {
+  const handleAgency = (id: number) => {
     if (id !== null) {
-      deleteUser(id);
+      deleteAgency(id);
     }
   };
 
