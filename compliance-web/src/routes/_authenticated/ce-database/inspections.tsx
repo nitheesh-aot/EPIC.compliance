@@ -168,7 +168,7 @@ function Inspections() {
         filterFn: searchFilter,
       },
     ],
-    [initiationList, irStatusList, projectList, staffUserList]
+    [initiationList, irStatusList, irTypeList, projectList, staffUserList]
   );
 
   const handleOnSubmit = (submitMsg: string) => {
