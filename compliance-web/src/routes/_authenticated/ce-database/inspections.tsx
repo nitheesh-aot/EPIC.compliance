@@ -1,4 +1,5 @@
 import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
+import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import { useInspectionsData } from "@/hooks/useInspections";
@@ -10,7 +11,7 @@ import { Box, Chip, IconButton } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/ce-database/inspections")(
   { component: Inspections }
@@ -20,6 +21,38 @@ function Inspections() {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
   const { data: inspectionsList, isLoading } = useInspectionsData();
+
+  const [projectList, setProjectList] = useState<string[]>([]);
+  const [initiationList, setInitiationList] = useState<string[]>([]);
+  const [statusList, setStatusList] = useState<string[]>([]);
+  const [staffUserList, setStaffUserList] = useState<string[]>([]);
+
+  useEffect(() => {
+    setProjectList(
+      [...new Set(inspectionsList?.map((cf) => cf.project?.name ?? ""))].filter(
+        Boolean
+      )
+    );
+    setInitiationList(
+      [
+        ...new Set(inspectionsList?.map((cf) => cf.initiation?.name ?? "")),
+      ].filter(Boolean)
+    );
+    setStatusList(
+      [
+        ...new Set(
+          inspectionsList?.map((cf) => (cf.is_active ? "Active" : "Inactive"))
+        ),
+      ].filter(Boolean)
+    );
+    setStaffUserList(
+      [
+        ...new Set(
+          inspectionsList?.map((cf) => cf.lead_officer?.full_name ?? "")
+        ),
+      ].filter(Boolean)
+    );
+  }, [inspectionsList]);
 
   const columns = useMemo<MRT_ColumnDef<Inspection>[]>(
     () => [
@@ -32,20 +65,20 @@ function Inspections() {
       {
         accessorKey: "project.name",
         header: "Project",
-        // filterVariant: "multi-select",
-        // filterSelectOptions: projectList,
-        // Filter: ({ header, column }) => {
-        //   return (
-        //     <TableFilter
-        //       isMulti
-        //       header={header}
-        //       column={column}
-        //       variant="inline"
-        //       name="projectFilter"
-        //       placeholder="Filter Projects"
-        //     />
-        //   );
-        // },
+        filterVariant: "multi-select",
+        filterSelectOptions: projectList,
+        Filter: ({ header, column }) => {
+          return (
+            <TableFilter
+              isMulti
+              header={header}
+              column={column}
+              variant="inline"
+              name="projectFilter"
+              placeholder="Filter Projects"
+            />
+          );
+        },
       },
       {
         accessorKey: "ir_status.name",
@@ -68,20 +101,20 @@ function Inspections() {
       {
         accessorKey: "initiation.name",
         header: "Initiation",
-        // filterVariant: "multi-select",
-        // filterSelectOptions: initiationList,
-        // Filter: ({ header, column }) => {
-        //   return (
-        //     <TableFilter
-        //       isMulti
-        //       header={header}
-        //       column={column}
-        //       variant="inline"
-        //       name="initiationFilter"
-        //       placeholder="Filter Initiations"
-        //     />
-        //   );
-        // },
+        filterVariant: "multi-select",
+        filterSelectOptions: initiationList,
+        Filter: ({ header, column }) => {
+          return (
+            <TableFilter
+              isMulti
+              header={header}
+              column={column}
+              variant="inline"
+              name="initiationFilter"
+              placeholder="Filter Initiations"
+            />
+          );
+        },
       },
       {
         accessorKey: "is_active",
@@ -103,53 +136,53 @@ function Inspections() {
             />
           );
         },
-        // filterVariant: "multi-select",
-        // filterSelectOptions: statusList,
-        // Filter: ({ header, column }) => {
-        //   return (
-        //     <TableFilter
-        //       isMulti
-        //       header={header}
-        //       column={column}
-        //       variant="inline"
-        //       name="statusFilter"
-        //       placeholder="Filter Status"
-        //     />
-        //   );
-        // },
-        // filterFn: (row, id, filterValue) => {
-        //   if (
-        //     !filterValue.length ||
-        //     filterValue.length > statusList.length // select all is selected
-        //   ) {
-        //     return true;
-        //   }
-        //   return filterValue.includes(
-        //     row.getValue(id) || false ? "Active" : "Inactive"
-        //   );
-        // },
+        filterVariant: "multi-select",
+        filterSelectOptions: statusList,
+        Filter: ({ header, column }) => {
+          return (
+            <TableFilter
+              isMulti
+              header={header}
+              column={column}
+              variant="inline"
+              name="statusFilter"
+              placeholder="Filter Status"
+            />
+          );
+        },
+        filterFn: (row, id, filterValue) => {
+          if (
+            !filterValue.length ||
+            filterValue.length > statusList.length // select all is selected
+          ) {
+            return true;
+          }
+          return filterValue.includes(
+            row.getValue(id) || false ? "Active" : "Inactive"
+          );
+        },
       },
       {
         accessorFn: (row) => row.lead_officer?.full_name,
         id: "lead_officer.full_name",
         header: "Lead Officer",
-        // filterVariant: "multi-select",
-        // filterSelectOptions: staffUserList,
-        // Filter: ({ header, column }) => {
-        //   return (
-        //     <TableFilter
-        //       isMulti
-        //       header={header}
-        //       column={column}
-        //       variant="inline"
-        //       name="leadOfficersFilter"
-        //       placeholder="Filter Lead Officers"
-        //     />
-        //   );
-        // },
+        filterVariant: "multi-select",
+        filterSelectOptions: staffUserList,
+        Filter: ({ header, column }) => {
+          return (
+            <TableFilter
+              isMulti
+              header={header}
+              column={column}
+              variant="inline"
+              name="leadOfficersFilter"
+              placeholder="Filter Lead Officers"
+            />
+          );
+        },
       },
     ],
-    []
+    [initiationList, projectList, staffUserList, statusList]
   );
 
   const handleOnSubmit = (submitMsg: string) => {
