@@ -14,5 +14,5 @@ class ProjectService:
     @classmethod
     def get_all_projects(cls):
         """Get all projects."""
-        projects = ProjectModel.get_all()
+        projects = ProjectModel.get_all(default_filters=False)
         return projects
