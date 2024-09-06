@@ -1,4 +1,4 @@
-import { InspectionAPIData } from "@/models/Inspection";
+import { Inspection, InspectionAPIData } from "@/models/Inspection";
 import { IRStatus } from "@/models/IRStatus";
 import { IRType } from "@/models/IRType";
 import { ProjectStatus } from "@/models/ProjectStatus";
@@ -16,6 +16,10 @@ const fetchIRStatuses = (): Promise<IRStatus[]> => {
 
 const fetchProjectStatuses = (): Promise<ProjectStatus[]> => {
   return request({ url: "/project-status-options" });
+};
+
+const fetchInspections = (): Promise<Inspection[]> => {
+  return request({ url: "/inspections" });
 };
 
 const createInspection = (inspection: InspectionAPIData) => {
@@ -40,6 +44,13 @@ export const useProjectStatusesData = () => {
   return useQuery({
     queryKey: ["project-statuses"],
     queryFn: fetchProjectStatuses,
+  });
+};
+
+export const useInspectionsData = () => {
+  return useQuery({
+    queryKey: ["inspections"],
+    queryFn: fetchInspections,
   });
 };
 

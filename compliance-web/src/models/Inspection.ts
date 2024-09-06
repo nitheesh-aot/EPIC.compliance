@@ -1,3 +1,4 @@
+import { CaseFile } from "./CaseFile";
 import { DateRange } from "./DateRange";
 import { Initiation } from "./Initiation";
 import { IRStatus } from "./IRStatus";
@@ -8,14 +9,23 @@ import { StaffUser } from "./Staff";
 
 export interface Inspection {
   id: number;
+  ir_number: string;
+  case_file_id: number;
   project_id: number;
-  date_created: string;
+  location_description: string;
+  utm: string;
+  initiation_id: number;
+  ir_status_id: number;
+  project_status_id: number;
   lead_officer_id: number;
-  case_file_number: string;
-  initiation: Initiation;
+  start_date: string;
+  end_date: string;
   is_active: boolean;
+  initiation: Initiation;
   project: Project;
   lead_officer: StaffUser;
+  ir_status: IRStatus;
+  case_file: CaseFile;
 }
 
 export interface InspectionFormData {
