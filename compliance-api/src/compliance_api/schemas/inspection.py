@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inspection Schema Schema."""
-from marshmallow import EXCLUDE, ValidationError, fields, post_load, validates_schema
-from marshmallow_enum import EnumField
+from marshmallow import EXCLUDE, ValidationError, fields, post_dump, validates_schema
 
 from compliance_api.models.inspection import Inspection, InspectionAttendanceOptionEnum, InspectionStatusEnum
-from compliance_api.models.inspection.inspection_constant import UNAPPROVED_PROJECT_NAME
-from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .case_file import CaseFileSchema
@@ -74,13 +72,6 @@ class InspectionCreateSchema(BaseSchema):
             "description": "The unique identifier of the initiation option for creating the inspection."
         },
         required=True,
-    )
-    inspectoin_status = EnumField(
-        InspectionStatusEnum,
-        metadata={"description": "The status of the inspection"},
-        by_value=True,
-        required=False,
-        allow_none=True,
     )
     ir_status_id = fields.Int(
         metadata={
@@ -150,16 +141,6 @@ class InspectionCreateSchema(BaseSchema):
         metadata={"description": "The proponent name of the unapproved project"},
         allow_none=True,
     )
-
-    @post_load
-    def extract_permission_value(
-        self, data, **kwargs
-    ):  # pylint: disable=no-self-use, unused-argument
-        """Extract the value of the inspection status enum."""
-        inspection_status_enum = data.get("inspection_status")
-        if inspection_status_enum:
-            data["inspection_status"] = inspection_status_enum.value
-        return data
 
     @validates_schema
     def validate_attendance_other(
@@ -325,3 +306,28 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     )
     ir_status = fields.Nested(KeyValueSchema)
     initiation = fields.Nested(KeyValueSchema)
+    types = fields.Method("get_inspection_type_names")
+
+    @post_dump
+    def post_dump_actions(
+        self, data, many, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Extract the value of the inspection status enum."""
+        if "inspection_status" in data and data["inspection_status"] is not None:
+            data["inspection_status"] = InspectionStatusEnum(
+                data["inspection_status"]
+            ).value
+        else:
+            data["inspection_status"] = ""
+        if data.get("project", None) is None:
+            data["project"] = {
+                "name": UNAPPROVED_PROJECT_NAME,
+                "abbreviation": UNAPPROVED_PROJECT_CODE,
+            }
+        return data
+
+    def get_inspection_type_names(self, obj):
+        """Get the names of inspection types as a comma-separated string."""
+        if obj.types:
+            return ", ".join([type_item.type.name for type_item in obj.types])
+        return ""

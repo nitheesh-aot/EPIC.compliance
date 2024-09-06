@@ -14,8 +14,8 @@ from compliance_api.models import InspectionTypeOption as InspectionTypeOptionMo
 from compliance_api.models import InspectionUnapprovedProject as InspectionUnapprovedProjectModel
 from compliance_api.models import IRStatusOption as IRStatusOptionModel
 from compliance_api.models.db import session_scope
-from compliance_api.models.inspection.inspection_constant import UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
 from compliance_api.models.inspection.inspection_enum import InspectionAttendanceOptionEnum
+from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
 
 from .case_file import CaseFileService
 from .epic_track_service.track_service import TrackService

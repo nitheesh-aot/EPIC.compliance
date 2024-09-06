@@ -14,7 +14,7 @@
 """Case file Model."""
 import enum
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, cast, func
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModel
@@ -25,6 +25,13 @@ class CaseFileInitiationEnum(enum.Enum):
 
     INSPECTION = 1
     COMPLIANT = 2
+
+
+class CaseFileStatusEnum(enum.Enum):
+    """Casefile Status."""
+
+    OPEN = "Open"
+    CLOSED = "Closed"
 
 
 class CaseFile(BaseModel):
@@ -40,7 +47,7 @@ class CaseFile(BaseModel):
     project_id = Column(
         Integer,
         ForeignKey("projects.id", name="case_files_project_id_projects_id_fkey"),
-        nullable=False,
+        nullable=True,
         comment="The unique identifier of the project associated with the case file",
     )
     date_created = Column(
@@ -70,6 +77,8 @@ class CaseFile(BaseModel):
         nullable=False,
         comment="The unique case file number",
     )
+    case_file_status = Column(Enum(CaseFileStatusEnum), nullable=True)
+
     lead_officer = relationship(
         "StaffUser", foreign_keys=[lead_officer_id], lazy="joined"
     )
@@ -120,6 +129,27 @@ class CaseFile(BaseModel):
         """Retrieve case files by project."""
         return cls.query.filter_by(project_id=project_id).all()
 
+    @classmethod
+    def get_max_case_file_number_by_year(cls, year: int):
+        """Get the max case file number generated so far."""
+        max_number = (
+            cls.query.with_entities(
+                func.max(  # pylint: disable=not-callable
+                    cast(
+                        func.regexp_replace(cls.case_file_number, "[^0-9]", "", "g"),
+                        Integer,
+                    )
+                ).label("max_number")
+            )
+            .filter(
+                func.regexp_replace(  # pylint: disable=not-callable
+                    cls.case_file_number, "[^0-9]", "", "g"
+                ).op("~")(f"^{year}[0-9]+$")
+            )
+            .scalar()
+        )
+        return max_number if max_number is not None else 0
+
 
 class CaseFileOfficer(BaseModel):
     """Other officers associated with the Casefile."""
@@ -157,9 +187,7 @@ class CaseFileOfficer(BaseModel):
         return cls.query.filter_by(case_file_id=case_file_id, is_deleted=False).all()
 
     @classmethod
-    def bulk_delete(
-        cls, case_file_id: int, officer_ids: list[int], session=None
-    ):
+    def bulk_delete(cls, case_file_id: int, officer_ids: list[int], session=None):
         """Delete officer ids by id per case file."""
         query = session.query(CaseFileOfficer) if session else cls.query
         query.filter(
@@ -167,9 +195,7 @@ class CaseFileOfficer(BaseModel):
         ).update({cls.is_active: False, cls.is_deleted: True})
 
     @classmethod
-    def bulk_insert(
-        cls, case_file_id: int, officer_ids: list[int], session=None
-    ):
+    def bulk_insert(cls, case_file_id: int, officer_ids: list[int], session=None):
         """Insert officers per case file."""
         case_file_officer_data = [
             CaseFileOfficer(**{"case_file_id": case_file_id, "officer_id": officer_id})

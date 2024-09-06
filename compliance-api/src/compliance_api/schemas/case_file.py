@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """CaseFile Schema."""
-from marshmallow import EXCLUDE, fields
+from marshmallow import EXCLUDE, fields, post_dump
 
-from compliance_api.models import CaseFile, CaseFileOfficer
-from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
+from compliance_api.models import CaseFile, CaseFileOfficer, CaseFileStatusEnum
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .common import KeyValueSchema
@@ -52,6 +52,24 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     )
     initiation = fields.Nested(KeyValueSchema)
 
+    @post_dump
+    def post_dump_actions(
+        self, data, many, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Extract the value of the casefile status enum."""
+        if "case_file_status" in data and data["case_file_status"] is not None:
+            data["case_file_status"] = CaseFileStatusEnum(
+                data["case_file_status"]
+            ).value
+        else:
+            data["case_file_status"] = ""
+        if data.get("project", None) is None:
+            data["project"] = {
+                "name": UNAPPROVED_PROJECT_NAME,
+                "abbreviation": UNAPPROVED_PROJECT_CODE,
+            }
+        return data
+
 
 class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     """CaseFile create Schema."""
@@ -65,7 +83,7 @@ class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
         metadata={
             "description": "The unique identifier for the project associated with the case file."
         },
-        required=True,
+        allow_none=True,
     )
     date_created = fields.DateTime(
         format=INPUT_DATE_TIME_FORMAT,
@@ -84,7 +102,10 @@ class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
         required=True,
     )
     case_file_number = fields.Str(
-        metadata={"description": "The unique case file number"}, required=True
+        metadata={
+            "description": "The unique case file number. If not provided, the case file number will be auto generated."
+        },
+        allow_none=True,
     )
     officer_ids = fields.List(
         fields.Int(
