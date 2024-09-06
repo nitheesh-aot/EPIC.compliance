@@ -1,7 +1,7 @@
 import { useInitiationsData } from "@/hooks/useCaseFiles";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
-import { CaseFile } from "@/models/CaseFile";
+import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
 import { Project } from "@/models/Project";
 import { StaffUser } from "@/models/Staff";
@@ -220,13 +220,25 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
   const onSubmitHandler = useCallback(
     (data: InspectionSchemaType) => {
-      const projectId = (data.project as Project)?.id ?? "";
+
+      const caseFileData: CaseFileAPIData = {
+        project_id: (data.project as Project)?.id,
+        date_created: dateUtils.dateToISO(
+          data.dateRange?.startDate ?? new Date()
+        ),
+        initiation_id: (data.initiation as Initiation).id,
+        case_file_number: Math.floor(Math.random() * 12345678).toString(), // TODO - temporary untill autogeneration from backend is implemented
+        lead_officer_id: (data.leadOfficer as StaffUser)?.id,
+        officer_ids:
+          (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
+      };
+
       // Open modal for linking or creating case file
       setModalOpen({
         content: (
           <LinkCaseFileModal
             onSubmit={handleOnCaseFileSubmit}
-            projectId={projectId}
+            caseFileData={caseFileData}
           />
         ),
         width: "400px",

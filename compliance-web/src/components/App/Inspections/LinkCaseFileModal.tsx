@@ -4,14 +4,16 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
-import { FC, useEffect } from "react";
-import { useCaseFilesByProjectId } from "@/hooks/useCaseFiles";
+import { FC, useCallback, useEffect } from "react";
+import { useCaseFilesByProjectId, useCreateCaseFile } from "@/hooks/useCaseFiles";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
-import { CaseFile } from "@/models/CaseFile";
+import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
+import { notify } from "@/store/snackbarStore";
+import { AxiosError } from "axios";
 
 type LinkCaseFileModalProps = {
   onSubmit: (caseFileId: number) => void;
-  projectId: number;
+  caseFileData: CaseFileAPIData;
 };
 
 const linkCaseFileSchema = yup.object().shape({
@@ -29,9 +31,9 @@ const initFormData = {
 
 const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
   onSubmit,
-  projectId,
+  caseFileData,
 }) => {
-  const { data: caseFilesList } = useCaseFilesByProjectId(projectId!);
+  const { data: caseFilesList } = useCaseFilesByProjectId(caseFileData.project_id!);
 
   const methods = useForm<LinkCaseFileFormType>({
     resolver: yupResolver(linkCaseFileSchema),
@@ -41,16 +43,29 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
 
   const { handleSubmit, reset } = methods;
 
+  const onSuccess = useCallback((data: CaseFile) => {
+    onSubmit(data.id);
+    reset();
+  }, [onSubmit, reset]);
+
+  const onError = useCallback((err: AxiosError) => {
+    notify.error(err?.message);
+  }, []);
+
+  const { mutate: createCaseFile } = useCreateCaseFile(onSuccess, onError);
+
   useEffect(() => {
     reset(initFormData);
-  }, [caseFilesList, reset]);
+  }, [reset]);
 
   const onSubmitHandler = async (data: LinkCaseFileFormType) => {
-    // eslint-disable-next-line no-console
-    console.log(data.caseFile);
     const caseFileId = (data.caseFile as CaseFile).id;
     onSubmit(caseFileId);
   };
+
+  const createNewCaseFile = ()=> {
+    createCaseFile(caseFileData);
+  }
 
   return (
     <FormProvider {...methods}>
@@ -71,11 +86,13 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
           <Typography variant="body1" textAlign={"center"} mb={"1rem"}>
             OR
           </Typography>
-          <Button color="secondary" fullWidth sx={{ mb: "2.5rem" }}>
+          <Button color="secondary" fullWidth sx={{ mb: "2.5rem" }} onClick={createNewCaseFile}>
             Create New Case File
           </Button>
         </DialogContent>
-        <ModalActions primaryActionButtonText="Link" isButtonValidation />
+        {caseFilesList && caseFilesList.length > 0 && (
+          <ModalActions primaryActionButtonText="Link" isButtonValidation />
+        )}
       </form>
     </FormProvider>
   );
