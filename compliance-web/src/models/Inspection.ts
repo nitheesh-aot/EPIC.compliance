@@ -46,12 +46,12 @@ export interface InspectionAPIData {
   utm?: string;
   lead_officer_id: number;
   case_file_id: number;
-  ir_type_ids: string[];
+  inspection_type_ids: string[];
   start_date: string;
   end_date: string;
   initiation_id: string;
-  ir_status_id?: number;
-  project_status_id?: number;
+  ir_status_id?: string;
+  project_status_id?: string;
   inspection_officer_ids?: number[];
   attendance_option_ids?: number[];
   agency_attendance_ids?: number[];

@@ -182,7 +182,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
       let inspectionData: InspectionAPIData = {
         project_id: projectId,
         case_file_id: caseFileId,
-        ir_type_ids: (formData.irTypes as IRType[])?.map((ir) => ir.id) ?? [],
+        inspection_type_ids: (formData.irTypes as IRType[])?.map((ir) => ir.id) ?? [],
         initiation_id: (formData.initiation as Initiation).id,
         start_date: dateUtils.dateToISO(
           formData.dateRange?.startDate ?? new Date()
@@ -195,6 +195,8 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
           (formData.officers as StaffUser[])?.map((user) => user.id) ?? [],
         location_description: formData.locationDescription ?? "",
         utm: formData.utm ?? "",
+        ir_status_id: (formData.irStatus as IRStatus)?.id,
+        project_status_id: (formData.projectStatus as ProjectStatus)?.id,
       };
       if (projectId === UNAPPROVED_PROJECT_ID) {
         inspectionData = {

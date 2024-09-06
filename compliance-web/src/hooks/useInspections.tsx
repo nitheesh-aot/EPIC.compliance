@@ -7,7 +7,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 
 const fetchIRTypes = (): Promise<IRType[]> => {
-  return request({ url: "/inspections/ir-type-options" });
+  return request({ url: "/inspections/type-options" });
 };
 
 const fetchIRStatuses = (): Promise<IRStatus[]> => {

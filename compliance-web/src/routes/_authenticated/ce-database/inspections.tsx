@@ -6,8 +6,6 @@ import { useInspectionsData } from "@/hooks/useInspections";
 import { Inspection } from "@/models/Inspection";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
-import { EditOutlined, DeleteOutlineRounded } from "@mui/icons-material";
-import { Box, Chip, IconButton } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
@@ -26,6 +24,7 @@ function Inspections() {
   const [initiationList, setInitiationList] = useState<string[]>([]);
   const [statusList, setStatusList] = useState<string[]>([]);
   const [staffUserList, setStaffUserList] = useState<string[]>([]);
+  const [irStatusList, setIRStatusList] = useState<string[]>([]);
 
   useEffect(() => {
     setProjectList(
@@ -50,6 +49,11 @@ function Inspections() {
         ...new Set(
           inspectionsList?.map((cf) => cf.lead_officer?.full_name ?? "")
         ),
+      ].filter(Boolean)
+    );
+    setIRStatusList(
+      [
+        ...new Set(inspectionsList?.map((cf) => cf.ir_status?.name ?? "")),
       ].filter(Boolean)
     );
   }, [inspectionsList]);
@@ -83,20 +87,20 @@ function Inspections() {
       {
         accessorKey: "ir_status.name",
         header: "Stage",
-        // filterVariant: "multi-select",
-        // filterSelectOptions: initiationList,
-        // Filter: ({ header, column }) => {
-        //   return (
-        //     <TableFilter
-        //       isMulti
-        //       header={header}
-        //       column={column}
-        //       variant="inline"
-        //       name="initiationFilter"
-        //       placeholder="Filter Initiations"
-        //     />
-        //   );
-        // },
+        filterVariant: "multi-select",
+        filterSelectOptions: irStatusList,
+        Filter: ({ header, column }) => {
+          return (
+            <TableFilter
+              isMulti
+              header={header}
+              column={column}
+              variant="inline"
+              name="stageFilter"
+              placeholder="Filter Stage"
+            />
+          );
+        },
       },
       {
         accessorKey: "initiation.name",
@@ -119,48 +123,6 @@ function Inspections() {
       {
         accessorKey: "is_active",
         header: "Status",
-        Cell: ({ row }) => {
-          return row.original.is_active ? (
-            <Chip
-              label="Active"
-              color="success"
-              variant="outlined"
-              size="small"
-            />
-          ) : (
-            <Chip
-              label="Inactive"
-              color="error"
-              variant="outlined"
-              size="small"
-            />
-          );
-        },
-        filterVariant: "multi-select",
-        filterSelectOptions: statusList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="statusFilter"
-              placeholder="Filter Status"
-            />
-          );
-        },
-        filterFn: (row, id, filterValue) => {
-          if (
-            !filterValue.length ||
-            filterValue.length > statusList.length // select all is selected
-          ) {
-            return true;
-          }
-          return filterValue.includes(
-            row.getValue(id) || false ? "Active" : "Inactive"
-          );
-        },
       },
       {
         accessorFn: (row) => row.lead_officer?.full_name,
@@ -176,13 +138,18 @@ function Inspections() {
               column={column}
               variant="inline"
               name="leadOfficersFilter"
-              placeholder="Filter Lead Officers"
+              placeholder="Filter Officers"
             />
           );
         },
       },
+      {
+        accessorKey: "case_file.case_file_number",
+        header: "Case File #",
+        filterFn: searchFilter,
+      },
     ],
-    [initiationList, projectList, staffUserList, statusList]
+    [initiationList, irStatusList, projectList, staffUserList, statusList]
   );
 
   const handleOnSubmit = (submitMsg: string) => {
@@ -196,18 +163,6 @@ function Inspections() {
       modal: <InspectionDrawer onSubmit={handleOnSubmit} />,
       width: "1118px",
     });
-  };
-
-  const handleEdit = (inspection: Inspection) => {
-    //TODO: EDIT
-    // eslint-disable-next-line no-console
-    console.log(inspection);
-  };
-
-  const handleDelete = (id: number) => {
-    //TODO: DELETE
-    // eslint-disable-next-line no-console
-    console.log(id);
   };
 
   return (
@@ -226,23 +181,6 @@ function Inspections() {
         isLoading: isLoading,
         showGlobalFilter: true,
       }}
-      enableRowActions={true}
-      renderRowActions={({ row }) => (
-        <Box gap={".25rem"} display={"flex"}>
-          <IconButton
-            aria-label="edit"
-            onClick={() => handleEdit(row.original)}
-          >
-            <EditOutlined />
-          </IconButton>
-          <IconButton
-            aria-label="delete"
-            onClick={() => handleDelete(row.original.id)}
-          >
-            <DeleteOutlineRounded />
-          </IconButton>
-        </Box>
-      )}
       titleToolbarProps={{
         tableTitle: "Inspections",
         tableAddRecordButtonText: "Inspection",
