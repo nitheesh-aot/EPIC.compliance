@@ -46,18 +46,18 @@ class InspectionOfficer(BaseModel):
 
     inspection = relationship(
         "Inspection",
-        back_populates="inspection_officers",
-        lazy="joined",
+        foreign_keys=[inspection_id],
+        lazy="select",
     )
-    officer = relationship("StaffUser", foreign_keys=[officer_id], lazy="joined")
+    officer = relationship("StaffUser", foreign_keys=[officer_id], lazy="select")
 
     @classmethod
-    def get_all_officers_by_inspection_id(cls, inspection_id: int):
+    def get_all_by_inspection(cls, inspection_id: int):
         """Retrieve all case file officers by inspection id."""
         return cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
 
     @classmethod
-    def bulk_delete_officers_by_ids(
+    def bulk_delete(
         cls, inspection_id: int, officer_ids: list[int], session=None
     ):
         """Delete officer ids by id per inspection."""
@@ -67,7 +67,7 @@ class InspectionOfficer(BaseModel):
         ).update({cls.is_active: False, cls.is_deleted: True})
 
     @classmethod
-    def bulk_insert_officers_per_inspection(
+    def bulk_insert(
         cls, inspection_id: int, officer_ids: list[int], session=None
     ):
         """Insert officers per inspection."""

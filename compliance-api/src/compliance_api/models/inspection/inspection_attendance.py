@@ -34,22 +34,20 @@ class InspectionAttendance(BaseModel):
     )
     inspection = relationship(
         "Inspection",
-        back_populates="inspection_attendance",
-        lazy="joined",
+        foreign_keys=[inspection_id],
+        lazy="select",
     )
     attendance_option = relationship(
-        "InspectionAttendanceOption", foreign_keys=[attendance_option_id], lazy="joined"
+        "InspectionAttendanceOption", foreign_keys=[attendance_option_id], lazy="select"
     )
 
     @classmethod
-    def get_all_attendance_by_inspection_id(cls, inspection_id: int):
+    def get_all_by_inspection(cls, inspection_id: int):
         """Retrieve all attendance option by inspection id."""
         return cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
 
     @classmethod
-    def bulk_delete_attendance_by_ids(
-        cls, inspection_id: int, option_ids: list[int], session=None
-    ):
+    def bulk_delete(cls, inspection_id: int, option_ids: list[int], session=None):
         """Delete attendance ids by id per inspection."""
         query = session.query(InspectionAttendance) if session else cls.query
         query.filter(
@@ -57,9 +55,7 @@ class InspectionAttendance(BaseModel):
         ).update({cls.is_active: False, cls.is_deleted: True})
 
     @classmethod
-    def bulk_insert_attendance_per_inspection(
-        cls, inspection_id: int, option_ids: list[int], session=None
-    ):
+    def bulk_insert(cls, inspection_id: int, option_ids: list[int], session=None):
         """Insert attendance per inspection."""
         inspection_officer_data = [
             InspectionAttendance(

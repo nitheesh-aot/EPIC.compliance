@@ -114,10 +114,10 @@ class InspectionCreateSchema(BaseSchema):
         ),
         required=False,
     )
-    ir_type_ids = fields.List(
+    inspection_type_ids = fields.List(
         fields.Int(
             metadata={
-                "description": "The list of unique identifier of the IR type options"
+                "description": "The list of unique identifier of the inspection type options"
             }
         ),
         required=True,

@@ -24,6 +24,8 @@ class InspectionUnapprovedProject(BaseModel):
     authorization = Column(
         String, nullable=False, comment="The details of authorization for the project"
     )
+    type = Column(String, nullable=True, comment="The type of project")
+    sub_type = Column(String, nullable=True, comment="The sub type of the project")
     proponent_name = Column(
         String,
         nullable=False,
@@ -39,7 +41,7 @@ class InspectionUnapprovedProject(BaseModel):
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
 
     @classmethod
-    def create_inspection_unapproved_project(cls, project_data, session=None):
+    def create_project_info(cls, project_data, session=None):
         """Persist inspection in database."""
         unapproved_project = InspectionUnapprovedProject(**project_data)
         if session:

@@ -47,7 +47,7 @@ class Topics(Resource):
     @auth.require
     def get():
         """Fetch all topics."""
-        topics = TopicService.get_all_topics()
+        topics = TopicService.get_all()
         topic_list_schema = TopicSchema(many=True)
         return topic_list_schema.dump(topics), HTTPStatus.OK
 
@@ -60,7 +60,7 @@ class Topics(Resource):
     def post():
         """Create a topic."""
         topic_data = TopicCreateSchema().load(API.payload)
-        created_topic = TopicService.create_topic(topic_data)
+        created_topic = TopicService.create(topic_data)
         return TopicSchema().dump(created_topic), HTTPStatus.CREATED
 
 
@@ -77,7 +77,7 @@ class Topic(Resource):
     @API.response(404, "Not Found")
     def get(topic_id):
         """Fetch an topic by id."""
-        topic = TopicService.get_topic_by_id(topic_id)
+        topic = TopicService.get_by_id(topic_id)
         if not topic:
             raise ResourceNotFoundError(f"topic with {topic_id} not found")
         return TopicSchema().dump(topic), HTTPStatus.OK
@@ -92,7 +92,7 @@ class Topic(Resource):
     def patch(topic_id):
         """Update an topic by id."""
         topic_data = TopicCreateSchema().load(API.payload)
-        updated_topic = TopicService.update_topic(topic_id, topic_data)
+        updated_topic = TopicService.update(topic_id, topic_data)
         if not updated_topic:
             raise ResourceNotFoundError(f"topic with {topic_id} not found")
         return TopicSchema().dump(updated_topic), HTTPStatus.OK
@@ -104,7 +104,7 @@ class Topic(Resource):
     @API.response(404, "Not Found")
     def delete(topic_id):
         """Delete an topic by id."""
-        deleted_topic = TopicService.delete_topic(topic_id)
+        deleted_topic = TopicService.delete(topic_id)
         if not deleted_topic:
             raise ResourceNotFoundError(f"topic with {topic_id} not found")
         return TopicSchema().dump(deleted_topic), HTTPStatus.OK

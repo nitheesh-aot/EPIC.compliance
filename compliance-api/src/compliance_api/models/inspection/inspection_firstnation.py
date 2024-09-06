@@ -29,12 +29,12 @@ class InspectionFirstnation(BaseModel):
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
 
     @classmethod
-    def get_all_firstnations_inspection_id(cls, inspection_id: int):
+    def get_all_by_inspection(cls, inspection_id: int):
         """Retrieve all firstnations by inspection id."""
         return cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
 
     @classmethod
-    def bulk_delete_firstnations_by_ids(
+    def bulk_delete(
         cls, inspection_id: int, firstnation_ids: list[int], session=None
     ):
         """Delete firstnation ids by id per inspection."""
@@ -44,7 +44,7 @@ class InspectionFirstnation(BaseModel):
         ).update({cls.is_active: False, cls.is_deleted: True})
 
     @classmethod
-    def bulk_insert_firstnation_per_inspection(
+    def bulk_insert(
         cls, inspection_id: int, firstnation_ids: list[int], session=None
     ):
         """Insert firstnation per inspection."""

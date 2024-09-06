@@ -47,7 +47,7 @@ class Agencies(Resource):
     @auth.require
     def get():
         """Fetch all agencies."""
-        agencies = AgencyService.get_all_agencies()
+        agencies = AgencyService.get_all()
         agency_list_schema = AgencySchema(many=True)
         return agency_list_schema.dump(agencies), HTTPStatus.OK
 
@@ -60,7 +60,7 @@ class Agencies(Resource):
     def post():
         """Create a agency."""
         agency_data = AgencyCreateSchema().load(API.payload)
-        created_agency = AgencyService.create_agency(agency_data)
+        created_agency = AgencyService.create(agency_data)
         return AgencySchema().dump(created_agency), HTTPStatus.CREATED
 
 
@@ -77,7 +77,7 @@ class Agency(Resource):
     @API.response(404, "Not Found")
     def get(agency_id):
         """Fetch an agency by id."""
-        agency = AgencyService.get_agency_by_id(agency_id)
+        agency = AgencyService.get_by_id(agency_id)
         if not agency:
             raise ResourceNotFoundError(f"Agency with {agency_id} not found")
         return AgencySchema().dump(agency), HTTPStatus.OK
@@ -92,7 +92,7 @@ class Agency(Resource):
     def patch(agency_id):
         """Update an agency by id."""
         agency_data = AgencyCreateSchema().load(API.payload)
-        updated_agency = AgencyService.update_agency(agency_id, agency_data)
+        updated_agency = AgencyService.update(agency_id, agency_data)
         if not updated_agency:
             raise ResourceNotFoundError(f"Agency with {agency_id} not found")
         return AgencySchema().dump(updated_agency), HTTPStatus.OK
@@ -104,7 +104,7 @@ class Agency(Resource):
     @API.response(404, "Not Found")
     def delete(agency_id):
         """Delete an agency by id."""
-        deleted_agency = AgencyService.delete_agency(agency_id)
+        deleted_agency = AgencyService.delete(agency_id)
         if not deleted_agency:
             raise ResourceNotFoundError(f"Agency with {agency_id} not found")
         return AgencySchema().dump(deleted_agency), HTTPStatus.OK
