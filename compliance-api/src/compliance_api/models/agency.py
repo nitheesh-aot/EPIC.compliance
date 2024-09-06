@@ -22,4 +22,4 @@ class Agency(BaseModel):
     @classmethod
     def get_by_name(cls, agency_name: str) -> Agency:
         """Get agency by name."""
-        return cls.query.filter_by(name=agency_name).first()
+        return cls.query.filter_by(name=agency_name, is_deleted=False).first()

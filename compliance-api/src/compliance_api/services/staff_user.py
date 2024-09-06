@@ -83,7 +83,7 @@ class StaffUserService:
     def delete_user(cls, user_id, commit=True):
         """Delete the staff user entity permenantly from database."""
         user = StaffUserModel.find_by_id(user_id)
-        if not user or user.is_deleted:
+        if not user:
             return None
         user.is_deleted = True
         db.session.flush()

@@ -112,6 +112,7 @@ class InspectionService:
         return created_inspection
 
 
+# pylint: disable=too-many-arguments
 def _insert_or_update_inspection_relationship(
     inspection_id: int,
     entity_ids: list[int],

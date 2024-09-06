@@ -17,7 +17,7 @@ class AgencyService:
     @classmethod
     def get_all(cls):
         """Get all agencies."""
-        users = AgencyModel.get_all()
+        users = AgencyModel.get_all(default_filters=False)
         return users
 
     @classmethod
@@ -35,7 +35,7 @@ class AgencyService:
         """Update agency."""
         _check_existence_by_name(agency_data.get("name", None), agency_id)
         agency = AgencyModel.find_by_id(agency_id)
-        if not agency or agency.is_deleted:
+        if not agency:
             return None
         agency.update(agency_data, commit=False)
         if commit:
@@ -46,7 +46,7 @@ class AgencyService:
     def delete(cls, agency_id, commit=True):
         """Delete the agency entity permenantly from database."""
         agency = AgencyModel.find_by_id(agency_id)
-        if not agency or agency.is_deleted:
+        if not agency:
             return None
         agency.is_deleted = True
         db.session.flush()

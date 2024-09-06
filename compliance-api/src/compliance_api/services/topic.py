@@ -17,7 +17,7 @@ class TopicService:
     @classmethod
     def get_all(cls):
         """Get all topics."""
-        users = TopicModel.get_all()
+        users = TopicModel.get_all(default_filters=False)
         return users
 
     @classmethod
@@ -46,7 +46,7 @@ class TopicService:
     def delete(cls, topic_id, commit=True):
         """Delete the topic entity permenantly from database."""
         topic = TopicModel.find_by_id(topic_id)
-        if not topic or topic.is_deleted:
+        if not topic:
             return None
         topic.is_deleted = True
         db.session.flush()

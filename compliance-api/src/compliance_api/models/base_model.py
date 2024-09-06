@@ -62,6 +62,9 @@ class BaseModel(db.Model):
     @classmethod
     def find_by_id(cls, identifier: int):
         """Return model by id."""
+        query = {}
+        if hasattr(cls, "is_deleted"):
+            query["is_deleted"] = False
         return cls.query.get(identifier)
 
     @staticmethod
