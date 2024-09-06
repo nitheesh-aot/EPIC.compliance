@@ -32,7 +32,7 @@ export function Topics() {
         accessorKey: "name",
         header: "Name",
         sortingFn: "sortFn",
-        // filterFn: searchFilter,
+        filterFn: searchFilter,
       },
     ],
     []
@@ -116,7 +116,7 @@ export function Topics() {
         enableRowActions={true}
         renderRowActions={({ row }) => (
           <Box gap={".25rem"} display={"flex"}>
-            {/* <IconButton
+            <IconButton
               aria-label="edit"
               onClick={() => handleEdit(row.original)}
             >
@@ -127,7 +127,7 @@ export function Topics() {
               onClick={() => handleDelete(row.original.id)}
             >
               <DeleteOutlineRounded />
-            </IconButton> */}
+            </IconButton>
           </Box>
         )}
         titleToolbarProps={{
