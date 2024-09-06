@@ -32,7 +32,7 @@ export const useCaseFilesByProjectId = (projectId: number) => {
 
 export const useInitiationsData = () => {
   return useQuery({
-    queryKey: ["initiations"],
+    queryKey: ["case-files-initiations"],
     queryFn: fetchInitiations,
   });
 };

@@ -1,4 +1,3 @@
-import { useInitiationsData } from "@/hooks/useCaseFiles";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
 import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
@@ -20,6 +19,7 @@ import { useMenuStore } from "@/store/menuStore";
 import { IRType } from "@/models/IRType";
 import {
   useCreateInspection,
+  useInitiationsData,
   useIRStatusesData,
   useIRTypesData,
   useProjectStatusesData,
@@ -256,7 +256,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <Box ref={drawerTopRef}>
-          <DrawerTitleBar title="Create Inspection Record" isFormDirtyCheck />
+          <DrawerTitleBar title="Create Inspection" isFormDirtyCheck />
           <Box
             sx={{
               backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,

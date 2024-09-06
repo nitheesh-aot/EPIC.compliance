@@ -1,3 +1,4 @@
+import { Initiation } from "@/models/Initiation";
 import { Inspection, InspectionAPIData } from "@/models/Inspection";
 import { IRStatus } from "@/models/IRStatus";
 import { IRType } from "@/models/IRType";
@@ -8,6 +9,10 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 const fetchIRTypes = (): Promise<IRType[]> => {
   return request({ url: "/inspections/type-options" });
+};
+
+const fetchInitiations = (): Promise<Initiation[]> => {
+  return request({ url: "/inspections/initiation-options" });
 };
 
 const fetchIRStatuses = (): Promise<IRStatus[]> => {
@@ -30,6 +35,13 @@ export const useIRTypesData = () => {
   return useQuery({
     queryKey: ["ir-types"],
     queryFn: fetchIRTypes,
+  });
+};
+
+export const useInitiationsData = () => {
+  return useQuery({
+    queryKey: ["inspections-initiations"],
+    queryFn: fetchInitiations,
   });
 };
 
