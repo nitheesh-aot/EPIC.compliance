@@ -74,9 +74,9 @@ class CaseFiles(Resource):
         """Fetch all casefiles."""
         project_id = request.args.get("project_id", None)
         if project_id:
-            case_files = CaseFileService.get_case_files_by_project(project_id)
+            case_files = CaseFileService.get_by_project(project_id)
         else:
-            case_files = CaseFileService.get_all_case_files()
+            case_files = CaseFileService.get_all()
         case_file_list_schema = CaseFileSchema(many=True)
         return case_file_list_schema.dump(case_files), HTTPStatus.OK
 
@@ -89,7 +89,7 @@ class CaseFiles(Resource):
     def post():
         """Create a case file."""
         case_file_data = CaseFileCreateSchema().load(API.payload)
-        created_case_file = CaseFileService.create_case_file(case_file_data)
+        created_case_file = CaseFileService.create(case_file_data)
         return CaseFileSchema().dump(created_case_file), HTTPStatus.CREATED
 
 
@@ -106,7 +106,7 @@ class CaseFile(Resource):
     @API.response(404, "Not Found")
     def get(case_file_id):
         """Fetch a CaseFile by id."""
-        case_file = CaseFileService.get_case_file_by_id(case_file_id)
+        case_file = CaseFileService.get_by_id(case_file_id)
         if not case_file:
             raise ResourceNotFoundError(f"CaseFile with {case_file_id} not found")
         return CaseFileSchema().dump(case_file), HTTPStatus.OK
@@ -121,7 +121,7 @@ class CaseFile(Resource):
     def patch(case_file_id):
         """Update a CaseFile by id."""
         case_file_data = CaseFileCreateSchema().load(API.payload)
-        updated_case_file = CaseFileService.update_case_file(
+        updated_case_file = CaseFileService.update(
             case_file_id, case_file_data
         )
         if not updated_case_file:
@@ -142,7 +142,7 @@ class CaseFileNumber(Resource):
     @API.response(404, "Not Found")
     def get(case_file_number):
         """Fetch a CaseFile by number."""
-        case_file = CaseFileService.get_case_file_by_file_number(case_file_number)
+        case_file = CaseFileService.get_by_file_number(case_file_number)
         if not case_file:
             raise ResourceNotFoundError(
                 f"CaseFile with case file number {case_file_number} not found"

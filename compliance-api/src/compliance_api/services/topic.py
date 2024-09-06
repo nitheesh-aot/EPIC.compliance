@@ -9,21 +9,21 @@ class TopicService:
     """Topic management service."""
 
     @classmethod
-    def get_topic_by_id(cls, topic_id):
+    def get_by_id(cls, topic_id):
         """Get topic by id."""
         topic = TopicModel.find_by_id(topic_id)
         return topic
 
     @classmethod
-    def get_all_topics(cls):
+    def get_all(cls):
         """Get all topics."""
         users = TopicModel.get_all(default_filters=False)
         return users
 
     @classmethod
-    def create_topic(cls, topic_data: dict, commit=True):
+    def create(cls, topic_data: dict, commit=True):
         """Create topic."""
-        _check_topic_existence(topic_data.get("name", None))
+        _check_existence_by_name(topic_data.get("name", None))
         topic = TopicModel(**topic_data)
         topic.flush()
         if commit:
@@ -31,9 +31,9 @@ class TopicService:
         return topic
 
     @classmethod
-    def update_topic(cls, topic_id, topic_data, commit=True):
+    def update(cls, topic_id, topic_data, commit=True):
         """Update topic."""
-        _check_topic_existence(topic_data.get("name", None), topic_id)
+        _check_existence_by_name(topic_data.get("name", None), topic_id)
         topic = TopicModel.find_by_id(topic_id)
         if not topic or topic.is_deleted:
             return None
@@ -43,7 +43,7 @@ class TopicService:
         return topic
 
     @classmethod
-    def delete_topic(cls, topic_id, commit=True):
+    def delete(cls, topic_id, commit=True):
         """Delete the topic entity permenantly from database."""
         topic = TopicModel.find_by_id(topic_id)
         if not topic:
@@ -55,7 +55,7 @@ class TopicService:
         return topic
 
 
-def _check_topic_existence(topic_name: str, topic_id: int = None):
+def _check_existence_by_name(topic_name: str, topic_id: int = None):
     """Check if the topic exists."""
     existing_topic = TopicModel.get_topic_by_name(topic_name)
     if existing_topic and (not topic_id or existing_topic.id != topic_id):

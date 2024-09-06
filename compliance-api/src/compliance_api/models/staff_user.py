@@ -79,7 +79,7 @@ class StaffUser(BaseModel):
     )
 
     @classmethod
-    def create_user(cls, user_data, session=None) -> StaffUser:
+    def create_staff(cls, user_data, session=None) -> StaffUser:
         """Create user."""
         staff_user = StaffUser(**user_data)
         if session:
@@ -90,7 +90,7 @@ class StaffUser(BaseModel):
         return staff_user
 
     @classmethod
-    def update_user(cls, user_id, user_dict, session=None) -> Optional[StaffUser]:
+    def update_staff(cls, user_id, user_dict, session=None) -> Optional[StaffUser]:
         """Update user."""
         query = StaffUser.query.filter_by(id=user_id)
         user: StaffUser = query.first()
@@ -104,7 +104,7 @@ class StaffUser(BaseModel):
         return user
 
     @classmethod
-    def get_staff_user_by_auth_guid(cls, auth_guid: str) -> StaffUser:
+    def get_by_auth_guid(cls, auth_guid: str) -> StaffUser:
         """Retrieve the staff user by auth_guid."""
         staff_user = StaffUser.query.filter_by(
             auth_user_guid=auth_guid, is_deleted=False

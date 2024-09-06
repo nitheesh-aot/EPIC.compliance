@@ -54,7 +54,7 @@ class StaffUserService:
             "group_name": user_data.get("permission", None),
         }
         with session_scope() as session:
-            created_user = StaffUserModel.create_user(user_obj, session)
+            created_user = StaffUserModel.create_staff(user_obj, session)
             AuthService.update_user_group(auth_user_guid, group_payload)
         return created_user
 
@@ -74,7 +74,7 @@ class StaffUserService:
             "group_name": user_data.get("permission", None),
         }
         with session_scope() as session:
-            updated_user = StaffUserModel.update_user(user_id, user_obj, session)
+            updated_user = StaffUserModel.update_staff(user_id, user_obj, session)
             AuthService.update_user_group(auth_user_guid, group_payload)
             setattr(updated_user, "permission", user_data.get("permission"))
         return updated_user
@@ -134,7 +134,7 @@ def _set_permission_level_in_compliance_user_obj(
 
 def _validate_staff_user_existence(auth_user_guid: str, staff_user_id: int = None):
     """Check if the staff user exists."""
-    existing_staff_user = StaffUserModel.get_staff_user_by_auth_guid(auth_user_guid)
+    existing_staff_user = StaffUserModel.get_by_auth_guid(auth_user_guid)
     if existing_staff_user and (
         not staff_user_id or existing_staff_user.id != staff_user_id
     ):

@@ -8,10 +8,10 @@ class InspectionAttendanceOption(OptionModel):
     __tablename__ = "inspection_attendance_options"
 
 
-class IRTypeOption(OptionModel):
+class InspectionTypeOption(OptionModel):
     """Inspection Record type options."""
 
-    __tablename__ = "ir_type_options"
+    __tablename__ = "inspection_type_options"
 
 
 class InspectionInitiationOption(OptionModel):

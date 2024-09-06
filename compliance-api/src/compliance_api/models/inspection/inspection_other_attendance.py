@@ -28,7 +28,7 @@ class InspectionOtherAttendance(BaseModel):
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
 
     @classmethod
-    def create_other_attendance(cls, other_attendance_data, session=None):
+    def create_attendance(cls, other_attendance_data, session=None):
         """Persist other attendance data in database."""
         attendance = InspectionOtherAttendance(**other_attendance_data)
         if session:
@@ -39,7 +39,7 @@ class InspectionOtherAttendance(BaseModel):
         return attendance
 
     @classmethod
-    def update_other_attendance(
+    def update_attendance(
         cls, inspection_id, other_attendance_data, session=None
     ):
         """Update the other attendance data in database."""
