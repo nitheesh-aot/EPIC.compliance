@@ -22,7 +22,6 @@ function Inspections() {
 
   const [projectList, setProjectList] = useState<string[]>([]);
   const [initiationList, setInitiationList] = useState<string[]>([]);
-  const [statusList, setStatusList] = useState<string[]>([]);
   const [staffUserList, setStaffUserList] = useState<string[]>([]);
   const [irStatusList, setIRStatusList] = useState<string[]>([]);
 
@@ -35,13 +34,6 @@ function Inspections() {
     setInitiationList(
       [
         ...new Set(inspectionsList?.map((cf) => cf.initiation?.name ?? "")),
-      ].filter(Boolean)
-    );
-    setStatusList(
-      [
-        ...new Set(
-          inspectionsList?.map((cf) => (cf.is_active ? "Active" : "Inactive"))
-        ),
       ].filter(Boolean)
     );
     setStaffUserList(
@@ -149,7 +141,7 @@ function Inspections() {
         filterFn: searchFilter,
       },
     ],
-    [initiationList, irStatusList, projectList, staffUserList, statusList]
+    [initiationList, irStatusList, projectList, staffUserList]
   );
 
   const handleOnSubmit = (submitMsg: string) => {
