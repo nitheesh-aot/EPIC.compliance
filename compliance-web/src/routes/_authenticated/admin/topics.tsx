@@ -1,10 +1,9 @@
-import TopicModal from '@/components/App/Agencies/AgencyModal';
+import TopicModal from '@/components/App/Topics/TopicModal';
 import MasterDataTable from '@/components/Shared/MasterDataTable/MasterDataTable';
 import { searchFilter } from '@/components/Shared/MasterDataTable/utils';
 import ConfirmationModal from '@/components/Shared/Popups/ConfirmationModal';
-import { useAgenciesData, useDeleteAgency } from '@/hooks/useAgencies';
-import { useTopicsData } from '@/hooks/useTopics';
-import { Agency } from '@/models/Agency';
+import { useDeleteTopic, useTopicsData } from '@/hooks/useTopics';
+import { Topic } from '@/models/Topic';
 import { useModal } from '@/store/modalStore';
 import { notify } from '@/store/snackbarStore';
 import { EditOutlined, DeleteOutlineRounded } from '@mui/icons-material';
@@ -27,28 +26,20 @@ export function Topics() {
 
   const { data: topicsList, isLoading } = useTopicsData();
 
-  const columns = useMemo<MRT_ColumnDef<Agency>[]>(
+  const columns = useMemo<MRT_ColumnDef<Topic>[]>(
     () => [
       {
         accessorKey: "name",
         header: "Name",
         sortingFn: "sortFn",
-        filterFn: searchFilter,
-        size: 450,
-      },
-      {
-        accessorKey: "abbreviation",
-        header: "Abbreviation",
-        sortingFn: "sortFn",
-        filterFn: searchFilter,
-        size: 200,
+        // filterFn: searchFilter,
       },
     ],
     []
   );
 
   const handleOnSubmit = (submitMsg: string) => {
-    queryClient.invalidateQueries({ queryKey: ["agencies"] });
+    queryClient.invalidateQueries({ queryKey: ["topics"] });
     setClose();
     notify.success(submitMsg);
   };
@@ -60,26 +51,26 @@ export function Topics() {
     });
   };
 
-  const handleEdit = (agency: Agency) => {
+  const handleEdit = (topic: Topic) => {
     setOpen({
-      content: <TopicModal onSubmit={handleOnSubmit} topic={agency} />,
+      content: <TopicModal onSubmit={handleOnSubmit} topic={topic} />,
       width: TOPIC_MODAL_WIDTH,
     });
   };
 
-  /** Agency Deletion START */
+  /** Topic Deletion START */
 
   const onDeleteSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ["agencies"] });
+    queryClient.invalidateQueries({ queryKey: ["topics"] });
     setClose();
-    notify.success("Agency deleted successfully!");
+    notify.success("Topic deleted successfully!");
   };
 
   const onDeleteError = (error: AxiosError) => {
-    notify.error(`Agency deletion failed! ${error.message}`);
+    notify.error(`Topic deletion failed! ${error.message}`);
   };
 
-  const { mutate: deleteUser } = useDeleteAgency(
+  const { mutate: deleteTopic } = useDeleteTopic(
     onDeleteSuccess,
     onDeleteError
   );
@@ -88,22 +79,22 @@ export function Topics() {
     setOpen({
       content: (
         <ConfirmationModal
-          title="Delete Agency?"
-          description="You are about to delete this Agency. Are you sure?"
+          title="Delete Topic?"
+          description="You are about to delete this topic. Are you sure?"
           confirmButtonText="Delete"
-          onConfirm={() => handleDeleteUser(id)}
+          onConfirm={() => handleDeleteTopic(id)}
         />
       ),
     });
   };
 
-  const handleDeleteUser = (id: number) => {
+  const handleDeleteTopic = (id: number) => {
     if (id !== null) {
-      deleteUser(id);
+      deleteTopic(id);
     }
   };
 
-  /** Agency Deletion END */
+  /** Topic Deletion END */
 
   return (
     <>
@@ -125,7 +116,7 @@ export function Topics() {
         enableRowActions={true}
         renderRowActions={({ row }) => (
           <Box gap={".25rem"} display={"flex"}>
-            <IconButton
+            {/* <IconButton
               aria-label="edit"
               onClick={() => handleEdit(row.original)}
             >
@@ -136,12 +127,12 @@ export function Topics() {
               onClick={() => handleDelete(row.original.id)}
             >
               <DeleteOutlineRounded />
-            </IconButton>
+            </IconButton> */}
           </Box>
         )}
         titleToolbarProps={{
-          tableTitle: "Agencies",
-          tableAddRecordButtonText: "Agency",
+          tableTitle: "Topics",
+          tableAddRecordButtonText: "Topic",
           tableAddRecordFunction: () => handleOpenModal(),
         }}
       />
