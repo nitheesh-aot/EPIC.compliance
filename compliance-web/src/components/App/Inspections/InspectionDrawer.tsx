@@ -1,7 +1,6 @@
-import { useInitiationsData } from "@/hooks/useCaseFiles";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
-import { CaseFile } from "@/models/CaseFile";
+import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
 import { Project } from "@/models/Project";
 import { StaffUser } from "@/models/Staff";
@@ -20,16 +19,19 @@ import { useMenuStore } from "@/store/menuStore";
 import { IRType } from "@/models/IRType";
 import {
   useCreateInspection,
+  useInitiationsData,
   useIRStatusesData,
   useIRTypesData,
   useProjectStatusesData,
 } from "@/hooks/useInspections";
-import { InspectionAPIData, InspectionFormData } from "@/models/Inspection";
+import { Inspection, InspectionAPIData, InspectionFormData } from "@/models/Inspection";
 import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
 import { DateRange } from "@/models/DateRange";
 import { IRStatus } from "@/models/IRStatus";
 import { ProjectStatus } from "@/models/ProjectStatus";
 import InspectionFormRight from "./InspectionFormRight";
+import { useModal } from "@/store/modalStore";
+import LinkCaseFileModal from "./LinkCaseFileModal";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -43,7 +45,7 @@ const inspectionFormSchema = yup.object().shape({
     .nullable()
     .when("isProjectDetailsDisabled", {
       is: true,
-      then: (schema) => schema.nullable(),
+      then: (schema) => schema.notRequired(),
       otherwise: (schema) => schema.required("Authorization is required"),
     }),
   certificateHolder: yup
@@ -51,7 +53,7 @@ const inspectionFormSchema = yup.object().shape({
     .nullable()
     .when("isProjectDetailsDisabled", {
       is: true,
-      then: (schema) => schema.nullable(),
+      then: (schema) => schema.notRequired(),
       otherwise: (schema) => schema.required("Certificate Holder is required"),
     }),
   projectDescription: yup
@@ -59,7 +61,7 @@ const inspectionFormSchema = yup.object().shape({
     .nullable()
     .when("isProjectDetailsDisabled", {
       is: true,
-      then: (schema) => schema.nullable(),
+      then: (schema) => schema.notRequired(),
       otherwise: (schema) => schema.required("Project Description is required"),
     }),
   locationDescription: yup.string().nullable(),
@@ -69,7 +71,7 @@ const inspectionFormSchema = yup.object().shape({
     .nullable()
     .required("Lead Officer is required"),
   officers: yup.array().of(yup.object<StaffUser>()).nullable(),
-  irType: yup
+  irTypes: yup
     .array()
     .of(yup.object<IRType>())
     .min(1, "At least one Type is required")
@@ -109,7 +111,7 @@ const initFormData: InspectionFormData = {
   dateRange: undefined,
   leadOfficer: undefined,
   officers: [],
-  irType: [],
+  irTypes: [],
   initiation: undefined,
   irStatus: undefined,
   projectStatus: undefined,
@@ -122,6 +124,8 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 }) => {
   const { appHeaderHeight } = useMenuStore();
   const drawerTopRef = useRef<HTMLDivElement | null>(null);
+
+  const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
 
   const { data: projectList } = useProjectsData({ includeUnapproved: true });
   const { data: initiationList } = useInitiationsData();
@@ -143,14 +147,23 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     defaultValues,
   });
 
-  const { handleSubmit, reset } = methods;
+  const {
+    handleSubmit,
+    reset,
+    formState: { isValid },
+    getValues,
+  } = methods;
 
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
 
-  const onSuccess = useCallback(() => {
-    onSubmit(inspection ? "Successfully updated!" : "Successfully added!");
+  const onSuccess = useCallback((data: Inspection) => {
+    onSubmit(
+      inspection
+        ? "Successfully updated!"
+        : `Inspection File ${data.ir_number} was successfully created`
+    );
     reset();
   }, [inspection, onSubmit, reset]);
 
@@ -160,48 +173,90 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
   const { mutate: createInspection } = useCreateInspection(onSuccess, onError);
 
-  const onSubmitHandler = useCallback(
-    (data: InspectionSchemaType) => {
-      // eslint-disable-next-line no-console
-      console.log(data);
-      const projectId = (data.project as Project)?.id ?? "";
+  const addOrUpdateInspection = useCallback(
+    (caseFileId: number) => {
+      const formData = getValues();
+
+      const projectId = (formData.project as Project)?.id ?? "";
+
       let inspectionData: InspectionAPIData = {
         project_id: projectId,
-        ir_type_id: (data.irType[0] as IRType).id,
-        initiation_id: (data.initiation as Initiation).id,
-        start_date: dateUtils.dateToUTC(
-          data.dateRange?.startDate ?? new Date()
+        case_file_id: caseFileId,
+        inspection_type_ids: (formData.irTypes as IRType[])?.map((ir) => ir.id) ?? [],
+        initiation_id: (formData.initiation as Initiation).id,
+        start_date: dateUtils.dateToISO(
+          formData.dateRange?.startDate ?? new Date()
         ),
-        end_date: dateUtils.dateToUTC(data.dateRange?.endDate ?? new Date()),
-        lead_officer_id: (data.leadOfficer as StaffUser)?.id,
+        end_date: dateUtils.dateToISO(
+          formData.dateRange?.endDate ?? new Date()
+        ),
+        lead_officer_id: (formData.leadOfficer as StaffUser)?.id,
         inspection_officer_ids:
-          (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
-        case_file_id: 0,
-        location_description: data.locationDescription ?? "",
-        utm: data.utm ?? "",
+          (formData.officers as StaffUser[])?.map((user) => user.id) ?? [],
+        location_description: formData.locationDescription ?? "",
+        utm: formData.utm ?? "",
+        ir_status_id: (formData.irStatus as IRStatus)?.id,
+        project_status_id: (formData.projectStatus as ProjectStatus)?.id,
       };
       if (projectId === UNAPPROVED_PROJECT_ID) {
         inspectionData = {
-          unapproved_project_authorization: data.authorization ?? "",
-          unapproved_project_proponent_name: data.certificateHolder ?? "",
-          unapproved_project_description: data.projectDescription ?? "",
+          unapproved_project_authorization: formData.authorization ?? "",
+          unapproved_project_proponent_name: formData.certificateHolder ?? "",
+          unapproved_project_description: formData.projectDescription ?? "",
           ...inspectionData,
         };
       }
+
       if (inspection) {
         // TODO: Add update logic here
       } else {
         createInspection(inspectionData);
       }
     },
-    [inspection, createInspection]
+    [createInspection, getValues, inspection]
+  );
+
+  const handleOnCaseFileSubmit = useCallback(
+    (caseFileId: number) => {
+      addOrUpdateInspection(caseFileId);
+      setModalClose();
+    },
+    [addOrUpdateInspection, setModalClose]
+  );
+
+  const onSubmitHandler = useCallback(
+    (data: InspectionSchemaType) => {
+      const caseFileData: CaseFileAPIData = {
+        project_id: (data.project as Project)?.id,
+        date_created: dateUtils.dateToISO(
+          data.dateRange?.startDate ?? new Date()
+        ),
+        initiation_id: "", // should be mapped from the case file modal
+        case_file_number: Math.floor(Math.random() * 12345678).toString(), // TODO - temporary untill autogeneration from backend is implemented
+        lead_officer_id: (data.leadOfficer as StaffUser)?.id,
+        officer_ids:
+          (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
+      };
+
+      // Open modal for linking or creating case file
+      setModalOpen({
+        content: (
+          <LinkCaseFileModal
+            onSubmit={handleOnCaseFileSubmit}
+            caseFileData={caseFileData}
+          />
+        ),
+        width: "400px",
+      });
+    },
+    [setModalOpen, handleOnCaseFileSubmit]
   );
 
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <Box ref={drawerTopRef}>
-          <DrawerTitleBar title="Create Inspection Record" isFormDirtyCheck />
+          <DrawerTitleBar title="Create Inspection" isFormDirtyCheck />
           <Box
             sx={{
               backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
@@ -209,7 +264,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
               textAlign: "right",
             }}
           >
-            <Button variant={"contained"} type="submit">
+            <Button type="submit" disabled={!isValid}>
               Create
             </Button>
           </Box>

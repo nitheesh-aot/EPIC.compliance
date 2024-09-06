@@ -90,7 +90,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
     (data: CaseFileSchemaType) => {
       const caseFileData: CaseFileAPIData = {
         project_id: (data.project as Project)?.id ?? "",
-        date_created: dateUtils.dateToUTC(data.dateCreated),
+        date_created: dateUtils.dateToISO(data.dateCreated),
         initiation_id: (data.initiation as Initiation).id,
         case_file_number: data.caseFileNumber,
         lead_officer_id: (data.leadOfficer as StaffUser)?.id,
@@ -117,7 +117,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
             textAlign: "right",
           }}
         >
-          <Button variant={"contained"} type="submit">
+          <Button type="submit">
             Create
           </Button>
         </Box>

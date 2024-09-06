@@ -22,13 +22,13 @@ const add = (date: string, unit: number, unitOfTime: UnitOfTime) => {
   return dayjs(date).add(unit, unitOfTime);
 };
 
-const dateToUTC = (date: Date) => {
-  return dayjs(date).utc(true).format();
+const dateToISO = (date: Date) => {
+  return dayjs(date).toISOString();
 };
 
 export default {
   formatDate,
   diff,
   add,
-  dateToUTC,
+  dateToISO,
 };
