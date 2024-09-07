@@ -24,28 +24,34 @@ function Inspections() {
   const [initiationList, setInitiationList] = useState<string[]>([]);
   const [staffUserList, setStaffUserList] = useState<string[]>([]);
   const [irStatusList, setIRStatusList] = useState<string[]>([]);
+  const [irTypeList, setIRTypeList] = useState<string[]>([]);
 
   useEffect(() => {
     setProjectList(
-      [...new Set(inspectionsList?.map((cf) => cf.project?.name ?? ""))].filter(
+      [...new Set(inspectionsList?.map((insp) => insp.project?.name ?? ""))].filter(
         Boolean
       )
     );
     setInitiationList(
       [
-        ...new Set(inspectionsList?.map((cf) => cf.initiation?.name ?? "")),
+        ...new Set(inspectionsList?.map((insp) => insp.initiation?.name ?? "")),
       ].filter(Boolean)
     );
     setStaffUserList(
       [
         ...new Set(
-          inspectionsList?.map((cf) => cf.lead_officer?.full_name ?? "")
+          inspectionsList?.map((insp) => insp.lead_officer?.full_name ?? "")
         ),
       ].filter(Boolean)
     );
     setIRStatusList(
       [
-        ...new Set(inspectionsList?.map((cf) => cf.ir_status?.name ?? "")),
+        ...new Set(inspectionsList?.map((insp) => insp.ir_status?.name ?? "")),
+      ].filter(Boolean)
+    );
+    setIRTypeList(
+      [
+        ...new Set(inspectionsList?.map((insp) => insp.types ?? "")),
       ].filter(Boolean)
     );
   }, [inspectionsList]);
@@ -93,6 +99,26 @@ function Inspections() {
             />
           );
         },
+        size: 150,
+      },
+      {
+        accessorKey: "types",
+        header: "Type",
+        filterVariant: "multi-select",
+        filterSelectOptions: irTypeList,
+        Filter: ({ header, column }) => {
+          return (
+            <TableFilter
+              isMulti
+              header={header}
+              column={column}
+              variant="inline"
+              name="typeFilter"
+              placeholder="Filter Type"
+            />
+          );
+        },
+        size: 150,
       },
       {
         accessorKey: "initiation.name",
@@ -115,6 +141,7 @@ function Inspections() {
       {
         accessorKey: "is_active",
         header: "Status",
+        size: 80,
       },
       {
         accessorFn: (row) => row.lead_officer?.full_name,
@@ -141,7 +168,7 @@ function Inspections() {
         filterFn: searchFilter,
       },
     ],
-    [initiationList, irStatusList, projectList, staffUserList]
+    [initiationList, irStatusList, irTypeList, projectList, staffUserList]
   );
 
   const handleOnSubmit = (submitMsg: string) => {

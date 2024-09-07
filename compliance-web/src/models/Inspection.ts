@@ -20,6 +20,7 @@ export interface Inspection {
   lead_officer_id: number;
   start_date: string;
   end_date: string;
+  types: string;
   is_active: boolean;
   initiation: Initiation;
   project: Project;
