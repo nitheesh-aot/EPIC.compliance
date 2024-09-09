@@ -40,9 +40,7 @@ export function CaseFiles() {
     );
     setStatusList(
       [
-        ...new Set(
-          caseFilesList?.map((cf) => (cf.is_active ? "Active" : "Inactive"))
-        ),
+        ...new Set(caseFilesList?.map((cf) => cf.case_file_status ?? "")),
       ].filter(Boolean)
     );
     setStaffUserList(
@@ -117,23 +115,22 @@ export function CaseFiles() {
         header: "Date Created",
       },
       {
-        accessorKey: "is_active",
+        accessorKey: "case_file_status",
         header: "Status",
         Cell: ({ row }) => {
-          return row.original.is_active ? (
+          return row.original.case_file_status ? (
             <Chip
-              label="Active"
-              color="success"
+              label={row.original.case_file_status}
+              color={
+                row.original.case_file_status?.toLowerCase() === "open"
+                  ? "success"
+                  : "error"
+              }
               variant="outlined"
               size="small"
             />
           ) : (
-            <Chip
-              label="Inactive"
-              color="error"
-              variant="outlined"
-              size="small"
-            />
+            <></>
           );
         },
         filterVariant: "multi-select",
@@ -148,17 +145,6 @@ export function CaseFiles() {
               name="statusFilter"
               placeholder="Filter Status"
             />
-          );
-        },
-        filterFn: (row, id, filterValue) => {
-          if (
-            !filterValue.length ||
-            filterValue.length > statusList.length // select all is selected
-          ) {
-            return true;
-          }
-          return filterValue.includes(
-            row.getValue(id) || false ? "Active" : "Inactive"
           );
         },
       },

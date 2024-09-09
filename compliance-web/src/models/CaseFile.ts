@@ -8,6 +8,7 @@ export interface CaseFile {
   date_created: string;
   lead_officer_id: number;
   case_file_number: string;
+  case_file_status: string;
   initiation: Initiation;
   is_active: boolean;
   project: Project;

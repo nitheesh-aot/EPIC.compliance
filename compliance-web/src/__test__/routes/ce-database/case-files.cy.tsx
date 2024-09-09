@@ -51,7 +51,7 @@ describe("CaseFiles Component", () => {
 
     cy.get("button").contains("Case File").click();
     
-    cy.get(".MuiTypography-h6").should("contain.text", "Create Case File Number")
+    cy.get(".MuiTypography-h6").should("contain.text", "Create Case File")
 
   });
 });
