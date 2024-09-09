@@ -24,7 +24,11 @@ import {
   useIRTypesData,
   useProjectStatusesData,
 } from "@/hooks/useInspections";
-import { Inspection, InspectionAPIData, InspectionFormData } from "@/models/Inspection";
+import {
+  Inspection,
+  InspectionAPIData,
+  InspectionFormData,
+} from "@/models/Inspection";
 import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
 import { DateRange } from "@/models/DateRange";
 import { IRStatus } from "@/models/IRStatus";
@@ -158,14 +162,17 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     reset(defaultValues);
   }, [defaultValues, reset]);
 
-  const onSuccess = useCallback((data: Inspection) => {
-    onSubmit(
-      inspection
-        ? "Successfully updated!"
-        : `Inspection File ${data.ir_number} was successfully created`
-    );
-    reset();
-  }, [inspection, onSubmit, reset]);
+  const onSuccess = useCallback(
+    (data: Inspection) => {
+      onSubmit(
+        inspection
+          ? "Successfully updated!"
+          : `Inspection File ${data.ir_number} was successfully created`
+      );
+      reset();
+    },
+    [inspection, onSubmit, reset]
+  );
 
   const onError = useCallback((err: AxiosError) => {
     notify.error(err?.message);
@@ -173,16 +180,21 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
   const { mutate: createInspection } = useCreateInspection(onSuccess, onError);
 
+  const getProjectId = (formData: InspectionSchemaType) => {
+    const projectId = (formData.project as Project)?.id ?? "";
+    return projectId === UNAPPROVED_PROJECT_ID ? undefined : projectId;
+  };
+
   const addOrUpdateInspection = useCallback(
     (caseFileId: number) => {
       const formData = getValues();
-
-      const projectId = (formData.project as Project)?.id ?? "";
+      const projectId = getProjectId(formData);
 
       let inspectionData: InspectionAPIData = {
         project_id: projectId,
         case_file_id: caseFileId,
-        inspection_type_ids: (formData.irTypes as IRType[])?.map((ir) => ir.id) ?? [],
+        inspection_type_ids:
+          (formData.irTypes as IRType[])?.map((ir) => ir.id) ?? [],
         initiation_id: (formData.initiation as Initiation).id,
         start_date: dateUtils.dateToISO(
           formData.dateRange?.startDate ?? new Date()
@@ -198,7 +210,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
         ir_status_id: (formData.irStatus as IRStatus)?.id,
         project_status_id: (formData.projectStatus as ProjectStatus)?.id,
       };
-      if (projectId === UNAPPROVED_PROJECT_ID) {
+      if (!projectId) {
         inspectionData = {
           unapproved_project_authorization: formData.authorization ?? "",
           unapproved_project_proponent_name: formData.certificateHolder ?? "",
@@ -227,7 +239,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const onSubmitHandler = useCallback(
     (data: InspectionSchemaType) => {
       const caseFileData: CaseFileAPIData = {
-        project_id: (data.project as Project)?.id,
+        project_id: getProjectId(data),
         date_created: dateUtils.dateToISO(
           data.dateRange?.startDate ?? new Date()
         ),
