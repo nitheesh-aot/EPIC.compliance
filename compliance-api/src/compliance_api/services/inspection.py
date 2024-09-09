@@ -197,7 +197,7 @@ def _create_inspection_record_number(
         project_id, case_file_id
     )
     serial_number = f"{count + 1:03}"
-    return f"{project_code}_{case_file.case_file_number}_{serial_number}"
+    return f"{project_code}_{case_file.case_file_number}_IR{serial_number}"
 
 
 def _get_project_abbreviation(
