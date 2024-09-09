@@ -26,6 +26,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
       <ControlledAutoComplete
         name="name"
         label="Name"
+        placeholder="Search for a Name"
         options={authUsersList ?? []}
         getOptionLabel={(option) => `${option.first_name} ${option.last_name}`}
         getOptionKey={(option) => option.id}
@@ -44,6 +45,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
         <ControlledAutoComplete
           name="deputyDirector"
           label="Deputy Director"
+          placeholder="Search for a Name"
           options={staffUsersList ?? []}
           getOptionLabel={(option) => option.full_name ?? ""}
           getOptionKey={(option) => option.id}
@@ -53,6 +55,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
         <ControlledAutoComplete
           name="supervisor"
           label="Supervisor"
+          placeholder="Search for a Name"
           options={staffUsersList ?? []}
           getOptionLabel={(option) => option.full_name ?? ""}
           getOptionKey={(option) => option.id}
