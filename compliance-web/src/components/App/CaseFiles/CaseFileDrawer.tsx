@@ -109,7 +109,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <DrawerTitleBar title="Create Case File Number" isFormDirtyCheck />
+        <DrawerTitleBar title="Create Case File" isFormDirtyCheck />
         <Box
           sx={{
             backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
