@@ -25,13 +25,15 @@ function Inspections() {
   const [staffUserList, setStaffUserList] = useState<string[]>([]);
   const [irStatusList, setIRStatusList] = useState<string[]>([]);
   const [irTypeList, setIRTypeList] = useState<string[]>([]);
-  const [inspectionStatusList, setInspectionStatusList] = useState<string[]>([]);
+  const [inspectionStatusList, setInspectionStatusList] = useState<string[]>(
+    []
+  );
 
   useEffect(() => {
     setProjectList(
-      [...new Set(inspectionsList?.map((insp) => insp.project?.name ?? ""))].filter(
-        Boolean
-      )
+      [
+        ...new Set(inspectionsList?.map((insp) => insp.project?.name ?? "")),
+      ].filter(Boolean)
     );
     setInitiationList(
       [
@@ -51,13 +53,15 @@ function Inspections() {
       ].filter(Boolean)
     );
     setIRTypeList(
-      [
-        ...new Set(inspectionsList?.map((insp) => insp.types ?? "")),
-      ].filter(Boolean)
+      [...new Set(inspectionsList?.map((insp) => insp.types ?? ""))].filter(
+        Boolean
+      )
     );
     setInspectionStatusList(
       [
-        ...new Set(inspectionsList?.map((insp) => insp.inspection_status ?? "")),
+        ...new Set(
+          inspectionsList?.map((insp) => insp.inspection_status ?? "")
+        ),
       ].filter(Boolean)
     );
   }, [inspectionsList]);
@@ -188,7 +192,14 @@ function Inspections() {
         filterFn: searchFilter,
       },
     ],
-    [initiationList, irStatusList, irTypeList, projectList, staffUserList]
+    [
+      initiationList,
+      inspectionStatusList,
+      irStatusList,
+      irTypeList,
+      projectList,
+      staffUserList,
+    ]
   );
 
   const handleOnSubmit = (submitMsg: string) => {
