@@ -3,6 +3,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
 import { TextFieldProps } from '@mui/material';
+import { DATE_FORMAT } from "@/utils/constants";
 
 type IFormDateInputProps = {
   name: string;
@@ -13,7 +14,7 @@ type IFormDateInputProps = {
 const ControlledDateField: FC<IFormDateInputProps> = ({
   name,
   label,
-  placeHolder = "YYYY-MM-DD",
+  placeHolder = DATE_FORMAT,
   ...otherProps
 }) => {
   const {
@@ -30,6 +31,7 @@ const ControlledDateField: FC<IFormDateInputProps> = ({
         <DatePicker
           {...field}
           label={label}
+          format={DATE_FORMAT}
           onChange={(date: Dayjs | null) => {
             field.onChange(date);
           }}

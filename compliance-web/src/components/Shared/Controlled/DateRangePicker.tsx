@@ -1,10 +1,11 @@
 import React, { useState, forwardRef } from "react";
 import { DateCalendar } from "@mui/x-date-pickers/DateCalendar";
 import { PickersDay, PickersDayProps } from "@mui/x-date-pickers/PickersDay";
-import { TextField, Popover, TextFieldProps } from "@mui/material";
+import { TextField, Popover, TextFieldProps, InputAdornment } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { BCDesignTokens } from "epic.theme";
 import { DATE_FORMAT } from "@/utils/constants";
+import { DateRangeRounded } from "@mui/icons-material";
 
 export interface DateRange {
   startDate: Dayjs | null;
@@ -95,6 +96,11 @@ const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
           fullWidth
           InputProps={{
             readOnly: true,
+            endAdornment: (
+              <InputAdornment position="end" sx={{mr: "-0.25rem"}}>
+                <DateRangeRounded />
+              </InputAdornment>
+            ),
           }}
           error={otherProps.error}
           helperText={otherProps.helperText}
