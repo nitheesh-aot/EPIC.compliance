@@ -326,7 +326,7 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
             }
         return data
 
-    def get_inspection_type_names(self, obj):
+    def get_inspection_type_names(self, obj):  # pylint: disable=no-self-use
         """Get the names of inspection types as a comma-separated string."""
         if obj.types:
             return ", ".join([type_item.type.name for type_item in obj.types])
