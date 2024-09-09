@@ -65,7 +65,12 @@ const TopicModal: React.FC<TopicModalProps> = ({ onSubmit, topic }) => {
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <ModalTitleBar title={topic ? topic.name : "Add Topic"} />
         <DialogContent dividers>
-          <ControlledTextField label="Topic" name="name" fullWidth />
+          <ControlledTextField
+            label="Topic"
+            name="name"
+            placeholder="eg. Fish and fish habitat"
+            fullWidth
+          />
         </DialogContent>
         <ModalActions primaryActionButtonText={topic ? "Save" : "Add"} />
       </form>
