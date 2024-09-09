@@ -21,6 +21,7 @@ export interface Inspection {
   start_date: string;
   end_date: string;
   types: string;
+  inspection_status: string;
   is_active: boolean;
   initiation: Initiation;
   project: Project;
@@ -42,7 +43,7 @@ export interface InspectionFormData {
 }
 
 export interface InspectionAPIData {
-  project_id: number;
+  project_id?: number;
   location_description?: string;
   utm?: string;
   lead_officer_id: number;

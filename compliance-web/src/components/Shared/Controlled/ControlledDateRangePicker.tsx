@@ -2,15 +2,18 @@ import { FC } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { TextFieldProps } from "@mui/material";
 import DateRangePicker, { DateRange } from "./DateRangePicker";
+import { DATE_FORMAT } from "@/utils/constants";
 
 type IFormDateRangeInputProps = {
   name: string;
   label: string;
+  placeHolder?: string;
 } & TextFieldProps;
 
 const ControlledDateRangePicker: FC<IFormDateRangeInputProps> = ({
   name,
   label,
+  placeHolder = `${DATE_FORMAT} — ${DATE_FORMAT}`,
   ...otherProps
 }) => {
   const {
@@ -39,6 +42,7 @@ const ControlledDateRangePicker: FC<IFormDateRangeInputProps> = ({
                 ? (errors[name].endDate?.message as string)
                 : errors[name]?.message || ""
           )}
+          placeholder={placeHolder}
           {...otherProps}
         />
       )}

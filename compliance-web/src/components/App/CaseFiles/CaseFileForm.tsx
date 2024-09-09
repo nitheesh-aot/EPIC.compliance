@@ -14,7 +14,6 @@ type CaseFileFormProps = {
   staffUsersList: StaffUser[];
 };
 
-
 const CaseFileForm: React.FC<CaseFileFormProps> = ({
   projectList,
   initiationList,
@@ -43,7 +42,11 @@ const CaseFileForm: React.FC<CaseFileFormProps> = ({
             isOptionEqualToValue={(option, value) => option.id === value.id}
             fullWidth
           />
-          <ControlledDateField name="dateCreated" label="Date Created" sx={{ width: "100%" }} />
+          <ControlledDateField
+            name="dateCreated"
+            label="Date Created"
+            sx={{ width: "100%" }}
+          />
         </Stack>
         <Stack direction={"row"} gap={2}>
           <ControlledAutoComplete
@@ -76,7 +79,12 @@ const CaseFileForm: React.FC<CaseFileFormProps> = ({
             isOptionEqualToValue={(option, value) => option.id === value.id}
             fullWidth
           />
-          <ControlledTextField label="Case File Number" name="caseFileNumber" fullWidth />
+          <ControlledTextField
+            label="Case File Number"
+            name="caseFileNumber"
+            placeholder="Enter Case File Number"
+            fullWidth
+          />
         </Stack>
       </Box>
     </>

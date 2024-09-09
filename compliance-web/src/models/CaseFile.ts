@@ -24,7 +24,7 @@ export interface CaseFileFormData {
 }
 
 export interface CaseFileAPIData {
-  project_id: number;
+  project_id?: number;
   date_created: string;
   lead_officer_id?: number;
   officer_ids?: number[];

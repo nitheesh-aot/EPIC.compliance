@@ -100,12 +100,14 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
           <ControlledTextField
             name="authorization"
             label="Authorization"
+            placeholder="Authorization"
             disabled={!!selectedProjectId}
             sx={{ width: "70%" }}
           />
           <ControlledTextField
             name="certificateHolder"
             label="Certificate Holder"
+            placeholder="Certificate Holder"
             disabled={!!selectedProjectId}
             fullWidth
           />
@@ -121,11 +123,17 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
         <ControlledTextField
           name="locationDescription"
           label="Location Description (optional)"
+          placeholder="Specify inspected location"
           multiline
           fullWidth
           minRows={2}
         />
-        <ControlledTextField name="utm" label="UTM (optional)" fullWidth />
+        <ControlledTextField
+          name="utm"
+          label="UTM (optional)"
+          placeholder="eg. 9U 454135 6399452"
+          fullWidth
+        />
         <Stack direction={"row"} gap={2}>
           <ControlledAutoComplete
             name="leadOfficer"

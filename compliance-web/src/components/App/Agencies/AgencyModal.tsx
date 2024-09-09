@@ -67,10 +67,16 @@ const AgencyModal: React.FC<AgencyModalProps> = ({ onSubmit, agency }) => {
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <ModalTitleBar title={agency ? agency.name : "Add Agency"} />
         <DialogContent dividers>
-          <ControlledTextField label="Name" name="name" fullWidth />
+          <ControlledTextField
+            label="Name"
+            name="name"
+            placeholder="eg. Canada Energy Regulator"
+            fullWidth
+          />
           <ControlledTextField
             label="Abbreviation (optional)"
             name="abbreviation"
+            placeholder="CER"
             fullWidth
           />
         </DialogContent>

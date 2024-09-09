@@ -25,12 +25,15 @@ function Inspections() {
   const [staffUserList, setStaffUserList] = useState<string[]>([]);
   const [irStatusList, setIRStatusList] = useState<string[]>([]);
   const [irTypeList, setIRTypeList] = useState<string[]>([]);
+  const [inspectionStatusList, setInspectionStatusList] = useState<string[]>(
+    []
+  );
 
   useEffect(() => {
     setProjectList(
-      [...new Set(inspectionsList?.map((insp) => insp.project?.name ?? ""))].filter(
-        Boolean
-      )
+      [
+        ...new Set(inspectionsList?.map((insp) => insp.project?.name ?? "")),
+      ].filter(Boolean)
     );
     setInitiationList(
       [
@@ -50,8 +53,15 @@ function Inspections() {
       ].filter(Boolean)
     );
     setIRTypeList(
+      [...new Set(inspectionsList?.map((insp) => insp.types ?? ""))].filter(
+        Boolean
+      )
+    );
+    setInspectionStatusList(
       [
-        ...new Set(inspectionsList?.map((insp) => insp.types ?? "")),
+        ...new Set(
+          inspectionsList?.map((insp) => insp.inspection_status ?? "")
+        ),
       ].filter(Boolean)
     );
   }, [inspectionsList]);
@@ -139,9 +149,23 @@ function Inspections() {
         },
       },
       {
-        accessorKey: "is_active",
+        accessorKey: "inspection_status",
         header: "Status",
-        size: 80,
+        filterVariant: "multi-select",
+        filterSelectOptions: inspectionStatusList,
+        Filter: ({ header, column }) => {
+          return (
+            <TableFilter
+              isMulti
+              header={header}
+              column={column}
+              variant="inline"
+              name="inspectionStatusFilter"
+              placeholder="Filter Status"
+            />
+          );
+        },
+        size: 150,
       },
       {
         accessorFn: (row) => row.lead_officer?.full_name,
@@ -168,7 +192,14 @@ function Inspections() {
         filterFn: searchFilter,
       },
     ],
-    [initiationList, irStatusList, irTypeList, projectList, staffUserList]
+    [
+      initiationList,
+      inspectionStatusList,
+      irStatusList,
+      irTypeList,
+      projectList,
+      staffUserList,
+    ]
   );
 
   const handleOnSubmit = (submitMsg: string) => {

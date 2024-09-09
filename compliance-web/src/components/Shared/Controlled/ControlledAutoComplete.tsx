@@ -20,6 +20,7 @@ interface FormAutocompleteProps<T>
   getOptionLabel: (option: T) => string;
   isOptionEqualToValue: (option: T, value: T) => boolean;
   multiple?: boolean;
+  placeholder?: string;
 }
 
 const ControlledAutoComplete = <T,>({
@@ -29,6 +30,7 @@ const ControlledAutoComplete = <T,>({
   getOptionLabel,
   isOptionEqualToValue,
   multiple,
+  placeholder = "Select an option...",
   ...props
 }: FormAutocompleteProps<T>) => {
   const {
@@ -79,9 +81,13 @@ const ControlledAutoComplete = <T,>({
             <TextField
               {...params}
               label={label}
+              placeholder={placeholder}
               name={name}
               error={!!errors[name]}
               helperText={String(errors[name]?.message ?? "")}
+              InputLabelProps={{
+                shrink: true, // for always display the placeholder
+              }}
             />
           )}
           ChipProps={multiple ? { deleteIcon: <Close /> } : undefined}
