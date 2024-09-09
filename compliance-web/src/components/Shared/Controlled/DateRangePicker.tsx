@@ -77,7 +77,7 @@ const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
 
     const renderInputText = () => {
       if (value.startDate && value.endDate) {
-        return `${value.startDate.format(DATE_FORMAT)} -- ${value.endDate.format(DATE_FORMAT)}`;
+        return `${value.startDate.format(DATE_FORMAT)} — ${value.endDate.format(DATE_FORMAT)}`;
       }
       if (value.startDate) {
         return `${value.startDate.format(DATE_FORMAT)} - `;
@@ -91,13 +91,16 @@ const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
           {...otherProps}
           value={renderInputText()}
           onClick={handleInputClick}
-          placeholder="Select date range"
+          placeholder={otherProps.placeholder}
           fullWidth
           InputProps={{
             readOnly: true,
           }}
           error={otherProps.error}
           helperText={otherProps.helperText}
+          InputLabelProps={{
+            shrink: true, // for always display the placeholder
+          }}
         />
         <Popover
           ref={ref}

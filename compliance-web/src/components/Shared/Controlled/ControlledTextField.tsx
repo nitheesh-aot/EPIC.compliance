@@ -45,6 +45,9 @@ const ControlledTextField: FC<IFormInputProps> = ({
           }}
           error={!!errors[name]}
           helperText={String(errors[name]?.message ?? "")}
+          InputLabelProps={{
+            shrink: true, // for always display the placeholder
+          }}
           {...otherProps}
         />
       )}

@@ -6,11 +6,13 @@ import DateRangePicker, { DateRange } from "./DateRangePicker";
 type IFormDateRangeInputProps = {
   name: string;
   label: string;
+  placeHolder?: string;
 } & TextFieldProps;
 
 const ControlledDateRangePicker: FC<IFormDateRangeInputProps> = ({
   name,
   label,
+  placeHolder = "YYYY-MM-DD — YYYY-MM-DD",
   ...otherProps
 }) => {
   const {
@@ -39,6 +41,7 @@ const ControlledDateRangePicker: FC<IFormDateRangeInputProps> = ({
                 ? (errors[name].endDate?.message as string)
                 : errors[name]?.message || ""
           )}
+          placeholder={placeHolder}
           {...otherProps}
         />
       )}

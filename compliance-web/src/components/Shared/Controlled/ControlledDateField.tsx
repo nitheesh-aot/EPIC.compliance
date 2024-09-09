@@ -7,11 +7,13 @@ import { TextFieldProps } from '@mui/material';
 type IFormDateInputProps = {
   name: string;
   label: string;
+  placeHolder?: string;
 } & DatePickerProps<Dayjs>;
 
 const ControlledDateField: FC<IFormDateInputProps> = ({
   name,
   label,
+  placeHolder = "YYYY-MM-DD",
   ...otherProps
 }) => {
   const {
@@ -35,6 +37,10 @@ const ControlledDateField: FC<IFormDateInputProps> = ({
             textField: {
               error: !!errors[name],
               helperText: errors[name] ? String(errors[name]?.message) : "",
+              placeholder: placeHolder,
+              InputLabelProps: {
+                shrink: true, // for always display the placeholder
+              }
             } as TextFieldProps,
           }}
           {...otherProps}
