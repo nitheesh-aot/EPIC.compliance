@@ -91,6 +91,7 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
           <ControlledAutoComplete
             name="caseFile"
             label="Case File"
+            placeholder="Select existing Case File"
             options={caseFilesList ?? []}
             getOptionLabel={(option) => option.case_file_number ?? ""}
             getOptionKey={(option) => option.id}
