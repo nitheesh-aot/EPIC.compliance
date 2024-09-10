@@ -5,10 +5,8 @@ import { CaseFile, CaseFileAPIData, CaseFileFormData } from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
 import { Project } from "@/models/Project";
 import { StaffUser } from "@/models/Staff";
-import { notify } from "@/store/snackbarStore";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Alert, Box, Button, Typography } from "@mui/material";
-import { AxiosError } from "axios";
 import { BCDesignTokens } from "epic.theme";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -80,11 +78,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
     reset();
   }, [caseFile, onSubmit, reset]);
 
-  const onError = useCallback((err: AxiosError) => {
-    notify.error(err?.message);
-  }, []);
-
-  const { mutate: createCaseFile } = useCreateCaseFile(onSuccess, onError);
+  const { mutate: createCaseFile } = useCreateCaseFile(onSuccess);
 
   const onSubmitHandler = useCallback(
     (data: CaseFileSchemaType) => {
@@ -109,7 +103,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <DrawerTitleBar title="Create Case File Number" isFormDirtyCheck />
+        <DrawerTitleBar title="Create Case File" isFormDirtyCheck />
         <Box
           sx={{
             backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,

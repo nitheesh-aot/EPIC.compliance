@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { OnErrorType, OnSuccessType, request } from "@/utils/axiosUtils";
+import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { Agency } from "@/models/Agency";
 
 const fetchAgencies = (): Promise<Agency[]> => {
@@ -31,35 +31,14 @@ export const useAgenciesData = () => {
   });
 };
 
-export const useAddAgency = (
-  onSuccess: OnSuccessType,
-  onError: OnErrorType
-) => {
-  return useMutation({
-    mutationFn: addAgency,
-    onSuccess,
-    onError,
-  });
+export const useAddAgency = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: addAgency, onSuccess });
 };
 
-export const useUpdateAgency = (
-  onSuccess: OnSuccessType,
-  onError: OnErrorType
-) => {
-  return useMutation({
-    mutationFn: updateAgency,
-    onSuccess,
-    onError,
-  });
+export const useUpdateAgency = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: updateAgency, onSuccess });
 };
 
-export const useDeleteAgency = (
-  onSuccess: OnSuccessType,
-  onError: OnErrorType
-) => {
-  return useMutation({
-    mutationFn: deleteAgency,
-    onSuccess,
-    onError,
-  });
+export const useDeleteAgency = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: deleteAgency, onSuccess });
 };

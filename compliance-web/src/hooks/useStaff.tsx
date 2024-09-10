@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { OnErrorType, OnSuccessType, request, requestAuthAPI } from "@/utils/axiosUtils";
+import { OnSuccessType, request, requestAuthAPI } from "@/utils/axiosUtils";
 import { Position } from "@/models/Position";
 import { Permission } from "@/models/Permission";
 import { StaffAPIData, StaffUser } from "@/models/Staff";
@@ -26,13 +26,7 @@ const addStaff = (staff: StaffAPIData) => {
   return request({ url: "/staff-users", method: "post", data: staff });
 };
 
-const updateStaff = ({
-  id,
-  staff,
-}: {
-  id: number;
-  staff: StaffAPIData;
-}) => {
+const updateStaff = ({ id, staff }: { id: number; staff: StaffAPIData }) => {
   return request({ url: `/staff-users/${id}`, method: "patch", data: staff });
 };
 
@@ -68,35 +62,14 @@ export const usePermissionsData = () => {
   });
 };
 
-export const useAddStaff = (
-  onSuccess: OnSuccessType,
-  onError: OnErrorType
-) => {
-  return useMutation({
-    mutationFn: addStaff,
-    onSuccess,
-    onError,
-  });
+export const useAddStaff = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: addStaff, onSuccess });
 };
 
-export const useUpdateStaff = (
-  onSuccess: OnSuccessType,
-  onError: OnErrorType
-) => {
-  return useMutation({
-    mutationFn: updateStaff,
-    onSuccess,
-    onError,
-  });
+export const useUpdateStaff = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: updateStaff, onSuccess });
 };
 
-export const useDeleteStaff = (
-  onSuccess: OnSuccessType,
-  onError: OnErrorType
-) => {
-  return useMutation({
-    mutationFn: deleteStaff,
-    onSuccess,
-    onError,
-  });
+export const useDeleteStaff = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: deleteStaff, onSuccess });
 };

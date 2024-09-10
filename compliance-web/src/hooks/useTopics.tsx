@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { OnErrorType, OnSuccessType, request } from "@/utils/axiosUtils";
+import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { Topic } from "@/models/Topic";
 
 const fetchTopics = (): Promise<Topic[]> => {
@@ -31,35 +31,23 @@ export const useTopicsData = () => {
   });
 };
 
-export const useAddTopic = (
-  onSuccess: OnSuccessType,
-  onError: OnErrorType
-) => {
+export const useAddTopic = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: addTopic,
     onSuccess,
-    onError,
   });
 };
 
-export const useUpdateTopic = (
-  onSuccess: OnSuccessType,
-  onError: OnErrorType
-) => {
+export const useUpdateTopic = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: updateTopic,
     onSuccess,
-    onError,
   });
 };
 
-export const useDeleteTopic = (
-  onSuccess: OnSuccessType,
-  onError: OnErrorType
-) => {
+export const useDeleteTopic = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: deleteTopic,
     onSuccess,
-    onError,
   });
 };

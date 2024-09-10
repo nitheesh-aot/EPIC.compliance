@@ -4,12 +4,10 @@ import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import { useCaseFilesData } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
-import { StaffUser } from "@/models/Staff";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import dateUtils from "@/utils/dateUtils";
-import { DeleteOutlineRounded, EditOutlined } from "@mui/icons-material";
-import { Box, Chip, IconButton } from "@mui/material";
+import { Chip } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
@@ -42,9 +40,7 @@ export function CaseFiles() {
     );
     setStatusList(
       [
-        ...new Set(
-          caseFilesList?.map((cf) => (cf.is_active ? "Active" : "Inactive"))
-        ),
+        ...new Set(caseFilesList?.map((cf) => cf.case_file_status ?? "")),
       ].filter(Boolean)
     );
     setStaffUserList(
@@ -67,18 +63,6 @@ export function CaseFiles() {
     queryClient.invalidateQueries({ queryKey: ["case-files"] });
     setClose();
     notify.success(submitMsg);
-  };
-
-  const handleEdit = (staff: StaffUser) => {
-    //TODO: EDIT
-    // eslint-disable-next-line no-console
-    console.log(staff);
-  };
-
-  const handleDelete = (id: number) => {
-    //TODO: DELETE
-    // eslint-disable-next-line no-console
-    console.log(id);
   };
 
   const columns = useMemo<MRT_ColumnDef<CaseFile>[]>(
@@ -131,23 +115,22 @@ export function CaseFiles() {
         header: "Date Created",
       },
       {
-        accessorKey: "is_active",
+        accessorKey: "case_file_status",
         header: "Status",
         Cell: ({ row }) => {
-          return row.original.is_active ? (
+          return row.original.case_file_status ? (
             <Chip
-              label="Active"
-              color="success"
+              label={row.original.case_file_status}
+              color={
+                row.original.case_file_status?.toLowerCase() === "open"
+                  ? "success"
+                  : "error"
+              }
               variant="outlined"
               size="small"
             />
           ) : (
-            <Chip
-              label="Inactive"
-              color="error"
-              variant="outlined"
-              size="small"
-            />
+            <></>
           );
         },
         filterVariant: "multi-select",
@@ -162,17 +145,6 @@ export function CaseFiles() {
               name="statusFilter"
               placeholder="Filter Status"
             />
-          );
-        },
-        filterFn: (row, id, filterValue) => {
-          if (
-            !filterValue.length ||
-            filterValue.length > statusList.length // select all is selected
-          ) {
-            return true;
-          }
-          return filterValue.includes(
-            row.getValue(id) || false ? "Active" : "Inactive"
           );
         },
       },
@@ -216,23 +188,6 @@ export function CaseFiles() {
           isLoading: isLoading,
           showGlobalFilter: true,
         }}
-        enableRowActions={true}
-        renderRowActions={({ row }) => (
-          <Box gap={".25rem"} display={"flex"}>
-            <IconButton
-              aria-label="edit"
-              onClick={() => handleEdit(row.original)}
-            >
-              <EditOutlined />
-            </IconButton>
-            <IconButton
-              aria-label="delete"
-              onClick={() => handleDelete(row.original.id)}
-            >
-              <DeleteOutlineRounded />
-            </IconButton>
-          </Box>
-        )}
         titleToolbarProps={{
           tableTitle: "Case Files",
           tableAddRecordButtonText: "Case File",

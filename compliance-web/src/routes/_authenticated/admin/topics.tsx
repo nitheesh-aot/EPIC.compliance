@@ -1,22 +1,21 @@
-import TopicModal from '@/components/App/Topics/TopicModal';
-import MasterDataTable from '@/components/Shared/MasterDataTable/MasterDataTable';
-import { searchFilter } from '@/components/Shared/MasterDataTable/utils';
-import ConfirmationModal from '@/components/Shared/Popups/ConfirmationModal';
-import { useDeleteTopic, useTopicsData } from '@/hooks/useTopics';
-import { Topic } from '@/models/Topic';
-import { useModal } from '@/store/modalStore';
-import { notify } from '@/store/snackbarStore';
-import { EditOutlined, DeleteOutlineRounded } from '@mui/icons-material';
-import { Box, IconButton } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router'
-import { AxiosError } from 'axios';
-import { MRT_ColumnDef } from 'material-react-table';
-import { useMemo } from 'react';
+import TopicModal from "@/components/App/Topics/TopicModal";
+import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
+import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import { useDeleteTopic, useTopicsData } from "@/hooks/useTopics";
+import { Topic } from "@/models/Topic";
+import { useModal } from "@/store/modalStore";
+import { notify } from "@/store/snackbarStore";
+import { EditOutlined, DeleteOutlineRounded } from "@mui/icons-material";
+import { Box, IconButton } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { MRT_ColumnDef } from "material-react-table";
+import { useMemo } from "react";
 
-export const Route = createFileRoute('/_authenticated/admin/topics')({
-  component: Topics
-})
+export const Route = createFileRoute("/_authenticated/admin/topics")({
+  component: Topics,
+});
 
 const TOPIC_MODAL_WIDTH = "520px";
 
@@ -66,14 +65,7 @@ export function Topics() {
     notify.success("Topic deleted successfully!");
   };
 
-  const onDeleteError = (error: AxiosError) => {
-    notify.error(`Topic deletion failed! ${error.message}`);
-  };
-
-  const { mutate: deleteTopic } = useDeleteTopic(
-    onDeleteSuccess,
-    onDeleteError
-  );
+  const { mutate: deleteTopic } = useDeleteTopic(onDeleteSuccess);
 
   const handleDelete = (id: number) => {
     setOpen({

@@ -6,6 +6,7 @@ import { useInspectionsData } from "@/hooks/useInspections";
 import { Inspection } from "@/models/Inspection";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
+import { Chip } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
@@ -151,6 +152,22 @@ function Inspections() {
       {
         accessorKey: "inspection_status",
         header: "Status",
+        Cell: ({ row }) => {
+          return row.original.inspection_status ? (
+            <Chip
+              label={row.original.inspection_status}
+              color={
+                row.original.inspection_status?.toLowerCase() === "open"
+                  ? "success"
+                  : "error"
+              }
+              variant="outlined"
+              size="small"
+            />
+          ) : (
+            <></>
+          );
+        },
         filterVariant: "multi-select",
         filterSelectOptions: inspectionStatusList,
         Filter: ({ header, column }) => {

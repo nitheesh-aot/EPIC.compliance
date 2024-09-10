@@ -4,10 +4,8 @@ import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
 import { Project } from "@/models/Project";
 import { StaffUser } from "@/models/Staff";
-import { notify } from "@/store/snackbarStore";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Button, Stack } from "@mui/material";
-import { AxiosError } from "axios";
 import { BCDesignTokens } from "epic.theme";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -174,11 +172,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     [inspection, onSubmit, reset]
   );
 
-  const onError = useCallback((err: AxiosError) => {
-    notify.error(err?.message);
-  }, []);
-
-  const { mutate: createInspection } = useCreateInspection(onSuccess, onError);
+  const { mutate: createInspection } = useCreateInspection(onSuccess);
 
   const getProjectId = (formData: InspectionSchemaType) => {
     const projectId = (formData.project as Project)?.id ?? "";
@@ -200,7 +194,8 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
           formData.dateRange?.startDate ?? new Date()
         ),
         end_date: dateUtils.dateToISO(
-          formData.dateRange?.endDate ?? new Date()
+          // adding hours to allow same value for start_date/end_date
+          dateUtils.add(formData.dateRange?.endDate ?? new Date(), 23, "hour")
         ),
         lead_officer_id: (formData.leadOfficer as StaffUser)?.id,
         inspection_officer_ids:

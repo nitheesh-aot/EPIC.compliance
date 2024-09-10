@@ -3,8 +3,6 @@ import ControlledTextField from "@/components/Shared/Controlled/ControlledTextFi
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { notify } from "@/store/snackbarStore";
-import { AxiosError } from "axios";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
 import { useEffect } from "react";
@@ -30,12 +28,8 @@ const TopicModal: React.FC<TopicModalProps> = ({ onSubmit, topic }) => {
     onSubmit(topic ? "Successfully updated!" : "Successfully added!");
   };
 
-  const onError = (err: AxiosError) => {
-    notify.error(err?.message);
-  };
-
-  const { mutate: addTopic } = useAddTopic(onSuccess, onError);
-  const { mutate: updateTopic } = useUpdateTopic(onSuccess, onError);
+  const { mutate: addTopic } = useAddTopic(onSuccess);
+  const { mutate: updateTopic } = useUpdateTopic(onSuccess);
 
   const methods = useForm({
     resolver: yupResolver(topicSchema),

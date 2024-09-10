@@ -27,14 +27,14 @@ describe("ControlledDateField Component", () => {
   it("renders the date picker component", () => {
     mount(<TestComponent />);
     cy.get("input").should("exist");
-    cy.get("input").should("have.attr", "placeholder", "MM/DD/YYYY");
+    cy.get("input").should("have.attr", "placeholder", "YYYY-MM-DD");
   });
 
   it("should handle date change", () => {
     mount(<TestComponent />);
-    const testDate = "08/15/2024";
+    const testDate = "2024-08-15";
     cy.get("input").type(testDate);
-    cy.get("input").should("have.value", "08/15/2024");
+    cy.get("input").should("have.value", "2024-08-15");
   });
 
   it("displays validation error", () => {

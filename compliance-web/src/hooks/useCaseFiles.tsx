@@ -1,6 +1,6 @@
 import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
-import { OnErrorType, OnSuccessType, request } from "@/utils/axiosUtils";
+import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 const fetchCaseFiles = (projectId?: number): Promise<CaseFile[]> => {
@@ -37,13 +37,6 @@ export const useInitiationsData = () => {
   });
 };
 
-export const useCreateCaseFile = (
-  onSuccess: OnSuccessType,
-  onError: OnErrorType
-) => {
-  return useMutation({
-    mutationFn: createCaseFile,
-    onSuccess,
-    onError,
-  });
+export const useCreateCaseFile = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: createCaseFile, onSuccess });
 };

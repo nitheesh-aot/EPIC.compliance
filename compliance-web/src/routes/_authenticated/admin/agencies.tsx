@@ -10,7 +10,6 @@ import { EditOutlined, DeleteOutlineRounded } from "@mui/icons-material";
 import { Box, IconButton } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { AxiosError } from "axios";
 import { MRT_ColumnDef } from "material-react-table";
 import { useMemo } from "react";
 
@@ -74,14 +73,7 @@ export function Agencies() {
     notify.success("Agency deleted successfully!");
   };
 
-  const onDeleteError = (error: AxiosError) => {
-    notify.error(`Agency deletion failed! ${error.message}`);
-  };
-
-  const { mutate: deleteAgency } = useDeleteAgency(
-    onDeleteSuccess,
-    onDeleteError
-  );
+  const { mutate: deleteAgency } = useDeleteAgency(onDeleteSuccess);
 
   const handleDelete = (id: number) => {
     setOpen({

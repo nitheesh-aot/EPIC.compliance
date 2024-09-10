@@ -3,9 +3,8 @@ import { Inspection, InspectionAPIData } from "@/models/Inspection";
 import { IRStatus } from "@/models/IRStatus";
 import { IRType } from "@/models/IRType";
 import { ProjectStatus } from "@/models/ProjectStatus";
-import { OnErrorType, OnSuccessType, request } from "@/utils/axiosUtils";
+import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
-
 
 const fetchIRTypes = (): Promise<IRType[]> => {
   return request({ url: "/inspections/type-options" });
@@ -66,13 +65,6 @@ export const useInspectionsData = () => {
   });
 };
 
-export const useCreateInspection = (
-  onSuccess: OnSuccessType,
-  onError: OnErrorType
-) => {
-  return useMutation({
-    mutationFn: createInspection,
-    onSuccess,
-    onError,
-  });
+export const useCreateInspection = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: createInspection, onSuccess });
 };
