@@ -5,8 +5,6 @@ import ControlledTextField from "@/components/Shared/Controlled/ControlledTextFi
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { notify } from "@/store/snackbarStore";
-import { AxiosError } from "axios";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
 import { useEffect } from "react";
@@ -31,12 +29,8 @@ const AgencyModal: React.FC<AgencyModalProps> = ({ onSubmit, agency }) => {
     onSubmit(agency ? "Successfully updated!" : "Successfully added!");
   };
 
-  const onError = (err: AxiosError) => {
-    notify.error(err?.message);
-  };
-
-  const { mutate: addAgency } = useAddAgency(onSuccess, onError);
-  const { mutate: updateAgency } = useUpdateAgency(onSuccess, onError);
+  const { mutate: addAgency } = useAddAgency(onSuccess);
+  const { mutate: updateAgency } = useUpdateAgency(onSuccess);
 
   const methods = useForm({
     resolver: yupResolver(agencySchema),
