@@ -1,8 +1,8 @@
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { DATE_FORMAT } from "./constants";
 
-type UnitOfTime = "seconds" | "minutes" | "hours" | "days" | "months" | "years";
+type UnitOfTime = "second" | "minute" | "hour" | "day" | "month" | "year";
 
 dayjs.extend(utc);
 /**
@@ -18,11 +18,11 @@ const diff = (fromDate: string, toDate: string, unitOfTime: UnitOfTime) => {
   return dayjs(fromDate).diff(dayjs(toDate), unitOfTime);
 };
 
-const add = (date: string, unit: number, unitOfTime: UnitOfTime) => {
+const add = (date: Date, unit: number, unitOfTime: UnitOfTime) => {
   return dayjs(date).add(unit, unitOfTime);
 };
 
-const dateToISO = (date: Date) => {
+const dateToISO = (date: Date | Dayjs) => {
   return dayjs(date).toISOString();
 };
 

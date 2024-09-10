@@ -200,7 +200,8 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
           formData.dateRange?.startDate ?? new Date()
         ),
         end_date: dateUtils.dateToISO(
-          formData.dateRange?.endDate ?? new Date()
+          // adding hours to allow same value for start_date/end_date
+          dateUtils.add(formData.dateRange?.endDate ?? new Date(), 23, "hour")
         ),
         lead_officer_id: (formData.leadOfficer as StaffUser)?.id,
         inspection_officer_ids:
