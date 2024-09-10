@@ -14,7 +14,7 @@ from compliance_api.models import InspectionTypeOption as InspectionTypeOptionMo
 from compliance_api.models import InspectionUnapprovedProject as InspectionUnapprovedProjectModel
 from compliance_api.models import IRStatusOption as IRStatusOptionModel
 from compliance_api.models.db import session_scope
-from compliance_api.models.inspection.inspection_enum import InspectionAttendanceOptionEnum
+from compliance_api.models.inspection.inspection_enum import InspectionAttendanceOptionEnum, InspectionStatusEnum
 from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
 
 from .case_file import CaseFileService
@@ -180,6 +180,7 @@ def _create_inspection_object(inspection_data: dict):
         "initiation_id": inspection_data.get("initiation_id"),
         "ir_status_id": inspection_data.get("ir_status_id", None),
         "project_status_id": inspection_data.get("project_status_id", None),
+        "inspection_status": InspectionStatusEnum.OPEN,
     }
 
 

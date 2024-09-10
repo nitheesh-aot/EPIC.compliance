@@ -217,7 +217,7 @@ class InspectionCreateSchema(BaseSchema):
         start_date = data.get("start_date")
         end_date = data.get("end_date")
 
-        if start_date and end_date and start_date >= end_date:
+        if start_date and end_date and start_date > end_date:
             raise ValidationError(
                 "End date must be after start date.", field_name="end_date"
             )
