@@ -12,21 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Common setup and fixtures for the pytest suite used by this service."""
+import os
 from random import random
-
+from faker import Faker
 import pytest
 from flask_migrate import Migrate, upgrade
 from sqlalchemy import event, text
-
+from compliance_api.config import get_named_config
 from compliance_api import create_app
 from compliance_api.auth import jwt as _jwt
 from compliance_api.models import db as _db
+from .utilities.factory_utils import factory_auth_header
+
+fake = Faker()
+CONFIG = get_named_config("testing")
 
 
 @pytest.fixture(scope="session")
 def app():
     """Return a session-wide application configured in TEST mode."""
-    _app = create_app("testing")
+    print("app is getting created")
+    os.environ["FLASK_ENV"] = "testing"
+    _app = create_app(run_mode="testing")
 
     return _app
 
@@ -34,7 +41,8 @@ def app():
 @pytest.fixture(scope="function")
 def app_request():
     """Return a session-wide application configured in TEST mode."""
-    _app = create_app("testing")
+    os.environ["FLASK_ENV"] = "testing"
+    _app = create_app(run_mode="testing")
 
     return _app
 
@@ -151,3 +159,37 @@ def docker_compose_files(pytestconfig):
 def auth_mock(monkeypatch):
     """Mock check_auth."""
     pass
+
+
+@pytest.fixture()
+def auth_header(client, jwt, request):
+    """Create a basic admin header for tests."""
+    staff_user = {
+        "iss": "https://dev.loginproxy.gov.bc.ca/auth/",
+        "aud": [
+            "epictrack-web",
+            "auth-web",
+            "epic-compliance",
+            "realm-management",
+            "account",
+        ],
+        "sub": "56a72960-2fe2-4410-8c20-76a1580b7c68",
+        "typ": "Bearer",
+        "azp": "flask-jwt-oidc-test-client",
+        "scope": "openid profile email",
+        "name": "Dinesh Peickal Balakrishnan",
+        "groups": [
+            "realm-viewer",
+            "realm-admin",
+            "offline_access",
+            "default-roles-eao-epic",
+            "uma_authorization",
+            "sysadmin",
+        ],
+        "preferred_username": "b16917cd4cba4df6acb9ff5ca4e56b28@idir",
+        "given_name": "Dinesh",
+        "family_name": "Peickal Balakrishnan",
+        "email": "dinesh.peickalbalakrishnan@gov.bc.ca",
+    }
+    headers = factory_auth_header(jwt=jwt, claims=staff_user)
+    return headers

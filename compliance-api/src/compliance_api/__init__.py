@@ -47,14 +47,18 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
 
     # All configuration are in config file
     app.config.from_object(get_named_config(run_mode))
-
+    print("PRINTING PERM")
+    print(app.config["JWT_OIDC_TEST_PRIVATE_KEY_PEM"])
     CORS(
         app, resources={r"/*": {"origins": allowedorigins()}}, supports_credentials=True
     )
 
     # Setup jwt for keycloak
-    if os.getenv("FLASK_ENV", "production") != "testing":
-        setup_jwt_manager(app, jwt)
+    print(f"environment is {run_mode}")
+    # if os.getenv("FLASK_ENV", "production") != "testing":
+    setup_jwt_manager(app, jwt)
+    # else:
+    #     jwt.init_app(app)
 
     # Database connection initialize
     db.init_app(app)

@@ -34,3 +34,9 @@ JWT_HEADER = {
 def set_global_tenant(tenant_id=1):
     """Set the global tenant id."""
     g.tenant_id = tenant_id
+
+def factory_auth_header(jwt, claims):
+    """Produce JWT tokens for use in tests."""
+    return {
+        "Authorization": "Bearer " + jwt.create_jwt(claims=claims, header=JWT_HEADER)
+    }
