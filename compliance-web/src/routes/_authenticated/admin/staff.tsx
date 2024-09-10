@@ -12,7 +12,6 @@ import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import { useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 export const Route = createFileRoute("/_authenticated/admin/staff")({
@@ -86,11 +85,7 @@ export function Staff() {
     notify.success("Staff deleted successfully!");
   };
 
-  const onDeleteError = (error: AxiosError) => {
-    notify.error(`Staff deletion failed! ${error.message}`);
-  };
-
-  const { mutate: deleteUser } = useDeleteStaff(onDeleteSuccess, onDeleteError);
+  const { mutate: deleteUser } = useDeleteStaff(onDeleteSuccess);
 
   const handleDelete = (id: number) => {
     setOpen({
@@ -105,7 +100,7 @@ export function Staff() {
             }
           }}
         />
-      )
+      ),
     });
   };
 

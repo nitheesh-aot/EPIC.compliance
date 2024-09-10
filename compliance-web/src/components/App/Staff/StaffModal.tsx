@@ -12,8 +12,6 @@ import { DialogContent } from "@mui/material";
 import { useEffect, useMemo } from "react";
 import StaffForm from "./StaffForm";
 import { AuthUser } from "@/models/AuthUser";
-import { notify } from "@/store/snackbarStore";
-import { AxiosError } from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
@@ -97,12 +95,8 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
     onSubmit(staff ? "Successfully updated!" : "Successfully added!");
   };
 
-  const onError = (err: AxiosError) => {
-    notify.error(err?.message);
-  };
-
-  const { mutate: addStaff } = useAddStaff(onSuccess, onError);
-  const { mutate: updateStaff } = useUpdateStaff(onSuccess, onError);
+  const { mutate: addStaff } = useAddStaff(onSuccess);
+  const { mutate: updateStaff } = useUpdateStaff(onSuccess);
 
   const onSubmitHandler = (data: StaffSchemaType) => {
     const staffData: StaffAPIData = {
