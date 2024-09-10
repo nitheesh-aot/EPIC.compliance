@@ -11,3 +11,5 @@ export const INITIATION = {
   INSPECTION_ID: "1",
   COMPLAINTS_ID: "2",
 };
+
+export const CORS_ERROR_MSG = "Network error or CORS issue";

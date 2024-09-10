@@ -1,10 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { notify } from "@/store/snackbarStore";
 import { AppConfig, OidcConfig } from "@/utils/config";
 import axios, { AxiosError, AxiosInstance } from "axios";
 import { User } from "oidc-client-ts";
+import { CORS_ERROR_MSG } from "./constants";
 
 export type OnErrorType = (error: AxiosError) => void;
 export type OnSuccessType = (data: any) => void;
+
+type ErrorResponseData = {
+  message: string;
+};
 
 export function getUser() {
   const oidcStorage = sessionStorage.getItem(
@@ -23,7 +29,14 @@ const onError = (error: AxiosError) => {
   // optionaly catch errors and add additional logging here
   if (!error.response) {
     // CORS error or network error
-    throw new Error("Network error or CORS issue");
+    notify.error(CORS_ERROR_MSG);
+    throw new Error(CORS_ERROR_MSG);
+  } else {
+    notify.error(
+      (error.response?.data as ErrorResponseData)?.message ??
+        error.message ??
+        "API Error!"
+    );
   }
   throw error;
 };
