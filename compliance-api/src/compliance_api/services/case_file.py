@@ -5,7 +5,7 @@ from datetime import datetime
 from compliance_api.exceptions import ResourceExistsError
 from compliance_api.models import CaseFile as CaseFileModel
 from compliance_api.models import CaseFileInitiationOption as CaseFileInitiationOptionModel
-from compliance_api.models import CaseFileOfficer
+from compliance_api.models import CaseFileOfficer, CaseFileStatusEnum
 from compliance_api.models.db import session_scope
 
 
@@ -98,6 +98,7 @@ def _create_case_file_object(case_file_data: dict):
             datetime.now().year
         )
     case_file_data_copy.pop("officer_ids")
+    case_file_data_copy["case_file_status"] = CaseFileStatusEnum.OPEN
     return case_file_data_copy
 
 
