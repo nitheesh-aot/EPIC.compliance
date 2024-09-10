@@ -13,7 +13,6 @@ import {
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
 import { notify } from "@/store/snackbarStore";
-import { AxiosError } from "axios";
 import { INITIATION } from "@/utils/constants";
 
 type LinkCaseFileModalProps = {
@@ -62,11 +61,7 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
     [onSubmit, reset]
   );
 
-  const onError = useCallback((err: AxiosError) => {
-    notify.error(err?.message);
-  }, []);
-
-  const { mutate: createCaseFile } = useCreateCaseFile(onSuccess, onError);
+  const { mutate: createCaseFile } = useCreateCaseFile(onSuccess);
 
   useEffect(() => {
     reset(initFormData);

@@ -63,22 +63,13 @@ export const usePermissionsData = () => {
 };
 
 export const useAddStaff = (onSuccess: OnSuccessType) => {
-  return useMutation({
-    mutationFn: addStaff,
-    onSuccess,
-  });
+  return useMutation({ mutationFn: addStaff, onSuccess });
 };
 
 export const useUpdateStaff = (onSuccess: OnSuccessType) => {
-  return useMutation({
-    mutationFn: updateStaff,
-    onSuccess,
-  });
+  return useMutation({ mutationFn: updateStaff, onSuccess });
 };
 
 export const useDeleteStaff = (onSuccess: OnSuccessType) => {
-  return useMutation({
-    mutationFn: deleteStaff,
-    onSuccess,
-  });
+  return useMutation({ mutationFn: deleteStaff, onSuccess });
 };
