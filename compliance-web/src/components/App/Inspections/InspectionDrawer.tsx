@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useMenuStore } from "@/store/menuStore";
 import { IRType } from "@/models/IRType";
 import {
+  useAttendanceOptionsData,
   useCreateInspection,
   useInitiationsData,
   useIRStatusesData,
@@ -34,6 +35,8 @@ import { ProjectStatus } from "@/models/ProjectStatus";
 import InspectionFormRight from "./InspectionFormRight";
 import { useModal } from "@/store/modalStore";
 import LinkCaseFileModal from "./LinkCaseFileModal";
+import { useAgenciesData } from "@/hooks/useAgencies";
+import { useFirstNationsData } from "@/hooks/useFirstNations";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -135,6 +138,9 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const { data: irTypeList } = useIRTypesData();
   const { data: irStatusList } = useIRStatusesData();
   const { data: projectStatusList } = useProjectStatusesData();
+  const { data: attendanceList } = useAttendanceOptionsData();
+  const { data: agenciesList } = useAgenciesData();
+  const { data: firstNationsList } = useFirstNationsData();
 
   const defaultValues = useMemo<InspectionFormData>(() => {
     if (inspection) {
@@ -290,6 +296,9 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
           <InspectionFormRight
             irStatusList={irStatusList ?? []}
             projectStatusList={projectStatusList ?? []}
+            attendanceList={attendanceList ?? []}
+            agenciesList={agenciesList ?? []}
+            firstNationsList={firstNationsList ?? []}
           />
         </Stack>
       </form>
