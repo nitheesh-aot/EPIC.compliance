@@ -26,6 +26,7 @@ from flask import Blueprint
 from .agency import API as AGENCY_API
 from .apihelper import Api
 from .case_file import API as CASE_FILE_API
+from .complaint import API as COMPLAINT_API
 from .inspection import API as INSPECTION_API
 from .ops import API as OPS_API
 from .position import API as POSITION_API
@@ -33,7 +34,6 @@ from .project import API as PROJECT_API
 from .project_status import API as PROJECT_STATUS_API
 from .staff_user import API as USER_API
 from .topic import API as TOPIC_API
-from .complaint import API as COMPLAINT_API
 
 
 __all__ = ("API_BLUEPRINT", "OPS_BLUEPRINT")

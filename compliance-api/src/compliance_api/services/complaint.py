@@ -1,6 +1,7 @@
 """Service for managing complaint."""
 
 from compliance_api.models.complaint import ComplaintSource as ComplaintSourceModel
+from compliance_api.models.complaint import RequirementSource as RequirementSourceModel
 
 
 class ComplaintService:
@@ -14,4 +15,4 @@ class ComplaintService:
     @classmethod
     def get_requirement_sources(cls):
         """Get requirement sources."""
-        return ComplaintSourceModel.get_all(sort_by="sort_order")
+        return RequirementSourceModel.get_all(sort_by="sort_order")
