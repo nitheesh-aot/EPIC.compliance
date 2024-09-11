@@ -37,7 +37,6 @@ def get_named_config(config_name: str = "development"):
     if config_name in ["production", "staging", "default"]:
         config = ProdConfig()
     elif config_name == "testing":
-        print("using test config")
         config = TestConfig()
     elif config_name == "development":
         config = DevConfig()
@@ -85,12 +84,6 @@ class _Config:  # pylint: disable=too-few-public-methods
     AUTH_BASE_URL = os.getenv("AUTH_BASE_URL")
     EPIC_TRACK_URL = os.getenv("EPIC_TRACK_URL")
 
-
-class DevConfig(_Config):  # pylint: disable=too-few-public-methods
-    """Dev Config."""
-
-    TESTING = False
-    DEBUG = True
     JWT_OIDC_WELL_KNOWN_CONFIG = os.getenv("JWT_OIDC_WELL_KNOWN_CONFIG")
     JWT_OIDC_ALGORITHMS = os.getenv("JWT_OIDC_ALGORITHMS", "RS256")
     JWT_OIDC_JWKS_URI = os.getenv("JWT_OIDC_JWKS_URI")
@@ -98,6 +91,13 @@ class DevConfig(_Config):  # pylint: disable=too-few-public-methods
     JWT_OIDC_AUDIENCE = os.getenv("JWT_OIDC_AUDIENCE", "account")
     JWT_OIDC_CACHING_ENABLED = os.getenv("JWT_OIDC_CACHING_ENABLED", "True")
     JWT_OIDC_JWKS_CACHE_TIMEOUT = 300
+
+
+class DevConfig(_Config):  # pylint: disable=too-few-public-methods
+    """Dev Config."""
+
+    TESTING = False
+    DEBUG = True
     print(f"SQLAlchemy URL (DevConfig): {_Config.SQLALCHEMY_DATABASE_URI}")
 
 
@@ -110,7 +110,7 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
     # POSTGRESQL
     DB_USER = os.getenv("DATABASE_TEST_USERNAME", "postgres")
     DB_PASSWORD = os.getenv("DATABASE_TEST_PASSWORD", "postgres")
-    DB_NAME = os.getenv("DATABASE_TEST_NAME", "testdb")
+    DB_NAME = os.getenv("DATABASE_TEST_NAME", "postgres")
     DB_HOST = os.getenv("DATABASE_TEST_HOST", "localhost")
     DB_PORT = os.getenv("DATABASE_TEST_PORT", "5432")
     SQLALCHEMY_DATABASE_URI = (
@@ -132,7 +132,10 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
                 "kty": "RSA",
                 "alg": "RSA256",
                 "use": "sig",
-                "n": "3VRgQebxojvZlZv+rySZioGXjK5Ky4YOZ0LxFbQztwY93XaPeutDKAp7wNaYfRrx1Gwu0PpBgj+Lmg3vTqPvjRb0Uc23hr1cT68hHxgjIjvk7xXzGv66xwIPOWZXed4LcLbdCf67qvjjFT3ZD7poXnXM5lWlBHrIHQ5s7iUia9eHwoe96dDRzvDGrsoUvs1z5BdKvXby5usNQSWl6a0jrJ0KBatIY//9k8mwmDZ7iBEz4ag9ly1KXiwMQfzdSo5r/xX63sV/8P33AjLtDEZYTUDr/YVMyh7G5MocyIDOM89dXpX3qdRY1RvTK0+Tg+hshMZQyEXO8qui/FrXhCrPVw==",
+                "n": "3VRgQebxojvZlZv+rySZioGXjK5Ky4YOZ0LxFbQztwY93XaPeutDKAp7wNaYfRrx1Gwu0PpBgj+Lmg3vTqPvjR"
+                "b0Uc23hr1cT68hHxgjIjvk7xXzGv66xwIPOWZXed4LcLbdCf67qvjjFT3ZD7poXnXM5lWlBHrIHQ5s7iUia9eHwoe96d"
+                "DRzvDGrsoUvs1z5BdKvXby5usNQSWl6a0jrJ0KBatIY//9k8mwmDZ7iBEz4ag9ly1KXiwMQfzdSo5r/xX63sV/8P33Aj"
+                "LtDEZYTUDr/YVMyh7G5MocyIDOM89dXpX3qdRY1RvTK0+Tg+hshMZQyEXO8qui/FrXhCrPVw==",
                 "e": "AQAB",
             }
         ]
@@ -145,14 +148,25 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
                 "kty": "RSA",
                 "alg": "RSA256",
                 "use": "sig",
-                "n": "3VRgQebxojvZlZv+rySZioGXjK5Ky4YOZ0LxFbQztwY93XaPeutDKAp7wNaYfRrx1Gwu0PpBgj+Lmg3vTqPvjRb0Uc23hr1cT68hHxgjIjvk7xXzGv66xwIPOWZXed4LcLbdCf67qvjjFT3ZD7poXnXM5lWlBHrIHQ5s7iUia9eHwoe96dDRzvDGrsoUvs1z5BdKvXby5usNQSWl6a0jrJ0KBatIY//9k8mwmDZ7iBEz4ag9ly1KXiwMQfzdSo5r/xX63sV/8P33AjLtDEZYTUDr/YVMyh7G5MocyIDOM89dXpX3qdRY1RvTK0+Tg+hshMZQyEXO8qui/FrXhCrPVw==",
+                "n": "3VRgQebxojvZlZv+rySZioGXjK5Ky4YOZ0LxFbQztwY93XaPeutDKAp7wNaYfRrx1Gwu0PpBgj+Lmg3vTqPvjRb0Uc23hr"
+                "1cT68hHxgjIjvk7xXzGv66xwIPOWZXed4LcLbdCf67qvjjFT3ZD7poXnXM5lWlBHrIHQ5s7iUia9eHwoe96dDRzvDGrsoUvs"
+                "1z5BdKvXby5usNQSWl6a0jrJ0KBatIY//9k8mwmDZ7iBEz4ag9ly1KXiwMQfzdSo5r/xX63sV/8P33AjLtDEZYTUDr/YVMyh"
+                "7G5MocyIDOM89dXpX3qdRY1RvTK0+Tg+hshMZQyEXO8qui/FrXhCrPVw==",
                 "e": "AQAB",
-                "d": "eXTgDcoqN5kYYh1kucAf8f4DqFPM/7rlFI2LtxlYd8uZD3sMaavJAqQeHUimDaFHrAZh+pQadttgRH35IPKddpNuJ6X4XJx1l9THHEUmopaznvAwpFO9M5BRwnIC9wF+za/LxLxhSAWkt/dksljdBVknxA6jq72lKyzLYjRGm155+O8vBeEOctsgJoEDso5pIf4MxQVedD3dFORjAX2ufbsDhxhw3OV5rOpzYCQ4KCsOFYcEFWVQs2j/PSkUiby2rCmxfVn/FYfXgNhYlNPcEdYZ+wtTCazsj/VidQ4iu1R18e1b7fhp630+qzjRCPwNLZcdqWisgMNR/JfFKn5boQ==",
-                "p": "APKukszUOTbKcZzuXVo3F+8V7ZCWqwF5UXM6WILoWXDdECf+OW2M6VeEcqwd2CyvX2NTSFXmtptgnfaDNb4x7cim9mO2ZEDrxyqH8NzMSDrxeWGa710yz0zekI7xuvc5fzs0hP+paHBumBDIj5wLDFt25yAt7qLvmMh1v7B4rP+t",
-                "q": "AOl50x3AM4yjrXeVw5V2IFKpYb4Ag4pJqjhuJcYOZCCijWo6fzV9ClvJGKjkAXvx3sktceq7pLzhTDyYbCq4uMe59ChRyHxiA9Mp7+FnVs0qrTue8GEpk3uG7+Ce7uYzSwcZGfP2mI3bdXqhc2399nleBWCawEB5S2GaGPY559uT",
-                "dp": "AN1At+oy2m7Pp0FyOH4VmKaLkWmvU/0mBFJPsX64I0M46I/twaHVRLBbusic9QfYY9kEhwB6NaX3Mk0bVxYuIyI6xowmL8TYsV5fTgOf44KJwSZxwSVxO3pTt+v7C4B2VT8/JLqKUwOecNlsYTHdCMki4JmABv9Z/itU3w0fGGqJ",
-                "dq": "fO4PJZA/BTZgD+k3arZ2vUSdZInp2Qlp6CAoXj49HaldekYq43gxHsQQSe8XTDc0OvnyRuR5VghIPvRgjMujNFwwZZK9cLER0uBR147wR4BaidiWT6drn2Go4cypkMxJjVbFKGH/Z4jS5/eUSHrodDD3N6YW0WkWCPfn+3kos7k=",
-                "qi": "AJd7yPx3l6dEoYNkhGL/mGURwOBVq54HIh2O8BAJZE5gKgmtOnDndYlvNn2Nt3+O40bDM281PamSDN6lcbfTTcMmqzPWx0LWSga1w04ugaQIJltfJpxVaelVL4IydKlPQ8hU6Jp8H1EIdC15U4D3bsvWVBHXewqhKChqmBbrRIUk",
+                "d": "eXTgDcoqN5kYYh1kucAf8f4DqFPM/7rlFI2LtxlYd8uZD3sMaavJAqQeHUimDaFHrAZh+pQadttgRH35IPKddpNuJ6X4X"
+                "Jx1l9THHEUmopaznvAwpFO9M5BRwnIC9wF+za/LxLxhSAWkt/dksljdBVknxA6jq72lKyzLYjRGm155+O8vBeEOctsgJoEDso"
+                "5pIf4MxQVedD3dFORjAX2ufbsDhxhw3OV5rOpzYCQ4KCsOFYcEFWVQs2j/PSkUiby2rCmxfVn/FYfXgNhYlNPcEdYZ+wtTCazs"
+                "j/VidQ4iu1R18e1b7fhp630+qzjRCPwNLZcdqWisgMNR/JfFKn5boQ==",
+                "p": "APKukszUOTbKcZzuXVo3F+8V7ZCWqwF5UXM6WILoWXDdECf+OW2M6VeEcqwd2CyvX2NTSFXmtptgnfaDNb4x7cim9mO2ZED"
+                "rxyqH8NzMSDrxeWGa710yz0zekI7xuvc5fzs0hP+paHBumBDIj5wLDFt25yAt7qLvmMh1v7B4rP+t",
+                "q": "AOl50x3AM4yjrXeVw5V2IFKpYb4Ag4pJqjhuJcYOZCCijWo6fzV9ClvJGKjkAXvx3sktceq7pLzhTDyYbCq4uMe59ChRyHxi"
+                "A9Mp7+FnVs0qrTue8GEpk3uG7+Ce7uYzSwcZGfP2mI3bdXqhc2399nleBWCawEB5S2GaGPY559uT",
+                "dp": "AN1At+oy2m7Pp0FyOH4VmKaLkWmvU/0mBFJPsX64I0M46I/twaHVRLBbusic9QfYY9kEhwB6NaX3Mk0bVxYuIyI6xowmL8T"
+                "YsV5fTgOf44KJwSZxwSVxO3pTt+v7C4B2VT8/JLqKUwOecNlsYTHdCMki4JmABv9Z/itU3w0fGGqJ",
+                "dq": "fO4PJZA/BTZgD+k3arZ2vUSdZInp2Qlp6CAoXj49HaldekYq43gxHsQQSe8XTDc0OvnyRuR5VghIPvRgjMujNFwwZZK9cLE"
+                "R0uBR147wR4BaidiWT6drn2Go4cypkMxJjVbFKGH/Z4jS5/eUSHrodDD3N6YW0WkWCPfn+3kos7k=",
+                "qi": "AJd7yPx3l6dEoYNkhGL/mGURwOBVq54HIh2O8BAJZE5gKgmtOnDndYlvNn2Nt3+O40bDM281PamSDN6lcbfTTcMmqzPWx0"
+                "LWSga1w04ugaQIJltfJpxVaelVL4IydKlPQ8hU6Jp8H1EIdC15U4D3bsvWVBHXewqhKChqmBbrRIUk",
             }
         ]
     }

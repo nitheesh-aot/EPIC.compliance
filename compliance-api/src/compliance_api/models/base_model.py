@@ -62,10 +62,10 @@ class BaseModel(db.Model):
     @classmethod
     def find_by_id(cls, identifier: int):
         """Return model by id."""
-        query = {}
+        query = cls.query.filter_by(id=identifier)
         if hasattr(cls, "is_deleted"):
-            query["is_deleted"] = False
-        return cls.query.get(identifier)
+            query = query.filter_by(is_deleted=False)
+        return query.first()
 
     @staticmethod
     def commit():
