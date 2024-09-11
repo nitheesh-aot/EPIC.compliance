@@ -1,3 +1,4 @@
+import { Attendance } from "@/models/Attendance";
 import { Initiation } from "@/models/Initiation";
 import { Inspection, InspectionAPIData } from "@/models/Inspection";
 import { IRStatus } from "@/models/IRStatus";
@@ -16,6 +17,10 @@ const fetchInitiations = (): Promise<Initiation[]> => {
 
 const fetchIRStatuses = (): Promise<IRStatus[]> => {
   return request({ url: "/inspections/ir-status-options" });
+};
+
+const fetchAttendanceOptions = (): Promise<Attendance[]> => {
+  return request({ url: "/inspections/attendance-options" });
 };
 
 const fetchProjectStatuses = (): Promise<ProjectStatus[]> => {
@@ -48,6 +53,13 @@ export const useIRStatusesData = () => {
   return useQuery({
     queryKey: ["ir-statuses"],
     queryFn: fetchIRStatuses,
+  });
+};
+
+export const useAttendanceOptionsData = () => {
+  return useQuery({
+    queryKey: ["attendance-options"],
+    queryFn: fetchAttendanceOptions,
   });
 };
 
