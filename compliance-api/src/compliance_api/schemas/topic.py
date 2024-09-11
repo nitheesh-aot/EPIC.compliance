@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Topic Schema."""
-from marshmallow import EXCLUDE, Schema, fields
+from marshmallow import EXCLUDE, fields, validate
 
 from compliance_api.models.topic import Topic
 
-from .base_schema import AutoSchemaBase
+from .base_schema import AutoSchemaBase, BaseSchema
 
 
 class TopicSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
@@ -30,7 +30,11 @@ class TopicSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         include_fk = True
 
 
-class TopicCreateSchema(Schema):  # pylint: disable=too-many-ancestors
+class TopicCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     """topic create Schema."""
 
-    name = fields.Str(metadata={"description": "The name of the topic"})
+    name = fields.Str(
+        metadata={"description": "The name of the topic"},
+        required=True,
+        validate=validate.Length(min=1, error="Name cannot be an empty string"),
+    )

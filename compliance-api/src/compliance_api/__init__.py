@@ -47,21 +47,19 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
 
     # All configuration are in config file
     app.config.from_object(get_named_config(run_mode))
-
     CORS(
         app, resources={r"/*": {"origins": allowedorigins()}}, supports_credentials=True
     )
 
     # Setup jwt for keycloak
-    if os.getenv("FLASK_ENV", "production") != "testing":
-        setup_jwt_manager(app, jwt)
+    print(f"environment is {run_mode}")
+    setup_jwt_manager(app, jwt)
 
     # Database connection initialize
     db.init_app(app)
 
     # # Database migrate initialize
     migrate.init_app(app, db)
-
     # Marshmallow initialize
     ma.init_app(app)
     # Register blueprints

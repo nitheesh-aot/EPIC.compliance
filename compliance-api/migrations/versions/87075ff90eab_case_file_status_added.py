@@ -93,5 +93,6 @@ def downgrade():
                nullable=False,
                existing_comment='The unique identifier of the project associated with the case file')
         batch_op.drop_column('case_file_status')
+        batch_op.execute(sa.text("DROP TYPE IF EXISTS casefilestatusenum CASCADE"))
 
     # ### end Alembic commands ###

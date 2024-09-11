@@ -34,6 +34,13 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('compliance-api/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install dependencies
         run: |
           sudo apt update
@@ -48,20 +55,22 @@ jobs:
         run: |
           make flake8
 
-
   testing:
-     needs: setup-job
-     env:
-       FLASK_ENV: "testing"
-       DATABASE_TEST_URL: "postgresql://postgres:postgres@localhost:5432/postgres"
+    needs: setup-job
+    env:
+      FLASK_ENV: "testing"
+      JWT_OIDC_TEST_AUDIENCE: "epic-compliance"
+      JWT_OIDC_TEST_ISSUER: "http://localhost:8081/auth/"
+      JWT_OIDC_TEST_ALGORITHMS: "RS256"
+      JWT_OIDC_TEST_WELL_KNOWN_CONFIG: "http://localhost:8081/auth/realms/eao-epic/.well-known/openid-configuration"
 
-     runs-on: ubuntu-20.04
+    runs-on: ubuntu-20.04
 
-     strategy:
-       matrix:
-         python-version: [3.9]
+    strategy:
+      matrix:
+        python-version: [3.9]
 
-     services:
+    services:
       postgres:
         image: postgres:12
         env:
@@ -73,30 +82,37 @@ jobs:
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
-     steps:
-       - uses: actions/checkout@v4
-         with:
-           fetch-depth: 0
-       - name: Set up Python ${{ matrix.python-version }}
-         uses: actions/setup-python@v4
-         with:
-           python-version: ${{ matrix.python-version }}
-       - name: Install dependencies
-         run: |
-           make setup
-       - name: Test
-         id: test
-         run: |
-           make test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('compliance-api/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install dependencies
+        run: |
+          make setup
+      - name: Test
+        id: test
+        run: |
+          make test
 
-       - name: Sets Codecov branch name
-         run: |
-            echo "CODECOV_BRANCH=PR_${{github.head_ref}}" >> $GITHUB_ENV
-         if: github.event_name == 'pull_request'
+      - name: Sets Codecov branch name
+        run: |
+          echo "CODECOV_BRANCH=PR_${{github.head_ref}}" >> $GITHUB_ENV
+        if: github.event_name == 'pull_request'
 
-       - name: Upload coverage to Codecov
-         uses: codecov/codecov-action@v4
-         with:
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
           flags: compliance-api
           name: codecov-compliance-api
           fail_ci_if_error: true
@@ -105,7 +121,6 @@ jobs:
           override_branch: ${{ env.CODECOV_BRANCH }}
 
   build:
-    # needs: PyTest
     runs-on: ubuntu-20.04
     strategy:
       matrix:
