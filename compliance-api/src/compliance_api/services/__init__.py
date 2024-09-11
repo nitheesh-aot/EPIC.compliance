@@ -14,6 +14,7 @@
 """Exposes all of the Services used in the compliance_api."""
 from .agency import AgencyService
 from .case_file import CaseFileService
+from .complaint import ComplaintService
 from .inspection import InspectionService
 from .position import PositionService
 from .project import ProjectService

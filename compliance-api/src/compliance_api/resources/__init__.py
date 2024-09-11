@@ -33,6 +33,7 @@ from .project import API as PROJECT_API
 from .project_status import API as PROJECT_STATUS_API
 from .staff_user import API as USER_API
 from .topic import API as TOPIC_API
+from .complaint import API as COMPLAINT_API
 
 
 __all__ = ("API_BLUEPRINT", "OPS_BLUEPRINT")
@@ -75,3 +76,4 @@ API.add_namespace(PROJECT_API)
 API.add_namespace(INSPECTION_API)
 API.add_namespace(PROJECT_STATUS_API)
 API.add_namespace(TOPIC_API)
+API.add_namespace(COMPLAINT_API)
