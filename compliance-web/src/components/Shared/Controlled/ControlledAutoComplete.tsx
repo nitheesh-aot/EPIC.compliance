@@ -81,7 +81,7 @@ const ControlledAutoComplete = <T,>({
             <TextField
               {...params}
               label={label}
-              placeholder={placeholder}
+              placeholder={multiple && field?.value?.length ? "" : placeholder}
               name={name}
               error={!!errors[name]}
               helperText={String(errors[name]?.message ?? "")}
