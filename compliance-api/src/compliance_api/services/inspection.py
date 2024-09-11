@@ -159,7 +159,9 @@ def _create_unapproved_project_object(inspection_data: dict, inspection_id: int)
         "name": UNAPPROVED_PROJECT_NAME,
         "description": inspection_data.get("unapproved_project_description"),
         "authorization": inspection_data.get("unapproved_project_authorization"),
-        "proponent_name": inspection_data.get("unapproved_project_proponent_name"),
+        "regulated_party": inspection_data.get("unapproved_project_regulated_party"),
+        "type": inspection_data.get("unapproved_project_type"),
+        "sub_type": inspection_data.get("unapproved_project_sub_type"),
         "inspection_id": inspection_id,
     }
 

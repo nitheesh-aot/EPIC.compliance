@@ -137,9 +137,17 @@ class InspectionCreateSchema(BaseSchema):
         },
         allow_none=True,
     )
-    unapproved_project_proponent_name = fields.Str(
-        metadata={"description": "The proponent name of the unapproved project"},
+    unapproved_project_regulated_party = fields.Str(
+        metadata={"description": "The regulated_party name of the unapproved project"},
         allow_none=True,
+    )
+    unapproved_project_type = fields.Str(
+        metadata={"description": "The type of the unapproved project"},
+        allow_none=True
+    )
+    unapproved_project_sub_type = fields.Str(
+        metadata={"description": "The sub type of the unapproved project"},
+        allow_none=True
     )
 
     @validates_schema
@@ -197,16 +205,16 @@ class InspectionCreateSchema(BaseSchema):
             )
 
     @validates_schema
-    def validate_unapproved_project_proponent_name(
+    def validate_unapproved_project_regulated_party(
         self, data, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
-        """Ensure that unapproved_project_proponent_name has value if project_id is null."""
+        """Ensure that unapproved_project_regulated_party has value if project_id is null."""
         project_id = data.get("project_id", None)
-        value = data.get("unapproved_project_proponent_name", None)
+        value = data.get("unapproved_project_regulated_party", None)
         if not project_id and not value:
             raise ValidationError(
-                f"Unapproved project proponent name is required as {UNAPPROVED_PROJECT_NAME} is chosen",
-                field_name="unapproved_project_proponent_name",
+                f"Unapproved project regulated party is required as {UNAPPROVED_PROJECT_NAME} is chosen",
+                field_name="unapproved_project_regulated_party",
             )
 
     @validates_schema
