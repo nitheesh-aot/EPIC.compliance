@@ -26,6 +26,7 @@ from flask import Blueprint
 from .agency import API as AGENCY_API
 from .apihelper import Api
 from .case_file import API as CASE_FILE_API
+from .complaint import API as COMPLAINT_API
 from .inspection import API as INSPECTION_API
 from .ops import API as OPS_API
 from .position import API as POSITION_API
@@ -75,3 +76,4 @@ API.add_namespace(PROJECT_API)
 API.add_namespace(INSPECTION_API)
 API.add_namespace(PROJECT_STATUS_API)
 API.add_namespace(TOPIC_API)
+API.add_namespace(COMPLAINT_API)
