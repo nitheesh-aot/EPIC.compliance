@@ -179,45 +179,6 @@ class InspectionCreateSchema(BaseSchema):
             )
 
     @validates_schema
-    def validate_unapproved_project_description(
-        self, data, **kwargs
-    ):  # pylint: disable=no-self-use, unused-argument
-        """Ensure that unapproved_project_description has value if project_id is null."""
-        project_id = data.get("project_id", None)
-        value = data.get("unapproved_project_description", None)
-        if not project_id and not value:
-            raise ValidationError(
-                f"Unapproved project description is required as {UNAPPROVED_PROJECT_NAME} is chosen",
-                field_name="unapproved_project_description",
-            )
-
-    @validates_schema
-    def validate_unapproved_project_authorization(
-        self, data, **kwargs
-    ):  # pylint: disable=no-self-use, unused-argument
-        """Ensure that unapproved_project_authorization has value if project_id is null."""
-        project_id = data.get("project_id", None)
-        value = data.get("unapproved_project_authorization", None)
-        if not project_id and not value:
-            raise ValidationError(
-                f"Unapproved project authorization is required as {UNAPPROVED_PROJECT_NAME} is chosen",
-                field_name="unapproved_project_authorization",
-            )
-
-    @validates_schema
-    def validate_unapproved_project_regulated_party(
-        self, data, **kwargs
-    ):  # pylint: disable=no-self-use, unused-argument
-        """Ensure that unapproved_project_regulated_party has value if project_id is null."""
-        project_id = data.get("project_id", None)
-        value = data.get("unapproved_project_regulated_party", None)
-        if not project_id and not value:
-            raise ValidationError(
-                f"Unapproved project regulated party is required as {UNAPPROVED_PROJECT_NAME} is chosen",
-                field_name="unapproved_project_regulated_party",
-            )
-
-    @validates_schema
     def validate_dates(
         self, data, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument

@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Agency Schema."""
-from marshmallow import EXCLUDE, Schema, fields, pre_load
+from marshmallow import EXCLUDE, fields, pre_load, validate
 
 from compliance_api.models.agency import Agency
 
-from .base_schema import AutoSchemaBase
+from .base_schema import AutoSchemaBase, BaseSchema
 
 
 class AgencySchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
@@ -30,14 +30,22 @@ class AgencySchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         include_fk = True
 
 
-class AgencyCreateSchema(Schema):  # pylint: disable=too-many-ancestors
+class AgencyCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     """Agency create Schema."""
 
-    name = fields.Str(metadata={"description": "The name of the agency"})
-    abbreviation = fields.Str(metadata={"description": "The "})
+    name = fields.Str(
+        metadata={"description": "The name of the agency"},
+        required=True,
+        validate=validate.Length(min=1, error="Name cannot be an empty string"),
+    )
+    abbreviation = fields.Str(
+        metadata={"description": "The abbreviation of the agency"}
+    )
 
     @pre_load
-    def uppercase_abbreviation(self, data, **kwargs):  # pylint: disable=no-self-use, unused-argument
+    def uppercase_abbreviation(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
         """Convert the abbreviation to uppercase before loading."""
         if "abbreviation" in data and data["abbreviation"]:
             data["abbreviation"] = data["abbreviation"].upper()

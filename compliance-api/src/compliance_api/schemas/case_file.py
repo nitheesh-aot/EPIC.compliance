@@ -48,7 +48,7 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     project = fields.Nested(
         ProjectSchema,
         dump_only=True,
-        exclude=["description", "ea_certificate", "proponent_name", "is_active"],
+        exclude=["is_active"],
     )
     initiation = fields.Nested(KeyValueSchema)
 
