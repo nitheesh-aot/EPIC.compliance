@@ -16,3 +16,8 @@ class ComplaintService:
     def get_requirement_sources(cls):
         """Get requirement sources."""
         return RequirementSourceModel.get_all(sort_by="sort_order")
+
+    @classmethod
+    def create(cls, complaint_data: dict):
+        """Create complaint."""
+        pass  # pylint: disable=unnecessary-pass
