@@ -1,20 +1,16 @@
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
 import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
-import { Initiation } from "@/models/Initiation";
-import { Project } from "@/models/Project";
 import { StaffUser } from "@/models/Staff";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Button, Stack } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { FormProvider, useForm } from "react-hook-form";
-import * as yup from "yup";
 import InspectionFormLeft from "./InspectionFormLeft";
 import dateUtils from "@/utils/dateUtils";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useMenuStore } from "@/store/menuStore";
-import { IRType } from "@/models/IRType";
 import {
   useAttendanceOptionsData,
   useCreateInspection,
@@ -28,22 +24,19 @@ import {
   InspectionAPIData,
   InspectionFormData,
 } from "@/models/Inspection";
-import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
-import { IRStatus } from "@/models/IRStatus";
-import { ProjectStatus } from "@/models/ProjectStatus";
 import InspectionFormRight from "./InspectionFormRight";
 import { useModal } from "@/store/modalStore";
 import LinkCaseFileModal from "./LinkCaseFileModal";
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { useFirstNationsData } from "@/hooks/useFirstNations";
-import InspectionFormSchema from "./InspectionFormSchema";
+import { formatInspectionData, getProjectId, InspectionFormSchema, InspectionSchemaType } from "./InspectionFormUtils";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
   inspection?: CaseFile;
 };
 
-type InspectionSchemaType = yup.InferType<typeof InspectionFormSchema>;
+
 
 const initFormData: InspectionFormData = {
   project: undefined,
@@ -114,45 +107,10 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
   const { mutate: createInspection } = useCreateInspection(onSuccess);
 
-  const getProjectId = (formData: InspectionSchemaType) => {
-    const projectId = (formData.project as Project)?.id ?? "";
-    return projectId === UNAPPROVED_PROJECT_ID ? undefined : projectId;
-  };
-
   const addOrUpdateInspection = useCallback(
     (caseFileId: number) => {
       const formData = getValues();
-      const projectId = getProjectId(formData);
-
-      let inspectionData: InspectionAPIData = {
-        project_id: projectId,
-        case_file_id: caseFileId,
-        inspection_type_ids:
-          (formData.irTypes as IRType[])?.map((ir) => ir.id) ?? [],
-        initiation_id: (formData.initiation as Initiation).id,
-        start_date: dateUtils.dateToISO(
-          formData.dateRange?.startDate ?? new Date()
-        ),
-        end_date: dateUtils.dateToISO(
-          // adding hours to allow same value for start_date/end_date
-          dateUtils.add(formData.dateRange?.endDate ?? new Date(), 23, "hour")
-        ),
-        lead_officer_id: (formData.leadOfficer as StaffUser)?.id,
-        inspection_officer_ids:
-          (formData.officers as StaffUser[])?.map((user) => user.id) ?? [],
-        location_description: formData.locationDescription ?? "",
-        utm: formData.utm ?? "",
-        ir_status_id: (formData.irStatus as IRStatus)?.id,
-        project_status_id: (formData.projectStatus as ProjectStatus)?.id,
-      };
-      if (!projectId) {
-        inspectionData = {
-          unapproved_project_authorization: formData.authorization ?? "",
-          unapproved_project_proponent_name: formData.certificateHolder ?? "",
-          unapproved_project_description: formData.projectDescription ?? "",
-          ...inspectionData,
-        };
-      }
+      const inspectionData: InspectionAPIData = formatInspectionData(formData, caseFileId);
 
       if (inspection) {
         // TODO: Add update logic here
@@ -173,6 +131,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
   const onSubmitHandler = useCallback(
     (data: InspectionSchemaType) => {
+      // case file data format for creating a new casefile
       const caseFileData: CaseFileAPIData = {
         project_id: getProjectId(data),
         date_created: dateUtils.dateToISO(
@@ -221,17 +180,17 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
           direction={"row"}
         >
           <InspectionFormLeft
-            projectList={projectList!}
-            initiationList={initiationList!}
-            staffUsersList={staffUserList!}
-            irTypeList={irTypeList!}
+            projectList={projectList ?? []}
+            initiationList={initiationList ?? []}
+            staffUsersList={staffUserList ?? []}
+            irTypeList={irTypeList ?? []}
           />
           <InspectionFormRight
-            irStatusList={irStatusList!}
-            projectStatusList={projectStatusList!}
-            attendanceList={attendanceList!}
-            agenciesList={agenciesList!}
-            firstNationsList={firstNationsList!}
+            irStatusList={irStatusList ?? []}
+            projectStatusList={projectStatusList ?? []}
+            attendanceList={attendanceList ?? []}
+            agenciesList={agenciesList ?? []}
+            firstNationsList={firstNationsList ?? []}
           />
         </Stack>
       </form>

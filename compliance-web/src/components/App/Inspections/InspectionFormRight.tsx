@@ -11,7 +11,7 @@ import { FirstNation } from "@/models/FirstNation";
 import { useFormContext, useWatch } from "react-hook-form";
 import { useModal } from "@/store/modalStore";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
-import { AttendanceEnum } from "./InspectionFormSchema";
+import { AttendanceEnum } from "./InspectionFormUtils";
 
 type InspectionFormRightProps = {
   irStatusList: IRStatus[];
