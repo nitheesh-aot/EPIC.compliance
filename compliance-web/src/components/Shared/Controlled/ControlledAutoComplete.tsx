@@ -21,6 +21,7 @@ interface FormAutocompleteProps<T>
   isOptionEqualToValue: (option: T, value: T) => boolean;
   multiple?: boolean;
   placeholder?: string;
+  onDeleteOption?: (option: T) => void;
 }
 
 const ControlledAutoComplete = <T,>({
@@ -31,6 +32,7 @@ const ControlledAutoComplete = <T,>({
   isOptionEqualToValue,
   multiple,
   placeholder = "Select an option...",
+  onDeleteOption,
   ...props
 }: FormAutocompleteProps<T>) => {
   const {
@@ -90,7 +92,34 @@ const ControlledAutoComplete = <T,>({
               }}
             />
           )}
-          ChipProps={multiple ? { deleteIcon: <Close /> } : undefined}
+          ChipProps={
+            multiple
+              ? {
+                  deleteIcon: <Close />,
+                  onDelete: (chipProps) => {
+                    if (onDeleteOption) {
+                      const optionToDelete = field.value.find(
+                        (item: T) =>
+                          getOptionLabel(item) ===
+                          chipProps.currentTarget.parentElement?.textContent
+                      );
+                      if (optionToDelete) {
+                        onDeleteOption(optionToDelete);
+                      }
+                    } else {
+                      // Trigger default behavior by removing the chip
+                      const chipToDelete =
+                        chipProps.currentTarget.parentElement?.textContent;
+                      field.onChange(
+                        field.value.filter(
+                          (item: T) => getOptionLabel(item) !== chipToDelete
+                        )
+                      );
+                    }
+                  },
+                }
+              : undefined
+          }
         />
       )}
     />
