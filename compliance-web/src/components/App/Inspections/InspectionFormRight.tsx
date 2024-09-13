@@ -8,6 +8,9 @@ import ControlledTextField from "@/components/Shared/Controlled/ControlledTextFi
 import { BCDesignTokens } from "epic.theme";
 import { Agency } from "@/models/Agency";
 import { FirstNation } from "@/models/FirstNation";
+import { useFormContext, useWatch } from "react-hook-form";
+import { useModal } from "@/store/modalStore";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 type InspectionFormRightProps = {
   irStatusList: IRStatus[];
@@ -24,6 +27,13 @@ type FieldConfig = {
   options?: Agency[] | FirstNation[];
 };
 
+enum AttendanceEnum {
+  AGENCIES = 1,
+  FIRST_NATIONS,
+  MUNICIPAL,
+  OTHER = 7,
+}
+
 const sectionPadding = "1rem 2rem 0rem 1rem";
 
 const InspectionFormRight: FC<InspectionFormRightProps> = ({
@@ -33,32 +43,72 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
   agenciesList,
   firstNationsList,
 }) => {
+  const { setOpen, setClose } = useModal();
+  const { control, resetField, getValues, setValue } = useFormContext();
   const [selectedAttendance, setSelectedAttendance] = useState<Attendance[]>(
     []
   );
 
-  const handleAttendanceChange = (
-    _event: React.SyntheticEvent,
-    selected: Attendance | Attendance[] | null
-  ) => {
-    setSelectedAttendance(selected as Attendance[]);
+  // Watch for changes in form fields
+  const formValues = useWatch({ control });
+
+  const handleAttendanceChange = (selected: Attendance[]) => {
+    setSelectedAttendance(selected); // Directly update without deselecting items
   };
 
-  const dynamicFieldConfig: Record<string, FieldConfig> = {
-    Municipal: { type: "text", name: "municipal", label: "Municipal" },
-    Other: { type: "text", name: "other", label: "Other" },
-    "First Nations": {
-      type: "autocomplete",
-      name: "firstNations",
-      label: "First Nations",
-      options: firstNationsList,
-    },
-    Agencies: {
+  const handleDeleteOption = (option: Attendance) => {
+    const fieldName = dynamicFieldConfig[option.id as AttendanceEnum]?.name;
+    const fieldValue = formValues[fieldName];
+    
+    if (fieldName && fieldValue?.length) {
+      setOpen({
+        content: (
+          <ConfirmationModal
+            title="Remove Group?"
+            description="You have selected one or more options in this group. Deselecting will remove all selected items. Are you sure you want to remove it?"
+            confirmButtonText="Remove"
+            onConfirm={() => handleConfirmRemove(option)}
+          />
+        ),
+      });
+    } else {
+      handleConfirmRemove(option); // Remove immediately if no values are filled
+    }
+  };
+
+  const handleConfirmRemove = (selectedToRemove: Attendance) => {
+    if (selectedToRemove) {
+      const fieldName = dynamicFieldConfig[selectedToRemove.id as AttendanceEnum]?.name;
+      if (fieldName) {
+        resetField(fieldName); // Reset the corresponding field value
+      }
+      const inAttendanceValues: Attendance[] = getValues("inAttendance");
+      const updatedAttendanceList: Attendance[] = inAttendanceValues.filter((att) => att.id !== selectedToRemove.id)
+      setSelectedAttendance(updatedAttendanceList); // Remove the deselected item from state      
+      setValue("inAttendance", updatedAttendanceList);
+    }
+    setClose();
+  };
+
+  const dynamicFieldConfig: Record<AttendanceEnum, FieldConfig> = {
+    [AttendanceEnum.AGENCIES]: {
       type: "autocomplete",
       name: "agencies",
       label: "Agencies",
       options: agenciesList,
     },
+    [AttendanceEnum.FIRST_NATIONS]: {
+      type: "autocomplete",
+      name: "firstNations",
+      label: "First Nations",
+      options: firstNationsList,
+    },
+    [AttendanceEnum.MUNICIPAL]: {
+      type: "text",
+      name: "municipal",
+      label: "Municipal",
+    },
+    [AttendanceEnum.OTHER]: { type: "text", name: "other", label: "Other" },
   };
 
   return (
@@ -99,7 +149,8 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
               isOptionEqualToValue={(option, value) => option.id === value.id}
               multiple
               fullWidth
-              onChange={handleAttendanceChange}
+              onChange={(_, newVal) => handleAttendanceChange(newVal as Attendance[])}
+              onDeleteOption={handleDeleteOption}
             />
           </Box>
           {/* Show this section only if in-attendance is selected */}
@@ -109,7 +160,7 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
               bgcolor={BCDesignTokens.surfaceColorBackgroundLightBlue}
             >
               {selectedAttendance.map((attendee) => {
-                const config = dynamicFieldConfig[attendee.name];
+                const config = dynamicFieldConfig[attendee.id as AttendanceEnum];
                 if (!config) return null;
 
                 return config.type === "text" ? (

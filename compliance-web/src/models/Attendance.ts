@@ -1,5 +1,5 @@
 
 export interface Attendance {
-  id: string;
+  id: number;
   name: string;
 }
