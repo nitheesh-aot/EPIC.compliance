@@ -17,7 +17,7 @@ class InspectionOtherAttendance(BaseModel):
         comment="The unique identifier",
     )
     municipal = Column(String, nullable=True, comment="The municipal attendance")
-    Other = Column(
+    other = Column(
         String, nullable=True, comment="Any other attendance for the inspection"
     )
     inspection_id = Column(

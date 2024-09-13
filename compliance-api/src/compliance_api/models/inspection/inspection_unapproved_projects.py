@@ -19,17 +19,17 @@ class InspectionUnapprovedProject(BaseModel):
     )
     name = Column(String, nullable=False, comment="The title of the unapproved project")
     description = Column(
-        String, nullable=False, comment="The description of the project"
+        String, nullable=True, comment="The description of the project"
     )
     authorization = Column(
-        String, nullable=False, comment="The details of authorization for the project"
+        String, nullable=True, comment="The details of authorization for the project"
     )
     type = Column(String, nullable=True, comment="The type of project")
     sub_type = Column(String, nullable=True, comment="The sub type of the project")
-    proponent_name = Column(
+    regulated_party = Column(
         String,
-        nullable=False,
-        comment="The details of proponent associated with the project",
+        nullable=True,
+        comment="The details of regulated party associated with the project",
     )
     inspection_id = Column(
         Integer,
