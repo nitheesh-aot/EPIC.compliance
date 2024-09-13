@@ -108,7 +108,7 @@ class InspectionService:
                 other_attendance_obj = _create_inspection_other_attendance_object(
                     inspection_data, created_inspection.id
                 )
-                InspectionOtherAttendanceModel.create(other_attendance_obj, session)
+                InspectionOtherAttendanceModel.create_attendance(other_attendance_obj, session)
         return created_inspection
 
 
