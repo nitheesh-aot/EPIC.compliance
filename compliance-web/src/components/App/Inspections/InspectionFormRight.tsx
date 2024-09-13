@@ -2,7 +2,7 @@ import { Box, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { IRStatus } from "@/models/IRStatus";
 import { ProjectStatus } from "@/models/ProjectStatus";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Attendance } from "@/models/Attendance";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import { BCDesignTokens } from "epic.theme";
@@ -12,6 +12,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { useModal } from "@/store/modalStore";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { AttendanceEnum } from "./InspectionFormUtils";
+import { useDrawer } from "@/store/drawerStore";
 
 type InspectionFormRightProps = {
   irStatusList: IRStatus[];
@@ -37,6 +38,7 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
   agenciesList,
   firstNationsList,
 }) => {
+  const { isOpen } = useDrawer();
   const { setOpen, setClose } = useModal();
   const { control, resetField, getValues, setValue } = useFormContext();
   const [selectedAttendance, setSelectedAttendance] = useState<Attendance[]>(
@@ -45,6 +47,13 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
 
   // Watch for changes in form fields
   const formValues = useWatch({ control });
+
+  useEffect(() => {
+    // Reset selectedAttendance when the drawer is closed
+    if (!isOpen) {
+      setSelectedAttendance([]);
+    }
+  }, [isOpen]);
 
   const handleAttendanceChange = (selected: Attendance[]) => {
     setSelectedAttendance(selected); // Directly update without deselecting items
@@ -105,6 +114,10 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
     [AttendanceEnum.OTHER]: { type: "text", name: "other", label: "Other" },
   };
 
+  const isRelevantAttendanceSelected = selectedAttendance.some((attendee) =>
+    Object.values(AttendanceEnum).includes(attendee.id as AttendanceEnum)
+  );
+
   return (
     <>
       <Box
@@ -148,7 +161,7 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
             />
           </Box>
           {/* Show this section only if in-attendance is selected */}
-          {selectedAttendance?.length > 0 && (
+          {isRelevantAttendanceSelected && (
             <Box
               p={sectionPadding}
               bgcolor={BCDesignTokens.surfaceColorBackgroundLightBlue}
