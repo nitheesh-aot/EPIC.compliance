@@ -36,7 +36,15 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
 
   useEffect(() => {
     if (selectedProjectId && projectData) {
-      setValue("authorization", projectData?.ea_certificate ?? "");
+      const eaCertifcate = projectData?.ea_certificate;
+      let authorization = "n/a";
+      if (eaCertifcate) {
+        authorization =
+          eaCertifcate[0].toLowerCase() === "x"
+            ? "Exemption Order"
+            : `EAC# ${eaCertifcate}`;
+      }
+      setValue("authorization", authorization);
       setValue("certificateHolder", projectData?.proponent?.name ?? "");
       setValue("projectDescription", projectData?.description ?? "");
       setValue("projectType", projectData?.type?.name ?? "");
@@ -48,12 +56,7 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
       resetField("projectType");
       resetField("projectSubType");
     }
-  }, [
-    projectData,
-    resetField,
-    selectedProjectId,
-    setValue,
-  ]);
+  }, [projectData, resetField, selectedProjectId, setValue]);
 
   // Resetting states when the drawer closes
   useEffect(() => {
