@@ -46,6 +46,8 @@ export const InspectionFormSchema = yup.object().shape({
       then: (schema) => schema.notRequired(),
       otherwise: (schema) => schema.required("Project Description is required"),
     }),
+  projectType: yup.string().nullable(),
+  projectSubType: yup.string().nullable(),
   locationDescription: yup.string().nullable(),
   utm: yup.string().nullable(),
   leadOfficer: yup
@@ -145,6 +147,7 @@ export const getProjectId = (formData: InspectionSchemaType) => {
   return projectId === UNAPPROVED_PROJECT_ID ? undefined : projectId;
 };
 
+// Formatting inspection form data for API
 export const formatInspectionData = (
   formData: InspectionSchemaType,
   caseFileId: number
@@ -189,8 +192,10 @@ export const formatInspectionData = (
   if (!projectId) {
     inspectionData = {
       unapproved_project_authorization: formData.authorization ?? "",
-      unapproved_project_proponent_name: formData.certificateHolder ?? "",
+      unapproved_project_regulated_party: formData.certificateHolder ?? "",
       unapproved_project_description: formData.projectDescription ?? "",
+      unapproved_project_type: formData.projectType ?? "",
+      unapproved_project_sub_type: formData.projectSubType ?? "",
       ...inspectionData,
     };
   }

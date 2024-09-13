@@ -42,6 +42,8 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
       setValue("authorization", projectData?.ea_certificate ?? "");
       setValue("certificateHolder", projectData?.proponent?.name ?? "");
       setValue("projectDescription", projectData?.description ?? "");
+      setValue("projectType", projectData?.type?.name ?? "");
+      setValue("projectSubType", projectData?.sub_type?.name ?? "");
     } else {
       resetField("isProjectDetailsDisabled");
       resetField("authorization");
@@ -50,6 +52,8 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
     }
     if (isUnapprovedProject) {
       setValue("isProjectDetailsDisabled", false);
+      resetField("projectType");
+      resetField("projectSubType");
     }
   }, [
     isUnapprovedProject,
@@ -120,6 +124,22 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
           fullWidth
           minRows={2}
         />
+        <Stack direction={"row"} gap={2}>
+          <ControlledTextField
+            name="projectType"
+            label="Project Type"
+            placeholder="Project Type"
+            disabled={!!selectedProjectId}
+            fullWidth
+          />
+          <ControlledTextField
+            name="projectSubType"
+            label="Project Subtype"
+            placeholder="Project Subtype"
+            disabled={!!selectedProjectId}
+            fullWidth
+          />
+        </Stack>
         <ControlledTextField
           name="locationDescription"
           label="Location Description (optional)"

@@ -62,5 +62,7 @@ export interface InspectionAPIData {
   firstnation_attendance_ids?: number[];
   unapproved_project_description?: string;
   unapproved_project_authorization?: string;
-  unapproved_project_proponent_name?: string;
+  unapproved_project_regulated_party?: string;
+  unapproved_project_type?: string;
+  unapproved_project_sub_type?: string;
 }

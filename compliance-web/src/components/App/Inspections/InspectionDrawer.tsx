@@ -36,8 +36,6 @@ type InspectionDrawerProps = {
   inspection?: CaseFile;
 };
 
-
-
 const initFormData: InspectionFormData = {
   project: undefined,
   dateRange: undefined,

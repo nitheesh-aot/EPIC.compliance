@@ -1,4 +1,3 @@
-
 export interface Project {
   id: number;
   name: string;
@@ -7,6 +6,10 @@ export interface Project {
   proponent_name?: string;
   is_active?: boolean;
   proponent?: Proponent;
+  type_id: number;
+  type: ProjectType;
+  sub_type_id: number;
+  sub_type: ProjectType;
 }
 
 interface Proponent {
@@ -14,4 +17,12 @@ interface Proponent {
   name: string;
   relationship_holder_id: string;
   is_active: boolean;
+}
+
+interface ProjectType {
+  id: number;
+  is_active: boolean;
+  name: string;
+  short_name: string;
+  sort_order: number;
 }
