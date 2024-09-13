@@ -22,30 +22,9 @@ export enum AttendanceEnum {
 
 export const InspectionFormSchema = yup.object().shape({
   project: yup.object<Project>().nullable().required("Project is required"),
-  authorization: yup
-    .string()
-    .nullable()
-    .when("isProjectDetailsDisabled", {
-      is: true,
-      then: (schema) => schema.notRequired(),
-      otherwise: (schema) => schema.required("Authorization is required"),
-    }),
-  certificateHolder: yup
-    .string()
-    .nullable()
-    .when("isProjectDetailsDisabled", {
-      is: true,
-      then: (schema) => schema.notRequired(),
-      otherwise: (schema) => schema.required("Certificate Holder is required"),
-    }),
-  projectDescription: yup
-    .string()
-    .nullable()
-    .when("isProjectDetailsDisabled", {
-      is: true,
-      then: (schema) => schema.notRequired(),
-      otherwise: (schema) => schema.required("Project Description is required"),
-    }),
+  authorization: yup.string().nullable(),
+  certificateHolder: yup.string().nullable(),
+  projectDescription: yup.string().nullable(),
   projectType: yup.string().nullable(),
   projectSubType: yup.string().nullable(),
   locationDescription: yup.string().nullable(),
@@ -85,7 +64,6 @@ export const InspectionFormSchema = yup.object().shape({
     .required("Initiation is required"),
   irStatus: yup.object<IRStatus>().nullable(),
   projectStatus: yup.object<ProjectStatus>().nullable(),
-  isProjectDetailsDisabled: yup.boolean().default(false),
 
   inAttendance: yup.array().of(yup.object<Attendance>()).nullable(),
 

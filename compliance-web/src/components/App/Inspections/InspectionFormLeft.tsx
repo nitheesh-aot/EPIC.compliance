@@ -31,32 +31,24 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
     null
   );
-  const [isUnapprovedProject, setIsUnapprovedProject] =
-    useState<boolean>(false);
 
   const { data: projectData } = useProjectById(selectedProjectId!);
 
   useEffect(() => {
     if (selectedProjectId && projectData) {
-      setValue("isProjectDetailsDisabled", true);
       setValue("authorization", projectData?.ea_certificate ?? "");
       setValue("certificateHolder", projectData?.proponent?.name ?? "");
       setValue("projectDescription", projectData?.description ?? "");
       setValue("projectType", projectData?.type?.name ?? "");
       setValue("projectSubType", projectData?.sub_type?.name ?? "");
     } else {
-      resetField("isProjectDetailsDisabled");
       resetField("authorization");
       resetField("certificateHolder");
       resetField("projectDescription");
-    }
-    if (isUnapprovedProject) {
-      setValue("isProjectDetailsDisabled", false);
       resetField("projectType");
       resetField("projectSubType");
     }
   }, [
-    isUnapprovedProject,
     projectData,
     resetField,
     selectedProjectId,
@@ -67,7 +59,6 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
   useEffect(() => {
     if (!isOpen) {
       setSelectedProjectId(null);
-      setIsUnapprovedProject(false);
     }
   }, [isOpen]);
 
@@ -94,7 +85,6 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
             onChange={(_, value) => {
               const projId = (value as Project)?.id;
               if (projId === UNAPPROVED_PROJECT_ID) {
-                setIsUnapprovedProject(true);
                 setSelectedProjectId(null);
               } else {
                 setSelectedProjectId(projId);
