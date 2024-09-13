@@ -11,6 +11,7 @@ import { FirstNation } from "@/models/FirstNation";
 import { useFormContext, useWatch } from "react-hook-form";
 import { useModal } from "@/store/modalStore";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import { AttendanceEnum } from "./InspectionFormSchema";
 
 type InspectionFormRightProps = {
   irStatusList: IRStatus[];
@@ -26,13 +27,6 @@ type FieldConfig = {
   label: string;
   options?: Agency[] | FirstNation[];
 };
-
-enum AttendanceEnum {
-  AGENCIES = 1,
-  FIRST_NATIONS,
-  MUNICIPAL,
-  OTHER = 7,
-}
 
 const sectionPadding = "1rem 2rem 0rem 1rem";
 
@@ -85,7 +79,7 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
       const inAttendanceValues: Attendance[] = getValues("inAttendance");
       const updatedAttendanceList: Attendance[] = inAttendanceValues.filter((att) => att.id !== selectedToRemove.id)
       setSelectedAttendance(updatedAttendanceList); // Remove the deselected item from state      
-      setValue("inAttendance", updatedAttendanceList);
+      setValue("inAttendance", updatedAttendanceList); // Remove from the selected form field
     }
     setClose();
   };

@@ -29,7 +29,6 @@ import {
   InspectionFormData,
 } from "@/models/Inspection";
 import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
-import { DateRange } from "@/models/DateRange";
 import { IRStatus } from "@/models/IRStatus";
 import { ProjectStatus } from "@/models/ProjectStatus";
 import InspectionFormRight from "./InspectionFormRight";
@@ -37,79 +36,14 @@ import { useModal } from "@/store/modalStore";
 import LinkCaseFileModal from "./LinkCaseFileModal";
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { useFirstNationsData } from "@/hooks/useFirstNations";
+import InspectionFormSchema from "./InspectionFormSchema";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
   inspection?: CaseFile;
 };
 
-const inspectionFormSchema = yup.object().shape({
-  project: yup.object<Project>().nullable().required("Project is required"),
-  authorization: yup
-    .string()
-    .nullable()
-    .when("isProjectDetailsDisabled", {
-      is: true,
-      then: (schema) => schema.notRequired(),
-      otherwise: (schema) => schema.required("Authorization is required"),
-    }),
-  certificateHolder: yup
-    .string()
-    .nullable()
-    .when("isProjectDetailsDisabled", {
-      is: true,
-      then: (schema) => schema.notRequired(),
-      otherwise: (schema) => schema.required("Certificate Holder is required"),
-    }),
-  projectDescription: yup
-    .string()
-    .nullable()
-    .when("isProjectDetailsDisabled", {
-      is: true,
-      then: (schema) => schema.notRequired(),
-      otherwise: (schema) => schema.required("Project Description is required"),
-    }),
-  locationDescription: yup.string().nullable(),
-  utm: yup.string().nullable(),
-  leadOfficer: yup
-    .object<StaffUser>()
-    .nullable()
-    .required("Lead Officer is required"),
-  officers: yup.array().of(yup.object<StaffUser>()).nullable(),
-  irTypes: yup
-    .array()
-    .of(yup.object<IRType>())
-    .min(1, "At least one Type is required")
-    .required("Type is required"),
-  dateRange: yup
-    .object<DateRange>()
-    .shape({
-      startDate: yup
-        .date()
-        .required("Start date is required")
-        .typeError("Invalid date"),
-      endDate: yup
-        .date()
-        .required("End date is required")
-        .typeError("Invalid date")
-        .min(yup.ref("startDate"), "End date cannot be before start date"),
-    })
-    .test(
-      "required",
-      "Date is required",
-      (value) => !!value?.startDate || !!value?.endDate
-    )
-    .nullable(),
-  initiation: yup
-    .object<Initiation>()
-    .nullable()
-    .required("Initiation is required"),
-  irStatus: yup.object<IRStatus>().nullable(),
-  projectStatus: yup.object<ProjectStatus>().nullable(),
-  isProjectDetailsDisabled: yup.boolean().default(false),
-});
-
-type InspectionSchemaType = yup.InferType<typeof inspectionFormSchema>;
+type InspectionSchemaType = yup.InferType<typeof InspectionFormSchema>;
 
 const initFormData: InspectionFormData = {
   project: undefined,
@@ -150,7 +84,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   }, [inspection]);
 
   const methods = useForm<InspectionSchemaType>({
-    resolver: yupResolver(inspectionFormSchema),
+    resolver: yupResolver(InspectionFormSchema),
     mode: "onBlur",
     defaultValues,
   });
@@ -259,7 +193,6 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
             caseFileData={caseFileData}
           />
         ),
-        width: "400px",
       });
     },
     [setModalOpen, handleOnCaseFileSubmit]
@@ -288,17 +221,17 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
           direction={"row"}
         >
           <InspectionFormLeft
-            projectList={projectList ?? []}
-            initiationList={initiationList ?? []}
-            staffUsersList={staffUserList ?? []}
-            irTypeList={irTypeList ?? []}
+            projectList={projectList!}
+            initiationList={initiationList!}
+            staffUsersList={staffUserList!}
+            irTypeList={irTypeList!}
           />
           <InspectionFormRight
-            irStatusList={irStatusList ?? []}
-            projectStatusList={projectStatusList ?? []}
-            attendanceList={attendanceList ?? []}
-            agenciesList={agenciesList ?? []}
-            firstNationsList={firstNationsList ?? []}
+            irStatusList={irStatusList!}
+            projectStatusList={projectStatusList!}
+            attendanceList={attendanceList!}
+            agenciesList={agenciesList!}
+            firstNationsList={firstNationsList!}
           />
         </Stack>
       </form>
