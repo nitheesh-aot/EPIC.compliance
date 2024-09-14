@@ -31,39 +31,37 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
     null
   );
-  const [isUnapprovedProject, setIsUnapprovedProject] =
-    useState<boolean>(false);
 
   const { data: projectData } = useProjectById(selectedProjectId!);
 
   useEffect(() => {
     if (selectedProjectId && projectData) {
-      setValue("isProjectDetailsDisabled", true);
-      setValue("authorization", projectData?.ea_certificate ?? "");
+      const eaCertifcate = projectData?.ea_certificate;
+      let authorization = "n/a";
+      if (eaCertifcate) {
+        authorization =
+          eaCertifcate[0].toLowerCase() === "x"
+            ? "Exemption Order"
+            : `EAC# ${eaCertifcate}`;
+      }
+      setValue("authorization", authorization);
       setValue("certificateHolder", projectData?.proponent?.name ?? "");
       setValue("projectDescription", projectData?.description ?? "");
+      setValue("projectType", projectData?.type?.name ?? "");
+      setValue("projectSubType", projectData?.sub_type?.name ?? "");
     } else {
-      resetField("isProjectDetailsDisabled");
       resetField("authorization");
       resetField("certificateHolder");
       resetField("projectDescription");
+      resetField("projectType");
+      resetField("projectSubType");
     }
-    if (isUnapprovedProject) {
-      setValue("isProjectDetailsDisabled", false);
-    }
-  }, [
-    isUnapprovedProject,
-    projectData,
-    resetField,
-    selectedProjectId,
-    setValue,
-  ]);
+  }, [projectData, resetField, selectedProjectId, setValue]);
 
   // Resetting states when the drawer closes
   useEffect(() => {
     if (!isOpen) {
       setSelectedProjectId(null);
-      setIsUnapprovedProject(false);
     }
   }, [isOpen]);
 
@@ -90,7 +88,6 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
             onChange={(_, value) => {
               const projId = (value as Project)?.id;
               if (projId === UNAPPROVED_PROJECT_ID) {
-                setIsUnapprovedProject(true);
                 setSelectedProjectId(null);
               } else {
                 setSelectedProjectId(projId);
@@ -120,6 +117,22 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
           fullWidth
           minRows={2}
         />
+        <Stack direction={"row"} gap={2}>
+          <ControlledTextField
+            name="projectType"
+            label="Project Type"
+            placeholder="Project Type"
+            disabled={!!selectedProjectId}
+            fullWidth
+          />
+          <ControlledTextField
+            name="projectSubType"
+            label="Project Subtype"
+            placeholder="Project Subtype"
+            disabled={!!selectedProjectId}
+            fullWidth
+          />
+        </Stack>
         <ControlledTextField
           name="locationDescription"
           label="Location Description (optional)"

@@ -1,21 +1,18 @@
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
 import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
-import { Initiation } from "@/models/Initiation";
-import { Project } from "@/models/Project";
 import { StaffUser } from "@/models/Staff";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Button, Stack } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { FormProvider, useForm } from "react-hook-form";
-import * as yup from "yup";
 import InspectionFormLeft from "./InspectionFormLeft";
 import dateUtils from "@/utils/dateUtils";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useMenuStore } from "@/store/menuStore";
-import { IRType } from "@/models/IRType";
 import {
+  useAttendanceOptionsData,
   useCreateInspection,
   useInitiationsData,
   useIRStatusesData,
@@ -27,86 +24,17 @@ import {
   InspectionAPIData,
   InspectionFormData,
 } from "@/models/Inspection";
-import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
-import { DateRange } from "@/models/DateRange";
-import { IRStatus } from "@/models/IRStatus";
-import { ProjectStatus } from "@/models/ProjectStatus";
 import InspectionFormRight from "./InspectionFormRight";
 import { useModal } from "@/store/modalStore";
 import LinkCaseFileModal from "./LinkCaseFileModal";
+import { useAgenciesData } from "@/hooks/useAgencies";
+import { useFirstNationsData } from "@/hooks/useFirstNations";
+import { formatInspectionData, getProjectId, InspectionFormSchema, InspectionSchemaType } from "./InspectionFormUtils";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
   inspection?: CaseFile;
 };
-
-const inspectionFormSchema = yup.object().shape({
-  project: yup.object<Project>().nullable().required("Project is required"),
-  authorization: yup
-    .string()
-    .nullable()
-    .when("isProjectDetailsDisabled", {
-      is: true,
-      then: (schema) => schema.notRequired(),
-      otherwise: (schema) => schema.required("Authorization is required"),
-    }),
-  certificateHolder: yup
-    .string()
-    .nullable()
-    .when("isProjectDetailsDisabled", {
-      is: true,
-      then: (schema) => schema.notRequired(),
-      otherwise: (schema) => schema.required("Certificate Holder is required"),
-    }),
-  projectDescription: yup
-    .string()
-    .nullable()
-    .when("isProjectDetailsDisabled", {
-      is: true,
-      then: (schema) => schema.notRequired(),
-      otherwise: (schema) => schema.required("Project Description is required"),
-    }),
-  locationDescription: yup.string().nullable(),
-  utm: yup.string().nullable(),
-  leadOfficer: yup
-    .object<StaffUser>()
-    .nullable()
-    .required("Lead Officer is required"),
-  officers: yup.array().of(yup.object<StaffUser>()).nullable(),
-  irTypes: yup
-    .array()
-    .of(yup.object<IRType>())
-    .min(1, "At least one Type is required")
-    .required("Type is required"),
-  dateRange: yup
-    .object<DateRange>()
-    .shape({
-      startDate: yup
-        .date()
-        .required("Start date is required")
-        .typeError("Invalid date"),
-      endDate: yup
-        .date()
-        .required("End date is required")
-        .typeError("Invalid date")
-        .min(yup.ref("startDate"), "End date cannot be before start date"),
-    })
-    .test(
-      "required",
-      "Date is required",
-      (value) => !!value?.startDate || !!value?.endDate
-    )
-    .nullable(),
-  initiation: yup
-    .object<Initiation>()
-    .nullable()
-    .required("Initiation is required"),
-  irStatus: yup.object<IRStatus>().nullable(),
-  projectStatus: yup.object<ProjectStatus>().nullable(),
-  isProjectDetailsDisabled: yup.boolean().default(false),
-});
-
-type InspectionSchemaType = yup.InferType<typeof inspectionFormSchema>;
 
 const initFormData: InspectionFormData = {
   project: undefined,
@@ -135,6 +63,9 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const { data: irTypeList } = useIRTypesData();
   const { data: irStatusList } = useIRStatusesData();
   const { data: projectStatusList } = useProjectStatusesData();
+  const { data: attendanceList } = useAttendanceOptionsData();
+  const { data: agenciesList } = useAgenciesData();
+  const { data: firstNationsList } = useFirstNationsData();
 
   const defaultValues = useMemo<InspectionFormData>(() => {
     if (inspection) {
@@ -144,7 +75,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   }, [inspection]);
 
   const methods = useForm<InspectionSchemaType>({
-    resolver: yupResolver(inspectionFormSchema),
+    resolver: yupResolver(InspectionFormSchema),
     mode: "onBlur",
     defaultValues,
   });
@@ -174,45 +105,10 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
   const { mutate: createInspection } = useCreateInspection(onSuccess);
 
-  const getProjectId = (formData: InspectionSchemaType) => {
-    const projectId = (formData.project as Project)?.id ?? "";
-    return projectId === UNAPPROVED_PROJECT_ID ? undefined : projectId;
-  };
-
   const addOrUpdateInspection = useCallback(
     (caseFileId: number) => {
       const formData = getValues();
-      const projectId = getProjectId(formData);
-
-      let inspectionData: InspectionAPIData = {
-        project_id: projectId,
-        case_file_id: caseFileId,
-        inspection_type_ids:
-          (formData.irTypes as IRType[])?.map((ir) => ir.id) ?? [],
-        initiation_id: (formData.initiation as Initiation).id,
-        start_date: dateUtils.dateToISO(
-          formData.dateRange?.startDate ?? new Date()
-        ),
-        end_date: dateUtils.dateToISO(
-          // adding hours to allow same value for start_date/end_date
-          dateUtils.add(formData.dateRange?.endDate ?? new Date(), 23, "hour")
-        ),
-        lead_officer_id: (formData.leadOfficer as StaffUser)?.id,
-        inspection_officer_ids:
-          (formData.officers as StaffUser[])?.map((user) => user.id) ?? [],
-        location_description: formData.locationDescription ?? "",
-        utm: formData.utm ?? "",
-        ir_status_id: (formData.irStatus as IRStatus)?.id,
-        project_status_id: (formData.projectStatus as ProjectStatus)?.id,
-      };
-      if (!projectId) {
-        inspectionData = {
-          unapproved_project_authorization: formData.authorization ?? "",
-          unapproved_project_proponent_name: formData.certificateHolder ?? "",
-          unapproved_project_description: formData.projectDescription ?? "",
-          ...inspectionData,
-        };
-      }
+      const inspectionData: InspectionAPIData = formatInspectionData(formData, caseFileId);
 
       if (inspection) {
         // TODO: Add update logic here
@@ -233,6 +129,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
   const onSubmitHandler = useCallback(
     (data: InspectionSchemaType) => {
+      // case file data format for creating a new casefile
       const caseFileData: CaseFileAPIData = {
         project_id: getProjectId(data),
         date_created: dateUtils.dateToISO(
@@ -253,7 +150,6 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
             caseFileData={caseFileData}
           />
         ),
-        width: "400px",
       });
     },
     [setModalOpen, handleOnCaseFileSubmit]
@@ -290,6 +186,9 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
           <InspectionFormRight
             irStatusList={irStatusList ?? []}
             projectStatusList={projectStatusList ?? []}
+            attendanceList={attendanceList ?? []}
+            agenciesList={agenciesList ?? []}
+            firstNationsList={firstNationsList ?? []}
           />
         </Stack>
       </form>

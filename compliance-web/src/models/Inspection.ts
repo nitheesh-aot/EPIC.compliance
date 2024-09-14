@@ -55,12 +55,14 @@ export interface InspectionAPIData {
   ir_status_id?: string;
   project_status_id?: string;
   inspection_officer_ids?: number[];
-  attendance_option_ids?: number[];
+  attendance_option_ids?: string[];
   agency_attendance_ids?: number[];
   attendance_municipal?: string;
   attendance_other?: string;
   firstnation_attendance_ids?: number[];
   unapproved_project_description?: string;
   unapproved_project_authorization?: string;
-  unapproved_project_proponent_name?: string;
+  unapproved_project_regulated_party?: string;
+  unapproved_project_type?: string;
+  unapproved_project_sub_type?: string;
 }
