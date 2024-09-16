@@ -26,7 +26,7 @@ import {
 } from "@/models/Inspection";
 import InspectionFormRight from "./InspectionFormRight";
 import { useModal } from "@/store/modalStore";
-import LinkCaseFileModal from "./LinkCaseFileModal";
+import LinkCaseFileModal from "@/components/App/CaseFiles/LinkCaseFileModal";
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { useFirstNationsData } from "@/hooks/useFirstNations";
 import { formatInspectionData, getProjectId, InspectionFormSchema, InspectionSchemaType } from "./InspectionFormUtils";
