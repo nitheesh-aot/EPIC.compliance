@@ -2,12 +2,30 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AddRounded } from "@mui/icons-material";
 import { Box, Typography, Button } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
+import { useDrawer } from "@/store/drawerStore";
+import { notify } from "@/store/snackbarStore";
+import ComplaintDrawer from "@/components/App/Complaints/ComplaintDrawer";
 
 export const Route = createFileRoute("/_authenticated/ce-database/compliants")({
   component: Compliance,
 });
 
 function Compliance() {
+  const { setOpen, setClose } = useDrawer();
+
+  const handleOnSubmit = (submitMsg: string) => {
+    // queryClient.invalidateQueries({ queryKey: ["inspections"] });
+    setClose();
+    notify.success(submitMsg);
+  };
+  
+  const handleOpenDrawer = () => {
+    setOpen({
+      modal: <ComplaintDrawer onSubmit={handleOnSubmit} />,
+      width: "1118px",
+    });
+  };
+
   return (
     <Box
       sx={{
@@ -26,7 +44,7 @@ function Compliance() {
       <Button
         id="addActionButton"
         startIcon={<AddRounded />}
-        // onClick={}
+        onClick={handleOpenDrawer}
       >
         Complaint
       </Button>
