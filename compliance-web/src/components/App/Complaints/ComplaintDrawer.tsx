@@ -1,7 +1,6 @@
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
-import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
-import { StaffUser } from "@/models/Staff";
+import { CaseFileAPIData } from "@/models/CaseFile";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Button, Stack } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
@@ -13,17 +12,10 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useMenuStore } from "@/store/menuStore";
 import {
   useAttendanceOptionsData,
-  useCreateInspection,
-  useInitiationsData,
   useIRStatusesData,
-  useIRTypesData,
   useProjectStatusesData,
 } from "@/hooks/useInspections";
-import {
-  Inspection,
-  InspectionAPIData,
-  InspectionFormData as ComplaintFormData,
-} from "@/models/Inspection";
+import { InspectionFormData as ComplaintFormData } from "@/models/Inspection";
 import ComplaintFormRight from "./ComplaintFormRight";
 import { useModal } from "@/store/modalStore";
 import { useAgenciesData } from "@/hooks/useAgencies";
@@ -35,10 +27,12 @@ import {
   ComplaintSchemaType,
 } from "./ComplaintFormUtils";
 import LinkCaseFileModal from "@/components/App/CaseFiles/LinkCaseFileModal";
+import { Complaint, ComplaintAPIData } from "@/models/Complaint";
+import { useCreateComplaint } from "@/hooks/useComplaints";
 
 type ComplaintDrawerProps = {
   onSubmit: (submitMsg: string) => void;
-  complaint?: CaseFile; // TODO: Change to Complaint
+  complaint?: Complaint;
 };
 
 const initFormData: ComplaintFormData = {
@@ -63,9 +57,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
 
   const { data: projectList } = useProjectsData({ includeUnapproved: true });
-  const { data: initiationList } = useInitiationsData();
   const { data: staffUserList } = useStaffUsersData();
-  const { data: irTypeList } = useIRTypesData();
   const { data: irStatusList } = useIRStatusesData();
   const { data: projectStatusList } = useProjectStatusesData();
   const { data: attendanceList } = useAttendanceOptionsData();
@@ -97,23 +89,23 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
   }, [defaultValues, reset]);
 
   const onSuccess = useCallback(
-    (data: Inspection) => {
+    (data: Complaint) => {
       onSubmit(
         complaint
           ? "Successfully updated!"
-          : `Inspection File ${data.ir_number} was successfully created`
+          : `Complaint File ${data.id} was successfully created`
       );
       reset();
     },
     [complaint, onSubmit, reset]
   );
 
-  const { mutate: createInspection } = useCreateInspection(onSuccess);
+  const { mutate: createComplaint } = useCreateComplaint(onSuccess);
 
-  const addOrUpdateInspection = useCallback(
+  const addOrUpdateComplaint = useCallback(
     (caseFileId: number) => {
       const formData = getValues();
-      const inspectionData: InspectionAPIData = formatComplaintData(
+      const complaintData: ComplaintAPIData = formatComplaintData(
         formData,
         caseFileId
       );
@@ -121,18 +113,18 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
       if (complaint) {
         // TODO: Add update logic here
       } else {
-        createInspection(inspectionData);
+        createComplaint(complaintData);
       }
     },
-    [createInspection, getValues, complaint]
+    [createComplaint, getValues, complaint]
   );
 
   const handleOnCaseFileSubmit = useCallback(
     (caseFileId: number) => {
-      addOrUpdateInspection(caseFileId);
+      addOrUpdateComplaint(caseFileId);
       setModalClose();
     },
-    [addOrUpdateInspection, setModalClose]
+    [addOrUpdateComplaint, setModalClose]
   );
 
   const onSubmitHandler = useCallback(
@@ -140,14 +132,9 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
       // case file data format for creating a new casefile
       const caseFileData: CaseFileAPIData = {
         project_id: getProjectId(data),
-        date_created: dateUtils.dateToISO(
-          data.dateRange?.startDate ?? new Date()
-        ),
+        date_created: dateUtils.dateToISO(new Date()),
         initiation_id: "", // should be mapped from the case file modal
         case_file_number: "",
-        lead_officer_id: (data.leadOfficer as StaffUser)?.id,
-        officer_ids:
-          (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
       };
 
       // Open modal for linking or creating case file
@@ -187,9 +174,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
         >
           <ComplaintFormLeft
             projectList={projectList ?? []}
-            initiationList={initiationList ?? []}
             staffUsersList={staffUserList ?? []}
-            irTypeList={irTypeList ?? []}
           />
           <ComplaintFormRight
             irStatusList={irStatusList ?? []}

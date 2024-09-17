@@ -22,8 +22,8 @@ export interface InspectionFormData {
   leadOfficer?: StaffUser;
   concernDescription?: string;
   locationDescription?: string;
-  complaintSource: ComplaintSource[];
-  requirementSource?: RequirementSource[];
+  complaintSource: ComplaintSource;
+  requirementSource?: RequirementSource;
   caseFileId?: string;
 }
 
