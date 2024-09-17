@@ -1,42 +1,38 @@
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
-import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
-import { StaffUser } from "@/models/Staff";
+import { CaseFileAPIData } from "@/models/CaseFile";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Button, Stack } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { FormProvider, useForm } from "react-hook-form";
-import InspectionFormLeft from "./InspectionFormLeft";
+import ComplaintFormLeft from "./ComplaintFormLeft";
 import dateUtils from "@/utils/dateUtils";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useMenuStore } from "@/store/menuStore";
-import {
-  useAttendanceOptionsData,
-  useCreateInspection,
-  useInitiationsData,
-  useIRStatusesData,
-  useIRTypesData,
-  useProjectStatusesData,
-} from "@/hooks/useInspections";
-import {
-  Inspection,
-  InspectionAPIData,
-  InspectionFormData,
-} from "@/models/Inspection";
-import InspectionFormRight from "./InspectionFormRight";
+import { InspectionFormData as ComplaintFormData } from "@/models/Inspection";
+import ComplaintFormRight from "./ComplaintFormRight";
 import { useModal } from "@/store/modalStore";
+import {
+  formatComplaintData,
+  getProjectId,
+  ComplaintFormSchema,
+  ComplaintSchemaType,
+} from "./ComplaintFormUtils";
 import LinkCaseFileModal from "@/components/App/CaseFiles/LinkCaseFileModal";
-import { useAgenciesData } from "@/hooks/useAgencies";
-import { useFirstNationsData } from "@/hooks/useFirstNations";
-import { formatInspectionData, getProjectId, InspectionFormSchema, InspectionSchemaType } from "./InspectionFormUtils";
+import { Complaint, ComplaintAPIData } from "@/models/Complaint";
+import {
+  useComplaintSourcesData,
+  useCreateComplaint,
+  useRequirementSourcesData,
+} from "@/hooks/useComplaints";
 
-type InspectionDrawerProps = {
+type ComplaintDrawerProps = {
   onSubmit: (submitMsg: string) => void;
-  inspection?: CaseFile;
+  complaint?: Complaint;
 };
 
-const initFormData: InspectionFormData = {
+const initFormData: ComplaintFormData = {
   project: undefined,
   dateRange: undefined,
   leadOfficer: undefined,
@@ -48,9 +44,9 @@ const initFormData: InspectionFormData = {
   caseFileId: undefined,
 };
 
-const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
+const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
   onSubmit,
-  inspection,
+  complaint,
 }) => {
   const { appHeaderHeight } = useMenuStore();
   const drawerTopRef = useRef<HTMLDivElement | null>(null);
@@ -58,24 +54,19 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
 
   const { data: projectList } = useProjectsData({ includeUnapproved: true });
-  const { data: initiationList } = useInitiationsData();
   const { data: staffUserList } = useStaffUsersData();
-  const { data: irTypeList } = useIRTypesData();
-  const { data: irStatusList } = useIRStatusesData();
-  const { data: projectStatusList } = useProjectStatusesData();
-  const { data: attendanceList } = useAttendanceOptionsData();
-  const { data: agenciesList } = useAgenciesData();
-  const { data: firstNationsList } = useFirstNationsData();
+  const { data: complaintSourceList } = useComplaintSourcesData();
+  const { data: requirementSourceList } = useRequirementSourcesData();
 
-  const defaultValues = useMemo<InspectionFormData>(() => {
-    if (inspection) {
+  const defaultValues = useMemo<ComplaintFormData>(() => {
+    if (complaint) {
       // TDOD: Map existing data
     }
     return initFormData;
-  }, [inspection]);
+  }, [complaint]);
 
-  const methods = useForm<InspectionSchemaType>({
-    resolver: yupResolver(InspectionFormSchema),
+  const methods = useForm<ComplaintSchemaType>({
+    resolver: yupResolver(ComplaintFormSchema),
     mode: "onBlur",
     defaultValues,
   });
@@ -92,54 +83,52 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   }, [defaultValues, reset]);
 
   const onSuccess = useCallback(
-    (data: Inspection) => {
+    (data: Complaint) => {
       onSubmit(
-        inspection
+        complaint
           ? "Successfully updated!"
-          : `Inspection File ${data.ir_number} was successfully created`
+          : `Complaint File ${data.id} was successfully created`
       );
       reset();
     },
-    [inspection, onSubmit, reset]
+    [complaint, onSubmit, reset]
   );
 
-  const { mutate: createInspection } = useCreateInspection(onSuccess);
+  const { mutate: createComplaint } = useCreateComplaint(onSuccess);
 
-  const addOrUpdateInspection = useCallback(
+  const addOrUpdateComplaint = useCallback(
     (caseFileId: number) => {
       const formData = getValues();
-      const inspectionData: InspectionAPIData = formatInspectionData(formData, caseFileId);
+      const complaintData: ComplaintAPIData = formatComplaintData(
+        formData,
+        caseFileId
+      );
 
-      if (inspection) {
+      if (complaint) {
         // TODO: Add update logic here
       } else {
-        createInspection(inspectionData);
+        createComplaint(complaintData);
       }
     },
-    [createInspection, getValues, inspection]
+    [createComplaint, getValues, complaint]
   );
 
   const handleOnCaseFileSubmit = useCallback(
     (caseFileId: number) => {
-      addOrUpdateInspection(caseFileId);
+      addOrUpdateComplaint(caseFileId);
       setModalClose();
     },
-    [addOrUpdateInspection, setModalClose]
+    [addOrUpdateComplaint, setModalClose]
   );
 
   const onSubmitHandler = useCallback(
-    (data: InspectionSchemaType) => {
+    (data: ComplaintSchemaType) => {
       // case file data format for creating a new casefile
       const caseFileData: CaseFileAPIData = {
         project_id: getProjectId(data),
-        date_created: dateUtils.dateToISO(
-          data.dateRange?.startDate ?? new Date()
-        ),
+        date_created: dateUtils.dateToISO(new Date()),
         initiation_id: "", // should be mapped from the case file modal
         case_file_number: "",
-        lead_officer_id: (data.leadOfficer as StaffUser)?.id,
-        officer_ids:
-          (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
       };
 
       // Open modal for linking or creating case file
@@ -159,7 +148,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <Box ref={drawerTopRef}>
-          <DrawerTitleBar title="Create Inspection" isFormDirtyCheck />
+          <DrawerTitleBar title="Create Complaint" isFormDirtyCheck />
           <Box
             sx={{
               backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
@@ -175,20 +164,15 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
         <Stack
           height={`calc(100vh - ${(drawerTopRef.current?.offsetHeight ?? 120) + appHeaderHeight}px)`}
-          direction={"row"}
+          direction="row"
         >
-          <InspectionFormLeft
+          <ComplaintFormLeft
             projectList={projectList ?? []}
-            initiationList={initiationList ?? []}
             staffUsersList={staffUserList ?? []}
-            irTypeList={irTypeList ?? []}
           />
-          <InspectionFormRight
-            irStatusList={irStatusList ?? []}
-            projectStatusList={projectStatusList ?? []}
-            attendanceList={attendanceList ?? []}
-            agenciesList={agenciesList ?? []}
-            firstNationsList={firstNationsList ?? []}
+          <ComplaintFormRight
+            complaintSourceList={complaintSourceList ?? []}
+            requirementSourceList={requirementSourceList ?? []}
           />
         </Stack>
       </form>
@@ -196,4 +180,4 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   );
 };
 
-export default InspectionDrawer;
+export default ComplaintDrawer;
