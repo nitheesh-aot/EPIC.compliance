@@ -10,16 +10,9 @@ import dateUtils from "@/utils/dateUtils";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useMenuStore } from "@/store/menuStore";
-import {
-  useAttendanceOptionsData,
-  useIRStatusesData,
-  useProjectStatusesData,
-} from "@/hooks/useInspections";
 import { InspectionFormData as ComplaintFormData } from "@/models/Inspection";
 import ComplaintFormRight from "./ComplaintFormRight";
 import { useModal } from "@/store/modalStore";
-import { useAgenciesData } from "@/hooks/useAgencies";
-import { useFirstNationsData } from "@/hooks/useFirstNations";
 import {
   formatComplaintData,
   getProjectId,
@@ -28,7 +21,11 @@ import {
 } from "./ComplaintFormUtils";
 import LinkCaseFileModal from "@/components/App/CaseFiles/LinkCaseFileModal";
 import { Complaint, ComplaintAPIData } from "@/models/Complaint";
-import { useCreateComplaint } from "@/hooks/useComplaints";
+import {
+  useComplaintSourcesData,
+  useCreateComplaint,
+  useRequirementSourcesData,
+} from "@/hooks/useComplaints";
 
 type ComplaintDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -58,11 +55,8 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
 
   const { data: projectList } = useProjectsData({ includeUnapproved: true });
   const { data: staffUserList } = useStaffUsersData();
-  const { data: irStatusList } = useIRStatusesData();
-  const { data: projectStatusList } = useProjectStatusesData();
-  const { data: attendanceList } = useAttendanceOptionsData();
-  const { data: agenciesList } = useAgenciesData();
-  const { data: firstNationsList } = useFirstNationsData();
+  const { data: complaintSourceList } = useComplaintSourcesData();
+  const { data: requirementSourceList } = useRequirementSourcesData();
 
   const defaultValues = useMemo<ComplaintFormData>(() => {
     if (complaint) {
@@ -177,11 +171,8 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
             staffUsersList={staffUserList ?? []}
           />
           <ComplaintFormRight
-            irStatusList={irStatusList ?? []}
-            projectStatusList={projectStatusList ?? []}
-            attendanceList={attendanceList ?? []}
-            agenciesList={agenciesList ?? []}
-            firstNationsList={firstNationsList ?? []}
+            complaintSourceList={complaintSourceList ?? []}
+            requirementSourceList={requirementSourceList ?? []}
           />
         </Stack>
       </form>
