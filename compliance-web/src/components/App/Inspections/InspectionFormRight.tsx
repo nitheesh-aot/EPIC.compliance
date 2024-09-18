@@ -2,7 +2,7 @@ import { Box, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { IRStatus } from "@/models/IRStatus";
 import { ProjectStatus } from "@/models/ProjectStatus";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import { Attendance } from "@/models/Attendance";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import { BCDesignTokens } from "epic.theme";
@@ -41,28 +41,25 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
   const { isOpen } = useDrawer();
   const { setOpen, setClose } = useModal();
   const { control, resetField, getValues, setValue } = useFormContext();
-  const [selectedAttendance, setSelectedAttendance] = useState<Attendance[]>(
-    []
-  );
-
-  // Watch for changes in form fields
-  const formValues = useWatch({ control });
+  
+  // Watch for changes in `inAttendance` field
+  const selectedAttendance = useWatch({
+    control,
+    name: 'inAttendance',
+    defaultValue: [],
+  });
 
   useEffect(() => {
-    // Reset selectedAttendance when the drawer is closed
+    // Reset inAttendance when the drawer is closed
     if (!isOpen) {
-      setSelectedAttendance([]);
+      setValue('inAttendance', []);
     }
-  }, [isOpen]);
-
-  const handleAttendanceChange = (selected: Attendance[]) => {
-    setSelectedAttendance(selected); // Directly update without deselecting items
-  };
+  }, [isOpen, setValue]);
 
   const handleDeleteOption = (option: Attendance) => {
     const fieldName = dynamicFieldConfig[option.id as AttendanceEnum]?.name;
-    const fieldValue = formValues[fieldName];
-    
+    const fieldValue = getValues(fieldName);
+
     if (fieldName && fieldValue?.length) {
       setOpen({
         content: (
@@ -86,9 +83,8 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
         resetField(fieldName); // Reset the corresponding field value
       }
       const inAttendanceValues: Attendance[] = getValues("inAttendance");
-      const updatedAttendanceList: Attendance[] = inAttendanceValues.filter((att) => att.id !== selectedToRemove.id)
-      setSelectedAttendance(updatedAttendanceList); // Remove the deselected item from state      
-      setValue("inAttendance", updatedAttendanceList); // Remove from the selected form field
+      const updatedAttendanceList: Attendance[] = inAttendanceValues.filter((att) => att.id !== selectedToRemove.id);
+      setValue("inAttendance", updatedAttendanceList); // Remove from the form field
     }
     setClose();
   };
@@ -114,7 +110,7 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
     [AttendanceEnum.OTHER]: { type: "text", name: "other", label: "Other" },
   };
 
-  const isRelevantAttendanceSelected = selectedAttendance.some((attendee) =>
+  const isRelevantAttendanceSelected = selectedAttendance.some((attendee: Attendance) =>
     Object.values(AttendanceEnum).includes(attendee.id as AttendanceEnum)
   );
 
@@ -156,17 +152,17 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
               isOptionEqualToValue={(option, value) => option.id === value.id}
               multiple
               fullWidth
-              onChange={(_, newVal) => handleAttendanceChange(newVal as Attendance[])}
+              // onChange={(_, newVal) => handleAttendanceChange(newVal as Attendance[])}
               onDeleteOption={handleDeleteOption}
             />
           </Box>
-          {/* Show this section only if in-attendance is selected */}
+          {/* Show this section only if relevant AttendanceEnum values are selected */}
           {isRelevantAttendanceSelected && (
             <Box
               p={sectionPadding}
               bgcolor={BCDesignTokens.surfaceColorBackgroundLightBlue}
             >
-              {selectedAttendance.map((attendee) => {
+              {selectedAttendance.map((attendee: Attendance) => {
                 const config = dynamicFieldConfig[attendee.id as AttendanceEnum];
                 if (!config) return null;
 
