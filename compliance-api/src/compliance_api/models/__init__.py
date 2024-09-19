@@ -16,7 +16,9 @@
 
 from .agency import Agency
 from .case_file import CaseFile, CaseFileInitiationEnum, CaseFileInitiationOption, CaseFileOfficer, CaseFileStatusEnum
-from .complaint import Complaint, ComplaintSource, ComplaintStatusEnum, RequirementSource
+from .complaint import (
+    Complaint, ComplaintReqOrderDetail, ComplaintReqScheduleBDetail, ComplaintRequirementDetail, ComplaintSource,
+    ComplaintSourceContact, ComplaintStatusEnum)
 from .db import db, ma, migrate
 from .inspection import (
     Inspection, InspectionAgency, InspectionAttendance, InspectionAttendanceOption, InspectionAttendanceOptionEnum,
@@ -25,5 +27,6 @@ from .inspection import (
 from .position import Position
 from .project import Project
 from .project_status import ProjectStatusOption
+from .requirement_source import RequirementSource
 from .staff_user import PERMISSION_MAP, PermissionEnum, StaffUser
 from .topic import Topic

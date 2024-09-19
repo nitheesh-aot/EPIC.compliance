@@ -32,6 +32,7 @@ from .ops import API as OPS_API
 from .position import API as POSITION_API
 from .project import API as PROJECT_API
 from .project_status import API as PROJECT_STATUS_API
+from .requirement_source import API as REQUIREMENT_SOURCE_API
 from .staff_user import API as USER_API
 from .topic import API as TOPIC_API
 
@@ -77,3 +78,4 @@ API.add_namespace(INSPECTION_API)
 API.add_namespace(PROJECT_STATUS_API)
 API.add_namespace(TOPIC_API)
 API.add_namespace(COMPLAINT_API)
+API.add_namespace(REQUIREMENT_SOURCE_API)

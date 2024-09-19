@@ -25,3 +25,4 @@ requests
 flask_cors
 pyhumps
 importlib-resources
+cryptography==39.0.2

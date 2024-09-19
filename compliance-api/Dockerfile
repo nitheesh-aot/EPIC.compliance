@@ -6,6 +6,11 @@ USER root
 RUN mkdir /opt/app-root && chmod 755 /opt/app-root
 WORKDIR /opt/app-root
 
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    && export PATH="/root/.cargo/bin:$PATH" \
+    && rustc --version \
+    && cargo --version
+
 # Install the requirements
 COPY ./requirements.txt .
 

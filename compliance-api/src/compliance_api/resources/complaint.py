@@ -46,24 +46,6 @@ class ComplaintSources(Resource):
         return complaint_sources_schema.dump(complaint_sources), HTTPStatus.OK
 
 
-@cors_preflight("GET, OPTIONS")
-@API.route("/requirement-sources", methods=["GET", "OPTIONS"])
-class RequirementSources(Resource):
-    """Resource for requirement sources."""
-
-    @staticmethod
-    @API.response(code=200, description="Success", model=[keyvalue_list_schema])
-    @ApiHelper.swagger_decorators(
-        API, endpoint_description="Fetch all requrement sources"
-    )
-    @auth.require
-    def get():
-        """Fetch all requirement sources."""
-        requirement_sources = ComplaintService.get_requirement_sources()
-        requirement_sources_schema = KeyValueSchema(many=True)
-        return requirement_sources_schema.dump(requirement_sources), HTTPStatus.OK
-
-
 @cors_preflight("GET, OPTIONS, POST")
 @API.route("", methods=["POST", "GET", "OPTIONS"])
 class Complaints(Resource):

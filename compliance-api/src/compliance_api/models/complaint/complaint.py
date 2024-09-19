@@ -70,13 +70,13 @@ class Complaint(BaseModel):
     requirement_source_id = Column(
         Integer,
         ForeignKey(
-            "complaint_requirement_sources.id",
-            name="complaints_requirement_source_id_requirement_sources_id",
+            "requirement_sources.id",
+            name="requirement_source_id_requirement_sources_id",
         ),
-        nullable=False,
+        nullable=True,
         comment="The selected requirement source of the complaint",
     )
-    source_id = Column(
+    source_type_id = Column(
         Integer,
         ForeignKey(
             "complaint_sources.id", name="complaints_source_id_complaint_sources_id"
@@ -84,13 +84,26 @@ class Complaint(BaseModel):
         nullable=False,
         comment="The selected source of the complaint",
     )
-
+    source_agency_id = Column(
+        Integer,
+        ForeignKey(
+            "agencies.id", name="complaints_agency_id_agencies_id",
+        ),
+        nullable=True,
+        comment="The unique Id of the agency if the complaint source is selected as agency"
+    )
+    source_first_nation_id = Column(
+        Integer,
+        nullable=True,
+        comment="The unique Id of the first nation if the complaint source is selected as first nation"
+    )
+    status = Column(Enum(ComplaintStatusEnum), nullable=False)
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
     requirement_source = relationship(
         "RequirementSource", foreign_keys=[requirement_source_id], lazy="joined"
     )
-    source = relationship("ComplaintSource", foreign_keys=[source_id], lazy="joined")
-    status = Column(Enum(ComplaintStatusEnum), nullable=False)
+    source = relationship("ComplaintSource", foreign_keys=[source_type_id], lazy="joined")
+    agency = relationship("Agency", foreign_keys=[source_agency_id], lazy="joined")
 
     # @classmethod
     # def get_count_by_project_nd_case_file_id(cls, project_id: int, case_file_id: int):

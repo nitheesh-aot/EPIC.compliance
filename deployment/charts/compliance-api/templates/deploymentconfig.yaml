@@ -102,6 +102,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.database.secret }}
                   key: app-db-name
+            - name: DB_ECRPT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: DB_ECRPT_KEY
             - name: DATABASE_HOST
               value: {{ .Values.database.service.name }}
             - name: AUTH_BASE_URL
