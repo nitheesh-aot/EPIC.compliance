@@ -40,7 +40,13 @@ export const ComplaintFormSchema = yup.object().shape({
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
       'Email must contain a valid domain (e.g., ".com", ".org")'
     ),
-  contactPhoneNumber: yup.string().nullable(),
+  contactPhoneNumber: yup
+    .string()
+    .nullable()
+    .matches(
+      /^\(\d{3}\) \d{3}-\d{4}$/,
+      "Phone number must be in the format (xxx) xxx-xxxx"
+    ),
   contactComments: yup.string().nullable(),
   requirementSource: yup.object<RequirementSource>().nullable(),
 });

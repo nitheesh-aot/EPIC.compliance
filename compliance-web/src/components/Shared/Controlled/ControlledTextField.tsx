@@ -7,17 +7,7 @@ import {
 } from "react-hook-form";
 import { IMaskInput } from "react-imask";
 
-type IFormInputProps = {
-  name: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  inputEffects?: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => string;
-  maxLength?: number;
-  mask?: string;
-} & TextFieldProps;
-
-// type for the masked input props
+// Type for the masked input props
 interface CustomMaskedInputProps {
   mask: string;
   definitions?: Record<string, RegExp>;
@@ -37,10 +27,20 @@ const CustomMaskedInput = React.forwardRef<
       mask={mask}
       definitions={definitions}
       inputRef={ref}
-      onAccept={(value) => onChange(value)} // Handle masked input change
+      onAccept={onChange} // Directly handle masked input change
     />
   );
 });
+
+type IFormInputProps = {
+  name: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  inputEffects?: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => string;
+  maxLength?: number;
+  mask?: string;
+} & TextFieldProps;
 
 const ControlledTextField: FC<IFormInputProps> = ({
   name,
@@ -75,32 +75,34 @@ const ControlledTextField: FC<IFormInputProps> = ({
       control={control}
       name={name}
       defaultValue={defaultValues?.[name] || ""}
-      render={({ field }) => (
-        <TextField
-          {...field}
-          inputProps={{
-            maxLength: maxLength,
-          }}
-          onChange={handleChange(field)}
-          error={!!errors[name]}
-          helperText={String(errors[name]?.message ?? "")}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          InputProps={
-            mask
-              ? {
-                  inputComponent:
-                    CustomMaskedInput as unknown as React.ComponentType, // Custom masked input
-                  inputProps: {
-                    mask,
-                  },
-                }
-              : {}
-          }
-          {...otherProps}
-        />
-      )}
+      render={({ field }) => {
+        const inputProps = mask
+          ? {
+              inputComponent:
+                CustomMaskedInput as unknown as React.ComponentType,
+              inputProps: { mask },
+            }
+          : {};
+
+        return (
+          <TextField
+            {...field}
+            inputRef={field.ref} // Use field ref directly
+            inputProps={{
+              maxLength,
+              ...otherProps.inputProps,
+            }}
+            onChange={handleChange(field)}
+            error={!!errors[name]}
+            helperText={String(errors[name]?.message ?? "")}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            InputProps={inputProps}
+            {...otherProps}
+          />
+        );
+      }}
     />
   );
 };
