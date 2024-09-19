@@ -31,6 +31,17 @@ export const ComplaintFormSchema = yup.object().shape({
     .object<ComplaintSource>()
     .nullable()
     .required("Complaint Source is required"),
+  contactFullName: yup.string().nullable(),
+  contactEmail: yup
+    .string()
+    .nullable()
+    .email("Invalid email format")
+    .matches(
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      'Email must contain a valid domain (e.g., ".com", ".org")'
+    ),
+  contactPhoneNumber: yup.string().nullable(),
+  contactComments: yup.string().nullable(),
   requirementSource: yup.object<RequirementSource>().nullable(),
 });
 

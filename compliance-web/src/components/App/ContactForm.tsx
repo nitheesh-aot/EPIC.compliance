@@ -5,7 +5,7 @@ const ContactForm: FC = () => {
   return (
     <>
       <ControlledTextField
-        name="contactFirstName"
+        name="contactFullName"
         label="Full Name (optional)"
         multiline
         fullWidth
@@ -19,6 +19,7 @@ const ContactForm: FC = () => {
       <ControlledTextField
         name="contactPhoneNumber"
         label="Phone Number (optional)"
+        mask="(000) 000-0000"
         multiline
         fullWidth
       />
