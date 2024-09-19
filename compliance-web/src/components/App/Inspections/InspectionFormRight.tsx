@@ -152,7 +152,6 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
               isOptionEqualToValue={(option, value) => option.id === value.id}
               multiple
               fullWidth
-              // onChange={(_, newVal) => handleAttendanceChange(newVal as Attendance[])}
               onDeleteOption={handleDeleteOption}
             />
           </Box>

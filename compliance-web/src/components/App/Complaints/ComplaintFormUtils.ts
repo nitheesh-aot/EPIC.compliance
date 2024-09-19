@@ -7,6 +7,12 @@ import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import * as yup from "yup";
 
+export enum ComplaintSourceEnum {
+  FIRST_NATION = "2",
+  AGENCY = "3",
+  OTHER = "4",
+}
+
 export const ComplaintFormSchema = yup.object().shape({
   project: yup.object<Project>().nullable().required("Project is required"),
   authorization: yup.string().nullable(),
