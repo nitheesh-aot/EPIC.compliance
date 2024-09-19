@@ -30,3 +30,14 @@ class ComplaintReqScheduleBDetail(BaseModel):
     requirement_detail = relationship(
         "ComplaintRequirementDetail", foreign_keys=[req_id], lazy="select"
     )
+
+    @classmethod
+    def create(cls, requirement_obj, session=None):
+        """Create schedule b details."""
+        requirement_more = ComplaintReqScheduleBDetail(**requirement_obj)
+        if session:
+            session.add(requirement_more)
+            session.flush()
+        else:
+            requirement_more.save()
+        return requirement_more

@@ -6,10 +6,10 @@ from sqlalchemy.orm import relationship
 from ..base_model import BaseModel
 
 
-class InspectionUnapprovedProject(BaseModel):
-    """Unapproved project model for inspection."""
+class ComplaintUnapprovedProject(BaseModel):
+    """Unapproved project model for complaint."""
 
-    __tablename__ = "inspection_unapproved_projects"
+    __tablename__ = "complaint_unapproved_projects"
 
     id = Column(
         Integer,
@@ -28,19 +28,19 @@ class InspectionUnapprovedProject(BaseModel):
         nullable=True,
         comment="The details of regulated party associated with the project",
     )
-    inspection_id = Column(
+    complaint_id = Column(
         Integer,
         ForeignKey(
-            "inspections.id", name="inspection_unapproved_projects_inspection_id_fkey"
+            "complaints.id", name="complaint_unapproved_projects_complaint_id_fkey"
         ),
         nullable=False,
     )
-    inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
+    complaint = relationship("Complaint", foreign_keys=[complaint_id], lazy="select")
 
     @classmethod
     def create_project_info(cls, project_data, session=None):
-        """Persist inspection in database."""
-        unapproved_project = InspectionUnapprovedProject(**project_data)
+        """Persist project info in database."""
+        unapproved_project = ComplaintUnapprovedProject(**project_data)
         if session:
             session.add(unapproved_project)
             session.flush()

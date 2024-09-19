@@ -1,5 +1,4 @@
 """ComplaintReqOrderDetail model."""
-
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
@@ -30,3 +29,14 @@ class ComplaintReqOrderDetail(BaseModel):
     requirement_detail = relationship(
         "ComplaintRequirementDetail", foreign_keys=[req_id], lazy="select"
     )
+
+    @classmethod
+    def create(cls, requirement_obj, session=None):
+        """Create order details."""
+        requirement_more = ComplaintReqOrderDetail(**requirement_obj)
+        if session:
+            session.add(requirement_more)
+            session.flush()
+        else:
+            requirement_more.save()
+        return requirement_more

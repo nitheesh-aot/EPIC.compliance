@@ -14,7 +14,7 @@
 """Complaint Model."""
 import enum
 
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModel
@@ -37,7 +37,13 @@ class Complaint(BaseModel):
         autoincrement=True,
         comment="The unique identifier of the complaints",
     )
-
+    complaint_number = Column(
+        String(50),
+        comment="The unique complaint number",
+        unique=True,
+        index=True,
+        nullable=False,
+    )
     case_file_id = Column(
         Integer,
         ForeignKey("case_files.id", name="complaints_case_file_id_case_file_id_fkey"),
@@ -49,6 +55,11 @@ class Complaint(BaseModel):
         ForeignKey("projects.id", name="complaints_project_id_projects_id_fkey"),
         nullable=True,
         comment="The unique identifier of the project associated with the complaint",
+    )
+    project_description = Column(
+        String,
+        nullable=True,
+        comment="The description of the project associated with the complaint"
     )
     concern_description = Column(
         String, nullable=False, comment="The concern description of the complaint"
@@ -105,6 +116,22 @@ class Complaint(BaseModel):
     source = relationship("ComplaintSource", foreign_keys=[source_type_id], lazy="joined")
     agency = relationship("Agency", foreign_keys=[source_agency_id], lazy="joined")
 
+    @classmethod
+    def get_count_by_project_nd_case_file_id(cls, project_id: int, case_file_id: int):
+        """Return the number of complaint based on the project and case file id."""
+        result = (
+            cls.query.with_entities(
+                Complaint.case_file_id,
+                Complaint.project_id,
+                func.count(Complaint.id).label(  # pylint: disable=not-callable
+                    "complaint_count"
+                ),
+            )
+            .filter_by(project_id=project_id, case_file_id=case_file_id)
+            .group_by(Complaint.case_file_id, Complaint.project_id)
+            .first()
+        )
+        return result.complaint_count if result else 0
     # @classmethod
     # def get_count_by_project_nd_case_file_id(cls, project_id: int, case_file_id: int):
     #     """Return the number of inspection based on the project and case file id."""
@@ -122,13 +149,13 @@ class Complaint(BaseModel):
     #     )
     #     return result.inspection_count if result else 0
 
-    # @classmethod
-    # def create_inspection(cls, inspection_obj, session=None):
-    #     """Persist inspection in database."""
-    #     inspection = Inspection(**inspection_obj)
-    #     if session:
-    #         session.add(inspection)
-    #         session.flush()
-    #     else:
-    #         inspection.save()
-    #     return inspection
+    @classmethod
+    def create_complaint(cls, complaint_obj, session=None):
+        """Persist inspection in database."""
+        complaint = Complaint(**complaint_obj)
+        if session:
+            session.add(complaint)
+            session.flush()
+        else:
+            complaint.save()
+        return complaint

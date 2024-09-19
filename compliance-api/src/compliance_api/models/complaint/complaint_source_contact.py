@@ -34,3 +34,14 @@ class ComplaintSourceContact(BaseModel):
     )
     comment = Column(EncryptedType(), nullable=True, comment="The comments")
     complaint = relationship("Complaint", foreign_keys=[complaint_id], lazy="joined")
+
+    @classmethod
+    def create_contact(cls, contact_data, session=None):
+        """Persist contact info in database."""
+        contact = ComplaintSourceContact(**contact_data)
+        if session:
+            session.add(contact)
+            session.flush()
+        else:
+            contact.save()
+        return contact

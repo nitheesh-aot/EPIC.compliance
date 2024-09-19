@@ -35,3 +35,14 @@ class ComplaintRequirementDetail(BaseModel):
 
     complaint = relationship("Complaint", foreign_keys=[complaint_id], lazy="select")
     topic = relationship("Topic", foreign_keys=[topic_id], lazy="select")
+
+    @classmethod
+    def create_detail(cls, requirement_source_data, session=None):
+        """Persist details in database."""
+        requirement_source_detail = ComplaintRequirementDetail(**requirement_source_data)
+        if session:
+            session.add(requirement_source_detail)
+            session.flush()
+        else:
+            requirement_source_detail.save()
+        return requirement_source_detail

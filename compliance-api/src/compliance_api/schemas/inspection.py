@@ -36,6 +36,9 @@ class InspectionCreateSchema(BaseSchema):
         metadata={"description": "The location details of the inspection."},
         allow_none=True,
     )
+    project_description = fields.Str(
+        metadata={"description": "The project description"}, allow_none=True
+    )
     utm = fields.Str(
         metadata={"description": "The UTM value of the location."}, allow_none=True
     )
@@ -126,10 +129,6 @@ class InspectionCreateSchema(BaseSchema):
             }
         ),
         required=False,
-    )
-    unapproved_project_description = fields.Str(
-        metadata={"description": "The description of the unapproved projects"},
-        allow_none=True,
     )
     unapproved_project_authorization = fields.Str(
         metadata={
