@@ -22,7 +22,7 @@ export enum ComplaintSourceEnum {
 export const ComplaintFormSchema = yup.object().shape({
   project: yup.object<Project>().nullable().required("Project is required"),
   authorization: yup.string().nullable(),
-  certificateHolder: yup.string().nullable(),
+  regulatedParty: yup.string().nullable(),
   projectDescription: yup.string().nullable(),
   projectType: yup.string().nullable(),
   projectSubType: yup.string().nullable(),
@@ -103,7 +103,7 @@ export const formatComplaintData = (
   if (!projectId) {
     complaintData = {
       unapproved_project_authorization: formData.authorization ?? "",
-      unapproved_project_regulated_party: formData.certificateHolder ?? "",
+      unapproved_project_regulated_party: formData.regulatedParty ?? "",
       unapproved_project_description: formData.projectDescription ?? "",
       unapproved_project_type: formData.projectType ?? "",
       unapproved_project_sub_type: formData.projectSubType ?? "",

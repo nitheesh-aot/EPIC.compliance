@@ -32,13 +32,13 @@ const ProjectDetailsForm: FC<ProjectDetailsFormProps> = ({ projectList }) => {
             : `EAC# ${eaCertifcate}`;
       }
       setValue("authorization", authorization);
-      setValue("certificateHolder", projectData?.proponent?.name ?? "");
+      setValue("regulatedParty", projectData?.proponent?.name ?? "");
       setValue("projectDescription", projectData?.description ?? "");
       setValue("projectType", projectData?.type?.name ?? "");
       setValue("projectSubType", projectData?.sub_type?.name ?? "");
     } else {
       resetField("authorization");
-      resetField("certificateHolder");
+      resetField("regulatedParty");
       resetField("projectDescription");
       resetField("projectType");
       resetField("projectSubType");
@@ -80,9 +80,9 @@ const ProjectDetailsForm: FC<ProjectDetailsFormProps> = ({ projectList }) => {
           sx={{ width: "70%" }}
         />
         <ControlledTextField
-          name="certificateHolder"
-          label="Certificate Holder"
-          placeholder="Certificate Holder"
+          name="regulatedParty"
+          label="Regulated Party"
+          placeholder="Regulated Party"
           disabled={!!selectedProjectId}
           fullWidth
         />
