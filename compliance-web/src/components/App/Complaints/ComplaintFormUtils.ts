@@ -1,9 +1,15 @@
+import { Agency } from "@/models/Agency";
 import { ComplaintAPIData } from "@/models/Complaint";
 import { ComplaintSource } from "@/models/ComplaintSource";
+import { FirstNation } from "@/models/FirstNation";
 import { Project } from "@/models/Project";
 import { RequirementSource } from "@/models/RequirementSource";
 import { StaffUser } from "@/models/Staff";
-import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
+import {
+  REGEX_EMAIL,
+  REGEX_PHONE_NUMBER,
+  UNAPPROVED_PROJECT_ID,
+} from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import * as yup from "yup";
 
@@ -35,19 +41,38 @@ export const ComplaintFormSchema = yup.object().shape({
   contactEmail: yup
     .string()
     .nullable()
-    .email("Invalid email format")
-    .matches(
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      'Email must contain a valid domain (e.g., ".com", ".org")'
+    .test(
+      "is-valid-email",
+      "Invalid email format",
+      (value) => !value || REGEX_EMAIL.test(value) // Only validate if value is not empty
     ),
   contactPhoneNumber: yup
     .string()
     .nullable()
-    .matches(
-      /^\(\d{3}\) \d{3}-\d{4}$/,
-      "Phone number must be in the format (xxx) xxx-xxxx"
+    .test(
+      "is-valid-phone",
+      "Invalid phone number format",
+      (value) => !value || REGEX_PHONE_NUMBER.test(value) // Only validate if value is not empty
     ),
   contactComments: yup.string().nullable(),
+  agency: yup.object<Agency>().when("complaintSource", {
+    is: (attendance: ComplaintSource) =>
+      attendance?.id === ComplaintSourceEnum.AGENCY,
+    then: (schema) => schema.required("Agency is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  firstNation: yup.object<FirstNation>().when("complaintSource", {
+    is: (attendance: ComplaintSource) =>
+      attendance?.id === ComplaintSourceEnum.FIRST_NATION,
+    then: (schema) => schema.required("First Nation is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  otherDescription: yup.string().when("complaintSource", {
+    is: (attendance: ComplaintSource) =>
+      attendance?.id === ComplaintSourceEnum.OTHER,
+    then: (schema) => schema.required("Description is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   requirementSource: yup.object<RequirementSource>().nullable(),
 });
 

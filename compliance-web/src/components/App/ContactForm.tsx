@@ -7,20 +7,19 @@ const ContactForm: FC = () => {
       <ControlledTextField
         name="contactFullName"
         label="Full Name (optional)"
-        multiline
         fullWidth
       />
       <ControlledTextField
         name="contactEmail"
         label="Email (optional)"
-        multiline
+        placeholder="example@example.com"
         fullWidth
       />
       <ControlledTextField
         name="contactPhoneNumber"
         label="Phone Number (optional)"
         mask="(000) 000-0000"
-        multiline
+        placeholder="(xxx) xxx-xxxx"
         fullWidth
       />
       <ControlledTextField

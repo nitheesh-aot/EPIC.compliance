@@ -1,15 +1,12 @@
 import { Box, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import { ComplaintSource } from "@/models/ComplaintSource";
 import { RequirementSource } from "@/models/RequirementSource";
 import { BCDesignTokens } from "epic.theme";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
-import { useDrawer } from "@/store/drawerStore";
-import { useModal } from "@/store/modalStore";
 import { useFormContext, useWatch } from "react-hook-form";
 import { ComplaintSourceEnum } from "./ComplaintFormUtils";
-import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { Agency } from "@/models/Agency";
 import { FirstNation } from "@/models/FirstNation";
 import ContactForm from "@/components/App/ContactForm";
@@ -36,9 +33,7 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
   agenciesList,
   firstNationsList,
 }) => {
-  const { isOpen } = useDrawer();
-  const { setOpen, setClose } = useModal();
-  const { control, resetField, getValues } = useFormContext();
+  const { control, resetField } = useFormContext();
 
   // Watch for changes in `complaintSource` field
   const selectedComplaintSource = useWatch({
@@ -46,38 +41,11 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
     name: "complaintSource",
   });
 
-  useEffect(() => {
-    // Reset complaintSource when the drawer is closed
-    if (!isOpen) {
-      resetField("complaintSource");
-    }
-  }, [isOpen, resetField]);
-
   const handleComplaintSourceChange = () => {
     const fieldName =
       dynamicFieldConfig[selectedComplaintSource?.id as ComplaintSourceEnum]
         ?.name;
-    const fieldValue = getValues(fieldName);
-
-    if (fieldName && fieldValue) {
-      setOpen({
-        content: (
-          <ConfirmationModal
-            title="Remove Group?"
-            description="You have selected one or more options in this group. Deselecting will remove all selected items. Are you sure you want to remove it?"
-            confirmButtonText="Remove"
-            onConfirm={() => handleConfirmRemove(fieldName)}
-          />
-        ),
-      });
-    } else {
-      handleConfirmRemove(fieldName); // Remove immediately if no values are filled
-    }
-  };
-
-  const handleConfirmRemove = (fieldName: string) => {
-    resetField(fieldName); // Reset the corresponding field value
-    setClose();
+    resetField(fieldName);
   };
 
   const dynamicFieldConfig: Record<ComplaintSourceEnum, FieldConfig> = {
