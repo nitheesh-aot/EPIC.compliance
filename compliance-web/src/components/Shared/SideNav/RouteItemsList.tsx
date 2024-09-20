@@ -23,7 +23,7 @@ export default function RouteItemsList() {
         },
         {
           routeName: "Complaints",
-          path: "/ce-database/compliants",
+          path: "/ce-database/complaints",
         },
       ],
     },
