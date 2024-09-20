@@ -48,7 +48,9 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
     defaultValues: initFormData,
   });
 
-  const { handleSubmit, reset } = methods;
+  const { handleSubmit, reset, watch } = methods;
+
+  const caseFileValue = watch("caseFile");
 
   const onSuccess = useCallback(
     (data: CaseFile) => {
@@ -74,7 +76,9 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
 
   const createNewCaseFile = () => {
     caseFileData.initiation_id =
-      initiationList?.find((inititation) => inititation.id === INITIATION.INSPECTION_ID)?.id ?? "";
+      initiationList?.find(
+        (inititation) => inititation.id === INITIATION.INSPECTION_ID
+      )?.id ?? "";
     createCaseFile(caseFileData);
   };
 
@@ -103,6 +107,7 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
             fullWidth
             sx={{ mb: "2.5rem" }}
             onClick={createNewCaseFile}
+            disabled={!!caseFileValue} // Disable button if caseFile dropdown has a value
           >
             Create New Case File
           </Button>
