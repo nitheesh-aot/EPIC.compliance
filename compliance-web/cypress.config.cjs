@@ -8,6 +8,14 @@ module.exports = defineConfig({
     devServer: {
       framework: "react",
       bundler: "vite",
+      viteConfig: {
+        configFile: 'vite.config.ts', // Ensure Cypress uses the Vite config
+        resolve: {
+          alias: {
+            "@": "/src", // Define the alias here to make sure it gets picked up
+          }
+        },
+      },
     },
     setupNodeEvents(on, config) {
       require('@cypress/code-coverage/task')(on, config)
@@ -17,5 +25,8 @@ module.exports = defineConfig({
       // with any changed environment variables
       return config
     },
+    specPattern: "cypress/components/**/*.{js,jsx,ts,tsx}", // Ensure the test files are properly located
+    supportFile: false,
+    tsConfig: "tsconfig.cy.json"
   },
 });
