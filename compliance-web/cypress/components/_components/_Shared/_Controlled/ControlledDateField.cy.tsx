@@ -45,8 +45,6 @@ describe("ControlledDateField Component", () => {
         },
         mode: "onChange",
         resolver: async (data) => {
-          // eslint-disable-next-line no-console
-          console.log(data);
           return {
             values: data,
             errors: !data.dateField
