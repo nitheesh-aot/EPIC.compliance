@@ -44,7 +44,7 @@ describe("CaseFiles Component", () => {
   });
 
   it("should open the Case Files modal when the add button is clicked", () => {
-    router.navigate({ to: "/admin/staff" });
+    router.navigate({ to: "/ce-database/case-files" });
 
     mount(mountCaseFiles());
 

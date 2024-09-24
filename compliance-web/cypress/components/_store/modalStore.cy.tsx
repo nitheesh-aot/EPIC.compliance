@@ -1,7 +1,8 @@
 /// <reference types="cypress" />
 import { useModal } from "@/store/modalStore";
+import { Box } from "@mui/material";
 import { mount } from "cypress/react18";
-import { act } from "react-dom/test-utils";
+import { act } from "react";
 
 const TestComponent = () => {
   const { isOpen, modalContent, setOpen, setClose } = useModal();
@@ -14,7 +15,7 @@ const TestComponent = () => {
         data-cy="open-modal"
         onClick={() =>
           setOpen({
-            content: <div data-cy="test-modal-content">Test Modal Content</div>,
+            content: <Box data-cy="test-modal-content">Test Modal Content</Box>,
           })
         }
       >

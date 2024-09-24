@@ -54,7 +54,7 @@ export function CaseFiles() {
 
   const handleOpenModal = () => {
     setOpen({
-      modal: <CaseFileDrawer onSubmit={handleOnSubmit} />,
+      content: <CaseFileDrawer onSubmit={handleOnSubmit} />,
       width: "718px",
     });
   };
