@@ -7,10 +7,10 @@ import { notify } from "@/store/snackbarStore";
 import ComplaintDrawer from "@/components/App/Complaints/ComplaintDrawer";
 
 export const Route = createFileRoute("/_authenticated/ce-database/complaints")({
-  component: Compliance,
+  component: Complaints,
 });
 
-function Compliance() {
+export function Complaints() {
   const { setOpen, setClose } = useDrawer();
 
   const handleOnSubmit = (submitMsg: string) => {
@@ -21,7 +21,7 @@ function Compliance() {
   
   const handleOpenDrawer = () => {
     setOpen({
-      modal: <ComplaintDrawer onSubmit={handleOnSubmit} />,
+      content: <ComplaintDrawer onSubmit={handleOnSubmit} />,
       width: "1118px",
     });
   };
