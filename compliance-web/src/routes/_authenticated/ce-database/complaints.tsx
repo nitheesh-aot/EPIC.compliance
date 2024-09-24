@@ -6,7 +6,7 @@ import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import ComplaintDrawer from "@/components/App/Complaints/ComplaintDrawer";
 
-export const Route = createFileRoute("/_authenticated/ce-database/compliants")({
+export const Route = createFileRoute("/_authenticated/ce-database/complaints")({
   component: Compliance,
 });
 

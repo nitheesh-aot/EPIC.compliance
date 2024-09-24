@@ -26,6 +26,8 @@ import {
   useCreateComplaint,
   useRequirementSourcesData,
 } from "@/hooks/useComplaints";
+import { useAgenciesData } from "@/hooks/useAgencies";
+import { useFirstNationsData } from "@/hooks/useFirstNations";
 
 type ComplaintDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -57,6 +59,8 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
   const { data: staffUserList } = useStaffUsersData();
   const { data: complaintSourceList } = useComplaintSourcesData();
   const { data: requirementSourceList } = useRequirementSourcesData();
+  const { data: agenciesList } = useAgenciesData();
+  const { data: firstNationsList } = useFirstNationsData();
 
   const defaultValues = useMemo<ComplaintFormData>(() => {
     if (complaint) {
@@ -173,6 +177,8 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
           <ComplaintFormRight
             complaintSourceList={complaintSourceList ?? []}
             requirementSourceList={requirementSourceList ?? []}
+            agenciesList={agenciesList ?? []}
+            firstNationsList={firstNationsList ?? []}
           />
         </Stack>
       </form>
