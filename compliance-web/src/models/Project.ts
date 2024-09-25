@@ -6,10 +6,10 @@ export interface Project {
   proponent_name?: string;
   is_active?: boolean;
   proponent?: Proponent;
-  type_id: number;
-  type: ProjectType;
-  sub_type_id: number;
-  sub_type: ProjectType;
+  type_id?: number;
+  type?: ProjectType;
+  sub_type_id?: number;
+  sub_type?: ProjectType;
 }
 
 interface Proponent {
