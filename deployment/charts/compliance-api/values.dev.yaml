@@ -18,7 +18,6 @@ resources:
 
 database:
   secret: compliance-patroni
-  encrypt_key:
   service:
     name: compliance-patroni
     port: 5432
