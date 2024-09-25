@@ -5,7 +5,7 @@ import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 const fetchRequirementSources = (): Promise<RequirementSource[]> => {
-  return request({ url: "/complaints/requirement-sources" });
+  return request({ url: "/requirement-sources" });
 };
 
 const fetchComplaintSources = (): Promise<ComplaintSource[]> => {
