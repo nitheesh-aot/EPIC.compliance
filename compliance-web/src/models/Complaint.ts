@@ -34,7 +34,16 @@ export interface ComplaintAPIData {
   lead_officer_id?: number;
   case_file_id: number;
   date_received: string;
-  complaint_source_id: string;
+  source_type_id: string;
+  complaint_source_contact?: {
+    full_name?: string;
+    email?: string;
+    phone?: string;
+    comment?: string;
+    description?: string;
+  };
+  source_agency_id?: number,
+  source_first_nation_id?: number,
   requirement_source_id?: string;
   project_description?: string;
   unapproved_project_authorization?: string;

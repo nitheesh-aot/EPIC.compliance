@@ -89,6 +89,7 @@ export const formatComplaintData = (
   caseFileId: number
 ) => {
   const projectId = getProjectId(formData);
+  const sourceId = (formData.complaintSource as ComplaintSource)?.id;
 
   let complaintData: ComplaintAPIData = {
     project_id: projectId,
@@ -97,9 +98,30 @@ export const formatComplaintData = (
     location_description: formData.locationDescription ?? "",
     concern_description: formData.concernDescription ?? "",
     date_received: dateUtils.dateToISO(formData.dateReceived),
-    complaint_source_id: (formData.leadOfficer as ComplaintSource)?.id,
-    requirement_source_id: (formData.leadOfficer as RequirementSource)?.id,
+    source_type_id: sourceId,
+    requirement_source_id: (formData.requirementSource as RequirementSource)?.id,
   };
+  if (sourceId) {
+    complaintData.complaint_source_contact = {
+      full_name: formData.contactFullName ?? "",
+      email: formData.contactEmail ?? "",
+      phone: formData.contactPhoneNumber ?? "",
+      comment: formData.contactComments ?? "",
+    };
+    switch (sourceId) {
+      case ComplaintSourceEnum.FIRST_NATION:
+        complaintData.source_first_nation_id = (
+          formData.firstNation as FirstNation
+        )?.id;
+        break;
+      case ComplaintSourceEnum.AGENCY:
+        complaintData.source_agency_id = (formData.agency as Agency)?.id;
+        break;
+      case ComplaintSourceEnum.OTHER:
+        complaintData.complaint_source_contact.description = formData.otherDescription ?? "";
+        break;
+    }
+  }
   if (!projectId) {
     complaintData = {
       unapproved_project_authorization: formData.authorization ?? "",
