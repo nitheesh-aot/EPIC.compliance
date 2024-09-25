@@ -10,6 +10,7 @@ from ..type import EncryptedType
 class ComplaintSourceContact(BaseModel):
     """Complaint source contact."""
 
+    __tablename__ = "complaint_source_contacts"
     id = Column(
         Integer,
         primary_key=True,

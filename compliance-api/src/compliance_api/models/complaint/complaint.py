@@ -120,6 +120,7 @@ class Complaint(BaseModel):
         "StaffUser", foreign_keys=[lead_officer_id], lazy="joined"
     )
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
+    project = relationship("Project", foreign_keys=[project_id], lazy="joined")
     source_contact = relationship(
         "ComplaintSourceContact",
         back_populates="complaint",
@@ -151,23 +152,6 @@ class Complaint(BaseModel):
             .first()
         )
         return result.complaint_count if result else 0
-
-    # @classmethod
-    # def get_count_by_project_nd_case_file_id(cls, project_id: int, case_file_id: int):
-    #     """Return the number of inspection based on the project and case file id."""
-    #     result = (
-    #         cls.query.with_entities(
-    #             Inspection.case_file_id,
-    #             Inspection.project_id,
-    #             func.count(Inspection.id).label(  # pylint: disable=not-callable
-    #                 "inspection_count"
-    #             ),
-    #         )
-    #         .filter_by(project_id=project_id, case_file_id=case_file_id)
-    #         .group_by(Inspection.case_file_id, Inspection.project_id)
-    #         .first()
-    #     )
-    #     return result.inspection_count if result else 0
 
     @classmethod
     def create_complaint(cls, complaint_obj, session=None):
