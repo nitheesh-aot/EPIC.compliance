@@ -48,6 +48,11 @@ class Inspection(BaseModel):
         nullable=True,
         comment="The unique identifier of the project associated with the inspection",
     )
+    project_description = Column(
+        String,
+        nullable=True,
+        comment="The description of the project associated with the inspection"
+    )
     location_description = Column(
         String, nullable=True, comment="The location details of the inspection"
     )

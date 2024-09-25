@@ -91,6 +91,7 @@ class _Config:  # pylint: disable=too-few-public-methods
     JWT_OIDC_AUDIENCE = os.getenv("JWT_OIDC_AUDIENCE", "account")
     JWT_OIDC_CACHING_ENABLED = os.getenv("JWT_OIDC_CACHING_ENABLED", "True")
     JWT_OIDC_JWKS_CACHE_TIMEOUT = 300
+    DB_ECRPT_KEY = os.getenv("DB_ECRPT_KEY")
 
 
 class DevConfig(_Config):  # pylint: disable=too-few-public-methods

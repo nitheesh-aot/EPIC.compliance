@@ -1,6 +1,6 @@
 """Service for managing Inspection."""
 
-from compliance_api.exceptions import UnprocessableEntityError
+from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionAgency as InspectionAgencyModel
 from compliance_api.models import InspectionAttendance as InspectionAttendanceModel
@@ -157,7 +157,6 @@ def _create_unapproved_project_object(inspection_data: dict, inspection_id: int)
     """Create inspection unapproved project object."""
     return {
         "name": UNAPPROVED_PROJECT_NAME,
-        "description": inspection_data.get("unapproved_project_description"),
         "authorization": inspection_data.get("unapproved_project_authorization"),
         "regulated_party": inspection_data.get("unapproved_project_regulated_party"),
         "type": inspection_data.get("unapproved_project_type"),
@@ -174,6 +173,7 @@ def _create_inspection_object(inspection_data: dict):
         "ir_number": _create_inspection_record_number(project_id, case_file_id),
         "case_file_id": inspection_data.get("case_file_id"),
         "project_id": project_id,
+        "project_description": inspection_data.get("project_description", None),
         "location_description": inspection_data.get("location_description", None),
         "utm": inspection_data.get("utm", None),
         "lead_officer_id": inspection_data.get("lead_officer_id"),
@@ -192,7 +192,8 @@ def _create_inspection_record_number(
     """Generate the inspection record number."""
     project_code = _get_project_abbreviation(project_id)
     case_file = CaseFileService.get_by_id(case_file_id)
-
+    if not case_file:
+        raise ResourceNotFoundError("Given case file doesn't exist")
     if case_file.project_id != project_id:
         raise UnprocessableEntityError("Given project and case file doesn't match")
 
