@@ -81,7 +81,7 @@ const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
         return `${value.startDate.format(DATE_FORMAT)} — ${value.endDate.format(DATE_FORMAT)}`;
       }
       if (value.startDate) {
-        return `${value.startDate.format(DATE_FORMAT)} - `;
+        return `${value.startDate.format(DATE_FORMAT)} -`;
       }
       return "";
     };

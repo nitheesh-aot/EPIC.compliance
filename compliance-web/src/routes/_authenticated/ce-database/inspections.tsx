@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/ce-database/inspections")(
   { component: Inspections }
 );
 
-function Inspections() {
+export function Inspections() {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
   const { data: inspectionsList, isLoading } = useInspectionsData();
@@ -227,7 +227,7 @@ function Inspections() {
 
   const handleOpenModal = () => {
     setOpen({
-      modal: <InspectionDrawer onSubmit={handleOnSubmit} />,
+      content: <InspectionDrawer onSubmit={handleOnSubmit} />,
       width: "1118px",
     });
   };

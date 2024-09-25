@@ -15,6 +15,7 @@
 from marshmallow import EXCLUDE, ValidationError, fields, post_dump, validates_schema
 
 from compliance_api.models import Complaint, ComplaintStatusEnum
+from compliance_api.models.complaint import ComplaintSourceEnum
 from compliance_api.models.requirement_source import RequirementSourceEnum
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
 
@@ -57,6 +58,9 @@ class ContactCreateSchema(BaseSchema):
     phone = fields.Str(
         metadata={"description": "The phone number of the contact person"},
         allow_none=True,
+    )
+    description = fields.Str(
+        metadata={"description": "Any description about the contact"}, allow_none=True
     )
     comment = fields.Str(metadata={"description": "Any comments"}, allow_none=True)
 
@@ -112,9 +116,7 @@ class ComplaintCreateSchema(BaseSchema):
     )
     requirement_source_details = fields.Nested(RequirementSourceCreateSchema)
     source_agency_id = fields.Int(
-        metadata={
-            "description": "Provide agency id if the source type is AGENCY"
-        },
+        metadata={"description": "Provide agency id if the source type is AGENCY"},
         allow_none=True,
     )
     source_first_nation_id = fields.Int(
@@ -154,9 +156,14 @@ class ComplaintCreateSchema(BaseSchema):
                     "Topic is required when requirement_source is selected",
                     field_name="requirement_source_details.topic_id",
                 )
-            if not requirement_source_details.get("description", None):
+            if not requirement_source_details.get(
+                "description", None
+            ) and requirement_source_id not in [
+                RequirementSourceEnum.SCHEDULE_B.value,
+                RequirementSourceEnum.ORDER.value,
+            ]:
                 raise ValidationError(
-                    "Topic is required when requirement_source is selected",
+                    "Description is required when requirement_source is selected",
                     field_name="requirement_source_details.description",
                 )
 
@@ -191,6 +198,23 @@ class ComplaintCreateSchema(BaseSchema):
                 f"Condition number is required when requirement_source "
                 f"{RequirementSourceEnum.SCHEDULE_B.name}",
                 field_name="requirement_source_details.condition_number",
+            )
+
+    @validates_schema
+    def validate_contact_description(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Ensure that the description is selected if complaint source is OTHER."""
+        source_type_id = data.get("source_type_id", [])
+        complaint_source_contact = data.get("complaint_source_contact", {})
+        if (
+            source_type_id == ComplaintSourceEnum.OTHER.value
+            and not complaint_source_contact.get("description", None)
+        ):
+            raise ValidationError(
+                f"Description is required when complaint source "
+                f"{ComplaintSourceEnum.OTHER.name}",
+                field_name="complaint_source_contact.description",
             )
 
 
