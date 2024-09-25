@@ -113,8 +113,26 @@ class Complaint(BaseModel):
     requirement_source = relationship(
         "RequirementSource", foreign_keys=[requirement_source_id], lazy="joined"
     )
-    source = relationship("ComplaintSource", foreign_keys=[source_type_id], lazy="joined")
+    source_type = relationship("ComplaintSource", foreign_keys=[source_type_id], lazy="joined")
     agency = relationship("Agency", foreign_keys=[source_agency_id], lazy="joined")
+    lead_officer = relationship(
+        "StaffUser", foreign_keys=[lead_officer_id], lazy="joined"
+    )
+    case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
+    source_contact = relationship(
+        "ComplaintSourceContact",
+        back_populates="complaint",
+        lazy="joined",
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
+    requirement_detail = relationship(
+        "ComplaintRequirementDetail",
+        back_populates="complaint",
+        lazy="joined",
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
 
     @classmethod
     def get_count_by_project_nd_case_file_id(cls, project_id: int, case_file_id: int):
