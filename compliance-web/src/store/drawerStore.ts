@@ -5,7 +5,7 @@ interface DrawerStore {
   isOpen: boolean;
   drawerContent: React.ReactNode | null;
   drawerWidth: string;
-  setOpen: (args: { modal: React.ReactNode; width: string }) => Promise<void>;
+  setOpen: (args: { content: React.ReactNode; width?: string }) => Promise<void>;
   setClose: () => void;
 }
 
@@ -13,12 +13,12 @@ interface DrawerStore {
 export const useDrawer = create<DrawerStore>((set) => ({
   isOpen: false,
   drawerContent: null,
-  drawerWidth: "420px", // default Width
+  drawerWidth: "",
 
-  setOpen: async ({modal, width}) => {
-    if (modal) {
+  setOpen: async ({ content, width = "450px" }) => {
+    if (content) {
       set(() => ({
-        drawerContent: modal,
+        drawerContent: content,
         drawerWidth: width,
         isOpen: true,
       }));

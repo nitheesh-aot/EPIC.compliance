@@ -1,14 +1,14 @@
 export interface FirstNation {
-  bcigid: string;
+  bcigid?: string;
   id: number;
-  is_active: boolean;
+  is_active?: boolean;
   name: string;
-  notes: string;
-  pip_link: string;
-  pip_org_type_id: number;
-  pip_org_type: OrgType;
-  relationship_holder_id: number;
-  relationship_holder: RelationshipHolder;
+  notes?: string;
+  pip_link?: string;
+  pip_org_type_id?: number;
+  pip_org_type?: OrgType;
+  relationship_holder_id?: number;
+  relationship_holder?: RelationshipHolder;
 }
 
 interface RelationshipHolder {
