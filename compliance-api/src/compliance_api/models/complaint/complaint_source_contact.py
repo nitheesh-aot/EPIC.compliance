@@ -1,6 +1,6 @@
 """Complaint source contact model."""
 
-from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModel
@@ -20,6 +20,9 @@ class ComplaintSourceContact(BaseModel):
         Integer,
         ForeignKey("complaints.id", name="contact_complaint_id_complaints_id"),
         nullable=False,
+    )
+    description = Column(
+        String(), nullable=True, comment="Any description about the contact"
     )
     full_name = Column(
         EncryptedType(), nullable=True, comment="The full name of the contact person"
