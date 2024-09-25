@@ -16,7 +16,11 @@ from marshmallow import EXCLUDE, ValidationError, fields, post_dump, validates_s
 
 from compliance_api.models import Complaint, ComplaintStatusEnum
 from compliance_api.models.requirement_source import RequirementSourceEnum
-from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
+from compliance_api.utils.constant import (
+    INPUT_DATE_TIME_FORMAT,
+    UNAPPROVED_PROJECT_CODE,
+    UNAPPROVED_PROJECT_NAME,
+)
 
 from .base_schema import AutoSchemaBase, BaseSchema
 
@@ -112,9 +116,7 @@ class ComplaintCreateSchema(BaseSchema):
     )
     requirement_source_details = fields.Nested(RequirementSourceCreateSchema)
     source_agency_id = fields.Int(
-        metadata={
-            "description": "Provide agency id if the source type is AGENCY"
-        },
+        metadata={"description": "Provide agency id if the source type is AGENCY"},
         allow_none=True,
     )
     source_first_nation_id = fields.Int(
@@ -154,7 +156,12 @@ class ComplaintCreateSchema(BaseSchema):
                     "Topic is required when requirement_source is selected",
                     field_name="requirement_source_details.topic_id",
                 )
-            if not requirement_source_details.get("description", None):
+            if not requirement_source_details.get(
+                "description", None
+            ) and not requirement_source_id in [
+                RequirementSourceEnum.ORDER.value,
+                RequirementSourceEnum.SCHEDULE_B.value,
+            ]:
                 raise ValidationError(
                     "Topic is required when requirement_source is selected",
                     field_name="requirement_source_details.description",
