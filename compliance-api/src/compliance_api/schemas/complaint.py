@@ -24,7 +24,9 @@ from .common import KeyValueSchema
 from .staff_user import StaffUserSchema
 
 
-class RequirementSoruceDetailSchema(AutoSchemaBase):
+class RequirementSoruceDetailSchema(
+    AutoSchemaBase
+):  # pylint: disable=too-many-ancestors
     """RequirementSoruceDetailSchema."""
 
     class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
@@ -37,7 +39,9 @@ class RequirementSoruceDetailSchema(AutoSchemaBase):
     topic = fields.Nested(KeyValueSchema)
 
 
-class ComplaintSourceContactSchema(AutoSchemaBase):
+class ComplaintSourceContactSchema(
+    AutoSchemaBase
+):  # pylint: disable=too-many-ancestors
     """ComplaintSourceContactSchema."""
 
     class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
@@ -179,7 +183,12 @@ class ComplaintCreateSchema(BaseSchema):
                     "Topic is required when requirement_source is selected",
                     field_name="requirement_source_details.topic_id",
                 )
-            if not requirement_source_details.get("description", None):
+            if not requirement_source_details.get(
+                "description", None
+            ) and requirement_source_id not in [
+                RequirementSourceEnum.ORDER.value,
+                RequirementSourceEnum.SCHEDULE_B.value,
+            ]:
                 raise ValidationError(
                     "Topic is required when requirement_source is selected",
                     field_name="requirement_source_details.description",
