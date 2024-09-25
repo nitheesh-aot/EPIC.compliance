@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField"; // Update with the correct path
+import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import { FormProvider, useForm } from "react-hook-form";
 import { mount } from "cypress/react18";
 
@@ -65,5 +65,45 @@ describe("ControlledTextField Component", () => {
     setup({ inputEffects });
 
     cy.get('input[name="testField"]').clear().type("test").should("have.value", "TEST");
+  });
+
+  it("applies mask correctly when CustomMaskedInput is used", () => {
+    setup({ mask: "(000) 000-0000" }); // Example mask for a phone number
+
+    cy.get('input[name="testField"]').type("1234567890");
+    cy.get('input[name="testField"]').should("have.value", "(123) 456-7890");
+  });
+
+  it("triggers onChange function when using masked input", () => {
+    const handleChange = cy.stub();
+    setup({ mask: "0000 0000", onChange: handleChange });
+
+    cy.get('input[name="testField"]').type("12345678");
+    cy.wrap(handleChange).should("be.called");
+  });
+
+  it("handles default value correctly when using mask", () => {
+    const Wrapper = () => {
+      const methods = useForm({
+        defaultValues: {
+          testField: "12345678",
+        },
+      });
+
+      return (
+        <FormProvider {...methods}>
+          <ControlledTextField name="testField" mask="0000 0000" />
+        </FormProvider>
+      );
+    };
+
+    mount(<Wrapper />);
+    cy.get('input[name="testField"]').should("have.value", "1234 5678");
+  });
+
+  it("displays helper text when provided", () => {
+    const helperText = "This is a helper text";
+    setup({ helperText });
+    cy.get(".MuiFormHelperText-root").should("contain.text", helperText);
   });
 });
