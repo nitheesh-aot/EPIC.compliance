@@ -36,7 +36,7 @@ export interface ComplaintAPIData {
   date_received: string;
   complaint_source_id: string;
   requirement_source_id?: string;
-  unapproved_project_description?: string;
+  project_description?: string;
   unapproved_project_authorization?: string;
   unapproved_project_regulated_party?: string;
   unapproved_project_type?: string;

@@ -104,7 +104,7 @@ export const formatComplaintData = (
     complaintData = {
       unapproved_project_authorization: formData.authorization ?? "",
       unapproved_project_regulated_party: formData.regulatedParty ?? "",
-      unapproved_project_description: formData.projectDescription ?? "",
+      project_description: formData.projectDescription ?? "",
       unapproved_project_type: formData.projectType ?? "",
       unapproved_project_sub_type: formData.projectSubType ?? "",
       ...complaintData,
