@@ -14,12 +14,43 @@
 """Complaint Schema Schema."""
 from marshmallow import EXCLUDE, ValidationError, fields, post_dump, validates_schema
 
-from compliance_api.models import Complaint, ComplaintStatusEnum
+from compliance_api.models import Complaint, ComplaintRequirementDetail, ComplaintSourceContact, ComplaintStatusEnum
 from compliance_api.models.complaint import ComplaintSourceEnum
 from compliance_api.models.requirement_source import RequirementSourceEnum
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
 
 from .base_schema import AutoSchemaBase, BaseSchema
+from .case_file import CaseFileSchema
+from .common import KeyValueSchema
+from .staff_user import StaffUserSchema
+
+
+class RequirementSoruceDetailSchema(
+    AutoSchemaBase
+):  # pylint: disable=too-many-ancestors
+    """RequirementSoruceDetailSchema."""
+
+    class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
+        """Meta."""
+
+        unknown = EXCLUDE
+        model = ComplaintRequirementDetail
+        include_fk = True
+
+    topic = fields.Nested(KeyValueSchema)
+
+
+class ComplaintSourceContactSchema(
+    AutoSchemaBase
+):  # pylint: disable=too-many-ancestors
+    """ComplaintSourceContactSchema."""
+
+    class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
+        """Meta."""
+
+        unknown = EXCLUDE
+        model = ComplaintSourceContact
+        include_fk = True
 
 
 class RequirementSourceCreateSchema(BaseSchema):
@@ -228,6 +259,18 @@ class ComplaintSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         model = Complaint
         include_fk = True
 
+    case_file = fields.Nested(CaseFileSchema, only=("case_file_number", "id"))
+    lead_officer = fields.Nested(
+        StaffUserSchema, only=("id", "first_name", "last_name", "full_name")
+    )
+    project = fields.Nested(
+        KeyValueSchema,
+    )
+    source_type = fields.Nested(KeyValueSchema)
+    requirement_source = fields.Nested(KeyValueSchema)
+    source_contact = fields.Nested(ComplaintSourceContactSchema, only=["full_name"])
+    requirement_detail = fields.Nested(RequirementSoruceDetailSchema, only=["topic"])
+
     @post_dump
     def post_dump_actions(
         self, data, many, **kwargs
@@ -236,7 +279,7 @@ class ComplaintSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         if "status" in data and data.get("status", None) is not None:
             data["status"] = ComplaintStatusEnum(data["status"]).value
         else:
-            data["inspection_status"] = ""
+            data["status"] = ""
         if data.get("project", None) is None:
             data["project"] = {
                 "name": UNAPPROVED_PROJECT_NAME,

@@ -9,8 +9,9 @@ data:
     // runtime-config.js vars
       window["_env_"] =  {
         "VITE_API_URL": "{{ .Values.app.api }}",
-        "VITE_ENV": "{{ .Values.app.env}}",
-        "VITE_AUTH_API_URL": "{{ .Values.app.auth_url}}",
+        "VITE_ENV": "{{ .Values.app.env }}",
+        "VITE_AUTH_API_URL": "{{ .Values.app.auth_url }}",
+        "VITE_TRACK_API_URL": "{{ .Values.app.track_api_url }}",
         "VITE_VERSION": "{{ .Values.app.version }}",
         "VITE_APP_TITLE": "EPIC.compliance",
         "VITE_APP_URL": "https://{{ .Values.app.url }}",

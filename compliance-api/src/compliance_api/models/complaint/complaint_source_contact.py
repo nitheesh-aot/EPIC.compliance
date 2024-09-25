@@ -35,8 +35,13 @@ class ComplaintSourceContact(BaseModel):
     phone = Column(
         EncryptedType(), nullable=True, comment="The phone number of the contact person"
     )
-    comment = Column(String, nullable=True, comment="The comments")
-    complaint = relationship("Complaint", foreign_keys=[complaint_id], lazy="joined")
+    comment = Column(EncryptedType(), nullable=True, comment="The comments")
+    complaint = relationship(
+        "Complaint",
+        foreign_keys=[complaint_id],
+        lazy="joined",
+        back_populates="source_contact",
+    )
 
     @classmethod
     def create_contact(cls, contact_data, session=None):
