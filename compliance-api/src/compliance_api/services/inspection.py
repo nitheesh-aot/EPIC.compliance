@@ -1,6 +1,6 @@
 """Service for managing Inspection."""
 
-from compliance_api.exceptions import UnprocessableEntityError, ResourceNotFoundError
+from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionAgency as InspectionAgencyModel
 from compliance_api.models import InspectionAttendance as InspectionAttendanceModel

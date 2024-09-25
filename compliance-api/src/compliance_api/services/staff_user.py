@@ -114,7 +114,7 @@ def _create_staff_user_object(user_data: dict, auth_user: dict):
 def _get_level(group):
     """Get the level from the group, defaulting to 0 if not valid."""
     # Safely retrieve the level attribute and default to 0 if not valid
-    level_str = group.get("attributes", {}).get("level", [0])[0]
+    level_str = group.get("level", 0)
     try:
         return int(level_str)
     except (ValueError, TypeError):
@@ -127,8 +127,8 @@ def _set_permission_level_in_compliance_user_obj(
     """Set the permission level in compliance user."""
     if auth_user and auth_user.get("groups", None):
         sorted_groups = sorted(auth_user.get("groups", None), key=_get_level)
-        if sorted_groups[0] and sorted_groups[0]["name"]:
-            setattr(compliance_user, "permission", sorted_groups[0]["name"])
+        if sorted_groups[-1] and sorted_groups[-1]["name"]:
+            setattr(compliance_user, "permission", sorted_groups[-1]["name"])
     return compliance_user
 
 
