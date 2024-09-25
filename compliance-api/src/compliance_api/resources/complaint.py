@@ -52,6 +52,16 @@ class Complaints(Resource):
     """Resource for managing complaints."""
 
     @staticmethod
+    @API.response(code=200, description="Success", model=[complaint_list_model])
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all complaints")
+    @auth.require
+    def get():
+        """Fetch all complaints."""
+        complaints = ComplaintService.get_all()
+        complaint_list_schema = ComplaintSchema(many=True)
+        return complaint_list_schema.dump(complaints), HTTPStatus.OK
+
+    @staticmethod
     @auth.require
     @ApiHelper.swagger_decorators(API, endpoint_description="Create an complaint")
     @API.expect(complaint_create_model)
