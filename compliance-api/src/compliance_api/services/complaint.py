@@ -26,6 +26,11 @@ class ComplaintService:
         return ComplaintSourceModel.get_all(sort_by="sort_order")
 
     @classmethod
+    def get_all(cls):
+        """Get all inspections."""
+        return ComplaintModel.get_all(default_filters=False)
+
+    @classmethod
     def create(cls, complaint_data: dict):
         """Create complaint."""
         complaint_obj = _create_complaint_object(complaint_data)

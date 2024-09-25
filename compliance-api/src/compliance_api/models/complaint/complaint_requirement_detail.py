@@ -32,9 +32,13 @@ class ComplaintRequirementDetail(BaseModel):
     description = Column(
         String, nullable=True, comment="Any description of the requirement"
     )
-
-    complaint = relationship("Complaint", foreign_keys=[complaint_id], lazy="select")
     topic = relationship("Topic", foreign_keys=[topic_id], lazy="select")
+    complaint = relationship(
+        "Complaint",
+        foreign_keys=[complaint_id],
+        lazy="joined",
+        back_populates="requirement_detail",
+    )
 
     @classmethod
     def create_detail(cls, requirement_source_data, session=None):
