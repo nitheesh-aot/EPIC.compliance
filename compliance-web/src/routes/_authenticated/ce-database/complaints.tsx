@@ -25,8 +25,6 @@ export function Complaints() {
   const [projectList, setProjectList] = useState<string[]>([]);
   const [topicList, setTopicList] = useState<string[]>([]);
   const [complaintSourceList, setComplaintSourceList] = useState<string[]>([]);
-  const [organizationList, setOrganizationList] = useState<string[]>([]);
-  const [nameList, setNameList] = useState<string[]>([]);
   const [officerList, setOfficerList] = useState<string[]>([]);
   const [statusList, setStatusList] = useState<string[]>([]);
 
@@ -48,20 +46,6 @@ export function Complaints() {
     setComplaintSourceList(
       [
         ...new Set(complaintsList?.map((comp) => comp.source_type?.name ?? "")),
-      ].filter(Boolean)
-    );
-    setOrganizationList(
-      [
-        ...new Set(
-          complaintsList?.map((comp) => comp.requirement_source?.name ?? "")
-        ),
-      ].filter(Boolean)
-    );
-    setNameList(
-      [
-        ...new Set(
-          complaintsList?.map((comp) => comp.source_contact?.full_name ?? "")
-        ),
       ].filter(Boolean)
     );
     setOfficerList(
@@ -127,6 +111,7 @@ export function Complaints() {
         accessorFn: (row) => dateUtils.formatDate(row.date_received),
         id: "date_received",
         header: "Date Received",
+        size: 120,
       },
       {
         accessorKey: "source_type.name",
@@ -146,42 +131,6 @@ export function Complaints() {
           );
         },
         size: 150,
-      },
-      {
-        accessorKey: "requirement_source.name",
-        header: "Organization",
-        filterVariant: "multi-select",
-        filterSelectOptions: organizationList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="organizationFilter"
-              placeholder="Filter"
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "source_contact.full_name",
-        header: "Name",
-        filterVariant: "multi-select",
-        filterSelectOptions: nameList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="nameFilter"
-              placeholder="Filter"
-            />
-          );
-        },
       },
       {
         accessorKey: "lead_officer.full_name",
@@ -242,15 +191,7 @@ export function Complaints() {
         filterFn: searchFilter,
       },
     ],
-    [
-      projectList,
-      topicList,
-      complaintSourceList,
-      organizationList,
-      nameList,
-      officerList,
-      statusList,
-    ]
+    [projectList, topicList, complaintSourceList, officerList, statusList]
   );
 
   const handleOnSubmit = (submitMsg: string) => {
