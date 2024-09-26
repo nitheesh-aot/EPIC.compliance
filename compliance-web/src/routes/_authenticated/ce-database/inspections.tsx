@@ -225,7 +225,7 @@ export function Inspections() {
     notify.success(submitMsg);
   };
 
-  const handleOpenModal = () => {
+  const handleOpenDrawer = () => {
     setOpen({
       content: <InspectionDrawer onSubmit={handleOnSubmit} />,
       width: "1118px",
@@ -251,7 +251,7 @@ export function Inspections() {
       titleToolbarProps={{
         tableTitle: "Inspections",
         tableAddRecordButtonText: "Inspection",
-        tableAddRecordFunction: () => handleOpenModal(),
+        tableAddRecordFunction: () => handleOpenDrawer(),
       }}
     />
   );

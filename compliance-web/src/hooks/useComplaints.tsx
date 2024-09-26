@@ -1,4 +1,4 @@
-import { ComplaintAPIData } from "@/models/Complaint";
+import { Complaint, ComplaintAPIData } from "@/models/Complaint";
 import { ComplaintSource } from "@/models/ComplaintSource";
 import { RequirementSource } from "@/models/RequirementSource";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
@@ -10,6 +10,10 @@ const fetchRequirementSources = (): Promise<RequirementSource[]> => {
 
 const fetchComplaintSources = (): Promise<ComplaintSource[]> => {
   return request({ url: "/complaints/sources" });
+};
+
+const fetchComplaints = (): Promise<Complaint[]> => {
+  return request({ url: "/complaints" });
 };
 
 const createComplaint = (complaint: ComplaintAPIData) => {
@@ -27,6 +31,13 @@ export const useComplaintSourcesData = () => {
   return useQuery({
     queryKey: ["complaint-sources"],
     queryFn: fetchComplaintSources,
+  });
+};
+
+export const useComplaintsData = () => {
+  return useQuery({
+    queryKey: ["complaints"],
+    queryFn: fetchComplaints,
   });
 };
 
