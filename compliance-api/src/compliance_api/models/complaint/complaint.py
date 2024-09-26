@@ -121,13 +121,6 @@ class Complaint(BaseModel):
     )
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
     project = relationship("Project", foreign_keys=[project_id], lazy="joined")
-    source_contact = relationship(
-        "ComplaintSourceContact",
-        back_populates="complaint",
-        lazy="joined",
-        uselist=False,
-        cascade="all, delete-orphan"
-    )
     requirement_detail = relationship(
         "ComplaintRequirementDetail",
         back_populates="complaint",

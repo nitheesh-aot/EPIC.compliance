@@ -268,7 +268,6 @@ class ComplaintSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     )
     source_type = fields.Nested(KeyValueSchema)
     requirement_source = fields.Nested(KeyValueSchema)
-    source_contact = fields.Nested(ComplaintSourceContactSchema, only=["full_name"])
     requirement_detail = fields.Nested(RequirementSoruceDetailSchema, only=["topic"])
 
     @post_dump
