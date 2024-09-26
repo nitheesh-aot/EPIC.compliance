@@ -19,6 +19,16 @@ export enum ComplaintSourceEnum {
   OTHER = "4",
 }
 
+export enum RequirementSourceEnum {
+  SCHEDULE_B = "1",
+  EAC = "3",
+  CPD = "4",
+  ACT2018 = "5",
+  COMPLAINCE_AGREEMENT = "6",
+  ACT2022 = "7",
+  NOT_EA_ACT = "8",
+}
+
 export const ComplaintFormSchema = yup.object().shape({
   project: yup.object<Project>().nullable().required("Project is required"),
   authorization: yup.string().nullable(),
@@ -99,7 +109,8 @@ export const formatComplaintData = (
     concern_description: formData.concernDescription ?? "",
     date_received: dateUtils.dateToISO(formData.dateReceived),
     source_type_id: sourceId,
-    requirement_source_id: (formData.requirementSource as RequirementSource)?.id,
+    requirement_source_id: (formData.requirementSource as RequirementSource)
+      ?.id,
   };
   if (sourceId) {
     complaintData.complaint_source_contact = {
@@ -118,7 +129,8 @@ export const formatComplaintData = (
         complaintData.source_agency_id = (formData.agency as Agency)?.id;
         break;
       case ComplaintSourceEnum.OTHER:
-        complaintData.complaint_source_contact.description = formData.otherDescription ?? "";
+        complaintData.complaint_source_contact.description =
+          formData.otherDescription ?? "";
         break;
     }
   }

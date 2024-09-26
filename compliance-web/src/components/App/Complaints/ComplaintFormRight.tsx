@@ -6,23 +6,29 @@ import { RequirementSource } from "@/models/RequirementSource";
 import { BCDesignTokens } from "epic.theme";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import { useFormContext, useWatch } from "react-hook-form";
-import { ComplaintSourceEnum } from "./ComplaintFormUtils";
+import {
+  ComplaintSourceEnum,
+  RequirementSourceEnum,
+} from "./ComplaintFormUtils";
 import { Agency } from "@/models/Agency";
 import { FirstNation } from "@/models/FirstNation";
 import ContactForm from "@/components/App/ContactForm";
+import { Topic } from "@/models/Topic";
 
 type ComplaintFormRightProps = {
   complaintSourceList: ComplaintSource[];
   requirementSourceList: RequirementSource[];
   agenciesList: Agency[];
   firstNationsList: FirstNation[];
+  topicsList: Topic[];
 };
 
 type FieldConfig = {
   type: string;
   name: string;
   label: string;
-  options?: Agency[] | FirstNation[];
+  options?: Agency[] | FirstNation[] | Topic[];
+  required?: boolean;
 };
 
 const sectionPadding = "1rem 2rem 0rem 1rem";
@@ -32,6 +38,7 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
   requirementSourceList,
   agenciesList,
   firstNationsList,
+  topicsList,
 }) => {
   const { control, resetField } = useFormContext();
 
@@ -41,14 +48,30 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
     name: "complaintSource",
   });
 
+  const selectedRequirementSource = useWatch({
+    control,
+    name: "requirementSource",
+  });
+
   const handleComplaintSourceChange = () => {
     const fieldName =
-      dynamicFieldConfig[selectedComplaintSource?.id as ComplaintSourceEnum]
-        ?.name;
+      dynamicFieldConfigComplaintSource[
+        selectedComplaintSource?.id as ComplaintSourceEnum
+      ]?.name;
     resetField(fieldName);
   };
 
-  const dynamicFieldConfig: Record<ComplaintSourceEnum, FieldConfig> = {
+  const handleRequirementSourceChange = () => {
+    const fieldName = dynamicFieldConfigRequirementSource[
+      selectedRequirementSource?.id as RequirementSourceEnum
+    ]?.map((config) => config.name);
+    if (fieldName) fieldName.forEach((name) => resetField(name));
+  };
+
+  const dynamicFieldConfigComplaintSource: Record<
+    ComplaintSourceEnum,
+    FieldConfig
+  > = {
     [ComplaintSourceEnum.AGENCY]: {
       type: "autocomplete",
       name: "agency",
@@ -69,11 +92,53 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
     },
   };
 
-  const renderDynamicField = () => {
-    const config =
-      dynamicFieldConfig[selectedComplaintSource?.id as ComplaintSourceEnum];
-    if (!config) return null; // Return null if config is not found
+  const dynamicFieldConfigRequirementSource: Record<
+    RequirementSourceEnum,
+    FieldConfig[]
+  > = {
+    [RequirementSourceEnum.SCHEDULE_B]: [
+      {
+        type: "text",
+        name: "conditionNumber",
+        label: "Condition #",
+        required: true,
+      },
+    ],
+    [RequirementSourceEnum.EAC]: [
+      {
+        type: "text",
+        name: "amendmentNumber",
+        label: "Amendment # (optional)",
+        required: false,
+      },
+      {
+        type: "text",
+        name: "amendmentConditionNumber",
+        label: "Amendment Condition # (optional)",
+        required: false,
+      },
+      {
+        type: "text",
+        name: "conditionDescription",
+        label: "Condition Description",
+        required: true,
+      },
+    ],
+    [RequirementSourceEnum.NOT_EA_ACT]: [
+      {
+        type: "text",
+        name: "description",
+        label: "Description",
+        required: true,
+      },
+    ],
+    [RequirementSourceEnum.CPD]: [],
+    [RequirementSourceEnum.ACT2018]: [],
+    [RequirementSourceEnum.COMPLAINCE_AGREEMENT]: [],
+    [RequirementSourceEnum.ACT2022]: [],
+  };
 
+  const renderDynamicField = (config: FieldConfig) => {
     return config.type === "text" ? (
       <ControlledTextField
         key={config.name}
@@ -124,7 +189,11 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
               mb={"1.5rem"}
               bgcolor={BCDesignTokens.surfaceColorBackgroundLightBlue}
             >
-              {renderDynamicField()}
+              {renderDynamicField(
+                dynamicFieldConfigComplaintSource[
+                  selectedComplaintSource?.id as ComplaintSourceEnum
+                ]
+              )}
               <ContactForm />
             </Box>
           )}
@@ -136,9 +205,31 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
               getOptionLabel={(option) => option.name}
               getOptionKey={(option) => option.id}
               isOptionEqualToValue={(option, value) => option.id === value.id}
+              onChange={handleRequirementSourceChange}
               fullWidth
             />
           </Box>
+          {selectedRequirementSource?.id && (
+            <Box
+              p={sectionPadding}
+              mb={"1.5rem"}
+              bgcolor={BCDesignTokens.surfaceColorBackgroundLightBlue}
+            >
+              {dynamicFieldConfigRequirementSource[
+                selectedRequirementSource.id as RequirementSourceEnum
+              ]?.map((config) => renderDynamicField(config))}
+
+              <ControlledAutoComplete
+                name="topic"
+                label="Topic"
+                options={topicsList}
+                getOptionLabel={(option) => option.name}
+                getOptionKey={(option) => option.id}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                fullWidth
+              />
+            </Box>
+          )}
         </Stack>
       </Box>
     </>
