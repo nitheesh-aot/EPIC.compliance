@@ -41,7 +41,6 @@ class ComplaintSourceContact(BaseModel):
         "Complaint",
         foreign_keys=[complaint_id],
         lazy="joined",
-        back_populates="source_contact",
     )
 
     @classmethod
