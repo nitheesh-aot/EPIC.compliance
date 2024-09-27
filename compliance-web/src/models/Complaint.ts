@@ -56,6 +56,14 @@ export interface ComplaintAPIData {
   source_agency_id?: number;
   source_first_nation_id?: number;
   requirement_source_id?: string;
+  requirement_source_details?: {
+    topic_id?: number;
+    description?: string;
+    order_number?: string;
+    amendment_number?: string;
+    amendment_condition_number?: string;
+    condition_number?: string;
+  };
   project_description?: string;
   unapproved_project_authorization?: string;
   unapproved_project_regulated_party?: string;

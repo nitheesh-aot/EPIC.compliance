@@ -155,6 +155,7 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
   };
 
   const renderDynamicField = (config: FieldConfig) => {
+    if (!config) return;
     return config.type === "text" ? (
       <ControlledTextField
         key={config.name}

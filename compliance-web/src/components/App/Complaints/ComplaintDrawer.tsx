@@ -93,7 +93,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
       onSubmit(
         complaint
           ? "Successfully updated!"
-          : `Complaint File ${data.id} was successfully created`
+          : `Complaint File ${data.complaint_number} was successfully created`
       );
       reset();
     },

@@ -135,6 +135,7 @@ export const formatComplaintData = (
 ) => {
   const projectId = getProjectId(formData);
   const sourceId = (formData.complaintSource as ComplaintSource)?.id;
+  const reqSourceId = (formData.requirementSource as RequirementSource)?.id;
 
   let complaintData: ComplaintAPIData = {
     project_id: projectId,
@@ -144,8 +145,7 @@ export const formatComplaintData = (
     concern_description: formData.concernDescription ?? "",
     date_received: dateUtils.dateToISO(formData.dateReceived),
     source_type_id: sourceId,
-    requirement_source_id: (formData.requirementSource as RequirementSource)
-      ?.id,
+    requirement_source_id: reqSourceId,
   };
   if (sourceId) {
     complaintData.complaint_source_contact = {
@@ -166,6 +166,36 @@ export const formatComplaintData = (
       case ComplaintSourceEnum.OTHER:
         complaintData.complaint_source_contact.description =
           formData.otherDescription ?? "";
+        break;
+    }
+  }
+  if (reqSourceId) {
+    complaintData.requirement_source_details = {
+      topic_id: (formData.topic as Topic)?.id,
+    };
+    switch (reqSourceId) {
+      case RequirementSourceEnum.SCHEDULE_B:
+        complaintData.requirement_source_details.condition_number =
+          formData.conditionNumber ?? "";
+        break;
+      case RequirementSourceEnum.EAC:
+        complaintData.requirement_source_details.amendment_condition_number =
+          formData.amendmentConditionNumber ?? "";
+        complaintData.requirement_source_details.amendment_number =
+          formData.amendmentNumber ?? "";
+        complaintData.requirement_source_details.description =
+          formData.conditionDescription ?? "";
+        break;
+      case RequirementSourceEnum.NOT_EA_ACT:
+        complaintData.requirement_source_details.description =
+          formData.notEAActDescription;
+        break;
+      case RequirementSourceEnum.ACT2018:
+      case RequirementSourceEnum.ACT2022:
+      case RequirementSourceEnum.CPD:
+      case RequirementSourceEnum.COMPLAINCE_AGREEMENT:
+        complaintData.requirement_source_details.description =
+          formData.conditionDescription ?? "";
         break;
     }
   }
