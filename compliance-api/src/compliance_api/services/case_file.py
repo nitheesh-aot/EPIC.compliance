@@ -65,24 +65,25 @@ class CaseFileService:
         cls, case_file_id: int, officer_ids: list[int], session=None
     ):
         """Insert/Update case file officers associated with a given case file."""
-        existing_officers = CaseFileOfficer.get_all_by_case_file_id(case_file_id)
-        existing_officer_ids = {
-            officer.officer_id
-            for officer in existing_officers
-            if officer.is_active is True
-        }
+        if officer_ids:
+            existing_officers = CaseFileOfficer.get_all_by_case_file_id(case_file_id)
+            existing_officer_ids = {
+                officer.officer_id
+                for officer in existing_officers
+                if officer.is_active is True
+            }
 
-        new_officer_ids = set(officer_ids)
-        officer_ids_to_be_deleted = existing_officer_ids.difference(new_officer_ids)
-        officer_ids_to_be_added = new_officer_ids.difference(existing_officer_ids)
-        if officer_ids_to_be_deleted:
-            CaseFileOfficer.bulk_delete(
-                case_file_id, list(officer_ids_to_be_deleted), session
-            )
-        if officer_ids_to_be_added:
-            CaseFileOfficer.bulk_insert(
-                case_file_id, list(officer_ids_to_be_added), session
-            )
+            new_officer_ids = set(officer_ids)
+            officer_ids_to_be_deleted = existing_officer_ids.difference(new_officer_ids)
+            officer_ids_to_be_added = new_officer_ids.difference(existing_officer_ids)
+            if officer_ids_to_be_deleted:
+                CaseFileOfficer.bulk_delete(
+                    case_file_id, list(officer_ids_to_be_deleted), session
+                )
+            if officer_ids_to_be_added:
+                CaseFileOfficer.bulk_insert(
+                    case_file_id, list(officer_ids_to_be_added), session
+                )
 
     @classmethod
     def get_by_project(cls, project_id: int):
@@ -92,14 +93,18 @@ class CaseFileService:
 
 def _create_case_file_object(case_file_data: dict):
     """Create a case file object."""
-    case_file_data_copy = case_file_data.copy()
-    if not case_file_data_copy["case_file_number"]:
-        case_file_data_copy["case_file_number"] = _generate_case_file_number(
+    case_file_obj = {
+        "project_id": case_file_data.get("project_id", None),
+        "date_created": case_file_data.get("date_created"),
+        "lead_officer_id": case_file_data.get("lead_officer_id", None),
+        "initiation_id": case_file_data.get("initiation_id"),
+        "case_file_status": CaseFileStatusEnum.OPEN
+    }
+    if not case_file_data.get("case_file_number", None):
+        case_file_obj["case_file_number"] = _generate_case_file_number(
             datetime.now().year
         )
-    case_file_data_copy.pop("officer_ids")
-    case_file_data_copy["case_file_status"] = CaseFileStatusEnum.OPEN
-    return case_file_data_copy
+    return case_file_obj
 
 
 def _generate_case_file_number(year):
