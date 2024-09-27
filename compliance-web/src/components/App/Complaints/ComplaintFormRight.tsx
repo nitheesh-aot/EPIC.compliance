@@ -1,6 +1,6 @@
 import { Box, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { ComplaintSource } from "@/models/ComplaintSource";
 import { RequirementSource } from "@/models/RequirementSource";
 import { BCDesignTokens } from "epic.theme";
@@ -14,6 +14,7 @@ import { Agency } from "@/models/Agency";
 import { FirstNation } from "@/models/FirstNation";
 import ContactForm from "@/components/App/ContactForm";
 import { Topic } from "@/models/Topic";
+import { useDrawer } from "@/store/drawerStore";
 
 type ComplaintFormRightProps = {
   complaintSourceList: ComplaintSource[];
@@ -40,18 +41,29 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
   firstNationsList,
   topicsList,
 }) => {
-  const { control, resetField } = useFormContext();
+  const { isOpen } = useDrawer();
+  const { control, resetField, setValue } = useFormContext();
 
   // Watch for changes in `complaintSource` field
   const selectedComplaintSource = useWatch({
     control,
     name: "complaintSource",
+    defaultValue: undefined,
   });
 
   const selectedRequirementSource = useWatch({
     control,
     name: "requirementSource",
+    defaultValue: undefined,
   });
+
+  useEffect(() => {
+    // Reset requirementSource & complaintSource when the drawer is closed
+    if (!isOpen) {
+      setValue("requirementSource", null);
+      setValue("complaintSource", null);
+    }
+  }, [isOpen, setValue]);
 
   const handleComplaintSourceChange = () => {
     const fieldName =
@@ -136,7 +148,9 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
     ],
     [RequirementSourceEnum.CPD]: [sharedRequirementSourceField],
     [RequirementSourceEnum.ACT2018]: [sharedRequirementSourceField],
-    [RequirementSourceEnum.COMPLAINCE_AGREEMENT]: [sharedRequirementSourceField],
+    [RequirementSourceEnum.COMPLAINCE_AGREEMENT]: [
+      sharedRequirementSourceField,
+    ],
     [RequirementSourceEnum.ACT2022]: [sharedRequirementSourceField],
   };
 
@@ -163,6 +177,12 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
     );
   };
 
+  const isComplaintSourceSelected: boolean = !!selectedComplaintSource?.id;
+
+  const isRequirementSourceSelected = Object.values(
+    RequirementSourceEnum
+  ).includes(selectedRequirementSource?.id as RequirementSourceEnum);
+
   return (
     <>
       <Box
@@ -185,7 +205,7 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
               fullWidth
             />
           </Box>
-          {selectedComplaintSource?.id && (
+          {isComplaintSourceSelected && (
             <Box
               p={sectionPadding}
               mb={"1.5rem"}
@@ -211,7 +231,7 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
               fullWidth
             />
           </Box>
-          {selectedRequirementSource?.id && (
+          {isRequirementSourceSelected && (
             <Box
               p={sectionPadding}
               mb={"1.5rem"}
