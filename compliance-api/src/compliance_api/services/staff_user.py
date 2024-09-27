@@ -1,6 +1,6 @@
 """Service for user management."""
 
-from compliance_api.exceptions import ResourceExistsError, UnprocessableEntityError
+from compliance_api.exceptions import ResourceExistsError, ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import db
 from compliance_api.models.db import session_scope
 from compliance_api.models.staff_user import PERMISSION_MAP, PermissionEnum
@@ -61,22 +61,26 @@ class StaffUserService:
     @classmethod
     def update_user(cls, user_id, user_data):
         """Update staff user."""
-        auth_user_guid = user_data.get("auth_user_guid", None)
+        user = StaffUserModel.find_by_id(user_id)
+        if not user:
+            raise ResourceNotFoundError("Staff with given id doesn't exist")
+        auth_user_guid = user.auth_user_guid
         _validate_staff_user_existence(auth_user_guid, staff_user_id=user_id)
         auth_user = AuthService.get_epic_user_by_guid(auth_user_guid)
         if not auth_user:
             raise UnprocessableEntityError(
                 f"No user found from EPIC.Authorize corresponding to the given {auth_user_guid}"
             )
-        user_obj = _create_staff_user_object(user_data, auth_user)
         group_payload = {
             "app_name": AUTH_APP,
             "group_name": user_data.get("permission", None),
         }
         with session_scope() as session:
-            updated_user = StaffUserModel.update_staff(user_id, user_obj, session)
+            permission = user_data.get("permission")
+            user_data.pop("permission")
+            updated_user = StaffUserModel.update_staff(user_id, user_data, session)
             AuthService.update_user_group(auth_user_guid, group_payload)
-            setattr(updated_user, "permission", user_data.get("permission"))
+            setattr(updated_user, "permission", permission)
         return updated_user
 
     @classmethod
