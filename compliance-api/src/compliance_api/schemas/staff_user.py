@@ -60,6 +60,36 @@ class StaffUserSchema(StaffUserSchemaSkeleton):  # pylint: disable=too-many-ance
     supervisor = fields.Nested(StaffUserSchemaSkeleton, dump_only=True)
 
 
+class StaffUserUpdateSchema(BaseSchema):
+    """StaffUser update schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    position_id = fields.Int(
+        metadata={
+            "description": "The unique identifier of the position of the staff user."
+        },
+        required=True,
+    )
+    deputy_director_id = fields.Int(
+        metadata={"description": "The unique identifier of the deputy director."},
+        allow_none=True,
+    )
+    supervisor_id = fields.Int(
+        metadata={"description": "The unique identifier of the supervisor."},
+        allow_none=True,
+    )
+    permission = EnumField(
+        PermissionEnum,
+        metadata={"description": "The permission level of the staff user."},
+        by_value=True,
+        required=True,
+    )
+
+
 class StaffUserCreateSchema(BaseSchema):
     """User create Schema."""
 

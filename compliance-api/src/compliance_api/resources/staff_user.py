@@ -19,7 +19,7 @@ from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
-from compliance_api.schemas import KeyValueSchema, StaffUserCreateSchema, StaffUserSchema
+from compliance_api.schemas import KeyValueSchema, StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateSchema
 from compliance_api.services import StaffUserService
 from compliance_api.utils.util import cors_preflight
 
@@ -29,7 +29,10 @@ from .apihelper import Api as ApiHelper
 API = Namespace("staff-users", description="Endpoints for Staff User Management")
 
 user_request_model = ApiHelper.convert_ma_schema_to_restx_model(
-    API, StaffUserCreateSchema(), "StaffUser"
+    API, StaffUserCreateSchema(), "StaffUserCreate"
+)
+user_update_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, StaffUserUpdateSchema(), "StaffUserUpdate"
 )
 user_list_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, StaffUserSchema(), "StaffUserList"
@@ -89,13 +92,13 @@ class StaffUser(Resource):
     @staticmethod
     @auth.require
     @ApiHelper.swagger_decorators(API, endpoint_description="Update a user by id")
-    @API.expect(user_request_model)
+    @API.expect(user_update_model)
     @API.response(code=200, model=user_list_model, description="Success")
     @API.response(400, "Bad Request")
     @API.response(404, "Not Found")
     def patch(user_id):
         """Update a user by id."""
-        user_data = StaffUserCreateSchema().load(API.payload)
+        user_data = StaffUserUpdateSchema().load(API.payload)
         updated_user = StaffUserService.update_user(user_id, user_data)
         if not updated_user:
             raise ResourceNotFoundError(f"User with {user_id} not found")
