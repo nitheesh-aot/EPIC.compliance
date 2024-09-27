@@ -92,6 +92,13 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
     },
   };
 
+  const sharedRequirementSourceField: FieldConfig = {
+    type: "text",
+    name: "conditionDescription",
+    label: "Condition Description",
+    required: true,
+  };
+
   const dynamicFieldConfigRequirementSource: Record<
     RequirementSourceEnum,
     FieldConfig[]
@@ -117,12 +124,7 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
         label: "Amendment Condition # (optional)",
         required: false,
       },
-      {
-        type: "text",
-        name: "conditionDescription",
-        label: "Condition Description",
-        required: true,
-      },
+      sharedRequirementSourceField,
     ],
     [RequirementSourceEnum.NOT_EA_ACT]: [
       {
@@ -132,10 +134,10 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
         required: true,
       },
     ],
-    [RequirementSourceEnum.CPD]: [],
-    [RequirementSourceEnum.ACT2018]: [],
-    [RequirementSourceEnum.COMPLAINCE_AGREEMENT]: [],
-    [RequirementSourceEnum.ACT2022]: [],
+    [RequirementSourceEnum.CPD]: [sharedRequirementSourceField],
+    [RequirementSourceEnum.ACT2018]: [sharedRequirementSourceField],
+    [RequirementSourceEnum.COMPLAINCE_AGREEMENT]: [sharedRequirementSourceField],
+    [RequirementSourceEnum.ACT2022]: [sharedRequirementSourceField],
   };
 
   const renderDynamicField = (config: FieldConfig) => {
