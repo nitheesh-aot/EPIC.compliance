@@ -5,6 +5,7 @@ import { FirstNation } from "@/models/FirstNation";
 import { Project } from "@/models/Project";
 import { RequirementSource } from "@/models/RequirementSource";
 import { StaffUser } from "@/models/Staff";
+import { Topic } from "@/models/Topic";
 import {
   REGEX_EMAIL,
   REGEX_PHONE_NUMBER,
@@ -66,24 +67,58 @@ export const ComplaintFormSchema = yup.object().shape({
     ),
   contactComments: yup.string().nullable(),
   agency: yup.object<Agency>().when("complaintSource", {
-    is: (attendance: ComplaintSource) =>
-      attendance?.id === ComplaintSourceEnum.AGENCY,
+    is: (compSource: ComplaintSource) =>
+      compSource?.id === ComplaintSourceEnum.AGENCY,
     then: (schema) => schema.required("Agency is required"),
     otherwise: (schema) => schema.notRequired(),
   }),
   firstNation: yup.object<FirstNation>().when("complaintSource", {
-    is: (attendance: ComplaintSource) =>
-      attendance?.id === ComplaintSourceEnum.FIRST_NATION,
+    is: (compSource: ComplaintSource) =>
+      compSource?.id === ComplaintSourceEnum.FIRST_NATION,
     then: (schema) => schema.required("First Nation is required"),
     otherwise: (schema) => schema.notRequired(),
   }),
   otherDescription: yup.string().when("complaintSource", {
-    is: (attendance: ComplaintSource) =>
-      attendance?.id === ComplaintSourceEnum.OTHER,
+    is: (compSource: ComplaintSource) =>
+      compSource?.id === ComplaintSourceEnum.OTHER,
     then: (schema) => schema.required("Description is required"),
     otherwise: (schema) => schema.notRequired(),
   }),
   requirementSource: yup.object<RequirementSource>().nullable(),
+  conditionNumber: yup.string().when("requirementSource", {
+    is: (reqSource: RequirementSource) =>
+      reqSource?.id === RequirementSourceEnum.SCHEDULE_B,
+    then: (schema) => schema.required("Condition Number is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  amendmentNumber: yup.string().nullable(),
+  amendmentConditionNumber: yup.string().nullable(),
+  notEAActDescription: yup.string().when("requirementSource", {
+    is: (reqSource: RequirementSource) =>
+      reqSource?.id === RequirementSourceEnum.NOT_EA_ACT,
+    then: (schema) => schema.required("Description is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  conditionDescription: yup.string().when("requirementSource", {
+    is: (reqSource: RequirementSource) =>
+      [
+        RequirementSourceEnum.EAC,
+        RequirementSourceEnum.CPD,
+        RequirementSourceEnum.ACT2018,
+        RequirementSourceEnum.COMPLAINCE_AGREEMENT,
+        RequirementSourceEnum.ACT2022,
+      ].includes(reqSource?.id as RequirementSourceEnum),
+    then: (schema) => schema.required("Condition Description is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  topic: yup
+    .object<Topic>()
+    .nullable()
+    .when("requirementSource", {
+      is: (reqSource: RequirementSource) => !!reqSource,
+      then: (schema) => schema.required("Topic is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
 });
 
 export type ComplaintSchemaType = yup.InferType<typeof ComplaintFormSchema>;

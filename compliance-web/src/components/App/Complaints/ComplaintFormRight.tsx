@@ -129,7 +129,7 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
     [RequirementSourceEnum.NOT_EA_ACT]: [
       {
         type: "text",
-        name: "description",
+        name: "notEAActDescription",
         label: "Description",
         required: true,
       },
