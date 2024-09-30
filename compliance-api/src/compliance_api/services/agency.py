@@ -38,6 +38,7 @@ class AgencyService:
         if not agency:
             return None
         agency.update(agency_data, commit=False)
+        db.session.flush()
         if commit:
             db.session.commit()
         return agency

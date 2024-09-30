@@ -17,7 +17,7 @@ import enum
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModel
+from ..base_model import BaseModelVersioned
 
 
 class ComplaintStatusEnum(enum.Enum):
@@ -27,7 +27,7 @@ class ComplaintStatusEnum(enum.Enum):
     CLOSED = "Closed"
 
 
-class Complaint(BaseModel):
+class Complaint(BaseModelVersioned):
     """Complaint Model Class."""
 
     __tablename__ = "complaints"

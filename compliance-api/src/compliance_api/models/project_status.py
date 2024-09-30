@@ -14,10 +14,10 @@
 """Project Status Model."""
 from sqlalchemy import Column, Integer, String
 
-from .base_model import BaseModel
+from .base_model import BaseModelVersioned
 
 
-class ProjectStatusOption(BaseModel):
+class ProjectStatusOption(BaseModelVersioned):
     """ProjectStatus options."""
 
     __tablename__ = "project_status_options"

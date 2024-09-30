@@ -2,10 +2,10 @@
 
 from sqlalchemy import Column, Integer, String
 
-from .base_model import BaseModel
+from .base_model import BaseModelVersioned
 
 
-class Project(BaseModel):
+class Project(BaseModelVersioned):
     """Project Model Class."""
 
     __tablename__ = "projects"

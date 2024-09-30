@@ -3,11 +3,11 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModel
+from ..base_model import BaseModelVersioned
 from ..type import EncryptedType
 
 
-class ComplaintSourceContact(BaseModel):
+class ComplaintSourceContact(BaseModelVersioned):
     """Complaint source contact."""
 
     __tablename__ = "complaint_source_contacts"

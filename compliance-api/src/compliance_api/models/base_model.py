@@ -106,3 +106,10 @@ class BaseModel(db.Model):
     def rollback():
         """RollBack."""
         db.session.rollback()
+
+
+class BaseModelVersioned(BaseModel):
+    """Versioned models."""
+
+    __abstract__ = True
+    __versioned__ = {}

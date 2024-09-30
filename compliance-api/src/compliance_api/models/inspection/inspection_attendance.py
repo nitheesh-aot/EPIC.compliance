@@ -3,10 +3,10 @@
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModel
+from ..base_model import BaseModelVersioned
 
 
-class InspectionAttendance(BaseModel):
+class InspectionAttendance(BaseModelVersioned):
     """Inspection attendance category mapping."""
 
     __tablename__ = "inspection_attendance_mappings"

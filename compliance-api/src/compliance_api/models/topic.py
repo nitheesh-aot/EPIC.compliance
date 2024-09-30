@@ -7,10 +7,10 @@ from __future__ import annotations
 
 from sqlalchemy import Column, Integer, String
 
-from .base_model import BaseModel
+from .base_model import BaseModelVersioned
 
 
-class Topic(BaseModel):
+class Topic(BaseModelVersioned):
     """Definition of the Topic entity."""
 
     __tablename__ = "topics"
