@@ -89,7 +89,7 @@ export function Complaints() {
         },
       },
       {
-        accessorKey: "requirement_detail?.topic?.name",
+        accessorFn: (row) => row.requirement_detail?.topic?.name,
         header: "Topic",
         filterVariant: "multi-select",
         filterSelectOptions: topicList,
@@ -133,7 +133,7 @@ export function Complaints() {
         size: 150,
       },
       {
-        accessorKey: "lead_officer.full_name",
+        accessorFn: (row) => row.lead_officer?.full_name,
         header: "Lead Officer",
         filterVariant: "multi-select",
         filterSelectOptions: officerList,
