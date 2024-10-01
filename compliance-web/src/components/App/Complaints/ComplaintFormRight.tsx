@@ -4,7 +4,6 @@ import { FC, useEffect } from "react";
 import { ComplaintSource } from "@/models/ComplaintSource";
 import { RequirementSource } from "@/models/RequirementSource";
 import { BCDesignTokens } from "epic.theme";
-import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import { useFormContext, useWatch } from "react-hook-form";
 import {
   ComplaintSourceEnum,
@@ -15,6 +14,9 @@ import { FirstNation } from "@/models/FirstNation";
 import ContactForm from "@/components/App/ContactForm";
 import { Topic } from "@/models/Topic";
 import { useDrawer } from "@/store/drawerStore";
+import DynamicInputField, {
+  DynamicInputFieldConfig,
+} from "@/components/App/DynamicInputField";
 
 type ComplaintFormRightProps = {
   complaintSourceList: ComplaintSource[];
@@ -22,14 +24,6 @@ type ComplaintFormRightProps = {
   agenciesList: Agency[];
   firstNationsList: FirstNation[];
   topicsList: Topic[];
-};
-
-type FieldConfig = {
-  type: string;
-  name: string;
-  label: string;
-  options?: Agency[] | FirstNation[] | Topic[];
-  required?: boolean;
 };
 
 const sectionPadding = "1rem 2rem 0rem 1rem";
@@ -82,7 +76,7 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
 
   const dynamicFieldConfigComplaintSource: Record<
     ComplaintSourceEnum,
-    FieldConfig
+    DynamicInputFieldConfig
   > = {
     [ComplaintSourceEnum.AGENCY]: {
       type: "autocomplete",
@@ -104,7 +98,7 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
     },
   };
 
-  const sharedRequirementSourceField: FieldConfig = {
+  const sharedRequirementSourceField: DynamicInputFieldConfig = {
     type: "text",
     name: "conditionDescription",
     label: "Condition Description",
@@ -113,7 +107,7 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
 
   const dynamicFieldConfigRequirementSource: Record<
     RequirementSourceEnum,
-    FieldConfig[]
+    DynamicInputFieldConfig[]
   > = {
     [RequirementSourceEnum.SCHEDULE_B]: [
       {
@@ -154,30 +148,6 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
     [RequirementSourceEnum.ACT2022]: [sharedRequirementSourceField],
   };
 
-  const renderDynamicField = (config: FieldConfig) => {
-    if (!config) return;
-    return config.type === "text" ? (
-      <ControlledTextField
-        key={config.name}
-        name={config.name}
-        label={config.label}
-        fullWidth
-        multiline
-      />
-    ) : (
-      <ControlledAutoComplete
-        key={config.name}
-        name={config.name}
-        label={config.label}
-        options={config.options ?? []}
-        getOptionLabel={(option) => option.name}
-        getOptionKey={(option) => option.id}
-        isOptionEqualToValue={(option, value) => option.id === value.id}
-        fullWidth
-      />
-    );
-  };
-
   const isComplaintSourceSelected: boolean = !!selectedComplaintSource?.id;
 
   const isRequirementSourceSelected = Object.values(
@@ -212,11 +182,13 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
               mb={"1.5rem"}
               bgcolor={BCDesignTokens.surfaceColorBackgroundLightBlue}
             >
-              {renderDynamicField(
-                dynamicFieldConfigComplaintSource[
-                  selectedComplaintSource?.id as ComplaintSourceEnum
-                ]
-              )}
+              <DynamicInputField
+                config={
+                  dynamicFieldConfigComplaintSource[
+                    selectedComplaintSource?.id as ComplaintSourceEnum
+                  ]
+                }
+              />
               <ContactForm />
             </Box>
           )}
@@ -240,7 +212,9 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
             >
               {dynamicFieldConfigRequirementSource[
                 selectedRequirementSource.id as RequirementSourceEnum
-              ]?.map((config) => renderDynamicField(config))}
+              ]?.map((config) => (
+                <DynamicInputField key={config.name} config={config} />
+              ))}
 
               <ControlledAutoComplete
                 name="topic"

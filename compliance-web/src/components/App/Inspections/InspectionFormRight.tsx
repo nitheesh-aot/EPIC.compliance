@@ -4,7 +4,6 @@ import { IRStatus } from "@/models/IRStatus";
 import { ProjectStatus } from "@/models/ProjectStatus";
 import { FC, useEffect } from "react";
 import { Attendance } from "@/models/Attendance";
-import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import { BCDesignTokens } from "epic.theme";
 import { Agency } from "@/models/Agency";
 import { FirstNation } from "@/models/FirstNation";
@@ -13,6 +12,9 @@ import { useModal } from "@/store/modalStore";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { AttendanceEnum } from "./InspectionFormUtils";
 import { useDrawer } from "@/store/drawerStore";
+import DynamicInputField, {
+  DynamicInputFieldConfig,
+} from "@/components/App/DynamicInputField";
 
 type InspectionFormRightProps = {
   irStatusList: IRStatus[];
@@ -20,13 +22,6 @@ type InspectionFormRightProps = {
   attendanceList: Attendance[];
   agenciesList: Agency[];
   firstNationsList: FirstNation[];
-};
-
-type FieldConfig = {
-  type: string;
-  name: string;
-  label: string;
-  options?: Agency[] | FirstNation[];
 };
 
 const sectionPadding = "1rem 2rem 0rem 1rem";
@@ -41,18 +36,18 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
   const { isOpen } = useDrawer();
   const { setOpen, setClose } = useModal();
   const { control, resetField, getValues, setValue } = useFormContext();
-  
+
   // Watch for changes in `inAttendance` field
   const selectedAttendance = useWatch({
     control,
-    name: 'inAttendance',
+    name: "inAttendance",
     defaultValue: [],
   });
 
   useEffect(() => {
     // Reset inAttendance when the drawer is closed
     if (!isOpen) {
-      setValue('inAttendance', []);
+      setValue("inAttendance", []);
     }
   }, [isOpen, setValue]);
 
@@ -78,29 +73,34 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
 
   const handleConfirmRemove = (selectedToRemove: Attendance) => {
     if (selectedToRemove) {
-      const fieldName = dynamicFieldConfig[selectedToRemove.id as AttendanceEnum]?.name;
+      const fieldName =
+        dynamicFieldConfig[selectedToRemove.id as AttendanceEnum]?.name;
       if (fieldName) {
         resetField(fieldName); // Reset the corresponding field value
       }
       const inAttendanceValues: Attendance[] = getValues("inAttendance");
-      const updatedAttendanceList: Attendance[] = inAttendanceValues.filter((att) => att.id !== selectedToRemove.id);
+      const updatedAttendanceList: Attendance[] = inAttendanceValues.filter(
+        (att) => att.id !== selectedToRemove.id
+      );
       setValue("inAttendance", updatedAttendanceList); // Remove from the form field
     }
     setClose();
   };
 
-  const dynamicFieldConfig: Record<AttendanceEnum, FieldConfig> = {
+  const dynamicFieldConfig: Record<AttendanceEnum, DynamicInputFieldConfig> = {
     [AttendanceEnum.AGENCIES]: {
       type: "autocomplete",
       name: "agencies",
       label: "Agencies",
       options: agenciesList,
+      multiple: true,
     },
     [AttendanceEnum.FIRST_NATIONS]: {
       type: "autocomplete",
       name: "firstNations",
       label: "First Nations",
       options: firstNationsList,
+      multiple: true,
     },
     [AttendanceEnum.MUNICIPAL]: {
       type: "text",
@@ -110,8 +110,9 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
     [AttendanceEnum.OTHER]: { type: "text", name: "other", label: "Other" },
   };
 
-  const isRelevantAttendanceSelected = selectedAttendance.some((attendee: Attendance) =>
-    Object.values(AttendanceEnum).includes(attendee.id as AttendanceEnum)
+  const isRelevantAttendanceSelected = selectedAttendance.some(
+    (attendee: Attendance) =>
+      Object.values(AttendanceEnum).includes(attendee.id as AttendanceEnum)
   );
 
   return (
@@ -162,31 +163,10 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
               bgcolor={BCDesignTokens.surfaceColorBackgroundLightBlue}
             >
               {selectedAttendance.map((attendee: Attendance) => {
-                const config = dynamicFieldConfig[attendee.id as AttendanceEnum];
-                if (!config) return null;
-
-                return config.type === "text" ? (
-                  <ControlledTextField
-                    key={config.name}
-                    name={config.name}
-                    label={config.label}
-                    placeholder={`Type ${config.label.toLowerCase()} attendees`}
-                    fullWidth
-                    multiline
-                  />
-                ) : (
-                  <ControlledAutoComplete
-                    key={config.name}
-                    name={config.name}
-                    label={config.label}
-                    options={config.options ?? []}
-                    getOptionLabel={(option) => option.name}
-                    getOptionKey={(option) => option.id}
-                    isOptionEqualToValue={(option, value) =>
-                      option.id === value.id
-                    }
-                    multiple
-                    fullWidth
+                return (
+                  <DynamicInputField
+                    key={attendee.name}
+                    config={dynamicFieldConfig[attendee.id as AttendanceEnum]}
                   />
                 );
               })}
