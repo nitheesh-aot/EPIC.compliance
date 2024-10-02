@@ -5,7 +5,8 @@ from datetime import datetime
 from compliance_api.exceptions import ResourceExistsError
 from compliance_api.models import CaseFile as CaseFileModel
 from compliance_api.models import CaseFileInitiationOption as CaseFileInitiationOptionModel
-from compliance_api.models import CaseFileOfficer, CaseFileStatusEnum
+from compliance_api.models import CaseFileOfficer as CaseFileOfficerModel
+from compliance_api.models import CaseFileStatusEnum
 from compliance_api.models.db import session_scope
 
 
@@ -26,6 +27,11 @@ class CaseFileService:
     def get_by_id(cls, case_file_id: int):
         """Return case file by id."""
         return CaseFileModel.find_by_id(case_file_id)
+
+    @classmethod
+    def get_other_officers(cls, case_file_id: int):
+        """Return other officers associated with a given case file."""
+        return CaseFileOfficerModel.get_all_by_case_file_id(case_file_id)
 
     @classmethod
     def create(cls, case_file_data: dict):
@@ -66,7 +72,7 @@ class CaseFileService:
     ):
         """Insert/Update case file officers associated with a given case file."""
         if officer_ids:
-            existing_officers = CaseFileOfficer.get_all_by_case_file_id(case_file_id)
+            existing_officers = CaseFileOfficerModel.get_all_by_case_file_id(case_file_id)
             existing_officer_ids = {
                 officer.officer_id
                 for officer in existing_officers
@@ -77,11 +83,11 @@ class CaseFileService:
             officer_ids_to_be_deleted = existing_officer_ids.difference(new_officer_ids)
             officer_ids_to_be_added = new_officer_ids.difference(existing_officer_ids)
             if officer_ids_to_be_deleted:
-                CaseFileOfficer.bulk_delete(
+                CaseFileOfficerModel.bulk_delete(
                     case_file_id, list(officer_ids_to_be_deleted), session
                 )
             if officer_ids_to_be_added:
-                CaseFileOfficer.bulk_insert(
+                CaseFileOfficerModel.bulk_insert(
                     case_file_id, list(officer_ids_to_be_added), session
                 )
 
