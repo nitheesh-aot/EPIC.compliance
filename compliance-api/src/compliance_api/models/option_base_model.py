@@ -14,10 +14,10 @@
 """Base model for options."""
 from sqlalchemy import Column, Integer, String
 
-from .base_model import BaseModel
+from .base_model import BaseModelVersioned
 
 
-class OptionModel(BaseModel):
+class OptionModel(BaseModelVersioned):
     """Base Model for the option type of tables."""
 
     __abstract__ = True

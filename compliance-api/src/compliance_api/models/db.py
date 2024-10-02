@@ -7,12 +7,14 @@ from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import event
+from sqlalchemy_continuum import make_versioned
+from sqlalchemy_continuum.plugins import PropertyModTrackerPlugin
 
 
 # DB initialize in __init__ file
 # db variable use for create models from here
 db = SQLAlchemy()
-
+make_versioned(user_cls=None, plugins=[PropertyModTrackerPlugin()])
 # Migrate initialize in __init__ file
 # Migrate database config
 migrate = Migrate()

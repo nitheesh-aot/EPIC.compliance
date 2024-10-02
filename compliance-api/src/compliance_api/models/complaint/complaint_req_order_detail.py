@@ -2,10 +2,10 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModel
+from ..base_model import BaseModelVersioned
 
 
-class ComplaintReqOrderDetail(BaseModel):
+class ComplaintReqOrderDetail(BaseModelVersioned):
     """ComplaintReqOrderDetail Model Class."""
 
     __tablename__ = "complaint_req_order_details"

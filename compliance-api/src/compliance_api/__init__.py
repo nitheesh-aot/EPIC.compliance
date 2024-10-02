@@ -54,7 +54,6 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
     # Setup jwt for keycloak
     print(f"environment is {run_mode}")
     setup_jwt_manager(app, jwt)
-
     # Database connection initialize
     db.init_app(app)
 

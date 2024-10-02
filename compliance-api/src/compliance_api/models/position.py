@@ -14,11 +14,11 @@
 """Position Model."""
 from sqlalchemy import Column
 
-from .base_model import BaseModel
+from .base_model import BaseModelVersioned
 from .db import db
 
 
-class Position(BaseModel):
+class Position(BaseModelVersioned):
     """Definition of Position Entity."""
 
     __tablename__ = "positions"

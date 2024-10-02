@@ -15,11 +15,11 @@
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModel
+from ..base_model import BaseModelVersioned
 from .inspection_enum import InspectionStatusEnum
 
 
-class Inspection(BaseModel):
+class Inspection(BaseModelVersioned):
     """Inspection Model Class."""
 
     __tablename__ = "inspections"

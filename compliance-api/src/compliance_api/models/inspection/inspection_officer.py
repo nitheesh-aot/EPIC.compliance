@@ -15,10 +15,10 @@
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModel
+from ..base_model import BaseModelVersioned
 
 
-class InspectionOfficer(BaseModel):
+class InspectionOfficer(BaseModelVersioned):
     """Other officers associated with the inspection."""
 
     __tablename__ = "inspection_officers"

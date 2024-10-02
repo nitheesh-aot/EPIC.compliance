@@ -7,10 +7,10 @@ from __future__ import annotations
 
 from sqlalchemy import Column, Integer, String
 
-from .base_model import BaseModel
+from .base_model import BaseModelVersioned
 
 
-class Agency(BaseModel):
+class Agency(BaseModelVersioned):
     """Definition of the Agency entity."""
 
     __tablename__ = "agencies"

@@ -3,10 +3,10 @@
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModel
+from ..base_model import BaseModelVersioned
 
 
-class InspectionType(BaseModel):
+class InspectionType(BaseModelVersioned):
     """Model class for types associted with the inspection."""
 
     __tablename__ = "inspection_types"

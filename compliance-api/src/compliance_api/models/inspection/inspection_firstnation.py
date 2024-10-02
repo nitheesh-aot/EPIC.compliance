@@ -3,10 +3,10 @@
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModel
+from ..base_model import BaseModelVersioned
 
 
-class InspectionFirstnation(BaseModel):
+class InspectionFirstnation(BaseModelVersioned):
     """Model class for firstnations associted with the inspection."""
 
     __tablename__ = "inspection_firstnations"

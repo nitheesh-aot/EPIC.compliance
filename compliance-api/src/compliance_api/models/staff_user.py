@@ -11,7 +11,7 @@ from typing import Optional
 from sqlalchemy import Boolean, Column, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import relationship
 
-from .base_model import BaseModel
+from .base_model import BaseModelVersioned
 
 
 class PermissionEnum(enum.Enum):
@@ -29,7 +29,7 @@ PERMISSION_MAP = {
 }
 
 
-class StaffUser(BaseModel):
+class StaffUser(BaseModelVersioned):
     """Definition of the Staff User entity."""
 
     __tablename__ = "staff_users"

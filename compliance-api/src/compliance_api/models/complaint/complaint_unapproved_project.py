@@ -3,10 +3,10 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModel
+from ..base_model import BaseModelVersioned
 
 
-class ComplaintUnapprovedProject(BaseModel):
+class ComplaintUnapprovedProject(BaseModelVersioned):
     """Unapproved project model for complaint."""
 
     __tablename__ = "complaint_unapproved_projects"

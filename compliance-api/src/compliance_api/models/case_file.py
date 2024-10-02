@@ -17,7 +17,7 @@ import enum
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, cast, func
 from sqlalchemy.orm import relationship
 
-from .base_model import BaseModel
+from .base_model import BaseModelVersioned
 
 
 class CaseFileInitiationEnum(enum.Enum):
@@ -34,7 +34,7 @@ class CaseFileStatusEnum(enum.Enum):
     CLOSED = "Closed"
 
 
-class CaseFile(BaseModel):
+class CaseFile(BaseModelVersioned):
     """Definition of CaseFile Entity."""
 
     __tablename__ = "case_files"
@@ -151,7 +151,7 @@ class CaseFile(BaseModel):
         return max_number if max_number is not None else 0
 
 
-class CaseFileOfficer(BaseModel):
+class CaseFileOfficer(BaseModelVersioned):
     """Other officers associated with the Casefile."""
 
     __tablename__ = "case_file_officers"
@@ -209,7 +209,7 @@ class CaseFileOfficer(BaseModel):
             cls.session.commit()
 
 
-class CaseFileInitiationOption(BaseModel):
+class CaseFileInitiationOption(BaseModelVersioned):
     """Initiation Options for creating CaseFile."""
 
     __tablename__ = "case_file_initiation_options"

@@ -3,10 +3,10 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModel
+from ..base_model import BaseModelVersioned
 
 
-class InspectionOtherAttendance(BaseModel):
+class InspectionOtherAttendance(BaseModelVersioned):
     """Model class to manage the other type of attendance for the inspection."""
 
     __tablename__ = "inspection_other_attendances"
