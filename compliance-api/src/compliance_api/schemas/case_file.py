@@ -33,6 +33,8 @@ class CaseFileOfficerSchema(AutoSchemaBase):  # pylint: disable=too-many-ancesto
         model = CaseFileOfficer
         include_fk = True
 
+    officer = fields.Nested(StaffUserSchema, dump_only=True)
+
 
 class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     """Basic schema for case file."""

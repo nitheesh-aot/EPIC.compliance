@@ -20,7 +20,7 @@ from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
-from compliance_api.schemas import CaseFileCreateSchema, CaseFileSchema, KeyValueSchema
+from compliance_api.schemas import CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, KeyValueSchema
 from compliance_api.services import CaseFileService
 from compliance_api.utils.util import cors_preflight
 
@@ -37,6 +37,9 @@ case_file_create_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 case_file_list_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, CaseFileSchema(), "CaseFileList"
+)
+case_file_officer_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, CaseFileOfficerSchema(), "OtherOfficers"
 )
 
 
@@ -64,9 +67,15 @@ class CaseFiles(Resource):
     """Resource for managing CaseFiles."""
 
     @staticmethod
-    @API.doc(params={
-        "project_id": {"description": "The unique identifier of the project", "type": "integer", "required": False}
-    })
+    @API.doc(
+        params={
+            "project_id": {
+                "description": "The unique identifier of the project",
+                "type": "integer",
+                "required": False,
+            }
+        }
+    )
     @API.response(code=200, description="Success", model=[case_file_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all case files")
     @auth.require
@@ -121,9 +130,7 @@ class CaseFile(Resource):
     def patch(case_file_id):
         """Update a CaseFile by id."""
         case_file_data = CaseFileCreateSchema().load(API.payload)
-        updated_case_file = CaseFileService.update(
-            case_file_id, case_file_data
-        )
+        updated_case_file = CaseFileService.update(case_file_id, case_file_data)
         if not updated_case_file:
             raise ResourceNotFoundError(f"CaseFile with {case_file_id} not found")
         return CaseFileSchema().dump(updated_case_file), HTTPStatus.OK
@@ -148,3 +155,21 @@ class CaseFileNumber(Resource):
                 f"CaseFile with case file number {case_file_number} not found"
             )
         return CaseFileSchema().dump(case_file), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/<int:case_file_id>/officers", methods=["GET", "OPTIONS"])
+@API.doc(params={"case_file_id": "The unique identifier for the case file"})
+class CaseFileOtherOfficers(Resource):
+    """Other officers resource for a case file."""
+
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Get other officers for a given case file"
+    )
+    @API.response(code=200, model=case_file_officer_model, description="Success")
+    def get(case_file_id):
+        """Update a CaseFile by id."""
+        officers = CaseFileService.get_other_officers(case_file_id)
+        return CaseFileOfficerSchema().dump(officers, many=True), HTTPStatus.OK
