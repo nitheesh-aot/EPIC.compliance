@@ -5,6 +5,7 @@ import { FirstNation } from "@/models/FirstNation";
 import { Project } from "@/models/Project";
 import { RequirementSource } from "@/models/RequirementSource";
 import { StaffUser } from "@/models/Staff";
+import { Topic } from "@/models/Topic";
 import {
   REGEX_EMAIL,
   REGEX_PHONE_NUMBER,
@@ -17,6 +18,16 @@ export enum ComplaintSourceEnum {
   FIRST_NATION = "2",
   AGENCY = "3",
   OTHER = "4",
+}
+
+export enum RequirementSourceEnum {
+  SCHEDULE_B = "1",
+  EAC = "3",
+  CPD = "4",
+  ACT2018 = "5",
+  COMPLAINCE_AGREEMENT = "6",
+  ACT2022 = "7",
+  NOT_EA_ACT = "8",
 }
 
 export const ComplaintFormSchema = yup.object().shape({
@@ -56,24 +67,58 @@ export const ComplaintFormSchema = yup.object().shape({
     ),
   contactComments: yup.string().nullable(),
   agency: yup.object<Agency>().when("complaintSource", {
-    is: (attendance: ComplaintSource) =>
-      attendance?.id === ComplaintSourceEnum.AGENCY,
+    is: (compSource: ComplaintSource) =>
+      compSource?.id === ComplaintSourceEnum.AGENCY,
     then: (schema) => schema.required("Agency is required"),
     otherwise: (schema) => schema.notRequired(),
   }),
   firstNation: yup.object<FirstNation>().when("complaintSource", {
-    is: (attendance: ComplaintSource) =>
-      attendance?.id === ComplaintSourceEnum.FIRST_NATION,
+    is: (compSource: ComplaintSource) =>
+      compSource?.id === ComplaintSourceEnum.FIRST_NATION,
     then: (schema) => schema.required("First Nation is required"),
     otherwise: (schema) => schema.notRequired(),
   }),
   otherDescription: yup.string().when("complaintSource", {
-    is: (attendance: ComplaintSource) =>
-      attendance?.id === ComplaintSourceEnum.OTHER,
+    is: (compSource: ComplaintSource) =>
+      compSource?.id === ComplaintSourceEnum.OTHER,
     then: (schema) => schema.required("Description is required"),
     otherwise: (schema) => schema.notRequired(),
   }),
   requirementSource: yup.object<RequirementSource>().nullable(),
+  conditionNumber: yup.string().when("requirementSource", {
+    is: (reqSource: RequirementSource) =>
+      reqSource?.id === RequirementSourceEnum.SCHEDULE_B,
+    then: (schema) => schema.required("Condition Number is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  amendmentNumber: yup.string().nullable(),
+  amendmentConditionNumber: yup.string().nullable(),
+  notEAActDescription: yup.string().when("requirementSource", {
+    is: (reqSource: RequirementSource) =>
+      reqSource?.id === RequirementSourceEnum.NOT_EA_ACT,
+    then: (schema) => schema.required("Description is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  conditionDescription: yup.string().when("requirementSource", {
+    is: (reqSource: RequirementSource) =>
+      [
+        RequirementSourceEnum.EAC,
+        RequirementSourceEnum.CPD,
+        RequirementSourceEnum.ACT2018,
+        RequirementSourceEnum.COMPLAINCE_AGREEMENT,
+        RequirementSourceEnum.ACT2022,
+      ].includes(reqSource?.id as RequirementSourceEnum),
+    then: (schema) => schema.required("Condition Description is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+  topic: yup
+    .object<Topic>()
+    .nullable()
+    .when("requirementSource", {
+      is: (reqSource: RequirementSource) => !!reqSource,
+      then: (schema) => schema.required("Topic is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
 });
 
 export type ComplaintSchemaType = yup.InferType<typeof ComplaintFormSchema>;
@@ -90,6 +135,7 @@ export const formatComplaintData = (
 ) => {
   const projectId = getProjectId(formData);
   const sourceId = (formData.complaintSource as ComplaintSource)?.id;
+  const reqSourceId = (formData.requirementSource as RequirementSource)?.id;
 
   let complaintData: ComplaintAPIData = {
     project_id: projectId,
@@ -99,7 +145,7 @@ export const formatComplaintData = (
     concern_description: formData.concernDescription ?? "",
     date_received: dateUtils.dateToISO(formData.dateReceived),
     source_type_id: sourceId,
-    requirement_source_id: (formData.requirementSource as RequirementSource)?.id,
+    requirement_source_id: reqSourceId,
   };
   if (sourceId) {
     complaintData.complaint_source_contact = {
@@ -118,7 +164,38 @@ export const formatComplaintData = (
         complaintData.source_agency_id = (formData.agency as Agency)?.id;
         break;
       case ComplaintSourceEnum.OTHER:
-        complaintData.complaint_source_contact.description = formData.otherDescription ?? "";
+        complaintData.complaint_source_contact.description =
+          formData.otherDescription ?? "";
+        break;
+    }
+  }
+  if (reqSourceId) {
+    complaintData.requirement_source_details = {
+      topic_id: (formData.topic as Topic)?.id,
+    };
+    switch (reqSourceId) {
+      case RequirementSourceEnum.SCHEDULE_B:
+        complaintData.requirement_source_details.condition_number =
+          formData.conditionNumber ?? "";
+        break;
+      case RequirementSourceEnum.EAC:
+        complaintData.requirement_source_details.amendment_condition_number =
+          formData.amendmentConditionNumber ?? "";
+        complaintData.requirement_source_details.amendment_number =
+          formData.amendmentNumber ?? "";
+        complaintData.requirement_source_details.description =
+          formData.conditionDescription ?? "";
+        break;
+      case RequirementSourceEnum.NOT_EA_ACT:
+        complaintData.requirement_source_details.description =
+          formData.notEAActDescription;
+        break;
+      case RequirementSourceEnum.ACT2018:
+      case RequirementSourceEnum.ACT2022:
+      case RequirementSourceEnum.CPD:
+      case RequirementSourceEnum.COMPLAINCE_AGREEMENT:
+        complaintData.requirement_source_details.description =
+          formData.conditionDescription ?? "";
         break;
     }
   }
