@@ -14,13 +14,27 @@
 """Inspection Schema Schema."""
 from marshmallow import EXCLUDE, ValidationError, fields, post_dump, validates_schema
 
-from compliance_api.models.inspection import Inspection, InspectionAttendanceOptionEnum, InspectionStatusEnum
+from compliance_api.models.inspection import (
+    Inspection, InspectionAttendanceOptionEnum, InspectionOfficer, InspectionStatusEnum)
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .case_file import CaseFileSchema
 from .common import KeyValueSchema
 from .staff_user import StaffUserSchema
+
+
+class InspectionOfficerSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
+    """InspectionOfficerSchema."""
+
+    class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
+        """Meta."""
+
+        unknown = EXCLUDE
+        model = InspectionOfficer
+        include_fk = True
+
+    officer = fields.Nested(StaffUserSchema, dump_only=True)
 
 
 class InspectionCreateSchema(BaseSchema):
@@ -141,12 +155,11 @@ class InspectionCreateSchema(BaseSchema):
         allow_none=True,
     )
     unapproved_project_type = fields.Str(
-        metadata={"description": "The type of the unapproved project"},
-        allow_none=True
+        metadata={"description": "The type of the unapproved project"}, allow_none=True
     )
     unapproved_project_sub_type = fields.Str(
         metadata={"description": "The sub type of the unapproved project"},
-        allow_none=True
+        allow_none=True,
     )
 
     @validates_schema
