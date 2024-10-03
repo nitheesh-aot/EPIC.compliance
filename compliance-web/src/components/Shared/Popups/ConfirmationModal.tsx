@@ -8,6 +8,7 @@ type ConfirmationModalProps = {
   confirmButtonText?: string;
   cancelButtonText?: string;
   onConfirm: () => void;
+  onCancel?: () => void;
 };
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -16,10 +17,11 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   confirmButtonText,
   cancelButtonText,
   onConfirm,
+  onCancel,
 }) => {
   return (
     <>
-      <ModalTitleBar title={title} />
+      <ModalTitleBar title={title} onClose={onCancel} />
       <DialogContent dividers>
         <DialogContentText>{description}</DialogContentText>
       </DialogContent>
@@ -27,6 +29,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         primaryActionButtonText={confirmButtonText}
         secondaryActionButtonText={cancelButtonText}
         onPrimaryAction={onConfirm}
+        onSecondaryAction={onCancel}
       />
     </>
   );

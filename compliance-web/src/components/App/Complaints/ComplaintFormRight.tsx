@@ -17,6 +17,8 @@ import { useDrawer } from "@/store/drawerStore";
 import DynamicInputField, {
   DynamicInputFieldConfig,
 } from "@/components/App/DynamicInputField";
+import { useModal } from "@/store/modalStore";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 type ComplaintFormRightProps = {
   complaintSourceList: ComplaintSource[];
@@ -36,7 +38,8 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
   topicsList,
 }) => {
   const { isOpen } = useDrawer();
-  const { control, resetField, setValue } = useFormContext();
+  const { setOpen, setClose } = useModal();
+  const { control, resetField, setValue, getValues } = useFormContext();
 
   // Watch for changes in `complaintSource` field
   const selectedComplaintSource = useWatch({
@@ -59,12 +62,71 @@ const ComplaintFormRight: FC<ComplaintFormRightProps> = ({
     }
   }, [isOpen, setValue]);
 
-  const handleComplaintSourceChange = () => {
-    const fieldName =
+  const getSelectedFieldNamesComplaintSource = (): string[] => {
+    const dynamicFields =
       dynamicFieldConfigComplaintSource[
         selectedComplaintSource?.id as ComplaintSourceEnum
-      ]?.name;
-    resetField(fieldName);
+      ];
+
+    const fieldNames: string[] = [
+      "contactFullName",
+      "contactEmail",
+      "contactPhoneNumber",
+      "contactComments",
+    ];
+    if (dynamicFields) {
+      fieldNames.push(dynamicFields.name);
+    }
+
+    return fieldNames;
+  };
+
+  const handleComplaintSourceChange = (
+    _event: React.SyntheticEvent,
+    newValue: ComplaintSource | ComplaintSource[] | null
+  ) => {
+    if (
+      !selectedComplaintSource ||
+      !newValue ||
+      selectedComplaintSource.id === (newValue as ComplaintSource).id
+    ) {
+      setValue("complaintSource", newValue);
+      return;
+    }
+    const isDynamicFieldsNotEmpty = getSelectedFieldNamesComplaintSource().some(
+      (fieldName) => !!getValues(fieldName)
+    );
+    if (isDynamicFieldsNotEmpty) {
+      // If dynamic fields contain values, prompt user
+      setOpen({
+        content: (
+          <ConfirmationModal
+            title="Change Complaint Source?"
+            description="You have entered information for the current complaint source. Changing the complaint source will clear the fields that are specific to this source.
+            Are you sure you want to proceed?"
+            confirmButtonText="Yes"
+            cancelButtonText="No"
+            onConfirm={() => {
+              resetFieldForComplaintSource();
+              setClose();
+            }}
+            onCancel={() => {
+              setValue("complaintSource", selectedComplaintSource);
+            }}
+          />
+        ),
+      });
+    } else {
+      // If dynamic fields are empty, proceed with the change
+      setValue("complaintSource", newValue);
+      resetFieldForComplaintSource();
+    }
+  };
+
+  const resetFieldForComplaintSource = () => {
+    getSelectedFieldNamesComplaintSource().forEach((fieldName) =>
+      resetField(fieldName)
+    );
   };
 
   const handleRequirementSourceChange = () => {

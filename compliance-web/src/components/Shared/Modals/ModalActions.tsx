@@ -7,6 +7,7 @@ type ModalActionsProps = {
   primaryActionButtonText?: string;
   secondaryActionButtonText?: string;
   onPrimaryAction?: () => void;
+  onSecondaryAction?: () => void;
   isButtonValidation?: boolean;
 };
 
@@ -14,6 +15,7 @@ const ModalActions: FC<ModalActionsProps> = ({
   primaryActionButtonText,
   secondaryActionButtonText,
   onPrimaryAction,
+  onSecondaryAction,
   isButtonValidation,
 }) => {
   const { setClose } = useModal();
@@ -23,7 +25,13 @@ const ModalActions: FC<ModalActionsProps> = ({
 
   return (
     <DialogActions sx={{ padding: "1rem 1.5rem" }}>
-      <Button variant="text" onClick={setClose}>
+      <Button
+        variant="text"
+        onClick={() => {
+          onSecondaryAction?.();
+          setClose();
+        }}
+      >
         {secondaryActionButtonText ?? "Cancel"}
       </Button>
       <Button
