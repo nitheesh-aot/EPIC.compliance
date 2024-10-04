@@ -121,6 +121,7 @@ class Inspections(Resource):
     @API.response(code=200, description="Success", model=[inspection_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all inspections")
     @auth.require
+    # @jwt.has_one_of_roles(["/COMPLIANCE/USER"])
     def get():
         """Fetch all inspections."""
         inspections = InspectionService.get_all()

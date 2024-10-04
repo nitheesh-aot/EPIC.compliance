@@ -9,9 +9,11 @@ from http import HTTPStatus
 import secure
 from flask import Flask, current_app, g, request
 from flask_cors import CORS
+from jose import jwt as jose_jwt
 
 from compliance_api.auth import jwt
 from compliance_api.config import get_named_config
+from compliance_api.exceptions import PermissionDeniedError
 from compliance_api.models import db, ma, migrate
 from compliance_api.utils.cache import cache
 from compliance_api.utils.util import allowedorigins
@@ -50,9 +52,7 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
     CORS(
         app, resources={r"/*": {"origins": allowedorigins()}}, supports_credentials=True
     )
-
     # Setup jwt for keycloak
-    print(f"environment is {run_mode}")
     setup_jwt_manager(app, jwt)
     # Database connection initialize
     db.init_app(app)
@@ -69,9 +69,16 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
     @app.before_request
     def set_origin():
         g.origin_url = request.environ.get("HTTP_ORIGIN", "localhost")
-        auth_header = request.headers.get('Authorization')
-        if auth_header and auth_header.startswith('Bearer '):
-            g.access_token = auth_header.split(' ')[1]
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = jwt.get_token_auth_header()
+            token_info = jose_jwt.get_unverified_claims(token)
+            is_compliance_in_groups = any(
+                "COMPLIANCE" in group for group in token_info.get("groups", [])
+            )
+            if not is_compliance_in_groups:
+                raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
+            g.access_token = auth_header.split(" ")[1]
         else:
             g.access_token = None
 
@@ -106,10 +113,12 @@ def build_cache(app):
 def setup_jwt_manager(app_context, jwt_manager):
     """Use flask app to configure the JWTManager to work for a particular Realm."""
 
-    def get_roles(a_dict):
-        return a_dict["realm_access"]["roles"]  # pragma: no cover
+    def custom_role_callback(claims):
+        """Return the roles from claims."""
+        # Extract roles from the realm_access claim in the JWT token
+        return claims.get('groups', [])
 
-    app_context.config["JWT_ROLE_CALLBACK"] = get_roles
+    app_context.config["JWT_ROLE_CALLBACK"] = custom_role_callback
     jwt_manager.init_app(app_context)
 
 
