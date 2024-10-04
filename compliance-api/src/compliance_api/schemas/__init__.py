@@ -16,7 +16,7 @@ from .agency import AgencyCreateSchema, AgencySchema
 from .case_file import CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema
 from .common import KeyValueSchema
 from .complaint import ComplaintCreateSchema, ComplaintSchema, ComplaintSourceContactSchema
-from .inspection import InspectionCreateSchema, InspectionSchema
+from .inspection import InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema
 from .project import ProjectSchema
 from .staff_user import StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateSchema
 from .topic import TopicCreateSchema, TopicSchema

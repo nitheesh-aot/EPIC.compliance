@@ -19,7 +19,7 @@ from flask import current_app
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
-from compliance_api.schemas import InspectionCreateSchema, InspectionSchema, KeyValueSchema
+from compliance_api.schemas import InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema, KeyValueSchema
 from compliance_api.services import InspectionService
 from compliance_api.utils.util import cors_preflight
 
@@ -37,6 +37,9 @@ inspection_create_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 inspection_list_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, InspectionSchema(), "InspectionList"
+)
+inspection_officer_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, InspectionOfficerSchema(), "InspectionOfficer"
 )
 
 
@@ -141,3 +144,35 @@ class Inspections(Resource):
         inspection_data = InspectionCreateSchema().load(API.payload)
         created_inspection = InspectionService.create(inspection_data)
         return InspectionSchema().dump(created_inspection), HTTPStatus.CREATED
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/<int:inspection_id>", methods=["GET", "OPTIONS"])
+class Inspection(Resource):
+    """Inspection resource."""
+
+    @staticmethod
+    @API.response(code=200, description="Success", model=[inspection_list_model])
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch inspection by id")
+    @auth.require
+    def get(inspection_id):
+        """Fetch all inspections."""
+        inspection = InspectionService.get_by_id(inspection_id)
+        inspection_list_schema = InspectionSchema()
+        return inspection_list_schema.dump(inspection), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/<int:inspection_id>/officers", methods=["GET", "OPTIONS"])
+class InspectionOfficers(Resource):
+    """Inspection resource."""
+
+    @staticmethod
+    @API.response(code=200, description="Success", model=[inspection_list_model])
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch officers of inspection by id")
+    @auth.require
+    def get(inspection_id):
+        """Fetch all inspections."""
+        officers = InspectionService.get_other_officers(inspection_id)
+        inspection_officer_schema = InspectionOfficerSchema(many=True)
+        return inspection_officer_schema.dump(officers), HTTPStatus.OK

@@ -50,6 +50,16 @@ class InspectionService:
         return InspectionModel.get_all(default_filters=False)
 
     @classmethod
+    def get_by_id(cls, inspection_id):
+        """Return inspection by id."""
+        return InspectionModel.find_by_id(inspection_id)
+
+    @classmethod
+    def get_other_officers(cls, inspection_id):
+        """Return other officers associated with a given inspection."""
+        return InspectionOfficerModel.get_all_by_inspection(inspection_id)
+
+    @classmethod
     def create(cls, inspection_data: dict):
         """Create inspection."""
         inspection_obj = _create_inspection_object(inspection_data)
