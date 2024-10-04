@@ -103,6 +103,9 @@ follow instructions on the link
 
 - if the resource quota was exceeded you can change the values in values.yaml, you can always do that locally and install like this as well `$ helm install -f myvalues.yaml myredis ./redis`
 
+- another option is to manually specify the values in the command as below..
+
+
 ## API
 
 can reuse the charts here https://github.com/bcgov/EPIC.submit/tree/develop/deployment/charts the api and the api-bc
