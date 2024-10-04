@@ -5,9 +5,10 @@ import { FC } from "react";
 
 type ModalTitleBarProps = {
   title: string;
+  onClose?: () => void;
 };
 
-const ModalTitleBar: FC<ModalTitleBarProps> = ({ title }) => {
+const ModalTitleBar: FC<ModalTitleBarProps> = ({ title, onClose }) => {
   const { setClose } = useModal();
 
   return (
@@ -21,7 +22,13 @@ const ModalTitleBar: FC<ModalTitleBarProps> = ({ title }) => {
       }}
     >
       <Typography variant="h5">{title}</Typography>
-      <IconButton aria-label="close" onClick={setClose}>
+      <IconButton
+        aria-label="close"
+        onClick={() => {
+          onClose?.();
+          setClose();
+        }}
+      >
         <Close />
       </IconButton>
     </Box>

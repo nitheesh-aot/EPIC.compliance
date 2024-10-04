@@ -11,7 +11,6 @@ import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useMenuStore } from "@/store/menuStore";
 import { InspectionFormData as ComplaintFormData } from "@/models/Inspection";
-import ComplaintFormRight from "./ComplaintFormRight";
 import { useModal } from "@/store/modalStore";
 import {
   formatComplaintData,
@@ -29,6 +28,8 @@ import {
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { useFirstNationsData } from "@/hooks/useFirstNations";
 import { useTopicsData } from "@/hooks/useTopics";
+import ComplaintSourceForm from "./ComplaintSourceForm";
+import RequirementSourceForm from "./RequirementSourceForm";
 
 type ComplaintDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -176,13 +177,23 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
             projectList={projectList ?? []}
             staffUsersList={staffUserList ?? []}
           />
-          <ComplaintFormRight
-            complaintSourceList={complaintSourceList ?? []}
-            requirementSourceList={requirementSourceList ?? []}
-            agenciesList={agenciesList ?? []}
-            firstNationsList={firstNationsList ?? []}
-            topicsList={topicsList ?? []}
-          />
+          <Box
+            sx={{
+              width: "399px",
+              boxSizing: "border-box",
+              overflow: "auto",
+            }}
+          >
+            <ComplaintSourceForm
+              complaintSourceList={complaintSourceList ?? []}
+              agenciesList={agenciesList ?? []}
+              firstNationsList={firstNationsList ?? []}
+            />
+            <RequirementSourceForm
+              requirementSourceList={requirementSourceList ?? []}
+              topicsList={topicsList ?? []}
+            />
+          </Box>
         </Stack>
       </form>
     </FormProvider>
