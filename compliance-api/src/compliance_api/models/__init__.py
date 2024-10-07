@@ -30,3 +30,4 @@ from .project_status import ProjectStatusOption
 from .requirement_source import RequirementSource
 from .staff_user import PERMISSION_MAP, PermissionEnum, StaffUser
 from .topic import Topic
+from .continuation_report import ContinuationReport, ContinuationReportKey
