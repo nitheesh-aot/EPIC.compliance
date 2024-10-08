@@ -13,14 +13,8 @@
 # limitations under the License.
 """Continuation Report Model."""
 import enum
-from sqlalchemy import (
-    Column,
-    Enum,
-    ForeignKey,
-    Integer,
-    String,
-    Boolean,
-)
+
+from sqlalchemy import Boolean, Column, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModelVersioned
@@ -49,6 +43,7 @@ class ContinuationReport(BaseModelVersioned):
         Integer,
         ForeignKey("case_files.id", name="inspections_case_file_id_case_file_id_fkey"),
         nullable=False,
+        index=True,
         comment="The unique identifier of the case file associated with the inspection",
     )
     text = Column(String, comment="The plane text version of the string")
@@ -83,7 +78,7 @@ class ContinuationReport(BaseModelVersioned):
 
     @classmethod
     def update_entry(cls, entry_id, report_entry_obj, session=None):
-        """Update continuation report entry"""
+        """Update continuation report entry."""
         query = cls.query.filter_by(id=entry_id)
         report_entry: ContinuationReport = query.first()
         if not report_entry or report_entry.is_deleted:
@@ -94,6 +89,16 @@ class ContinuationReport(BaseModelVersioned):
         else:
             cls.session.commit()
         return report_entry
+
+    @classmethod
+    def delete_entry(cls, entry_id):
+        """Delete a continuation report entry."""
+        query = cls.query.filter_by(id=entry_id)
+        report_entry: ContinuationReport = query.first()
+        if not report_entry or report_entry.is_deleted:
+            return None
+        report_entry.is_deleted = True
+        report_entry.update()
 
 
 class ContinuationReportKey(BaseModelVersioned):

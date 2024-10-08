@@ -1,8 +1,8 @@
-"""continuation report tables
+"""Continuation report tables
 
-Revision ID: cb6575999a9e
-Revises: e8129db0036b
-Create Date: 2024-10-07 15:46:58.445724
+Revision ID: cf52572e2d73
+Revises: 21278058610c
+Create Date: 2024-10-08 12:19:44.050964
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'cb6575999a9e'
-down_revision = 'e8129db0036b'
+revision = 'cf52572e2d73'
+down_revision = '21278058610c'
 branch_labels = None
 depends_on = None
 
@@ -114,4 +114,5 @@ def downgrade():
     op.drop_table('continuation_reports')
     op.drop_table('continuation_reports_version')
     op.drop_table('continuation_report_keys_version')
+    op.execute(sa.text("DROP TYPE IF EXISTS contexttypeenum"))
     # ### end Alembic commands ###

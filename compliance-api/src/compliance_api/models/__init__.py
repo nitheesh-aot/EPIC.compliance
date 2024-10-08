@@ -19,6 +19,7 @@ from .case_file import CaseFile, CaseFileInitiationEnum, CaseFileInitiationOptio
 from .complaint import (
     Complaint, ComplaintReqOrderDetail, ComplaintReqScheduleBDetail, ComplaintRequirementDetail, ComplaintSource,
     ComplaintSourceContact, ComplaintStatusEnum, ComplaintUnapprovedProject)
+from .continuation_report import ContinuationReport, ContinuationReportKey
 from .db import db, ma, migrate
 from .inspection import (
     Inspection, InspectionAgency, InspectionAttendance, InspectionAttendanceOption, InspectionAttendanceOptionEnum,
@@ -30,4 +31,3 @@ from .project_status import ProjectStatusOption
 from .requirement_source import RequirementSource
 from .staff_user import PERMISSION_MAP, PermissionEnum, StaffUser
 from .topic import Topic
-from .continuation_report import ContinuationReport, ContinuationReportKey
