@@ -23,3 +23,4 @@ class ComplaintRequirementSourceEnum(Enum):
     COMPLIANCE_AGGREMENT = 6
     ACT_2002 = 7
     NOT_EA_ACT = 8
+    OTHER = 9
