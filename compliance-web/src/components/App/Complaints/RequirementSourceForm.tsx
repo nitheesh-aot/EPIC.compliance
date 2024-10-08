@@ -45,11 +45,16 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
     if (fieldName) fieldName.forEach((name) => resetField(name));
   };
 
-  const sharedRequirementSourceField: DynamicInputFieldConfig = {
-    type: "text",
-    name: "conditionDescription",
-    label: "Condition Description",
-    required: true,
+  const sharedRequirementSourceField = (
+    name?: string,
+    label?: string
+  ): DynamicInputFieldConfig => {
+    return {
+      type: "text",
+      name: name ?? "conditionDescription",
+      label: label ?? "Condition Description",
+      required: true,
+    };
   };
 
   const dynamicFieldConfigRequirementSource: Record<
@@ -77,22 +82,20 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
         label: "Amendment Condition # (optional)",
         required: false,
       },
-      sharedRequirementSourceField,
+      sharedRequirementSourceField(),
     ],
     [RequirementSourceEnum.NOT_EA_ACT]: [
-      {
-        type: "text",
-        name: "notEAActDescription",
-        label: "Description",
-        required: true,
-      },
+      sharedRequirementSourceField("description", "Description"),
     ],
-    [RequirementSourceEnum.CPD]: [sharedRequirementSourceField],
-    [RequirementSourceEnum.ACT2018]: [sharedRequirementSourceField],
+    [RequirementSourceEnum.CPD]: [sharedRequirementSourceField()],
+    [RequirementSourceEnum.ACT2018]: [sharedRequirementSourceField()],
     [RequirementSourceEnum.COMPLAINCE_AGREEMENT]: [
-      sharedRequirementSourceField,
+      sharedRequirementSourceField(),
     ],
-    [RequirementSourceEnum.ACT2022]: [sharedRequirementSourceField],
+    [RequirementSourceEnum.ACT2022]: [sharedRequirementSourceField()],
+    [RequirementSourceEnum.OTHER]: [
+      sharedRequirementSourceField("description", "Description"),
+    ],
   };
 
   const isRequirementSourceSelected = Object.values(

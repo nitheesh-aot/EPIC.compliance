@@ -28,6 +28,7 @@ export enum RequirementSourceEnum {
   COMPLAINCE_AGREEMENT = "6",
   ACT2022 = "7",
   NOT_EA_ACT = "8",
+  OTHER = "9",
 }
 
 export const ComplaintFormSchema = yup.object().shape({
@@ -93,9 +94,11 @@ export const ComplaintFormSchema = yup.object().shape({
   }),
   amendmentNumber: yup.string().nullable(),
   amendmentConditionNumber: yup.string().nullable(),
-  notEAActDescription: yup.string().when("requirementSource", {
+  description: yup.string().when("requirementSource", {
     is: (reqSource: RequirementSource) =>
-      reqSource?.id === RequirementSourceEnum.NOT_EA_ACT,
+      [RequirementSourceEnum.NOT_EA_ACT, RequirementSourceEnum.OTHER].includes(
+        reqSource?.id as RequirementSourceEnum
+      ),
     then: (schema) => schema.required("Description is required"),
     otherwise: (schema) => schema.notRequired(),
   }),
@@ -188,7 +191,7 @@ export const formatComplaintData = (
         break;
       case RequirementSourceEnum.NOT_EA_ACT:
         complaintData.requirement_source_details.description =
-          formData.notEAActDescription;
+          formData.description;
         break;
       case RequirementSourceEnum.ACT2018:
       case RequirementSourceEnum.ACT2022:
