@@ -1,8 +1,8 @@
 """Continuation report tables
 
-Revision ID: cf52572e2d73
+Revision ID: 6d8d7b605eba
 Revises: 21278058610c
-Create Date: 2024-10-08 12:19:44.050964
+Create Date: 2024-10-08 12:40:41.986778
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'cf52572e2d73'
+revision = '6d8d7b605eba'
 down_revision = '21278058610c'
 branch_labels = None
 depends_on = None
