@@ -30,6 +30,7 @@ import { useFirstNationsData } from "@/hooks/useFirstNations";
 import { useTopicsData } from "@/hooks/useTopics";
 import ComplaintSourceForm from "./ComplaintSourceForm";
 import RequirementSourceForm from "./RequirementSourceForm";
+import { INITIATION } from "@/utils/constants";
 
 type ComplaintDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -144,6 +145,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
           <LinkCaseFileModal
             onSubmit={handleOnCaseFileSubmit}
             caseFileData={caseFileData}
+            initiationId={INITIATION.COMPLAINTS_ID}
           />
         ),
       });

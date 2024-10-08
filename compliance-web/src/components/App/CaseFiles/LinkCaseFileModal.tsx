@@ -8,16 +8,15 @@ import { FC, useCallback, useEffect } from "react";
 import {
   useCaseFilesByProjectId,
   useCreateCaseFile,
-  useInitiationsData,
 } from "@/hooks/useCaseFiles";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
 import { notify } from "@/store/snackbarStore";
-import { INITIATION } from "@/utils/constants";
 
 type LinkCaseFileModalProps = {
   onSubmit: (caseFileId: number) => void;
   caseFileData: CaseFileAPIData;
+  initiationId: string;
 };
 
 const linkCaseFileSchema = yup.object().shape({
@@ -36,8 +35,8 @@ const initFormData = {
 const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
   onSubmit,
   caseFileData,
+  initiationId,
 }) => {
-  const { data: initiationList } = useInitiationsData();
   const { data: caseFilesList } = useCaseFilesByProjectId(
     caseFileData.project_id!
   );
@@ -75,10 +74,7 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
   };
 
   const createNewCaseFile = () => {
-    caseFileData.initiation_id =
-      initiationList?.find(
-        (inititation) => inititation.id === INITIATION.INSPECTION_ID
-      )?.id ?? "";
+    caseFileData.initiation_id = initiationId;
     createCaseFile(caseFileData);
   };
 
