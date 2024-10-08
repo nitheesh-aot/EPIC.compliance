@@ -29,7 +29,13 @@ import { useModal } from "@/store/modalStore";
 import LinkCaseFileModal from "@/components/App/CaseFiles/LinkCaseFileModal";
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { useFirstNationsData } from "@/hooks/useFirstNations";
-import { formatInspectionData, getProjectId, InspectionFormSchema, InspectionSchemaType } from "./InspectionFormUtils";
+import {
+  formatInspectionData,
+  getProjectId,
+  InspectionFormSchema,
+  InspectionSchemaType,
+} from "./InspectionFormUtils";
+import { INITIATION } from "@/utils/constants";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -108,7 +114,10 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const addOrUpdateInspection = useCallback(
     (caseFileId: number) => {
       const formData = getValues();
-      const inspectionData: InspectionAPIData = formatInspectionData(formData, caseFileId);
+      const inspectionData: InspectionAPIData = formatInspectionData(
+        formData,
+        caseFileId
+      );
 
       if (inspection) {
         // TODO: Add update logic here
@@ -148,6 +157,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
           <LinkCaseFileModal
             onSubmit={handleOnCaseFileSubmit}
             caseFileData={caseFileData}
+            initiationId={INITIATION.INSPECTION_ID}
           />
         ),
       });
