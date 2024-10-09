@@ -190,6 +190,7 @@ export const formatComplaintData = (
           formData.conditionDescription ?? "";
         break;
       case RequirementSourceEnum.NOT_EA_ACT:
+      case RequirementSourceEnum.OTHER:
         complaintData.requirement_source_details.description =
           formData.description;
         break;
