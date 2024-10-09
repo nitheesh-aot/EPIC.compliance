@@ -1,12 +1,10 @@
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
-import { CaseFileAPIData } from "@/models/CaseFile";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Button, Stack } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { FormProvider, useForm } from "react-hook-form";
 import ComplaintFormLeft from "./ComplaintFormLeft";
-import dateUtils from "@/utils/dateUtils";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useMenuStore } from "@/store/menuStore";
@@ -31,6 +29,7 @@ import { useTopicsData } from "@/hooks/useTopics";
 import ComplaintSourceForm from "./ComplaintSourceForm";
 import RequirementSourceForm from "./RequirementSourceForm";
 import { INITIATION } from "@/utils/constants";
+import { StaffUser } from "@/models/Staff";
 
 type ComplaintDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -131,20 +130,13 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
 
   const onSubmitHandler = useCallback(
     (data: ComplaintSchemaType) => {
-      // case file data format for creating a new casefile
-      const caseFileData: CaseFileAPIData = {
-        project_id: getProjectId(data),
-        date_created: dateUtils.dateToISO(new Date()),
-        initiation_id: "", // should be mapped from the case file modal
-        case_file_number: "",
-      };
-
       // Open modal for linking or creating case file
       setModalOpen({
         content: (
           <LinkCaseFileModal
             onSubmit={handleOnCaseFileSubmit}
-            caseFileData={caseFileData}
+            projectId={getProjectId(data)}
+            leadOfficerId={(data.leadOfficer as StaffUser)?.id}
             initiationId={INITIATION.COMPLAINTS_ID}
           />
         ),
