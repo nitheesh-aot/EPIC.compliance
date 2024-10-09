@@ -78,14 +78,27 @@ class Api(BaseApi):
                     nested_model, required=field.required
                 )
             elif isinstance(field, ma_fields.List):
-                # Handle list fields
-                list_item_type = type(field.inner)
-                if list_item_type in type_mapping:
+                # Handle List fields
+                if isinstance(field.inner, ma_fields.Nested):
+                    # List of Nested fields
+                    nested_model_name = f"{name}_{field_name}_item"
+                    nested_model = cls.convert_ma_schema_to_restx_model(
+                        api, field.inner.schema, nested_model_name
+                    )
                     model_fields[field_name] = fields.List(
-                        type_mapping[list_item_type](),
+                        fields.Nested(nested_model),
                         required=field.required,
                         description=field.metadata.get("description", ""),
                     )
+                else:
+                    # List of basic types (Integer, String, etc.)
+                    list_item_type = type(field.inner)
+                    if list_item_type in type_mapping:
+                        model_fields[field_name] = fields.List(
+                            type_mapping[list_item_type](),
+                            required=field.required,
+                            description=field.metadata.get("description", ""),
+                        )
             else:
                 restx_field = type_mapping.get(field_type)
                 if restx_field:
