@@ -17,16 +17,9 @@ from .base_model import BaseModelVersioned
 class PermissionEnum(enum.Enum):
     """Enum for Staff User Permissions."""
 
-    VIEWER = "VIEWER"
-    USER = "USER"
-    SUPERUSER = "SUPERUSER"
-
-
-PERMISSION_MAP = {
-    PermissionEnum.SUPERUSER: "Superuser",
-    PermissionEnum.VIEWER: "Viewer",
-    PermissionEnum.USER: "User",
-}
+    VIEWER = "Viewer"
+    USER = "User"
+    SUPERUSER = "Superuser"
 
 
 class StaffUser(BaseModelVersioned):
