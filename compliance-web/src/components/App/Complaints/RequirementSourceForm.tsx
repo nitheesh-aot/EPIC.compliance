@@ -10,6 +10,8 @@ import { useDrawer } from "@/store/drawerStore";
 import DynamicInputField, {
   DynamicInputFieldConfig,
 } from "@/components/App/DynamicInputField";
+import { useModal } from "@/store/modalStore";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 type RequirementSourceFormProps = {
   requirementSourceList: RequirementSource[];
@@ -23,7 +25,8 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
   topicsList,
 }) => {
   const { isOpen } = useDrawer();
-  const { control, resetField, setValue } = useFormContext();
+  const { setOpen, setClose } = useModal();
+  const { control, resetField, setValue, getValues } = useFormContext();
 
   const selectedRequirementSource = useWatch({
     control,
@@ -38,11 +41,63 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
     }
   }, [isOpen, setValue]);
 
-  const handleRequirementSourceChange = () => {
-    const fieldName = dynamicFieldConfigRequirementSource[
-      selectedRequirementSource?.id as RequirementSourceEnum
-    ]?.map((config) => config.name);
-    if (fieldName) fieldName.forEach((name) => resetField(name));
+  const getSelectedFieldNamesReqSource = (): string[] => {
+    const dynamicFields =
+      dynamicFieldConfigRequirementSource[
+        selectedRequirementSource?.id as RequirementSourceEnum
+      ];
+    const fieldNames: string[] =
+      dynamicFields?.map((field) => field.name) ?? [];
+    fieldNames.push("topic");
+    return fieldNames;
+  };
+
+  const handleRequirementSourceChange = (
+    _event: React.SyntheticEvent,
+    newValue: RequirementSource | RequirementSource[] | null
+  ) => {
+    if (
+      !selectedRequirementSource ||
+      !newValue ||
+      selectedRequirementSource.id === (newValue as RequirementSource).id
+    ) {
+      setValue("requirementSource", newValue);
+      return;
+    }
+    const isDynamicFieldsNotEmpty = getSelectedFieldNamesReqSource().some(
+      (fieldName) => !!getValues(fieldName)
+    );
+    if (isDynamicFieldsNotEmpty) {
+      // If dynamic fields contain values, prompt user
+      setOpen({
+        content: (
+          <ConfirmationModal
+            title="Change Requirement Source?"
+            description="You have entered information for the current requirement source. Changing the requirement source will clear the fields that are specific to this source.
+            Are you sure you want to proceed?"
+            confirmButtonText="Yes"
+            cancelButtonText="No"
+            onConfirm={() => {
+              resetFieldForReqSource();
+              setClose();
+            }}
+            onCancel={() => {
+              setValue("requirementSource", selectedRequirementSource);
+            }}
+          />
+        ),
+      });
+    } else {
+      // If dynamic fields are empty, proceed with the change
+      setValue("requirementSource", newValue);
+      resetFieldForReqSource();
+    }
+  };
+
+  const resetFieldForReqSource = () => {
+    getSelectedFieldNamesReqSource().forEach((fieldName) =>
+      resetField(fieldName)
+    );
   };
 
   const sharedRequirementSourceField = (
