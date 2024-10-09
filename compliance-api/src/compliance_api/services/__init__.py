@@ -15,6 +15,7 @@
 from .agency import AgencyService
 from .case_file import CaseFileService
 from .complaint import ComplaintService
+from .continuation_report import ContinuationReportService
 from .inspection import InspectionService
 from .position import PositionService
 from .project import ProjectService
