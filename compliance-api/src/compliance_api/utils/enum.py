@@ -32,3 +32,10 @@ class ContextEnum(Enum):
     COMPLAINT = "Complaint"
     CASE_FILE = "Casefile"
     ORDER = "Order"
+
+class PermissionEnum(Enum):
+    """Enum for Staff User Permissions."""
+
+    VIEWER = "Viewer"
+    USER = "User"
+    SUPERUSER = "Superuser"

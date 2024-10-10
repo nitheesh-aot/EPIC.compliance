@@ -108,7 +108,7 @@ class CaseFileService:
 
         # Check if the user is the lead officer or part of other officers
         return case_file.lead_officer.auth_user_guid == auth_user_guid or any(
-            officer.officer.auth_user_id == auth_user_guid
+            officer.officer.auth_user_guid == auth_user_guid
             for officer in case_file.case_file_officers
         )
 
