@@ -72,7 +72,9 @@ class CaseFileService:
     ):
         """Insert/Update case file officers associated with a given case file."""
         if officer_ids:
-            existing_officers = CaseFileOfficerModel.get_all_by_case_file_id(case_file_id)
+            existing_officers = CaseFileOfficerModel.get_all_by_case_file_id(
+                case_file_id
+            )
             existing_officer_ids = {
                 officer.officer_id
                 for officer in existing_officers
@@ -96,6 +98,20 @@ class CaseFileService:
         """Return case files based on project id."""
         return CaseFileModel.get_by_project(project_id)
 
+    @classmethod
+    def is_assigned_user(cls, case_file_id, auth_user_guid):
+        """Check if the given user is an assigned user of the given case file."""
+        case_file = CaseFileModel.find_by_id(case_file_id)
+
+        if not case_file:
+            return False
+
+        # Check if the user is the lead officer or part of other officers
+        return case_file.lead_officer.auth_user_guid == auth_user_guid or any(
+            officer.officer.auth_user_id == auth_user_guid
+            for officer in case_file.case_file_officers
+        )
+
 
 def _create_case_file_object(case_file_data: dict):
     """Create a case file object."""
@@ -104,7 +120,7 @@ def _create_case_file_object(case_file_data: dict):
         "date_created": case_file_data.get("date_created"),
         "lead_officer_id": case_file_data.get("lead_officer_id", None),
         "initiation_id": case_file_data.get("initiation_id"),
-        "case_file_status": CaseFileStatusEnum.OPEN
+        "case_file_status": CaseFileStatusEnum.OPEN,
     }
     if not case_file_data.get("case_file_number", None):
         case_file_obj["case_file_number"] = _generate_case_file_number(

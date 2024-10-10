@@ -118,8 +118,24 @@ class InspectionService:
                 other_attendance_obj = _create_inspection_other_attendance_object(
                     inspection_data, created_inspection.id
                 )
-                InspectionOtherAttendanceModel.create_attendance(other_attendance_obj, session)
+                InspectionOtherAttendanceModel.create_attendance(
+                    other_attendance_obj, session
+                )
         return created_inspection
+
+    @classmethod
+    def is_assigned_user(cls, inspection_id, auth_user_guid):
+        """Check if the given user is an assigned user of the given inspection."""
+        inspection = InspectionModel.find_by_id(inspection_id)
+
+        if not inspection:
+            return False
+
+        # Check if the user is the lead officer or part of other officers
+        return inspection.lead_officer.auth_user_guid == auth_user_guid or any(
+            officer.officer.auth_user_guid == auth_user_guid
+            for officer in inspection.other_officers
+        )
 
 
 # pylint: disable=too-many-arguments

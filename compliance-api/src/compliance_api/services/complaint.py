@@ -61,6 +61,15 @@ class ComplaintService:
                 )
         return created_complaint
 
+    @classmethod
+    def is_assigned_user(cls, complaint_id, auth_user_guid):
+        """Check if the given user is an assigned user of the given complaint."""
+        complaint = ComplaintModel.find_by_id(complaint_id)
+
+        if not complaint:
+            return False
+        return complaint.lead_officer.auth_user_guid == auth_user_guid
+
 
 def _has_project(complaint_data):
     """Check if there is a valid project or not."""
@@ -115,7 +124,7 @@ def _create_source_type_contact_object(complaint_data: dict, complaint_id):
         "email": contact_info.get("email", None),
         "phone": contact_info.get("phone", None),
         "comment": contact_info.get("comment", None),
-        "description": contact_info.get("description", None)
+        "description": contact_info.get("description", None),
     }
 
 

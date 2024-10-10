@@ -22,6 +22,7 @@ from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, KeyValueSchema
 from compliance_api.services import CaseFileService
+from compliance_api.utils.enum import ContextEnum
 from compliance_api.utils.util import cors_preflight
 
 from .apihelper import Api as ApiHelper
@@ -109,7 +110,7 @@ class CaseFile(Resource):
     """Resource for managing a single CaseFile."""
 
     @staticmethod
-    @auth.require
+    @auth.is_allowed(ContextEnum.CASE_FILE, "/COMPLIANCE/SUPERUSER")
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch a CaseFile by id")
     @API.response(code=200, model=case_file_list_model, description="Success")
     @API.response(404, "Not Found")

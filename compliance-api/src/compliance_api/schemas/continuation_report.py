@@ -3,7 +3,8 @@
 from marshmallow import EXCLUDE, fields
 from marshmallow_enum import EnumField
 
-from compliance_api.models.continuation_report import ContextTypeEnum, ContinuationReport, ContinuationReportKey
+from compliance_api.models.continuation_report import ContinuationReport, ContinuationReportKey
+from compliance_api.utils.enum import ContextEnum
 
 from .base_schema import AutoSchemaBase, BaseSchema
 
@@ -19,7 +20,7 @@ class ContinuationReportKeyCreateSchema(
         },
     )
     key_context = EnumField(
-        ContextTypeEnum,
+        ContextEnum,
         metadata={
             "description": "The context in which the entry is being made. Eg: When an Inspection is created."
         },
@@ -57,7 +58,7 @@ class ContinuationReportCreateSchema(BaseSchema):  # pylint: disable=too-many-an
         required=True,
     )
     context_type = EnumField(
-        ContextTypeEnum,
+        ContextEnum,
         metadata={
             "description": "The context in which the entry is being made. Eg: When an Inspection is created."
         },

@@ -19,6 +19,8 @@ from flask import g, request
 from flask_jwt_oidc import JwtManager
 
 from compliance_api.exceptions import PermissionDeniedError
+from compliance_api.services import CaseFileService, ComplaintService, InspectionService
+from compliance_api.utils.enum import ContextEnum
 
 
 jwt = (
@@ -44,6 +46,43 @@ class Auth:  # pylint: disable=too-few-public-methods
         return decorated
 
     @classmethod
+    def is_allowed(cls, context: ContextEnum, roles):
+        """Check to see if user is allowed to access the function."""
+
+        def decorated(f):
+            @Auth.require
+            @wraps(f)
+            def wrapper(*args, **kwargs):
+                auth_user_guid = g.token_info["preferred_username"]
+
+                # Create a context-to-service mapping
+                context_service_map = {
+                    ContextEnum.INSPECTION: ("inspection_id", InspectionService),
+                    ContextEnum.COMPLAINT: ("complaint_id", ComplaintService),
+                    ContextEnum.CASE_FILE: ("case_file_id", CaseFileService),
+                }
+
+                # Retrieve the corresponding ID and service for the given context
+                id_field, service = context_service_map.get(context, (None, None))
+
+                if id_field and service:
+                    is_allowed = service.is_assigned_user(
+                        kwargs[id_field], auth_user_guid
+                    )
+                    if not is_allowed and not jwt.contains_role(roles):
+                        raise PermissionDeniedError(
+                            "Access Denied", HTTPStatus.FORBIDDEN
+                        )
+                else:
+                    raise PermissionDeniedError("Invalid Context", HTTPStatus.FORBIDDEN)
+
+                return f(*args, **kwargs)
+
+            return wrapper
+
+        return decorated
+
+    @classmethod
     def has_one_of_roles(cls, roles):
         """Check that at least one of the realm roles are in the token.
 
@@ -58,7 +97,7 @@ class Auth:  # pylint: disable=too-few-public-methods
                 if jwt.contains_role(roles):
                     return f(*args, **kwargs)
 
-                raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
+                raise PermissionDeniedError("Access Denied", HTTPStatus.FORBIDDEN)
 
             return wrapper
 

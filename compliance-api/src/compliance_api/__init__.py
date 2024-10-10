@@ -79,6 +79,7 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
             if not is_compliance_in_groups:
                 raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
             g.access_token = auth_header.split(" ")[1]
+            g.token_info = token_info
         else:
             g.access_token = None
 
@@ -116,7 +117,7 @@ def setup_jwt_manager(app_context, jwt_manager):
     def custom_role_callback(claims):
         """Return the roles from claims."""
         # Extract roles from the realm_access claim in the JWT token
-        return claims.get('groups', [])
+        return claims.get("groups", [])
 
     app_context.config["JWT_ROLE_CALLBACK"] = custom_role_callback
     jwt_manager.init_app(app_context)
