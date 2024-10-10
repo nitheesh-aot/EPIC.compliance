@@ -137,7 +137,7 @@ class CaseFile(Resource):
 
 
 @cors_preflight("GET, OPTIONS")
-@API.route("/case-file-numbers/<int:case_file_number>", methods=["GET", "OPTIONS"])
+@API.route("/case-file-numbers/<string:case_file_number>", methods=["GET", "OPTIONS"])
 @API.doc(params={"case_file_number": "The unique file number for the case file"})
 class CaseFileNumber(Resource):
     """Resource for managing a single CaseFile."""
