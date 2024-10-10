@@ -51,7 +51,7 @@ class Inspection(BaseModelVersioned):
     project_description = Column(
         String,
         nullable=True,
-        comment="The description of the project associated with the inspection"
+        comment="The description of the project associated with the inspection",
     )
     location_description = Column(
         String, nullable=True, comment="The location details of the inspection"
@@ -118,9 +118,7 @@ class Inspection(BaseModelVersioned):
     unapproved_project_info = relationship(
         "InspectionUnapprovedProject", back_populates="inspection", lazy="select"
     )
-    types = relationship(
-        "InspectionType", back_populates="inspection", lazy="select"
-    )
+    types = relationship("InspectionType", back_populates="inspection", lazy="select")
     ir_status = relationship(
         "IRStatusOption", foreign_keys=[ir_status_id], lazy="joined"
     )
@@ -159,3 +157,8 @@ class Inspection(BaseModelVersioned):
         else:
             inspection.save()
         return inspection
+
+    @classmethod
+    def get_by_ir_number(cls, ir_number):
+        """Retrieve inspection by ir number."""
+        return cls.query.filter_by(ir_number=ir_number, is_deleted=False).first()
