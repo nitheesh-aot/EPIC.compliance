@@ -12,11 +12,13 @@ import {
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
 import { notify } from "@/store/snackbarStore";
+import dateUtils from "@/utils/dateUtils";
 
 type LinkCaseFileModalProps = {
   onSubmit: (caseFileId: number) => void;
-  caseFileData: CaseFileAPIData;
+  projectId?: number;
   initiationId: string;
+  leadOfficerId?: number;
 };
 
 const linkCaseFileSchema = yup.object().shape({
@@ -34,12 +36,11 @@ const initFormData = {
 
 const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
   onSubmit,
-  caseFileData,
+  projectId,
   initiationId,
+  leadOfficerId,
 }) => {
-  const { data: caseFilesList } = useCaseFilesByProjectId(
-    caseFileData.project_id!
-  );
+  const { data: caseFilesList } = useCaseFilesByProjectId(projectId!);
 
   const methods = useForm<LinkCaseFileFormType>({
     resolver: yupResolver(linkCaseFileSchema),
@@ -74,7 +75,12 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
   };
 
   const createNewCaseFile = () => {
-    caseFileData.initiation_id = initiationId;
+    const caseFileData: CaseFileAPIData = {
+      project_id: projectId,
+      initiation_id: initiationId,
+      date_created: dateUtils.dateToISO(new Date()),
+      lead_officer_id: leadOfficerId,
+    };
     createCaseFile(caseFileData);
   };
 
