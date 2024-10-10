@@ -29,6 +29,6 @@ export interface CaseFileAPIData {
   date_created: string;
   lead_officer_id?: number;
   officer_ids?: number[];
-  initiation_id: string;
-  case_file_number: string;
+  initiation_id?: string;
+  case_file_number?: string;
 }
