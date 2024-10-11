@@ -28,6 +28,13 @@ class InspectionOtherAttendance(BaseModelVersioned):
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
 
     @classmethod
+    def get_by_inspection(cls, inspection_id):
+        """Return attendance information by inspection."""
+        return cls.query.filter_by(
+            inspection_id=inspection_id, is_deleted=False
+        ).first()
+
+    @classmethod
     def create_attendance(cls, other_attendance_data, session=None):
         """Persist other attendance data in database."""
         attendance = InspectionOtherAttendance(**other_attendance_data)
@@ -39,9 +46,7 @@ class InspectionOtherAttendance(BaseModelVersioned):
         return attendance
 
     @classmethod
-    def update_attendance(
-        cls, inspection_id, other_attendance_data, session=None
-    ):
+    def update_attendance(cls, inspection_id, other_attendance_data, session=None):
         """Update the other attendance data in database."""
         query = cls.query.filter_by(inspection_id=inspection_id)
         attendance: InspectionOtherAttendance = query.first()

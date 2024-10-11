@@ -25,7 +25,7 @@ class InspectionService:
     """Inspection Service Class."""
 
     @classmethod
-    def get_attendance_options(cls):
+    def get_all_attendance_options(cls):
         """Get inspection attendance options."""
         return InspectionAttendanceOptionModel.get_all(sort_by="sort_order")
 
@@ -58,6 +58,53 @@ class InspectionService:
     def get_other_officers(cls, inspection_id):
         """Return other officers associated with a given inspection."""
         return InspectionOfficerModel.get_all_by_inspection(inspection_id)
+
+    @classmethod
+    def get_attendance_options(cls, inspection_id):
+        """Return attendances by inspection."""
+        attendance_options = InspectionAttendanceModel.get_all_by_inspection(
+            inspection_id
+        )
+        if attendance_options:
+            other_attendances = InspectionOtherAttendanceModel.get_by_inspection(
+                inspection_id
+            )
+            for option in attendance_options:
+                setattr(option, "data", [])
+                data = ""
+                if (
+                    option.attendance_option_id
+                    == InspectionAttendanceOptionEnum.AGENCIES.value
+                ):
+                    agencies = InspectionAgencyModel.get_all_by_inspection(
+                        inspection_id
+                    )
+                    data = [
+                        {"id": agency.agency_id, "name": agency.agency.name}
+                        for agency in agencies
+                    ]
+                if (
+                    option.attendance_option_id
+                    == InspectionAttendanceOptionEnum.FIRSTNATIONS.value
+                ):
+                    first_nations = InspectionFirstnationModel.get_all_by_inspection(
+                        inspection_id
+                    )
+                    data = _set_first_nation_names(first_nations)
+                if (
+                    option.attendance_option_id
+                    == InspectionAttendanceOptionEnum.MUNICIPAL.value
+                ):
+                    if other_attendances:
+                        data = other_attendances.municipal
+                if (
+                    option.attendance_option_id
+                    == InspectionAttendanceOptionEnum.OTHER.value
+                ):
+                    if other_attendances:
+                        data = other_attendances.other
+                setattr(option, "data", data)
+        return attendance_options
 
     @classmethod
     def create(cls, inspection_data: dict):
@@ -118,8 +165,19 @@ class InspectionService:
                 other_attendance_obj = _create_inspection_other_attendance_object(
                     inspection_data, created_inspection.id
                 )
-                InspectionOtherAttendanceModel.create_attendance(other_attendance_obj, session)
+                InspectionOtherAttendanceModel.create_attendance(
+                    other_attendance_obj, session
+                )
         return created_inspection
+
+
+def _set_first_nation_names(first_nation_list: list):
+    """Set the name of the first nations from epic.track."""
+    result = []
+    for first_nation in first_nation_list:
+        response = TrackService.get_first_nation_by_id(first_nation.id)
+        result.append({"id": response.get("id"), "name": response.get("name")})
+    return result
 
 
 # pylint: disable=too-many-arguments
