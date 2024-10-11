@@ -33,6 +33,7 @@ class ContextEnum(Enum):
     CASE_FILE = "Casefile"
     ORDER = "Order"
 
+
 class PermissionEnum(Enum):
     """Enum for Staff User Permissions."""
 
