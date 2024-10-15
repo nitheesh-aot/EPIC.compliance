@@ -82,6 +82,7 @@ export function CaseFiles() {
               params={{
                 caseFileNumber: row.original.case_file_number,
               }}
+              underline="hover"
             >
               {row.original.case_file_number}
             </Link>
