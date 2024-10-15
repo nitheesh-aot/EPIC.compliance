@@ -2,7 +2,7 @@ import React from 'react';
 import { Breadcrumbs, Link, Typography } from '@mui/material';
 import { Link as RouterLink } from '@tanstack/react-router';
 
-interface BreadcrumbItem {
+export interface BreadcrumbItem {
   label: string;
   to?: string;
 }
