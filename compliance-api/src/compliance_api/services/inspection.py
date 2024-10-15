@@ -55,6 +55,11 @@ class InspectionService:
         return InspectionModel.find_by_id(inspection_id)
 
     @classmethod
+    def get_by_ir_number(cls, ir_number):
+        """Return inspection by ir number."""
+        return InspectionModel.get_by_ir_number(ir_number)
+
+    @classmethod
     def get_other_officers(cls, inspection_id):
         """Return other officers associated with a given inspection."""
         return InspectionOfficerModel.get_all_by_inspection(inspection_id)
