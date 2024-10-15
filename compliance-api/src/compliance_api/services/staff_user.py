@@ -3,9 +3,9 @@
 from compliance_api.exceptions import ResourceExistsError, ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import db
 from compliance_api.models.db import session_scope
-from compliance_api.models.staff_user import PERMISSION_MAP, PermissionEnum
 from compliance_api.models.staff_user import StaffUser as StaffUserModel
 from compliance_api.utils.constant import AUTH_APP
+from compliance_api.utils.enum import PermissionEnum
 
 from .authorize_service.auth_service import AuthService
 
@@ -98,9 +98,7 @@ class StaffUserService:
     @classmethod
     def get_permission_levels(cls):
         """List all the permission levels."""
-        return [
-            {"id": perm.name, "name": PERMISSION_MAP[perm]} for perm in PermissionEnum
-        ]
+        return [{"id": perm.name, "name": perm.value} for perm in PermissionEnum]
 
 
 def _create_staff_user_object(user_data: dict, auth_user: dict):

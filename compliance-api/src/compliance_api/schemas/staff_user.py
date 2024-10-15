@@ -15,7 +15,8 @@
 from marshmallow import EXCLUDE, fields, post_dump, post_load
 from marshmallow_enum import EnumField
 
-from compliance_api.models.staff_user import PermissionEnum, StaffUser
+from compliance_api.models.staff_user import StaffUser
+from compliance_api.utils.enum import PermissionEnum
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .common import KeyValueSchema

@@ -23,3 +23,20 @@ class HttpMethod(Enum):
     POST = "POST"
     PATCH = "PATCH"
     DELETE = "DELETE"
+
+
+class ContextEnum(Enum):
+    """Various context in the app."""
+
+    INSPECTION = "Inspection"
+    COMPLAINT = "Complaint"
+    CASE_FILE = "Casefile"
+    ORDER = "Order"
+
+
+class PermissionEnum(Enum):
+    """Enum for Staff User Permissions."""
+
+    VIEWER = "Viewer"
+    USER = "User"
+    SUPERUSER = "Superuser"

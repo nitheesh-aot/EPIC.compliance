@@ -5,28 +5,12 @@ Manages the staff user
 
 from __future__ import annotations
 
-import enum
 from typing import Optional
 
 from sqlalchemy import Boolean, Column, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModelVersioned
-
-
-class PermissionEnum(enum.Enum):
-    """Enum for Staff User Permissions."""
-
-    VIEWER = "VIEWER"
-    USER = "USER"
-    SUPERUSER = "SUPERUSER"
-
-
-PERMISSION_MAP = {
-    PermissionEnum.SUPERUSER: "Superuser",
-    PermissionEnum.VIEWER: "Viewer",
-    PermissionEnum.USER: "User",
-}
 
 
 class StaffUser(BaseModelVersioned):
