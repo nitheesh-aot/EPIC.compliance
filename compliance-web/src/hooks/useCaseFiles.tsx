@@ -7,6 +7,10 @@ const fetchCaseFiles = (projectId?: number): Promise<CaseFile[]> => {
   return request({ url: "/case-files", params: { project_id: projectId } });
 };
 
+const fetchCaseFile = (caseFileNumber: string): Promise<CaseFile> => {
+  return request({ url: `/case-files/case-file-numbers/${caseFileNumber}`});
+};
+
 const fetchInitiations = (): Promise<Initiation[]> => {
   return request({ url: "/case-files/initiation-options" });
 };
@@ -19,6 +23,14 @@ export const useCaseFilesData = () => {
   return useQuery({
     queryKey: ["case-files"],
     queryFn: () => fetchCaseFiles(),
+  });
+};
+
+export const useCaseFileByNumber = (caseFileNumber: string) => {
+  return useQuery({
+    queryKey: ["case-file", caseFileNumber],
+    queryFn: () => fetchCaseFile(caseFileNumber),
+    enabled: !!caseFileNumber
   });
 };
 

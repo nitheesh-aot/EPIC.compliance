@@ -7,15 +7,17 @@ import { CaseFile } from "@/models/CaseFile";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import dateUtils from "@/utils/dateUtils";
-import { Chip } from "@mui/material";
+import { Chip, Link } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link as RouterLink } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
 import { useEffect, useMemo, useState } from "react";
 
-export const Route = createFileRoute("/_authenticated/ce-database/case-files")({
-  component: CaseFiles,
-});
+export const Route = createFileRoute("/_authenticated/ce-database/case-files/")(
+  {
+    component: CaseFiles,
+  }
+);
 
 export function CaseFiles() {
   const queryClient = useQueryClient();
@@ -72,6 +74,19 @@ export function CaseFiles() {
         header: "Case File #",
         sortingFn: "sortFn",
         filterFn: searchFilter,
+        Cell: ({ row }) => {
+          return (
+            <Link
+              component={RouterLink}
+              to="/ce-database/case-files/$caseFileNumber"
+              params={{
+                caseFileNumber: row.original.case_file_number,
+              }}
+            >
+              {row.original.case_file_number}
+            </Link>
+          );
+        },
       },
       {
         accessorKey: "project.name",
