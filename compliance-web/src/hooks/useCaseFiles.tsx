@@ -1,5 +1,6 @@
 import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
+import { StaffUser } from "@/models/Staff";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -9,6 +10,10 @@ const fetchCaseFiles = (projectId?: number): Promise<CaseFile[]> => {
 
 const fetchCaseFile = (caseFileNumber: string): Promise<CaseFile> => {
   return request({ url: `/case-files/case-file-numbers/${caseFileNumber}`});
+};
+
+const fetchOfficers = (caseFileId: number): Promise<StaffUser[]> => {
+  return request({ url: `/case-files/${caseFileId}/officers`});
 };
 
 const fetchInitiations = (): Promise<Initiation[]> => {
@@ -31,6 +36,14 @@ export const useCaseFileByNumber = (caseFileNumber: string) => {
     queryKey: ["case-file", caseFileNumber],
     queryFn: () => fetchCaseFile(caseFileNumber),
     enabled: !!caseFileNumber
+  });
+};
+
+export const useOfficersByCaseFileId = (caseFileId: number) => {
+  return useQuery({
+    queryKey: ["officers", caseFileId],
+    queryFn: () => fetchOfficers(caseFileId),
+    enabled: !!caseFileId
   });
 };
 
