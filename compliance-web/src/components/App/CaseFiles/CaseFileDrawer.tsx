@@ -61,7 +61,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   onSubmit,
   caseFile,
 }) => {
-  const { data: projectList } = useProjectsData();
+  const { data: projectList } = useProjectsData({ includeUnapproved: !!caseFile });
   const { data: initiationList } = useInitiationsData();
   const { data: staffUserList } = useStaffUsersData();
   const { appHeaderHeight } = useMenuStore();

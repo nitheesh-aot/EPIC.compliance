@@ -2,6 +2,7 @@ import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
 import { StaffUser } from "@/models/Staff";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
+import { UNAPPROVED_PROJECT_ABBREVIATION, UNAPPROVED_PROJECT_ID } from "@/utils/constants";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 const fetchCaseFiles = (projectId?: number): Promise<CaseFile[]> => {
@@ -47,6 +48,10 @@ export const useCaseFileByNumber = (caseFileNumber: string) => {
     queryFn: async () => {
       const caseFile = await fetchCaseFile(caseFileNumber);
       const officers = await fetchOfficers(caseFile?.id);
+      if (caseFile.project.abbreviation === UNAPPROVED_PROJECT_ABBREVIATION) {
+        caseFile.project.id = UNAPPROVED_PROJECT_ID;
+        delete caseFile.project.abbreviation;
+      }
       return { ...caseFile, officers };
     },
     enabled: !!caseFileNumber,
