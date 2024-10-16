@@ -126,6 +126,8 @@ def _create_case_file_object(case_file_data: dict):
         case_file_obj["case_file_number"] = _generate_case_file_number(
             datetime.now().year
         )
+    else:
+        case_file_obj["case_file_number"] = case_file_data.get("case_file_number")
     return case_file_obj
 
 
