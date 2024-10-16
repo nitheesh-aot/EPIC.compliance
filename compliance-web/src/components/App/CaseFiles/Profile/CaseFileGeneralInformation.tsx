@@ -3,7 +3,6 @@ import { EditRounded } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import FileProfileProperty from "@/components/App/FileProfileProperty";
 import { CaseFile } from "@/models/CaseFile";
-import { useOfficersByCaseFileId } from "@/hooks/useCaseFiles";
 
 interface CaseFileGeneralInformationProps {
   caseFileData: CaseFile;
@@ -14,8 +13,6 @@ const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
   caseFileData, 
   onEdit,
 }) => {
-
-  const { data: officersData } = useOfficersByCaseFileId(caseFileData.id);
 
   return (
     <Box display={"flex"} flexGrow={1} flexDirection={"column"}>
@@ -53,7 +50,7 @@ const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
           />
           <FileProfileProperty
             propertyName="Other Officers"
-            propertyValue={officersData?.map((officer) => officer.full_name).join(", ")}
+            propertyValue={caseFileData.officers?.map((officer) => officer.full_name).join(", ")}
           />
         </Box>
       </Box>

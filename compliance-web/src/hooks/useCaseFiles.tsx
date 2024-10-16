@@ -44,7 +44,11 @@ export const useCaseFilesData = () => {
 export const useCaseFileByNumber = (caseFileNumber: string) => {
   return useQuery({
     queryKey: ["case-file", caseFileNumber],
-    queryFn: () => fetchCaseFile(caseFileNumber),
+    queryFn: async () => {
+      const caseFile = await fetchCaseFile(caseFileNumber);
+      const officers = await fetchOfficers(caseFile?.id);
+      return { ...caseFile, officers };
+    },
     enabled: !!caseFileNumber,
   });
 };
