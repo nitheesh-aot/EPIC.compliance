@@ -2,10 +2,15 @@ import React, { useMemo } from "react";
 import { useDrawer } from "@/store/drawerStore";
 import { Box, Button } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
+import { useFormContext } from "react-hook-form";
 
 const DrawerActionBarBottom: React.FC<{ isShowActionBar: boolean }> =
   React.memo(({ isShowActionBar }) => {
     const { setClose } = useDrawer();
+
+    const {
+      formState: { isValid, isDirty },
+    } = useFormContext();
 
     const boxStyles = useMemo(
       () => ({
@@ -21,10 +26,12 @@ const DrawerActionBarBottom: React.FC<{ isShowActionBar: boolean }> =
     return (
       isShowActionBar && (
         <Box sx={boxStyles}>
-          <Button onClick={setClose} color="secondary">
+          <Button onClick={setClose} color="secondary" disabled={!isDirty}>
             Cancel
           </Button>
-          <Button type="submit">Save</Button>
+          <Button type="submit" disabled={!isValid || !isDirty}>
+            Save
+          </Button>
         </Box>
       )
     );

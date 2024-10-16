@@ -1,9 +1,14 @@
 import React from "react";
 import { Box, Button } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
+import { useFormContext } from "react-hook-form";
 
 const DrawerActionBarTop: React.FC<{ isShowActionBar: boolean }> = React.memo(
   ({ isShowActionBar }) => {
+    const {
+      formState: { isValid },
+    } = useFormContext();
+
     return isShowActionBar ? (
       <Box
         sx={{
@@ -12,7 +17,9 @@ const DrawerActionBarTop: React.FC<{ isShowActionBar: boolean }> = React.memo(
           textAlign: "right",
         }}
       >
-        <Button type="submit">Create</Button>
+        <Button type="submit" disabled={!isValid}>
+          Create
+        </Button>
       </Box>
     ) : null;
   }
