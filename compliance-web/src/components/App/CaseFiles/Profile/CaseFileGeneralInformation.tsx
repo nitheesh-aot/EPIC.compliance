@@ -7,10 +7,12 @@ import { useOfficersByCaseFileId } from "@/hooks/useCaseFiles";
 
 interface CaseFileGeneralInformationProps {
   caseFileData: CaseFile;
+  onEdit: () => void;
 }
 
 const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
-  caseFileData,
+  caseFileData, 
+  onEdit,
 }) => {
 
   const { data: officersData } = useOfficersByCaseFileId(caseFileData.id);
@@ -23,7 +25,7 @@ const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
           variant="text"
           color="primary"
           size="small"
-          onClick={() => {}}
+          onClick={onEdit}
           startIcon={<EditRounded />}
         >
           Edit

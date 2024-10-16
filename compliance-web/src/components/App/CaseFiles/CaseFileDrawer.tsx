@@ -1,4 +1,4 @@
-import { useCreateCaseFile, useInitiationsData } from "@/hooks/useCaseFiles";
+import { useCreateCaseFile, useInitiationsData, useUpdateCaseFile } from "@/hooks/useCaseFiles";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
 import { CaseFile, CaseFileAPIData, CaseFileFormData } from "@/models/CaseFile";
@@ -14,6 +14,7 @@ import CaseFileForm from "./CaseFileForm";
 import dateUtils from "@/utils/dateUtils";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
 import { useCallback, useEffect, useMemo } from "react";
+import dayjs, { Dayjs } from "dayjs";
 
 type CaseFileDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -22,7 +23,10 @@ type CaseFileDrawerProps = {
 
 const caseFileFormSchema = yup.object().shape({
   project: yup.object<Project>().nullable().required("Project is required"),
-  dateCreated: yup.date().nullable().required("Date Created is required"),
+  dateCreated: yup
+    .mixed<Dayjs>()
+    .nullable()
+    .required("Date Created is required"),
   leadOfficer: yup.object<StaffUser>().nullable(),
   officers: yup.array().of(yup.object<StaffUser>()).nullable(),
   initiation: yup
@@ -56,7 +60,14 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
 
   const defaultValues = useMemo<CaseFileFormData>(() => {
     if (caseFile) {
-      // TDOD: Map existing data
+      return {
+        project: caseFile.project,
+        dateCreated: dayjs(caseFile.date_created),
+        leadOfficer: caseFile.lead_officer,
+        officers: caseFile.officers,
+        initiation: caseFile.initiation,
+        caseFileNumber: caseFile.case_file_number,
+      };
     }
     return initFormData;
   }, [caseFile]);
@@ -79,6 +90,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   }, [caseFile, onSubmit, reset]);
 
   const { mutate: createCaseFile } = useCreateCaseFile(onSuccess);
+  const { mutate: updateCaseFile } = useUpdateCaseFile(onSuccess);
 
   const onSubmitHandler = useCallback(
     (data: CaseFileSchemaType) => {
@@ -92,7 +104,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
           (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
       };
       if (caseFile) {
-        // TODO: Add update logic here
+        updateCaseFile({ id: caseFile.id, caseFile: caseFileData });
       } else {
         createCaseFile(caseFileData);
       }
@@ -111,14 +123,13 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
             textAlign: "right",
           }}
         >
-          <Button type="submit">
-            Create
-          </Button>
+          <Button type="submit">Create</Button>
         </Box>
         <CaseFileForm
           projectList={projectList ?? []}
           initiationList={initiationList ?? []}
           staffUsersList={staffUserList ?? []}
+          isEditMode={!!caseFile}
         ></CaseFileForm>
         <Box marginTop={"0.5rem"} paddingX={"2rem"}>
           <Typography

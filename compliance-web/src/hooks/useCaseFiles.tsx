@@ -9,11 +9,11 @@ const fetchCaseFiles = (projectId?: number): Promise<CaseFile[]> => {
 };
 
 const fetchCaseFile = (caseFileNumber: string): Promise<CaseFile> => {
-  return request({ url: `/case-files/case-file-numbers/${caseFileNumber}`});
+  return request({ url: `/case-files/case-file-numbers/${caseFileNumber}` });
 };
 
 const fetchOfficers = (caseFileId: number): Promise<StaffUser[]> => {
-  return request({ url: `/case-files/${caseFileId}/officers`});
+  return request({ url: `/case-files/${caseFileId}/officers` });
 };
 
 const fetchInitiations = (): Promise<Initiation[]> => {
@@ -22,6 +22,16 @@ const fetchInitiations = (): Promise<Initiation[]> => {
 
 const createCaseFile = (caseFile: CaseFileAPIData) => {
   return request({ url: "/case-files", method: "post", data: caseFile });
+};
+
+const updateCaseFile = ({
+  id,
+  caseFile,
+}: {
+  id: number;
+  caseFile: CaseFileAPIData;
+}) => {
+  return request({ url: `/case-files/${id}`, method: "patch", data: caseFile });
 };
 
 export const useCaseFilesData = () => {
@@ -35,7 +45,7 @@ export const useCaseFileByNumber = (caseFileNumber: string) => {
   return useQuery({
     queryKey: ["case-file", caseFileNumber],
     queryFn: () => fetchCaseFile(caseFileNumber),
-    enabled: !!caseFileNumber
+    enabled: !!caseFileNumber,
   });
 };
 
@@ -43,7 +53,7 @@ export const useOfficersByCaseFileId = (caseFileId: number) => {
   return useQuery({
     queryKey: ["officers", caseFileId],
     queryFn: () => fetchOfficers(caseFileId),
-    enabled: !!caseFileId
+    enabled: !!caseFileId,
   });
 };
 
@@ -64,4 +74,8 @@ export const useInitiationsData = () => {
 
 export const useCreateCaseFile = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: createCaseFile, onSuccess });
+};
+
+export const useUpdateCaseFile = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: updateCaseFile, onSuccess });
 };
