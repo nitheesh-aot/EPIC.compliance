@@ -31,7 +31,8 @@ class CaseFileService:
     @classmethod
     def get_other_officers(cls, case_file_id: int):
         """Return other officers associated with a given case file."""
-        return CaseFileOfficerModel.get_all_by_case_file_id(case_file_id)
+        officers = CaseFileOfficerModel.get_all_by_case_file_id(case_file_id)
+        return [case_file_officer.officer for case_file_officer in officers]
 
     @classmethod
     def create(cls, case_file_data: dict):

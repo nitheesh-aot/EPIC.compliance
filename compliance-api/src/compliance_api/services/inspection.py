@@ -62,7 +62,8 @@ class InspectionService:
     @classmethod
     def get_other_officers(cls, inspection_id):
         """Return other officers associated with a given inspection."""
-        return InspectionOfficerModel.get_all_by_inspection(inspection_id)
+        officers = InspectionOfficerModel.get_all_by_inspection(inspection_id)
+        return [officer.officer for officer in officers]
 
     @classmethod
     def get_attendance_options(cls, inspection_id):

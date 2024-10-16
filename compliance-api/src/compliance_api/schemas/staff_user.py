@@ -51,6 +51,9 @@ class StaffUserSchemaSkeleton(AutoSchemaBase):  # pylint: disable=too-many-ances
             data["deputy_director"] = None
         if data.get("supervisor_id") is None:
             data["supervisor"] = None
+        if data.get("permission", None):
+            print(f"PERMISSION {data.get('permission', None)}")
+            data["permission"] = getattr(PermissionEnum, data.get("permission")).value
         return data
 
 
@@ -86,9 +89,18 @@ class StaffUserUpdateSchema(BaseSchema):
     permission = EnumField(
         PermissionEnum,
         metadata={"description": "The permission level of the staff user."},
-        by_value=True,
         required=True,
     )
+
+    @post_load
+    def extract_permission_value(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Extract the value of the permission enum."""
+        permission_enum = data.get("permission")
+        if permission_enum:
+            data["permission"] = permission_enum.name
+        return data
 
 
 class StaffUserCreateSchema(BaseSchema):
@@ -120,7 +132,6 @@ class StaffUserCreateSchema(BaseSchema):
     permission = EnumField(
         PermissionEnum,
         metadata={"description": "The permission level of the staff user."},
-        by_value=True,
         required=True,
     )
 
@@ -131,5 +142,5 @@ class StaffUserCreateSchema(BaseSchema):
         """Extract the value of the permission enum."""
         permission_enum = data.get("permission")
         if permission_enum:
-            data["permission"] = permission_enum.value
+            data["permission"] = permission_enum.name
         return data
