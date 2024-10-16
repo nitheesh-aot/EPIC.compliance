@@ -19,7 +19,8 @@ from flask import current_app
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
-from compliance_api.schemas import InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema, KeyValueSchema
+from compliance_api.schemas import (
+    InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema, KeyValueSchema)
 from compliance_api.services import InspectionService
 from compliance_api.utils.util import cors_preflight
 
@@ -56,7 +57,7 @@ class AttendanceOptions(Resource):
     @auth.require
     def get():
         """Fetch all inspection attendance options."""
-        attendance_options = InspectionService.get_attendance_options()
+        attendance_options = InspectionService.get_all_attendance_options()
         attendance_options_schema = KeyValueSchema(many=True)
         return attendance_options_schema.dump(attendance_options), HTTPStatus.OK
 
@@ -124,7 +125,6 @@ class Inspections(Resource):
     @API.response(code=200, description="Success", model=[inspection_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all inspections")
     @auth.require
-    # @jwt.has_one_of_roles(["/COMPLIANCE/USER"])
     def get():
         """Fetch all inspections."""
         inspections = InspectionService.get_all()
@@ -147,6 +147,22 @@ class Inspections(Resource):
         return InspectionSchema().dump(created_inspection), HTTPStatus.CREATED
 
 
+@cors_preflight("GET, OPTIONS, POST")
+@API.route("/<int:inspection_id>/attendance-options", methods=["POST", "GET", "OPTIONS"])
+class InspectionAttendances(Resource):
+    """Resource for managing inspections."""
+
+    @staticmethod
+    @API.response(code=200, description="Success", model=[inspection_list_model])
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all inspections")
+    @auth.require
+    def get(inspection_id):
+        """Fetch all inspections."""
+        attendances = InspectionService.get_attendance_options(inspection_id)
+        inspection_attendance_schema = InspectionAttendanceSchema(many=True)
+        return inspection_attendance_schema.dump(attendances), HTTPStatus.OK
+
+
 @cors_preflight("GET, OPTIONS")
 @API.route("/<int:inspection_id>", methods=["GET", "OPTIONS"])
 class Inspection(Resource):
@@ -159,6 +175,22 @@ class Inspection(Resource):
     def get(inspection_id):
         """Fetch all inspections."""
         inspection = InspectionService.get_by_id(inspection_id)
+        inspection_list_schema = InspectionSchema()
+        return inspection_list_schema.dump(inspection), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/ir-numbers/<string:ir_number>", methods=["GET", "OPTIONS"])
+class InspectionByIRNumber(Resource):
+    """Inspection resource."""
+
+    @staticmethod
+    @API.response(code=200, description="Success", model=[inspection_list_model])
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch inspection by id")
+    @auth.require
+    def get(ir_number):
+        """Fetch all inspections."""
+        inspection = InspectionService.get_by_ir_number(ir_number)
         inspection_list_schema = InspectionSchema()
         return inspection_list_schema.dump(inspection), HTTPStatus.OK
 

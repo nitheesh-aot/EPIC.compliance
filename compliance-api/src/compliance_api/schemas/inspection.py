@@ -15,13 +15,33 @@
 from marshmallow import EXCLUDE, ValidationError, fields, post_dump, validates_schema
 
 from compliance_api.models.inspection import (
-    Inspection, InspectionAttendanceOptionEnum, InspectionOfficer, InspectionStatusEnum)
+    Inspection, InspectionAttendance, InspectionAttendanceOptionEnum, InspectionOfficer, InspectionStatusEnum)
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .case_file import CaseFileSchema
 from .common import KeyValueSchema
 from .staff_user import StaffUserSchema
+
+
+class InspectionAttendanceSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
+    """InspectionAttendanceSchema."""
+
+    class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
+        """Meta."""
+
+        unknown = EXCLUDE
+        model = InspectionAttendance
+        include_fk = True
+    data = fields.Raw()
+    attendance_option = fields.Nested(KeyValueSchema)
+
+    @post_dump
+    def preprocess_data(self, data, **kwargs):  # pylint: disable=unused-argument, no-self-use
+        """Pre-process the 'data' field to handle single text value or list of key-value pairs."""
+        if isinstance(data.get("data", None), str):
+            data["data"] = data.get("data")
+        return data
 
 
 class InspectionOfficerSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors

@@ -12,21 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Continuation Report Model."""
-import enum
-
 from sqlalchemy import Boolean, Column, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
+from compliance_api.utils.enum import ContextEnum
+
 from .base_model import BaseModelVersioned
-
-
-class ContextTypeEnum(enum.Enum):
-    """Continuation Report Context Type Enum."""
-
-    INSPECTION = "Inspection"
-    COMPLAINT = "Complaint"
-    CASE_FILE = "Casefile"
-    ORDER = "Order"
 
 
 class ContinuationReport(BaseModelVersioned):
@@ -49,7 +40,7 @@ class ContinuationReport(BaseModelVersioned):
     text = Column(String, comment="The plane text version of the string")
     rich_text = Column(String, comment="The html formatted version of the text")
     context_type = Column(
-        Enum(ContextTypeEnum),
+        Enum(ContextEnum),
         nullable=False,
         comment="Indicates the context in which the entry is made",
     )
@@ -118,7 +109,7 @@ class ContinuationReportKey(BaseModelVersioned):
         comment="The key which is used to provide hyperlink to other entities",
     )
     key_context = Column(
-        Enum(ContextTypeEnum),
+        Enum(ContextEnum),
         nullable=False,
         comment="The context of the key which is used to create hyperlinks using the key",
     )

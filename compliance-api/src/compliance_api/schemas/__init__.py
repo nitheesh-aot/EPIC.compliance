@@ -19,7 +19,7 @@ from .complaint import ComplaintCreateSchema, ComplaintSchema, ComplaintSourceCo
 from .continuation_report import (
     ContinuationReportCreateSchema, ContinuationReportKeyCreateSchema, ContinuationReportKeySchema,
     ContinuationReportSchema)
-from .inspection import InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema
+from .inspection import InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema
 from .project import ProjectSchema
 from .staff_user import StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateSchema
 from .topic import TopicCreateSchema, TopicSchema

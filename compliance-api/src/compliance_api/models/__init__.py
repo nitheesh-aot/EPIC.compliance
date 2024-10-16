@@ -29,5 +29,5 @@ from .position import Position
 from .project import Project
 from .project_status import ProjectStatusOption
 from .requirement_source import RequirementSource
-from .staff_user import PERMISSION_MAP, PermissionEnum, StaffUser
+from .staff_user import StaffUser
 from .topic import Topic
