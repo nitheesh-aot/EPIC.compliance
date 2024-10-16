@@ -20,7 +20,8 @@ from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
 from compliance_api.schemas import (
-    InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema, KeyValueSchema)
+    InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema, KeyValueSchema,
+    StaffUserSchema)
 from compliance_api.services import InspectionService
 from compliance_api.utils.util import cors_preflight
 
@@ -41,6 +42,9 @@ inspection_list_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 inspection_officer_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, InspectionOfficerSchema(), "InspectionOfficer"
+)
+staff_list_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, StaffUserSchema(), "StaffList"
 )
 
 
@@ -148,7 +152,9 @@ class Inspections(Resource):
 
 
 @cors_preflight("GET, OPTIONS, POST")
-@API.route("/<int:inspection_id>/attendance-options", methods=["POST", "GET", "OPTIONS"])
+@API.route(
+    "/<int:inspection_id>/attendance-options", methods=["POST", "GET", "OPTIONS"]
+)
 class InspectionAttendances(Resource):
     """Resource for managing inspections."""
 
@@ -202,10 +208,12 @@ class InspectionOfficers(Resource):
 
     @staticmethod
     @API.response(code=200, description="Success", model=[inspection_list_model])
-    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch officers of inspection by id")
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Fetch officers of inspection by id"
+    )
     @auth.require
     def get(inspection_id):
         """Fetch all inspections."""
         officers = InspectionService.get_other_officers(inspection_id)
-        inspection_officer_schema = InspectionOfficerSchema(many=True)
-        return inspection_officer_schema.dump(officers), HTTPStatus.OK
+        staff_list_schema = StaffUserSchema(many=True)
+        return staff_list_schema.dump(officers), HTTPStatus.OK
