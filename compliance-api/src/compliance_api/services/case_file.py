@@ -49,10 +49,9 @@ class CaseFileService:
     @classmethod
     def update(cls, case_file_id: int, case_file_data: dict):
         """Update case file."""
-        case_file_obj = _create_case_file_object(case_file_data)
-        _validate_existence_by_file_number(
-            case_file_obj.get("case_file_number", None), case_file_id
-        )
+        case_file_obj = {
+            "lead_officer_id": case_file_data.get("lead_officer_id", None)
+        }
         with session_scope() as session:
             updated_case_file = CaseFileModel.update_case_file(
                 case_file_id, case_file_obj, session

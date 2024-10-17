@@ -116,3 +116,24 @@ class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
             }
         )
     )
+
+
+class CaseFileUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
+    """CaseFile create Schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    lead_officer_id = fields.Int(
+        metadata={"description": "The lead officer who created the case file."},
+        allow_none=True,
+    )
+    officer_ids = fields.List(
+        fields.Int(
+            metadata={
+                "description": "The list of unique identifiers of the other officers associated with the case file"
+            }
+        )
+    )
