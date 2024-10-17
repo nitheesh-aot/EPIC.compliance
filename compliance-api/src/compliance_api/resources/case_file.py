@@ -20,7 +20,8 @@ from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
-from compliance_api.schemas import CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, KeyValueSchema
+from compliance_api.schemas import (
+    CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, KeyValueSchema, StaffUserSchema)
 from compliance_api.services import CaseFileService
 from compliance_api.utils.util import cors_preflight
 
@@ -40,6 +41,9 @@ case_file_list_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 case_file_officer_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, CaseFileOfficerSchema(), "OtherOfficers"
+)
+staff_list_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, StaffUserSchema(), "StaffList"
 )
 
 
@@ -167,8 +171,8 @@ class CaseFileOtherOfficers(Resource):
     @ApiHelper.swagger_decorators(
         API, endpoint_description="Get other officers for a given case file"
     )
-    @API.response(code=200, model=case_file_officer_model, description="Success")
+    @API.response(code=200, model=staff_list_model, description="Success")
     def get(case_file_id):
         """Update a CaseFile by id."""
         officers = CaseFileService.get_other_officers(case_file_id)
-        return CaseFileOfficerSchema().dump(officers, many=True), HTTPStatus.OK
+        return StaffUserSchema().dump(officers, many=True), HTTPStatus.OK
