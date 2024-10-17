@@ -1,0 +1,64 @@
+replicaCount: 1
+cors_origin: https://compliance-web-c8b80a-test.apps.gold.devops.gov.bc.ca,http://localhost:5173
+
+image:
+  repository: compliance-api
+  pullPolicy: Always
+  namespace: c8b80a-tools
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "test"
+
+resources:
+  cpu:
+    limit: 250m
+    request: 150m
+  memory:
+    limit: 384Mi
+    request: 256Mi
+
+database:
+  secret: compliance-patroni
+  service:
+    name: compliance-patroni
+    port: 5432
+
+authorize:
+  base_url: https://auth-api-c72cba-test.apps.gold.devops.gov.bc.ca
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+auth:
+  jwt:
+    alg: RS256
+    aud: epic-compliance
+    cacheEnabled: true
+    issuer: https://test.loginproxy.gov.bc.ca/auth/realms/eao-epic
+    cacheTimeout: "300"
+    wellKnownConfig: https://test.loginproxy.gov.bc.ca/auth/realms/eao-epic/.well-known/openid-configuration
+  keycloak:
+    uri: https://test.loginproxy.gov.bc.ca
+    realm: eao-epic
+    adminClientId:
+    adminClientSecret:
+python:
+  pythonBuffered: 1
+  connectTimeout: 60
+cdogs:  
+  tokenEndpoint: https://test.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+  apiEndpoint: https://cdogs-test.api.gov.bc.ca/api/v2
+  clientId:
+  clientSecret:
+
+
+vault:
+  secretName: compliance-secret
+  path: c8b80a-nonprod/compliance.test.env
+  authPath: auth/k8s-gold
+  namespace: platform-services
+  role: c8b80a-nonprod
+
+serviceAccount:
+  name: c8b80a-vault

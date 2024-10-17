@@ -57,6 +57,20 @@ spec:
     metadata:
       labels:
         app: {{ .Chart.Name }}
+      annotations:
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-secret-{{ .Values.vault.secretName }}: {{ .Values.vault.path }}
+        vault.hashicorp.com/agent-inject-template-{{ .Values.vault.secretName }}: |
+          {{`{{`}} with secret "{{ .Values.vault.path }}" {{`}}`}}
+          {{`{{`}} range $k, $v := .Data.data {{`}}`}}
+          export {{`{{`}} $k {{`}}`}}="{{`{{`}} $v {{`}}`}}"
+          {{`{{`}} end {{`}}`}}
+          {{`{{`}} end {{`}}`}}
+        vault.hashicorp.com/agent-inject-token: "true"
+        vault.hashicorp.com/agent-pre-populate-only: "true"
+        vault.hashicorp.com/auth-path: {{ .Values.vault.authPath }}
+        vault.hashicorp.com/namespace: {{ .Values.vault.namespace }}
+        vault.hashicorp.com/role: {{ .Values.vault.role }}
     spec:
       containers:
         - resources:
@@ -199,3 +213,5 @@ spec:
       dnsPolicy: ClusterFirst
       securityContext: {}
       schedulerName: default-scheduler
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      serviceAccount: {{ .Values.serviceAccount.name }}
