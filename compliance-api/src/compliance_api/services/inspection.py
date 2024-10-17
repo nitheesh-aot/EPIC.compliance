@@ -52,7 +52,25 @@ class InspectionService:
     @classmethod
     def get_by_id(cls, inspection_id):
         """Return inspection by id."""
-        return InspectionModel.find_by_id(inspection_id)
+        inspection = InspectionModel.find_by_id(inspection_id)
+        if not inspection:
+            raise ResourceNotFoundError(
+                f"No inspection found for the given ID : {inspection_id}"
+            )
+        project_id = inspection.project_id
+        if project_id:
+            project = TrackService.get_project_by_id(project_id)
+            setattr(inspection, "authorization", project.get("ea_certificate", None))
+            setattr(inspection, "type", project.get("type").get("name"))
+            setattr(inspection, "sub_type", project.get("sub_type").get("name"))
+            setattr(inspection, "regulated_party", project.get("proponent").get("name"))
+        if not project_id:
+            project = InspectionUnapprovedProjectModel.get_by_inspection_id(inspection_id)
+            setattr(inspection, "authorization", project.authorization)
+            setattr(inspection, "type", project.type)
+            setattr(inspection, "sub_type", project.sub_type)
+            setattr(inspection, "regulated_party", project.regulated_party)
+        return inspection
 
     @classmethod
     def get_by_ir_number(cls, ir_number):

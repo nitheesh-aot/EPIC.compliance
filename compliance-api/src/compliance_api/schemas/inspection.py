@@ -33,11 +33,14 @@ class InspectionAttendanceSchema(AutoSchemaBase):  # pylint: disable=too-many-an
         unknown = EXCLUDE
         model = InspectionAttendance
         include_fk = True
+
     data = fields.Raw()
     attendance_option = fields.Nested(KeyValueSchema)
 
     @post_dump
-    def preprocess_data(self, data, **kwargs):  # pylint: disable=unused-argument, no-self-use
+    def preprocess_data(
+        self, data, **kwargs
+    ):  # pylint: disable=unused-argument, no-self-use
         """Pre-process the 'data' field to handle single text value or list of key-value pairs."""
         if isinstance(data.get("data", None), str):
             data["data"] = data.get("data")
@@ -308,6 +311,14 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     ir_status = fields.Nested(KeyValueSchema)
     initiation = fields.Nested(KeyValueSchema)
     types = fields.Method("get_inspection_type_names")
+    authorization = fields.Str(
+        metadata={"description": "The authorization information of the project"}
+    )
+    regulated_party = fields.Str(
+        metadata={"description": "The regulated party of the project"}
+    )
+    type = fields.Str(metadata={"description": "The type of the project"})
+    sub_type = fields.Str(metadata={"description": "The subtype of the project"})
 
     @post_dump
     def post_dump_actions(
