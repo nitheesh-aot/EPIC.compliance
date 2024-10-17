@@ -51,7 +51,7 @@ class InspectionService:
 
     @classmethod
     def get_by_case_file_id(cls, case_file_id):
-        """Get all inspections by case file id"""
+        """Get all inspections by case file id."""
         return InspectionModel.get_by_params({
             "case_file_id": case_file_id
         })
