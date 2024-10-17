@@ -22,6 +22,7 @@ import { Route as AuthenticatedAdminProponentsImport } from './routes/_authentic
 import { Route as AuthenticatedAdminAgenciesImport } from './routes/_authenticated/admin/agencies'
 import { Route as AuthenticatedCeDatabaseInspectionsIndexImport } from './routes/_authenticated/ce-database/inspections/index'
 import { Route as AuthenticatedCeDatabaseCaseFilesIndexImport } from './routes/_authenticated/ce-database/case-files/index'
+import { Route as AuthenticatedCeDatabaseInspectionsInspectionNumberImport } from './routes/_authenticated/ce-database/inspections/$inspectionNumber'
 import { Route as AuthenticatedCeDatabaseCaseFilesCaseFileNumberImport } from './routes/_authenticated/ce-database/case-files/$caseFileNumber'
 
 // Create/Update Routes
@@ -84,6 +85,12 @@ const AuthenticatedCeDatabaseInspectionsIndexRoute =
 const AuthenticatedCeDatabaseCaseFilesIndexRoute =
   AuthenticatedCeDatabaseCaseFilesIndexImport.update({
     path: '/ce-database/case-files/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+
+const AuthenticatedCeDatabaseInspectionsInspectionNumberRoute =
+  AuthenticatedCeDatabaseInspectionsInspectionNumberImport.update({
+    path: '/ce-database/inspections/$inspectionNumber',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -167,6 +174,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCeDatabaseCaseFilesCaseFileNumberImport
       parentRoute: typeof AuthenticatedImport
     }
+    '/_authenticated/ce-database/inspections/$inspectionNumber': {
+      id: '/_authenticated/ce-database/inspections/$inspectionNumber'
+      path: '/ce-database/inspections/$inspectionNumber'
+      fullPath: '/ce-database/inspections/$inspectionNumber'
+      preLoaderRoute: typeof AuthenticatedCeDatabaseInspectionsInspectionNumberImport
+      parentRoute: typeof AuthenticatedImport
+    }
     '/_authenticated/ce-database/case-files/': {
       id: '/_authenticated/ce-database/case-files/'
       path: '/ce-database/case-files'
@@ -196,6 +210,7 @@ export const routeTree = rootRoute.addChildren({
     AuthenticatedAdminTopicsRoute,
     AuthenticatedCeDatabaseComplaintsRoute,
     AuthenticatedCeDatabaseCaseFilesCaseFileNumberRoute,
+    AuthenticatedCeDatabaseInspectionsInspectionNumberRoute,
     AuthenticatedCeDatabaseCaseFilesIndexRoute,
     AuthenticatedCeDatabaseInspectionsIndexRoute,
   }),
@@ -228,6 +243,7 @@ export const routeTree = rootRoute.addChildren({
         "/_authenticated/admin/topics",
         "/_authenticated/ce-database/complaints",
         "/_authenticated/ce-database/case-files/$caseFileNumber",
+        "/_authenticated/ce-database/inspections/$inspectionNumber",
         "/_authenticated/ce-database/case-files/",
         "/_authenticated/ce-database/inspections/"
       ]
@@ -261,6 +277,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/_authenticated/ce-database/case-files/$caseFileNumber": {
       "filePath": "_authenticated/ce-database/case-files/$caseFileNumber.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/ce-database/inspections/$inspectionNumber": {
+      "filePath": "_authenticated/ce-database/inspections/$inspectionNumber.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/ce-database/case-files/": {

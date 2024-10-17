@@ -33,24 +33,29 @@ const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
           <FileProfileProperty
             propertyName="Project"
             propertyValue={caseFileData.project.name}
+            size="small"
           />
           <FileProfileProperty
             propertyName="Date Created"
             propertyValue={dateUtils.formatDate(caseFileData.date_created)}
+            size="small"
           />
           <FileProfileProperty
             propertyName="Initiation"
             propertyValue={caseFileData.initiation.name}
+            size="small"
           />
         </Box>
         <Box>
           <FileProfileProperty
             propertyName="Lead Officer"
             propertyValue={caseFileData.lead_officer?.full_name}
+            size="small"
           />
           <FileProfileProperty
             propertyName="Other Officers"
             propertyValue={caseFileData.officers?.map((officer) => officer.full_name).join(", ")}
+            size="small"
           />
         </Box>
       </Box>
