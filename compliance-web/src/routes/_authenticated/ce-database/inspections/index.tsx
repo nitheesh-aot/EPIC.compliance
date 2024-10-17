@@ -6,15 +6,15 @@ import { useInspectionsData } from "@/hooks/useInspections";
 import { Inspection } from "@/models/Inspection";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
-import { Chip } from "@mui/material";
+import { Chip, Link } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link as RouterLink } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
 import { useEffect, useMemo, useState } from "react";
 
-export const Route = createFileRoute("/_authenticated/ce-database/inspections")(
-  { component: Inspections }
-);
+export const Route = createFileRoute(
+  "/_authenticated/ce-database/inspections/"
+)({ component: Inspections });
 
 export function Inspections() {
   const queryClient = useQueryClient();
@@ -74,6 +74,20 @@ export function Inspections() {
         header: "IR #",
         sortingFn: "sortFn",
         filterFn: searchFilter,
+        Cell: ({ row }) => {
+          return (
+            <Link
+              component={RouterLink}
+              to="/ce-database/inspections/$inspectionNumber"
+              params={{
+                inspectionNumber: row.original.ir_number,
+              }}
+              underline="hover"
+            >
+              {row.original.ir_number}
+            </Link>
+          );
+        },
       },
       {
         accessorKey: "project.name",

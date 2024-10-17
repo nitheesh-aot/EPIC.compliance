@@ -3,7 +3,11 @@ import PageNotFound from "@/components/Shared/PageNotFound";
 import SideNavBar from "@/components/Shared/SideNav/SideNavBar";
 import { useMenuStore } from "@/store/menuStore";
 import { Box } from "@mui/system";
-import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
+import {
+  createRootRouteWithContext,
+  Outlet,
+  useMatches,
+} from "@tanstack/react-router";
 // import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { useRef, useEffect } from "react";
 import { AuthContextProps } from "react-oidc-context";
@@ -18,10 +22,18 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function Layout() {
-  const { appHeaderHeight, setAppHeaderHeight } =
-    useMenuStore();
-
+  const { appHeaderHeight, setAppHeaderHeight } = useMenuStore();
   const appBarRef = useRef<HTMLDivElement | null>(null);
+
+  const matches = useMatches();
+
+  const isProfileLayout = matches.some((route) =>
+    [
+      "/_authenticated/ce-database/case-files/$caseFileNumber",
+      "/_authenticated/ce-database/inspections/$inspectionNumber",
+      "/_authenticated/ce-database/complaints/$complaintNumber",
+    ].includes(route.routeId)
+  );
 
   useEffect(() => {
     if (appBarRef.current) {
@@ -44,8 +56,9 @@ function Layout() {
           display={"flex"}
           flexDirection={"column"}
           flex={1}
-          padding={"3.625rem 2.5rem 0 0"}
-          marginBottom={"1rem"}
+          padding={isProfileLayout ? "" : "3.625rem 2.5rem 0 0"}
+          marginBottom={isProfileLayout ? "" : "1rem"}
+          marginLeft={isProfileLayout ? "-3rem" : "0"}
           overflow={"auto"}
         >
           <Outlet />
