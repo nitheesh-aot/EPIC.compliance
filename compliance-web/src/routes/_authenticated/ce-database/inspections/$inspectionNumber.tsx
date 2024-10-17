@@ -6,7 +6,6 @@ import { createFileRoute, useParams } from "@tanstack/react-router";
 import { notify } from "@/store/snackbarStore";
 import FileProfileHeader from "@/components/App/FileProfileHeader";
 import { Box } from "@mui/material";
-import CaseFileGeneralInformation from "@/components/App/CaseFiles/Profile/CaseFileGeneralInformation";
 import ContinuationReport from "@/components/App/ContinuationReports/ContinuationReport";
 import React from "react";
 import InspectionGeneralInformation from "@/components/App/Inspections/Profile/InspectionGeneralInformation";

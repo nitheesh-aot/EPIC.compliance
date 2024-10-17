@@ -51,7 +51,7 @@ describe("Inspections Component", () => {
 
     cy.get("button").contains("Inspection").click();
     
-    cy.get(".MuiTypography-h6").should("contain.text", "Create Inspection")
+    cy.get(".MuiTypography-subtitle1").should("contain.text", "Create Inspection")
 
   });
 });

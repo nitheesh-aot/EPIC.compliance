@@ -58,13 +58,6 @@ export function CaseFiles() {
     [caseFilesList]
   );
 
-  const handleOpenModal = useCallback(() => {
-    setOpen({
-      content: <CaseFileDrawer onSubmit={handleOnSubmit} />,
-      width: "718px",
-    });
-  }, [setOpen]);
-
   const handleOnSubmit = useCallback(
     (submitMsg: string) => {
       queryClient.invalidateQueries({ queryKey: ["case-files"] });
@@ -73,6 +66,13 @@ export function CaseFiles() {
     },
     [queryClient, setClose]
   );
+
+  const handleOpenModal = useCallback(() => {
+    setOpen({
+      content: <CaseFileDrawer onSubmit={handleOnSubmit} />,
+      width: "718px",
+    });
+  }, [setOpen, handleOnSubmit]);
 
   const columns = useMemo<MRT_ColumnDef<CaseFile>[]>(
     () => [

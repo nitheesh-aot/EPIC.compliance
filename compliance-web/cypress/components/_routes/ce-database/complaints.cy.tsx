@@ -51,7 +51,7 @@ describe("Complaints Component", () => {
 
     cy.get("button").contains("Complaint").click();
     
-    cy.get(".MuiTypography-h6").should("contain.text", "Create Complaint")
+    cy.get(".MuiTypography-subtitle1").should("contain.text", "Create Complaint")
 
   });
 });
