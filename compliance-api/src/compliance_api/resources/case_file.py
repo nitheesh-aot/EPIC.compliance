@@ -21,7 +21,7 @@ from flask_restx import Namespace, Resource
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
-    CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, KeyValueSchema, StaffUserSchema)
+    CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, CaseFileUpdateSchema, KeyValueSchema, StaffUserSchema)
 from compliance_api.services import CaseFileService
 from compliance_api.utils.util import cors_preflight
 
@@ -44,6 +44,9 @@ case_file_officer_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 staff_list_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, StaffUserSchema(), "StaffList"
+)
+case_file_update_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, CaseFileSchema(), "CaseFileUpdate"
 )
 
 
@@ -126,13 +129,13 @@ class CaseFile(Resource):
     @staticmethod
     @auth.require
     @ApiHelper.swagger_decorators(API, endpoint_description="Update a CaseFile by id")
-    @API.expect(case_file_create_model)
+    @API.expect(case_file_update_model)
     @API.response(code=200, model=case_file_list_model, description="Success")
     @API.response(400, "Bad Request")
     @API.response(404, "Not Found")
     def patch(case_file_id):
         """Update a CaseFile by id."""
-        case_file_data = CaseFileCreateSchema().load(API.payload)
+        case_file_data = CaseFileUpdateSchema().load(API.payload)
         updated_case_file = CaseFileService.update(case_file_id, case_file_data)
         if not updated_case_file:
             raise ResourceNotFoundError(f"CaseFile with {case_file_id} not found")
