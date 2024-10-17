@@ -96,7 +96,12 @@ class CaseFileService:
     @classmethod
     def get_by_project(cls, project_id: int):
         """Return case files based on project id."""
-        return CaseFileModel.get_by_project(project_id)
+        case_files = CaseFileModel.get_by_project(project_id)
+        return [
+            case_file
+            for case_file in case_files
+            if case_file.case_file_status == CaseFileStatusEnum.OPEN
+        ]
 
     @classmethod
     def is_assigned_user(cls, case_file_id, auth_user_guid):
