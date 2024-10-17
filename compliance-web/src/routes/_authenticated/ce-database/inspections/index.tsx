@@ -12,7 +12,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
 import { useEffect, useMemo, useState } from "react";
 
-export const Route = createFileRoute("/_authenticated/ce-database/inspections")(
+export const Route = createFileRoute("/_authenticated/ce-database/inspections/")(
   { component: Inspections }
 );
 
