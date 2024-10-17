@@ -61,6 +61,7 @@ function CaseFileProfilePage() {
               { label: "Case Files", to: "/ce-database/case-files" },
               { label: caseFileNumber },
             ]}
+            showInspectionComplaintButton={true}
           />
           <Box p={"1rem 1rem 1.25rem 3.75rem"} display={"flex"} gap={3}>
             <CaseFileGeneralInformation

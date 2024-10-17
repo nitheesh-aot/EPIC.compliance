@@ -11,7 +11,7 @@ import { Chip, Link } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link as RouterLink } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 
 export const Route = createFileRoute("/_authenticated/ce-database/case-files/")(
   {

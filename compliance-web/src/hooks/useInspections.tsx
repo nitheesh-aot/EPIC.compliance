@@ -4,7 +4,10 @@ import { Inspection, InspectionAPIData } from "@/models/Inspection";
 import { IRStatus } from "@/models/IRStatus";
 import { IRType } from "@/models/IRType";
 import { ProjectStatus } from "@/models/ProjectStatus";
+import { StaffUser } from "@/models/Staff";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
+import { UNAPPROVED_PROJECT_ABBREVIATION } from "@/utils/constants";
+import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 const fetchIRTypes = (): Promise<IRType[]> => {
@@ -29,6 +32,14 @@ const fetchProjectStatuses = (): Promise<ProjectStatus[]> => {
 
 const fetchInspections = (): Promise<Inspection[]> => {
   return request({ url: "/inspections" });
+};
+
+const fetchInspection = (inspectionNumber: string): Promise<Inspection> => {
+  return request({ url: `/inspections/ir-numbers/${inspectionNumber}` });
+};
+
+const fetchOfficers = (inspectionId: number): Promise<StaffUser[]> => {
+  return request({ url: `/inspections/${inspectionId}/officers` });
 };
 
 const createInspection = (inspection: InspectionAPIData) => {
@@ -74,6 +85,22 @@ export const useInspectionsData = () => {
   return useQuery({
     queryKey: ["inspections"],
     queryFn: fetchInspections,
+  });
+};
+
+export const useInspectionByNumber = (inspectionNumber: string) => {
+  return useQuery({
+    queryKey: ["inspection", inspectionNumber],
+    queryFn: async () => {
+      const inspection = await fetchInspection(inspectionNumber);
+      const officers = await fetchOfficers(inspection?.id);
+      if (inspection.project.abbreviation === UNAPPROVED_PROJECT_ABBREVIATION) {
+        inspection.project.id = UNAPPROVED_PROJECT_ID;
+        delete inspection.project.abbreviation;
+      }
+      return { ...inspection, officers };
+    },
+    enabled: !!inspectionNumber,
   });
 };
 
