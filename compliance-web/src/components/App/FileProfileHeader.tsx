@@ -1,18 +1,22 @@
 import { AddRounded, ExpandMoreRounded } from "@mui/icons-material";
 import { Box, Typography, Chip, Button } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import BreadcrumbsNav, { BreadcrumbItem } from "@/components/Shared/BreadcrumbsNav";
+import BreadcrumbsNav, {
+  BreadcrumbItem,
+} from "@/components/Shared/BreadcrumbsNav";
 
 interface FileProfileHeaderProps {
   fileNumber: string;
   status: string;
   breadcrumbs: BreadcrumbItem[];
+  showInspectionComplaintButton?: boolean;
 }
 
 const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
   fileNumber,
   status,
   breadcrumbs,
+  showInspectionComplaintButton = false,
 }) => {
   return (
     <Box
@@ -34,22 +38,26 @@ const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
         </Box>
       </Box>
       <Box display={"flex"} gap={1}>
-        <Button
-          variant="text"
-          size="small"
-          onClick={() => {}}
-          startIcon={<AddRounded />}
-        >
-          Inspection
-        </Button>
-        <Button
-          variant="text"
-          size="small"
-          onClick={() => {}}
-          startIcon={<AddRounded />}
-        >
-          Complaint
-        </Button>
+        {showInspectionComplaintButton && (
+          <>
+            <Button
+              variant="text"
+              size="small"
+              onClick={() => {}}
+              startIcon={<AddRounded />}
+            >
+              Inspection
+            </Button>
+            <Button
+              variant="text"
+              size="small"
+              onClick={() => {}}
+              startIcon={<AddRounded />}
+            >
+              Complaint
+            </Button>
+          </>
+        )}
         <Button
           variant="text"
           size="small"
