@@ -7,63 +7,72 @@ import { CaseFile } from "@/models/CaseFile";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import dateUtils from "@/utils/dateUtils";
-import { Chip } from "@mui/material";
+import { Chip, Link } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link as RouterLink } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useCallback } from "react";
 
-export const Route = createFileRoute("/_authenticated/ce-database/case-files")({
-  component: CaseFiles,
-});
+export const Route = createFileRoute("/_authenticated/ce-database/case-files/")(
+  {
+    component: CaseFiles,
+  }
+);
 
 export function CaseFiles() {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
   const { data: caseFilesList, isLoading } = useCaseFilesData();
 
-  const [projectList, setProjectList] = useState<string[]>([]);
-  const [initiationList, setInitiationList] = useState<string[]>([]);
-  const [statusList, setStatusList] = useState<string[]>([]);
-  const [staffUserList, setStaffUserList] = useState<string[]>([]);
-
-  useEffect(() => {
-    setProjectList(
+  const projectList = useMemo(
+    () =>
       [...new Set(caseFilesList?.map((cf) => cf.project?.name ?? ""))].filter(
         Boolean
-      )
-    );
-    setInitiationList(
+      ),
+    [caseFilesList]
+  );
+
+  const initiationList = useMemo(
+    () =>
       [
         ...new Set(caseFilesList?.map((cf) => cf.initiation?.name ?? "")),
-      ].filter(Boolean)
-    );
-    setStatusList(
+      ].filter(Boolean),
+    [caseFilesList]
+  );
+
+  const statusList = useMemo(
+    () =>
       [
         ...new Set(caseFilesList?.map((cf) => cf.case_file_status ?? "")),
-      ].filter(Boolean)
-    );
-    setStaffUserList(
+      ].filter(Boolean),
+    [caseFilesList]
+  );
+
+  const staffUserList = useMemo(
+    () =>
       [
         ...new Set(
           caseFilesList?.map((cf) => cf.lead_officer?.full_name ?? "")
         ),
-      ].filter(Boolean)
-    );
-  }, [caseFilesList]);
+      ].filter(Boolean),
+    [caseFilesList]
+  );
 
-  const handleOpenModal = () => {
+  const handleOnSubmit = useCallback(
+    (submitMsg: string) => {
+      queryClient.invalidateQueries({ queryKey: ["case-files"] });
+      setClose();
+      notify.success(submitMsg);
+    },
+    [queryClient, setClose]
+  );
+
+  const handleOpenModal = useCallback(() => {
     setOpen({
       content: <CaseFileDrawer onSubmit={handleOnSubmit} />,
       width: "718px",
     });
-  };
-
-  const handleOnSubmit = (submitMsg: string) => {
-    queryClient.invalidateQueries({ queryKey: ["case-files"] });
-    setClose();
-    notify.success(submitMsg);
-  };
+  }, [setOpen, handleOnSubmit]);
 
   const columns = useMemo<MRT_ColumnDef<CaseFile>[]>(
     () => [
@@ -72,6 +81,20 @@ export function CaseFiles() {
         header: "Case File #",
         sortingFn: "sortFn",
         filterFn: searchFilter,
+        Cell: ({ row }) => {
+          return (
+            <Link
+              component={RouterLink}
+              to="/ce-database/case-files/$caseFileNumber"
+              params={{
+                caseFileNumber: row.original.case_file_number,
+              }}
+              underline="hover"
+            >
+              {row.original.case_file_number}
+            </Link>
+          );
+        },
       },
       {
         accessorKey: "project.name",
@@ -191,7 +214,7 @@ export function CaseFiles() {
         titleToolbarProps={{
           tableTitle: "Case Files",
           tableAddRecordButtonText: "Case File",
-          tableAddRecordFunction: () => handleOpenModal(),
+          tableAddRecordFunction: handleOpenModal,
         }}
       />
     </>

@@ -12,12 +12,14 @@ type CaseFileFormProps = {
   projectList: Project[];
   initiationList: Initiation[];
   staffUsersList: StaffUser[];
+  isEditMode: boolean;
 };
 
 const CaseFileForm: React.FC<CaseFileFormProps> = ({
   projectList,
   initiationList,
   staffUsersList,
+  isEditMode,
 }) => {
   return (
     <>
@@ -41,11 +43,13 @@ const CaseFileForm: React.FC<CaseFileFormProps> = ({
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             fullWidth
+            disabled={isEditMode}
           />
           <ControlledDateField
             name="dateCreated"
             label="Date Created"
             sx={{ width: "100%" }}
+            disabled={isEditMode}
           />
         </Stack>
         <Stack direction={"row"} gap={2}>
@@ -78,12 +82,14 @@ const CaseFileForm: React.FC<CaseFileFormProps> = ({
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             fullWidth
+            disabled={isEditMode}
           />
           <ControlledTextField
             label="Case File Number"
             name="caseFileNumber"
             placeholder="Enter Case File Number"
             fullWidth
+            disabled={isEditMode}
           />
         </Stack>
       </Box>

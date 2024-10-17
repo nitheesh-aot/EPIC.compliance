@@ -13,7 +13,7 @@
 # limitations under the License.
 """Exposes all of the schemas in the compliance_api."""
 from .agency import AgencyCreateSchema, AgencySchema
-from .case_file import CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema
+from .case_file import CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, CaseFileUpdateSchema
 from .common import KeyValueSchema
 from .complaint import ComplaintCreateSchema, ComplaintSchema, ComplaintSourceContactSchema
 from .continuation_report import (

@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 import { Initiation } from "./Initiation";
 import { Project } from "./Project";
 import { StaffUser } from "./Staff";
@@ -13,11 +14,12 @@ export interface CaseFile {
   is_active: boolean;
   project: Project;
   lead_officer: StaffUser;
+  officers?: StaffUser[];
 }
 
 export interface CaseFileFormData {
   project?: Project;
-  dateCreated?: Date;
+  dateCreated?: Dayjs;
   leadOfficer?: StaffUser;
   officers?: StaffUser[];
   initiation?: Initiation;

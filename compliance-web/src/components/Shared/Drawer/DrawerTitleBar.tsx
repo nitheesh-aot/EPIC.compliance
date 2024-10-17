@@ -59,7 +59,7 @@ const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
         borderBottom: `1px solid ${BCDesignTokens.supportBorderColorInfo}`,
       }}
     >
-      <Typography variant="h6" color="primary">
+      <Typography variant="subtitle1" color="primary">
         {title}
       </Typography>
       <IconButton

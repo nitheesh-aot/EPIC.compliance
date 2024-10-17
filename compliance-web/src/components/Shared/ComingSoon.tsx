@@ -29,7 +29,7 @@ export default function ComingSoon() {
       <Typography variant="h3" marginBottom={"0.5rem"}>
         Coming soon!
       </Typography>
-      <Typography variant="h5" fontWeight="400" mb={20}>
+      <Typography variant="h5" fontWeight="400" mb={20} textAlign={"center"}>
         Our team is developing this feature and plans to launch it soon
       </Typography>
     </Box>

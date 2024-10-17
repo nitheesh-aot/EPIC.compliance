@@ -10,6 +10,7 @@ export interface Project {
   type?: ProjectType;
   sub_type_id?: number;
   sub_type?: ProjectType;
+  abbreviation?: string
 }
 
 interface Proponent {

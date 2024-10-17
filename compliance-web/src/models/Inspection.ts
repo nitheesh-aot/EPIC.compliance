@@ -28,6 +28,7 @@ export interface Inspection {
   lead_officer: StaffUser;
   ir_status: IRStatus;
   case_file: CaseFile;
+  officers?: StaffUser[];
 }
 
 export interface InspectionFormData {
