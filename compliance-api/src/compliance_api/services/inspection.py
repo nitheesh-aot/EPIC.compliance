@@ -50,14 +50,27 @@ class InspectionService:
         return InspectionModel.get_all(default_filters=False)
 
     @classmethod
+    def get_by_case_file_id(cls, case_file_id):
+        """Get all inspections by case file id."""
+        return InspectionModel.get_by_params({
+            "case_file_id": case_file_id
+        })
+
+    @classmethod
     def get_by_id(cls, inspection_id):
         """Return inspection by id."""
-        return InspectionModel.find_by_id(inspection_id)
+        inspection = InspectionModel.find_by_id(inspection_id)
+        if not inspection:
+            raise ResourceNotFoundError(
+                f"No inspection found for the given ID : {inspection_id}"
+            )
+        return _set_inspection_project_parameters(inspection)
 
     @classmethod
     def get_by_ir_number(cls, ir_number):
         """Return inspection by ir number."""
-        return InspectionModel.get_by_ir_number(ir_number)
+        inspection = InspectionModel.get_by_ir_number(ir_number)
+        return _set_inspection_project_parameters(inspection)
 
     @classmethod
     def get_other_officers(cls, inspection_id):
@@ -189,6 +202,24 @@ class InspectionService:
             officer.officer.auth_user_guid == auth_user_guid
             for officer in inspection.other_officers
         )
+
+
+def _set_inspection_project_parameters(inspection):
+    """Set inspection project parameters."""
+    project_id = inspection.project_id
+    if project_id:
+        project = TrackService.get_project_by_id(project_id)
+        setattr(inspection, "authorization", project.get("ea_certificate", None))
+        setattr(inspection, "type", project.get("type").get("name"))
+        setattr(inspection, "sub_type", project.get("sub_type").get("name"))
+        setattr(inspection, "regulated_party", project.get("proponent").get("name"))
+    if not project_id:
+        project = InspectionUnapprovedProjectModel.get_by_inspection_id(inspection.id)
+        setattr(inspection, "authorization", project.authorization)
+        setattr(inspection, "type", project.type)
+        setattr(inspection, "sub_type", project.sub_type)
+        setattr(inspection, "regulated_party", project.regulated_party)
+    return inspection
 
 
 def _set_first_nation_names(first_nation_list: list):
