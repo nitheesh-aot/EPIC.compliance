@@ -11,9 +11,10 @@ import { formatAuthorization } from "@/utils/appUtils";
 
 type ProjectDetailsFormProps = {
   projectList: Project[];
+  isEditMode?: boolean;
 };
 
-const ProjectDetailsForm: FC<ProjectDetailsFormProps> = ({ projectList }) => {
+const ProjectDetailsForm: FC<ProjectDetailsFormProps> = ({ projectList, isEditMode }) => {
   const { isOpen } = useDrawer();
   const { setValue, resetField } = useFormContext();
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
@@ -57,7 +58,7 @@ const ProjectDetailsForm: FC<ProjectDetailsFormProps> = ({ projectList }) => {
           options={projectList}
           getOptionLabel={(option) => option.name}
           getOptionKey={(option) => option.id}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
+          isOptionEqualToValue={(option, value) => option.id.toString() === value.id.toString()}
           fullWidth
           onChange={(_, value) => {
             const projId = (value as Project)?.id;
@@ -67,19 +68,20 @@ const ProjectDetailsForm: FC<ProjectDetailsFormProps> = ({ projectList }) => {
               setSelectedProjectId(projId);
             }
           }}
+          disabled={isEditMode}
         />
         <ControlledTextField
           name="authorization"
           label="Authorization"
           placeholder="Authorization"
-          disabled={!!selectedProjectId}
+          disabled={!!selectedProjectId || isEditMode}
           sx={{ width: "70%" }}
         />
         <ControlledTextField
           name="regulatedParty"
           label="Regulated Party"
           placeholder="Regulated Party"
-          disabled={!!selectedProjectId}
+          disabled={!!selectedProjectId || isEditMode}
           fullWidth
         />
       </Stack>
@@ -96,14 +98,14 @@ const ProjectDetailsForm: FC<ProjectDetailsFormProps> = ({ projectList }) => {
           name="projectType"
           label="Project Type"
           placeholder="Project Type"
-          disabled={!!selectedProjectId}
+          disabled={!!selectedProjectId || isEditMode}
           fullWidth
         />
         <ControlledTextField
           name="projectSubType"
           label="Project Subtype"
           placeholder="Project Subtype"
-          disabled={!!selectedProjectId}
+          disabled={!!selectedProjectId || isEditMode}
           fullWidth
         />
       </Stack>

@@ -2,8 +2,7 @@ import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
 import { StaffUser } from "@/models/Staff";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, Button, Stack } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
+import { Box, Stack } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import InspectionFormLeft from "./InspectionFormLeft";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
@@ -28,12 +27,16 @@ import LinkCaseFileModal from "@/components/App/CaseFiles/LinkCaseFileModal";
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { useFirstNationsData } from "@/hooks/useFirstNations";
 import {
+  AttendanceEnum,
   formatInspectionData,
   getProjectId,
   InspectionFormSchema,
   InspectionSchemaType,
 } from "./InspectionFormUtils";
 import { INITIATION } from "@/utils/constants";
+import { formatAuthorization } from "@/utils/appUtils";
+import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
+import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -73,7 +76,36 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
   const defaultValues = useMemo<InspectionFormData>(() => {
     if (inspection) {
-      // TDOD: Map existing data
+      return {
+        ...inspection,
+        authorization: formatAuthorization(inspection.authorization),
+        regulatedParty: inspection.regulated_party,
+        projectDescription: inspection.project_description ?? "",
+        projectType: inspection.type,
+        projectSubType: inspection.sub_type,
+        locationDescription: inspection.location_description,
+        leadOfficer: inspection.lead_officer,
+        irStatus: inspection.ir_status,
+        projectStatus: inspection.project_status,
+        inAttendance: inspection.inspectionAttendances?.map(
+          (item) => item.attendance_option
+        ),
+        agencies: inspection.inspectionAttendances?.find(
+          (item) =>
+            item.attendance_option_id === Number(AttendanceEnum.AGENCIES)
+        )?.data,
+        firstNations: inspection.inspectionAttendances?.find(
+          (item) =>
+            item.attendance_option_id === Number(AttendanceEnum.FIRST_NATIONS)
+        )?.data,
+        municipal: inspection.inspectionAttendances?.find(
+          (item) =>
+            item.attendance_option_id === Number(AttendanceEnum.MUNICIPAL)
+        )?.data,
+        other: inspection.inspectionAttendances?.find(
+          (item) => item.attendance_option_id === Number(AttendanceEnum.OTHER)
+        )?.data,
+      };
     }
     return initFormData;
   }, [inspection]);
@@ -84,12 +116,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     defaultValues,
   });
 
-  const {
-    handleSubmit,
-    reset,
-    formState: { isValid },
-    getValues,
-  } = methods;
+  const { handleSubmit, reset, getValues } = methods;
 
   useEffect(() => {
     reset(defaultValues);
@@ -156,21 +183,10 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <Box ref={drawerTopRef}>
           <DrawerTitleBar title="Create Inspection" isFormDirtyCheck />
-          <Box
-            sx={{
-              backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
-              padding: "0.75rem 2rem",
-              textAlign: "right",
-            }}
-          >
-            <Button type="submit" disabled={!isValid}>
-              Create
-            </Button>
-          </Box>
+          <DrawerActionBarTop isShowActionBar={!inspection} />
         </Box>
-
         <Stack
-          height={`calc(100vh - ${(drawerTopRef.current?.offsetHeight ?? 120) + appHeaderHeight}px)`}
+          height={`calc(100vh - ${appHeaderHeight + 129}px)`} // 64px (DrawerTitleBar height) + 65px (DrawerActionBar height)
           direction={"row"}
         >
           <InspectionFormLeft
@@ -178,6 +194,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
             initiationList={initiationList ?? []}
             staffUsersList={staffUserList ?? []}
             irTypeList={irTypeList ?? []}
+            isEditMode={!!inspection}
           />
           <InspectionFormRight
             irStatusList={irStatusList ?? []}
@@ -187,6 +204,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
             firstNationsList={firstNationsList ?? []}
           />
         </Stack>
+        <DrawerActionBarBottom isShowActionBar={!!inspection} />
       </form>
     </FormProvider>
   );
