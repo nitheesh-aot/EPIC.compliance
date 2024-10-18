@@ -1,6 +1,5 @@
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
-import { CaseFile } from "@/models/CaseFile";
 import { StaffUser } from "@/models/Staff";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Button, Stack } from "@mui/material";
@@ -38,7 +37,7 @@ import { INITIATION } from "@/utils/constants";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
-  inspection?: CaseFile;
+  inspection?: Inspection;
 };
 
 const initFormData: InspectionFormData = {

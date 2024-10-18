@@ -221,6 +221,20 @@ export function Inspections() {
         accessorKey: "case_file.case_file_number",
         header: "Case File #",
         filterFn: searchFilter,
+        Cell: ({ row }) => {
+          return (
+            <Link
+              component={RouterLink}
+              to="/ce-database/case-files/$caseFileNumber"
+              params={{
+                caseFileNumber: row.original.case_file.case_file_number,
+              }}
+              underline="hover"
+            >
+              {row.original.case_file.case_file_number}
+            </Link>
+          );
+        },
       },
     ],
     [

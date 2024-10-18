@@ -1,3 +1,4 @@
+import { InspectionAttendance } from "./Attendance";
 import { CaseFile } from "./CaseFile";
 import { DateRange } from "./DateRange";
 import { Initiation } from "./Initiation";
@@ -29,6 +30,13 @@ export interface Inspection {
   ir_status: IRStatus;
   case_file: CaseFile;
   officers?: StaffUser[];
+  project_status: ProjectStatus;
+  authorization?: string;
+  regulated_party?: string;
+  type?: string;
+  sub_type?: string;
+  project_description?: string;
+  inspectionAttendances?: InspectionAttendance[];
 }
 
 export interface InspectionFormData {

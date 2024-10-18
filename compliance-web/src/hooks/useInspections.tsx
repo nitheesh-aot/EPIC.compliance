@@ -1,4 +1,4 @@
-import { Attendance } from "@/models/Attendance";
+import { Attendance, InspectionAttendance } from "@/models/Attendance";
 import { Initiation } from "@/models/Initiation";
 import { Inspection, InspectionAPIData } from "@/models/Inspection";
 import { IRStatus } from "@/models/IRStatus";
@@ -40,6 +40,10 @@ const fetchInspection = (inspectionNumber: string): Promise<Inspection> => {
 
 const fetchOfficers = (inspectionId: number): Promise<StaffUser[]> => {
   return request({ url: `/inspections/${inspectionId}/officers` });
+};
+
+const fetchInspectionAttendances = (inspectionId: number): Promise<InspectionAttendance[]> => {
+  return request({ url: `/inspections/${inspectionId}/attendance-options` });
 };
 
 const createInspection = (inspection: InspectionAPIData) => {
@@ -94,11 +98,12 @@ export const useInspectionByNumber = (inspectionNumber: string) => {
     queryFn: async () => {
       const inspection = await fetchInspection(inspectionNumber);
       const officers = await fetchOfficers(inspection?.id);
+      const inspectionAttendances = await fetchInspectionAttendances(inspection?.id);
       if (inspection.project.abbreviation === UNAPPROVED_PROJECT_ABBREVIATION) {
         inspection.project.id = UNAPPROVED_PROJECT_ID;
         delete inspection.project.abbreviation;
       }
-      return { ...inspection, officers };
+      return { ...inspection, officers, inspectionAttendances };
     },
     enabled: !!inspectionNumber,
   });
