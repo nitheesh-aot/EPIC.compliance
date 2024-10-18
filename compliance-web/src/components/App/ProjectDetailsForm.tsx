@@ -7,6 +7,7 @@ import { useDrawer } from "@/store/drawerStore";
 import { useFormContext } from "react-hook-form";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
+import { formatAuthorization } from "@/utils/appUtils";
 
 type ProjectDetailsFormProps = {
   projectList: Project[];
@@ -23,15 +24,10 @@ const ProjectDetailsForm: FC<ProjectDetailsFormProps> = ({ projectList }) => {
 
   useEffect(() => {
     if (selectedProjectId && projectData) {
-      const eaCertifcate = projectData?.ea_certificate;
-      let authorization = "n/a";
-      if (eaCertifcate) {
-        authorization =
-          eaCertifcate[0].toLowerCase() === "x"
-            ? "Exemption Order"
-            : `EAC# ${eaCertifcate}`;
-      }
-      setValue("authorization", authorization);
+      setValue(
+        "authorization",
+        formatAuthorization(projectData?.ea_certificate)
+      );
       setValue("regulatedParty", projectData?.proponent?.name ?? "");
       setValue("projectDescription", projectData?.description ?? "");
       setValue("projectType", projectData?.type?.name ?? "");
