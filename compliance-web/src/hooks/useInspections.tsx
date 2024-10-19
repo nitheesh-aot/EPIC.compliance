@@ -30,8 +30,8 @@ const fetchProjectStatuses = (): Promise<ProjectStatus[]> => {
   return request({ url: "/project-status-options" });
 };
 
-const fetchInspections = (): Promise<Inspection[]> => {
-  return request({ url: "/inspections" });
+const fetchInspections = (caseFileId?: number): Promise<Inspection[]> => {
+  return request({ url: "/inspections", params: { case_file_id: caseFileId } });
 };
 
 const fetchInspection = (inspectionNumber: string): Promise<Inspection> => {
@@ -99,7 +99,7 @@ export const useProjectStatusesData = () => {
 export const useInspectionsData = () => {
   return useQuery({
     queryKey: ["inspections"],
-    queryFn: fetchInspections,
+    queryFn: () => fetchInspections(),
   });
 };
 
@@ -117,6 +117,14 @@ export const useInspectionByNumber = (inspectionNumber: string) => {
       return { ...inspection, officers, inspectionAttendances };
     },
     enabled: !!inspectionNumber,
+  });
+};
+
+export const useInspectionsByCaseFileId = (caseFileId: number) => {
+  return useQuery({
+    queryKey: ["inspections-by-caseFileId", caseFileId],
+    queryFn: () => fetchInspections(caseFileId),
+    enabled: !!caseFileId,
   });
 };
 
