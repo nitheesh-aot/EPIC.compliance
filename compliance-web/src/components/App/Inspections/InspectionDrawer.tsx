@@ -15,6 +15,7 @@ import {
   useIRStatusesData,
   useIRTypesData,
   useProjectStatusesData,
+  useUpdateInspection,
 } from "@/hooks/useInspections";
 import {
   Inspection,
@@ -126,7 +127,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     (data: Inspection) => {
       onSubmit(
         inspection
-          ? "Successfully updated!"
+          ? "Changes saved successfully!"
           : `Inspection File ${data.ir_number} was successfully created`
       );
       reset();
@@ -135,6 +136,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   );
 
   const { mutate: createInspection } = useCreateInspection(onSuccess);
+  const { mutate: updateInspection } = useUpdateInspection(onSuccess);
 
   const addOrUpdateInspection = useCallback(
     (caseFileId: number) => {
@@ -145,12 +147,12 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
       );
 
       if (inspection) {
-        // TODO: Add update logic here
+        updateInspection({ id: inspection.id, inspection: inspectionData });
       } else {
         createInspection(inspectionData);
       }
     },
-    [createInspection, getValues, inspection]
+    [createInspection, getValues, inspection, updateInspection]
   );
 
   const handleOnCaseFileSubmit = useCallback(

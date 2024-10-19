@@ -50,6 +50,17 @@ const createInspection = (inspection: InspectionAPIData) => {
   return request({ url: "/inspections", method: "post", data: inspection });
 };
 
+const updateInspection = ({
+  id,
+  inspection,
+}: {
+  id: number;
+  inspection: InspectionAPIData;
+}) => {
+  return request({ url: `/inspections/${id}`, method: "patch", data: inspection });
+};
+
+
 export const useIRTypesData = () => {
   return useQuery({
     queryKey: ["ir-types"],
@@ -111,4 +122,8 @@ export const useInspectionByNumber = (inspectionNumber: string) => {
 
 export const useCreateInspection = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: createInspection, onSuccess });
+};
+
+export const useUpdateInspection = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: updateInspection, onSuccess });
 };
