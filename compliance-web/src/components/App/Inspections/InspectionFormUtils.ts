@@ -138,6 +138,7 @@ export const formatInspectionData = (
   let inspectionData: InspectionAPIData = {
     project_id: projectId,
     case_file_id: caseFileId,
+    project_description: formData.projectDescription ?? "",
     inspection_type_ids:
       (formData.irTypes as IRType[])?.map((ir) => ir.id) ?? [],
     initiation_id: (formData.initiation as Initiation).id,
@@ -172,7 +173,6 @@ export const formatInspectionData = (
     inspectionData = {
       unapproved_project_authorization: formData.authorization ?? "",
       unapproved_project_regulated_party: formData.regulatedParty ?? "",
-      project_description: formData.projectDescription ?? "",
       unapproved_project_type: formData.projectType ?? "",
       unapproved_project_sub_type: formData.projectSubType ?? "",
       ...inspectionData,

@@ -24,38 +24,46 @@ export function CaseFiles() {
   const { setOpen, setClose } = useDrawer();
   const { data: caseFilesList, isLoading } = useCaseFilesData();
 
-  const projectList = useMemo(
-    () =>
-      [...new Set(caseFilesList?.map((cf) => cf.project?.name ?? ""))].filter(
-        Boolean
-      ),
+  const createUniqueFilterList = useCallback(
+    (key: keyof CaseFile, subKey?: string): string[] => {
+      return [
+        ...new Set(
+          caseFilesList?.map((item) => {
+            const value = item[key];
+            if (typeof value === "object" && value !== null) {
+              if (subKey && subKey in value) {
+                return (value as unknown as Record<string, unknown>)[
+                  subKey
+                ] as string;
+              }
+              return "";
+            }
+            return typeof value === "string" ? value : "";
+          })
+        ),
+      ].filter(Boolean) as string[];
+    },
     [caseFilesList]
+  );
+
+  const projectList = useMemo(
+    () => createUniqueFilterList("project", "name"),
+    [createUniqueFilterList]
   );
 
   const initiationList = useMemo(
-    () =>
-      [
-        ...new Set(caseFilesList?.map((cf) => cf.initiation?.name ?? "")),
-      ].filter(Boolean),
-    [caseFilesList]
+    () => createUniqueFilterList("initiation", "name"),
+    [createUniqueFilterList]
   );
 
   const statusList = useMemo(
-    () =>
-      [
-        ...new Set(caseFilesList?.map((cf) => cf.case_file_status ?? "")),
-      ].filter(Boolean),
-    [caseFilesList]
+    () => createUniqueFilterList("case_file_status"),
+    [createUniqueFilterList]
   );
 
   const staffUserList = useMemo(
-    () =>
-      [
-        ...new Set(
-          caseFilesList?.map((cf) => cf.lead_officer?.full_name ?? "")
-        ),
-      ].filter(Boolean),
-    [caseFilesList]
+    () => createUniqueFilterList("lead_officer", "full_name"),
+    [createUniqueFilterList]
   );
 
   const handleOnSubmit = useCallback(

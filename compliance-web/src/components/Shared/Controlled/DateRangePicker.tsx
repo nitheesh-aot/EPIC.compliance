@@ -4,8 +4,8 @@ import { PickersDay, PickersDayProps } from "@mui/x-date-pickers/PickersDay";
 import {
   TextField,
   Popover,
-  TextFieldProps,
   InputAdornment,
+  TextFieldProps,
 } from "@mui/material";
 import { Dayjs } from "dayjs";
 import { BCDesignTokens } from "epic.theme";
@@ -20,7 +20,7 @@ export interface DateRange {
 type DateRangePickerProps = {
   value: DateRange;
   onDateChange: (value: DateRange) => void;
-} & TextFieldProps;
+} & Omit<TextFieldProps, "value" | "onChange">;
 
 const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
   ({ value, onDateChange, ...otherProps }, ref) => {
@@ -46,12 +46,12 @@ const DateRangePicker = forwardRef<HTMLDivElement, DateRangePickerProps>(
           onDateChange({ startDate: date, endDate: null });
           setSelectingStartDate(false);
         } else {
-          if (date && value.startDate && date.isBefore(value.startDate)) {
-            onDateChange({ startDate: date, endDate: null });
-          } else {
-            onDateChange({ ...value, endDate: date });
-            setOpen(false);
-          }
+          const newEndDate =
+            date && value.startDate && date.isBefore(value.startDate)
+              ? null
+              : date;
+          onDateChange({ ...value, endDate: newEndDate });
+          setOpen(false);
           setSelectingStartDate(true);
         }
       },
