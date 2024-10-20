@@ -35,6 +35,7 @@ import {
   InspectionSchemaType,
 } from "./InspectionFormUtils";
 import { INITIATION } from "@/utils/constants";
+import dayjs from "dayjs";
 import { formatAuthorization } from "@/utils/appUtils";
 import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
@@ -88,6 +89,10 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
         leadOfficer: inspection.lead_officer,
         irStatus: inspection.ir_status,
         projectStatus: inspection.project_status,
+        dateRange: {
+          startDate: dayjs(inspection.start_date),
+          endDate: dayjs(inspection.end_date),
+        },
         inAttendance: inspection.inspectionAttendances?.map(
           (item) => item.attendance_option
         ),
