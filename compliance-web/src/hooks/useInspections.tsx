@@ -1,4 +1,4 @@
-import { Attendance } from "@/models/Attendance";
+import { Attendance, InspectionAttendance } from "@/models/Attendance";
 import { Initiation } from "@/models/Initiation";
 import { Inspection, InspectionAPIData } from "@/models/Inspection";
 import { IRStatus } from "@/models/IRStatus";
@@ -30,8 +30,8 @@ const fetchProjectStatuses = (): Promise<ProjectStatus[]> => {
   return request({ url: "/project-status-options" });
 };
 
-const fetchInspections = (): Promise<Inspection[]> => {
-  return request({ url: "/inspections" });
+const fetchInspections = (caseFileId?: number): Promise<Inspection[]> => {
+  return request({ url: "/inspections", params: { case_file_id: caseFileId } });
 };
 
 const fetchInspection = (inspectionNumber: string): Promise<Inspection> => {
@@ -42,9 +42,24 @@ const fetchOfficers = (inspectionId: number): Promise<StaffUser[]> => {
   return request({ url: `/inspections/${inspectionId}/officers` });
 };
 
+const fetchInspectionAttendances = (inspectionId: number): Promise<InspectionAttendance[]> => {
+  return request({ url: `/inspections/${inspectionId}/attendance-options` });
+};
+
 const createInspection = (inspection: InspectionAPIData) => {
   return request({ url: "/inspections", method: "post", data: inspection });
 };
+
+const updateInspection = ({
+  id,
+  inspection,
+}: {
+  id: number;
+  inspection: InspectionAPIData;
+}) => {
+  return request({ url: `/inspections/${id}`, method: "patch", data: inspection });
+};
+
 
 export const useIRTypesData = () => {
   return useQuery({
@@ -84,7 +99,7 @@ export const useProjectStatusesData = () => {
 export const useInspectionsData = () => {
   return useQuery({
     queryKey: ["inspections"],
-    queryFn: fetchInspections,
+    queryFn: () => fetchInspections(),
   });
 };
 
@@ -94,16 +109,29 @@ export const useInspectionByNumber = (inspectionNumber: string) => {
     queryFn: async () => {
       const inspection = await fetchInspection(inspectionNumber);
       const officers = await fetchOfficers(inspection?.id);
+      const inspectionAttendances = await fetchInspectionAttendances(inspection?.id);
       if (inspection.project.abbreviation === UNAPPROVED_PROJECT_ABBREVIATION) {
         inspection.project.id = UNAPPROVED_PROJECT_ID;
         delete inspection.project.abbreviation;
       }
-      return { ...inspection, officers };
+      return { ...inspection, officers, inspectionAttendances };
     },
     enabled: !!inspectionNumber,
   });
 };
 
+export const useInspectionsByCaseFileId = (caseFileId: number) => {
+  return useQuery({
+    queryKey: ["inspections-by-caseFileId", caseFileId],
+    queryFn: () => fetchInspections(caseFileId),
+    enabled: !!caseFileId,
+  });
+};
+
 export const useCreateInspection = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: createInspection, onSuccess });
+};
+
+export const useUpdateInspection = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: updateInspection, onSuccess });
 };

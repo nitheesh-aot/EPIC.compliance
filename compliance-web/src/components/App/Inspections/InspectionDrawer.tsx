@@ -1,10 +1,8 @@
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
-import { CaseFile } from "@/models/CaseFile";
 import { StaffUser } from "@/models/Staff";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, Button, Stack } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
+import { Box, Stack } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import InspectionFormLeft from "./InspectionFormLeft";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
@@ -17,6 +15,7 @@ import {
   useIRStatusesData,
   useIRTypesData,
   useProjectStatusesData,
+  useUpdateInspection,
 } from "@/hooks/useInspections";
 import {
   Inspection,
@@ -29,16 +28,21 @@ import LinkCaseFileModal from "@/components/App/CaseFiles/LinkCaseFileModal";
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { useFirstNationsData } from "@/hooks/useFirstNations";
 import {
+  AttendanceEnum,
   formatInspectionData,
   getProjectId,
   InspectionFormSchema,
   InspectionSchemaType,
 } from "./InspectionFormUtils";
 import { INITIATION } from "@/utils/constants";
+import dayjs from "dayjs";
+import { formatAuthorization } from "@/utils/appUtils";
+import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
+import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
-  inspection?: CaseFile;
+  inspection?: Inspection;
 };
 
 const initFormData: InspectionFormData = {
@@ -74,7 +78,41 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
   const defaultValues = useMemo<InspectionFormData>(() => {
     if (inspection) {
-      // TDOD: Map existing data
+      return {
+        ...inspection,
+        authorization: formatAuthorization(inspection.authorization),
+        regulatedParty: inspection.regulated_party,
+        projectDescription: inspection.project_description ?? "",
+        projectType: inspection.type,
+        projectSubType: inspection.sub_type,
+        locationDescription: inspection.location_description,
+        leadOfficer: inspection.lead_officer,
+        irStatus: inspection.ir_status,
+        projectStatus: inspection.project_status,
+        irTypes: inspection.types,
+        dateRange: {
+          startDate: dayjs(inspection.start_date),
+          endDate: dayjs(inspection.end_date),
+        },
+        inAttendance: inspection.inspectionAttendances?.map(
+          (item) => item.attendance_option
+        ),
+        agencies: inspection.inspectionAttendances?.find(
+          (item) =>
+            item.attendance_option_id === Number(AttendanceEnum.AGENCIES)
+        )?.data,
+        firstNations: inspection.inspectionAttendances?.find(
+          (item) =>
+            item.attendance_option_id === Number(AttendanceEnum.FIRST_NATIONS)
+        )?.data,
+        municipal: inspection.inspectionAttendances?.find(
+          (item) =>
+            item.attendance_option_id === Number(AttendanceEnum.MUNICIPAL)
+        )?.data,
+        other: inspection.inspectionAttendances?.find(
+          (item) => item.attendance_option_id === Number(AttendanceEnum.OTHER)
+        )?.data,
+      };
     }
     return initFormData;
   }, [inspection]);
@@ -85,12 +123,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     defaultValues,
   });
 
-  const {
-    handleSubmit,
-    reset,
-    formState: { isValid },
-    getValues,
-  } = methods;
+  const { handleSubmit, reset, getValues } = methods;
 
   useEffect(() => {
     reset(defaultValues);
@@ -100,7 +133,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     (data: Inspection) => {
       onSubmit(
         inspection
-          ? "Successfully updated!"
+          ? "Changes saved successfully!"
           : `Inspection File ${data.ir_number} was successfully created`
       );
       reset();
@@ -109,69 +142,67 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   );
 
   const { mutate: createInspection } = useCreateInspection(onSuccess);
-
-  const addOrUpdateInspection = useCallback(
-    (caseFileId: number) => {
-      const formData = getValues();
-      const inspectionData: InspectionAPIData = formatInspectionData(
-        formData,
-        caseFileId
-      );
-
-      if (inspection) {
-        // TODO: Add update logic here
-      } else {
-        createInspection(inspectionData);
-      }
-    },
-    [createInspection, getValues, inspection]
-  );
+  const { mutate: updateInspection } = useUpdateInspection(onSuccess);
 
   const handleOnCaseFileSubmit = useCallback(
     (caseFileId: number) => {
-      addOrUpdateInspection(caseFileId);
+      const formData = getValues();
+      const inspectionCreateData: InspectionAPIData = formatInspectionData(
+        formData,
+        caseFileId
+      );
+      createInspection(inspectionCreateData);
       setModalClose();
     },
-    [addOrUpdateInspection, setModalClose]
+    [createInspection, getValues, setModalClose]
   );
 
   const onSubmitHandler = useCallback(
     (data: InspectionSchemaType) => {
-      // Open modal for linking or creating case file
-      setModalOpen({
-        content: (
-          <LinkCaseFileModal
-            onSubmit={handleOnCaseFileSubmit}
-            projectId={getProjectId(data)}
-            leadOfficerId={(data.leadOfficer as StaffUser)?.id}
-            initiationId={INITIATION.INSPECTION_ID}
-          />
-        ),
-      });
+      if (inspection) {
+        // update existing inspection record
+        const formData = getValues();
+        const inspectionUpdateData: InspectionAPIData =
+          formatInspectionData(formData);
+        updateInspection({
+          id: inspection.id,
+          inspection: inspectionUpdateData,
+        });
+      } else {
+        // Open modal for linking or creating case file during create new inspection record
+        setModalOpen({
+          content: (
+            <LinkCaseFileModal
+              onSubmit={handleOnCaseFileSubmit}
+              projectId={getProjectId(data)}
+              leadOfficerId={(data.leadOfficer as StaffUser)?.id}
+              initiationId={INITIATION.INSPECTION_ID}
+            />
+          ),
+        });
+      }
     },
-    [setModalOpen, handleOnCaseFileSubmit]
+    [
+      inspection,
+      getValues,
+      updateInspection,
+      setModalOpen,
+      handleOnCaseFileSubmit,
+    ]
   );
 
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <Box ref={drawerTopRef}>
-          <DrawerTitleBar title="Create Inspection" isFormDirtyCheck />
-          <Box
-            sx={{
-              backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
-              padding: "0.75rem 2rem",
-              textAlign: "right",
-            }}
-          >
-            <Button type="submit" disabled={!isValid}>
-              Create
-            </Button>
-          </Box>
+          <DrawerTitleBar
+            title={inspection ? inspection.ir_number : "Create Inspection"}
+            isFormDirtyCheck
+          />
+          <DrawerActionBarTop isShowActionBar={!inspection} />
         </Box>
-
         <Stack
-          height={`calc(100vh - ${(drawerTopRef.current?.offsetHeight ?? 120) + appHeaderHeight}px)`}
+          height={`calc(100vh - ${appHeaderHeight + 129}px)`} // 64px (DrawerTitleBar height) + 65px (DrawerActionBar height)
           direction={"row"}
         >
           <InspectionFormLeft
@@ -179,6 +210,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
             initiationList={initiationList ?? []}
             staffUsersList={staffUserList ?? []}
             irTypeList={irTypeList ?? []}
+            isEditMode={!!inspection}
           />
           <InspectionFormRight
             irStatusList={irStatusList ?? []}
@@ -188,6 +220,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
             firstNationsList={firstNationsList ?? []}
           />
         </Stack>
+        <DrawerActionBarBottom isShowActionBar={!!inspection} />
       </form>
     </FormProvider>
   );

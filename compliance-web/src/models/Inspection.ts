@@ -1,3 +1,4 @@
+import { InspectionAttendance } from "./Attendance";
 import { CaseFile } from "./CaseFile";
 import { DateRange } from "./DateRange";
 import { Initiation } from "./Initiation";
@@ -20,7 +21,8 @@ export interface Inspection {
   lead_officer_id: number;
   start_date: string;
   end_date: string;
-  types: string;
+  types: IRType[];
+  types_text: string; // TODO: Remove this once the table filter is updated
   inspection_status: string;
   is_active: boolean;
   initiation: Initiation;
@@ -29,6 +31,16 @@ export interface Inspection {
   ir_status: IRStatus;
   case_file: CaseFile;
   officers?: StaffUser[];
+  project_status: ProjectStatus;
+  authorization?: string;
+  regulated_party?: string;
+  type?: string;
+  sub_type?: string;
+  project_description?: string;
+  inspectionAttendances?: InspectionAttendance[];
+  subtopic?: string;
+  source?: string;
+  enforcement?: string;
 }
 
 export interface InspectionFormData {
@@ -48,7 +60,7 @@ export interface InspectionAPIData {
   location_description?: string;
   utm?: string;
   lead_officer_id: number;
-  case_file_id: number;
+  case_file_id?: number;
   inspection_type_ids: string[];
   start_date: string;
   end_date: string;

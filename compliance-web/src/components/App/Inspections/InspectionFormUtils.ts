@@ -11,6 +11,7 @@ import { ProjectStatus } from "@/models/ProjectStatus";
 import { StaffUser } from "@/models/Staff";
 import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
+import { Dayjs } from "dayjs";
 import * as yup from "yup";
 
 export enum AttendanceEnum {
@@ -43,14 +44,14 @@ export const InspectionFormSchema = yup.object().shape({
     .object<DateRange>()
     .shape({
       startDate: yup
-        .date()
+        .mixed<Dayjs>()
         .required("Start date is required")
         .typeError("Invalid date"),
       endDate: yup
-        .date()
+        .mixed<Dayjs>()
         .required("End date is required")
         .typeError("Invalid date")
-        .min(yup.ref("startDate"), "End date cannot be before start date"),
+      // .min(yup.ref("startDate"), "End date cannot be before start date"),
     })
     .test(
       "required",
@@ -128,15 +129,14 @@ export const getProjectId = (formData: InspectionSchemaType) => {
 // Formatting inspection form data for API
 export const formatInspectionData = (
   formData: InspectionSchemaType,
-  caseFileId: number
+  caseFileId?: number
 ) => {
   const projectId = getProjectId(formData);
   const inAttendanceOptions =
     (formData.inAttendance as Attendance[])?.map((att) => att.id) ?? [];
 
   let inspectionData: InspectionAPIData = {
-    project_id: projectId,
-    case_file_id: caseFileId,
+    project_description: formData.projectDescription ?? "",
     inspection_type_ids:
       (formData.irTypes as IRType[])?.map((ir) => ir.id) ?? [],
     initiation_id: (formData.initiation as Initiation).id,
@@ -145,7 +145,7 @@ export const formatInspectionData = (
     ),
     end_date: dateUtils.dateToISO(
       // adding hours to allow same value for start_date/end_date
-      dateUtils.add(formData.dateRange?.endDate ?? new Date(), 23, "hour")
+      dateUtils.add(formData.dateRange?.endDate?.toDate() ?? new Date(), 23, "hour")
     ),
     lead_officer_id: (formData.leadOfficer as StaffUser)?.id,
     inspection_officer_ids:
@@ -171,11 +171,14 @@ export const formatInspectionData = (
     inspectionData = {
       unapproved_project_authorization: formData.authorization ?? "",
       unapproved_project_regulated_party: formData.regulatedParty ?? "",
-      project_description: formData.projectDescription ?? "",
       unapproved_project_type: formData.projectType ?? "",
       unapproved_project_sub_type: formData.projectSubType ?? "",
       ...inspectionData,
     };
+  }
+  if (caseFileId) { // map the fields only for create new inspection, and case file id is available
+    inspectionData.project_id = projectId;
+    inspectionData.case_file_id = caseFileId;
   }
   return inspectionData;
 };
