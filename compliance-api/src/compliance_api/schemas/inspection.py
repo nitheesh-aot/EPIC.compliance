@@ -315,7 +315,8 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     )
     ir_status = fields.Nested(KeyValueSchema)
     initiation = fields.Nested(KeyValueSchema)
-    types = fields.Method("get_inspection_type_names")
+    types = fields.Method("get_inspection_types")
+    types_text = fields.Method("get_inspection_type_names")
     authorization = fields.Str(
         metadata={"description": "The authorization information of the project"}
     )
@@ -344,10 +345,18 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
             }
         return data
 
-    def get_inspection_type_names(
+    def get_inspection_types(
         self, obj
     ):  # pylint: disable=no-self-use, unused-argument
         """Get the inspection type objects."""
         if obj.types:
             return [{"id": o.type.id, "name": o.type.name} for o in obj.types]
+        return []
+
+    def get_inspection_type_names(
+        self, obj
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Get the inspection type names as comma seprated list."""
+        if obj.types:
+            return ", ".join([o.type.name for o in obj.types])
         return []
