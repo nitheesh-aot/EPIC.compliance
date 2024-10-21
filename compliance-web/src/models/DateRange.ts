@@ -1,5 +1,6 @@
+import { Dayjs } from "dayjs";
 
 export interface DateRange {
-  startDate: Date | undefined;
-  endDate: Date | undefined;
+  startDate: Dayjs | undefined;
+  endDate: Dayjs | undefined;
 }

@@ -10,7 +10,7 @@ import { Chip, Link } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link as RouterLink } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useCallback } from "react";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/"
@@ -21,51 +21,52 @@ export function Inspections() {
   const { setOpen, setClose } = useDrawer();
   const { data: inspectionsList, isLoading } = useInspectionsData();
 
-  const [projectList, setProjectList] = useState<string[]>([]);
-  const [initiationList, setInitiationList] = useState<string[]>([]);
-  const [staffUserList, setStaffUserList] = useState<string[]>([]);
-  const [irStatusList, setIRStatusList] = useState<string[]>([]);
-  const [irTypeList, setIRTypeList] = useState<string[]>([]);
-  const [inspectionStatusList, setInspectionStatusList] = useState<string[]>(
-    []
+  const createUniqueFilterList = useCallback(
+    (key: keyof Inspection, subKey?: string): string[] => {
+      return [
+        ...new Set(
+          inspectionsList?.map((item) => {
+            const value = item[key];
+            if (typeof value === "object" && value !== null) {
+              if (subKey && subKey in value) {
+                return (value as unknown as Record<string, unknown>)[
+                  subKey
+                ] as string;
+              }
+              return "";
+            }
+            return typeof value === "string" ? value : "";
+          })
+        ),
+      ].filter(Boolean) as string[];
+    },
+    [inspectionsList]
   );
 
-  useEffect(() => {
-    setProjectList(
-      [
-        ...new Set(inspectionsList?.map((insp) => insp.project?.name ?? "")),
-      ].filter(Boolean)
-    );
-    setInitiationList(
-      [
-        ...new Set(inspectionsList?.map((insp) => insp.initiation?.name ?? "")),
-      ].filter(Boolean)
-    );
-    setStaffUserList(
-      [
-        ...new Set(
-          inspectionsList?.map((insp) => insp.lead_officer?.full_name ?? "")
-        ),
-      ].filter(Boolean)
-    );
-    setIRStatusList(
-      [
-        ...new Set(inspectionsList?.map((insp) => insp.ir_status?.name ?? "")),
-      ].filter(Boolean)
-    );
-    setIRTypeList(
-      [...new Set(inspectionsList?.map((insp) => insp.types ?? ""))].filter(
-        Boolean
-      )
-    );
-    setInspectionStatusList(
-      [
-        ...new Set(
-          inspectionsList?.map((insp) => insp.inspection_status ?? "")
-        ),
-      ].filter(Boolean)
-    );
-  }, [inspectionsList]);
+  const projectList = useMemo(
+    () => createUniqueFilterList("project", "name"),
+    [createUniqueFilterList]
+  );
+  const initiationList = useMemo(
+    () => createUniqueFilterList("initiation", "name"),
+    [createUniqueFilterList]
+  );
+  const staffUserList = useMemo(
+    () => createUniqueFilterList("lead_officer", "full_name"),
+    [createUniqueFilterList]
+  );
+  const irStatusList = useMemo(
+    () => createUniqueFilterList("ir_status", "name"),
+    [createUniqueFilterList]
+  );
+  const irTypeList = useMemo(
+    () => createUniqueFilterList("types_text"),
+    [createUniqueFilterList]
+  );
+  const inspectionStatusList = useMemo(
+    () => createUniqueFilterList("inspection_status"),
+    [createUniqueFilterList]
+  );
 
   const columns = useMemo<MRT_ColumnDef<Inspection>[]>(
     () => [
@@ -74,94 +75,82 @@ export function Inspections() {
         header: "IR #",
         sortingFn: "sortFn",
         filterFn: searchFilter,
-        Cell: ({ row }) => {
-          return (
-            <Link
-              component={RouterLink}
-              to="/ce-database/inspections/$inspectionNumber"
-              params={{
-                inspectionNumber: row.original.ir_number,
-              }}
-              underline="hover"
-            >
-              {row.original.ir_number}
-            </Link>
-          );
-        },
+        Cell: ({ row }) => (
+          <Link
+            component={RouterLink}
+            to="/ce-database/inspections/$inspectionNumber"
+            params={{ inspectionNumber: row.original.ir_number }}
+            underline="hover"
+          >
+            {row.original.ir_number}
+          </Link>
+        ),
       },
       {
         accessorKey: "project.name",
         header: "Project",
         filterVariant: "multi-select",
         filterSelectOptions: projectList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="projectFilter"
-              placeholder="Filter Projects"
-            />
-          );
-        },
+        Filter: ({ header, column }) => (
+          <TableFilter
+            isMulti
+            header={header}
+            column={column}
+            variant="inline"
+            name="projectFilter"
+            placeholder="Filter"
+          />
+        ),
       },
       {
         accessorKey: "ir_status.name",
         header: "Stage",
         filterVariant: "multi-select",
         filterSelectOptions: irStatusList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="stageFilter"
-              placeholder="Filter Stage"
-            />
-          );
-        },
-        size: 150,
+        Filter: ({ header, column }) => (
+          <TableFilter
+            isMulti
+            header={header}
+            column={column}
+            variant="inline"
+            name="stageFilter"
+            placeholder="Filter"
+          />
+        ),
+        size: 120,
       },
       {
-        accessorKey: "types",
+        accessorKey: "types_text",
         header: "Type",
         filterVariant: "multi-select",
         filterSelectOptions: irTypeList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="typeFilter"
-              placeholder="Filter Type"
-            />
-          );
-        },
-        size: 150,
+        Filter: ({ header, column }) => (
+          <TableFilter
+            isMulti
+            header={header}
+            column={column}
+            variant="inline"
+            name="typeFilter"
+            placeholder="Filter"
+          />
+        ),
+        size: 120,
       },
       {
         accessorKey: "initiation.name",
         header: "Initiation",
         filterVariant: "multi-select",
         filterSelectOptions: initiationList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="initiationFilter"
-              placeholder="Filter Initiations"
-            />
-          );
-        },
+        Filter: ({ header, column }) => (
+          <TableFilter
+            isMulti
+            header={header}
+            column={column}
+            variant="inline"
+            name="initiationFilter"
+            placeholder="Filter"
+          />
+        ),
       },
       {
         accessorKey: "inspection_status",
@@ -184,19 +173,17 @@ export function Inspections() {
         },
         filterVariant: "multi-select",
         filterSelectOptions: inspectionStatusList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="inspectionStatusFilter"
-              placeholder="Filter Status"
-            />
-          );
-        },
-        size: 150,
+        Filter: ({ header, column }) => (
+          <TableFilter
+            isMulti
+            header={header}
+            column={column}
+            variant="inline"
+            name="inspectionStatusFilter"
+            placeholder="Filter"
+          />
+        ),
+        size: 120,
       },
       {
         accessorFn: (row) => row.lead_officer?.full_name,
@@ -204,68 +191,74 @@ export function Inspections() {
         header: "Lead Officer",
         filterVariant: "multi-select",
         filterSelectOptions: staffUserList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="leadOfficersFilter"
-              placeholder="Filter Officers"
-            />
-          );
-        },
+        Filter: ({ header, column }) => (
+          <TableFilter
+            isMulti
+            header={header}
+            column={column}
+            variant="inline"
+            name="leadOfficersFilter"
+            placeholder="Filter"
+          />
+        ),
       },
       {
         accessorKey: "case_file.case_file_number",
         header: "Case File #",
         filterFn: searchFilter,
+        Cell: ({ row }) => (
+          <Link
+            component={RouterLink}
+            to="/ce-database/case-files/$caseFileNumber"
+            params={{ caseFileNumber: row.original.case_file.case_file_number }}
+            underline="hover"
+          >
+            {row.original.case_file.case_file_number}
+          </Link>
+        ),
       },
     ],
     [
+      projectList,
       initiationList,
-      inspectionStatusList,
+      staffUserList,
       irStatusList,
       irTypeList,
-      projectList,
-      staffUserList,
+      inspectionStatusList,
     ]
   );
 
-  const handleOnSubmit = (submitMsg: string) => {
-    queryClient.invalidateQueries({ queryKey: ["inspections"] });
-    setClose();
-    notify.success(submitMsg);
-  };
+  const handleOnSubmit = useCallback(
+    (submitMsg: string) => {
+      queryClient.invalidateQueries({ queryKey: ["inspections"] });
+      setClose();
+      notify.success(submitMsg);
+    },
+    [queryClient, setClose]
+  );
 
-  const handleOpenDrawer = () => {
+  const handleOpenDrawer = useCallback(() => {
     setOpen({
       content: <InspectionDrawer onSubmit={handleOnSubmit} />,
       width: "1118px",
     });
-  };
+  }, [setOpen, handleOnSubmit]);
 
   return (
     <MasterDataTable
       columns={columns}
       data={inspectionsList ?? []}
       initialState={{
-        sorting: [
-          {
-            id: "ir_number",
-            desc: false,
-          },
-        ],
+        sorting: [{ id: "ir_number", desc: false }],
       }}
       state={{
-        isLoading: isLoading,
+        isLoading,
         showGlobalFilter: true,
       }}
       titleToolbarProps={{
         tableTitle: "Inspections",
         tableAddRecordButtonText: "Inspection",
-        tableAddRecordFunction: () => handleOpenDrawer(),
+        tableAddRecordFunction: handleOpenDrawer,
       }}
     />
   );

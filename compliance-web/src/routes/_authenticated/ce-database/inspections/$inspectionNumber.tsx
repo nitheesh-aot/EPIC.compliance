@@ -35,10 +35,10 @@ function InspectionProfilePage() {
       content: (
         <InspectionDrawer
           onSubmit={handleOnSubmit}
-          // inspection={inspectionData}
+          inspection={inspectionData}
         />
       ),
-      width: "718px",
+      width: "1118px",
     });
   };
 

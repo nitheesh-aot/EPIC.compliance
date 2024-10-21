@@ -325,6 +325,7 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     )
     type = fields.Str(metadata={"description": "The type of the project"})
     sub_type = fields.Str(metadata={"description": "The subtype of the project"})
+    project_status = fields.Nested(KeyValueSchema)
 
     @post_dump
     def post_dump_actions(

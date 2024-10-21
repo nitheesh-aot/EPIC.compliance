@@ -15,6 +15,7 @@ type InspectionFormLeftProps = {
   initiationList: Initiation[];
   staffUsersList: StaffUser[];
   irTypeList: IRType[];
+  isEditMode?: boolean;
 };
 
 const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
@@ -22,6 +23,7 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
   initiationList,
   staffUsersList,
   irTypeList,
+  isEditMode,
 }) => {
   return (
     <>
@@ -34,7 +36,7 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
           boxSizing: "border-box",
         }}
       >
-        <ProjectDetailsForm projectList={projectList} />
+        <ProjectDetailsForm projectList={projectList} isEditMode={isEditMode} />
         <ControlledTextField
           name="locationDescription"
           label="Location Description (optional)"
@@ -77,7 +79,9 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
             options={irTypeList}
             getOptionLabel={(option) => option.name}
             getOptionKey={(option) => option.id}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
+            isOptionEqualToValue={(option, value) =>
+              option.id.toString() === value.id.toString()
+            }
             multiple
             fullWidth
           />

@@ -19,7 +19,7 @@ export default function FileProfileProperty({
       >
         {propertyName}
       </Typography>
-      <Typography variant="body1">{propertyValue ?? ""}</Typography>
+      <Typography variant="body1" display={"flex"} flex={1}>{propertyValue ?? ""}</Typography>
     </Box>
   );
 }
