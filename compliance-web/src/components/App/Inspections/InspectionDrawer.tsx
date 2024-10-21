@@ -189,7 +189,10 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <Box ref={drawerTopRef}>
-          <DrawerTitleBar title="Create Inspection" isFormDirtyCheck />
+          <DrawerTitleBar
+            title={inspection ? inspection.ir_number : "Create Inspection"}
+            isFormDirtyCheck
+          />
           <DrawerActionBarTop isShowActionBar={!inspection} />
         </Box>
         <Stack

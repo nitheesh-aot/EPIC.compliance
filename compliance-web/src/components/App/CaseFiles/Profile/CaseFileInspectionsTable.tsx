@@ -92,17 +92,17 @@ const CaseFileInspectionsTable = ({ caseFileId }: { caseFileId: number }) => {
       },
       // TODO: Add map correct values for the next 3 columns
       {
-        accessorKey: "types",
+        accessorKey: "subtopic",
         header: "Subtopic",
         size: 120,
       },
-      { 
-        accessorKey: "location_description",
+      {
+        accessorKey: "source",
         header: "Source",
         size: 120,
       },
       {
-        accessorKey: "project.name",
+        accessorKey: "enforcement",
         header: "Enforcement",
         size: 120,
       },

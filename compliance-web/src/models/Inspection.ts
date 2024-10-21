@@ -37,6 +37,9 @@ export interface Inspection {
   sub_type?: string;
   project_description?: string;
   inspectionAttendances?: InspectionAttendance[];
+  subtopic?: string;
+  source?: string;
+  enforcement?: string;
 }
 
 export interface InspectionFormData {
