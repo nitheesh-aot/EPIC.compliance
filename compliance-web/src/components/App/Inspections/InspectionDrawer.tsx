@@ -89,6 +89,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
         leadOfficer: inspection.lead_officer,
         irStatus: inspection.ir_status,
         projectStatus: inspection.project_status,
+        irTypes: inspection.types,
         dateRange: {
           startDate: dayjs(inspection.start_date),
           endDate: dayjs(inspection.end_date),
@@ -143,46 +144,51 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const { mutate: createInspection } = useCreateInspection(onSuccess);
   const { mutate: updateInspection } = useUpdateInspection(onSuccess);
 
-  const addOrUpdateInspection = useCallback(
+  const handleOnCaseFileSubmit = useCallback(
     (caseFileId: number) => {
       const formData = getValues();
-      const inspectionData: InspectionAPIData = formatInspectionData(
+      const inspectionCreateData: InspectionAPIData = formatInspectionData(
         formData,
         caseFileId
       );
-
-      if (inspection) {
-        updateInspection({ id: inspection.id, inspection: inspectionData });
-      } else {
-        createInspection(inspectionData);
-      }
-    },
-    [createInspection, getValues, inspection, updateInspection]
-  );
-
-  const handleOnCaseFileSubmit = useCallback(
-    (caseFileId: number) => {
-      addOrUpdateInspection(caseFileId);
+      createInspection(inspectionCreateData);
       setModalClose();
     },
-    [addOrUpdateInspection, setModalClose]
+    [createInspection, getValues, setModalClose]
   );
 
   const onSubmitHandler = useCallback(
     (data: InspectionSchemaType) => {
-      // Open modal for linking or creating case file
-      setModalOpen({
-        content: (
-          <LinkCaseFileModal
-            onSubmit={handleOnCaseFileSubmit}
-            projectId={getProjectId(data)}
-            leadOfficerId={(data.leadOfficer as StaffUser)?.id}
-            initiationId={INITIATION.INSPECTION_ID}
-          />
-        ),
-      });
+      if (inspection) {
+        // update existing inspection record
+        const formData = getValues();
+        const inspectionUpdateData: InspectionAPIData =
+          formatInspectionData(formData);
+        updateInspection({
+          id: inspection.id,
+          inspection: inspectionUpdateData,
+        });
+      } else {
+        // Open modal for linking or creating case file during create new inspection record
+        setModalOpen({
+          content: (
+            <LinkCaseFileModal
+              onSubmit={handleOnCaseFileSubmit}
+              projectId={getProjectId(data)}
+              leadOfficerId={(data.leadOfficer as StaffUser)?.id}
+              initiationId={INITIATION.INSPECTION_ID}
+            />
+          ),
+        });
+      }
     },
-    [setModalOpen, handleOnCaseFileSubmit]
+    [
+      inspection,
+      getValues,
+      updateInspection,
+      setModalOpen,
+      handleOnCaseFileSubmit,
+    ]
   );
 
   return (

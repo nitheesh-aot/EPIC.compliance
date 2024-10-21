@@ -21,7 +21,8 @@ export interface Inspection {
   lead_officer_id: number;
   start_date: string;
   end_date: string;
-  types: string;
+  types: IRType[];
+  types_text: string; // TODO: Remove this once the table filter is updated
   inspection_status: string;
   is_active: boolean;
   initiation: Initiation;
@@ -59,7 +60,7 @@ export interface InspectionAPIData {
   location_description?: string;
   utm?: string;
   lead_officer_id: number;
-  case_file_id: number;
+  case_file_id?: number;
   inspection_type_ids: string[];
   start_date: string;
   end_date: string;

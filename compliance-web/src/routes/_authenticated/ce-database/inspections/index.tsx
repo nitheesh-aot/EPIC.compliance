@@ -60,7 +60,7 @@ export function Inspections() {
     [createUniqueFilterList]
   );
   const irTypeList = useMemo(
-    () => createUniqueFilterList("types"),
+    () => createUniqueFilterList("types_text"),
     [createUniqueFilterList]
   );
   const inspectionStatusList = useMemo(
@@ -120,7 +120,7 @@ export function Inspections() {
         size: 120,
       },
       {
-        accessorKey: "types",
+        accessorKey: "types_text",
         header: "Type",
         filterVariant: "multi-select",
         filterSelectOptions: irTypeList,

@@ -53,7 +53,10 @@ const InspectionGeneralInformation: React.FC<
         .join(", "),
     },
     { name: "Initiation", value: inspectionData.initiation?.name },
-    { name: "Type", value: inspectionData.types },
+    {
+      name: "Type",
+      value: inspectionData.types?.map((type) => type.name).join(", "),
+    },
     {
       name: "Dates",
       value: `${dateUtils.formatDate(inspectionData.start_date)} — ${dateUtils.formatDate(inspectionData.end_date)}`,

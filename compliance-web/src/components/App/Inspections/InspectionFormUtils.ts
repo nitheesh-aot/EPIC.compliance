@@ -129,15 +129,13 @@ export const getProjectId = (formData: InspectionSchemaType) => {
 // Formatting inspection form data for API
 export const formatInspectionData = (
   formData: InspectionSchemaType,
-  caseFileId: number
+  caseFileId?: number
 ) => {
   const projectId = getProjectId(formData);
   const inAttendanceOptions =
     (formData.inAttendance as Attendance[])?.map((att) => att.id) ?? [];
 
   let inspectionData: InspectionAPIData = {
-    project_id: projectId,
-    case_file_id: caseFileId,
     project_description: formData.projectDescription ?? "",
     inspection_type_ids:
       (formData.irTypes as IRType[])?.map((ir) => ir.id) ?? [],
@@ -177,6 +175,10 @@ export const formatInspectionData = (
       unapproved_project_sub_type: formData.projectSubType ?? "",
       ...inspectionData,
     };
+  }
+  if (caseFileId) { // map the fields only for create new inspection, and case file id is available
+    inspectionData.project_id = projectId;
+    inspectionData.case_file_id = caseFileId;
   }
   return inspectionData;
 };
