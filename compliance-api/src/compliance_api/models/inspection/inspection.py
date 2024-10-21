@@ -159,6 +159,20 @@ class Inspection(BaseModelVersioned):
         return inspection
 
     @classmethod
+    def update_inspection(cls, inspection_id, inspection_data, session=None):
+        """Update inspection."""
+        query = cls.query.filter_by(id=inspection_id)
+        inspection: Inspection = query.first()
+        if not inspection or inspection.is_deleted:
+            return None
+        query.update(inspection_data)
+        if session:
+            session.flush()
+        else:
+            cls.session.commit()
+        return inspection
+
+    @classmethod
     def get_by_ir_number(cls, ir_number):
         """Retrieve inspection by ir number."""
         return cls.query.filter_by(ir_number=ir_number, is_deleted=False).first()

@@ -47,7 +47,7 @@ class InspectionOtherAttendance(BaseModelVersioned):
 
     @classmethod
     def update_attendance(cls, inspection_id, other_attendance_data, session=None):
-        """Update the other attendance data in database."""
+        """Update other attendance."""
         query = cls.query.filter_by(inspection_id=inspection_id)
         attendance: InspectionOtherAttendance = query.first()
         if not attendance or attendance.is_deleted:

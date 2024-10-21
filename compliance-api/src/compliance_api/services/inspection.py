@@ -190,6 +190,62 @@ class InspectionService:
         return created_inspection
 
     @classmethod
+    def update(cls, inspection_id: int, inspection_data: dict):
+        """Update inspection."""
+        inspection_obj = _create_inspection_update_obj(inspection_data)
+        with session_scope() as session:
+            updated_case_file = InspectionModel.update_inspection(
+                inspection_id, inspection_obj, session
+            )
+            _insert_or_update_inspection_relationship(
+                inspection_id,
+                inspection_data.get("inspection_officer_ids", []),
+                InspectionOfficerModel,
+                "officer_id",
+                session,
+            )
+            _insert_or_update_inspection_relationship(
+                inspection_id,
+                inspection_data.get("inspection_type_ids", []),
+                InspectionTypeModel,
+                "type_id",
+                session,
+            )
+            attendance_option_ids = inspection_data.get("attendance_option_ids", [])
+            _insert_or_update_inspection_relationship(
+                inspection_id,
+                attendance_option_ids,
+                InspectionAttendanceModel,
+                "attendance_option_id",
+                session,
+            )
+            _insert_or_update_inspection_relationship(
+                inspection_id,
+                inspection_data.get("agency_attendance_ids", []),
+                InspectionAgencyModel,
+                "agency_id",
+                session,
+            )
+            if {
+                InspectionAttendanceOptionEnum.MUNICIPAL.value,
+                InspectionAttendanceOptionEnum.OTHER.value,
+            }.intersection(attendance_option_ids):
+                other_attendance_obj = _create_inspection_other_attendance_object(
+                    inspection_data, inspection_id
+                )
+                InspectionOtherAttendanceModel.update_attendance(
+                    inspection_id, other_attendance_obj, session
+                )
+            _insert_or_update_inspection_relationship(
+                inspection_id,
+                inspection_data.get("firstnation_attendance_ids", []),
+                InspectionFirstnationModel,
+                "firstnation_id",
+                session,
+            )
+        return updated_case_file
+
+    @classmethod
     def is_assigned_user(cls, inspection_id, auth_user_guid):
         """Check if the given user is an assigned user of the given inspection."""
         inspection = InspectionModel.find_by_id(inspection_id)
@@ -281,6 +337,21 @@ def _create_unapproved_project_object(inspection_data: dict, inspection_id: int)
         "type": inspection_data.get("unapproved_project_type"),
         "sub_type": inspection_data.get("unapproved_project_sub_type"),
         "inspection_id": inspection_id,
+    }
+
+
+def _create_inspection_update_obj(inspection_data: dict):
+    """Create inspection update object."""
+    return {
+        "project_description": inspection_data.get("project_description", None),
+        "location_description": inspection_data.get("location_description", None),
+        "utm": inspection_data.get("utm", None),
+        "lead_officer_id": inspection_data.get("lead_officer_id"),
+        "start_date": inspection_data.get("start_date"),
+        "end_date": inspection_data.get("end_date"),
+        "initiation_id": inspection_data.get("initiation_id"),
+        "ir_status_id": inspection_data.get("ir_status_id", None),
+        "project_status_id": inspection_data.get("project_status_id", None),
     }
 
 

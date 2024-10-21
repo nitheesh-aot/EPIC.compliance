@@ -43,7 +43,7 @@ class InspectionType(BaseModelVersioned):
         """Delete inspection type."""
         query = session.query(InspectionType) if session else cls.query
         query.filter(
-            cls.inspection_id == inspection_id, cls.inspection_type_id.in_(type_ids)
+            cls.inspection_id == inspection_id, cls.type_id.in_(type_ids)
         ).update({cls.is_active: False, cls.is_deleted: True})
 
     @classmethod
