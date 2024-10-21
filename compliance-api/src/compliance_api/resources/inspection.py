@@ -20,8 +20,8 @@ from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
 from compliance_api.schemas import (
-    InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema, KeyValueSchema,
-    StaffUserSchema)
+    InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
+    InspectionUpdateSchema, KeyValueSchema, StaffUserSchema)
 from compliance_api.services import InspectionService
 from compliance_api.utils.util import cors_preflight
 
@@ -45,6 +45,9 @@ inspection_officer_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 staff_list_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, StaffUserSchema(), "StaffList"
+)
+inspection_update_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, InspectionUpdateSchema(), "InspectionUpdate"
 )
 
 
@@ -182,8 +185,8 @@ class InspectionAttendances(Resource):
         return inspection_attendance_schema.dump(attendances), HTTPStatus.OK
 
 
-@cors_preflight("GET, OPTIONS")
-@API.route("/<int:inspection_id>", methods=["GET", "OPTIONS"])
+@cors_preflight("GET, PATCH, OPTIONS")
+@API.route("/<int:inspection_id>", methods=["GET", "PATCH", "OPTIONS"])
 class Inspection(Resource):
     """Inspection resource."""
 
@@ -196,6 +199,17 @@ class Inspection(Resource):
         inspection = InspectionService.get_by_id(inspection_id)
         inspection_list_schema = InspectionSchema()
         return inspection_list_schema.dump(inspection), HTTPStatus.OK
+
+    @staticmethod
+    @API.response(code=200, description="Sucess", model=[inspection_list_model])
+    @API.expect(inspection_update_model)
+    @ApiHelper.swagger_decorators(API, endpoint_description="Update inspection")
+    @auth.require
+    def patch(inspection_id):
+        """Update inspection."""
+        inspection_data = InspectionUpdateSchema().load(API.payload)
+        updated_inspection = InspectionService.update(inspection_id, inspection_data)
+        return InspectionSchema().dump(updated_inspection), HTTPStatus.CREATED
 
 
 @cors_preflight("GET, OPTIONS")

@@ -60,21 +60,15 @@ class InspectionOfficerSchema(AutoSchemaBase):  # pylint: disable=too-many-ances
     officer = fields.Nested(StaffUserSchema, dump_only=True)
 
 
-class InspectionCreateSchema(BaseSchema):
-    """Inspection schema for create."""
+class InspectionUpdateSchema(BaseSchema):
+    """InspectionUpdateSchema."""
 
-    project_id = fields.Int(
-        metadata={
-            "description": "The unique identifier for the project associated with the inspection."
-        },
-        allow_none=True,
+    project_description = fields.Str(
+        metadata={"description": "The project description"}, allow_none=True
     )
     location_description = fields.Str(
         metadata={"description": "The location details of the inspection."},
         allow_none=True,
-    )
-    project_description = fields.Str(
-        metadata={"description": "The project description"}, allow_none=True
     )
     utm = fields.Str(
         metadata={"description": "The UTM value of the location."}, allow_none=True
@@ -85,10 +79,26 @@ class InspectionCreateSchema(BaseSchema):
         },
         required=True,
     )
-    case_file_id = fields.Int(
+    inspection_officer_ids = fields.List(
+        fields.Int(
+            metadata={
+                "description": "The list of unique identifiers of the other officers associated with the inspection"
+            }
+        ),
+        required=False,
+    )
+    initiation_id = fields.Int(
         metadata={
-            "description": "The unique identifier of the case file associated with the inspection."
+            "description": "The unique identifier of the initiation option for creating the inspection."
         },
+        required=True,
+    )
+    inspection_type_ids = fields.List(
+        fields.Int(
+            metadata={
+                "description": "The list of unique identifier of the inspection type options"
+            }
+        ),
         required=True,
     )
     start_date = fields.DateTime(
@@ -107,12 +117,6 @@ class InspectionCreateSchema(BaseSchema):
             "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
         },
     )
-    initiation_id = fields.Int(
-        metadata={
-            "description": "The unique identifier of the initiation option for creating the inspection."
-        },
-        required=True,
-    )
     ir_status_id = fields.Int(
         metadata={
             "description": "The unique identifier of the inspection record status."
@@ -122,14 +126,6 @@ class InspectionCreateSchema(BaseSchema):
     project_status_id = fields.Int(
         metadata={"description": "The unique identifier of the project status."},
         allow_none=True,
-    )
-    inspection_officer_ids = fields.List(
-        fields.Int(
-            metadata={
-                "description": "The list of unique identifiers of the other officers associated with the inspection"
-            }
-        ),
-        required=False,
     )
     attendance_option_ids = fields.List(
         fields.Int(
@@ -145,14 +141,6 @@ class InspectionCreateSchema(BaseSchema):
         ),
         required=False,
     )
-    inspection_type_ids = fields.List(
-        fields.Int(
-            metadata={
-                "description": "The list of unique identifier of the inspection type options"
-            }
-        ),
-        required=True,
-    )
     attendance_municipal = fields.Str(
         metadata={"description": "The municipal attendance"}, allow_none=True
     )
@@ -166,23 +154,6 @@ class InspectionCreateSchema(BaseSchema):
             }
         ),
         required=False,
-    )
-    unapproved_project_authorization = fields.Str(
-        metadata={
-            "description": "The authorization information of the unapproved project"
-        },
-        allow_none=True,
-    )
-    unapproved_project_regulated_party = fields.Str(
-        metadata={"description": "The regulated_party name of the unapproved project"},
-        allow_none=True,
-    )
-    unapproved_project_type = fields.Str(
-        metadata={"description": "The type of the unapproved project"}, allow_none=True
-    )
-    unapproved_project_sub_type = fields.Str(
-        metadata={"description": "The sub type of the unapproved project"},
-        allow_none=True,
     )
 
     @validates_schema
@@ -291,6 +262,40 @@ class InspectionCreateSchema(BaseSchema):
                 )
 
 
+class InspectionCreateSchema(InspectionUpdateSchema):
+    """Inspection schema for create."""
+
+    project_id = fields.Int(
+        metadata={
+            "description": "The unique identifier for the project associated with the inspection."
+        },
+        allow_none=True,
+    )
+    case_file_id = fields.Int(
+        metadata={
+            "description": "The unique identifier of the case file associated with the inspection."
+        },
+        required=True,
+    )
+    unapproved_project_authorization = fields.Str(
+        metadata={
+            "description": "The authorization information of the unapproved project"
+        },
+        allow_none=True,
+    )
+    unapproved_project_regulated_party = fields.Str(
+        metadata={"description": "The regulated_party name of the unapproved project"},
+        allow_none=True,
+    )
+    unapproved_project_type = fields.Str(
+        metadata={"description": "The type of the unapproved project"}, allow_none=True
+    )
+    unapproved_project_sub_type = fields.Str(
+        metadata={"description": "The sub type of the unapproved project"},
+        allow_none=True,
+    )
+
+
 class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     """Schema for inspection model."""
 
@@ -339,8 +344,10 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
             }
         return data
 
-    def get_inspection_type_names(self, obj):  # pylint: disable=no-self-use
-        """Get the names of inspection types as a comma-separated string."""
+    def get_inspection_type_names(
+        self, obj
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Get the inspection type objects."""
         if obj.types:
-            return ", ".join([type_item.type.name for type_item in obj.types])
-        return ""
+            return [{"id": o.type.id, "name": o.type.name} for o in obj.types]
+        return []
