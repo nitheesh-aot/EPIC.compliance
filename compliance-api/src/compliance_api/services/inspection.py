@@ -282,7 +282,7 @@ def _set_first_nation_names(first_nation_list: list):
     """Set the name of the first nations from epic.track."""
     result = []
     for first_nation in first_nation_list:
-        response = TrackService.get_first_nation_by_id(first_nation.id)
+        response = TrackService.get_first_nation_by_id(first_nation.firstnation_id)
         result.append({"id": response.get("id"), "name": response.get("name")})
     return result
 

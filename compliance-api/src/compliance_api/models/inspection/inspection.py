@@ -118,7 +118,14 @@ class Inspection(BaseModelVersioned):
     unapproved_project_info = relationship(
         "InspectionUnapprovedProject", back_populates="inspection", lazy="select"
     )
-    types = relationship("InspectionType", back_populates="inspection", lazy="select")
+    types = relationship(
+        "InspectionType",
+        back_populates="inspection",
+        lazy="select",
+        primaryjoin="and_(InspectionType.inspection_id == Inspection.id, "
+        "InspectionType.is_active == True, "
+        "InspectionType.is_deleted == False)",
+    )
     ir_status = relationship(
         "IRStatusOption", foreign_keys=[ir_status_id], lazy="joined"
     )
