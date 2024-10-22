@@ -129,7 +129,7 @@ export const getProjectId = (formData: InspectionSchemaType) => {
 // Formatting inspection form data for API
 export const formatInspectionData = (
   formData: InspectionSchemaType,
-  caseFileId?: number
+  caseFileId?: number // use as a flag for create new inspection mode
 ) => {
   const projectId = getProjectId(formData);
   const inAttendanceOptions =
@@ -144,8 +144,7 @@ export const formatInspectionData = (
       formData.dateRange?.startDate ?? new Date()
     ),
     end_date: dateUtils.dateToISO(
-      // adding hours to allow same value for start_date/end_date
-      dateUtils.add(formData.dateRange?.endDate?.toDate() ?? new Date(), 23, "hour")
+      formData.dateRange?.endDate ?? new Date()
     ),
     lead_officer_id: (formData.leadOfficer as StaffUser)?.id,
     inspection_officer_ids:
