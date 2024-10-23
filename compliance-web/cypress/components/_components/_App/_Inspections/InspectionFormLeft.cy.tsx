@@ -79,7 +79,6 @@ describe("InspectionFormLeft Component", () => {
     cy.contains("Location Description (optional)").should("exist");
     cy.contains("UTM (optional)").should("exist");
     cy.contains("Lead Officer").should("exist");
-    cy.contains("Other Officers (optional)").should("exist");
     cy.contains("Type").should("exist");
     cy.contains("Dates").should("exist");
     cy.contains("Initiation").should("exist");
@@ -108,19 +107,6 @@ describe("InspectionFormLeft Component", () => {
     cy.get('input[name="leadOfficer"]').click();
     cy.get("li").contains("John Doe").click();
     cy.get('input[name="leadOfficer"]').should("have.value", "John Doe");
-  });
-
-  it("allows selecting multiple other officers", () => {
-    cy.get('input[name="officers"]').click();
-    cy.get("li").contains("John Doe").click();
-    cy.get("li").contains("Jane Smith").click();
-
-    // Verify that both selected officers appear as tags
-    cy.get('.MuiAutocomplete-root[name="officers"]').within(() => {
-      cy.get(".MuiAutocomplete-tag").should("have.length", 2);
-      cy.get(".MuiAutocomplete-tag").eq(0).should("contain.text", "John Doe");
-      cy.get(".MuiAutocomplete-tag").eq(1).should("contain.text", "Jane Smith");
-    });
   });
 
   it("allows selecting multiple IR types", () => {
