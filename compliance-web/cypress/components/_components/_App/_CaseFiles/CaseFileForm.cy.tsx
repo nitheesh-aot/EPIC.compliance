@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs"; // Use the correct adapter for date handling (e.g., date-fns, moment, dayjs, luxon, etc.)
+import { Initiation } from "@/models/Initiation";
 
 // Mock data for projects, initiations, and staff users
 const mockProjects = [
@@ -12,9 +13,9 @@ const mockProjects = [
   { id: 2, name: "Project Beta" },
 ];
 
-const mockInitiations = [
-  { id: 1, name: "Initiation Alpha" },
-  { id: 2, name: "Initiation Beta" },
+const mockInitiations: Initiation[] = [
+  { id: "1", name: "Initiation Alpha" },
+  { id: "2", name: "Initiation Beta" },
 ];
 
 const mockStaffUsers = [
@@ -54,6 +55,7 @@ describe("CaseFileForm Component", () => {
     mount(
       <Wrapper>
         <CaseFileForm
+          isEditMode={false}
           projectList={mockProjects}
           initiationList={mockInitiations}
           staffUsersList={mockStaffUsers}
@@ -72,7 +74,7 @@ describe("CaseFileForm Component", () => {
     cy.contains("Project").should("exist");
     cy.contains("Date Created").should("exist");
     cy.contains("Lead Officer (optional)").should("exist");
-    cy.contains("Other Officers (optional)").should("exist");
+    cy.contains("Other Assigned Officers (optional)").should("exist");
     cy.contains("Initiation").should("exist");
     cy.contains("Case File Number").should("exist");
   });

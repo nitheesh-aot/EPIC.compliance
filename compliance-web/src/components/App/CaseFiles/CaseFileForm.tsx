@@ -64,7 +64,7 @@ const CaseFileForm: React.FC<CaseFileFormProps> = ({
           />
           <ControlledAutoComplete
             name="officers"
-            label="Other Officers (optional)"
+            label="Other Assigned Officers (optional)"
             options={staffUsersList}
             getOptionLabel={(option) => option.full_name ?? ""}
             getOptionKey={(option) => option.id}
