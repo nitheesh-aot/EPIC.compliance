@@ -2,6 +2,7 @@ import { Complaint, ComplaintAPIData } from "@/models/Complaint";
 import { ComplaintSource } from "@/models/ComplaintSource";
 import { RequirementSource } from "@/models/RequirementSource";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
+import { UNAPPROVED_PROJECT_ABBREVIATION, UNAPPROVED_PROJECT_ID } from "@/utils/constants";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 const fetchRequirementSources = (): Promise<RequirementSource[]> => {
@@ -14,6 +15,10 @@ const fetchComplaintSources = (): Promise<ComplaintSource[]> => {
 
 const fetchComplaints = (): Promise<Complaint[]> => {
   return request({ url: "/complaints" });
+};
+
+const fetchComplaint = (complaintNumber: string): Promise<Complaint> => {
+  return request({ url: `/complaints/${complaintNumber}` });
 };
 
 const createComplaint = (complaint: ComplaintAPIData) => {
@@ -38,6 +43,21 @@ export const useComplaintsData = () => {
   return useQuery({
     queryKey: ["complaints"],
     queryFn: fetchComplaints,
+  });
+};
+
+export const useComplaintByNumber = (complaintNumber: string) => {
+  return useQuery({
+    queryKey: ["complaint", complaintNumber],
+    queryFn: async () => {
+      const complaint = await fetchComplaint(complaintNumber);
+      if (complaint.project.abbreviation === UNAPPROVED_PROJECT_ABBREVIATION) {
+        complaint.project.id = UNAPPROVED_PROJECT_ID;
+        delete complaint.project.abbreviation;
+      }
+      return complaint;
+    },
+    enabled: !!complaintNumber,
   });
 };
 

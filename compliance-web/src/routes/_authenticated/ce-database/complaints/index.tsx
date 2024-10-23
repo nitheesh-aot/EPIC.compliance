@@ -1,21 +1,24 @@
-import ComplaintDrawer from '@/components/App/Complaints/ComplaintDrawer';
-import TableFilter from '@/components/Shared/FilterSelect/TableFilter';
-import MasterDataTable from '@/components/Shared/MasterDataTable/MasterDataTable';
-import { searchFilter } from '@/components/Shared/MasterDataTable/utils';
-import { useComplaintsData } from '@/hooks/useComplaints';
-import { Complaint } from '@/models/Complaint';
-import { useDrawer } from '@/store/drawerStore';
-import { notify } from '@/store/snackbarStore';
-import dateUtils from '@/utils/dateUtils';
-import { Chip } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
-import { createFileRoute } from '@tanstack/react-router'
-import { MRT_ColumnDef } from 'material-react-table';
-import { useState, useEffect, useMemo } from 'react';
+import ComplaintDrawer from "@/components/App/Complaints/ComplaintDrawer";
+import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
+import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
+import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
+import PageLink from "@/components/Shared/PageLink";
+import { useComplaintsData } from "@/hooks/useComplaints";
+import { Complaint } from "@/models/Complaint";
+import { useDrawer } from "@/store/drawerStore";
+import { notify } from "@/store/snackbarStore";
+import dateUtils from "@/utils/dateUtils";
+import { Chip } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { MRT_ColumnDef } from "material-react-table";
+import { useState, useEffect, useMemo } from "react";
 
-export const Route = createFileRoute('/_authenticated/ce-database/complaints/')({
-  component: Complaints
-})
+export const Route = createFileRoute("/_authenticated/ce-database/complaints/")(
+  {
+    component: Complaints,
+  }
+);
 
 export function Complaints() {
   const queryClient = useQueryClient();
@@ -69,6 +72,12 @@ export function Complaints() {
         header: "Complaint #",
         sortingFn: "sortFn",
         filterFn: searchFilter,
+        Cell: ({ row }) => (
+          <PageLink
+            to="/ce-database/complaints/$complaintNumber"
+            params={{ complaintNumber: row.original.complaint_number }}
+          />
+        ),
       },
       {
         accessorKey: "project.name",
@@ -189,6 +198,14 @@ export function Complaints() {
         accessorKey: "case_file.case_file_number",
         header: "Case File #",
         filterFn: searchFilter,
+        Cell: ({ row }) => (
+          <PageLink
+            to="/ce-database/case-files/$caseFileNumber"
+            params={{
+              caseFileNumber: row.original.case_file?.case_file_number,
+            }}
+          />
+        ),
       },
     ],
     [projectList, topicList, complaintSourceList, officerList, statusList]

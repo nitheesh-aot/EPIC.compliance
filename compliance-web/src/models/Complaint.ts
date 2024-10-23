@@ -31,6 +31,10 @@ export interface Complaint {
     topic: Topic;
   };
   status: string;
+  authorization?: string;
+  regulated_party?: string;
+  type?: string;
+  sub_type?: string;
 }
 
 export interface InspectionFormData {

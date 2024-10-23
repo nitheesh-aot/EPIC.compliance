@@ -23,6 +23,7 @@ import { Route as AuthenticatedCeDatabaseInspectionsIndexImport } from './routes
 import { Route as AuthenticatedCeDatabaseComplaintsIndexImport } from './routes/_authenticated/ce-database/complaints/index'
 import { Route as AuthenticatedCeDatabaseCaseFilesIndexImport } from './routes/_authenticated/ce-database/case-files/index'
 import { Route as AuthenticatedCeDatabaseInspectionsInspectionNumberImport } from './routes/_authenticated/ce-database/inspections/$inspectionNumber'
+import { Route as AuthenticatedCeDatabaseComplaintsComplaintNumberImport } from './routes/_authenticated/ce-database/complaints/$complaintNumber'
 import { Route as AuthenticatedCeDatabaseCaseFilesCaseFileNumberImport } from './routes/_authenticated/ce-database/case-files/$caseFileNumber'
 
 // Create/Update Routes
@@ -91,6 +92,12 @@ const AuthenticatedCeDatabaseCaseFilesIndexRoute =
 const AuthenticatedCeDatabaseInspectionsInspectionNumberRoute =
   AuthenticatedCeDatabaseInspectionsInspectionNumberImport.update({
     path: '/ce-database/inspections/$inspectionNumber',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+
+const AuthenticatedCeDatabaseComplaintsComplaintNumberRoute =
+  AuthenticatedCeDatabaseComplaintsComplaintNumberImport.update({
+    path: '/ce-database/complaints/$complaintNumber',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -167,6 +174,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCeDatabaseCaseFilesCaseFileNumberImport
       parentRoute: typeof AuthenticatedImport
     }
+    '/_authenticated/ce-database/complaints/$complaintNumber': {
+      id: '/_authenticated/ce-database/complaints/$complaintNumber'
+      path: '/ce-database/complaints/$complaintNumber'
+      fullPath: '/ce-database/complaints/$complaintNumber'
+      preLoaderRoute: typeof AuthenticatedCeDatabaseComplaintsComplaintNumberImport
+      parentRoute: typeof AuthenticatedImport
+    }
     '/_authenticated/ce-database/inspections/$inspectionNumber': {
       id: '/_authenticated/ce-database/inspections/$inspectionNumber'
       path: '/ce-database/inspections/$inspectionNumber'
@@ -209,6 +223,7 @@ export const routeTree = rootRoute.addChildren({
     AuthenticatedAdminStaffRoute,
     AuthenticatedAdminTopicsRoute,
     AuthenticatedCeDatabaseCaseFilesCaseFileNumberRoute,
+    AuthenticatedCeDatabaseComplaintsComplaintNumberRoute,
     AuthenticatedCeDatabaseInspectionsInspectionNumberRoute,
     AuthenticatedCeDatabaseCaseFilesIndexRoute,
     AuthenticatedCeDatabaseComplaintsIndexRoute,
@@ -242,6 +257,7 @@ export const routeTree = rootRoute.addChildren({
         "/_authenticated/admin/staff",
         "/_authenticated/admin/topics",
         "/_authenticated/ce-database/case-files/$caseFileNumber",
+        "/_authenticated/ce-database/complaints/$complaintNumber",
         "/_authenticated/ce-database/inspections/$inspectionNumber",
         "/_authenticated/ce-database/case-files/",
         "/_authenticated/ce-database/complaints/",
@@ -273,6 +289,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/_authenticated/ce-database/case-files/$caseFileNumber": {
       "filePath": "_authenticated/ce-database/case-files/$caseFileNumber.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/ce-database/complaints/$complaintNumber": {
+      "filePath": "_authenticated/ce-database/complaints/$complaintNumber.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/ce-database/inspections/$inspectionNumber": {
