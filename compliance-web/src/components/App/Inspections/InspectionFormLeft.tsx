@@ -62,13 +62,12 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
             fullWidth
           />
           <ControlledAutoComplete
-            name="officers"
-            label="Other Officers (optional)"
-            options={staffUsersList}
-            getOptionLabel={(option) => option.full_name ?? ""}
+            name="initiation"
+            label="Initiation"
+            options={initiationList}
+            getOptionLabel={(option) => option.name}
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
-            multiple
             fullWidth
           />
         </Stack>
@@ -87,15 +86,6 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
           />
           <ControlledDateRangePicker name="dateRange" label="Dates" fullWidth />
         </Stack>
-        <ControlledAutoComplete
-          name="initiation"
-          label="Initiation"
-          options={initiationList}
-          getOptionLabel={(option) => option.name}
-          getOptionKey={(option) => option.id}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          sx={{ width: "calc(50% - 8px)" }}
-        />
       </Box>
     </>
   );
