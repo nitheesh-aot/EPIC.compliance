@@ -1,21 +1,21 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Chip } from "@mui/material";
-import { useDrawer } from "@/store/drawerStore";
-import { notify } from "@/store/snackbarStore";
-import ComplaintDrawer from "@/components/App/Complaints/ComplaintDrawer";
-import { useQueryClient } from "@tanstack/react-query";
-import { useComplaintsData } from "@/hooks/useComplaints";
-import { useEffect, useMemo, useState } from "react";
-import { Complaint } from "@/models/Complaint";
-import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
-import { MRT_ColumnDef } from "material-react-table";
-import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
-import dateUtils from "@/utils/dateUtils";
-import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
+import ComplaintDrawer from '@/components/App/Complaints/ComplaintDrawer';
+import TableFilter from '@/components/Shared/FilterSelect/TableFilter';
+import MasterDataTable from '@/components/Shared/MasterDataTable/MasterDataTable';
+import { searchFilter } from '@/components/Shared/MasterDataTable/utils';
+import { useComplaintsData } from '@/hooks/useComplaints';
+import { Complaint } from '@/models/Complaint';
+import { useDrawer } from '@/store/drawerStore';
+import { notify } from '@/store/snackbarStore';
+import dateUtils from '@/utils/dateUtils';
+import { Chip } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
+import { createFileRoute } from '@tanstack/react-router'
+import { MRT_ColumnDef } from 'material-react-table';
+import { useState, useEffect, useMemo } from 'react';
 
-export const Route = createFileRoute("/_authenticated/ce-database/complaints")({
-  component: Complaints,
-});
+export const Route = createFileRoute('/_authenticated/ce-database/complaints/')({
+  component: Complaints
+})
 
 export function Complaints() {
   const queryClient = useQueryClient();
