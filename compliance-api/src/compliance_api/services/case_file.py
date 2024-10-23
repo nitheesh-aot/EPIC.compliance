@@ -42,7 +42,7 @@ class CaseFileService:
         with session_scope() as session:
             created_case_file = CaseFileModel.create_case_file(case_file_obj, session)
             cls.insert_or_update_officers(
-                created_case_file.id, case_file_data.get("officer_ids", None), session
+                created_case_file.id, case_file_data.get("officer_ids", []), session
             )
         return created_case_file
 
@@ -57,7 +57,7 @@ class CaseFileService:
                 case_file_id, case_file_obj, session
             )
             cls.insert_or_update_officers(
-                case_file_id, case_file_data.get("officer_ids", None), session
+                case_file_id, case_file_data.get("officer_ids", []), session
             )
         return updated_case_file
 
@@ -71,7 +71,7 @@ class CaseFileService:
         cls, case_file_id: int, officer_ids: list[int], session=None
     ):
         """Insert/Update case file officers associated with a given case file."""
-        if officer_ids:
+        if officer_ids is not None:
             existing_officers = CaseFileOfficerModel.get_all_by_case_file_id(
                 case_file_id
             )

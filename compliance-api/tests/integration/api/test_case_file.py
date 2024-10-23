@@ -191,3 +191,13 @@ def test_case_file_update(client, auth_header):
     officers = CaseFileService.get_other_officers(result.json["id"])
     assert len(officers) == 1
     assert officers[0].id == new_user.id
+    #  update the payload by making the officer list empty
+    case_file_data["primary_officer_id"] = new_user.id
+    case_file_data["officer_ids"] = []
+    url = urljoin(API_BASE_URL, f"case-files/{created_case_file.id}")
+    result = client.patch(url, data=json.dumps(case_file_data), headers=auth_header)
+
+    assert result.status_code == HTTPStatus.OK
+    assert result.json["primary_officer_id"] == new_user.id
+    officers = CaseFileService.get_other_officers(result.json["id"])
+    assert len(officers) == 0
