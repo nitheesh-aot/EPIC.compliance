@@ -66,12 +66,12 @@ def test_create_case_file_with_file_number(client, auth_header):
     url = urljoin(API_BASE_URL, "case-files")
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = "XYZ"
-    case_file_data["lead_officer_id"] = new_user.id
+    case_file_data["primary_officer_id"] = new_user.id
     case_file_data["officer_ids"] = [new_user.id]
     result = client.post(url, data=json.dumps(case_file_data), headers=auth_header)
     assert result.json["case_file_number"] == "XYZ"
     assert result.json["case_file_status"] == CaseFileStatusEnum.OPEN.value
-    assert result.json["lead_officer_id"] == new_user.id
+    assert result.json["primary_officer_id"] == new_user.id
     assert result.status_code == HTTPStatus.CREATED
 
     officers = CaseFileService.get_other_officers(result.json["id"])
@@ -132,7 +132,7 @@ def test_get_case_file_officers(client, auth_header):
     new_user = StaffScenario.create(user_data)
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
-    case_file_data["lead_officer_id"] = new_user.id
+    case_file_data["primary_officer_id"] = new_user.id
     case_file_data["officer_ids"] = [new_user.id]
     created_case_file = CaseFileService.create(case_file_data)
     url = urljoin(API_BASE_URL, f"case-files/{created_case_file.id}/officers")
@@ -161,7 +161,7 @@ def test_get_case_file_by_number(client, auth_header):
 
 def test_case_file_update(client, auth_header):
     """Update case file."""
-    #  creating case file without officers or lead officer
+    #  creating case file without officers or primary officer
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
     created_case_file = CaseFileService.create(case_file_data)
@@ -172,7 +172,7 @@ def test_case_file_update(client, auth_header):
     result = client.get(url, headers=auth_header)
     print(result.json)
     assert result.status_code == HTTPStatus.OK
-    assert result.json["lead_officer_id"] is None
+    assert result.json["primary_officer_id"] is None
     officers = CaseFileService.get_other_officers(result.json["id"])
     assert len(officers) == 0
     #  create one user
@@ -180,14 +180,24 @@ def test_case_file_update(client, auth_header):
     auth_user_guid = fake.word()
     user_data["auth_user_guid"] = auth_user_guid
     new_user = StaffScenario.create(user_data)
-    #  update the payload by adding lead officer and officers
-    case_file_data["lead_officer_id"] = new_user.id
+    #  update the payload by adding primary officer and officers
+    case_file_data["primary_officer_id"] = new_user.id
     case_file_data["officer_ids"] = [new_user.id]
     url = urljoin(API_BASE_URL, f"case-files/{created_case_file.id}")
     result = client.patch(url, data=json.dumps(case_file_data), headers=auth_header)
 
     assert result.status_code == HTTPStatus.OK
-    assert result.json["lead_officer_id"] == new_user.id
+    assert result.json["primary_officer_id"] == new_user.id
     officers = CaseFileService.get_other_officers(result.json["id"])
     assert len(officers) == 1
     assert officers[0].id == new_user.id
+    #  update the payload by making the officer list empty
+    case_file_data["primary_officer_id"] = new_user.id
+    case_file_data["officer_ids"] = []
+    url = urljoin(API_BASE_URL, f"case-files/{created_case_file.id}")
+    result = client.patch(url, data=json.dumps(case_file_data), headers=auth_header)
+
+    assert result.status_code == HTTPStatus.OK
+    assert result.json["primary_officer_id"] == new_user.id
+    officers = CaseFileService.get_other_officers(result.json["id"])
+    assert len(officers) == 0

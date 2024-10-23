@@ -46,7 +46,7 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         model = CaseFile
         include_fk = True
 
-    lead_officer = fields.Nested(StaffUserSchema, dump_only=True)
+    primary_officer = fields.Nested(StaffUserSchema, dump_only=True)
     project = fields.Nested(
         ProjectSchema,
         dump_only=True,
@@ -95,7 +95,7 @@ class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
             "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
         },
     )
-    lead_officer_id = fields.Int(
+    primary_officer_id = fields.Int(
         metadata={"description": "The lead officer who created the case file."},
         allow_none=True,
     )
@@ -126,7 +126,7 @@ class CaseFileUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
 
         unknown = EXCLUDE
 
-    lead_officer_id = fields.Int(
+    primary_officer_id = fields.Int(
         metadata={"description": "The lead officer who created the case file."},
         allow_none=True,
     )

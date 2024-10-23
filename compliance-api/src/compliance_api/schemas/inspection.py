@@ -73,9 +73,9 @@ class InspectionUpdateSchema(BaseSchema):
     utm = fields.Str(
         metadata={"description": "The UTM value of the location."}, allow_none=True
     )
-    lead_officer_id = fields.Int(
+    primary_officer_id = fields.Int(
         metadata={
-            "description": "The unique identifier of the lead officer who created the inspection."
+            "description": "The unique identifier of the primary officer who created the inspection."
         },
         required=True,
     )
@@ -307,7 +307,7 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         include_fk = True
 
     case_file = fields.Nested(CaseFileSchema, only=("case_file_number", "id"))
-    lead_officer = fields.Nested(
+    primary_officer = fields.Nested(
         StaffUserSchema, only=("id", "first_name", "last_name", "full_name")
     )
     project = fields.Nested(
