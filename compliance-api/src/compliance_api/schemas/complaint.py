@@ -116,9 +116,9 @@ class ComplaintCreateSchema(BaseSchema):
     project_description = fields.Str(
         metadata={"description": "The project description"}, allow_none=True
     )
-    lead_officer_id = fields.Int(
+    primary_officer_id = fields.Int(
         metadata={
-            "description": "The unique identifier of the lead officer who created the complaint."
+            "description": "The unique identifier of the primary officer who created the complaint."
         },
         allow_none=True,
     )
@@ -260,7 +260,7 @@ class ComplaintSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         include_fk = True
 
     case_file = fields.Nested(CaseFileSchema, only=("case_file_number", "id"))
-    lead_officer = fields.Nested(
+    primary_officer = fields.Nested(
         StaffUserSchema, only=("id", "first_name", "last_name", "full_name")
     )
     project = fields.Nested(

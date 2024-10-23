@@ -42,7 +42,7 @@ class CaseFileService:
         with session_scope() as session:
             created_case_file = CaseFileModel.create_case_file(case_file_obj, session)
             cls.insert_or_update_officers(
-                created_case_file.id, case_file_data.get("officer_ids", None), session
+                created_case_file.id, case_file_data.get("officer_ids", []), session
             )
         return created_case_file
 
@@ -50,14 +50,14 @@ class CaseFileService:
     def update(cls, case_file_id: int, case_file_data: dict):
         """Update case file."""
         case_file_obj = {
-            "lead_officer_id": case_file_data.get("lead_officer_id", None)
+            "primary_officer_id": case_file_data.get("primary_officer_id", None)
         }
         with session_scope() as session:
             updated_case_file = CaseFileModel.update_case_file(
                 case_file_id, case_file_obj, session
             )
             cls.insert_or_update_officers(
-                case_file_id, case_file_data.get("officer_ids", None), session
+                case_file_id, case_file_data.get("officer_ids", []), session
             )
         return updated_case_file
 
@@ -71,7 +71,7 @@ class CaseFileService:
         cls, case_file_id: int, officer_ids: list[int], session=None
     ):
         """Insert/Update case file officers associated with a given case file."""
-        if officer_ids:
+        if officer_ids is not None:
             existing_officers = CaseFileOfficerModel.get_all_by_case_file_id(
                 case_file_id
             )
@@ -111,8 +111,8 @@ class CaseFileService:
         if not case_file:
             return False
 
-        # Check if the user is the lead officer or part of other officers
-        return case_file.lead_officer.auth_user_guid == auth_user_guid or any(
+        # Check if the user is the primary officer or part of other officers
+        return case_file.primary_officer.auth_user_guid == auth_user_guid or any(
             officer.officer.auth_user_guid == auth_user_guid
             for officer in case_file.case_file_officers
         )
@@ -123,7 +123,7 @@ def _create_case_file_object(case_file_data: dict):
     case_file_obj = {
         "project_id": case_file_data.get("project_id", None),
         "date_created": case_file_data.get("date_created"),
-        "lead_officer_id": case_file_data.get("lead_officer_id", None),
+        "primary_officer_id": case_file_data.get("primary_officer_id", None),
         "initiation_id": case_file_data.get("initiation_id"),
         "case_file_status": CaseFileStatusEnum.OPEN,
     }

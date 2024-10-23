@@ -68,7 +68,7 @@ class ComplaintService:
 
         if not complaint:
             return False
-        return complaint.lead_officer.auth_user_guid == auth_user_guid
+        return complaint.primary_officer.auth_user_guid == auth_user_guid
 
 
 def _has_project(complaint_data):
