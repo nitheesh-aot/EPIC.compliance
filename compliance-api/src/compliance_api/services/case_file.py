@@ -50,7 +50,7 @@ class CaseFileService:
     def update(cls, case_file_id: int, case_file_data: dict):
         """Update case file."""
         case_file_obj = {
-            "lead_officer_id": case_file_data.get("lead_officer_id", None)
+            "primary_officer_id": case_file_data.get("primary_officer_id", None)
         }
         with session_scope() as session:
             updated_case_file = CaseFileModel.update_case_file(
@@ -111,8 +111,8 @@ class CaseFileService:
         if not case_file:
             return False
 
-        # Check if the user is the lead officer or part of other officers
-        return case_file.lead_officer.auth_user_guid == auth_user_guid or any(
+        # Check if the user is the primary officer or part of other officers
+        return case_file.primary_officer.auth_user_guid == auth_user_guid or any(
             officer.officer.auth_user_guid == auth_user_guid
             for officer in case_file.case_file_officers
         )
@@ -123,7 +123,7 @@ def _create_case_file_object(case_file_data: dict):
     case_file_obj = {
         "project_id": case_file_data.get("project_id", None),
         "date_created": case_file_data.get("date_created"),
-        "lead_officer_id": case_file_data.get("lead_officer_id", None),
+        "primary_officer_id": case_file_data.get("primary_officer_id", None),
         "initiation_id": case_file_data.get("initiation_id"),
         "case_file_status": CaseFileStatusEnum.OPEN,
     }

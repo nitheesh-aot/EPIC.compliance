@@ -57,11 +57,11 @@ class Inspection(BaseModelVersioned):
         String, nullable=True, comment="The location details of the inspection"
     )
     utm = Column(String, nullable=True, comment="The UTM value of the location")
-    lead_officer_id = Column(
+    primary_officer_id = Column(
         Integer,
-        ForeignKey("staff_users.id", name="inspection_lead_officer_id_staff_id_fkey"),
+        ForeignKey("staff_users.id", name="inspection_primary_officer_id_staff_id_fkey"),
         nullable=False,
-        comment="The lead officer who created the inspection",
+        comment="The primary officer who created the inspection",
     )
     start_date = Column(
         DateTime(timezone=True),
@@ -133,8 +133,8 @@ class Inspection(BaseModelVersioned):
     project_status = relationship(
         "ProjectStatusOption", foreign_keys=[project_status_id], lazy="joined"
     )
-    lead_officer = relationship(
-        "StaffUser", foreign_keys=[lead_officer_id], lazy="joined"
+    primary_officer = relationship(
+        "StaffUser", foreign_keys=[primary_officer_id], lazy="joined"
     )
 
     @classmethod

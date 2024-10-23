@@ -254,7 +254,7 @@ class InspectionService:
             return False
 
         # Check if the user is the lead officer or part of other officers
-        return inspection.lead_officer.auth_user_guid == auth_user_guid or any(
+        return inspection.primary_officer.auth_user_guid == auth_user_guid or any(
             officer.officer.auth_user_guid == auth_user_guid
             for officer in inspection.other_officers
         )

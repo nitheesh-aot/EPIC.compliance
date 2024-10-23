@@ -76,8 +76,8 @@ def run_migrations_online():
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-            version_table_schema="public",  # Set your schema if needed
-            include_schemas=True,
+            # version_table_schema="public",  # Set your schema if needed
+            # include_schemas=True,
             include_object=include_object,
             process_revision_directives=process_revision_directives,
             **current_app.extensions["migrate"].configure_args,
@@ -88,16 +88,22 @@ def run_migrations_online():
             context.run_migrations()
 
 def include_object(obj, name, type_, reflected, compare_to):
-    # Include all versioning tables
+     # Include all versioned tables
     is_versioned_table = obj in versioning_manager.tables
-    # Include all other tables except those reflected from versioning_manager
-    if type_ == "table":
-        print(name)
-        print(current_app.config.get("SKIPPED_MIGRATIONS", []))
-    if type_ == "table"  and name in current_app.config.get("SKIPPED_MIGRATIONS", []):
-        print("match found")
-        return False
-    return (type_ == "table" and not reflected) or is_versioned_table
+    
+    # Check if the current table is in the SKIPPED_MIGRATIONS list
+    is_skipped_table = type_ == "table" and name in current_app.config.get("SKIPPED_MIGRATIONS", [])
+    
+    # Always include versioned tables and other non-reflected tables
+    if is_versioned_table or (type_ == "table" and not reflected):
+        return True
+
+    # Allow columns in non-skipped tables
+    if type_ == "column" and not is_skipped_table:
+        return True
+
+    # By default, include all other types unless they are explicitly skipped
+    return not is_skipped_table
 
 if context.is_offline_mode():
     run_migrations_offline()
