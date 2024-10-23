@@ -2,6 +2,8 @@ import ComplaintDrawer from "@/components/App/Complaints/ComplaintDrawer";
 import ComplaintGeneralInformation from "@/components/App/Complaints/Profile/ComplaintGeneralInformation";
 import ContinuationReport from "@/components/App/ContinuationReports/ContinuationReport";
 import FileProfileHeader from "@/components/App/FileProfileHeader";
+import ErrorPage from "@/components/Shared/ErrorPage";
+import LoadingPage from "@/components/Shared/LoadingPage";
 import { useComplaintByNumber } from "@/hooks/useComplaints";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
@@ -47,13 +49,12 @@ function ComplaintProfilePage() {
     notify.success(submitMsg);
   };
 
-  if (isLoading) return <h2>Loading...</h2>;
-  if (isError) return <h2>{error.message}</h2>;
+  if (isError) return <ErrorPage error={error} />;
 
   return (
     <>
       {!complaintNumber || status === "pending" ? (
-        "Loading..."
+        <LoadingPage isLoading={isLoading} />
       ) : (
         <>
           <FileProfileHeader
