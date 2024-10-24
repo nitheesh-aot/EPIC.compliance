@@ -28,7 +28,7 @@ describe("ComplaintFormLeft Component", () => {
           project: null,
           concernDescription: "",
           locationDescription: "",
-          leadOfficer: null,
+          primaryOfficer: null,
           dateReceived: null,
         },
       });
@@ -59,7 +59,7 @@ describe("ComplaintFormLeft Component", () => {
     // Verify that all labels exist
     cy.contains("Concern Description").should("exist");
     cy.contains("Location Description (optional)").should("exist");
-    cy.contains("Lead Officer (optional)").should("exist");
+    cy.contains("Primary").should("exist");
     cy.contains("Date Received").should("exist");
   });
 
@@ -80,9 +80,9 @@ describe("ComplaintFormLeft Component", () => {
   });
 
   it("allows selecting a lead officer", () => {
-    cy.get('input[name="leadOfficer"]').click();
+    cy.get('input[name="primaryOfficer"]').click();
     cy.get("li").contains("John Doe").click();
-    cy.get('input[name="leadOfficer"]').should("have.value", "John Doe");
+    cy.get('input[name="primaryOfficer"]').should("have.value", "John Doe");
   });
 
   it("allows selecting a date received", () => {

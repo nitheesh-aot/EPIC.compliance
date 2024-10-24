@@ -68,7 +68,7 @@ class ComplaintService:
 
         if not complaint:
             return False
-        return complaint.lead_officer.auth_user_guid == auth_user_guid
+        return complaint.primary_officer.auth_user_guid == auth_user_guid
 
 
 def _has_project(complaint_data):
@@ -151,7 +151,7 @@ def _create_complaint_object(complaint_data: dict):
         "location_description": complaint_data.get("location_description", None),
         "project_description": complaint_data.get("project_description", None),
         "concern_description": complaint_data.get("concern_description", None),
-        "lead_officer_id": complaint_data.get("lead_officer_id", None),
+        "primary_officer_id": complaint_data.get("primary_officer_id", None),
         "date_received": complaint_data.get("date_received"),
         "requirement_source_id": complaint_data.get("requirement_source_id", None),
         "source_type_id": complaint_data.get("source_type_id"),

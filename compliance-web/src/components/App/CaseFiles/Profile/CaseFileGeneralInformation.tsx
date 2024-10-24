@@ -48,12 +48,12 @@ const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
         </Box>
         <Box>
           <FileProfileProperty
-            propertyName="Lead Officer"
-            propertyValue={caseFileData.lead_officer?.full_name}
+            propertyName="Primary"
+            propertyValue={caseFileData.primary_officer?.full_name}
             size="small"
           />
           <FileProfileProperty
-            propertyName="Other Officers"
+            propertyName="Other Assigned Officers"
             propertyValue={caseFileData.officers
               ?.map((officer) => officer.full_name)
               .join(", ")}

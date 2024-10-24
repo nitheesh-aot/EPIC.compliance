@@ -46,7 +46,7 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         model = CaseFile
         include_fk = True
 
-    lead_officer = fields.Nested(StaffUserSchema, dump_only=True)
+    primary_officer = fields.Nested(StaffUserSchema, dump_only=True)
     project = fields.Nested(
         ProjectSchema,
         dump_only=True,
@@ -73,7 +73,28 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         return data
 
 
-class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
+class CaseFileUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
+    """CaseFile create Schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    primary_officer_id = fields.Int(
+        metadata={"description": "The lead officer who created the case file."},
+        required=True,
+    )
+    officer_ids = fields.List(
+        fields.Int(
+            metadata={
+                "description": "The list of unique identifiers of the other officers associated with the case file"
+            }
+        )
+    )
+
+
+class CaseFileCreateSchema(CaseFileUpdateSchema):  # pylint: disable=too-many-ancestors
     """CaseFile create Schema."""
 
     class Meta:  # pylint: disable=too-few-public-methods
@@ -95,10 +116,6 @@ class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
             "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
         },
     )
-    lead_officer_id = fields.Int(
-        metadata={"description": "The lead officer who created the case file."},
-        allow_none=True,
-    )
     initiation_id = fields.Int(
         metadata={"description": "The unique identifier for the initiation options"},
         required=True,
@@ -108,32 +125,4 @@ class CaseFileCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
             "description": "The unique case file number. If not provided, the case file number will be auto generated."
         },
         allow_none=True,
-    )
-    officer_ids = fields.List(
-        fields.Int(
-            metadata={
-                "description": "The list of unique identifiers of the other officers associated with the case file"
-            }
-        )
-    )
-
-
-class CaseFileUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
-    """CaseFile create Schema."""
-
-    class Meta:  # pylint: disable=too-few-public-methods
-        """Exclude unknown fields in the deserialized output."""
-
-        unknown = EXCLUDE
-
-    lead_officer_id = fields.Int(
-        metadata={"description": "The lead officer who created the case file."},
-        allow_none=True,
-    )
-    officer_ids = fields.List(
-        fields.Int(
-            metadata={
-                "description": "The list of unique identifiers of the other officers associated with the case file"
-            }
-        )
     )

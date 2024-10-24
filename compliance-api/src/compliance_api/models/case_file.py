@@ -55,11 +55,11 @@ class CaseFile(BaseModelVersioned):
         nullable=False,
         comment="The date on which the case file is created",
     )
-    lead_officer_id = Column(
+    primary_officer_id = Column(
         Integer,
-        ForeignKey("staff_users.id", name="case_files_created_staff_id_fkey"),
+        ForeignKey("staff_users.id", name="case_files_primary_staff_id_fkey"),
         nullable=True,
-        comment="The lead officer who created the case file",
+        comment="The primary officer who created the case file",
     )
     initiation_id = Column(
         Integer,
@@ -79,8 +79,8 @@ class CaseFile(BaseModelVersioned):
     )
     case_file_status = Column(Enum(CaseFileStatusEnum), nullable=True)
 
-    lead_officer = relationship(
-        "StaffUser", foreign_keys=[lead_officer_id], lazy="joined"
+    primary_officer = relationship(
+        "StaffUser", foreign_keys=[primary_officer_id], lazy="joined"
     )
     project = relationship("Project", foreign_keys=[project_id], lazy="joined")
     case_file_officers = relationship(

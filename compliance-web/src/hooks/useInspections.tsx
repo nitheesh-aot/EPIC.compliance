@@ -4,7 +4,6 @@ import { Inspection, InspectionAPIData } from "@/models/Inspection";
 import { IRStatus } from "@/models/IRStatus";
 import { IRType } from "@/models/IRType";
 import { ProjectStatus } from "@/models/ProjectStatus";
-import { StaffUser } from "@/models/Staff";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { UNAPPROVED_PROJECT_ABBREVIATION } from "@/utils/constants";
 import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
@@ -36,10 +35,6 @@ const fetchInspections = (caseFileId?: number): Promise<Inspection[]> => {
 
 const fetchInspection = (inspectionNumber: string): Promise<Inspection> => {
   return request({ url: `/inspections/ir-numbers/${inspectionNumber}` });
-};
-
-const fetchOfficers = (inspectionId: number): Promise<StaffUser[]> => {
-  return request({ url: `/inspections/${inspectionId}/officers` });
 };
 
 const fetchInspectionAttendances = (inspectionId: number): Promise<InspectionAttendance[]> => {
@@ -108,13 +103,12 @@ export const useInspectionByNumber = (inspectionNumber: string) => {
     queryKey: ["inspection", inspectionNumber],
     queryFn: async () => {
       const inspection = await fetchInspection(inspectionNumber);
-      const officers = await fetchOfficers(inspection?.id);
       const inspectionAttendances = await fetchInspectionAttendances(inspection?.id);
       if (inspection.project.abbreviation === UNAPPROVED_PROJECT_ABBREVIATION) {
         inspection.project.id = UNAPPROVED_PROJECT_ID;
         delete inspection.project.abbreviation;
       }
-      return { ...inspection, officers, inspectionAttendances };
+      return { ...inspection, inspectionAttendances };
     },
     enabled: !!inspectionNumber,
   });

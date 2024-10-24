@@ -54,7 +54,7 @@ export function Complaints() {
     setOfficerList(
       [
         ...new Set(
-          complaintsList?.map((comp) => comp.lead_officer?.full_name ?? "")
+          complaintsList?.map((comp) => comp.primary_officer?.full_name ?? "")
         ),
       ].filter(Boolean)
     );
@@ -142,8 +142,8 @@ export function Complaints() {
         size: 150,
       },
       {
-        accessorFn: (row) => row.lead_officer?.full_name,
-        header: "Lead Officer",
+        accessorFn: (row) => row.primary_officer?.full_name,
+        header: "Primary",
         filterVariant: "multi-select",
         filterSelectOptions: officerList,
         Filter: ({ header, column }) => {

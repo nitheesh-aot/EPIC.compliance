@@ -43,7 +43,7 @@ export const ComplaintFormSchema = yup.object().shape({
     .nullable()
     .required("Concern Description is required"),
   locationDescription: yup.string().nullable(),
-  leadOfficer: yup.object<StaffUser>().nullable(),
+  primaryOfficer: yup.object<StaffUser>().nullable().required("Primary is required"),
   dateReceived: yup.date().nullable().required("Date Received is required"),
   complaintSource: yup
     .object<ComplaintSource>()
@@ -143,7 +143,7 @@ export const formatComplaintData = (
   let complaintData: ComplaintAPIData = {
     project_id: projectId,
     case_file_id: caseFileId,
-    lead_officer_id: (formData.leadOfficer as StaffUser)?.id,
+    primary_officer_id: (formData.primaryOfficer as StaffUser).id,
     location_description: formData.locationDescription ?? "",
     concern_description: formData.concernDescription ?? "",
     date_received: dateUtils.dateToISO(formData.dateReceived),

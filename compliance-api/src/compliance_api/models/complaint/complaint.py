@@ -67,11 +67,11 @@ class Complaint(BaseModelVersioned):
     location_description = Column(
         String, nullable=True, comment="The location details of the complaint"
     )
-    lead_officer_id = Column(
+    primary_officer_id = Column(
         Integer,
-        ForeignKey("staff_users.id", name="inspection_lead_officer_id_staff_id_fkey"),
+        ForeignKey("staff_users.id", name="inspection_primary_officer_id_staff_id_fkey"),
         nullable=True,
-        comment="The lead officer who created the inspection",
+        comment="The primary officer who created the inspection",
     )
     date_received = Column(
         DateTime(timezone=True),
@@ -116,8 +116,8 @@ class Complaint(BaseModelVersioned):
     )
     source_type = relationship("ComplaintSource", foreign_keys=[source_type_id], lazy="joined")
     agency = relationship("Agency", foreign_keys=[source_agency_id], lazy="joined")
-    lead_officer = relationship(
-        "StaffUser", foreign_keys=[lead_officer_id], lazy="joined"
+    primary_officer = relationship(
+        "StaffUser", foreign_keys=[primary_officer_id], lazy="joined"
     )
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
     project = relationship("Project", foreign_keys=[project_id], lazy="joined")

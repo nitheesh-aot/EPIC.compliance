@@ -40,7 +40,7 @@ describe("CaseFiles Component", () => {
     cy.get(".Mui-TableHeadCell-Content").should("contain.text", "Initiation");
     cy.get(".Mui-TableHeadCell-Content").should("contain.text", "Date Created");
     cy.get(".Mui-TableHeadCell-Content").should("contain.text", "Status");
-    cy.get(".Mui-TableHeadCell-Content").should("contain.text", "Lead Officer");
+    cy.get(".Mui-TableHeadCell-Content").should("contain.text", "Primary");
   });
 
   it("should open the Case Files modal when the add button is clicked", () => {

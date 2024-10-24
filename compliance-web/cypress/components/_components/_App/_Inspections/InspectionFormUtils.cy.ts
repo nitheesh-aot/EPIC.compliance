@@ -19,7 +19,7 @@ describe("InspectionFormUtils", () => {
         projectSubType: "Sub Type B",
         locationDescription: "Location A",
         utm: "9U 454135 6399452",
-        leadOfficer: { id: 1, full_name: "John Doe" },
+        primaryOfficer: { id: 1, full_name: "John Doe" },
         officers: [{ id: 2, full_name: "Jane Smith" }],
         irTypes: [{ id: 1, name: "IR Type Alpha" }],
         dateRange: {
@@ -44,7 +44,7 @@ describe("InspectionFormUtils", () => {
     it("fails validation when required fields are missing", () => {
       const invalidData = {
         project: null,
-        leadOfficer: null,
+        primaryOfficer: null,
         irTypes: [],
         dateRange: {},
         initiation: null,
@@ -52,7 +52,7 @@ describe("InspectionFormUtils", () => {
 
       InspectionFormSchema.validate(invalidData).catch((err) => {
         expect(err.errors).to.include("Project is required");
-        expect(err.errors).to.include("Lead Officer is required");
+        expect(err.errors).to.include("Primary is required");
         expect(err.errors).to.include("At least one Type is required");
         expect(err.errors).to.include("Start date is required");
         expect(err.errors).to.include("End date is required");
@@ -72,7 +72,7 @@ describe("InspectionFormUtils", () => {
   //       projectSubType: "Sub Type B",
   //       locationDescription: "Location A",
   //       utm: "9U 454135 6399452",
-  //       leadOfficer: { id: 1, full_name: "John Doe" },
+  //       primaryOfficer: { id: 1, full_name: "John Doe" },
   //       officers: [{ id: 2, full_name: "Jane Smith" }],
   //       irTypes: [{ id: 1, name: "IR Type Alpha" }],
   //       dateRange: {
@@ -96,7 +96,7 @@ describe("InspectionFormUtils", () => {
   //       initiation_id: 1,
   //       start_date: dayjs("2023-01-01").toISOString(),
   //       end_date: dayjs("2023-01-02").toISOString(),
-  //       lead_officer_id: 1,
+  //       primary_officer_id: 1,
   //       inspection_officer_ids: [2],
   //       location_description: "Location A",
   //       utm: "9U 454135 6399452",

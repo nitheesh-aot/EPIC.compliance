@@ -73,19 +73,11 @@ class InspectionUpdateSchema(BaseSchema):
     utm = fields.Str(
         metadata={"description": "The UTM value of the location."}, allow_none=True
     )
-    lead_officer_id = fields.Int(
+    primary_officer_id = fields.Int(
         metadata={
-            "description": "The unique identifier of the lead officer who created the inspection."
+            "description": "The unique identifier of the primary officer who created the inspection."
         },
         required=True,
-    )
-    inspection_officer_ids = fields.List(
-        fields.Int(
-            metadata={
-                "description": "The list of unique identifiers of the other officers associated with the inspection"
-            }
-        ),
-        required=False,
     )
     initiation_id = fields.Int(
         metadata={
@@ -140,6 +132,12 @@ class InspectionUpdateSchema(BaseSchema):
             metadata={"description": "The list of unique identifier of the agencies"}
         ),
         required=False,
+    )
+    attending_officer_ids = fields.List(
+        fields.Int(
+            metadata={"description": "The list of unique identifier of the officers"}
+        ),
+        required=False
     )
     attendance_municipal = fields.Str(
         metadata={"description": "The municipal attendance"}, allow_none=True
@@ -211,6 +209,9 @@ class InspectionUpdateSchema(BaseSchema):
         firstnations_in_option = (
             InspectionAttendanceOptionEnum.FIRSTNATIONS.value in value
         )
+        attending_officers_in_option = (
+            InspectionAttendanceOptionEnum.ATTENDING_OFFICERS.value in value
+        )
         invalid_ids = [item for item in value if item not in valid_values]
         if invalid_ids:
             raise ValidationError(
@@ -229,6 +230,12 @@ class InspectionUpdateSchema(BaseSchema):
                 "the attendance_option_ids.",
                 field_name="attendance_option_ids",
             )
+        if data.get("attending_officer_ids") and not attending_officers_in_option:
+            raise ValidationError(
+                "If attending_officer_ids are provided, 'ATTENDING_OFFICER' must be included in "
+                "the attendance_option_ids.",
+                field_name="attendance_option_ids",
+            )
 
     @validates_schema
     def validate_agency_attendance_ids(
@@ -242,6 +249,21 @@ class InspectionUpdateSchema(BaseSchema):
             if not value:
                 raise ValidationError(
                     "agency_attendance_ids are required when agencies are included in attendance_option_ids.",
+                    field_name="agency_attendance_ids",
+                )
+
+    @validates_schema
+    def validate_officer_attendance_ids(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Ensure that attending_officer_ids is valid if required."""
+        # Retrieve the context to access other fields
+        attendance_option_ids = data.get("attendance_option_ids", [])
+        value = data.get("attending_officer_ids", None)
+        if InspectionAttendanceOptionEnum.ATTENDING_OFFICERS.value in attendance_option_ids:
+            if not value:
+                raise ValidationError(
+                    "attending_officer_ids are required when ATTENDING_OFFICERS are included in attendance_option_ids.",
                     field_name="agency_attendance_ids",
                 )
 
@@ -307,7 +329,7 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         include_fk = True
 
     case_file = fields.Nested(CaseFileSchema, only=("case_file_number", "id"))
-    lead_officer = fields.Nested(
+    primary_officer = fields.Nested(
         StaffUserSchema, only=("id", "first_name", "last_name", "full_name")
     )
     project = fields.Nested(

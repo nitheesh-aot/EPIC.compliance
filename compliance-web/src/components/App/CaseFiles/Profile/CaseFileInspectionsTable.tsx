@@ -21,7 +21,7 @@ const CaseFileInspectionsTable = ({ caseFileId }: { caseFileId: number }) => {
     setStaffUserList(
       [
         ...new Set(
-          inspections?.map((insp) => insp.lead_officer?.full_name ?? "")
+          inspections?.map((insp) => insp.primary_officer?.full_name ?? "")
         ),
       ].filter(Boolean)
     );
@@ -107,9 +107,9 @@ const CaseFileInspectionsTable = ({ caseFileId }: { caseFileId: number }) => {
         size: 120,
       },
       {
-        accessorFn: (row) => row.lead_officer?.full_name,
-        id: "lead_officer.full_name",
-        header: "Lead Officer",
+        accessorFn: (row) => row.primary_officer?.full_name,
+        id: "primary_officer.full_name",
+        header: "Primary",
         filterVariant: "multi-select",
         filterSelectOptions: staffUserList,
         Filter: ({ header, column }) => {
@@ -119,7 +119,7 @@ const CaseFileInspectionsTable = ({ caseFileId }: { caseFileId: number }) => {
               header={header}
               column={column}
               variant="inline"
-              name="leadOfficersFilter"
+              name="primaryOfficerFilter"
               placeholder="Filter"
             />
           );

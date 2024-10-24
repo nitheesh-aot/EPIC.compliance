@@ -95,7 +95,6 @@ def upgrade():
     sa.Column('lead_officer_id', sa.Integer(), autoincrement=False, nullable=True, comment='The lead officer who created the case file'),
     sa.Column('initiation_id', sa.Integer(), autoincrement=False, nullable=True, comment='Case file initiation options'),
     sa.Column('case_file_number', sa.String(), autoincrement=False, nullable=True, comment='The unique case file number'),
-    sa.Column('case_file_status', postgresql.ENUM('OPEN', 'CLOSED', name='casefilestatusenum', create_type=False), nullable=True),
     sa.Column('created_date', sa.DateTime(), autoincrement=False, nullable=True),
     sa.Column('updated_date', sa.DateTime(), autoincrement=False, nullable=True),
     sa.Column('created_by', sa.String(length=100), autoincrement=False, nullable=True),
@@ -119,6 +118,10 @@ def upgrade():
     sa.Column('is_deleted_mod', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.PrimaryKeyConstraint('id', 'transaction_id')
     )
+    op.execute(f"""
+    ALTER TABLE case_files_version
+    ADD COLUMN case_file_status casefilestatusenum ;
+    """)
     op.create_table('complaint_req_eac_details_version',
     sa.Column('id', sa.Integer(), autoincrement=False, nullable=False, comment='The unique identifier of the complaints'),
     sa.Column('req_id', sa.Integer(), autoincrement=False, nullable=True, comment='The unique id of the requirement details'),
@@ -314,7 +317,6 @@ def upgrade():
     sa.Column('source_type_id', sa.Integer(), autoincrement=False, nullable=True, comment='The selected source of the complaint'),
     sa.Column('source_agency_id', sa.Integer(), autoincrement=False, nullable=True, comment='The unique Id of the agency if the complaint source is selected as agency'),
     sa.Column('source_first_nation_id', sa.Integer(), autoincrement=False, nullable=True, comment='The unique Id of the first nation if the complaint source is selected as first nation'),
-    sa.Column('status', postgresql.ENUM('OPEN', 'CLOSED', name='complaintstatusenum', create_type=False), autoincrement=False, nullable=True),
     sa.Column('created_date', sa.DateTime(), autoincrement=False, nullable=True),
     sa.Column('updated_date', sa.DateTime(), autoincrement=False, nullable=True),
     sa.Column('created_by', sa.String(length=100), autoincrement=False, nullable=True),
@@ -345,6 +347,10 @@ def upgrade():
     sa.Column('is_deleted_mod', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.PrimaryKeyConstraint('id', 'transaction_id')
     )
+    op.execute(f"""
+    ALTER TABLE complaints_version
+    ADD COLUMN status complaintstatusenum;
+""")
     op.create_table('inspection_agencies_version',
     sa.Column('id', sa.Integer(), autoincrement=False, nullable=False, comment='The unique identifier'),
     sa.Column('agency_id', sa.Integer(), autoincrement=False, nullable=True, comment='The unique identifier of agency'),
@@ -598,7 +604,6 @@ def upgrade():
     sa.Column('end_date', sa.DateTime(timezone=True), autoincrement=False, nullable=True, comment='The inspection end date'),
     sa.Column('initiation_id', sa.Integer(), autoincrement=False, nullable=True),
     sa.Column('ir_status_id', sa.Integer(), autoincrement=False, nullable=True),
-    sa.Column('inspection_status', postgresql.ENUM('OPEN', 'CLOSED', name='inspectionstatusenum',create_type=False), autoincrement=False, nullable=True),
     sa.Column('project_status_id', sa.Integer(), autoincrement=False, nullable=True),
     sa.Column('created_date', sa.DateTime(), autoincrement=False, nullable=True),
     sa.Column('updated_date', sa.DateTime(), autoincrement=False, nullable=True),
@@ -630,6 +635,10 @@ def upgrade():
     sa.Column('is_deleted_mod', sa.Boolean(), server_default=sa.text('false'), nullable=False),
     sa.PrimaryKeyConstraint('id', 'transaction_id')
     )
+    op.execute(f"""
+    ALTER TABLE inspections_version
+    ADD COLUMN inspection_status inspectionstatusenum;
+""")
     op.create_table('ir_status_options_version',
     sa.Column('id', sa.Integer(), autoincrement=False, nullable=False, comment='The unique identifier of the option'),
     sa.Column('name', sa.String(), autoincrement=False, nullable=True, comment='The name of the option'),
