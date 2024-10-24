@@ -34,7 +34,10 @@ const caseFileFormSchema = yup.object().shape({
     .mixed<Dayjs>()
     .nullable()
     .required("Date Created is required"),
-  leadOfficer: yup.object<StaffUser>().nullable(),
+  primaryOfficer: yup
+    .object<StaffUser>()
+    .nullable()
+    .required("Primary is required"),
   officers: yup.array().of(yup.object<StaffUser>()).nullable(),
   initiation: yup
     .object<Initiation>()
@@ -51,7 +54,7 @@ type CaseFileSchemaType = yup.InferType<typeof caseFileFormSchema>;
 const initFormData: CaseFileFormData = {
   project: undefined,
   dateCreated: undefined,
-  leadOfficer: undefined,
+  primaryOfficer: undefined,
   officers: [],
   initiation: undefined,
   caseFileNumber: undefined,
@@ -61,7 +64,9 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   onSubmit,
   caseFile,
 }) => {
-  const { data: projectList } = useProjectsData({ includeUnapproved: !!caseFile });
+  const { data: projectList } = useProjectsData({
+    includeUnapproved: !!caseFile,
+  });
   const { data: initiationList } = useInitiationsData();
   const { data: staffUserList } = useStaffUsersData();
   const { appHeaderHeight } = useMenuStore();
@@ -71,7 +76,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
       return {
         project: caseFile.project,
         dateCreated: dayjs(caseFile.date_created),
-        leadOfficer: caseFile.lead_officer,
+        primaryOfficer: caseFile.primary_officer,
         officers: caseFile.officers,
         initiation: caseFile.initiation,
         caseFileNumber: caseFile.case_file_number,
@@ -107,7 +112,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
         date_created: dateUtils.dateToISO(data.dateCreated),
         initiation_id: (data.initiation as Initiation).id,
         case_file_number: data.caseFileNumber,
-        lead_officer_id: (data.leadOfficer as StaffUser)?.id,
+        primary_officer_id: (data.primaryOfficer as StaffUser).id,
         officer_ids:
           (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
       };

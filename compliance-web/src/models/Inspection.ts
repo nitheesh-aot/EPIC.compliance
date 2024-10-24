@@ -18,7 +18,7 @@ export interface Inspection {
   initiation_id: number;
   ir_status_id: number;
   project_status_id: number;
-  lead_officer_id: number;
+  primary_officer_id: number;
   start_date: string;
   end_date: string;
   types: IRType[];
@@ -27,7 +27,7 @@ export interface Inspection {
   is_active: boolean;
   initiation: Initiation;
   project: Project;
-  lead_officer: StaffUser;
+  primary_officer: StaffUser;
   ir_status: IRStatus;
   case_file: CaseFile;
   officers?: StaffUser[];
@@ -46,7 +46,7 @@ export interface Inspection {
 export interface InspectionFormData {
   project?: Project;
   dateRange?: DateRange;
-  leadOfficer?: StaffUser;
+  primaryOfficer?: StaffUser;
   officers?: StaffUser[];
   initiation?: Initiation;
   irTypes?: IRType[];
@@ -59,7 +59,7 @@ export interface InspectionAPIData {
   project_id?: number;
   location_description?: string;
   utm?: string;
-  lead_officer_id: number;
+  primary_officer_id: number;
   case_file_id?: number;
   inspection_type_ids: string[];
   start_date: string;

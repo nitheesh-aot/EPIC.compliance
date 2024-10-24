@@ -62,7 +62,7 @@ export function CaseFiles() {
   );
 
   const staffUserList = useMemo(
-    () => createUniqueFilterList("lead_officer", "full_name"),
+    () => createUniqueFilterList("primary_officer", "full_name"),
     [createUniqueFilterList]
   );
 
@@ -180,9 +180,9 @@ export function CaseFiles() {
         },
       },
       {
-        accessorFn: (row) => row.lead_officer?.full_name,
-        id: "lead_officer.full_name",
-        header: "Lead Officer",
+        accessorFn: (row) => row.primary_officer?.full_name,
+        id: "primary_officer.full_name",
+        header: "Primary",
         filterVariant: "multi-select",
         filterSelectOptions: staffUserList,
         Filter: ({ header, column }) => {
@@ -193,7 +193,7 @@ export function CaseFiles() {
               column={column}
               variant="inline"
               name="leadOfficersFilter"
-              placeholder="Filter Lead Officers"
+              placeholder="Filter Primary"
             />
           );
         },

@@ -34,7 +34,7 @@ describe("CaseFileForm Component", () => {
         defaultValues: {
           project: null,
           dateCreated: null,
-          leadOfficer: null,
+          primaryOfficer: null,
           officers: [],
           initiation: null,
           caseFileNumber: "",
@@ -73,7 +73,7 @@ describe("CaseFileForm Component", () => {
     cy.contains("General Information").should("exist");
     cy.contains("Project").should("exist");
     cy.contains("Date Created").should("exist");
-    cy.contains("Lead Officer (optional)").should("exist");
+    cy.contains("Primary (optional)").should("exist");
     cy.contains("Other Assigned Officers (optional)").should("exist");
     cy.contains("Initiation").should("exist");
     cy.contains("Case File Number").should("exist");
@@ -93,9 +93,9 @@ describe("CaseFileForm Component", () => {
   });
 
   it("allows selecting lead officer", () => {
-    cy.get('input[name="leadOfficer"]').click();
+    cy.get('input[name="primaryOfficer"]').click();
     cy.get("li").contains("John Doe").click();
-    cy.get('input[name="leadOfficer"]').should("have.value", "John Doe");
+    cy.get('input[name="primaryOfficer"]').should("have.value", "John Doe");
   });
 
   it("allows selecting multiple officers", () => {

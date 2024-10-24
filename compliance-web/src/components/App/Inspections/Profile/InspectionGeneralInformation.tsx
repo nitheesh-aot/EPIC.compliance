@@ -45,7 +45,7 @@ const InspectionGeneralInformation: React.FC<
       value: inspectionData.location_description,
     },
     { name: "UTM", value: inspectionData.utm },
-    { name: "Lead Officer", value: inspectionData.lead_officer?.full_name },
+    { name: "Primary", value: inspectionData.primary_officer?.full_name },
     {
       name: "Other Officers",
       value: inspectionData.officers

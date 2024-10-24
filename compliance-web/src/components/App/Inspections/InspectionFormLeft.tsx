@@ -53,8 +53,8 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
         />
         <Stack direction={"row"} gap={2}>
           <ControlledAutoComplete
-            name="leadOfficer"
-            label="Lead Officer"
+            name="primaryOfficer"
+            label="Primary"
             options={staffUsersList}
             getOptionLabel={(option) => option.full_name ?? ""}
             getOptionKey={(option) => option.id}

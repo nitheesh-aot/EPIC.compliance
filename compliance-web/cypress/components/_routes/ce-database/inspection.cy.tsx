@@ -40,7 +40,7 @@ describe("Inspections Component", () => {
     cy.get(".Mui-TableHeadCell-Content").should("contain.text", "Stage");
     cy.get(".Mui-TableHeadCell-Content").should("contain.text", "Type");
     cy.get(".Mui-TableHeadCell-Content").should("contain.text", "Status");
-    cy.get(".Mui-TableHeadCell-Content").should("contain.text", "Lead Officer");
+    cy.get(".Mui-TableHeadCell-Content").should("contain.text", "Primary");
     cy.get(".Mui-TableHeadCell-Content").should("contain.text", "Case File #");
   });
 
