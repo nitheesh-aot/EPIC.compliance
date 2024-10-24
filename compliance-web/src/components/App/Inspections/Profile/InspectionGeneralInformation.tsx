@@ -5,6 +5,7 @@ import FileProfileProperty from "@/components/App/FileProfileProperty";
 import { Inspection } from "@/models/Inspection";
 import dateUtils from "@/utils/dateUtils";
 import { formatAuthorization } from "@/utils/appUtils";
+import { useMenuStore } from "@/store/menuStore";
 
 interface InspectionGeneralInformationProps {
   inspectionData: Inspection;
@@ -14,6 +15,8 @@ interface InspectionGeneralInformationProps {
 const InspectionGeneralInformation: React.FC<
   InspectionGeneralInformationProps
 > = ({ inspectionData, onEdit }) => {
+  const { appHeaderHeight } = useMenuStore();
+
   const inAttendance = useMemo(() => {
     return inspectionData.inspectionAttendances
       ?.map((attendance) => {
@@ -46,12 +49,6 @@ const InspectionGeneralInformation: React.FC<
     },
     { name: "UTM", value: inspectionData.utm },
     { name: "Primary", value: inspectionData.primary_officer?.full_name },
-    {
-      name: "Other Officers",
-      value: inspectionData.officers
-        ?.map((officer) => officer.full_name)
-        .join(", "),
-    },
     { name: "Initiation", value: inspectionData.initiation?.name },
     {
       name: "Type",
@@ -67,7 +64,14 @@ const InspectionGeneralInformation: React.FC<
   ];
 
   return (
-    <Box display={"flex"} flexGrow={1} flexDirection={"column"}>
+    <Box
+      display={"flex"}
+      flexGrow={1}
+      flexDirection={"column"}
+      width={"75%"}
+      height={`calc(100vh - ${appHeaderHeight + 158}px)`} // 158px is the height of the FileProfileHeader and the padding
+      overflow={"auto"}
+    >
       <Box display={"flex"} justifyContent={"space-between"} my={3}>
         <Typography variant="h6">General Information</Typography>
         <Button

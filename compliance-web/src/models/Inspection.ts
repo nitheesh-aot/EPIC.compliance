@@ -67,7 +67,6 @@ export interface InspectionAPIData {
   initiation_id: string;
   ir_status_id?: string;
   project_status_id?: string;
-  inspection_officer_ids?: number[];
   attendance_option_ids?: string[];
   agency_attendance_ids?: number[];
   attendance_municipal?: string;
