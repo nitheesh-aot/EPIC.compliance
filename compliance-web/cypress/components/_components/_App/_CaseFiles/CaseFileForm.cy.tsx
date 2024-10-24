@@ -73,7 +73,7 @@ describe("CaseFileForm Component", () => {
     cy.contains("General Information").should("exist");
     cy.contains("Project").should("exist");
     cy.contains("Date Created").should("exist");
-    cy.contains("Primary (optional)").should("exist");
+    cy.contains("Primary").should("exist");
     cy.contains("Other Assigned Officers (optional)").should("exist");
     cy.contains("Initiation").should("exist");
     cy.contains("Case File Number").should("exist");
