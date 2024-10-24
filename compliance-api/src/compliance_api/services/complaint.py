@@ -27,8 +27,13 @@ class ComplaintService:
 
     @classmethod
     def get_all(cls):
-        """Get all inspections."""
+        """Get all complaints."""
         return ComplaintModel.get_all(default_filters=False)
+
+    @classmethod
+    def get_by_case_file_id(cls, case_file_id):
+        """Get all complaints by case file id."""
+        return ComplaintModel.get_by_params({"case_file_id": case_file_id})
 
     @classmethod
     def create(cls, complaint_data: dict):
