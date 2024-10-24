@@ -104,11 +104,11 @@ class Complaint(BaseModelVersioned):
         nullable=True,
         comment="The unique Id of the agency if the complaint source is selected as agency",
     )
-    # source_first_nation_id = Column(
-    #     Integer,
-    #     nullable=True,
-    #     comment="The unique Id of the first nation if the complaint source is selected as first nation",
-    # )
+    source_first_nation_id = Column(
+        Integer,
+        nullable=True,
+        comment="The unique Id of the first nation if the complaint source is selected as first nation",
+    )
     status = Column(Enum(ComplaintStatusEnum), nullable=False)
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
     requirement_source = relationship(

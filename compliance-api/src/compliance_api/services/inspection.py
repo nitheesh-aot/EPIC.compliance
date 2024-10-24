@@ -52,9 +52,7 @@ class InspectionService:
     @classmethod
     def get_by_case_file_id(cls, case_file_id):
         """Get all inspections by case file id."""
-        return InspectionModel.get_by_params({
-            "case_file_id": case_file_id
-        })
+        return InspectionModel.get_by_params({"case_file_id": case_file_id})
 
     @classmethod
     def get_by_id(cls, inspection_id):
@@ -101,6 +99,20 @@ class InspectionService:
                     data = [
                         {"id": agency.agency_id, "name": agency.agency.name}
                         for agency in agencies
+                    ]
+                if (
+                    option.attendance_option_id
+                    == InspectionAttendanceOptionEnum.ATTENDING_OFFICERS.value
+                ):
+                    officers = InspectionOfficerModel.get_all_by_inspection(
+                        inspection_id
+                    )
+                    data = [
+                        {
+                            "id": officer.officer.id,
+                            "name": f"{officer.officer.first_name} {officer.officer.last_name}",
+                        }
+                        for officer in officers
                     ]
                 if (
                     option.attendance_option_id
@@ -199,7 +211,7 @@ class InspectionService:
             )
             _insert_or_update_inspection_relationship(
                 inspection_id,
-                inspection_data.get("inspection_officer_ids", []),
+                inspection_data.get("attending_officer_ids", []),
                 InspectionOfficerModel,
                 "officer_id",
                 session,
@@ -253,7 +265,7 @@ class InspectionService:
         if not inspection:
             return False
 
-        # Check if the user is the lead officer or part of other officers
+        # Check if the user is the primary officer or part of other officers
         return inspection.primary_officer.auth_user_guid == auth_user_guid or any(
             officer.officer.auth_user_guid == auth_user_guid
             for officer in inspection.other_officers
@@ -346,7 +358,7 @@ def _create_inspection_update_obj(inspection_data: dict):
         "project_description": inspection_data.get("project_description", None),
         "location_description": inspection_data.get("location_description", None),
         "utm": inspection_data.get("utm", None),
-        "lead_officer_id": inspection_data.get("lead_officer_id"),
+        "primary_officer_id": inspection_data.get("primary_officer_id"),
         "start_date": inspection_data.get("start_date"),
         "end_date": inspection_data.get("end_date"),
         "initiation_id": inspection_data.get("initiation_id"),
@@ -366,7 +378,7 @@ def _create_inspection_object(inspection_data: dict):
         "project_description": inspection_data.get("project_description", None),
         "location_description": inspection_data.get("location_description", None),
         "utm": inspection_data.get("utm", None),
-        "lead_officer_id": inspection_data.get("lead_officer_id"),
+        "primary_officer_id": inspection_data.get("primary_officer_id"),
         "start_date": inspection_data.get("start_date"),
         "end_date": inspection_data.get("end_date"),
         "initiation_id": inspection_data.get("initiation_id"),
