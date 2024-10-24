@@ -120,7 +120,7 @@ class ComplaintCreateSchema(BaseSchema):
         metadata={
             "description": "The unique identifier of the primary officer who created the complaint."
         },
-        allow_none=True,
+        required=True,
     )
     case_file_id = fields.Int(
         metadata={
