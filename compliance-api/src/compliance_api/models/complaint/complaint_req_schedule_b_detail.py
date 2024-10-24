@@ -31,6 +31,14 @@ class ComplaintReqScheduleBDetail(BaseModelVersioned):
         "ComplaintRequirementDetail", foreign_keys=[req_id], lazy="select"
     )
 
+    def to_dict(self):
+        """Convert model instance to a dictionary for JSON serialization."""
+        return {
+            "id": self.id,
+            "req_id": self.req_id,
+            "condition_number": self.condition_number,
+        }
+
     @classmethod
     def create(cls, requirement_obj, session=None):
         """Create schedule b details."""
@@ -41,3 +49,8 @@ class ComplaintReqScheduleBDetail(BaseModelVersioned):
         else:
             requirement_more.save()
         return requirement_more
+
+    @classmethod
+    def get_by_requirement(cls, req_id):
+        """Get additional requirement source details."""
+        return cls.query.filter_by(req_id=req_id, is_deleted=False).first()
