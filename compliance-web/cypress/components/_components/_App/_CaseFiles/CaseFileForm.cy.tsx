@@ -92,7 +92,7 @@ describe("CaseFileForm Component", () => {
     cy.get('input[name="dateCreated"]').should("contain.value", day);
   });
 
-  it("allows selecting lead officer", () => {
+  it("allows selecting primary officer", () => {
     cy.get('input[name="primaryOfficer"]').click();
     cy.get("li").contains("John Doe").click();
     cy.get('input[name="primaryOfficer"]').should("have.value", "John Doe");

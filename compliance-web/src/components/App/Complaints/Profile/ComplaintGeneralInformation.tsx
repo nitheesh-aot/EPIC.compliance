@@ -32,7 +32,7 @@ const ComplaintGeneralInformation: React.FC<
       name: "Concern Description",
       value: complaintData.concern_description,
     },
-    { name: "Lead Officer", value: complaintData.lead_officer?.full_name },
+    { name: "Primary", value: complaintData.primary_officer?.full_name },
     {
       name: "Date Received",
       value: dateUtils.formatDate(complaintData.date_received),

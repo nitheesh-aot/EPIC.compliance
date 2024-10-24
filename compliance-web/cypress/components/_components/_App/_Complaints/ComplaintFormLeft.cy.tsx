@@ -79,7 +79,7 @@ describe("ComplaintFormLeft Component", () => {
     cy.get('textarea[name="locationDescription"]').should("have.value", "Near the river bank");
   });
 
-  it("allows selecting a lead officer", () => {
+  it("allows selecting a primary officer", () => {
     cy.get('input[name="primaryOfficer"]').click();
     cy.get("li").contains("John Doe").click();
     cy.get('input[name="primaryOfficer"]').should("have.value", "John Doe");
