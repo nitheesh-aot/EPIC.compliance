@@ -39,7 +39,7 @@ type ComplaintDrawerProps = {
 const initFormData: ComplaintFormData = {
   project: undefined,
   dateRange: undefined,
-  leadOfficer: undefined,
+  primaryOfficer: undefined,
   officers: [],
   irTypes: [],
   initiation: undefined,
@@ -136,7 +136,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
           <LinkCaseFileModal
             onSubmit={handleOnCaseFileSubmit}
             projectId={getProjectId(data)}
-            leadOfficerId={(data.leadOfficer as StaffUser)?.id}
+            primaryOfficerId={(data.primaryOfficer as StaffUser).id}
             initiationId={INITIATION.COMPLAINTS_ID}
           />
         ),

@@ -52,7 +52,7 @@ export function Inspections() {
     [createUniqueFilterList]
   );
   const staffUserList = useMemo(
-    () => createUniqueFilterList("lead_officer", "full_name"),
+    () => createUniqueFilterList("primary_officer", "full_name"),
     [createUniqueFilterList]
   );
   const irStatusList = useMemo(
@@ -186,9 +186,9 @@ export function Inspections() {
         size: 120,
       },
       {
-        accessorFn: (row) => row.lead_officer?.full_name,
-        id: "lead_officer.full_name",
-        header: "Lead Officer",
+        accessorFn: (row) => row.primary_officer?.full_name,
+        id: "primary_officer.full_name",
+        header: "Primary",
         filterVariant: "multi-select",
         filterSelectOptions: staffUserList,
         Filter: ({ header, column }) => (

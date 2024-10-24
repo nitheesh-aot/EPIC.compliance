@@ -48,7 +48,7 @@ type InspectionDrawerProps = {
 const initFormData: InspectionFormData = {
   project: undefined,
   dateRange: undefined,
-  leadOfficer: undefined,
+  primaryOfficer: undefined,
   officers: [],
   irTypes: [],
   initiation: undefined,
@@ -86,7 +86,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
         projectType: inspection.type,
         projectSubType: inspection.sub_type,
         locationDescription: inspection.location_description,
-        leadOfficer: inspection.lead_officer,
+        primaryOfficer: inspection.primary_officer,
         irStatus: inspection.ir_status,
         projectStatus: inspection.project_status,
         irTypes: inspection.types,
@@ -175,7 +175,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
             <LinkCaseFileModal
               onSubmit={handleOnCaseFileSubmit}
               projectId={getProjectId(data)}
-              leadOfficerId={(data.leadOfficer as StaffUser)?.id}
+              primaryOfficerId={(data.primaryOfficer as StaffUser).id}
               initiationId={INITIATION.INSPECTION_ID}
             />
           ),

@@ -30,11 +30,10 @@ export const InspectionFormSchema = yup.object().shape({
   projectSubType: yup.string().nullable(),
   locationDescription: yup.string().nullable(),
   utm: yup.string().nullable(),
-  leadOfficer: yup
+  primaryOfficer: yup
     .object<StaffUser>()
     .nullable()
-    .required("Lead Officer is required"),
-  officers: yup.array().of(yup.object<StaffUser>()).nullable(),
+    .required("Primary is required"),
   irTypes: yup
     .array()
     .of(yup.object<IRType>())
@@ -146,9 +145,7 @@ export const formatInspectionData = (
     end_date: dateUtils.dateToISO(
       formData.dateRange?.endDate ?? new Date()
     ),
-    lead_officer_id: (formData.leadOfficer as StaffUser)?.id,
-    inspection_officer_ids:
-      (formData.officers as StaffUser[])?.map((user) => user.id) ?? [],
+    primary_officer_id: (formData.primaryOfficer as StaffUser)?.id,
     location_description: formData.locationDescription ?? "",
     utm: formData.utm ?? "",
     ir_status_id: (formData.irStatus as IRStatus)?.id,

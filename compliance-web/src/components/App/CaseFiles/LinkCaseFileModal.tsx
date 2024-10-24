@@ -18,7 +18,7 @@ type LinkCaseFileModalProps = {
   onSubmit: (caseFileId: number) => void;
   projectId?: number;
   initiationId: string;
-  leadOfficerId?: number;
+  primaryOfficerId?: number;
 };
 
 const linkCaseFileSchema = yup.object().shape({
@@ -38,7 +38,7 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
   onSubmit,
   projectId,
   initiationId,
-  leadOfficerId,
+  primaryOfficerId,
 }) => {
   const { data: caseFilesList } = useCaseFilesByProjectId(projectId!);
 
@@ -79,7 +79,7 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
       project_id: projectId,
       initiation_id: initiationId,
       date_created: dateUtils.dateToISO(new Date()),
-      lead_officer_id: leadOfficerId,
+      primary_officer_id: primaryOfficerId,
     };
     createCaseFile(caseFileData);
   };

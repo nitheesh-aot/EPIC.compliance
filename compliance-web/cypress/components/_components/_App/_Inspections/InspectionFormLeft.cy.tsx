@@ -38,7 +38,7 @@ describe("InspectionFormLeft Component", () => {
           project: null,
           locationDescription: "",
           utm: "",
-          leadOfficer: null,
+          primaryOfficer: null,
           officers: [],
           irTypes: [],
           dateRange: [null, null],
@@ -78,7 +78,7 @@ describe("InspectionFormLeft Component", () => {
     cy.contains("Project").should("exist");
     cy.contains("Location Description (optional)").should("exist");
     cy.contains("UTM (optional)").should("exist");
-    cy.contains("Lead Officer").should("exist");
+    cy.contains("Primary").should("exist");
     cy.contains("Type").should("exist");
     cy.contains("Dates").should("exist");
     cy.contains("Initiation").should("exist");
@@ -104,9 +104,9 @@ describe("InspectionFormLeft Component", () => {
   });
 
   it("allows selecting lead officer", () => {
-    cy.get('input[name="leadOfficer"]').click();
+    cy.get('input[name="primaryOfficer"]').click();
     cy.get("li").contains("John Doe").click();
-    cy.get('input[name="leadOfficer"]').should("have.value", "John Doe");
+    cy.get('input[name="primaryOfficer"]').should("have.value", "John Doe");
   });
 
   it("allows selecting multiple IR types", () => {

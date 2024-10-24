@@ -14,7 +14,7 @@ export interface Complaint {
   project_description: string;
   concern_description: string;
   location_description: string;
-  lead_officer_id: number;
+  primary_officer_id: number;
   date_received: string;
   requirement_source_id: number;
   source_type_id: number;
@@ -22,7 +22,7 @@ export interface Complaint {
   source_first_nation_id: number;
   is_active: boolean;
   case_file: CaseFile;
-  lead_officer: StaffUser;
+  primary_officer: StaffUser;
   project: Project;
   source_type: ComplaintSource;
   requirement_source: RequirementSource;
@@ -36,7 +36,7 @@ export interface Complaint {
 export interface InspectionFormData {
   project?: Project;
   dateRecieved?: Date;
-  leadOfficer?: StaffUser;
+  primaryOfficer?: StaffUser;
   concernDescription?: string;
   locationDescription?: string;
   complaintSource: ComplaintSource;
@@ -48,7 +48,7 @@ export interface ComplaintAPIData {
   project_id?: number;
   concern_description: string;
   location_description?: string;
-  lead_officer_id?: number;
+  primary_officer_id?: number;
   case_file_id: number;
   date_received: string;
   source_type_id: string;

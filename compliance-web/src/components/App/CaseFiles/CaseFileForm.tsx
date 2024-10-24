@@ -54,8 +54,8 @@ const CaseFileForm: React.FC<CaseFileFormProps> = ({
         </Stack>
         <Stack direction={"row"} gap={2}>
           <ControlledAutoComplete
-            name="leadOfficer"
-            label="Lead Officer (optional)"
+            name="primaryOfficer"
+            label="Primary"
             options={staffUsersList}
             getOptionLabel={(option) => option.full_name ?? ""}
             getOptionKey={(option) => option.id}
