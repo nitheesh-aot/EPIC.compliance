@@ -2,7 +2,7 @@
 
 from http import HTTPStatus
 
-from flask import current_app
+from flask import current_app, request
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
@@ -53,11 +53,24 @@ class Complaints(Resource):
 
     @staticmethod
     @API.response(code=200, description="Success", model=[complaint_list_model])
+    @API.doc(
+        params={
+            "case_file_id": {
+                "description": "The unique identifier of the case file",
+                "type": "integer",
+                "required": False,
+            }
+        }
+    )
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all complaints")
     @auth.require
     def get():
         """Fetch all complaints."""
-        complaints = ComplaintService.get_all()
+        case_file_id = request.args.get("case_file_id")
+        if case_file_id:
+            complaints = ComplaintService.get_by_case_file_id(case_file_id)
+        else:
+            complaints = ComplaintService.get_all()
         complaint_list_schema = ComplaintSchema(many=True)
         return complaint_list_schema.dump(complaints), HTTPStatus.OK
 

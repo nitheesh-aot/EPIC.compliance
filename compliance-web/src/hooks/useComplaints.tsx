@@ -12,8 +12,8 @@ const fetchComplaintSources = (): Promise<ComplaintSource[]> => {
   return request({ url: "/complaints/sources" });
 };
 
-const fetchComplaints = (): Promise<Complaint[]> => {
-  return request({ url: "/complaints" });
+const fetchComplaints = (caseFileId?: number): Promise<Complaint[]> => {
+  return request({ url: "/complaints", params: { case_file_id: caseFileId } });
 };
 
 const createComplaint = (complaint: ComplaintAPIData) => {
@@ -37,7 +37,15 @@ export const useComplaintSourcesData = () => {
 export const useComplaintsData = () => {
   return useQuery({
     queryKey: ["complaints"],
-    queryFn: fetchComplaints,
+    queryFn: () => fetchComplaints(),
+  });
+};
+
+export const useComplaintsByCaseFileId = (caseFileId: number) => {
+  return useQuery({
+    queryKey: ["complaints-by-caseFileId", caseFileId],
+    queryFn: () => fetchComplaints(caseFileId),
+    enabled: !!caseFileId,
   });
 };
 
