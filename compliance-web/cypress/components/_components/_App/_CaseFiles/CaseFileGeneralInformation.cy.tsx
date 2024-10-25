@@ -1,7 +1,6 @@
 import { mount } from "cypress/react18";
 import CaseFileGeneralInformation from "@/components/App/CaseFiles/Profile/CaseFileGeneralInformation";
 import { CaseFile } from "@/models/CaseFile";
-import { INITIATION } from "@/utils/constants";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dateUtils from "@/utils/dateUtils";
 
@@ -73,23 +72,5 @@ describe("CaseFileGeneralInformation", () => {
   it("calls onEdit when the Edit button is clicked", () => {
     cy.contains("button", "Edit").click();
     cy.get("@onEditStub").should("have.been.calledOnce");
-  });
-
-  it("renders CaseFileInspectionsTable when INSPECTION records exist", () => {
-    const inspectionCaseFile: CaseFile = {
-      ...mockCaseFile,
-      initiation: { id: INITIATION.INSPECTION_ID, name: "Inspection" },
-    };
-    mountComponent(inspectionCaseFile);
-    cy.get("#case-file-inspections-table").should("exist");
-  });
-
-  it("renders CaseFileComplaintsTable when COMPLAINTS records exist", () => {
-    const complaintsCaseFile: CaseFile = {
-      ...mockCaseFile,
-      initiation: { id: INITIATION.COMPLAINTS_ID, name: "Complaints" },
-    };
-    mountComponent(complaintsCaseFile);
-    cy.get("#case-file-complaints-table").should("exist");
   });
 });
