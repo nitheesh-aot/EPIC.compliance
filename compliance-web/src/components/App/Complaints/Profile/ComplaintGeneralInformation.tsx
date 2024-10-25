@@ -5,6 +5,7 @@ import FileProfileProperty from "@/components/App/FileProfileProperty";
 import dateUtils from "@/utils/dateUtils";
 import { formatAuthorization } from "@/utils/appUtils";
 import { Complaint } from "@/models/Complaint";
+import { useMenuStore } from "@/store/menuStore";
 
 interface ComplaintGeneralInformationProps {
   complaintData: Complaint;
@@ -14,7 +15,9 @@ interface ComplaintGeneralInformationProps {
 const ComplaintGeneralInformation: React.FC<
   ComplaintGeneralInformationProps
 > = ({ complaintData, onEdit }) => {
-  const properties = [
+  const { appHeaderHeight } = useMenuStore();
+
+  const generalProperties = [
     { name: "Project Name", value: complaintData.project.name },
     {
       name: "Authorization",
@@ -25,12 +28,12 @@ const ComplaintGeneralInformation: React.FC<
     { name: "Type", value: complaintData.type },
     { name: "Subtype", value: complaintData.sub_type },
     {
-      name: "Location Description",
-      value: complaintData.location_description,
-    },
-    {
       name: "Concern Description",
       value: complaintData.concern_description,
+    },
+    {
+      name: "Location Description",
+      value: complaintData.location_description,
     },
     { name: "Primary", value: complaintData.primary_officer?.full_name },
     {
@@ -39,7 +42,7 @@ const ComplaintGeneralInformation: React.FC<
     },
     {
       name: "Requirement Source",
-      // value: complaintData.requirement_source,
+      value: complaintData.requirement_source?.name,
     },
     {
       name: "Condition #",
@@ -47,12 +50,27 @@ const ComplaintGeneralInformation: React.FC<
     },
     {
       name: "Topic",
-      // value: complaintData.topic?.name,
+      value: complaintData.requirement_detail?.topic?.name,
     },
   ];
 
+  const complaintProperties = [
+    { name: "Complaint Source", value: complaintData.source_type?.name },
+    { name: "Full Name", value: complaintData.source_contact?.full_name },
+    { name: "Email", value: complaintData.source_contact?.email },
+    { name: "Phone Number", value: complaintData.source_contact?.phone },
+    { name: "Comments", value: complaintData.source_contact?.comment },
+  ];
+
   return (
-    <Box display={"flex"} flexGrow={1} flexDirection={"column"}>
+    <Box
+      display={"flex"}
+      flexGrow={1}
+      flexDirection={"column"}
+      width={"75%"}
+      height={`calc(100vh - ${appHeaderHeight + 158}px)`} // 158px is the height of the FileProfileHeader and the padding
+      overflow={"auto"}
+    >
       <Box display={"flex"} justifyContent={"space-between"} my={3}>
         <Typography variant="h6">General Information</Typography>
         <Button
@@ -66,7 +84,19 @@ const ComplaintGeneralInformation: React.FC<
         </Button>
       </Box>
       <Box display={"flex"} flexDirection={"column"}>
-        {properties.map((property) => (
+        {generalProperties.map((property) => (
+          <FileProfileProperty
+            key={property.name}
+            propertyName={property.name}
+            propertyValue={property.value}
+          />
+        ))}
+      </Box>
+      <Box mb={"1rem"} mt={"1.5rem"}>
+        <Typography variant="h6">Complainant Information</Typography>
+      </Box>
+      <Box display={"flex"} flexDirection={"column"}>
+        {complaintProperties.map((property) => (
           <FileProfileProperty
             key={property.name}
             propertyName={property.name}

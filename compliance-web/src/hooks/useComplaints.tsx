@@ -1,8 +1,12 @@
 import { Complaint, ComplaintAPIData } from "@/models/Complaint";
 import { ComplaintSource } from "@/models/ComplaintSource";
+import { Contact } from "@/models/Contact";
 import { RequirementSource } from "@/models/RequirementSource";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
-import { UNAPPROVED_PROJECT_ABBREVIATION, UNAPPROVED_PROJECT_ID } from "@/utils/constants";
+import {
+  UNAPPROVED_PROJECT_ABBREVIATION,
+  UNAPPROVED_PROJECT_ID,
+} from "@/utils/constants";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 const fetchRequirementSources = (): Promise<RequirementSource[]> => {
@@ -18,7 +22,11 @@ const fetchComplaints = (caseFileId?: number): Promise<Complaint[]> => {
 };
 
 const fetchComplaint = (complaintNumber: string): Promise<Complaint> => {
-  return request({ url: `/complaints/${complaintNumber}` });
+  return request({ url: `/complaints/complaint-numbers/${complaintNumber}` });
+};
+
+const fetchSourceContact = (complaintId: number): Promise<Contact> => {
+  return request({ url: `/complaints/${complaintId}/source-contacts` });
 };
 
 const createComplaint = (complaint: ComplaintAPIData) => {
@@ -59,11 +67,12 @@ export const useComplaintByNumber = (complaintNumber: string) => {
     queryKey: ["complaint", complaintNumber],
     queryFn: async () => {
       const complaint = await fetchComplaint(complaintNumber);
+      const source_contact = await fetchSourceContact(complaint?.id);
       if (complaint.project.abbreviation === UNAPPROVED_PROJECT_ABBREVIATION) {
         complaint.project.id = UNAPPROVED_PROJECT_ID;
         delete complaint.project.abbreviation;
       }
-      return complaint;
+      return { ...complaint, source_contact };
     },
     enabled: !!complaintNumber,
   });

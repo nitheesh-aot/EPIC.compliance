@@ -143,6 +143,7 @@ export const formatComplaintData = (
   let complaintData: ComplaintAPIData = {
     project_id: projectId,
     case_file_id: caseFileId,
+    project_description: formData.projectDescription ?? "",
     primary_officer_id: (formData.primaryOfficer as StaffUser).id,
     location_description: formData.locationDescription ?? "",
     concern_description: formData.concernDescription ?? "",
@@ -207,7 +208,6 @@ export const formatComplaintData = (
     complaintData = {
       unapproved_project_authorization: formData.authorization ?? "",
       unapproved_project_regulated_party: formData.regulatedParty ?? "",
-      project_description: formData.projectDescription ?? "",
       unapproved_project_type: formData.projectType ?? "",
       unapproved_project_sub_type: formData.projectSubType ?? "",
       ...complaintData,
