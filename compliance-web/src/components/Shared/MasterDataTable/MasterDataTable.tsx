@@ -81,6 +81,7 @@ export interface MaterialReactTableProps<TData extends MRT_RowData>
   enableExport?: boolean;
   tableName?: string;
   titleToolbarProps?: MRT_EAO_TitleToolbarProps;
+  isStackedTables?: boolean;
 }
 
 const MasterDataTable = <TData extends MRT_RowData>({
@@ -92,6 +93,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
   titleToolbarProps,
   enableExport,
   renderTopToolbarCustomActions,
+  isStackedTables,
   ...rest
 }: MaterialReactTableProps<TData>) => {
   const { initialState, state, icons, ...otherProps } = rest;
@@ -153,13 +155,25 @@ const MasterDataTable = <TData extends MRT_RowData>({
       sx: { p: 0, m: "-0.5rem" },
     },
     muiBottomToolbarProps: {
-      sx: { boxShadow: "none" },
+      sx: {
+        boxShadow: "none",
+        ...(isStackedTables && {
+          display: "none",
+        }),
+      },
     },
     muiTablePaperProps: {
-      sx: { boxShadow: "none", pb: "4rem" },
+      sx: {
+        boxShadow: "none",
+        pb: "4rem",
+        ...(isStackedTables && {
+          pb: "0",
+        }),
+      },
     },
     muiTableProps: {
       sx: { tableLayout: "fixed" },
+      ...rest.muiTableProps,
     },
     muiTableBodyCellProps: () => ({
       disabled: true,
@@ -232,30 +246,31 @@ const MasterDataTable = <TData extends MRT_RowData>({
     renderTopToolbarCustomActions: ({ table }) => {
       return (
         <>
-          {titleToolbarProps && !renderTopToolbarCustomActions && ( // generic title toolbar of all EAO tables
-            <Box
-              sx={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <Typography
-                variant="h5"
-                sx={{ color: BCDesignTokens.typographyColorLink }}
+          {titleToolbarProps &&
+            !renderTopToolbarCustomActions && ( // generic title toolbar of all EAO tables
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
               >
-                {titleToolbarProps?.tableTitle}
-              </Typography>
-              <Button
-                id="addActionButton"
-                startIcon={<AddRounded />}
-                onClick={titleToolbarProps?.tableAddRecordFunction}
-              >
-                {titleToolbarProps?.tableAddRecordButtonText}
-              </Button>
-            </Box>
-          )}
+                <Typography
+                  variant="h5"
+                  sx={{ color: BCDesignTokens.typographyColorLink }}
+                >
+                  {titleToolbarProps?.tableTitle}
+                </Typography>
+                <Button
+                  id="addActionButton"
+                  startIcon={<AddRounded />}
+                  onClick={titleToolbarProps?.tableAddRecordFunction}
+                >
+                  {titleToolbarProps?.tableAddRecordButtonText}
+                </Button>
+              </Box>
+            )}
           {renderTopToolbarCustomActions && // custom title toolbar
             renderTopToolbarCustomActions({ table })}
           {enableExport && ( //common for both toolbars
