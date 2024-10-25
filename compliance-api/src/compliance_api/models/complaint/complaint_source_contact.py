@@ -53,3 +53,8 @@ class ComplaintSourceContact(BaseModelVersioned):
         else:
             contact.save()
         return contact
+
+    @classmethod
+    def get_by_complaint(cls, complaint_id):
+        """Get source contact by complaint id."""
+        return cls.query.filter_by(complaint_id=complaint_id, is_deleted=False).first()
