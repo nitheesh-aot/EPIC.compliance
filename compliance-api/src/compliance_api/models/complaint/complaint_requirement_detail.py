@@ -43,10 +43,17 @@ class ComplaintRequirementDetail(BaseModelVersioned):
     @classmethod
     def create_detail(cls, requirement_source_data, session=None):
         """Persist details in database."""
-        requirement_source_detail = ComplaintRequirementDetail(**requirement_source_data)
+        requirement_source_detail = ComplaintRequirementDetail(
+            **requirement_source_data
+        )
         if session:
             session.add(requirement_source_detail)
             session.flush()
         else:
             requirement_source_detail.save()
         return requirement_source_detail
+
+    @classmethod
+    def get_by_complaint(cls, complaint_id):
+        """Get requirement details by complaint id."""
+        return cls.query.filter_by(complaint_id=complaint_id, is_deleted=False).first()

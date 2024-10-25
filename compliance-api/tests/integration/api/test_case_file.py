@@ -38,6 +38,16 @@ def mock_auth_service(mocker):
     yield mock_get_user_by_guid, mock_update_user_group
 
 
+@pytest.fixture
+def created_staff(mocker):
+    """Create staff."""
+    user_data = StaffScenario.default_data.value
+    auth_user_guid = fake.word()
+    user_data["auth_user_guid"] = auth_user_guid
+    new_user = StaffScenario.create(user_data)
+    return new_user
+
+
 def test_get_case_file_initiation_options(client, auth_header):
     """Get complaint sources."""
     url = urljoin(API_BASE_URL, "case-files/initiation-options")
@@ -46,15 +56,17 @@ def test_get_case_file_initiation_options(client, auth_header):
     assert result.status_code == HTTPStatus.OK
 
 
-def test_create_case_file_without_file_number(client, auth_header):
+def test_create_case_file_without_file_number(client, auth_header, created_staff):
     """Create case file with basic fields."""
     url = urljoin(API_BASE_URL, "case-files")
+    case_file_data = CasefileScenario.default_value.value
+    case_file_data["primary_officer_id"] = created_staff.id
     result = client.post(
         url, data=json.dumps(CasefileScenario.default_value.value), headers=auth_header
     )
+    assert result.status_code == HTTPStatus.CREATED
     assert result.json["case_file_number"] == f"{datetime.now().year}0001"
     assert result.json["case_file_status"] == CaseFileStatusEnum.OPEN.value
-    assert result.status_code == HTTPStatus.CREATED
 
 
 def test_create_case_file_with_file_number(client, auth_header):
@@ -79,12 +91,16 @@ def test_create_case_file_with_file_number(client, auth_header):
     assert officers[0].id == new_user.id
 
 
-def test_create_case_file_with_existing_case_file_number(client, auth_header):
+def test_create_case_file_with_existing_case_file_number(
+    client, auth_header, created_staff
+):
     """Create case file with basic fields."""
     url = urljoin(API_BASE_URL, "case-files")
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = "XYZ"
+    case_file_data["primary_officer_id"] = created_staff.id
     result = client.post(url, data=json.dumps(case_file_data), headers=auth_header)
+    print(result.json)
     assert result.status_code == HTTPStatus.CONFLICT
 
 
@@ -159,11 +175,12 @@ def test_get_case_file_by_number(client, auth_header):
     assert result.json["case_file_number"] == case_file_data["case_file_number"]
 
 
-def test_case_file_update(client, auth_header):
+def test_case_file_update(client, auth_header, created_staff):
     """Update case file."""
     #  creating case file without officers or primary officer
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
+    case_file_data["primary_officer_id"] = created_staff.id
     created_case_file = CaseFileService.create(case_file_data)
     url = urljoin(
         API_BASE_URL,
@@ -172,7 +189,6 @@ def test_case_file_update(client, auth_header):
     result = client.get(url, headers=auth_header)
     print(result.json)
     assert result.status_code == HTTPStatus.OK
-    assert result.json["primary_officer_id"] is None
     officers = CaseFileService.get_other_officers(result.json["id"])
     assert len(officers) == 0
     #  create one user

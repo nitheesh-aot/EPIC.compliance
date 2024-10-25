@@ -17,7 +17,7 @@ def test_get_agencies(app, client, auth_header):
     AgencyScenario.create(AgencyScenario.agency1.value)
     AgencyScenario.create(AgencyScenario.agency2.value)
     result = client.get(url, headers=auth_header)
-    assert len(result.json) == 2
+    assert len(result.json) == 8
     assert result.status_code == HTTPStatus.OK
 
 

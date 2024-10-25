@@ -38,6 +38,7 @@ class RequirementSoruceDetailSchema(
         include_fk = True
 
     topic = fields.Nested(KeyValueSchema)
+    additional_details = fields.Raw()
 
 
 class ComplaintSourceContactSchema(
@@ -269,6 +270,14 @@ class ComplaintSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     source_type = fields.Nested(KeyValueSchema)
     requirement_source = fields.Nested(KeyValueSchema)
     requirement_detail = fields.Nested(RequirementSoruceDetailSchema, only=["topic"])
+    authorization = fields.Str(
+        metadata={"description": "The authorization information of the project"}
+    )
+    regulated_party = fields.Str(
+        metadata={"description": "The regulated party of the project"}
+    )
+    type = fields.Str(metadata={"description": "The type of the project"})
+    sub_type = fields.Str(metadata={"description": "The subtype of the project"})
 
     @post_dump
     def post_dump_actions(

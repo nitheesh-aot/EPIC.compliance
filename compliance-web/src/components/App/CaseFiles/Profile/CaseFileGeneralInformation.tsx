@@ -4,6 +4,7 @@ import { Box, Button, Typography } from "@mui/material";
 import FileProfileProperty from "@/components/App/FileProfileProperty";
 import { CaseFile } from "@/models/CaseFile";
 import CaseFileInspectionsTable from "./CaseFileInspectionsTable";
+import CaseFileComplaintsTable from "./CaseFileComplaintsTable";
 
 interface CaseFileGeneralInformationProps {
   caseFileData: CaseFile;
@@ -61,6 +62,7 @@ const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
           />
         </Box>
       </Box>
+      <CaseFileComplaintsTable caseFileId={caseFileData.id} />
       <CaseFileInspectionsTable caseFileId={caseFileData.id} />
     </Box>
   );
