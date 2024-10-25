@@ -9,8 +9,7 @@ import { MRT_ColumnDef } from "material-react-table";
 import { useState, useEffect, useMemo } from "react";
 
 const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
-  const { data: complaints, isLoading } =
-    useComplaintsByCaseFileId(caseFileId);
+  const { data: complaints, isLoading } = useComplaintsByCaseFileId(caseFileId);
 
   const [staffUserList, setStaffUserList] = useState<string[]>([]);
   const [complaintStatusList, setComplaintStatusList] = useState<string[]>([]);
@@ -21,7 +20,9 @@ const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
     setStaffUserList(
       [
         ...new Set(
-          complaints?.map((complaint) => complaint.primary_officer?.full_name ?? "")
+          complaints?.map(
+            (complaint) => complaint.primary_officer?.full_name ?? ""
+          )
         ),
       ].filter(Boolean)
     );
@@ -32,12 +33,18 @@ const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
     );
     setTopicList(
       [
-        ...new Set(complaints?.map((complaint) => complaint.requirement_detail?.topic?.name ?? "")),
+        ...new Set(
+          complaints?.map(
+            (complaint) => complaint.requirement_detail?.topic?.name ?? ""
+          )
+        ),
       ].filter(Boolean)
     );
     setComplaintSourceList(
       [
-        ...new Set(complaints?.map((complaint) => complaint.source_type?.name ?? "")),
+        ...new Set(
+          complaints?.map((complaint) => complaint.source_type?.name ?? "")
+        ),
       ].filter(Boolean)
     );
   }, [complaints]);
@@ -159,10 +166,11 @@ const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
     [complaintStatusList, staffUserList, topicList, complaintSourceList]
   );
 
-  return (
+  return complaints && complaints.length > 0 ? (
     <MasterDataTable
+      data-testid="case-file-complaints-table"
       columns={columns}
-      data={complaints ?? []}
+      data={complaints}
       initialState={{
         sorting: [
           {
@@ -176,7 +184,13 @@ const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
         showGlobalFilter: true,
       }}
       enableTopToolbar={false}
+      muiTableProps={{
+        id: "case-file-complaints-table",
+      }}
+      isStackedTables
     />
+  ) : (
+    <></>
   );
 };
 

@@ -130,10 +130,10 @@ const CaseFileInspectionsTable = ({ caseFileId }: { caseFileId: number }) => {
     [inspectionStatusList, staffUserList]
   );
 
-  return (
+  return inspections && inspections.length > 0 ? (
     <MasterDataTable
       columns={columns}
-      data={inspections ?? []}
+      data={inspections}
       initialState={{
         sorting: [
           {
@@ -147,7 +147,13 @@ const CaseFileInspectionsTable = ({ caseFileId }: { caseFileId: number }) => {
         showGlobalFilter: true,
       }}
       enableTopToolbar={false}
+      muiTableProps={{
+        id: "case-file-inspections-table",
+      }}
+      isStackedTables
     />
+  ) : (
+    <></>
   );
 };
 

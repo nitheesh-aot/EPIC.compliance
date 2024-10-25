@@ -5,7 +5,6 @@ import FileProfileProperty from "@/components/App/FileProfileProperty";
 import { CaseFile } from "@/models/CaseFile";
 import CaseFileInspectionsTable from "./CaseFileInspectionsTable";
 import CaseFileComplaintsTable from "./CaseFileComplaintsTable";
-import { INITIATION } from "@/utils/constants";
 
 interface CaseFileGeneralInformationProps {
   caseFileData: CaseFile;
@@ -63,12 +62,8 @@ const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
           />
         </Box>
       </Box>
-      {caseFileData.initiation.id === INITIATION.INSPECTION_ID && (
-        <CaseFileInspectionsTable caseFileId={caseFileData.id} />
-      )}
-      {caseFileData.initiation.id === INITIATION.COMPLAINTS_ID && (
-        <CaseFileComplaintsTable caseFileId={caseFileData.id} />
-      )}
+      <CaseFileComplaintsTable caseFileId={caseFileData.id} />
+      <CaseFileInspectionsTable caseFileId={caseFileData.id} />
     </Box>
   );
 };
