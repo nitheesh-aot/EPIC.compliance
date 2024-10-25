@@ -1,10 +1,9 @@
 import { Project } from "./Project";
-import { RequirementSource } from "./RequirementSource";
+import { RequirementDetails, RequirementSource } from "./RequirementSource";
 import { ComplaintSource } from "./ComplaintSource";
 import { StaffUser } from "./Staff";
 import { CaseFile } from "./CaseFile";
 import { Contact } from "./Contact";
-import { Topic } from "./Topic";
 
 export interface Complaint {
   id: number;
@@ -27,9 +26,7 @@ export interface Complaint {
   source_type: ComplaintSource;
   requirement_source: RequirementSource;
   source_contact: Contact;
-  requirement_detail: {
-    topic: Topic;
-  };
+  requirement_detail: RequirementDetails;
   status: string;
   authorization?: string;
   regulated_party?: string;

@@ -6,6 +6,7 @@ import dateUtils from "@/utils/dateUtils";
 import { formatAuthorization } from "@/utils/appUtils";
 import { Complaint } from "@/models/Complaint";
 import { useMenuStore } from "@/store/menuStore";
+import { RequirementSourceEnum } from "@/components/App/Complaints/ComplaintFormUtils";
 
 interface ComplaintGeneralInformationProps {
   complaintData: Complaint;
@@ -40,19 +41,56 @@ const ComplaintGeneralInformation: React.FC<
       name: "Date Received",
       value: dateUtils.formatDate(complaintData.date_received),
     },
-    {
+  ];
+
+  if (complaintData.requirement_source) {
+    generalProperties.push({
       name: "Requirement Source",
-      value: complaintData.requirement_source?.name,
-    },
-    {
-      name: "Condition #",
-      // value: complaintData.condition_number,
-    },
-    {
+      value: complaintData.requirement_source.name,
+    });
+    switch (complaintData.requirement_source.id) {
+      case RequirementSourceEnum.SCHEDULE_B:
+        generalProperties.push({
+          name: "Condition #",
+          value:
+            complaintData.requirement_detail?.additional_details
+              ?.condition_number,
+        });
+        break;
+      case RequirementSourceEnum.EAC:
+        generalProperties.push({
+          name: "Amendment #",
+          value:
+            complaintData.requirement_detail?.additional_details
+              ?.amendment_number,
+        });
+        generalProperties.push({
+          name: "Condition #",
+          value:
+            complaintData.requirement_detail?.additional_details
+              ?.amendment_condition_number,
+        });
+        generalProperties.push({
+          name: "Condition Description",
+          value: complaintData.requirement_detail?.description,
+        });
+        break;
+      case RequirementSourceEnum.ACT2018:
+      case RequirementSourceEnum.ACT2022:
+      case RequirementSourceEnum.CPD:
+      case RequirementSourceEnum.COMPLAINCE_AGREEMENT:
+      case RequirementSourceEnum.NOT_EA_ACT:
+      case RequirementSourceEnum.OTHER:
+        generalProperties.push({
+          name: "Condition Description",
+          value: complaintData.requirement_detail?.description,
+        });
+    }
+    generalProperties.push({
       name: "Topic",
       value: complaintData.requirement_detail?.topic?.name,
-    },
-  ];
+    });
+  }
 
   const complaintProperties = [
     { name: "Complaint Source", value: complaintData.source_type?.name },
