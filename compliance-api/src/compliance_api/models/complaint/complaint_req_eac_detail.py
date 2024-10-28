@@ -40,7 +40,7 @@ class ComplaintReqEACDetail(BaseModelVersioned):
             "id": self.id,
             "req_id": self.req_id,
             "amendment_number": self.amendment_number,
-            "amendment_condition_number": self.amendment_condition_number
+            "amendment_condition_number": self.amendment_condition_number,
         }
 
     @classmethod
@@ -53,6 +53,16 @@ class ComplaintReqEACDetail(BaseModelVersioned):
         else:
             requirement_more.save()
         return requirement_more
+
+    @classmethod
+    def delete_eac_details(cls, requirement_id, session=None):
+        """Mark the details as deleted."""
+        query = cls.query.filter_by(req_id=requirement_id, is_deleted=False)
+        query.update({"is_deleted": True, "is_active": False})
+        if session:
+            session.flush()
+        else:
+            session.commit()
 
     @classmethod
     def get_by_requirement(cls, req_id):

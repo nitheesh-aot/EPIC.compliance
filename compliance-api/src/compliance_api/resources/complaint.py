@@ -8,7 +8,8 @@ from flask_restx import Namespace, Resource
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
-    ComplaintCreateSchema, ComplaintSchema, ComplaintSourceContactSchema, KeyValueSchema, RequirementSoruceDetailSchema)
+    ComplaintCreateSchema, ComplaintSchema, ComplaintSourceContactSchema, ComplaintUpdateSchema, KeyValueSchema,
+    RequirementSoruceDetailSchema)
 from compliance_api.services import ComplaintService
 from compliance_api.utils.util import cors_preflight
 
@@ -35,6 +36,9 @@ complaint_source_contact_model = ApiHelper.convert_ma_schema_to_restx_model(
 
 complaint_requirement_details = ApiHelper.convert_ma_schema_to_restx_model(
     API, RequirementSoruceDetailSchema(), "RequirementDetails"
+)
+complaint_update_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, ComplaintUpdateSchema(), "ComplaintUpdate"
 )
 
 
@@ -98,8 +102,8 @@ class Complaints(Resource):
         return ComplaintSchema().dump(created_complaint), HTTPStatus.CREATED
 
 
-@cors_preflight("GET, OPTIONS")
-@API.route("/<int:complaint_id>", methods=["OPTIONS", "GET"])
+@cors_preflight("GET, PATCH, OPTIONS")
+@API.route("/<int:complaint_id>", methods=["OPTIONS", "GET", "PATCH"])
 @API.doc(params={"complaint_id": "The unique identifier for the complaint"})
 class Complaint(Resource):
     """Resource for managing a single Complaint."""
@@ -114,6 +118,17 @@ class Complaint(Resource):
         if not complaint:
             raise ResourceNotFoundError(f"Complaint with {complaint} not found")
         return ComplaintSchema().dump(complaint), HTTPStatus.OK
+
+    @staticmethod
+    @API.response(code=200, description="Sucess", model=[complaint_list_model])
+    @API.expect(complaint_update_model)
+    @ApiHelper.swagger_decorators(API, endpoint_description="Update complaint")
+    @auth.require
+    def patch(complaint_id):
+        """Update complaint."""
+        complaint_data = ComplaintUpdateSchema().load(API.payload)
+        updated_complaint = ComplaintService.update(complaint_id, complaint_data)
+        return ComplaintSchema().dump(updated_complaint), HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS")
