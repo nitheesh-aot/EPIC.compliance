@@ -4,6 +4,7 @@ import { ComplaintSource } from "./ComplaintSource";
 import { StaffUser } from "./Staff";
 import { CaseFile } from "./CaseFile";
 import { Contact } from "./Contact";
+import { Dayjs } from "dayjs";
 
 export interface Complaint {
   id: number;
@@ -34,15 +35,14 @@ export interface Complaint {
   sub_type?: string;
 }
 
-export interface InspectionFormData {
+export interface ComplaintFormData {
   project?: Project;
-  dateRecieved?: Date;
+  dateReceived?: Dayjs;
   primaryOfficer?: StaffUser;
   concernDescription?: string;
   locationDescription?: string;
-  complaintSource: ComplaintSource;
+  complaintSource?: ComplaintSource;
   requirementSource?: RequirementSource;
-  caseFileId?: string;
 }
 
 export interface ComplaintAPIData {

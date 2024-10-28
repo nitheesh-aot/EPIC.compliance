@@ -8,7 +8,6 @@ import ComplaintFormLeft from "./ComplaintFormLeft";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useMenuStore } from "@/store/menuStore";
-import { InspectionFormData as ComplaintFormData } from "@/models/Inspection";
 import { useModal } from "@/store/modalStore";
 import {
   formatComplaintData,
@@ -17,7 +16,11 @@ import {
   ComplaintSchemaType,
 } from "./ComplaintFormUtils";
 import LinkCaseFileModal from "@/components/App/CaseFiles/LinkCaseFileModal";
-import { Complaint, ComplaintAPIData } from "@/models/Complaint";
+import {
+  Complaint,
+  ComplaintAPIData,
+  ComplaintFormData,
+} from "@/models/Complaint";
 import {
   useComplaintSourcesData,
   useCreateComplaint,
@@ -30,6 +33,8 @@ import ComplaintSourceForm from "./ComplaintSourceForm";
 import RequirementSourceForm from "./RequirementSourceForm";
 import { INITIATION } from "@/utils/constants";
 import { StaffUser } from "@/models/Staff";
+import { formatAuthorization } from "@/utils/appUtils";
+import dayjs from "dayjs";
 
 type ComplaintDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -38,14 +43,9 @@ type ComplaintDrawerProps = {
 
 const initFormData: ComplaintFormData = {
   project: undefined,
-  dateRange: undefined,
+  dateReceived: undefined,
   primaryOfficer: undefined,
-  officers: [],
-  irTypes: [],
-  initiation: undefined,
-  irStatus: undefined,
-  projectStatus: undefined,
-  caseFileId: undefined,
+  complaintSource: undefined,
 };
 
 const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
@@ -67,10 +67,46 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
 
   const defaultValues = useMemo<ComplaintFormData>(() => {
     if (complaint) {
-      // TDOD: Map existing data
+      return {
+        project: complaint.project,
+        authorization: formatAuthorization(complaint.authorization),
+        regulatedParty: complaint.regulated_party,
+        projectDescription: complaint.project_description ?? "",
+        projectType: complaint.type,
+        projectSubType: complaint.sub_type,
+        concernDescription: complaint.concern_description,
+        locationDescription: complaint.location_description,
+        primaryOfficer: complaint.primary_officer,
+        dateReceived: dayjs(complaint.date_received),
+        complaintSource: complaint.source_type,
+        contactFullName: complaint.source_contact.full_name ?? "",
+        contactEmail: complaint.source_contact.email ?? "",
+        contactPhoneNumber: complaint.source_contact.phone ?? "",
+        contactComments: complaint.source_contact.comment ?? "",
+        agency: agenciesList?.find(
+          (item) => item.id === complaint.source_agency_id
+        ),
+        firstNation: firstNationsList?.find(
+          (item) => item.id === complaint.source_first_nation_id
+        ),
+        otherDescription: complaint.source_contact?.description ?? "",
+        requirementSource: complaint.requirement_source,
+        topic: complaint.requirement_detail.topic,
+        conditionNumber:
+          complaint.requirement_detail?.additional_details
+            ?.condition_number ?? "",
+        conditionDescription: complaint.requirement_detail?.description ?? "",
+        description: complaint.requirement_detail?.description ?? "",
+        amendmentNumber:
+          complaint.requirement_detail?.additional_details?.amendment_number ??
+          "",
+        amendmentConditionNumber:
+          complaint.requirement_detail?.additional_details
+            ?.amendment_condition_number ?? "",
+      };
     }
     return initFormData;
-  }, [complaint]);
+  }, [agenciesList, complaint, firstNationsList]);
 
   const methods = useForm<ComplaintSchemaType>({
     resolver: yupResolver(ComplaintFormSchema),

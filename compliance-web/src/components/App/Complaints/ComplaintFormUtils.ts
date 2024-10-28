@@ -12,6 +12,7 @@ import {
   UNAPPROVED_PROJECT_ID,
 } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
+import { Dayjs } from "dayjs";
 import * as yup from "yup";
 
 export enum ComplaintSourceEnum {
@@ -44,7 +45,7 @@ export const ComplaintFormSchema = yup.object().shape({
     .required("Concern Description is required"),
   locationDescription: yup.string().nullable(),
   primaryOfficer: yup.object<StaffUser>().nullable().required("Primary is required"),
-  dateReceived: yup.date().nullable().required("Date Received is required"),
+  dateReceived: yup.mixed<Dayjs>().nullable().required("Date Received is required"),
   complaintSource: yup
     .object<ComplaintSource>()
     .nullable()

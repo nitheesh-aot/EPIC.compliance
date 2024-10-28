@@ -12,6 +12,8 @@ export interface RequirementDetails {
   topic: Topic;
   additional_details?: {
     condition_number?: string;
+    amendment_condition_number?: string;
+    amendment_number?: string;
     req_id?: number;
   }
 }
