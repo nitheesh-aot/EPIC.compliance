@@ -54,6 +54,20 @@ class ComplaintRequirementDetail(BaseModelVersioned):
         return requirement_source_detail
 
     @classmethod
+    def update_detail(cls, complaint_id, requirement_source_data, session=None):
+        """Update requirement source details."""
+        query = cls.query.filter_by(id=complaint_id, is_deleted=False)
+        requirement: ComplaintRequirementDetail = query.first()
+        if not requirement:
+            return None
+        query.update(requirement_source_data)
+        if session:
+            session.flush()
+        else:
+            cls.session.commit()
+        return requirement
+
+    @classmethod
     def get_by_complaint(cls, complaint_id):
         """Get requirement details by complaint id."""
         return cls.query.filter_by(complaint_id=complaint_id, is_deleted=False).first()

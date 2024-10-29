@@ -51,6 +51,16 @@ class ComplaintReqScheduleBDetail(BaseModelVersioned):
         return requirement_more
 
     @classmethod
+    def delete_schedule_b_details(cls, requirement_id, session=None):
+        """Mark the details as deleted."""
+        query = cls.query.filter_by(req_id=requirement_id, is_deleted=False)
+        query.update({"is_deleted": True, "is_active": False})
+        if session:
+            session.flush()
+        else:
+            session.commit()
+
+    @classmethod
     def get_by_requirement(cls, req_id):
         """Get additional requirement source details."""
         return cls.query.filter_by(req_id=req_id, is_deleted=False).first()
