@@ -1,12 +1,11 @@
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, Button, Stack } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
+import { Box, Stack } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import ComplaintFormLeft from "./ComplaintFormLeft";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useMenuStore } from "@/store/menuStore";
 import { useModal } from "@/store/modalStore";
 import {
@@ -35,6 +34,8 @@ import { INITIATION } from "@/utils/constants";
 import { StaffUser } from "@/models/Staff";
 import { formatAuthorization } from "@/utils/appUtils";
 import dayjs from "dayjs";
+import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
+import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
 
 type ComplaintDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -53,7 +54,6 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
   complaint,
 }) => {
   const { appHeaderHeight } = useMenuStore();
-  const drawerTopRef = useRef<HTMLDivElement | null>(null);
 
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
 
@@ -93,8 +93,8 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
         requirementSource: complaint.requirement_source,
         topic: complaint.requirement_detail.topic,
         conditionNumber:
-          complaint.requirement_detail?.additional_details
-            ?.condition_number ?? "",
+          complaint.requirement_detail?.additional_details?.condition_number ??
+          "",
         conditionDescription: complaint.requirement_detail?.description ?? "",
         description: complaint.requirement_detail?.description ?? "",
         amendmentNumber:
@@ -114,12 +114,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
     defaultValues,
   });
 
-  const {
-    handleSubmit,
-    reset,
-    formState: { isValid },
-    getValues,
-  } = methods;
+  const { handleSubmit, reset, getValues } = methods;
 
   useEffect(() => {
     reset(defaultValues);
@@ -184,23 +179,10 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <Box ref={drawerTopRef}>
-          <DrawerTitleBar title="Create Complaint" isFormDirtyCheck />
-          <Box
-            sx={{
-              backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
-              padding: "0.75rem 2rem",
-              textAlign: "right",
-            }}
-          >
-            <Button type="submit" disabled={!isValid}>
-              Create
-            </Button>
-          </Box>
-        </Box>
-
+        <DrawerTitleBar title="Create Complaint" isFormDirtyCheck />
+        <DrawerActionBarTop isShowActionBar={!complaint} />
         <Stack
-          height={`calc(100vh - ${(drawerTopRef.current?.offsetHeight ?? 120) + appHeaderHeight}px)`}
+          height={`calc(100vh - ${appHeaderHeight + 129}px)`} // 64px (DrawerTitleBar height) + 65px (DrawerActionBar height)
           direction="row"
         >
           <ComplaintFormLeft
@@ -225,6 +207,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
             />
           </Box>
         </Stack>
+        <DrawerActionBarBottom isShowActionBar={!!complaint} />
       </form>
     </FormProvider>
   );

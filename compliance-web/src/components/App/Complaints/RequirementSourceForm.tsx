@@ -189,7 +189,9 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
             options={topicsList}
             getOptionLabel={(option) => option.name}
             getOptionKey={(option) => option.id}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
+            isOptionEqualToValue={(option, value) =>
+              option.id.toString() === value.id.toString()
+            }
             fullWidth
           />
         </Box>
