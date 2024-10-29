@@ -195,6 +195,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
           <ComplaintFormLeft
             projectList={projectList ?? []}
             staffUsersList={staffUserList ?? []}
+            isEditMode={!!complaint}
           />
           <Box
             sx={{
