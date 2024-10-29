@@ -135,15 +135,13 @@ export const getProjectId = (formData: ComplaintSchemaType) => {
 // Formatting inspection form data for API
 export const formatComplaintData = (
   formData: ComplaintSchemaType,
-  caseFileId: number
+  caseFileId?: number // as a flag for create new record
 ) => {
   const projectId = getProjectId(formData);
   const sourceId = (formData.complaintSource as ComplaintSource)?.id;
   const reqSourceId = (formData.requirementSource as RequirementSource)?.id;
 
   let complaintData: ComplaintAPIData = {
-    project_id: projectId,
-    case_file_id: caseFileId,
     project_description: formData.projectDescription ?? "",
     primary_officer_id: (formData.primaryOfficer as StaffUser).id,
     location_description: formData.locationDescription ?? "",
@@ -213,6 +211,10 @@ export const formatComplaintData = (
       unapproved_project_sub_type: formData.projectSubType ?? "",
       ...complaintData,
     };
+  }
+  if (caseFileId) { // map the fields only for create new record, and case file id is available
+    complaintData.project_id = projectId;
+    complaintData.case_file_id = caseFileId;
   }
   return complaintData;
 };

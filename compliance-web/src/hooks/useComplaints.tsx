@@ -37,6 +37,16 @@ const createComplaint = (complaint: ComplaintAPIData) => {
   return request({ url: "/complaints", method: "post", data: complaint });
 };
 
+const updateComplaint = ({
+  id,
+  complaint,
+}: {
+  id: number;
+  complaint: ComplaintAPIData;
+}) => {
+  return request({ url: `/complaints/${id}`, method: "patch", data: complaint });
+};
+
 export const useRequirementSourcesData = () => {
   return useQuery({
     queryKey: ["requirement-sources"],
@@ -85,4 +95,8 @@ export const useComplaintByNumber = (complaintNumber: string) => {
 
 export const useCreateComplaint = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: createComplaint, onSuccess });
+};
+
+export const useUpdateComplaint = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: updateComplaint, onSuccess });
 };

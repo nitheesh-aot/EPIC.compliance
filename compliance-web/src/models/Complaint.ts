@@ -50,7 +50,7 @@ export interface ComplaintAPIData {
   concern_description: string;
   location_description?: string;
   primary_officer_id?: number;
-  case_file_id: number;
+  case_file_id?: number;
   date_received: string;
   source_type_id: string;
   complaint_source_contact?: Contact;

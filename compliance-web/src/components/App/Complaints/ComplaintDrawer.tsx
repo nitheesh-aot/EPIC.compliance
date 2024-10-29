@@ -24,6 +24,7 @@ import {
   useComplaintSourcesData,
   useCreateComplaint,
   useRequirementSourcesData,
+  useUpdateComplaint,
 } from "@/hooks/useComplaints";
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { useFirstNationsData } from "@/hooks/useFirstNations";
@@ -124,7 +125,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
     (data: Complaint) => {
       onSubmit(
         complaint
-          ? "Successfully updated!"
+          ? "Changes saved successfully!"
           : `Complaint File ${data.complaint_number} was successfully created`
       );
       reset();
@@ -133,47 +134,53 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
   );
 
   const { mutate: createComplaint } = useCreateComplaint(onSuccess);
+  const { mutate: updateComplaint } = useUpdateComplaint(onSuccess);
 
-  const addOrUpdateComplaint = useCallback(
+  const handleOnCaseFileSubmit = useCallback(
     (caseFileId: number) => {
       const formData = getValues();
       const complaintData: ComplaintAPIData = formatComplaintData(
         formData,
         caseFileId
       );
-
-      if (complaint) {
-        // TODO: Add update logic here
-      } else {
-        createComplaint(complaintData);
-      }
-    },
-    [createComplaint, getValues, complaint]
-  );
-
-  const handleOnCaseFileSubmit = useCallback(
-    (caseFileId: number) => {
-      addOrUpdateComplaint(caseFileId);
+      createComplaint(complaintData);
       setModalClose();
     },
-    [addOrUpdateComplaint, setModalClose]
+    [createComplaint, getValues, setModalClose]
   );
 
   const onSubmitHandler = useCallback(
     (data: ComplaintSchemaType) => {
-      // Open modal for linking or creating case file
-      setModalOpen({
-        content: (
-          <LinkCaseFileModal
-            onSubmit={handleOnCaseFileSubmit}
-            projectId={getProjectId(data)}
-            primaryOfficerId={(data.primaryOfficer as StaffUser).id}
-            initiationId={INITIATION.COMPLAINTS_ID}
-          />
-        ),
-      });
+      if (complaint) {
+        // update existing complaint record
+        const formData = getValues();
+        const complaintUpdateData: ComplaintAPIData =
+          formatComplaintData(formData);
+        updateComplaint({
+          id: complaint.id,
+          complaint: complaintUpdateData,
+        });
+      } else {
+        // Open modal for linking or creating case file
+        setModalOpen({
+          content: (
+            <LinkCaseFileModal
+              onSubmit={handleOnCaseFileSubmit}
+              projectId={getProjectId(data)}
+              primaryOfficerId={(data.primaryOfficer as StaffUser).id}
+              initiationId={INITIATION.COMPLAINTS_ID}
+            />
+          ),
+        });
+      }
     },
-    [setModalOpen, handleOnCaseFileSubmit]
+    [
+      complaint,
+      getValues,
+      updateComplaint,
+      setModalOpen,
+      handleOnCaseFileSubmit,
+    ]
   );
 
   return (
