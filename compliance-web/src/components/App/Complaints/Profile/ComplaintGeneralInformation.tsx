@@ -36,7 +36,7 @@ const ComplaintGeneralInformation: React.FC<
       name: "Location Description",
       value: complaintData.location_description,
     },
-    { name: "Primary", value: complaintData.primary_officer?.full_name },
+    { name: "Primary", value: complaintData.primary_officer?.name },
     {
       name: "Date Received",
       value: dateUtils.formatDate(complaintData.date_received),
