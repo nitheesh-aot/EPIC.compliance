@@ -50,7 +50,7 @@ const ComplaintFormLeft: FC<ComplaintFormLeftProps> = ({
             name="primaryOfficer"
             label="Primary"
             options={staffUsersList}
-            getOptionLabel={(option) => option.full_name ?? ""}
+            getOptionLabel={(option) => option.name}
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             fullWidth
