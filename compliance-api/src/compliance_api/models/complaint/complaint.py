@@ -162,6 +162,20 @@ class Complaint(BaseModelVersioned):
         return complaint
 
     @classmethod
+    def update_complaint(cls, complaint_id, complaint_data, session=None):
+        """Update inspection."""
+        query = cls.query.filter_by(id=complaint_id)
+        complaint: Complaint = query.first()
+        if not complaint or complaint.is_deleted:
+            return None
+        query.update(complaint_data)
+        if session:
+            session.flush()
+        else:
+            cls.session.commit()
+        return complaint
+
+    @classmethod
     def get_by_complaint_number(cls, complaint_number):
         """Retrieve complaint by number."""
         return cls.query.filter_by(

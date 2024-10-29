@@ -97,14 +97,11 @@ class ContactCreateSchema(BaseSchema):
     comment = fields.Str(metadata={"description": "Any comments"}, allow_none=True)
 
 
-class ComplaintCreateSchema(BaseSchema):
-    """Complaint schema for create."""
+class ComplaintUpdateSchema(BaseSchema):
+    """Complaint schema for update."""
 
-    project_id = fields.Int(
-        metadata={
-            "description": "The unique identifier for the project associated with the complaint."
-        },
-        allow_none=True,
+    project_description = fields.Str(
+        metadata={"description": "The project description"}, allow_none=True
     )
     concern_description = fields.Str(
         metadata={"description": "The concern description of the complaint."},
@@ -114,18 +111,9 @@ class ComplaintCreateSchema(BaseSchema):
         metadata={"description": "The location details of the complaint."},
         allow_none=True,
     )
-    project_description = fields.Str(
-        metadata={"description": "The project description"}, allow_none=True
-    )
     primary_officer_id = fields.Int(
         metadata={
             "description": "The unique identifier of the primary officer who created the complaint."
-        },
-        required=True,
-    )
-    case_file_id = fields.Int(
-        metadata={
-            "description": "The unique identifier of the case file associated with the complaint."
         },
         required=True,
     )
@@ -156,6 +144,23 @@ class ComplaintCreateSchema(BaseSchema):
             "description": "Provide firstnation id if the source type is FIRSTNATION"
         },
         allow_none=True,
+    )
+
+
+class ComplaintCreateSchema(ComplaintUpdateSchema):
+    """Complaint schema for create."""
+
+    project_id = fields.Int(
+        metadata={
+            "description": "The unique identifier for the project associated with the complaint."
+        },
+        allow_none=True,
+    )
+    case_file_id = fields.Int(
+        metadata={
+            "description": "The unique identifier of the case file associated with the complaint."
+        },
+        required=True,
     )
     unapproved_project_authorization = fields.Str(
         metadata={

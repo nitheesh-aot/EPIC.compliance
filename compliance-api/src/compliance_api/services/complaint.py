@@ -86,6 +86,39 @@ class ComplaintService:
         return ComplaintModel.get_by_params({"case_file_id": case_file_id})
 
     @classmethod
+    def update(cls, complaint_id: int, complaint_data: dict):
+        """Update complaint."""
+        complaint_obj = _create_complaint_update_object(complaint_data)
+        with session_scope() as session:
+            complaint = ComplaintModel.find_by_id(complaint_id)
+            old_requirement_source_id = complaint.requirement_source_id
+            updated_complaint = ComplaintModel.update_complaint(
+                complaint_id, complaint_obj, session
+            )
+            contact_obj = _create_source_type_contact_object(
+                complaint_data, complaint_id
+            )
+            ComplaintSourceContactModel.update_contact(
+                complaint_id, contact_obj, session
+            )
+            _remove_existing_requirement_details(
+                old_requirement_source_id, complaint_id, session
+            )
+            if _has_requirement_source(complaint_data):
+                requirement_source_obj = _create_requirement_source_detail_obj(
+                    complaint_data, complaint_id
+                )
+                created_requirement_source = (
+                    ComplaintRequirementDetailModel.update_detail(
+                        complaint_id, requirement_source_obj, session
+                    )
+                )
+                _create_requirement_source_more_details(
+                    complaint_data, created_requirement_source.id, session
+                )
+        return updated_complaint
+
+    @classmethod
     def create(cls, complaint_data: dict):
         """Create complaint."""
         complaint_obj = _create_complaint_object(complaint_data)
@@ -124,6 +157,25 @@ class ComplaintService:
         if not complaint:
             return False
         return complaint.primary_officer.auth_user_guid == auth_user_guid
+
+
+def _remove_existing_requirement_details(
+    old_requirement_source_id, complaint_id, session=None
+):
+    """Remove the existing requirement source details before updating further."""
+    requirement_details = ComplaintRequirementDetailModel.get_by_complaint(complaint_id)
+    if requirement_details:
+        if (
+            old_requirement_source_id
+            == ComplaintRequirementSourceEnum.EAC_CERTIFICATE.value
+        ):
+            ComplaintReqEACDetailModel.delete_eac_details(requirement_details.id, session)
+        if old_requirement_source_id == ComplaintRequirementSourceEnum.ORDER.value:
+            ComplaintReqOrderDetailModel.delete_order_details(requirement_details.id, session)
+        if old_requirement_source_id == ComplaintRequirementSourceEnum.SCHEDULE_B.value:
+            ComplaintReqScheduleBDetailModel.delete_schedule_b_details(
+                requirement_details.id, session
+            )
 
 
 def _set_project_parameters(complaint):
@@ -213,14 +265,9 @@ def _create_unapproved_project_object(complaint_data: dict, complaint_id: int):
     }
 
 
-def _create_complaint_object(complaint_data: dict):
-    """Create complaint object."""
-    project_id = complaint_data.get("project_id", None)
-    case_file_id = complaint_data.get("case_file_id")
+def _create_complaint_update_object(complaint_data: dict):
+    """Create complaint update object."""
     return {
-        "complaint_number": _create_complaint_number(project_id, case_file_id),
-        "case_file_id": complaint_data.get("case_file_id"),
-        "project_id": project_id,
         "location_description": complaint_data.get("location_description", None),
         "project_description": complaint_data.get("project_description", None),
         "concern_description": complaint_data.get("concern_description", None),
@@ -230,8 +277,19 @@ def _create_complaint_object(complaint_data: dict):
         "source_type_id": complaint_data.get("source_type_id"),
         "source_agency_id": complaint_data.get("source_agency_id", None),
         "source_first_nation_id": complaint_data.get("source_first_nation_id", None),
-        "status": ComplaintStatusEnum.OPEN,
     }
+
+
+def _create_complaint_object(complaint_data: dict):
+    """Create complaint object."""
+    project_id = complaint_data.get("project_id", None)
+    case_file_id = complaint_data.get("case_file_id")
+    result = _create_complaint_update_object(complaint_data)
+    result["complaint_number"] = _create_complaint_number(project_id, case_file_id)
+    result["case_file_id"] = complaint_data.get("case_file_id")
+    result["project_id"] = project_id
+    result["status"] = ComplaintStatusEnum.OPEN
+    return result
 
 
 def _create_complaint_number(

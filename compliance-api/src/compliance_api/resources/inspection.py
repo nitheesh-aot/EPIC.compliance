@@ -209,7 +209,7 @@ class Inspection(Resource):
         """Update inspection."""
         inspection_data = InspectionUpdateSchema().load(API.payload)
         updated_inspection = InspectionService.update(inspection_id, inspection_data)
-        return InspectionSchema().dump(updated_inspection), HTTPStatus.CREATED
+        return InspectionSchema().dump(updated_inspection), HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS")
