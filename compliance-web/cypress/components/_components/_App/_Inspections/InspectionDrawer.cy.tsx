@@ -25,7 +25,7 @@ describe("InspectionDrawer Component", () => {
     type: "Type",
     sub_type: "Sub Type",
     location_description: "Location Description",
-    primary_officer: { id: 1, full_name: "Officer Name" },
+    primary_officer: { id: 1, name: "Officer Name" },
     ir_status: { id: "1", name: "Status" },
     project_status: { id: "1", name: "Project Status" },
     types: [
@@ -59,7 +59,7 @@ describe("InspectionDrawer Component", () => {
       initiation: { id: "1", name: "Initiation" },
       is_active: true,
       project: { id: 1, name: "Project" },
-      primary_officer: { id: 1, full_name: "Officer Name" },
+      primary_officer: { id: 1, name: "Officer Name" },
     },
   };
 

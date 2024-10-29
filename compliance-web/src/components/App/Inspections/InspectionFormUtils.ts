@@ -19,6 +19,7 @@ export enum AttendanceEnum {
   FIRST_NATIONS = "2",
   MUNICIPAL = "3",
   OTHER = "7",
+  OFFICERS = "8",
 }
 
 export const InspectionFormSchema = yup.object().shape({
@@ -116,6 +117,20 @@ export const InspectionFormSchema = yup.object().shape({
           .required("Agencies are required"),
       otherwise: (schema) => schema.notRequired(),
     }),
+
+  officers: yup
+    .array()
+    .of(yup.object<StaffUser>())
+    .nullable()
+    .when("inAttendance", {
+      is: (attendance: Attendance[]) =>
+        attendance?.some((item) => item.id === AttendanceEnum.OFFICERS),
+      then: (schema) =>
+        schema
+          .min(1, "At least one Officer is required")
+          .required("Officers are required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
 });
 
 export type InspectionSchemaType = yup.InferType<typeof InspectionFormSchema>;
@@ -158,6 +173,8 @@ export const formatInspectionData = (
         (formData.agencies as Agency[])?.map((item) => item.id) ?? [],
       firstnation_attendance_ids:
         (formData.firstNations as FirstNation[])?.map((item) => item.id) ?? [],
+      attending_officer_ids:
+        (formData.officers as StaffUser[])?.map((item) => item.id) ?? [],
       attendance_municipal: formData.municipal ?? "",
       attendance_other: formData.other ?? "",
       ...inspectionData,

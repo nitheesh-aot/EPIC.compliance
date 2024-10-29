@@ -15,6 +15,7 @@ import { useDrawer } from "@/store/drawerStore";
 import DynamicInputField, {
   DynamicInputFieldConfig,
 } from "@/components/App/DynamicInputField";
+import { StaffUser } from "@/models/Staff";
 
 type InspectionFormRightProps = {
   irStatusList: IRStatus[];
@@ -22,6 +23,7 @@ type InspectionFormRightProps = {
   attendanceList: Attendance[];
   agenciesList: Agency[];
   firstNationsList: FirstNation[];
+  staffList: StaffUser[];
 };
 
 const sectionPadding = "1rem 2rem 0rem 1rem";
@@ -32,6 +34,7 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
   attendanceList,
   agenciesList,
   firstNationsList,
+  staffList,
 }) => {
   const { isOpen } = useDrawer();
   const { setOpen, setClose } = useModal();
@@ -100,6 +103,13 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
       name: "firstNations",
       label: "First Nations",
       options: firstNationsList,
+      multiple: true,
+    },
+    [AttendanceEnum.OFFICERS]: {
+      type: "autocomplete",
+      name: "officers",
+      label: "Attending Officers",
+      options: staffList,
       multiple: true,
     },
     [AttendanceEnum.MUNICIPAL]: {

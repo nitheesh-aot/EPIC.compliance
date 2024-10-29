@@ -40,7 +40,6 @@ const initFormData: ComplaintFormData = {
   project: undefined,
   dateRange: undefined,
   primaryOfficer: undefined,
-  officers: [],
   irTypes: [],
   initiation: undefined,
   irStatus: undefined,

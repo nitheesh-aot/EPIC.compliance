@@ -36,7 +36,7 @@ class StaffUserSchemaSkeleton(AutoSchemaBase):  # pylint: disable=too-many-ances
     permission = fields.Str(
         metadata={"description": "The permission level of the user in the app"}
     )
-    full_name = fields.Method("get_full_name")
+    name = fields.Method("get_full_name")
 
     def get_full_name(self, obj):  # pylint: disable=no-self-use
         """Derive fullname."""

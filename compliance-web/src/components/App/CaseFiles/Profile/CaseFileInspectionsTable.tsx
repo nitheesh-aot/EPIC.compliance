@@ -21,7 +21,7 @@ const CaseFileInspectionsTable = ({ caseFileId }: { caseFileId: number }) => {
     setStaffUserList(
       [
         ...new Set(
-          inspections?.map((insp) => insp.primary_officer?.full_name ?? "")
+          inspections?.map((insp) => insp.primary_officer?.name ?? "")
         ),
       ].filter(Boolean)
     );
@@ -107,8 +107,8 @@ const CaseFileInspectionsTable = ({ caseFileId }: { caseFileId: number }) => {
         size: 120,
       },
       {
-        accessorFn: (row) => row.primary_officer?.full_name,
-        id: "primary_officer.full_name",
+        accessorFn: (row) => row.primary_officer?.name,
+        id: "primary_officer.name",
         header: "Primary",
         filterVariant: "multi-select",
         filterSelectOptions: staffUserList,

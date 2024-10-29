@@ -4,12 +4,13 @@ import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAut
 import { Agency } from "@/models/Agency";
 import { FirstNation } from "@/models/FirstNation";
 import { Topic } from "@/models/Topic";
+import { StaffUser } from "@/models/Staff";
 
 export type DynamicInputFieldConfig = {
   type: string;
   name: string;
   label: string;
-  options?: Agency[] | FirstNation[] | Topic[];
+  options?: Agency[] | FirstNation[] | Topic[] | StaffUser[];
   required?: boolean;
   multiple?: boolean;
 };
