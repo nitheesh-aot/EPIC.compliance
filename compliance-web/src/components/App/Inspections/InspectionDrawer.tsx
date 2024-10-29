@@ -49,7 +49,6 @@ const initFormData: InspectionFormData = {
   project: undefined,
   dateRange: undefined,
   primaryOfficer: undefined,
-  officers: [],
   irTypes: [],
   initiation: undefined,
   irStatus: undefined,
@@ -103,6 +102,10 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
         firstNations: inspection.inspectionAttendances?.find(
           (item) =>
             item.attendance_option_id === Number(AttendanceEnum.FIRST_NATIONS)
+        )?.data,
+        officers: inspection.inspectionAttendances?.find(
+          (item) =>
+            item.attendance_option_id === Number(AttendanceEnum.OFFICERS)
         )?.data,
         municipal: inspection.inspectionAttendances?.find(
           (item) =>
@@ -215,6 +218,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
             attendanceList={attendanceList ?? []}
             agenciesList={agenciesList ?? []}
             firstNationsList={firstNationsList ?? []}
+            staffList={staffUserList ?? []}
           />
         </Stack>
         <DrawerActionBarBottom isShowActionBar={!!inspection} />

@@ -21,7 +21,7 @@ const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
       [
         ...new Set(
           complaints?.map(
-            (complaint) => complaint.primary_officer?.full_name ?? ""
+            (complaint) => complaint.primary_officer?.name ?? ""
           )
         ),
       ].filter(Boolean)
@@ -143,8 +143,8 @@ const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
         size: 120,
       },
       {
-        accessorFn: (row) => row.primary_officer?.full_name,
-        id: "primary_officer.full_name",
+        accessorFn: (row) => row.primary_officer?.name,
+        id: "primary_officer.name",
         header: "Primary",
         filterVariant: "multi-select",
         filterSelectOptions: staffUserList,

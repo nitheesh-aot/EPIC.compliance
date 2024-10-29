@@ -30,6 +30,11 @@ const mockAgenciesList = [
   { id: 2, name: "Agency Beta" },
 ];
 
+const mockStaffUsers = [
+  { id: 1, name: "John Doe" },
+  { id: 2, name: "Jane Smith" },
+];
+
 const mockFirstNationsList = [
   { id: 1, name: "First Nation Alpha" },
   { id: 2, name: "First Nation Beta" },
@@ -72,6 +77,7 @@ describe("InspectionFormRight Component", () => {
           attendanceList={mockAttendanceList}
           agenciesList={mockAgenciesList}
           firstNationsList={mockFirstNationsList}
+          staffList={mockStaffUsers}
         />
       </Wrapper>
     );

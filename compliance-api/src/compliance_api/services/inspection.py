@@ -163,7 +163,7 @@ class InspectionService:
             )
             _insert_or_update_inspection_relationship(
                 created_inspection.id,
-                inspection_data.get("inspection_officer_ids", []),
+                inspection_data.get("attending_officer_ids", []),
                 InspectionOfficerModel,
                 "officer_id",
                 session,

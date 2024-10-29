@@ -13,8 +13,8 @@ const mockProjects = [
 ];
 
 const mockStaffUsers = [
-  { id: 1, full_name: "John Doe" },
-  { id: 2, full_name: "Jane Smith" },
+  { id: 1, name: "John Doe" },
+  { id: 2, name: "Jane Smith" },
 ];
 
 describe("ComplaintFormLeft Component", () => {

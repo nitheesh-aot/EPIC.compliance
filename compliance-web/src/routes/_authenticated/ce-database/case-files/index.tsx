@@ -63,7 +63,7 @@ export function CaseFiles() {
   );
 
   const staffUserList = useMemo(
-    () => createUniqueFilterList("primary_officer", "full_name"),
+    () => createUniqueFilterList("primary_officer", "name"),
     [createUniqueFilterList]
   );
 
@@ -177,8 +177,8 @@ export function CaseFiles() {
         },
       },
       {
-        accessorFn: (row) => row.primary_officer?.full_name,
-        id: "primary_officer.full_name",
+        accessorFn: (row) => row.primary_officer?.name,
+        id: "primary_officer.name",
         header: "Primary",
         filterVariant: "multi-select",
         filterSelectOptions: staffUserList,

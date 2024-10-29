@@ -47,7 +47,6 @@ export interface InspectionFormData {
   project?: Project;
   dateRange?: DateRange;
   primaryOfficer?: StaffUser;
-  officers?: StaffUser[];
   initiation?: Initiation;
   irTypes?: IRType[];
   irStatus?: IRStatus;
@@ -72,6 +71,7 @@ export interface InspectionAPIData {
   attendance_municipal?: string;
   attendance_other?: string;
   firstnation_attendance_ids?: number[];
+  attending_officer_ids?: number[];
   project_description?: string;
   unapproved_project_authorization?: string;
   unapproved_project_regulated_party?: string;

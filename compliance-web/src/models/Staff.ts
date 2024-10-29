@@ -4,7 +4,7 @@ import { AuthUser } from "./AuthUser";
 
 export interface StaffUser {
   id: number;
-  full_name?: string;
+  name: string;
   first_name?: string;
   last_name?: string;
   auth_user_guid?: string;
