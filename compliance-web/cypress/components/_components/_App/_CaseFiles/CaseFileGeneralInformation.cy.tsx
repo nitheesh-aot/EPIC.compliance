@@ -13,10 +13,10 @@ describe("CaseFileGeneralInformation", () => {
     project: { id: 1, name: "Test Project" },
     date_created: "2023-04-15T12:00:00Z",
     initiation: { id: "1", name: "Test Initiation" },
-    primary_officer: { id: 1, full_name: "John Doe" },
+    primary_officer: { id: 1, name: "John Doe" },
     officers: [
-      { id: 2, full_name: "Jane Smith" },
-      { id: 3, full_name: "Bob Johnson" },
+      { id: 2, name: "Jane Smith" },
+      { id: 3, name: "Bob Johnson" },
     ],
     project_id: 0,
     primary_officer_id: 0,
