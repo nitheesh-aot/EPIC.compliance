@@ -47,7 +47,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
           label="Deputy Director"
           placeholder="Search for a Name"
           options={staffUsersList ?? []}
-          getOptionLabel={(option) => option.full_name ?? ""}
+          getOptionLabel={(option) => option.name}
           getOptionKey={(option) => option.id}
           isOptionEqualToValue={(option, value) => option.id === value.id}
           fullWidth
@@ -57,7 +57,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
           label="Supervisor"
           placeholder="Search for a Name"
           options={staffUsersList ?? []}
-          getOptionLabel={(option) => option.full_name ?? ""}
+          getOptionLabel={(option) => option.name}
           getOptionKey={(option) => option.id}
           isOptionEqualToValue={(option, value) => option.id === value.id}
           fullWidth

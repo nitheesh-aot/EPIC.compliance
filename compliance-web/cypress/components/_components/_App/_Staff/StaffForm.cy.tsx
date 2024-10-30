@@ -3,26 +3,42 @@ import { mount } from "cypress/react18";
 import StaffForm from "@/components/App/Staff/StaffForm"; // Adjust the path according to your project structure
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FormProvider, useForm } from "react-hook-form";
+import { StaffUser } from "@/models/Staff";
+import { AuthUser } from "@/models/AuthUser";
+import { Permission } from "@/models/Permission";
+import { Position } from "@/models/Position";
 
 // Mock data for Auth Users, Positions, Permissions, and Staff Users
-const mockAuthUsers = [
-  { id: 1, first_name: "John", last_name: "Doe" },
-  { id: 2, first_name: "Jane", last_name: "Smith" },
+const mockAuthUsers: AuthUser[] = [
+  {
+    id: "1",
+    first_name: "John",
+    last_name: "Doe",
+    email_address: "",
+    username: "",
+  },
+  {
+    id: "2",
+    first_name: "Jane",
+    last_name: "Smith",
+    email_address: "",
+    username: "",
+  },
 ];
 
-const mockPositions = [
-  { id: 1, name: "Manager" },
-  { id: 2, name: "Developer" },
+const mockPositions: Position[] = [
+  { id: "1", name: "Manager" },
+  { id: "2", name: "Developer" },
 ];
 
-const mockPermissions = [
-  { id: 1, name: "Admin" },
-  { id: 2, name: "User" },
+const mockPermissions: Permission[] = [
+  { id: "1", name: "Admin" },
+  { id: "2", name: "User" },
 ];
 
-const mockStaffUsers = [
-  { id: 1, full_name: "Alice Johnson" },
-  { id: 2, full_name: "Bob Brown" },
+const mockStaffUsers: StaffUser[] = [
+  { id: 1, name: "Alice Johnson" },
+  { id: 2, name: "Bob Brown" },
 ];
 
 describe("StaffForm Component", () => {
@@ -94,7 +110,10 @@ describe("StaffForm Component", () => {
   it("allows selecting a deputy director", () => {
     cy.get('input[name="deputyDirector"]').click();
     cy.get("li").contains("Alice Johnson").click();
-    cy.get('input[name="deputyDirector"]').should("have.value", "Alice Johnson");
+    cy.get('input[name="deputyDirector"]').should(
+      "have.value",
+      "Alice Johnson"
+    );
   });
 
   it("allows selecting a supervisor", () => {

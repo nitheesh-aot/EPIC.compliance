@@ -39,14 +39,14 @@ export function Staff() {
     setSupervisorList(
       [
         ...new Set(
-          staffUsersList?.map((staff) => staff.supervisor?.full_name ?? "")
+          staffUsersList?.map((staff) => staff.supervisor?.name ?? "")
         ),
       ].filter(Boolean)
     );
     setDeputyList(
       [
         ...new Set(
-          staffUsersList?.map((staff) => staff.deputy_director?.full_name ?? "")
+          staffUsersList?.map((staff) => staff.deputy_director?.name ?? "")
         ),
       ].filter(Boolean)
     );
@@ -109,7 +109,7 @@ export function Staff() {
   const columns = useMemo<MRT_ColumnDef<StaffUser>[]>(
     () => [
       {
-        accessorKey: "full_name",
+        accessorKey: "name",
         header: "Name",
         sortingFn: "sortFn",
         filterFn: searchFilter,
@@ -133,8 +133,8 @@ export function Staff() {
         },
       },
       {
-        accessorFn: (row) => row.supervisor?.full_name,
-        id: "supervisor.full_name",
+        accessorFn: (row) => row.supervisor?.name,
+        id: "supervisor.name",
         header: "Supervisor",
         filterVariant: "multi-select",
         filterSelectOptions: supervisorList,
@@ -152,8 +152,8 @@ export function Staff() {
         },
       },
       {
-        accessorFn: (row) => row.deputy_director?.full_name,
-        id: "deputy_director.full_name",
+        accessorFn: (row) => row.deputy_director?.name,
+        id: "deputy_director.name",
         header: "Deputy Director",
         filterVariant: "multi-select",
         filterSelectOptions: deputyList,
@@ -200,7 +200,7 @@ export function Staff() {
         initialState={{
           sorting: [
             {
-              id: "full_name",
+              id: "name",
               desc: false,
             },
           ],
