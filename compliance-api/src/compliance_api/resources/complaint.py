@@ -132,7 +132,7 @@ class Complaint(Resource):
 
 
 @cors_preflight("GET, OPTIONS")
-@API.route("/<int:complaint_id>/requirement-source-details", methods=["OPTIONS", "GET"])
+@API.route("/<int:complaint_id>/requirement-details", methods=["OPTIONS", "GET"])
 @API.doc(params={"complaint_id": "The unique identifier for the complaint"})
 class ComplaintRequirementDetails(Resource):
     """Resource for managing a Complaint requirement details.."""
@@ -145,10 +145,11 @@ class ComplaintRequirementDetails(Resource):
     @API.response(404, "Not Found")
     def get(complaint_id):
         """Fetch a complaint requirement details."""
-        requirements = ComplaintService.get_requirement_details(complaint_id)
-        if not requirements:
-            raise ResourceNotFoundError("Complaint requirement details doesn't found")
-        return RequirementSoruceDetailSchema().dump(requirements), HTTPStatus.OK
+        # requirements = ComplaintService.get_requirement_details(complaint_id)
+        # if not requirements:
+        #     raise ResourceNotFoundError("Complaint requirement details doesn't found")
+        # return RequirementSoruceDetailSchema().dump(requirements), HTTPStatus.OK
+        return "Ok", HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS")
