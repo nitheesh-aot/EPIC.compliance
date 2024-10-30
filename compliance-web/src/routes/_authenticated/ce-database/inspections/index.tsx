@@ -2,13 +2,14 @@ import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
 import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
+import PageLink from "@/components/Shared/PageLink";
 import { useInspectionsData } from "@/hooks/useInspections";
 import { Inspection } from "@/models/Inspection";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
-import { Chip, Link } from "@mui/material";
+import { Chip } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link as RouterLink } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
 import { useMemo, useCallback } from "react";
 
@@ -76,14 +77,10 @@ export function Inspections() {
         sortingFn: "sortFn",
         filterFn: searchFilter,
         Cell: ({ row }) => (
-          <Link
-            component={RouterLink}
+          <PageLink
             to="/ce-database/inspections/$inspectionNumber"
             params={{ inspectionNumber: row.original.ir_number }}
-            underline="hover"
-          >
-            {row.original.ir_number}
-          </Link>
+          />
         ),
       },
       {
@@ -197,7 +194,7 @@ export function Inspections() {
             header={header}
             column={column}
             variant="inline"
-            name="leadOfficersFilter"
+            name="primaryOfficerFilter"
             placeholder="Filter"
           />
         ),
@@ -207,14 +204,12 @@ export function Inspections() {
         header: "Case File #",
         filterFn: searchFilter,
         Cell: ({ row }) => (
-          <Link
-            component={RouterLink}
+          <PageLink
             to="/ce-database/case-files/$caseFileNumber"
-            params={{ caseFileNumber: row.original.case_file.case_file_number }}
-            underline="hover"
-          >
-            {row.original.case_file.case_file_number}
-          </Link>
+            params={{
+              caseFileNumber: row.original.case_file?.case_file_number,
+            }}
+          />
         ),
       },
     ],

@@ -9,6 +9,8 @@ import { Box } from "@mui/material";
 import ContinuationReport from "@/components/App/ContinuationReports/ContinuationReport";
 import React from "react";
 import InspectionGeneralInformation from "@/components/App/Inspections/Profile/InspectionGeneralInformation";
+import ErrorPage from "@/components/Shared/ErrorPage";
+import LoadingPage from "@/components/Shared/LoadingPage";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/$inspectionNumber"
@@ -50,13 +52,12 @@ function InspectionProfilePage() {
     notify.success(submitMsg);
   };
 
-  if (isLoading) return <h2>Loading...</h2>;
-  if (isError) return <h2>{error.message}</h2>;
+  if (isError) return <ErrorPage error={error} />;
 
   return (
     <>
       {!inspectionNumber || status === "pending" ? (
-        "Loading..."
+        <LoadingPage isLoading={isLoading} />
       ) : (
         <>
           <FileProfileHeader

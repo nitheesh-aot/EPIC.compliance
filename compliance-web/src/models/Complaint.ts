@@ -1,10 +1,10 @@
 import { Project } from "./Project";
-import { RequirementSource } from "./RequirementSource";
+import { RequirementDetails, RequirementSource } from "./RequirementSource";
 import { ComplaintSource } from "./ComplaintSource";
 import { StaffUser } from "./Staff";
 import { CaseFile } from "./CaseFile";
 import { Contact } from "./Contact";
-import { Topic } from "./Topic";
+import { Dayjs } from "dayjs";
 
 export interface Complaint {
   id: number;
@@ -27,21 +27,22 @@ export interface Complaint {
   source_type: ComplaintSource;
   requirement_source: RequirementSource;
   source_contact: Contact;
-  requirement_detail: {
-    topic: Topic;
-  };
+  requirement_detail: RequirementDetails;
   status: string;
+  authorization?: string;
+  regulated_party?: string;
+  type?: string;
+  sub_type?: string;
 }
 
-export interface InspectionFormData {
+export interface ComplaintFormData {
   project?: Project;
-  dateRecieved?: Date;
+  dateReceived?: Dayjs;
   primaryOfficer?: StaffUser;
   concernDescription?: string;
   locationDescription?: string;
-  complaintSource: ComplaintSource;
+  complaintSource?: ComplaintSource;
   requirementSource?: RequirementSource;
-  caseFileId?: string;
 }
 
 export interface ComplaintAPIData {
@@ -49,7 +50,7 @@ export interface ComplaintAPIData {
   concern_description: string;
   location_description?: string;
   primary_officer_id?: number;
-  case_file_id: number;
+  case_file_id?: number;
   date_received: string;
   source_type_id: string;
   complaint_source_contact?: Contact;

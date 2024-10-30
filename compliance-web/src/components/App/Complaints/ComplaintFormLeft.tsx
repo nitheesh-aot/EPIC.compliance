@@ -11,11 +11,13 @@ import ControlledDateField from "@/components/Shared/Controlled/ControlledDateFi
 type ComplaintFormLeftProps = {
   projectList: Project[];
   staffUsersList: StaffUser[];
+  isEditMode?: boolean;
 };
 
 const ComplaintFormLeft: FC<ComplaintFormLeftProps> = ({
   projectList,
   staffUsersList,
+  isEditMode,
 }) => {
   return (
     <>
@@ -28,7 +30,7 @@ const ComplaintFormLeft: FC<ComplaintFormLeftProps> = ({
           boxSizing: "border-box",
         }}
       >
-        <ProjectDetailsForm projectList={projectList} />
+        <ProjectDetailsForm projectList={projectList} isEditMode={isEditMode} />
         <ControlledTextField
           name="concernDescription"
           label="Concern Description"

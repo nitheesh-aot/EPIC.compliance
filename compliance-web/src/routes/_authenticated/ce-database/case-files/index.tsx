@@ -2,14 +2,15 @@ import CaseFileDrawer from "@/components/App/CaseFiles/CaseFileDrawer";
 import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
+import PageLink from "@/components/Shared/PageLink";
 import { useCaseFilesData } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import dateUtils from "@/utils/dateUtils";
-import { Chip, Link } from "@mui/material";
+import { Chip } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link as RouterLink } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
 import { useMemo, useCallback } from "react";
 
@@ -91,16 +92,12 @@ export function CaseFiles() {
         filterFn: searchFilter,
         Cell: ({ row }) => {
           return (
-            <Link
-              component={RouterLink}
+            <PageLink
               to="/ce-database/case-files/$caseFileNumber"
               params={{
                 caseFileNumber: row.original.case_file_number,
               }}
-              underline="hover"
-            >
-              {row.original.case_file_number}
-            </Link>
+            />
           );
         },
       },

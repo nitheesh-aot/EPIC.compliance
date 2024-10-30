@@ -9,6 +9,8 @@ import CaseFileDrawer from "@/components/App/CaseFiles/CaseFileDrawer";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import { useQueryClient } from "@tanstack/react-query";
+import ErrorPage from "@/components/Shared/ErrorPage";
+import LoadingPage from "@/components/Shared/LoadingPage";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/case-files/$caseFileNumber"
@@ -45,13 +47,12 @@ function CaseFileProfilePage() {
     notify.success(submitMsg);
   };
 
-  if (isLoading) return <h2>Loading...</h2>;
-  if (isError) return <h2>{error.message}</h2>;
+  if (isError) return <ErrorPage error={error} />;
 
   return (
     <>
       {!caseFileNumber || status === "pending" ? (
-        "Loading..."
+        <LoadingPage isLoading={isLoading} />
       ) : (
         <>
           <FileProfileHeader

@@ -12,6 +12,7 @@ import {
   UNAPPROVED_PROJECT_ID,
 } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
+import { Dayjs } from "dayjs";
 import * as yup from "yup";
 
 export enum ComplaintSourceEnum {
@@ -44,7 +45,7 @@ export const ComplaintFormSchema = yup.object().shape({
     .required("Concern Description is required"),
   locationDescription: yup.string().nullable(),
   primaryOfficer: yup.object<StaffUser>().nullable().required("Primary is required"),
-  dateReceived: yup.date().nullable().required("Date Received is required"),
+  dateReceived: yup.mixed<Dayjs>().nullable().required("Date Received is required"),
   complaintSource: yup
     .object<ComplaintSource>()
     .nullable()
@@ -134,15 +135,14 @@ export const getProjectId = (formData: ComplaintSchemaType) => {
 // Formatting inspection form data for API
 export const formatComplaintData = (
   formData: ComplaintSchemaType,
-  caseFileId: number
+  caseFileId?: number // as a flag for create new record
 ) => {
   const projectId = getProjectId(formData);
   const sourceId = (formData.complaintSource as ComplaintSource)?.id;
   const reqSourceId = (formData.requirementSource as RequirementSource)?.id;
 
   let complaintData: ComplaintAPIData = {
-    project_id: projectId,
-    case_file_id: caseFileId,
+    project_description: formData.projectDescription ?? "",
     primary_officer_id: (formData.primaryOfficer as StaffUser).id,
     location_description: formData.locationDescription ?? "",
     concern_description: formData.concernDescription ?? "",
@@ -207,11 +207,14 @@ export const formatComplaintData = (
     complaintData = {
       unapproved_project_authorization: formData.authorization ?? "",
       unapproved_project_regulated_party: formData.regulatedParty ?? "",
-      project_description: formData.projectDescription ?? "",
       unapproved_project_type: formData.projectType ?? "",
       unapproved_project_sub_type: formData.projectSubType ?? "",
       ...complaintData,
     };
+  }
+  if (caseFileId) { // map the fields only for create new record, and case file id is available
+    complaintData.project_id = projectId;
+    complaintData.case_file_id = caseFileId;
   }
   return complaintData;
 };

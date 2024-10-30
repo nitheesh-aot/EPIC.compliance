@@ -103,7 +103,7 @@ describe("InspectionFormLeft Component", () => {
     cy.get('input[name="utm"]').should("have.value", "9U 454135 6399452");
   });
 
-  it("allows selecting lead officer", () => {
+  it("allows selecting primary officer", () => {
     cy.get('input[name="primaryOfficer"]').click();
     cy.get("li").contains("John Doe").click();
     cy.get('input[name="primaryOfficer"]').should("have.value", "John Doe");

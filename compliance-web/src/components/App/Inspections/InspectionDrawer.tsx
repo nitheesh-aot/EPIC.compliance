@@ -2,11 +2,11 @@ import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
 import { StaffUser } from "@/models/Staff";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import InspectionFormLeft from "./InspectionFormLeft";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useMenuStore } from "@/store/menuStore";
 import {
   useAttendanceOptionsData,
@@ -61,7 +61,6 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   inspection,
 }) => {
   const { appHeaderHeight } = useMenuStore();
-  const drawerTopRef = useRef<HTMLDivElement | null>(null);
 
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
 
@@ -197,13 +196,11 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <Box ref={drawerTopRef}>
-          <DrawerTitleBar
-            title={inspection ? inspection.ir_number : "Create Inspection"}
-            isFormDirtyCheck
-          />
-          <DrawerActionBarTop isShowActionBar={!inspection} />
-        </Box>
+        <DrawerTitleBar
+          title={inspection ? inspection.ir_number : "Create Inspection"}
+          isFormDirtyCheck
+        />
+        <DrawerActionBarTop isShowActionBar={!inspection} />
         <Stack
           height={`calc(100vh - ${appHeaderHeight + 129}px)`} // 64px (DrawerTitleBar height) + 65px (DrawerActionBar height)
           direction={"row"}
