@@ -56,7 +56,7 @@ class ComplaintRequirementDetail(BaseModelVersioned):
     @classmethod
     def update_detail(cls, complaint_id, requirement_source_data, session=None):
         """Update requirement source details."""
-        query = cls.query.filter_by(id=complaint_id, is_deleted=False)
+        query = cls.query.filter_by(complaint_id=complaint_id, is_deleted=False)
         requirement: ComplaintRequirementDetail = query.first()
         if not requirement:
             return None
