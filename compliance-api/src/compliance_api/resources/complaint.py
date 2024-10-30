@@ -152,7 +152,7 @@ class ComplaintContact(Resource):
 
 
 @cors_preflight("GET, OPTIONS")
-@API.route("/<int:complaint_id>/requirement-details", methods=["OPTIONS", "GET"])
+@API.route("/<int:complaint_id>/requirement-source-details", methods=["OPTIONS", "GET"])
 @API.doc(params={"complaint_id": "The unique identifier for the complaint"})
 class ComplaintRequirementDetails(Resource):
     """Resource for managing a Complaint requirement details.."""
