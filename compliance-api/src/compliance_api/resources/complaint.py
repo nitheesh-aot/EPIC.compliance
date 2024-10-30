@@ -145,10 +145,11 @@ class ComplaintRequirementDetails(Resource):
     @API.response(404, "Not Found")
     def get(complaint_id):
         """Fetch a complaint requirement details."""
-        requirements = ComplaintService.get_requirement_details(complaint_id)
-        if not requirements:
-            raise ResourceNotFoundError("Complaint requirement details doesn't found")
-        return RequirementSoruceDetailSchema().dump(requirements), HTTPStatus.OK
+        # requirements = ComplaintService.get_requirement_details(complaint_id)
+        # if not requirements:
+        #     raise ResourceNotFoundError("Complaint requirement details doesn't found")
+        # return RequirementSoruceDetailSchema().dump(requirements), HTTPStatus.OK
+        return "Ok", HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS")
