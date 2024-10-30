@@ -146,8 +146,6 @@ class ComplaintRequirementDetails(Resource):
     def get(complaint_id):
         """Fetch a complaint requirement details."""
         requirements = ComplaintService.get_requirement_details(complaint_id)
-        if not requirements:
-            raise ResourceNotFoundError("Complaint requirement details doesn't found")
         return RequirementSoruceDetailSchema().dump(requirements), HTTPStatus.OK
 
 

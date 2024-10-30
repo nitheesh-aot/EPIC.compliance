@@ -74,8 +74,6 @@ class ComplaintService:
             == ComplaintRequirementSourceEnum.SCHEDULE_B.value
         ):
             data = ComplaintReqScheduleBDetailModel.get_by_requirement(requirement.id)
-        if not requirement:
-            raise ResourceNotFoundError("Requested resource details not found")
         if data:
             setattr(requirement, "additional_details", data.to_dict())
         return requirement
