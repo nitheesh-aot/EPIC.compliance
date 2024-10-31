@@ -99,18 +99,26 @@ class ComplaintService:
             ComplaintSourceContactModel.update_contact(
                 complaint_id, contact_obj, session
             )
-            _remove_existing_requirement_details(
-                old_requirement_source_id, complaint_id, session
-            )
+            if old_requirement_source_id:
+                _remove_existing_requirement_details(
+                    old_requirement_source_id, complaint_id, session
+                )
             if _has_requirement_source(complaint_data):
                 requirement_source_obj = _create_requirement_source_detail_obj(
                     complaint_data, complaint_id
                 )
-                created_requirement_source = (
-                    ComplaintRequirementDetailModel.update_detail(
-                        complaint_id, requirement_source_obj, session
+                if not old_requirement_source_id:
+                    created_requirement_source = (
+                        ComplaintRequirementDetailModel.create_detail(
+                            requirement_source_obj, session
+                        )
                     )
-                )
+                else:
+                    created_requirement_source = (
+                        ComplaintRequirementDetailModel.update_detail(
+                            complaint_id, requirement_source_obj, session
+                        )
+                    )
                 _create_requirement_source_more_details(
                     complaint_data, created_requirement_source.id, session
                 )
@@ -167,9 +175,13 @@ def _remove_existing_requirement_details(
             old_requirement_source_id
             == ComplaintRequirementSourceEnum.EAC_CERTIFICATE.value
         ):
-            ComplaintReqEACDetailModel.delete_eac_details(requirement_details.id, session)
+            ComplaintReqEACDetailModel.delete_eac_details(
+                requirement_details.id, session
+            )
         if old_requirement_source_id == ComplaintRequirementSourceEnum.ORDER.value:
-            ComplaintReqOrderDetailModel.delete_order_details(requirement_details.id, session)
+            ComplaintReqOrderDetailModel.delete_order_details(
+                requirement_details.id, session
+            )
         if old_requirement_source_id == ComplaintRequirementSourceEnum.SCHEDULE_B.value:
             ComplaintReqScheduleBDetailModel.delete_schedule_b_details(
                 requirement_details.id, session
