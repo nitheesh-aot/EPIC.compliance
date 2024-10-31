@@ -18,6 +18,12 @@ class ContinuationReportService:
             )
             keys = report_entry.get("keys", [])
             _insert_or_update_keys(created_entry.id, keys, session)
+        return created_entry
+
+    @classmethod
+    def get_by_case_file_id(cls, case_file_id):
+        """Get all crs by case file id."""
+        return ContinuationReportModel.get_by_case_file(case_file_id)
 
 
 def _insert_or_update_keys(report_id, keys, session=None):

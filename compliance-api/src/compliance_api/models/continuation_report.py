@@ -55,6 +55,13 @@ class ContinuationReport(BaseModelVersioned):
         comment="To indicate if the entry is generated as part of the service invocation",
     )
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
+    keys = relationship(
+        "ContinuationReportKey",
+        backref="report",
+        lazy="select",
+        cascade="all, delete-orphan",
+        foreign_keys="[ContinuationReportKey.report_id]",
+    )
 
     @classmethod
     def create_entry(cls, report_entry_obj, session=None):
@@ -80,6 +87,11 @@ class ContinuationReport(BaseModelVersioned):
         else:
             cls.session.commit()
         return report_entry
+
+    @classmethod
+    def get_by_case_file(cls, case_file_id):
+        """Get crs by case file id."""
+        return cls.query.filter_by(case_file_id=case_file_id, is_deleted=False).all()
 
 
 class ContinuationReportKey(BaseModelVersioned):
