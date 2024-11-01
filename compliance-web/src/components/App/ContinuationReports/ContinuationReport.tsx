@@ -2,21 +2,13 @@ import {
   Box,
   Button,
   InputAdornment,
-  Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useMenuStore } from "@/store/menuStore";
 import { AddRounded, SearchRounded } from "@mui/icons-material";
-import Timeline from "@mui/lab/Timeline";
-import TimelineItem from "@mui/lab/TimelineItem";
-import TimelineSeparator from "@mui/lab/TimelineSeparator";
-import TimelineConnector from "@mui/lab/TimelineConnector";
-import TimelineContent from "@mui/lab/TimelineContent";
-import TimelineDot from "@mui/lab/TimelineDot";
-import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
-import dateUtils from "@/utils/dateUtils";
+import ContinuationReportTimeline from "./ContinuationReportTimeline";
 
 export default function ContinuationReport() {
   const { appHeaderHeight } = useMenuStore();
@@ -70,33 +62,7 @@ export default function ContinuationReport() {
           ),
         }}
       />
-      <Timeline
-        sx={{
-          margin: 0,
-          padding: 0,
-        }}
-      >
-        {dummyCRTimeline.map((crt) => (
-          <TimelineItem key={crt.date}>
-            <TimelineOppositeContent
-              color="textSecondary"
-              sx={{ padding: "4px 8px 4px 0px", flex: 0.2 }}
-            >
-              <Stack width={90}>
-                <Box>{dateUtils.formatDate(crt.date)}</Box>
-                <Box>{dateUtils.formatDate(crt.date, "HH:mm")}</Box>
-              </Stack>
-            </TimelineOppositeContent>
-            <TimelineSeparator>
-              <TimelineDot />
-              {dummyCRTimeline.length - 1 !== dummyCRTimeline.indexOf(crt) && (
-                <TimelineConnector />
-              )}
-            </TimelineSeparator>
-            <TimelineContent sx={{ p: "4px 0px 4px 8px" }}>{crt.text}</TimelineContent>
-          </TimelineItem>
-        ))}
-      </Timeline>
+      <ContinuationReportTimeline crtList={dummyCRTimeline} />
     </Box>
   );
 }
