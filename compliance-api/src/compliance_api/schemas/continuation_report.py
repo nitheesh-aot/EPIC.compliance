@@ -4,6 +4,7 @@ from marshmallow import EXCLUDE, fields, post_dump
 from marshmallow_enum import EnumField
 
 from compliance_api.models.continuation_report import ContinuationReport, ContinuationReportKey
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 from compliance_api.utils.enum import ContextEnum
 
 from .base_schema import AutoSchemaBase, BaseSchema
@@ -38,15 +39,21 @@ class ContinuationReportKeySchema(AutoSchemaBase):  # pylint: disable=too-many-a
         unknown = EXCLUDE
         model = ContinuationReportKey
 
+    key_context = EnumField(
+        ContextEnum,
+        metadata={
+            "description": "The context in which the entry is being made. Eg: When an Inspection is created."
+        },
+        by_value=True
+    )
+
     @post_dump
     def post_dump_actions(
         self, data, many, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of key_context enum."""
         if "key_context" in data and data["key_context"] is not None:
-            data["key_context"] = ContextEnum(
-                data["key_context"]
-            ).value
+            data["key_context"] = ContextEnum(data["key_context"]).value
         else:
             data["key_context"] = ""
         return data
@@ -63,6 +70,13 @@ class ContinuationReportSchema(AutoSchemaBase):  # pylint: disable=too-many-ance
         include_fk = True
 
     keys = fields.List(fields.Nested(ContinuationReportKeySchema))
+    context_type = EnumField(
+        ContextEnum,
+        metadata={
+            "description": "The context in which the entry is being made. Eg: When an Inspection is created."
+        },
+        by_value=True
+    )
 
     @post_dump
     def post_dump_actions(
@@ -70,9 +84,7 @@ class ContinuationReportSchema(AutoSchemaBase):  # pylint: disable=too-many-ance
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of context enum."""
         if "context_type" in data and data["context_type"] is not None:
-            data["context_type"] = ContextEnum(
-                data["context_type"]
-            ).value
+            data["context_type"] = ContextEnum(data["context_type"]).value
         else:
             data["context_type"] = ""
         return data
@@ -95,6 +107,16 @@ class ContinuationReportCreateSchema(BaseSchema):  # pylint: disable=too-many-an
         allow_none=True,
         required=True,
     )
+    date_created = fields.DateTime(
+        format=INPUT_DATE_TIME_FORMAT,
+        metadata={
+            "description": "The continuation report entry date in ISO 8601 format."
+        },
+        required=True,
+        error_messages={
+            "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
+        },
+    )
     context_type = EnumField(
         ContextEnum,
         metadata={
@@ -106,10 +128,4 @@ class ContinuationReportCreateSchema(BaseSchema):  # pylint: disable=too-many-an
     context_id = fields.Int(
         metadata={"description": "The unique identifier of the context type entity"},
         required=True,
-    )
-    keys = fields.List(
-        fields.Nested(ContinuationReportKeyCreateSchema),
-        metadata={"description": "A list of keys associated with the report content"},
-        required=False,
-        allow_none=True,
     )
