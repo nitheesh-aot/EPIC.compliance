@@ -9,11 +9,26 @@ import { BCDesignTokens } from "epic.theme";
 import { useMenuStore } from "@/store/menuStore";
 import { AddRounded, SearchRounded } from "@mui/icons-material";
 import ContinuationReportTimeline from "./ContinuationReportTimeline";
+import { useModal } from "@/store/modalStore";
+import ContinuationReportEntryModal from "./ContinuationReportEntryModal";
+import { notify } from "@/store/snackbarStore";
 
 export default function ContinuationReport() {
   const { appHeaderHeight } = useMenuStore();
+  const { setOpen, setClose } = useModal();
 
-  const handleAddNewEntry = () => {};
+  const handleAddNewEntry = () => {
+    setOpen({
+      content: <ContinuationReportEntryModal onSubmit={handleOnSubmit} />,
+      width: "640px",
+    });
+  };
+
+  const handleOnSubmit = (submitMsg: string) => {
+    // queryClient.invalidateQueries({ queryKey: ["staff-users"] });
+    setClose();
+    notify.success(submitMsg);
+  };
 
   const dummyCRTimeline = [
     {
