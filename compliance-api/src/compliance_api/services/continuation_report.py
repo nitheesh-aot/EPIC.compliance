@@ -57,6 +57,7 @@ def _create_report_entry(report_entry_data: dict, sys_generated=False):
         "case_file_id": report_entry_data.get("case_file_id"),
         "text": text,
         "rich_text": rich_text,
+        "date_created": report_entry_data.get("date_created"),
         "context_type": report_entry_data.get("context_type"),
         "context_id": report_entry_data.get("context_id"),
     }

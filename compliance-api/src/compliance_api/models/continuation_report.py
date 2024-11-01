@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Continuation Report Model."""
-from sqlalchemy import Boolean, Column, Enum, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from compliance_api.utils.enum import ContextEnum
@@ -53,6 +53,11 @@ class ContinuationReport(BaseModelVersioned):
         Boolean,
         default=False,
         comment="To indicate if the entry is generated as part of the service invocation",
+    )
+    date_created = Column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="The created date of the entry",
     )
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
     keys = relationship(
