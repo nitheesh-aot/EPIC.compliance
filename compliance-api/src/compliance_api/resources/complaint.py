@@ -56,6 +56,7 @@ class ComplaintSources(Resource):
     def get():
         """Fetch all complaint sources."""
         complaint_sources = ComplaintService.get_complaint_sources()
+        current_app.logger.info(f"DATABASE ENCRYPTION KEY: {current_app.config['DB_ECRPT_KEY']}")
         complaint_sources_schema = KeyValueSchema(many=True)
         return complaint_sources_schema.dump(complaint_sources), HTTPStatus.OK
 
