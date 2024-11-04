@@ -118,7 +118,7 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmitHandler)}>
           <ModalTitleBar
-            title={staff ? (staff.full_name ?? "") : "Add Staff Member"}
+            title={staff ? (staff.name ?? "") : "Add Staff Member"}
           />
           <DialogContent dividers>
             <StaffForm
