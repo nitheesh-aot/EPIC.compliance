@@ -1,0 +1,19 @@
+.ql-toolbar {
+  &.ql-snow {
+    text-align: end;
+    border: none !important;
+    padding-bottom: 4px !important;
+    .ql-formats:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.ql-container {
+  font-size: 1rem !important;
+  font-family: "BC Sans", "Helvetica", "Arial", "sans-serif" !important;
+  &.ql-snow {
+    border: 1px solid #d8d8d8 !important;
+    border-radius: 4px;
+  }
+}

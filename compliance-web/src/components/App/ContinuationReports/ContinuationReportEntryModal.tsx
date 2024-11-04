@@ -92,7 +92,6 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
             <ControlledRichTextEditor
               label="Entry"
               name="entry"
-              placeholder="Enter detailed description here..."
             />
           </DialogContent>
           <ModalActions

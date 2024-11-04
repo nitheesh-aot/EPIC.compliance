@@ -37,7 +37,7 @@ export default function ContinuationReport() {
     },
     {
       date: "2024-10-28T23:28:11.311Z",
-      text: "Some one updated",
+      text: "<New entry added with rich text info>",
     },
     {
       date: "2024-10-31T18:45:21.311Z",

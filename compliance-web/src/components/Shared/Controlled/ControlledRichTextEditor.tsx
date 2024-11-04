@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css"; // Include the default theme
 import { Controller, useFormContext } from "react-hook-form";
+import { Box, FormControl, InputLabel } from "@mui/material";
 
 type ControlledRichTextEditorProps = {
   name: string;
@@ -12,7 +13,7 @@ type ControlledRichTextEditorProps = {
 const ControlledRichTextEditor: React.FC<ControlledRichTextEditorProps> = ({
   name,
   label,
-  placeholder = "Enter text...",
+  placeholder = "",
 }) => {
   const editorRef = useRef<HTMLDivElement | null>(null); // Reference to the Quill container
   const quillRef = useRef<Quill | null>(null); // Reference to the Quill instance
@@ -33,10 +34,9 @@ const ControlledRichTextEditor: React.FC<ControlledRichTextEditorProps> = ({
       modules: {
         toolbar: {
           container: [
-            [{ header: [1, 2, false] }],
-            ["bold", "italic", "underline"],
+            ["bold", "italic", "underline", "strike"],
             [{ list: "ordered" }, { list: "bullet" }],
-            ["link", "image"],
+            ["link"],
           ],
           handlers: {
             image: () => {
@@ -91,14 +91,26 @@ const ControlledRichTextEditor: React.FC<ControlledRichTextEditorProps> = ({
   }, [defaultValues, name, placeholder, setValue]);
 
   return (
-    <div>
-      <label>{label}</label>
+    <FormControl fullWidth>
+      <InputLabel
+        sx={{
+          position: "static",
+          transform: "none",
+          fontSize: "0.875rem",
+          lineHeight: "1.5rem",
+          color: "#474543",
+        }}
+        htmlFor={name}
+        size="small"
+      >
+        {label}
+      </InputLabel>
       <Controller
         name={name}
         control={control}
         defaultValue={defaultValues?.[name] ?? { html: "", text: "" }} // Set the default value for the form
         render={({ field }) => (
-          <>
+          <Box mt={"-2.15rem"}>
             <div
               ref={editorRef}
               style={{ minHeight: "180px" }}
@@ -106,10 +118,10 @@ const ControlledRichTextEditor: React.FC<ControlledRichTextEditorProps> = ({
             />
             {/* Quill container */}
             {errors[name] && <span>{errors[name]?.message?.toString()}</span>}
-          </>
+          </Box>
         )}
       />
-    </div>
+    </FormControl>
   );
 };
 
