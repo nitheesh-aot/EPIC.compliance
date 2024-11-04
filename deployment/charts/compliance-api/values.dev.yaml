@@ -51,3 +51,13 @@ cdogs:
   apiEndpoint: https://cdogs-test.api.gov.bc.ca/api/v2
   clientId:
   clientSecret:
+
+vault:
+  secretName: compliance.dev.env
+  path: c8b80a-nonprod/compliance.dev.env
+  authPath: auth/k8s-gold
+  namespace: platform-services
+  role: c8b80a-nonprod
+
+serviceAccount:
+  name: c8b80a-vault
