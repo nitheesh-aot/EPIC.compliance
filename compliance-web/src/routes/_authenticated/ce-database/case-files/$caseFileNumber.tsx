@@ -11,6 +11,7 @@ import { notify } from "@/store/snackbarStore";
 import { useQueryClient } from "@tanstack/react-query";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
+import { CR_CONTEXT_TYPE } from "@/utils/constants";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/case-files/$caseFileNumber"
@@ -69,7 +70,11 @@ function CaseFileProfilePage() {
               caseFileData={caseFileData}
               onEdit={handleOpenEditModal}
             />
-            <ContinuationReport />
+            <ContinuationReport
+              caseFileId={caseFileData.id}
+              contextType={CR_CONTEXT_TYPE.CASEFILE}
+              contextId={caseFileData.id}
+            />
           </Box>
         </>
       )}

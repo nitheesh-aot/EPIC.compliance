@@ -13,13 +13,28 @@ import { useModal } from "@/store/modalStore";
 import ContinuationReportEntryModal from "./ContinuationReportEntryModal";
 import { notify } from "@/store/snackbarStore";
 
-export default function ContinuationReport() {
+export type ContinuationReportContextType = {
+  caseFileId: number;
+  contextType: string;
+  contextId: number;
+};
+
+export default function ContinuationReport({
+  caseFileId,
+  contextType,
+  contextId,
+}: ContinuationReportContextType) {
   const { appHeaderHeight } = useMenuStore();
   const { setOpen, setClose } = useModal();
 
   const handleAddNewEntry = () => {
     setOpen({
-      content: <ContinuationReportEntryModal onSubmit={handleOnSubmit} />,
+      content: (
+        <ContinuationReportEntryModal
+          onSubmit={handleOnSubmit}
+          context={{ caseFileId, contextType, contextId }}
+        />
+      ),
       width: "640px",
     });
   };

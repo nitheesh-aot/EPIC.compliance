@@ -2,12 +2,12 @@ import { Dayjs } from "dayjs";
 
 export interface ContinuationReport {
   id: number;
-  case_file_id: number,
-  text: string,
-  rich_text: string,
-  context_id: number,
-  system_generated: boolean,
-  is_active: boolean
+  case_file_id: number;
+  text: string;
+  rich_text: string;
+  context_id: number;
+  system_generated: boolean;
+  is_active: boolean;
 }
 
 export interface ContinuationReportFormData {
@@ -15,5 +15,14 @@ export interface ContinuationReportFormData {
   entry?: {
     html: string;
     text: string;
-  }
+  };
+}
+
+export interface ContinuationReportAPIData {
+  case_file_id: number;
+  text: string;
+  rich_text: string;
+  date_created: string;
+  context_type: string;
+  context_id: number;
 }
