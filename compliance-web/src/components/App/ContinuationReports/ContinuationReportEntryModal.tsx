@@ -68,7 +68,6 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
     }
   }, [defaultValues, reset, continuationReportEntry]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onSuccess = () => {
     onSubmit(
       continuationReportEntry ? "Successfully updated!" : "Successfully added!"
