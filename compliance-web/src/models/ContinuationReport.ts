@@ -5,8 +5,18 @@ export interface ContinuationReport {
   case_file_id: number;
   text: string;
   rich_text: string;
+  context_type: string;
   context_id: number;
   system_generated: boolean;
+  date_created: string;
+  is_active: boolean;
+  keys: CRKeys[];
+}
+
+interface CRKeys {
+  key_context: string;
+  id: number;
+  key: string;
   is_active: boolean;
 }
 

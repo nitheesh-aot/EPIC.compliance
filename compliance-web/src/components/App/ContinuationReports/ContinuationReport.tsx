@@ -12,6 +12,10 @@ import ContinuationReportTimeline from "./ContinuationReportTimeline";
 import { useModal } from "@/store/modalStore";
 import ContinuationReportEntryModal from "./ContinuationReportEntryModal";
 import { notify } from "@/store/snackbarStore";
+import { useContinuationReportEntries } from "@/hooks/useContinuationReports";
+import LoadingPage from "@/components/Shared/LoadingPage";
+import ErrorPage from "@/components/Shared/ErrorPage";
+import { useQueryClient } from "@tanstack/react-query";
 
 export type ContinuationReportContextType = {
   caseFileId: number;
@@ -24,8 +28,17 @@ export default function ContinuationReport({
   contextType,
   contextId,
 }: ContinuationReportContextType) {
+  const queryClient = useQueryClient();
   const { appHeaderHeight } = useMenuStore();
   const { setOpen, setClose } = useModal();
+
+  const {
+    status,
+    data: continuationReportData,
+    isError,
+    error,
+    isLoading,
+  } = useContinuationReportEntries(caseFileId);
 
   const handleAddNewEntry = () => {
     setOpen({
@@ -40,25 +53,12 @@ export default function ContinuationReport({
   };
 
   const handleOnSubmit = (submitMsg: string) => {
-    // queryClient.invalidateQueries({ queryKey: ["staff-users"] });
+    queryClient.invalidateQueries({
+      queryKey: ["continuation-reports", caseFileId],
+    });
     setClose();
     notify.success(submitMsg);
   };
-
-  const dummyCRTimeline = [
-    {
-      date: "2024-09-31T08:48:38.311Z",
-      text: "BRUCEJ_20240007_IR001 is created.",
-    },
-    {
-      date: "2024-10-28T23:28:11.311Z",
-      text: "<New entry added with rich text info>",
-    },
-    {
-      date: "2024-10-31T18:45:21.311Z",
-      text: "20240007 is created.",
-    },
-  ];
 
   return (
     <Box
@@ -92,7 +92,15 @@ export default function ContinuationReport({
           ),
         }}
       />
-      <ContinuationReportTimeline crtList={dummyCRTimeline} />
+      {!caseFileId || status === "pending" ? (
+        <LoadingPage isLoading={isLoading} />
+      ) : isError ? (
+        <ErrorPage error={error} hideBackButton />
+      ) : continuationReportData.length ? (
+        <ContinuationReportTimeline crtList={continuationReportData} />
+      ) : (
+        <Typography variant="subtitle2" textAlign={"center"} mt={4}>-- No Records --</Typography>
+      )}
     </Box>
   );
 }
