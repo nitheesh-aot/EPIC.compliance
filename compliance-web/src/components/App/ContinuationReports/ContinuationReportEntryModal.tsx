@@ -6,13 +6,17 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
 import { Dayjs } from "dayjs";
-import { ContinuationReportFormData } from "@/models/ContinuationReport";
+import { ContinuationReportAPIData, ContinuationReportFormData } from "@/models/ContinuationReport";
 import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledRichTextEditor";
 import ControlledDateTimeField from "@/components/Shared/Controlled/ControlledDateTimeField";
+import { useCreateContinuationReportEntry } from "@/hooks/useContinuationReports";
+import dateUtils from "@/utils/dateUtils";
+import { ContinuationReportContextType } from "./ContinuationReport";
 
 type ContinuationReportEntryModal = {
   onSubmit: (submitMsg: string) => void;
   continuationReportEntry?: unknown;
+  context: ContinuationReportContextType;
 };
 
 const continuationReportFormSchema = yup.object().shape({
@@ -22,8 +26,8 @@ const continuationReportFormSchema = yup.object().shape({
     .required("Date Created is required"),
   entry: yup
     .object({
-      html: yup.string(),
-      text: yup.string(),
+      html: yup.string().required("Entry is required"),
+      text: yup.string().required("Entry is required"),
     })
     .nullable()
     .required("Entry is required"),
@@ -41,6 +45,7 @@ const initFormData: ContinuationReportFormData = {
 const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
   onSubmit,
   continuationReportEntry,
+  context,
 }) => {
   const defaultValues = useMemo<ContinuationReportFormData>(() => {
     if (continuationReportEntry) {
@@ -63,19 +68,31 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
     }
   }, [defaultValues, reset, continuationReportEntry]);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onSuccess = () => {
     onSubmit(
       continuationReportEntry ? "Successfully updated!" : "Successfully added!"
     );
   };
 
-  // const { mutate: addStaff } = useAddStaff(onSuccess);
+  const { mutate: addEntry } = useCreateContinuationReportEntry(onSuccess);
   // const { mutate: updateStaff } = useUpdateStaff(onSuccess);
 
   const onSubmitHandler = (data: ContinuationReportSchemaType) => {
     // eslint-disable-next-line no-console
     console.log(data);
+    const crEntry: ContinuationReportAPIData = {
+      case_file_id: context.caseFileId,
+      text: data.entry.text,
+      rich_text: data.entry.html,
+      date_created: dateUtils.dateToISO(data.dateOfEntry),
+      context_type: context.contextType,
+      context_id: context.contextId
+    }
+    if(continuationReportEntry) {
+      //TODO: Update
+    } else {
+      addEntry(crEntry)
+    }
   };
 
   return (

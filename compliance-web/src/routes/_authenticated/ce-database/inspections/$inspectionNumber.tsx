@@ -11,6 +11,7 @@ import React from "react";
 import InspectionGeneralInformation from "@/components/App/Inspections/Profile/InspectionGeneralInformation";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
+import { CR_CONTEXT_TYPE } from "@/utils/constants";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/$inspectionNumber"
@@ -73,7 +74,11 @@ function InspectionProfilePage() {
               inspectionData={inspectionData}
               onEdit={handleOpenEditModal}
             />
-            <ContinuationReport />
+            <ContinuationReport
+              caseFileId={inspectionData.case_file_id}
+              contextType={CR_CONTEXT_TYPE.INSPECTION}
+              contextId={inspectionData.id}
+            />
           </Box>
         </>
       )}

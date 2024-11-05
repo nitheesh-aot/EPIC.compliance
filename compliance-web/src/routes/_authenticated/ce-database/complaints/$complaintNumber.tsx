@@ -7,6 +7,7 @@ import LoadingPage from "@/components/Shared/LoadingPage";
 import { useComplaintByNumber } from "@/hooks/useComplaints";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
+import { CR_CONTEXT_TYPE } from "@/utils/constants";
 import { Box } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
@@ -70,7 +71,11 @@ function ComplaintProfilePage() {
               complaintData={complaintData}
               onEdit={handleOpenEditModal}
             />
-            <ContinuationReport />
+            <ContinuationReport
+              caseFileId={complaintData.case_file_id}
+              contextType={CR_CONTEXT_TYPE.COMPLAINT}
+              contextId={complaintData.id}
+            />
           </Box>
         </>
       )}

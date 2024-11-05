@@ -16,5 +16,11 @@ export const INITIATION = {
 
 export const CORS_ERROR_MSG = "Network error or CORS issue";
 
-export const REGEX_EMAIL = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-export const REGEX_PHONE_NUMBER = /^\(\d{3}\) \d{3}-\d{4}$/
+export const REGEX_EMAIL = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+export const REGEX_PHONE_NUMBER = /^\(\d{3}\) \d{3}-\d{4}$/;
+
+export const CR_CONTEXT_TYPE = {
+  INSPECTION: "Inspection",
+  COMPLAINT: "Complaint",
+  CASEFILE: "Casefile",
+}

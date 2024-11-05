@@ -2,7 +2,13 @@ import { ErrorTwoTone } from "@mui/icons-material";
 import { Box, Typography, Button } from "@mui/material";
 import { useRouter } from "@tanstack/react-router";
 
-const ErrorPage = ({ error }: { error: Error }) => {
+const ErrorPage = ({
+  error,
+  hideBackButton,
+}: {
+  error: Error;
+  hideBackButton?: boolean;
+}) => {
   const { history } = useRouter();
 
   return (
@@ -18,13 +24,17 @@ const ErrorPage = ({ error }: { error: Error }) => {
     >
       <ErrorTwoTone sx={{ fontSize: 64 }} color="error" />
       <Typography variant="h4">{error.message}</Typography>
-      <Button
-        variant="contained"
-        color="secondary"
-        onClick={() => history.back()}
-      >
-        Go Back
-      </Button>
+      {!hideBackButton ? (
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => history.back()}
+        >
+          Go Back
+        </Button>
+      ) : (
+        <></>
+      )}
     </Box>
   );
 };
