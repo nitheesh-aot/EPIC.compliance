@@ -180,18 +180,19 @@ export const formatInspectionData = (
       ...inspectionData,
     };
   }
-  if (!projectId) {
-    inspectionData = {
-      unapproved_project_authorization: formData.authorization ?? "",
-      unapproved_project_regulated_party: formData.regulatedParty ?? "",
-      unapproved_project_type: formData.projectType ?? "",
-      unapproved_project_sub_type: formData.projectSubType ?? "",
-      ...inspectionData,
-    };
-  }
   if (caseFileId) { // map the fields only for create new inspection, and case file id is available
     inspectionData.project_id = projectId;
     inspectionData.case_file_id = caseFileId;
+
+    if (!projectId) { // map the unapproved fields only during create mode
+      inspectionData = {
+        ...inspectionData,
+        unapproved_project_authorization: formData.authorization ?? "",
+        unapproved_project_regulated_party: formData.regulatedParty ?? "",
+        unapproved_project_type: formData.projectType ?? "",
+        unapproved_project_sub_type: formData.projectSubType ?? "",
+      };
+    }
   }
   return inspectionData;
 };
