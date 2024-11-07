@@ -97,9 +97,18 @@ export default function ContinuationReport({
       ) : isError ? (
         <ErrorPage error={error} hideBackButton />
       ) : continuationReportData.length ? (
-        <ContinuationReportTimeline crtList={continuationReportData} />
+        <Box
+          sx={{
+            height: `calc(100vh - ${appHeaderHeight + 302}px)`, // 302px is the height above the timeline
+            overflow: "overlay",
+          }}
+        >
+          <ContinuationReportTimeline crtList={continuationReportData} />
+        </Box>
       ) : (
-        <Typography variant="subtitle2" textAlign={"center"} mt={4}>-- No Records --</Typography>
+        <Typography variant="subtitle2" textAlign={"center"} mt={4}>
+          -- No Records --
+        </Typography>
       )}
     </Box>
   );
