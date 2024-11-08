@@ -67,7 +67,6 @@ const ControlledRichTextEditor: React.FC<ControlledRichTextEditorProps> = ({
           container: [
             ["bold", "italic", "underline", "strike"],
             [{ list: "ordered" }, { list: "bullet" }],
-            ["link"],
           ],
           handlers: {
             image: handleImageUpload,
