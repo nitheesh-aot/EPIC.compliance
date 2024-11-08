@@ -77,7 +77,8 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
                 "COMPLIANCE" in group for group in token_info.get("groups", [])
             )
             if not is_compliance_in_groups:
-                raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
+                raise PermissionDeniedError("Access Denied")
+            # Attempt to validate and decode the token here
             g.access_token = auth_header.split(" ")[1]
             g.token_info = token_info
         else:

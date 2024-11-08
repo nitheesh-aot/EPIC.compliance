@@ -23,3 +23,12 @@ class TokenJWTClaims(dict, Enum):
         "groups": ["/COMPLIANCE/VIEWER"],
         "realm_access": {"roles": []},
     }
+    super_user = {
+        "iss": CONFIG.JWT_OIDC_TEST_ISSUER,
+        "sub": "f7a4a1d3-73a8-4cbc-a40f-bb1145302065",
+        "firstname": fake.first_name(),
+        "lastname": fake.last_name(),
+        "preferred_username": fake.user_name(),
+        "groups": ["/COMPLIANCE/SUPERUSER"],
+        "realm_access": {"roles": []},
+    }

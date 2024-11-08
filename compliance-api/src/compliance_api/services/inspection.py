@@ -1,6 +1,9 @@
 """Service for managing Inspection."""
 
-from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
+from flask import g
+
+from compliance_api.auth import auth
+from compliance_api.exceptions import PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionAgency as InspectionAgencyModel
 from compliance_api.models import InspectionAttendance as InspectionAttendanceModel
@@ -16,6 +19,7 @@ from compliance_api.models import IRStatusOption as IRStatusOptionModel
 from compliance_api.models.db import session_scope
 from compliance_api.models.inspection.inspection_enum import InspectionAttendanceOptionEnum, InspectionStatusEnum
 from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
+from compliance_api.utils.enum import PermissionEnum
 
 from .case_file import CaseFileService
 from .epic_track_service.track_service import TrackService
@@ -140,6 +144,7 @@ class InspectionService:
     @classmethod
     def create(cls, inspection_data: dict):
         """Create inspection."""
+        _access_check_create(inspection_data)
         inspection_obj = _create_inspection_object(inspection_data)
         with session_scope() as session:
             created_inspection = InspectionModel.create_inspection(
@@ -204,6 +209,7 @@ class InspectionService:
     @classmethod
     def update(cls, inspection_id: int, inspection_data: dict):
         """Update inspection."""
+        _access_check_update(inspection_id)
         inspection_obj = _create_inspection_update_obj(inspection_data)
         with session_scope() as session:
             updated_case_file = InspectionModel.update_inspection(
@@ -257,18 +263,47 @@ class InspectionService:
             )
         return updated_case_file
 
-    @classmethod
-    def is_assigned_user(cls, inspection_id, auth_user_guid):
-        """Check if the given user is an assigned user of the given inspection."""
-        inspection = InspectionModel.find_by_id(inspection_id)
+# def _is_access_allowed(case_file_id, inspection_id=None):
+#     """Check if the given user is an assigned user of the given inspection."""
+#     auth_user_guid = g.token_info["preferred_username"]
+#     if _is_primary_in_case_file(case_file_id):
+#         return True
+#     #  or should be primary or other officer of the inspection
+#     if inspection_id:
+#         inspection = InspectionModel.find_by_id(inspection_id)
+#         # Check if the user is the primary officer or part of other officers
+#         is_primary_or_assigned_on_inspection = (
+#             inspection.primary_officer.auth_user_guid == auth_user_guid
+#             or any(
+#                 officer.officer.auth_user_guid == auth_user_guid
+#                 for officer in inspection.other_officers
+#             )
+#         )
+#         if is_primary_or_assigned_on_inspection:
+#             return True
+#     return False
 
-        if not inspection:
-            return False
 
-        # Check if the user is the primary officer or part of other officers
-        return inspection.primary_officer.auth_user_guid == auth_user_guid or any(
-            officer.officer.auth_user_guid == auth_user_guid
-            for officer in inspection.other_officers
+def _access_check_create(inspection_data: dict):
+    """Access check."""
+    if not auth.has_permission(
+        [PermissionEnum.SUPERUSER]
+    ) and not CaseFileService.is_logged_user_primary_or_officer(inspection_data.get("case_file_id")):
+        raise PermissionDeniedError(
+            "You don't have the correct permission to perform this operation."
+        )
+
+
+def _access_check_update(inspection_id: dict):
+    """Access check for update."""
+    auth_user_guid = g.token_info["preferred_username"]
+    inspection = InspectionModel.find_by_id(inspection_id)
+    if (
+        not auth.has_permission([PermissionEnum.SUPERUSER])
+        and not inspection.primary_officer.auth_user_guid == auth_user_guid
+    ):
+        raise PermissionDeniedError(
+            "You don't have the correct permission to perform this operation."
         )
 
 

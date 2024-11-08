@@ -19,9 +19,7 @@ from flask import g, request
 from flask_jwt_oidc import JwtManager
 
 from compliance_api.exceptions import PermissionDeniedError
-from compliance_api.services import CaseFileService, ComplaintService, InspectionService
 from compliance_api.utils.constant import GROUP_MAP
-from compliance_api.utils.enum import ContextEnum
 
 
 jwt = (
@@ -47,45 +45,6 @@ class Auth:  # pylint: disable=too-few-public-methods
         return decorated
 
     @classmethod
-    def is_allowed(cls, context: ContextEnum, permissions):
-        """Check to see if user is allowed to access the function."""
-
-        def decorated(f):
-            @Auth.require
-            @wraps(f)
-            def wrapper(*args, **kwargs):
-                auth_user_guid = g.token_info["preferred_username"]
-
-                # Create a context-to-service mapping
-                context_service_map = {
-                    ContextEnum.INSPECTION: ("inspection_id", InspectionService),
-                    ContextEnum.COMPLAINT: ("complaint_id", ComplaintService),
-                    ContextEnum.CASE_FILE: ("case_file_id", CaseFileService),
-                }
-
-                # Retrieve the corresponding ID and service for the given context
-                id_field, service = context_service_map.get(context, (None, None))
-
-                if id_field and service:
-                    is_allowed = service.is_assigned_user(
-                        kwargs[id_field], auth_user_guid
-                    )
-                    #  map the permission enum values to the user groups
-                    mapped_groups = _map_permission_to_groups(permissions)
-                    if not is_allowed and not jwt.contains_role(mapped_groups):
-                        raise PermissionDeniedError(
-                            "Access Denied", HTTPStatus.FORBIDDEN
-                        )
-                else:
-                    raise PermissionDeniedError("Invalid Context", HTTPStatus.FORBIDDEN)
-
-                return f(*args, **kwargs)
-
-            return wrapper
-
-        return decorated
-
-    @classmethod
     def has_one_of_roles(cls, permissions):
         """Check that at least one of the realm groups are in the token.
 
@@ -101,7 +60,10 @@ class Auth:  # pylint: disable=too-few-public-methods
                 if jwt.contains_role(mapped_groups):
                     return f(*args, **kwargs)
 
-                raise PermissionDeniedError("Access Denied", HTTPStatus.FORBIDDEN)
+                raise PermissionDeniedError(
+                    "You don't have permission to perform this operation.",
+                    HTTPStatus.FORBIDDEN,
+                )
 
             return wrapper
 
@@ -111,6 +73,12 @@ class Auth:  # pylint: disable=too-few-public-methods
     def has_role(cls, role):
         """Validate the role."""
         return jwt.validate_roles(role)
+
+    @classmethod
+    def has_permission(cls, permissions):
+        """Check to see if the user has right permissions."""
+        mapped_groups = _map_permission_to_groups(permissions)
+        return jwt.contains_role(mapped_groups)
 
 
 def _map_permission_to_groups(permissions):

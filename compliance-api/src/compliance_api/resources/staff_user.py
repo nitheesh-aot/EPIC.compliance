@@ -21,6 +21,7 @@ from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import KeyValueSchema, StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateSchema
 from compliance_api.services import StaffUserService
+from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
 
 from .apihelper import Api as ApiHelper
@@ -63,6 +64,7 @@ class StaffUsers(Resource):
     @API.expect(user_request_model)
     @API.response(code=201, model=user_list_model, description="UserCreated")
     @API.response(400, "Bad Request")
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def post():
         """Create a user."""
         user_data = StaffUserCreateSchema().load(API.payload)
@@ -96,6 +98,7 @@ class StaffUser(Resource):
     @API.response(code=200, model=user_list_model, description="Success")
     @API.response(400, "Bad Request")
     @API.response(404, "Not Found")
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def patch(user_id):
         """Update a user by id."""
         user_data = StaffUserUpdateSchema().load(API.payload)
@@ -109,6 +112,7 @@ class StaffUser(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Delete a user by id")
     @API.response(code=200, model=user_list_model, description="Deleted")
     @API.response(404, "Not Found")
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def delete(user_id):
         """Delete a user by id."""
         deleted_user = StaffUserService.delete_user(user_id)

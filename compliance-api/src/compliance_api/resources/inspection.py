@@ -152,13 +152,13 @@ class Inspections(Resource):
         return inspection_list_schema.dump(inspections), HTTPStatus.OK
 
     @staticmethod
-    @auth.require
     @ApiHelper.swagger_decorators(API, endpoint_description="Create an inspection")
     @API.expect(inspection_create_model)
     @API.response(
         code=201, model=inspection_list_model, description="InspectionCreated"
     )
     @API.response(400, "Bad Request")
+    @auth.require
     def post():
         """Create an inspection."""
         current_app.logger.info(f"Creating Inspection with payload: {API.payload}")
