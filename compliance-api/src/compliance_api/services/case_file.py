@@ -2,12 +2,16 @@
 
 from datetime import datetime
 
-from compliance_api.exceptions import ResourceExistsError
+from flask import g
+
+from compliance_api.auth import auth
+from compliance_api.exceptions import PermissionDeniedError, ResourceExistsError
 from compliance_api.models import CaseFile as CaseFileModel
 from compliance_api.models import CaseFileInitiationOption as CaseFileInitiationOptionModel
 from compliance_api.models import CaseFileOfficer as CaseFileOfficerModel
 from compliance_api.models import CaseFileStatusEnum
 from compliance_api.models.db import session_scope
+from compliance_api.utils.enum import PermissionEnum
 
 
 class CaseFileService:
@@ -49,6 +53,7 @@ class CaseFileService:
     @classmethod
     def update(cls, case_file_id: int, case_file_data: dict):
         """Update case file."""
+        _access_check_for_update(case_file_id)
         case_file_obj = {
             "primary_officer_id": case_file_data.get("primary_officer_id", None)
         }
@@ -104,17 +109,28 @@ class CaseFileService:
         ]
 
     @classmethod
-    def is_assigned_user(cls, case_file_id, auth_user_guid):
-        """Check if the given user is an assigned user of the given case file."""
+    def is_logged_user_primary_or_officer(cls, case_file_id):
+        """Check to see if the given user is primary or other officer in the case file."""
+        auth_user_guid = g.token_info["preferred_username"]
         case_file = CaseFileModel.find_by_id(case_file_id)
-
-        if not case_file:
-            return False
-
-        # Check if the user is the primary officer or part of other officers
+        #  The logged in user should be primary or officer in the associated
+        #  case file
         return case_file.primary_officer.auth_user_guid == auth_user_guid or any(
             officer.officer.auth_user_guid == auth_user_guid
             for officer in case_file.case_file_officers
+        )
+
+
+def _access_check_for_update(case_file_id):
+    """Access check for update."""
+    auth_user_guid = g.token_info["preferred_username"]
+    case_file = CaseFileModel.find_by_id(case_file_id)
+    if (
+        not auth.has_permission([PermissionEnum.SUPERUSER])
+        and not case_file.primary_officer.auth_user_guid == auth_user_guid
+    ):
+        raise PermissionDeniedError(
+            "You don't have the correct permission to perform this operation."
         )
 
 

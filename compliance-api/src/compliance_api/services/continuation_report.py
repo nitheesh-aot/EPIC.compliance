@@ -1,8 +1,12 @@
 """ContinuationReport Service."""
 
+from compliance_api.auth import auth
+from compliance_api.exceptions import PermissionDeniedError
 from compliance_api.models.continuation_report import ContinuationReport as ContinuationReportModel
 from compliance_api.models.continuation_report import ContinuationReportKey as ContinuationReportKeyModel
 from compliance_api.models.db import session_scope
+from compliance_api.services.case_file import CaseFileService
+from compliance_api.utils.enum import PermissionEnum
 
 
 class ContinuationReportService:
@@ -11,6 +15,7 @@ class ContinuationReportService:
     @classmethod
     def create(cls, report_entry: dict, system_generated=False):
         """Create continuation report entry."""
+        _access_check(report_entry)
         report_entry_obj = _create_report_entry(report_entry, system_generated)
         with session_scope() as session:
             created_entry = ContinuationReportModel.create_entry(
@@ -24,6 +29,18 @@ class ContinuationReportService:
     def get_by_case_file_id(cls, case_file_id):
         """Get all crs by case file id."""
         return ContinuationReportModel.get_by_case_file(case_file_id)
+
+
+def _access_check(report_entry: dict):
+    """Access check."""
+    if not auth.has_permission(
+        [PermissionEnum.SUPERUSER]
+    ) and not CaseFileService.is_logged_user_primary_or_officer(
+        report_entry.get("case_file_id")
+    ):
+        raise PermissionDeniedError(
+            "You don't have the correct permission to perform this operation."
+        )
 
 
 def _insert_or_update_keys(report_id, keys, session=None):

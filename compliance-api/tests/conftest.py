@@ -198,6 +198,14 @@ def client_id():
 @pytest.fixture()
 def auth_header(jwt):
     """Create a basic admin header for tests."""
-    default_claims = TokenJWTClaims.default
+    default_claims = TokenJWTClaims.default.value
     headers = factory_auth_header(jwt=jwt, claims=default_claims)
+    return headers
+
+
+@pytest.fixture()
+def auth_header_super_user(jwt):
+    """Create a super user header."""
+    super_user_claims = TokenJWTClaims.super_user.value
+    headers = factory_auth_header(jwt=jwt, claims=super_user_claims)
     return headers
