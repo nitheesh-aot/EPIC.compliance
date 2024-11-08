@@ -21,6 +21,7 @@ from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import TopicCreateSchema, TopicSchema
 from compliance_api.services import TopicService
+from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
 
 from .apihelper import Api as ApiHelper
@@ -45,6 +46,7 @@ class Topics(Resource):
     @API.response(code=200, description="Success", model=[topic_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all topics")
     @auth.require
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def get():
         """Fetch all topics."""
         topics = TopicService.get_all()
@@ -57,6 +59,7 @@ class Topics(Resource):
     @API.expect(topic_request_model)
     @API.response(code=201, model=topic_list_model, description="topicCreated")
     @API.response(400, "Bad Request")
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def post():
         """Create a topic."""
         topic_data = TopicCreateSchema().load(API.payload)
@@ -75,6 +78,7 @@ class Topic(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch an topic by id")
     @API.response(code=200, model=topic_list_model, description="Success")
     @API.response(404, "Not Found")
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def get(topic_id):
         """Fetch an topic by id."""
         topic = TopicService.get_by_id(topic_id)
@@ -89,6 +93,7 @@ class Topic(Resource):
     @API.response(code=200, model=topic_list_model, description="Success")
     @API.response(400, "Bad Request")
     @API.response(404, "Not Found")
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def patch(topic_id):
         """Update an topic by id."""
         topic_data = TopicCreateSchema().load(API.payload)
@@ -102,6 +107,7 @@ class Topic(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Delete an topic by id")
     @API.response(code=200, model=topic_list_model, description="Deleted")
     @API.response(404, "Not Found")
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def delete(topic_id):
         """Delete an topic by id."""
         deleted_topic = TopicService.delete(topic_id)

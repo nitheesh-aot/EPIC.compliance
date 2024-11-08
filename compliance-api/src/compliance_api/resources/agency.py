@@ -21,6 +21,7 @@ from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import AgencyCreateSchema, AgencySchema
 from compliance_api.services import AgencyService
+from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
 
 from .apihelper import Api as ApiHelper
@@ -45,6 +46,7 @@ class Agencies(Resource):
     @API.response(code=200, description="Success", model=[agency_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all agencies")
     @auth.require
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def get():
         """Fetch all agencies."""
         agencies = AgencyService.get_all()
@@ -57,6 +59,7 @@ class Agencies(Resource):
     @API.expect(agency_request_model)
     @API.response(code=201, model=agency_list_model, description="AgencyCreated")
     @API.response(400, "Bad Request")
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def post():
         """Create a agency."""
         agency_data = AgencyCreateSchema().load(API.payload)
@@ -75,6 +78,7 @@ class Agency(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch an agency by id")
     @API.response(code=200, model=agency_list_model, description="Success")
     @API.response(404, "Not Found")
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def get(agency_id):
         """Fetch an agency by id."""
         agency = AgencyService.get_by_id(agency_id)
@@ -89,6 +93,7 @@ class Agency(Resource):
     @API.response(code=200, model=agency_list_model, description="Success")
     @API.response(400, "Bad Request")
     @API.response(404, "Not Found")
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def patch(agency_id):
         """Update an agency by id."""
         agency_data = AgencyCreateSchema().load(API.payload)
@@ -102,6 +107,7 @@ class Agency(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Delete an agency by id")
     @API.response(code=200, model=agency_list_model, description="Deleted")
     @API.response(404, "Not Found")
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def delete(agency_id):
         """Delete an agency by id."""
         deleted_agency = AgencyService.delete(agency_id)

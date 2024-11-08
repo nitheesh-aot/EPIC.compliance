@@ -40,3 +40,4 @@ class PermissionEnum(Enum):
     VIEWER = "Viewer"
     USER = "User"
     SUPERUSER = "Superuser"
+    ADMIN = "Admin"

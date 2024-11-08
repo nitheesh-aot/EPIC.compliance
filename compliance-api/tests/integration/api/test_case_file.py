@@ -11,7 +11,8 @@ from faker import Faker
 
 from compliance_api.models.case_file import CaseFileStatusEnum
 from compliance_api.services.case_file import CaseFileService
-from tests.utilities.factory_scenario import CasefileScenario, StaffScenario
+from tests.utilities.factory_scenario import CasefileScenario, StaffScenario, TokenJWTClaims
+from tests.utilities.factory_utils import factory_auth_header
 
 
 API_BASE_URL = "/api/"
@@ -56,7 +57,24 @@ def test_get_case_file_initiation_options(client, auth_header):
     assert result.status_code == HTTPStatus.OK
 
 
-def test_create_case_file_without_file_number(client, auth_header, created_staff):
+def test_create_case_file_without_file_number(
+    client, auth_header_super_user, created_staff
+):
+    """Create case file with basic fields."""
+    url = urljoin(API_BASE_URL, "case-files")
+    case_file_data = CasefileScenario.default_value.value
+    case_file_data["primary_officer_id"] = created_staff.id
+    result = client.post(
+        url,
+        data=json.dumps(CasefileScenario.default_value.value),
+        headers=auth_header_super_user,
+    )
+    assert result.status_code == HTTPStatus.CREATED
+    assert result.json["case_file_number"] == f"{datetime.now().year}0001"
+    assert result.json["case_file_status"] == CaseFileStatusEnum.OPEN.value
+
+
+def test_create_case_file_with_non_superuser(client, auth_header, created_staff):
     """Create case file with basic fields."""
     url = urljoin(API_BASE_URL, "case-files")
     case_file_data = CasefileScenario.default_value.value
@@ -64,12 +82,10 @@ def test_create_case_file_without_file_number(client, auth_header, created_staff
     result = client.post(
         url, data=json.dumps(CasefileScenario.default_value.value), headers=auth_header
     )
-    assert result.status_code == HTTPStatus.CREATED
-    assert result.json["case_file_number"] == f"{datetime.now().year}0001"
-    assert result.json["case_file_status"] == CaseFileStatusEnum.OPEN.value
+    assert result.status_code == HTTPStatus.FORBIDDEN
 
 
-def test_create_case_file_with_file_number(client, auth_header):
+def test_create_case_file_with_file_number(client, auth_header_super_user):
     """Create case file with file number."""
     user_data = StaffScenario.default_data.value
     auth_user_guid = fake.word()
@@ -80,7 +96,9 @@ def test_create_case_file_with_file_number(client, auth_header):
     case_file_data["case_file_number"] = "XYZ"
     case_file_data["primary_officer_id"] = new_user.id
     case_file_data["officer_ids"] = [new_user.id]
-    result = client.post(url, data=json.dumps(case_file_data), headers=auth_header)
+    result = client.post(
+        url, data=json.dumps(case_file_data), headers=auth_header_super_user
+    )
     assert result.json["case_file_number"] == "XYZ"
     assert result.json["case_file_status"] == CaseFileStatusEnum.OPEN.value
     assert result.json["primary_officer_id"] == new_user.id
@@ -92,14 +110,16 @@ def test_create_case_file_with_file_number(client, auth_header):
 
 
 def test_create_case_file_with_existing_case_file_number(
-    client, auth_header, created_staff
+    client, auth_header_super_user, created_staff
 ):
     """Create case file with basic fields."""
     url = urljoin(API_BASE_URL, "case-files")
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = "XYZ"
     case_file_data["primary_officer_id"] = created_staff.id
-    result = client.post(url, data=json.dumps(case_file_data), headers=auth_header)
+    result = client.post(
+        url, data=json.dumps(case_file_data), headers=auth_header_super_user
+    )
     print(result.json)
     assert result.status_code == HTTPStatus.CONFLICT
 
@@ -175,7 +195,7 @@ def test_get_case_file_by_number(client, auth_header):
     assert result.json["case_file_number"] == case_file_data["case_file_number"]
 
 
-def test_case_file_update(client, auth_header, created_staff):
+def test_case_file_update(client, auth_header_super_user, created_staff):
     """Update case file."""
     #  creating case file without officers or primary officer
     case_file_data = copy.copy(CasefileScenario.default_value.value)
@@ -186,8 +206,7 @@ def test_case_file_update(client, auth_header, created_staff):
         API_BASE_URL,
         f"case-files/case-file-numbers/{case_file_data['case_file_number']}",
     )
-    result = client.get(url, headers=auth_header)
-    print(result.json)
+    result = client.get(url, headers=auth_header_super_user)
     assert result.status_code == HTTPStatus.OK
     officers = CaseFileService.get_other_officers(result.json["id"])
     assert len(officers) == 0
@@ -200,7 +219,9 @@ def test_case_file_update(client, auth_header, created_staff):
     case_file_data["primary_officer_id"] = new_user.id
     case_file_data["officer_ids"] = [new_user.id]
     url = urljoin(API_BASE_URL, f"case-files/{created_case_file.id}")
-    result = client.patch(url, data=json.dumps(case_file_data), headers=auth_header)
+    result = client.patch(
+        url, data=json.dumps(case_file_data), headers=auth_header_super_user
+    )
 
     assert result.status_code == HTTPStatus.OK
     assert result.json["primary_officer_id"] == new_user.id
@@ -211,9 +232,38 @@ def test_case_file_update(client, auth_header, created_staff):
     case_file_data["primary_officer_id"] = new_user.id
     case_file_data["officer_ids"] = []
     url = urljoin(API_BASE_URL, f"case-files/{created_case_file.id}")
-    result = client.patch(url, data=json.dumps(case_file_data), headers=auth_header)
+    result = client.patch(
+        url, data=json.dumps(case_file_data), headers=auth_header_super_user
+    )
 
     assert result.status_code == HTTPStatus.OK
     assert result.json["primary_officer_id"] == new_user.id
     officers = CaseFileService.get_other_officers(result.json["id"])
     assert len(officers) == 0
+
+
+def test_case_file_update_viewer_fails(client, auth_header, created_staff):
+    """Update as Viewer."""
+    case_file_data = copy.copy(CasefileScenario.default_value.value)
+    case_file_data["case_file_number"] = fake.word()
+    case_file_data["primary_officer_id"] = created_staff.id
+    created_case_file = CaseFileService.create(case_file_data)
+    url = urljoin(API_BASE_URL, f"case-files/{created_case_file.id}")
+    result = client.patch(url, data=json.dumps(case_file_data), headers=auth_header)
+    assert result.status_code == HTTPStatus.FORBIDDEN
+
+
+def test_case_file_update_with_primary(client, jwt, created_staff):
+    """Update as primary."""
+    case_file_data = copy.copy(CasefileScenario.default_value.value)
+    case_file_data["case_file_number"] = fake.word()
+    case_file_data["primary_officer_id"] = created_staff.id
+    created_case_file = CaseFileService.create(case_file_data)
+
+    header = TokenJWTClaims.default.value
+    header["preferred_username"] = created_staff.auth_user_guid
+    headers = factory_auth_header(jwt=jwt, claims=header)
+
+    url = urljoin(API_BASE_URL, f"case-files/{created_case_file.id}")
+    result = client.patch(url, data=json.dumps(case_file_data), headers=headers)
+    assert result.status_code == HTTPStatus.OK

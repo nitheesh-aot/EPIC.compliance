@@ -1,6 +1,9 @@
 """Service for managing complaint."""
 
-from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
+from flask import g
+
+from compliance_api.auth import auth
+from compliance_api.exceptions import PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models.complaint import Complaint as ComplaintModel
 from compliance_api.models.complaint import ComplaintReqEACDetail as ComplaintReqEACDetailModel
 from compliance_api.models.complaint import ComplaintReqOrderDetail as ComplaintReqOrderDetailModel
@@ -15,6 +18,7 @@ from compliance_api.models.db import session_scope
 from compliance_api.services.case_file import CaseFileService
 from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
+from compliance_api.utils.enum import PermissionEnum
 
 
 class ComplaintService:
@@ -86,6 +90,7 @@ class ComplaintService:
     @classmethod
     def update(cls, complaint_id: int, complaint_data: dict):
         """Update complaint."""
+        _acces_check_update(complaint_id)
         complaint_obj = _create_complaint_update_object(complaint_data)
         with session_scope() as session:
             complaint = ComplaintModel.find_by_id(complaint_id)
@@ -127,6 +132,7 @@ class ComplaintService:
     @classmethod
     def create(cls, complaint_data: dict):
         """Create complaint."""
+        _access_check_create(complaint_data)
         complaint_obj = _create_complaint_object(complaint_data)
         with session_scope() as session:
             created_complaint = ComplaintModel.create_complaint(complaint_obj, session)
@@ -155,14 +161,30 @@ class ComplaintService:
                 )
         return created_complaint
 
-    @classmethod
-    def is_assigned_user(cls, complaint_id, auth_user_guid):
-        """Check if the given user is an assigned user of the given complaint."""
-        complaint = ComplaintModel.find_by_id(complaint_id)
 
-        if not complaint:
-            return False
-        return complaint.primary_officer.auth_user_guid == auth_user_guid
+def _access_check_create(complaint_data: dict):
+    """Access check."""
+    if not auth.has_permission(
+        [PermissionEnum.SUPERUSER]
+    ) and not CaseFileService.is_logged_user_primary_or_officer(
+        complaint_data.get("case_file_id")
+    ):
+        raise PermissionDeniedError(
+            "You don't have the correct permission to perform this operation."
+        )
+
+
+def _acces_check_update(complaint_id):
+    """Acces check create."""
+    auth_user_guid = g.token_info["preferred_username"]
+    complaint = ComplaintModel.find_by_id(complaint_id)
+    if (
+        not auth.has_permission([PermissionEnum.SUPERUSER])
+        and not complaint.primary_officer.auth_user_guid == auth_user_guid
+    ):
+        raise PermissionDeniedError(
+            "You don't have the correct permission to perform this operation."
+        )
 
 
 def _remove_existing_requirement_details(

@@ -34,7 +34,9 @@ def mock_auth_service(mocker):
     yield mock_get_user_by_guid, mock_update_user_group
 
 
-def test_create_staff_user_mandatory(mock_auth_service, mocker, client, auth_header):
+def test_create_staff_user_mandatory(
+    mock_auth_service, mocker, client, auth_header_super_user
+):
     """Create staff user."""
     url = urljoin(API_BASE_URL, "staff-users")
     mock_get_user_by_guid = mocker.patch(
@@ -54,7 +56,9 @@ def test_create_staff_user_mandatory(mock_auth_service, mocker, client, auth_hea
         "position_id": 1,
     }
 
-    result = client.post(url, data=json.dumps(staff_user_data), headers=auth_header)
+    result = client.post(
+        url, data=json.dumps(staff_user_data), headers=auth_header_super_user
+    )
     print(result.json)
     assert result.status_code == HTTPStatus.CREATED
     assert result.json["auth_user_guid"] == staff_user_data["auth_user_guid"]
@@ -64,7 +68,9 @@ def test_create_staff_user_mandatory(mock_auth_service, mocker, client, auth_hea
     assert result.json["last_name"] == lastname
 
 
-def test_create_staff_user_all_fields(mock_auth_service, mocker, client, auth_header):
+def test_create_staff_user_all_fields(
+    mock_auth_service, mocker, client, auth_header_super_user
+):
     """Create staff user."""
     user_data = StaffScenario.default_data.value
     auth_user_guid = fake.word()
@@ -90,7 +96,9 @@ def test_create_staff_user_all_fields(mock_auth_service, mocker, client, auth_he
         "supervisor_id": new_user.id,
     }
 
-    result = client.post(url, data=json.dumps(staff_user_data), headers=auth_header)
+    result = client.post(
+        url, data=json.dumps(staff_user_data), headers=auth_header_super_user
+    )
 
     assert result.status_code == HTTPStatus.CREATED
     assert result.json["auth_user_guid"] == staff_user_data["auth_user_guid"]
@@ -102,7 +110,28 @@ def test_create_staff_user_all_fields(mock_auth_service, mocker, client, auth_he
     assert result.json["last_name"] == lastname
 
 
-def test_create_existing_user(mock_auth_service, client, auth_header):
+def test_create_staff_user_with_non_super_user(
+    mock_auth_service, mocker, client, auth_header
+):
+    """Create staff user."""
+    user_data = StaffScenario.default_data.value
+    auth_user_guid = fake.word()
+    user_data["auth_user_guid"] = auth_user_guid
+    new_user = StaffScenario.create(user_data)
+    url = urljoin(API_BASE_URL, "staff-users")
+    username = fake.word()
+    staff_user_data = {
+        "auth_user_guid": username,
+        "permission": "USER",
+        "position_id": 1,
+        "deputy_director_id": new_user.id,
+        "supervisor_id": new_user.id,
+    }
+    result = client.post(url, data=json.dumps(staff_user_data), headers=auth_header)
+    assert result.status_code == HTTPStatus.FORBIDDEN
+
+
+def test_create_existing_user(mock_auth_service, client, auth_header_super_user):
     """Create an existing user."""
     url = urljoin(API_BASE_URL, "staff-users")
     user_data = StaffScenario.default_data.value
@@ -116,12 +145,14 @@ def test_create_existing_user(mock_auth_service, client, auth_header):
         "position_id": 1,
     }
 
-    result = client.post(url, data=json.dumps(user_payload), headers=auth_header)
+    result = client.post(
+        url, data=json.dumps(user_payload), headers=auth_header_super_user
+    )
 
     assert result.status_code == HTTPStatus.CONFLICT
 
 
-def test_get_users(mock_auth_service, mocker, client, auth_header):
+def test_get_users(mock_auth_service, mocker, client, auth_header_super_user):
     """Create an existing user."""
     url = urljoin(API_BASE_URL, "staff-users")
     user_data = StaffScenario.default_data.value
@@ -140,7 +171,7 @@ def test_get_users(mock_auth_service, mocker, client, auth_header):
 
     mock_get_epic_users_by_app.return_value = epic_users
 
-    result = client.get(url, headers=auth_header)
+    result = client.get(url, headers=auth_header_super_user)
     print(result.json)
     filtered_user = next(
         (user for user in result.json if user["auth_user_guid"] == auth_user_guid1),
@@ -152,29 +183,46 @@ def test_get_users(mock_auth_service, mocker, client, auth_header):
     assert result.status_code == HTTPStatus.OK
 
 
-def test_get_user_by_id(mock_auth_service, client, auth_header):
+def test_get_users_with_non_super_user(mock_auth_service, mocker, client, auth_header):
+    """Create an existing user."""
+    url = urljoin(API_BASE_URL, "staff-users")
+
+    result = client.get(url, headers=auth_header)
+    assert result.status_code == HTTPStatus.FORBIDDEN
+
+
+def test_get_user_by_id(mock_auth_service, client, auth_header_super_user):
     """Get user by id."""
     staff_data = StaffScenario.default_data.value
     staff_data["auth_user_guid"] = fake.word()
     created_user = StaffScenario.create(staff_data)
     url = urljoin(API_BASE_URL, f"staff-users/{created_user.id}")
 
-    result = client.get(url, headers=auth_header)
+    result = client.get(url, headers=auth_header_super_user)
 
     assert result.status_code == HTTPStatus.OK
     assert result.json["id"] == created_user.id
 
 
-def test_get_user_by_id_not_found(mock_auth_service, client, auth_header):
+def test_get_user_by_id_with_non_super_user(mock_auth_service, client, auth_header):
+    """Get user by id."""
+    url = urljoin(API_BASE_URL, "staff-users/1")
+
+    result = client.get(url, headers=auth_header)
+
+    assert result.status_code == HTTPStatus.FORBIDDEN
+
+
+def test_get_user_by_id_not_found(mock_auth_service, client, auth_header_super_user):
     """Get user by id not found."""
     url = urljoin(API_BASE_URL, "staff-users/9999")
 
-    result = client.get(url, headers=auth_header)
+    result = client.get(url, headers=auth_header_super_user)
 
     assert result.status_code == HTTPStatus.NOT_FOUND
 
 
-def test_update_staff(mock_auth_service, client, auth_header):
+def test_update_staff(mock_auth_service, client, auth_header_super_user):
     """Update staff user."""
     staff_data = StaffScenario.default_data.value
     staff_data["auth_user_guid"] = fake.word()
@@ -189,14 +237,31 @@ def test_update_staff(mock_auth_service, client, auth_header):
         "permission": "VIEWER",
     }
 
-    result = client.patch(url, data=json.dumps(update_payload), headers=auth_header)
+    result = client.patch(
+        url, data=json.dumps(update_payload), headers=auth_header_super_user
+    )
 
     assert result.status_code == HTTPStatus.OK
     assert result.json["deputy_director_id"] == update_payload["deputy_director_id"]
     assert result.json["supervisor_id"] == update_payload["supervisor_id"]
 
 
-def test_user_update_non_existing(mock_auth_service, client, auth_header):
+def test_update_staff_with_non_super_user(mock_auth_service, client, auth_header):
+    """Update staff user."""
+    url = urljoin(API_BASE_URL, "staff-users/1")
+    update_payload = {
+        "position_id": 2,
+        "deputy_director_id": 1,
+        "supervisor_id": 1,
+        "permission": "VIEWER",
+    }
+
+    result = client.patch(url, data=json.dumps(update_payload), headers=auth_header)
+
+    assert result.status_code == HTTPStatus.FORBIDDEN
+
+
+def test_user_update_non_existing(mock_auth_service, client, auth_header_super_user):
     """Update non-existing user."""
     url = urljoin(API_BASE_URL, "staff-users/9999")
     update_payload = {
@@ -205,22 +270,33 @@ def test_user_update_non_existing(mock_auth_service, client, auth_header):
         "supervisor_id": 1,
         "permission": "VIEWER",
     }
-    result = client.patch(url, data=json.dumps(update_payload), headers=auth_header)
+    result = client.patch(
+        url, data=json.dumps(update_payload), headers=auth_header_super_user
+    )
     print(result.json)
     assert result.status_code == HTTPStatus.NOT_FOUND
 
 
-def test_delete_user(mock_auth_service, client, auth_header):
+def test_delete_user(mock_auth_service, client, auth_header_super_user):
     """Delete user."""
     staff_data = StaffScenario.default_data.value
     staff_data["auth_user_guid"] = fake.word()
     created_user = StaffScenario.create(staff_data)
     url = urljoin(API_BASE_URL, f"staff-users/{created_user.id}")
 
-    result = client.delete(url, headers=auth_header)
+    result = client.delete(url, headers=auth_header_super_user)
 
     assert result.status_code == HTTPStatus.OK
 
-    result = client.get(url, headers=auth_header)
+    result = client.get(url, headers=auth_header_super_user)
 
     assert result.status_code == HTTPStatus.NOT_FOUND
+
+
+def test_delete_user_with_non_super_user(mock_auth_service, client, auth_header):
+    """Delete user."""
+    url = urljoin(API_BASE_URL, "staff-users/1")
+
+    result = client.delete(url, headers=auth_header)
+
+    assert result.status_code == HTTPStatus.FORBIDDEN

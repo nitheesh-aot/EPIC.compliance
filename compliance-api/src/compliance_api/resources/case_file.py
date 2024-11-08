@@ -23,6 +23,7 @@ from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
     CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, CaseFileUpdateSchema, KeyValueSchema, StaffUserSchema)
 from compliance_api.services import CaseFileService
+from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
 
 from .apihelper import Api as ApiHelper
@@ -98,6 +99,7 @@ class CaseFiles(Resource):
 
     @staticmethod
     @auth.require
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER])
     @ApiHelper.swagger_decorators(API, endpoint_description="Create a case file")
     @API.expect(case_file_create_model)
     @API.response(code=201, model=case_file_list_model, description="CaseFileCreated")

@@ -10,4 +10,5 @@ GROUP_MAP = {
     PermissionEnum.SUPERUSER: "/COMPLIANCE/SUPERUSER",
     PermissionEnum.VIEWER: "/COMPLIANCE/VIEWER",
     PermissionEnum.USER: "/COMPLIANCE/USER",
+    PermissionEnum.ADMIN: "/COMPLIANCE/ADMIN"
 }
