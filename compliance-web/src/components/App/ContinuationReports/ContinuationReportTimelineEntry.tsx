@@ -37,7 +37,7 @@ export default function ContinuationReportTimelineEntry({
           className="quill-render"
           dangerouslySetInnerHTML={{ __html: renderText }}
         />
-        <Typography variant="subtitle2" color={"GrayText"}>
+        <Typography variant="subtitle2" color={BCDesignTokens.typographyColorDisabled}>
           Created by Christie Lombardi
         </Typography>
       </Stack>

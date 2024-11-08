@@ -16,6 +16,8 @@ import { useContinuationReportEntries } from "@/hooks/useContinuationReports";
 import LoadingPage from "@/components/Shared/LoadingPage";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import { useQueryClient } from "@tanstack/react-query";
+import { AppConfig } from "@/utils/config";
+import ComingSoon from "@/components/Shared/ComingSoon";
 
 export type ContinuationReportContextType = {
   caseFileId: number;
@@ -68,47 +70,53 @@ export default function ContinuationReport({
       p={3}
       pb={2}
     >
-      <Box display={"flex"} justifyContent={"space-between"} mb={2}>
-        <Typography variant="h6">Continuation Report</Typography>
-        <Button
-          variant="text"
-          color="primary"
-          size="small"
-          onClick={handleAddNewEntry}
-          startIcon={<AddRounded />}
-        >
-          New Entry
-        </Button>
-      </Box>
-      <TextField
-        variant="outlined"
-        size="small"
-        placeholder="Search"
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <SearchRounded />
-            </InputAdornment>
-          ),
-        }}
-      />
-      {!caseFileId || status === "pending" ? (
-        <LoadingPage isLoading={isLoading} />
-      ) : isError ? (
-        <ErrorPage error={error} hideBackButton />
-      ) : continuationReportData.length ? (
-        <Box
-          sx={{
-            height: `calc(100vh - ${appHeaderHeight + 302}px)`, // 302px is the height above the timeline
-            overflow: "overlay",
-          }}
-        >
-          <ContinuationReportTimeline crtList={continuationReportData} />
-        </Box>
+      {AppConfig.inprogressFeatures?.includes("CONTINUATION_REPORT") ? (
+        <ComingSoon />
       ) : (
-        <Typography variant="subtitle2" textAlign={"center"} mt={4}>
-          -- No Records --
-        </Typography>
+        <>
+          <Box display={"flex"} justifyContent={"space-between"} mb={2}>
+            <Typography variant="h6">Continuation Report</Typography>
+            <Button
+              variant="text"
+              color="primary"
+              size="small"
+              onClick={handleAddNewEntry}
+              startIcon={<AddRounded />}
+            >
+              New Entry
+            </Button>
+          </Box>
+          <TextField
+            variant="outlined"
+            size="small"
+            placeholder="Search"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <SearchRounded />
+                </InputAdornment>
+              ),
+            }}
+          />
+          {!caseFileId || status === "pending" ? (
+            <LoadingPage isLoading={isLoading} />
+          ) : isError ? (
+            <ErrorPage error={error} hideBackButton />
+          ) : continuationReportData.length ? (
+            <Box
+              sx={{
+                height: `calc(100vh - ${appHeaderHeight + 302}px)`, // 302px is the height above the timeline
+                overflow: "overlay",
+              }}
+            >
+              <ContinuationReportTimeline crtList={continuationReportData} />
+            </Box>
+          ) : (
+            <Typography variant="subtitle2" textAlign={"center"} mt={4}>
+              -- No Records --
+            </Typography>
+          )}
+        </>
       )}
     </Box>
   );
