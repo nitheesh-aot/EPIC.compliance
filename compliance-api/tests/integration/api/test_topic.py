@@ -23,13 +23,6 @@ def test_get_topics(app, client, auth_header_super_user):
     assert result.status_code == HTTPStatus.OK
 
 
-def test_get_topics_with_non_super_user(app, client, auth_header):
-    """Get topics."""
-    url = urljoin(API_BASE_URL, "topics")
-    result = client.get(url, headers=auth_header)
-    assert result.status_code == HTTPStatus.FORBIDDEN
-
-
 def test_get_specific_topic(app, client, auth_header_super_user):
     """Get topic by id."""
     # Create a topic
@@ -39,13 +32,6 @@ def test_get_specific_topic(app, client, auth_header_super_user):
     assert result.status_code == HTTPStatus.OK
     assert result.json["id"] == created_topic.id
     assert result.json["name"] == created_topic.name
-
-
-def test_get_specific_topic_with_non_super_user(app, client, auth_header):
-    """Get topic by id."""
-    url = urljoin(API_BASE_URL, "topics/1")
-    result = client.get(url, headers=auth_header)
-    assert result.status_code == HTTPStatus.FORBIDDEN
 
 
 def test_create_topic(client, auth_header_super_user):

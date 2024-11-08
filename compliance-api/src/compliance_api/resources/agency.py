@@ -46,7 +46,6 @@ class Agencies(Resource):
     @API.response(code=200, description="Success", model=[agency_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all agencies")
     @auth.require
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def get():
         """Fetch all agencies."""
         agencies = AgencyService.get_all()
@@ -78,7 +77,6 @@ class Agency(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch an agency by id")
     @API.response(code=200, model=agency_list_model, description="Success")
     @API.response(404, "Not Found")
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def get(agency_id):
         """Fetch an agency by id."""
         agency = AgencyService.get_by_id(agency_id)

@@ -46,7 +46,6 @@ class Topics(Resource):
     @API.response(code=200, description="Success", model=[topic_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all topics")
     @auth.require
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def get():
         """Fetch all topics."""
         topics = TopicService.get_all()
@@ -78,7 +77,6 @@ class Topic(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch an topic by id")
     @API.response(code=200, model=topic_list_model, description="Success")
     @API.response(404, "Not Found")
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def get(topic_id):
         """Fetch an topic by id."""
         topic = TopicService.get_by_id(topic_id)

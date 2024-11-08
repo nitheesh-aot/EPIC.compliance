@@ -183,14 +183,6 @@ def test_get_users(mock_auth_service, mocker, client, auth_header_super_user):
     assert result.status_code == HTTPStatus.OK
 
 
-def test_get_users_with_non_super_user(mock_auth_service, mocker, client, auth_header):
-    """Create an existing user."""
-    url = urljoin(API_BASE_URL, "staff-users")
-
-    result = client.get(url, headers=auth_header)
-    assert result.status_code == HTTPStatus.FORBIDDEN
-
-
 def test_get_user_by_id(mock_auth_service, client, auth_header_super_user):
     """Get user by id."""
     staff_data = StaffScenario.default_data.value
@@ -202,15 +194,6 @@ def test_get_user_by_id(mock_auth_service, client, auth_header_super_user):
 
     assert result.status_code == HTTPStatus.OK
     assert result.json["id"] == created_user.id
-
-
-def test_get_user_by_id_with_non_super_user(mock_auth_service, client, auth_header):
-    """Get user by id."""
-    url = urljoin(API_BASE_URL, "staff-users/1")
-
-    result = client.get(url, headers=auth_header)
-
-    assert result.status_code == HTTPStatus.FORBIDDEN
 
 
 def test_get_user_by_id_not_found(mock_auth_service, client, auth_header_super_user):

@@ -52,7 +52,6 @@ class StaffUsers(Resource):
     @API.response(code=200, description="Success", model=[user_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all users")
     @auth.require
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def get():
         """Fetch all users."""
         users = StaffUserService.get_all_staff_users()
@@ -85,7 +84,6 @@ class StaffUser(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch a user by id")
     @API.response(code=200, model=user_list_model, description="Success")
     @API.response(404, "Not Found")
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def get(user_id):
         """Fetch a user by id."""
         user = StaffUserService.get_user_by_id(user_id)
