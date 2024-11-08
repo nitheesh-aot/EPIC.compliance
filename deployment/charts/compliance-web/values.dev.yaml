@@ -6,6 +6,7 @@ app:
   auth_url: https://auth-api-c72cba-dev.apps.gold.devops.gov.bc.ca
   track_api_url: https://epictrack-api-c72cba-dev.apps.gold.devops.gov.bc.ca
   version: 1.0.0
+  in_progress_features: []
 resources:
   cpu:
     limit: 300m
