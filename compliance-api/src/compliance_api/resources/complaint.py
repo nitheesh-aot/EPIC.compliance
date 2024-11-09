@@ -177,7 +177,7 @@ class ComplaintByNumber(Resource):
 
     @staticmethod
     @API.response(code=200, description="Success", model=[complaint_list_model])
-    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch inspection by id")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch complaint by number")
     @auth.require
     def get(complaint_number):
         """Fetch all complaint."""

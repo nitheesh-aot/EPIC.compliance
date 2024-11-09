@@ -6,7 +6,10 @@ import dateUtils from "@/utils/dateUtils";
 import { formatAuthorization } from "@/utils/appUtils";
 import { Complaint } from "@/models/Complaint";
 import { useMenuStore } from "@/store/menuStore";
-import { RequirementSourceEnum } from "@/components/App/Complaints/ComplaintFormUtils";
+import {
+  ComplaintSourceEnum,
+  RequirementSourceEnum,
+} from "@/components/App/Complaints/ComplaintFormUtils";
 
 interface ComplaintGeneralInformationProps {
   complaintData: Complaint;
@@ -92,12 +95,45 @@ const ComplaintGeneralInformation: React.FC<
     });
   }
 
-  const complaintProperties = [
+  let complaintProperties = [
     { name: "Complaint Source", value: complaintData.source_type?.name },
-    { name: "Full Name", value: complaintData.source_contact?.full_name },
-    { name: "Email", value: complaintData.source_contact?.email },
-    { name: "Phone Number", value: complaintData.source_contact?.phone },
-    { name: "Comments", value: complaintData.source_contact?.comment },
+  ];
+
+  switch (complaintData.source_type?.id) {
+    case ComplaintSourceEnum.AGENCY:
+      complaintProperties.push({
+        name: "Organization Name",
+        value: complaintData.agency?.name ?? "",
+      });
+      break;
+    case ComplaintSourceEnum.FIRST_NATION:
+      complaintProperties.push({
+        name: "Organization Name",
+        value: complaintData.first_nation?.name ?? "",
+      });
+      break;
+    case ComplaintSourceEnum.OTHER:
+      complaintProperties.push({
+        name: "Description",
+        value: complaintData.source_contact?.description ?? "",
+      });
+      break;
+  }
+
+  complaintProperties = [
+    ...complaintProperties,
+    ...[
+      {
+        name: "Full Name",
+        value: complaintData.source_contact?.full_name ?? "",
+      },
+      { name: "Email", value: complaintData.source_contact?.email ?? "" },
+      {
+        name: "Phone Number",
+        value: complaintData.source_contact?.phone ?? "",
+      },
+      { name: "Comments", value: complaintData.source_contact?.comment ?? "" },
+    ],
   ];
 
   return (
