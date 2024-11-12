@@ -94,9 +94,13 @@ class ContinuationReport(BaseModelVersioned):
         return report_entry
 
     @classmethod
-    def get_by_case_file(cls, case_file_id):
+    def get_by_case_file(cls, case_file_id, page_no, page_size, search_text):
         """Get crs by case file id."""
-        return cls.query.filter_by(case_file_id=case_file_id, is_deleted=False).all()
+        query = cls.query.filter_by(case_file_id=case_file_id, is_deleted=False)
+        if search_text:
+            query = query.filter(cls.text.like(f"%{search_text}%"))
+        pagination = query.paginate(page=page_no, per_page=page_size)
+        return pagination.items, pagination.total
 
 
 class ContinuationReportKey(BaseModelVersioned):
