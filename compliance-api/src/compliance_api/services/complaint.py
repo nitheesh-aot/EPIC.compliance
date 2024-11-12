@@ -48,6 +48,8 @@ class ComplaintService:
         complaint = ComplaintModel.get_by_complaint_number(complaint_no)
         if not complaint:
             return None
+        if complaint.source_first_nation_id:
+            complaint.first_nation = _get_first_nation(complaint.source_first_nation_id)
         return _set_project_parameters(complaint)
 
     @classmethod
@@ -378,4 +380,13 @@ def _create_schedule_b_detail_obj(complaint_data: dict, requirement_id):
     return {
         "req_id": requirement_id,
         "condition_number": req_info.get("condition_number"),
+    }
+
+
+def _get_first_nation(first_nation_id):
+    """Set the name of the first nations from epic.track."""
+    response = TrackService.get_first_nation_by_id(first_nation_id)
+    return {
+        "id": response.get("id"),
+        "name": response.get("name")
     }

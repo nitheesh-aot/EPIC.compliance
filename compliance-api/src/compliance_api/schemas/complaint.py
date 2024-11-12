@@ -273,6 +273,8 @@ class ComplaintSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         KeyValueSchema,
     )
     source_type = fields.Nested(KeyValueSchema)
+    agency = fields.Nested(KeyValueSchema)
+    first_nation = fields.Nested(KeyValueSchema)
     requirement_source = fields.Nested(KeyValueSchema)
     requirement_detail = fields.Nested(RequirementSoruceDetailSchema, only=["topic"])
     authorization = fields.Str(

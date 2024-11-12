@@ -5,6 +5,8 @@ import { StaffUser } from "./Staff";
 import { CaseFile } from "./CaseFile";
 import { Contact } from "./Contact";
 import { Dayjs } from "dayjs";
+import { Agency } from "./Agency";
+import { FirstNation } from "./FirstNation";
 
 export interface Complaint {
   id: number;
@@ -33,6 +35,8 @@ export interface Complaint {
   regulated_party?: string;
   type?: string;
   sub_type?: string;
+  agency?: Agency;
+  first_nation?: FirstNation;
 }
 
 export interface ComplaintFormData {
