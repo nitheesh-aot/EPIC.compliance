@@ -20,10 +20,11 @@ from .complaint import (
     RequirementSoruceDetailSchema)
 from .continuation_report import (
     ContinuationReportCreateSchema, ContinuationReportKeyCreateSchema, ContinuationReportKeySchema,
-    ContinuationReportSchema)
+    ContinuationReportSchema, CRGetQueryParamSchema)
 from .inspection import (
     InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
     InspectionUpdateSchema)
+from .paginate import PaginationParameterSchema
 from .project import ProjectSchema
 from .staff_user import StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateSchema
 from .topic import TopicCreateSchema, TopicSchema

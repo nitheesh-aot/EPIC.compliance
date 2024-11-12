@@ -8,6 +8,7 @@ from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 from compliance_api.utils.enum import ContextEnum
 
 from .base_schema import AutoSchemaBase, BaseSchema
+from .paginate import PaginationParameterSchema
 
 
 class ContinuationReportKeyCreateSchema(
@@ -44,7 +45,7 @@ class ContinuationReportKeySchema(AutoSchemaBase):  # pylint: disable=too-many-a
         metadata={
             "description": "The context in which the entry is being made. Eg: When an Inspection is created."
         },
-        by_value=True
+        by_value=True,
     )
 
     @post_dump
@@ -75,7 +76,7 @@ class ContinuationReportSchema(AutoSchemaBase):  # pylint: disable=too-many-ance
         metadata={
             "description": "The context in which the entry is being made. Eg: When an Inspection is created."
         },
-        by_value=True
+        by_value=True,
     )
 
     @post_dump
@@ -128,4 +129,15 @@ class ContinuationReportCreateSchema(BaseSchema):  # pylint: disable=too-many-an
     context_id = fields.Int(
         metadata={"description": "The unique identifier of the context type entity"},
         required=True,
+    )
+
+
+class CRGetQueryParamSchema(PaginationParameterSchema):
+    """Query parameter for the CR query."""
+
+    case_file_id = fields.Int(
+        metadata={"description": "The case file id."}, required=True
+    )
+    search_text = fields.Str(
+        metadata={"description": "The text to be searched"}
     )

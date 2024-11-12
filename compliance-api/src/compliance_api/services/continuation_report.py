@@ -26,9 +26,11 @@ class ContinuationReportService:
         return created_entry
 
     @classmethod
-    def get_by_case_file_id(cls, case_file_id):
+    def get_by_case_file_id(cls, case_file_id, page_no, page_size, search_text):
         """Get all crs by case file id."""
-        return ContinuationReportModel.get_by_case_file(case_file_id)
+        return ContinuationReportModel.get_by_case_file(
+            case_file_id, page_no, page_size, search_text
+        )
 
 
 def _access_check(report_entry: dict):

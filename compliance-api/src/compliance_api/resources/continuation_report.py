@@ -6,8 +6,7 @@ from flask import request
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
-from compliance_api.exceptions import BadRequestError
-from compliance_api.schemas import ContinuationReportCreateSchema, ContinuationReportSchema
+from compliance_api.schemas import ContinuationReportCreateSchema, ContinuationReportSchema, CRGetQueryParamSchema
 from compliance_api.services import ContinuationReportService
 from compliance_api.utils.util import cors_preflight
 
@@ -37,19 +36,37 @@ class Agencies(Resource):
                 "description": "The unique identifier of the case file",
                 "type": "integer",
                 "required": True,
-            }
+            },
+            "page_no": {
+                "description": "The number of page to be returned",
+                "type": "integer",
+                "required": True,
+            },
+            "page_size": {
+                "description": "The number of items in the page",
+                "type": "integer",
+                "required": True,
+            },
         }
     )
-    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all continuation report")
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Fetch all continuation report"
+    )
     @auth.require
     def get():
         """Fetch all complaints."""
-        case_file_id = request.args.get("case_file_id")
-        if not case_file_id:
-            raise BadRequestError("Casefile id is required as a query parameter")
-        crs = ContinuationReportService.get_by_case_file_id(case_file_id)
-        cr_list_schema = ContinuationReportSchema(many=True)
-        return cr_list_schema.dump(crs), HTTPStatus.OK
+        request_params = CRGetQueryParamSchema().load(request.args)
+        case_file_id = request_params.get("case_file_id")
+        page_no = request_params.get("page_no")
+        page_size = request_params.get("page_size")
+        search_text = request_params.get("search_text")
+        crs, total = ContinuationReportService.get_by_case_file_id(
+            case_file_id, page_no, page_size, search_text
+        )
+        return {
+            "items": ContinuationReportSchema(many=True).dump(crs),
+            "total": total,
+        }, HTTPStatus.OK
 
     @staticmethod
     @auth.require
