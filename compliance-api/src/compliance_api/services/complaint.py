@@ -382,6 +382,7 @@ def _create_schedule_b_detail_obj(complaint_data: dict, requirement_id):
         "condition_number": req_info.get("condition_number"),
     }
 
+
 def _get_first_nation(first_nation_id):
     """Set the name of the first nations from epic.track."""
     response = TrackService.get_first_nation_by_id(first_nation_id)
