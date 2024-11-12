@@ -17,4 +17,5 @@ data:
         "VITE_APP_URL": "https://{{ .Values.app.url }}",
         "VITE_OIDC_AUTHORITY": "{{ .Values.keycloak.url }}",
         "VITE_CLIENT_ID": "{{ .Values.keycloak.client }}",
+        "VITE_INPROGRESS_FEATURES": "{{ .Values.app.in_progress_features }}"
       }
