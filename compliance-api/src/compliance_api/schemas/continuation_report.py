@@ -9,6 +9,7 @@ from compliance_api.utils.enum import ContextEnum
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .paginate import PaginationParameterSchema
+from .staff_user import StaffUserSchema
 
 
 class ContinuationReportKeyCreateSchema(
@@ -78,6 +79,7 @@ class ContinuationReportSchema(AutoSchemaBase):  # pylint: disable=too-many-ance
         },
         by_value=True,
     )
+    created_by_user = fields.Nested(StaffUserSchema)
 
     @post_dump
     def post_dump_actions(

@@ -59,6 +59,13 @@ class ContinuationReport(BaseModelVersioned):
         nullable=True,
         comment="The created date of the entry",
     )
+    created_by = Column(String(100), nullable=False)
+    created_by_user = relationship(
+        "StaffUser",
+        primaryjoin="ContinuationReport.created_by == foreign(StaffUser.auth_user_guid)",
+        lazy="joined",
+        uselist=False
+    )
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
     keys = relationship(
         "ContinuationReportKey",
@@ -99,6 +106,7 @@ class ContinuationReport(BaseModelVersioned):
         query = cls.query.filter_by(case_file_id=case_file_id, is_deleted=False)
         if search_text:
             query = query.filter(cls.text.like(f"%{search_text}%"))
+        query = query.order_by(cls.date_created.desc())
         pagination = query.paginate(page=page_no, per_page=page_size)
         return pagination.items, pagination.total
 
