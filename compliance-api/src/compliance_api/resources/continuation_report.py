@@ -6,7 +6,9 @@ from flask import request
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
-from compliance_api.schemas import ContinuationReportCreateSchema, ContinuationReportSchema, CRGetQueryParamSchema
+from compliance_api.exceptions import ResourceNotFoundError
+from compliance_api.schemas import (
+    ContinuationReportCreateSchema, ContinuationReportSchema, ContinuationReportUpdateSchema, CRGetQueryParamSchema)
 from compliance_api.services import ContinuationReportService
 from compliance_api.utils.util import cors_preflight
 
@@ -21,11 +23,14 @@ cr_request_model = ApiHelper.convert_ma_schema_to_restx_model(
 cr_list_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, ContinuationReportSchema(), "ContinuationReportList"
 )
+cr_update_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, ContinuationReportUpdateSchema(), "UpdateSchema"
+)
 
 
 @cors_preflight("GET, OPTIONS, POST")
 @API.route("", methods=["POST", "GET", "OPTIONS"])
-class Agencies(Resource):
+class ContinuationReports(Resource):
     """Resource for managing continuation report."""
 
     @staticmethod
@@ -81,3 +86,41 @@ class Agencies(Resource):
         report_data = ContinuationReportCreateSchema().load(API.payload)
         created_entry = ContinuationReportService.create(report_data)
         return ContinuationReportSchema().dump(created_entry), HTTPStatus.CREATED
+
+
+@cors_preflight("OPTIONS, PATCH")
+@API.route("/<int:entry_id>", methods=["PATCH", "OPTIONS"])
+@API.doc(params={"entry_id": "The unique identifier of continuation report entry"})
+class ContinuationReport(Resource):
+    """Resource for managing a single continuation report entry."""
+
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Update a continuation report entry by id"
+    )
+    @API.expect(cr_request_model)
+    @API.response(code=200, model=cr_list_model, description="Success")
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
+    def patch(entry_id):
+        """Update an agency by id."""
+        cr_data = ContinuationReportUpdateSchema().load(API.payload)
+        updated_cr = ContinuationReportService.update(entry_id, cr_data)
+        if not updated_cr:
+            raise ResourceNotFoundError(
+                f"Continuation report entry with {entry_id} not found"
+            )
+        return ContinuationReportSchema().dump(updated_cr), HTTPStatus.OK
+
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(API, endpoint_description="Delete a continuation report by id")
+    @API.response(code=200, model=cr_list_model, description="Deleted")
+    @API.response(404, "Not Found")
+    def delete(entry_id):
+        """Delete a continuation report entry by id."""
+        deleted_cr = ContinuationReportService.delete(entry_id)
+        if not deleted_cr:
+            raise ResourceNotFoundError(f"Continuation report entry with {entry_id} not found")
+        return ContinuationReportSchema().dump(deleted_cr), HTTPStatus.OK

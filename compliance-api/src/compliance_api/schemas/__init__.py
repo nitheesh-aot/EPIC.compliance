@@ -20,7 +20,7 @@ from .complaint import (
     RequirementSoruceDetailSchema)
 from .continuation_report import (
     ContinuationReportCreateSchema, ContinuationReportKeyCreateSchema, ContinuationReportKeySchema,
-    ContinuationReportSchema, CRGetQueryParamSchema)
+    ContinuationReportSchema, ContinuationReportUpdateSchema, CRGetQueryParamSchema)
 from .inspection import (
     InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
     InspectionUpdateSchema)

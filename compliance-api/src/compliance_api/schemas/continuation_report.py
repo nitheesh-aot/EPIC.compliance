@@ -91,13 +91,9 @@ class ContinuationReportSchema(AutoSchemaBase):  # pylint: disable=too-many-ance
         return data
 
 
-class ContinuationReportCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
-    """ContinuationReportCreateSchema."""
+class ContinuationReportUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
+    """ContinuationReportUpdateSchema."""
 
-    case_file_id = fields.Int(
-        metadata={"description": "The unique identifier of the associated case file."},
-        required=True,
-    )
     text = fields.Str(
         metadata={"description": "The content in plane text format"},
         allow_none=True,
@@ -117,6 +113,17 @@ class ContinuationReportCreateSchema(BaseSchema):  # pylint: disable=too-many-an
         error_messages={
             "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
         },
+    )
+
+
+class ContinuationReportCreateSchema(
+    ContinuationReportUpdateSchema
+):  # pylint: disable=too-many-ancestors
+    """ContinuationReportCreateSchema."""
+
+    case_file_id = fields.Int(
+        metadata={"description": "The unique identifier of the associated case file."},
+        required=True,
     )
     context_type = EnumField(
         ContextEnum,
@@ -138,6 +145,4 @@ class CRGetQueryParamSchema(PaginationParameterSchema):
     case_file_id = fields.Int(
         metadata={"description": "The case file id."}, required=True
     )
-    search_text = fields.Str(
-        metadata={"description": "The text to be searched"}
-    )
+    search_text = fields.Str(metadata={"description": "The text to be searched"})
