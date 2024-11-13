@@ -45,8 +45,10 @@ export default function ContinuationReportTimeline({
             )}
           </TimelineSeparator>
           <ContinuationReportTimelineEntry
-            renderText={crt.rich_text}
             key={crt.id}
+            renderText={crt.rich_text}
+            createdByUser={crt.created_by_user?.name}
+            isSystemGenerated={crt.system_generated}
           />
         </TimelineItem>
       ))}

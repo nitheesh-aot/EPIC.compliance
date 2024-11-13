@@ -1,10 +1,12 @@
 import { Dayjs } from "dayjs";
+import { StaffUser } from "./Staff";
 
 export interface ContinuationReport {
   id: number;
   case_file_id: number;
   text: string;
   rich_text: string;
+  created_by_user?: StaffUser;
   context_type: string;
   context_id: number;
   system_generated: boolean;

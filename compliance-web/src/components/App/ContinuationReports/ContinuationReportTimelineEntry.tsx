@@ -5,8 +5,12 @@ import { useEffect, useRef, useState } from "react";
 
 export default function ContinuationReportTimelineEntry({
   renderText,
+  createdByUser,
+  isSystemGenerated,
 }: {
   renderText: string;
+  createdByUser?: string;
+  isSystemGenerated: boolean
 }) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -37,9 +41,14 @@ export default function ContinuationReportTimelineEntry({
           className="quill-render"
           dangerouslySetInnerHTML={{ __html: renderText }}
         />
-        <Typography variant="subtitle2" color={BCDesignTokens.typographyColorDisabled}>
-          Created by Christie Lombardi
-        </Typography>
+        {!isSystemGenerated && createdByUser && (
+          <Typography
+            variant="subtitle2"
+            color={BCDesignTokens.typographyColorDisabled}
+          >
+            Created by {createdByUser}
+          </Typography>
+        )}
       </Stack>
       {showReadMore && (
         <Link
