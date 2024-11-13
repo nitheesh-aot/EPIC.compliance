@@ -2,6 +2,10 @@ import {
   Box,
   Button,
   InputAdornment,
+  MenuItem,
+  Pagination,
+  Select,
+  SelectChangeEvent,
   TextField,
   Typography,
 } from "@mui/material";
@@ -18,6 +22,7 @@ import ErrorPage from "@/components/Shared/ErrorPage";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppConfig } from "@/utils/config";
 import ComingSoon from "@/components/Shared/ComingSoon";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export type ContinuationReportContextType = {
   caseFileId: number;
@@ -33,6 +38,8 @@ export default function ContinuationReport({
   const queryClient = useQueryClient();
   const { appHeaderHeight } = useMenuStore();
   const { setOpen, setClose } = useModal();
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const {
     status,
@@ -40,9 +47,18 @@ export default function ContinuationReport({
     isError,
     error,
     isLoading,
-  } = useContinuationReportEntries(caseFileId);
+  } = useContinuationReportEntries(caseFileId, page, rowsPerPage);
 
-  const handleAddNewEntry = () => {
+  const handleOnSubmit = useCallback(
+    (submitMsg: string) => {
+      queryClient.invalidateQueries({queryKey: ["continuation-reports", caseFileId]});
+      setClose();
+      notify.success(submitMsg);
+    },
+    [queryClient, caseFileId, setClose]
+  );
+
+  const handleAddNewEntry = useCallback(() => {
     setOpen({
       content: (
         <ContinuationReportEntryModal
@@ -52,15 +68,34 @@ export default function ContinuationReport({
       ),
       width: "640px",
     });
+  }, [setOpen, handleOnSubmit, caseFileId, contextType, contextId]);
+
+  
+
+  const handlePageChange = useCallback(
+    (_event: React.ChangeEvent<unknown>, newPage: number) => {
+      setPage(newPage);
+    },
+    []
+  );
+
+  const handlerRowsPerPageChange = (event: SelectChangeEvent) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(1); // Reset to the first page when rows per page changes
   };
 
-  const handleOnSubmit = (submitMsg: string) => {
-    queryClient.invalidateQueries({
-      queryKey: ["continuation-reports", caseFileId],
-    });
-    setClose();
-    notify.success(submitMsg);
-  };
+  useEffect(() => {
+    queryClient.invalidateQueries({queryKey: ["continuation-reports", caseFileId]});
+  }, [queryClient, caseFileId, page, rowsPerPage]);
+
+  const displayedRows = useMemo(() => {
+    if (!continuationReportData) {
+      return "0 - 0";
+    }
+    const start = rowsPerPage * (page - 1) + 1;
+    const end = Math.min(rowsPerPage * page, continuationReportData.total);
+    return `${start} - ${end}`;
+  }, [continuationReportData, rowsPerPage, page]);
 
   return (
     <Box
@@ -102,15 +137,56 @@ export default function ContinuationReport({
             <LoadingPage isLoading={isLoading} />
           ) : isError ? (
             <ErrorPage error={error} hideBackButton />
-          ) : continuationReportData.length ? (
-            <Box
-              sx={{
-                height: `calc(100vh - ${appHeaderHeight + 302}px)`, // 302px is the height above the timeline
-                overflow: "overlay",
-              }}
-            >
-              <ContinuationReportTimeline crtList={continuationReportData} />
-            </Box>
+          ) : continuationReportData.items.length ? (
+            <>
+              <Box
+                sx={{
+                  height: `calc(100vh - ${appHeaderHeight + 302 + 48}px)`, // 302px is the height above the timeline, 64px is height of pagination
+                  overflow: "scroll",
+                }}
+              >
+                <ContinuationReportTimeline
+                  crtList={continuationReportData.items}
+                />
+              </Box>
+              <Box display={"flex"} alignItems={"baseline"}>
+                <Select
+                  size="small"
+                  value={rowsPerPage.toString()}
+                  variant="outlined"
+                  renderValue={() => displayedRows}
+                  onChange={handlerRowsPerPageChange}
+                  sx={{
+                    backgroundColor: "transparent !important",
+                    height: "2rem",
+                    ".MuiSelect-icon": {
+                      display: "none",
+                    },
+                    ".MuiOutlinedInput-input": {
+                      paddingRight: "14px !important",
+                      fontSize: "14px"
+                    },
+                  }}
+                >
+                  {[10, 20, 30].map((option) => (
+                    <MenuItem key={option} value={option}>
+                      {option} per page
+                    </MenuItem>
+                  ))}
+                </Select>
+                <Typography variant="body2" mx={1}>
+                  of {continuationReportData.total}
+                </Typography>
+                <Pagination
+                  count={Math.ceil(continuationReportData.total / rowsPerPage)}
+                  page={page}
+                  onChange={handlePageChange}
+                  showFirstButton
+                  showLastButton
+                  sx={{ paddingTop: "1rem" }}
+                />
+              </Box>
+            </>
           ) : (
             <Typography variant="subtitle2" textAlign={"center"} mt={4}>
               -- No Records --

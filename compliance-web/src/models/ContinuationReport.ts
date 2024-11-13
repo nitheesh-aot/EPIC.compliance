@@ -20,6 +20,11 @@ interface CRKeys {
   is_active: boolean;
 }
 
+export interface ContinuationReportPaginated {
+  items: ContinuationReport[];
+  total: number
+}
+
 export interface ContinuationReportFormData {
   dateOfEntry?: Dayjs;
   entry?: {
