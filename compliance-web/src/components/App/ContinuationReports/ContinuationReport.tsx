@@ -2,9 +2,6 @@ import {
   Box,
   Button,
   InputAdornment,
-  MenuItem,
-  Pagination,
-  Select,
   SelectChangeEvent,
   TextField,
   Typography,
@@ -22,7 +19,8 @@ import ErrorPage from "@/components/Shared/ErrorPage";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppConfig } from "@/utils/config";
 import ComingSoon from "@/components/Shared/ComingSoon";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import ContinuationReportPagination from "./ContinuationReportPagination";
 
 export type ContinuationReportContextType = {
   caseFileId: number;
@@ -51,7 +49,9 @@ export default function ContinuationReport({
 
   const handleOnSubmit = useCallback(
     (submitMsg: string) => {
-      queryClient.invalidateQueries({queryKey: ["continuation-reports", caseFileId]});
+      queryClient.invalidateQueries({
+        queryKey: ["continuation-reports", caseFileId],
+      });
       setClose();
       notify.success(submitMsg);
     },
@@ -70,8 +70,6 @@ export default function ContinuationReport({
     });
   }, [setOpen, handleOnSubmit, caseFileId, contextType, contextId]);
 
-  
-
   const handlePageChange = useCallback(
     (_event: React.ChangeEvent<unknown>, newPage: number) => {
       setPage(newPage);
@@ -79,29 +77,22 @@ export default function ContinuationReport({
     []
   );
 
-  const handlerRowsPerPageChange = (event: SelectChangeEvent) => {
+  const handleRowsPerPageChange = (event: SelectChangeEvent) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(1); // Reset to the first page when rows per page changes
   };
 
   useEffect(() => {
-    queryClient.invalidateQueries({queryKey: ["continuation-reports", caseFileId]});
+    queryClient.invalidateQueries({
+      queryKey: ["continuation-reports", caseFileId],
+    });
   }, [queryClient, caseFileId, page, rowsPerPage]);
-
-  const displayedRows = useMemo(() => {
-    if (!continuationReportData) {
-      return "0 - 0";
-    }
-    const start = rowsPerPage * (page - 1) + 1;
-    const end = Math.min(rowsPerPage * page, continuationReportData.total);
-    return `${start} - ${end}`;
-  }, [continuationReportData, rowsPerPage, page]);
 
   return (
     <Box
       width={"40%"}
       bgcolor={BCDesignTokens.surfaceColorBackgroundLightGray}
-      height={`calc(100vh - ${appHeaderHeight + 198}px)`} // 158px is the height of the FileProfileHeader and the padding
+      height={`calc(100vh - ${appHeaderHeight + 198}px)`}
       p={3}
       pb={2}
     >
@@ -149,43 +140,13 @@ export default function ContinuationReport({
                   crtList={continuationReportData.items}
                 />
               </Box>
-              <Box display={"flex"} alignItems={"baseline"}>
-                <Select
-                  size="small"
-                  value={rowsPerPage.toString()}
-                  variant="outlined"
-                  renderValue={() => displayedRows}
-                  onChange={handlerRowsPerPageChange}
-                  sx={{
-                    backgroundColor: "transparent !important",
-                    height: "2rem",
-                    ".MuiSelect-icon": {
-                      display: "none",
-                    },
-                    ".MuiOutlinedInput-input": {
-                      paddingRight: "14px !important",
-                      fontSize: "14px"
-                    },
-                  }}
-                >
-                  {[10, 20, 30].map((option) => (
-                    <MenuItem key={option} value={option}>
-                      {option} per page
-                    </MenuItem>
-                  ))}
-                </Select>
-                <Typography variant="body2" mx={1}>
-                  of {continuationReportData.total}
-                </Typography>
-                <Pagination
-                  count={Math.ceil(continuationReportData.total / rowsPerPage)}
-                  page={page}
-                  onChange={handlePageChange}
-                  showFirstButton
-                  showLastButton
-                  sx={{ paddingTop: "1rem" }}
-                />
-              </Box>
+              <ContinuationReportPagination
+                page={page}
+                rowsPerPage={rowsPerPage}
+                total={continuationReportData.total}
+                onPageChange={handlePageChange}
+                onRowsPerPageChange={handleRowsPerPageChange}
+              />
             </>
           ) : (
             <Typography variant="subtitle2" textAlign={"center"} mt={4}>
