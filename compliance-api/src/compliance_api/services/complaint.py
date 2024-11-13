@@ -1,5 +1,7 @@
 """Service for managing complaint."""
 
+from datetime import datetime
+
 from flask import g
 
 from compliance_api.auth import auth
@@ -17,8 +19,10 @@ from compliance_api.models.complaint import ComplaintUnapprovedProject as Compla
 from compliance_api.models.db import session_scope
 from compliance_api.services.case_file import CaseFileService
 from compliance_api.services.epic_track_service.track_service import TrackService
-from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
-from compliance_api.utils.enum import PermissionEnum
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
+from compliance_api.utils.enum import ContextEnum, PermissionEnum
+
+from .continuation_report import ContinuationReportService
 
 
 class ComplaintService:
@@ -161,6 +165,12 @@ class ComplaintService:
                 _create_requirement_source_more_details(
                     complaint_data, created_requirement_source.id, session
                 )
+            cr_entry = _create_cr_entry(
+                created_complaint.id,
+                created_complaint.complaint_number,
+                created_complaint.case_file_id,
+            )
+            ContinuationReportService.create(cr_entry, ho_session=session)
         return created_complaint
 
 
@@ -386,7 +396,17 @@ def _create_schedule_b_detail_obj(complaint_data: dict, requirement_id):
 def _get_first_nation(first_nation_id):
     """Set the name of the first nations from epic.track."""
     response = TrackService.get_first_nation_by_id(first_nation_id)
+    return {"id": response.get("id"), "name": response.get("name")}
+
+
+def _create_cr_entry(complaint_id, complaint_no, case_file_id):
+    """Create the continuation report entry."""
     return {
-        "id": response.get("id"),
-        "name": response.get("name")
+        "case_file_id": case_file_id,
+        "text": f"{complaint_no} is created",
+        "rich_text": f"<p>{complaint_no} is created</p>",
+        "date_created": datetime.utcnow().strftime(INPUT_DATE_TIME_FORMAT),
+        "context_type": ContextEnum.COMPLAINT,
+        "context_id": complaint_id,
+        "keys": [{"key": complaint_no, "key_context": ContextEnum.COMPLAINT}],
     }
