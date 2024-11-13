@@ -11,7 +11,10 @@ from compliance_api.models import CaseFileInitiationOption as CaseFileInitiation
 from compliance_api.models import CaseFileOfficer as CaseFileOfficerModel
 from compliance_api.models import CaseFileStatusEnum
 from compliance_api.models.db import session_scope
-from compliance_api.utils.enum import PermissionEnum
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
+from compliance_api.utils.enum import ContextEnum, PermissionEnum
+
+from .continuation_report import ContinuationReportService
 
 
 class CaseFileService:
@@ -48,6 +51,10 @@ class CaseFileService:
             cls.insert_or_update_officers(
                 created_case_file.id, case_file_data.get("officer_ids", []), session
             )
+            cr_entry = _create_cr_entry(
+                created_case_file.id, created_case_file.case_file_number
+            )
+            ContinuationReportService.create(cr_entry, ho_session=session)
         return created_case_file
 
     @classmethod
@@ -167,3 +174,16 @@ def _validate_existence_by_file_number(case_file_number: int, case_file_id: int 
         raise ResourceExistsError(
             f"Case file with the number {case_file_number} exists"
         )
+
+
+def _create_cr_entry(case_file_id, case_file_number):
+    """Create the continuation report entry."""
+    return {
+        "case_file_id": case_file_id,
+        "text": f"{case_file_number} is created",
+        "rich_text": f"<p>{case_file_number} is created</p>",
+        "date_created": datetime.utcnow().strftime(INPUT_DATE_TIME_FORMAT),
+        "context_type": ContextEnum.CASE_FILE,
+        "context_id": case_file_id,
+        "keys": [{"key": case_file_number, "key_context": ContextEnum.CASE_FILE}],
+    }

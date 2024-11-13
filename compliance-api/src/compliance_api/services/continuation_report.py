@@ -5,7 +5,6 @@ from compliance_api.exceptions import PermissionDeniedError
 from compliance_api.models.continuation_report import ContinuationReport as ContinuationReportModel
 from compliance_api.models.continuation_report import ContinuationReportKey as ContinuationReportKeyModel
 from compliance_api.models.db import session_scope
-from compliance_api.services.case_file import CaseFileService
 from compliance_api.utils.enum import PermissionEnum
 
 
@@ -13,16 +12,16 @@ class ContinuationReportService:
     """ContinuationReportService."""
 
     @classmethod
-    def create(cls, report_entry: dict, system_generated=False):
+    def create(cls, report_entry: dict, system_generated=False, ho_session=None):
         """Create continuation report entry."""
         _access_check(report_entry)
         report_entry_obj = _create_report_entry(report_entry, system_generated)
         with session_scope() as session:
             created_entry = ContinuationReportModel.create_entry(
-                report_entry_obj, session
+                report_entry_obj, ho_session or session
             )
             keys = report_entry.get("keys", [])
-            _insert_or_update_keys(created_entry.id, keys, session)
+            _insert_or_update_keys(created_entry.id, keys, ho_session or session)
         return created_entry
 
     @classmethod
@@ -35,6 +34,7 @@ class ContinuationReportService:
 
 def _access_check(report_entry: dict):
     """Access check."""
+    from compliance_api.services.case_file import CaseFileService  # pylint: disable=import-outside-toplevel
     if not auth.has_permission(
         [PermissionEnum.SUPERUSER]
     ) and not CaseFileService.is_logged_user_primary_or_officer(
