@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   InputAdornment,
+  SelectChangeEvent,
   TextField,
   Typography,
 } from "@mui/material";
@@ -18,6 +19,8 @@ import ErrorPage from "@/components/Shared/ErrorPage";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppConfig } from "@/utils/config";
 import ComingSoon from "@/components/Shared/ComingSoon";
+import { useCallback, useEffect, useState } from "react";
+import ContinuationReportPagination from "./ContinuationReportPagination";
 
 export type ContinuationReportContextType = {
   caseFileId: number;
@@ -33,6 +36,8 @@ export default function ContinuationReport({
   const queryClient = useQueryClient();
   const { appHeaderHeight } = useMenuStore();
   const { setOpen, setClose } = useModal();
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const {
     status,
@@ -40,9 +45,20 @@ export default function ContinuationReport({
     isError,
     error,
     isLoading,
-  } = useContinuationReportEntries(caseFileId);
+  } = useContinuationReportEntries(caseFileId, page, rowsPerPage);
 
-  const handleAddNewEntry = () => {
+  const handleOnSubmit = useCallback(
+    (submitMsg: string) => {
+      queryClient.invalidateQueries({
+        queryKey: ["continuation-reports", caseFileId],
+      });
+      setClose();
+      notify.success(submitMsg);
+    },
+    [queryClient, caseFileId, setClose]
+  );
+
+  const handleAddNewEntry = useCallback(() => {
     setOpen({
       content: (
         <ContinuationReportEntryModal
@@ -52,21 +68,31 @@ export default function ContinuationReport({
       ),
       width: "640px",
     });
+  }, [setOpen, handleOnSubmit, caseFileId, contextType, contextId]);
+
+  const handlePageChange = useCallback(
+    (_event: React.ChangeEvent<unknown>, newPage: number) => {
+      setPage(newPage);
+    },
+    []
+  );
+
+  const handleRowsPerPageChange = (event: SelectChangeEvent) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(1); // Reset to the first page when rows per page changes
   };
 
-  const handleOnSubmit = (submitMsg: string) => {
+  useEffect(() => {
     queryClient.invalidateQueries({
       queryKey: ["continuation-reports", caseFileId],
     });
-    setClose();
-    notify.success(submitMsg);
-  };
+  }, [queryClient, caseFileId, page, rowsPerPage]);
 
   return (
     <Box
       width={"40%"}
       bgcolor={BCDesignTokens.surfaceColorBackgroundLightGray}
-      height={`calc(100vh - ${appHeaderHeight + 198}px)`} // 158px is the height of the FileProfileHeader and the padding
+      height={`calc(100vh - ${appHeaderHeight + 198}px)`}
       p={3}
       pb={2}
     >
@@ -102,15 +128,26 @@ export default function ContinuationReport({
             <LoadingPage isLoading={isLoading} />
           ) : isError ? (
             <ErrorPage error={error} hideBackButton />
-          ) : continuationReportData.length ? (
-            <Box
-              sx={{
-                height: `calc(100vh - ${appHeaderHeight + 302}px)`, // 302px is the height above the timeline
-                overflow: "overlay",
-              }}
-            >
-              <ContinuationReportTimeline crtList={continuationReportData} />
-            </Box>
+          ) : continuationReportData.items.length ? (
+            <>
+              <Box
+                sx={{
+                  height: `calc(100vh - ${appHeaderHeight + 302 + 48}px)`, // 302px is the height above the timeline, 64px is height of pagination
+                  overflow: "scroll",
+                }}
+              >
+                <ContinuationReportTimeline
+                  crtList={continuationReportData.items}
+                />
+              </Box>
+              <ContinuationReportPagination
+                page={page}
+                rowsPerPage={rowsPerPage}
+                total={continuationReportData.total}
+                onPageChange={handlePageChange}
+                onRowsPerPageChange={handleRowsPerPageChange}
+              />
+            </>
           ) : (
             <Typography variant="subtitle2" textAlign={"center"} mt={4}>
               -- No Records --
