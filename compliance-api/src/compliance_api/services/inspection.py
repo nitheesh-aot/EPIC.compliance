@@ -1,5 +1,7 @@
 """Service for managing Inspection."""
 
+from datetime import datetime
+
 from flask import g
 
 from compliance_api.auth import auth
@@ -18,10 +20,10 @@ from compliance_api.models import InspectionUnapprovedProject as InspectionUnapp
 from compliance_api.models import IRStatusOption as IRStatusOptionModel
 from compliance_api.models.db import session_scope
 from compliance_api.models.inspection.inspection_enum import InspectionAttendanceOptionEnum, InspectionStatusEnum
-from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
-from compliance_api.utils.enum import PermissionEnum
+from compliance_api.services.case_file import CaseFileService
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
+from compliance_api.utils.enum import ContextEnum, PermissionEnum
 
-from .case_file import CaseFileService
 from .epic_track_service.track_service import TrackService
 
 
@@ -144,6 +146,7 @@ class InspectionService:
     @classmethod
     def create(cls, inspection_data: dict):
         """Create inspection."""
+        from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
         _access_check_create(inspection_data)
         inspection_obj = _create_inspection_object(inspection_data)
         with session_scope() as session:
@@ -204,6 +207,12 @@ class InspectionService:
                 InspectionOtherAttendanceModel.create_attendance(
                     other_attendance_obj, session
                 )
+            cr_entry = _create_cr_entry(
+                created_inspection.id,
+                created_inspection.ir_number,
+                created_inspection.case_file_id,
+            )
+            ContinuationReportService.create(cr_entry, ho_session=session)
         return created_inspection
 
     @classmethod
@@ -263,32 +272,14 @@ class InspectionService:
             )
         return updated_case_file
 
-# def _is_access_allowed(case_file_id, inspection_id=None):
-#     """Check if the given user is an assigned user of the given inspection."""
-#     auth_user_guid = g.token_info["preferred_username"]
-#     if _is_primary_in_case_file(case_file_id):
-#         return True
-#     #  or should be primary or other officer of the inspection
-#     if inspection_id:
-#         inspection = InspectionModel.find_by_id(inspection_id)
-#         # Check if the user is the primary officer or part of other officers
-#         is_primary_or_assigned_on_inspection = (
-#             inspection.primary_officer.auth_user_guid == auth_user_guid
-#             or any(
-#                 officer.officer.auth_user_guid == auth_user_guid
-#                 for officer in inspection.other_officers
-#             )
-#         )
-#         if is_primary_or_assigned_on_inspection:
-#             return True
-#     return False
-
 
 def _access_check_create(inspection_data: dict):
     """Access check."""
     if not auth.has_permission(
         [PermissionEnum.SUPERUSER]
-    ) and not CaseFileService.is_logged_user_primary_or_officer(inspection_data.get("case_file_id")):
+    ) and not CaseFileService.is_logged_user_primary_or_officer(
+        inspection_data.get("case_file_id")
+    ):
         raise PermissionDeniedError(
             "You don't have the correct permission to perform this operation."
         )
@@ -459,4 +450,17 @@ def _create_inspection_other_attendance_object(
         "municipal": inspection_data.get("attendance_municipal"),
         "other": inspection_data.get("attendance_other"),
         "inspection_id": inspection_id,
+    }
+
+
+def _create_cr_entry(inspection_id, ir_no, case_file_id):
+    """Create the continuation report entry."""
+    return {
+        "case_file_id": case_file_id,
+        "text": f"{ir_no} is created",
+        "rich_text": f"<p>{ir_no} is created</p>",
+        "date_created": datetime.utcnow().strftime(INPUT_DATE_TIME_FORMAT),
+        "context_type": ContextEnum.INSPECTION,
+        "context_id": inspection_id,
+        "keys": [{"key": ir_no, "key_context": ContextEnum.INSPECTION}],
     }

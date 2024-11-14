@@ -88,8 +88,8 @@ class ContinuationReports(Resource):
         return ContinuationReportSchema().dump(created_entry), HTTPStatus.CREATED
 
 
-@cors_preflight("OPTIONS, PATCH")
-@API.route("/<int:entry_id>", methods=["PATCH", "OPTIONS"])
+@cors_preflight("OPTIONS, DELETE, PATCH")
+@API.route("/<int:entry_id>", methods=["PATCH", "DELETE", "OPTIONS"])
 @API.doc(params={"entry_id": "The unique identifier of continuation report entry"})
 class ContinuationReport(Resource):
     """Resource for managing a single continuation report entry."""
