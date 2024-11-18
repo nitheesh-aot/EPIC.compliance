@@ -26,12 +26,14 @@ export type ContinuationReportContextType = {
   caseFileId: number;
   contextType: string;
   contextId: number;
+  allowCreateEntry?: boolean;
 };
 
 export default function ContinuationReport({
   caseFileId,
   contextType,
   contextId,
+  allowCreateEntry,
 }: ContinuationReportContextType) {
   const queryClient = useQueryClient();
   const { appHeaderHeight } = useMenuStore();
@@ -102,15 +104,17 @@ export default function ContinuationReport({
         <>
           <Box display={"flex"} justifyContent={"space-between"} mb={2}>
             <Typography variant="h6">Continuation Report</Typography>
-            <Button
-              variant="text"
-              color="primary"
-              size="small"
-              onClick={handleAddNewEntry}
-              startIcon={<AddRounded />}
-            >
-              New Entry
-            </Button>
+            {allowCreateEntry && (
+              <Button
+                variant="text"
+                color="primary"
+                size="small"
+                onClick={handleAddNewEntry}
+                startIcon={<AddRounded />}
+              >
+                New Entry
+              </Button>
+            )}
           </Box>
           <TextField
             variant="outlined"

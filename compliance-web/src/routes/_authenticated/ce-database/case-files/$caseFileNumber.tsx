@@ -12,10 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
 import { CR_CONTEXT_TYPE } from "@/utils/constants";
-import {
-  useIsRolesAllowed,
-  KC_USER_GROUPS,
-} from "@/hooks/useAuthorization";
+import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/case-files/$caseFileNumber"
@@ -40,6 +37,12 @@ function CaseFileProfilePage() {
   const showEditCaseFileButton = useIsRolesAllowed(
     [KC_USER_GROUPS.SUPERUSER],
     caseFileData?.primary_officer ? [caseFileData.primary_officer] : []
+  );
+  const showCreateCREntryButton = useIsRolesAllowed(
+    [KC_USER_GROUPS.SUPERUSER],
+    caseFileData
+      ? [...[caseFileData.primary_officer], ...caseFileData.officers]
+      : []
   );
 
   // Handlers
@@ -94,6 +97,7 @@ function CaseFileProfilePage() {
           caseFileId={caseFileData.id}
           contextType={CR_CONTEXT_TYPE.CASEFILE}
           contextId={caseFileData.id}
+          allowCreateEntry={showCreateCREntryButton}
         />
       </Box>
     </>

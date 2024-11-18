@@ -38,6 +38,10 @@ function ComplaintProfilePage() {
     [KC_USER_GROUPS.SUPERUSER],
     complaintData?.primary_officer ? [complaintData.primary_officer] : []
   );
+  const showCreateCREntryButton = useIsRolesAllowed(
+    [KC_USER_GROUPS.SUPERUSER],
+    complaintData?.primary_officer ? [complaintData.primary_officer] : []
+  );
 
   const handleOpenEditModal = () => {
     setOpen({
@@ -82,6 +86,7 @@ function ComplaintProfilePage() {
               caseFileId={complaintData.case_file_id}
               contextType={CR_CONTEXT_TYPE.COMPLAINT}
               contextId={complaintData.id}
+              allowCreateEntry={showCreateCREntryButton}
             />
           </Box>
         </>

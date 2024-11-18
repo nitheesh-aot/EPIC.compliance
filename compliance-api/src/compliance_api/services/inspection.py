@@ -117,6 +117,7 @@ class InspectionService:
                         {
                             "id": officer.officer.id,
                             "name": f"{officer.officer.first_name} {officer.officer.last_name}",
+                            "auth_user_guid": officer.officer.auth_user_guid
                         }
                         for officer in officers
                     ]

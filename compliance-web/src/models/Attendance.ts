@@ -1,5 +1,6 @@
 import { Agency } from "./Agency";
 import { FirstNation } from "./FirstNation";
+import { StaffUser } from "./Staff";
 
 export interface Attendance {
   id: string;
@@ -11,5 +12,5 @@ export interface InspectionAttendance {
   inspection_id: number;
   attendance_option_id: number;
   attendance_option: Attendance;
-  data: Agency[] | FirstNation[] | string | null;
+  data: Agency[] | FirstNation[] | StaffUser[] | string | null;
 }
