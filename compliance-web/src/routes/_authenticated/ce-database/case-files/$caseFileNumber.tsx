@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import { Box } from "@mui/material";
 import { createFileRoute, useParams } from "@tanstack/react-router";
@@ -12,6 +12,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
 import { CR_CONTEXT_TYPE } from "@/utils/constants";
+import {
+  useIsRolesAllowed,
+  KC_USER_GROUPS,
+} from "@/hooks/useAuthorization";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/case-files/$caseFileNumber"
@@ -33,51 +37,65 @@ function CaseFileProfilePage() {
     isLoading,
   } = useCaseFileByNumber(caseFileNumber!);
 
-  const handleOpenEditModal = () => {
+  const showEditCaseFileButton = useIsRolesAllowed(
+    [KC_USER_GROUPS.SUPERUSER],
+    caseFileData?.primary_officer ? [caseFileData.primary_officer] : []
+  );
+
+  // Handlers
+  const handleOnSubmit = useCallback(
+    (submitMsg: string) => {
+      queryClient.invalidateQueries({
+        queryKey: ["case-file", caseFileNumber],
+      });
+      setClose();
+      notify.success(submitMsg);
+    },
+    [queryClient, caseFileNumber, setClose]
+  );
+
+  const handleOpenEditModal = useCallback(() => {
     setOpen({
       content: (
         <CaseFileDrawer onSubmit={handleOnSubmit} caseFile={caseFileData} />
       ),
       width: "718px",
     });
-  };
+  }, [caseFileData, handleOnSubmit, setOpen]);
 
-  const handleOnSubmit = (submitMsg: string) => {
-    queryClient.invalidateQueries({ queryKey: ["case-file", caseFileNumber] });
-    setClose();
-    notify.success(submitMsg);
-  };
+  // Error Handling
+  if (isError) {
+    return <ErrorPage error={error} />;
+  }
 
-  if (isError) return <ErrorPage error={error} />;
+  // Loading State
+  if (!caseFileNumber || status === "pending") {
+    return <LoadingPage isLoading={isLoading} />;
+  }
 
   return (
     <>
-      {!caseFileNumber || status === "pending" ? (
-        <LoadingPage isLoading={isLoading} />
-      ) : (
-        <>
-          <FileProfileHeader
-            fileNumber={caseFileNumber}
-            status={caseFileData.case_file_status}
-            breadcrumbs={[
-              { label: "Case Files", to: "/ce-database/case-files" },
-              { label: caseFileNumber },
-            ]}
-            showInspectionComplaintButton={true}
-          />
-          <Box p={"1rem 1rem 1.25rem 3.75rem"} display={"flex"} gap={3}>
-            <CaseFileGeneralInformation
-              caseFileData={caseFileData}
-              onEdit={handleOpenEditModal}
-            />
-            <ContinuationReport
-              caseFileId={caseFileData.id}
-              contextType={CR_CONTEXT_TYPE.CASEFILE}
-              contextId={caseFileData.id}
-            />
-          </Box>
-        </>
-      )}
+      <FileProfileHeader
+        fileNumber={caseFileNumber}
+        status={caseFileData.case_file_status}
+        breadcrumbs={[
+          { label: "Case Files", to: "/ce-database/case-files" },
+          { label: caseFileNumber },
+        ]}
+        showInspectionComplaintButton
+      />
+      <Box p="1rem 1rem 1.25rem 3.75rem" display="flex" gap={3}>
+        <CaseFileGeneralInformation
+          caseFileData={caseFileData}
+          onEdit={handleOpenEditModal}
+          allowEdit={showEditCaseFileButton}
+        />
+        <ContinuationReport
+          caseFileId={caseFileData.id}
+          contextType={CR_CONTEXT_TYPE.CASEFILE}
+          contextId={caseFileData.id}
+        />
+      </Box>
     </>
   );
 }

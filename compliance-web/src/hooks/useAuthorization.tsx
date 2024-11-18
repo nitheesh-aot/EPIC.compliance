@@ -1,3 +1,4 @@
+import { StaffUser } from "@/models/Staff";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import { useAuth } from "react-oidc-context";
 
@@ -12,16 +13,26 @@ export const KC_USER_GROUPS = {
   VIEWER: "/COMPLIANCE/VIEWER",
 };
 
-export const useAccessTokenGroups = () => {
-  const auth = useAuth();
-  if (auth.user?.access_token) {
-    const decodedToken = jwtDecode<CustomJwtPayload>(auth.user?.access_token);
-    return decodedToken.groups;
+export const useIsRolesAllowed = (
+  roles: string[],
+  users?: StaffUser[]
+): boolean => {
+  const { user: authUser } = useAuth();
+  
+  if (!authUser?.access_token) {
+    return false;
   }
-  return [];
-};
 
-export const useIsRolesAllowed = (roles: string[]): boolean => {
-  const groups = useAccessTokenGroups();
-  return roles.some((role) => groups?.includes(role));
-}
+  const { groups = [] } = jwtDecode<CustomJwtPayload>(authUser.access_token);
+
+  // Check if the user has any of the required roles
+  const isRoleAllowed = roles.some((role) => groups.includes(role));
+
+  // Check if the logged-in user is part of the provided users list
+  const isUserAllowed =
+    users?.some(
+      (user) => user.auth_user_guid === authUser?.profile?.preferred_username
+    ) ?? false;
+
+  return isRoleAllowed || isUserAllowed;
+};

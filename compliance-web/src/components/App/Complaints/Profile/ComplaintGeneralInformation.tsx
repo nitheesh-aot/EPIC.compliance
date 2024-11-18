@@ -14,11 +14,12 @@ import {
 interface ComplaintGeneralInformationProps {
   complaintData: Complaint;
   onEdit: () => void;
+  allowEdit?: boolean;
 }
 
 const ComplaintGeneralInformation: React.FC<
   ComplaintGeneralInformationProps
-> = ({ complaintData, onEdit }) => {
+> = ({ complaintData, onEdit, allowEdit }) => {
   const { appHeaderHeight } = useMenuStore();
 
   const generalProperties = [
@@ -147,15 +148,17 @@ const ComplaintGeneralInformation: React.FC<
     >
       <Box display={"flex"} justifyContent={"space-between"} my={3}>
         <Typography variant="h6">General Information</Typography>
-        <Button
-          variant="text"
-          color="primary"
-          size="small"
-          onClick={onEdit}
-          startIcon={<EditRounded />}
-        >
-          Edit
-        </Button>
+        {allowEdit && (
+          <Button
+            variant="text"
+            color="primary"
+            size="small"
+            onClick={onEdit}
+            startIcon={<EditRounded />}
+          >
+            Edit
+          </Button>
+        )}
       </Box>
       <Box display={"flex"} flexDirection={"column"}>
         {generalProperties.map((property) => (
