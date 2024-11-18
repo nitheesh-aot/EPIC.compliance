@@ -3,6 +3,7 @@ import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import PageLink from "@/components/Shared/PageLink";
+import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
 import { useComplaintsData } from "@/hooks/useComplaints";
 import { Complaint } from "@/models/Complaint";
 import { useDrawer } from "@/store/drawerStore";
@@ -24,6 +25,9 @@ export function Complaints() {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
   const { data: complaintsList, isLoading } = useComplaintsData();
+  const showCreateComplaintButton = useIsRolesAllowed([
+    KC_USER_GROUPS.SUPERUSER,
+  ]);
 
   const [projectList, setProjectList] = useState<string[]>([]);
   const [topicList, setTopicList] = useState<string[]>([]);
@@ -244,6 +248,7 @@ export function Complaints() {
         tableTitle: "Complaints",
         tableAddRecordButtonText: "Complaint",
         tableAddRecordFunction: () => handleOpenDrawer(),
+        tableAddRecordButtonVisibility: showCreateComplaintButton,
       }}
     />
   );
