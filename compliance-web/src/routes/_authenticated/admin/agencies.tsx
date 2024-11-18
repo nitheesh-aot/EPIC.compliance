@@ -2,7 +2,9 @@ import AgencyModal from "@/components/App/Agencies/AgencyModal";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import Unauthorized from "@/components/Shared/Unauthorized";
 import { useAgenciesData, useDeleteAgency } from "@/hooks/useAgencies";
+import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
 import { Agency } from "@/models/Agency";
 import { useModal } from "@/store/modalStore";
 import { notify } from "@/store/snackbarStore";
@@ -14,10 +16,23 @@ import { MRT_ColumnDef } from "material-react-table";
 import { useMemo } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin/agencies")({
-  component: Agencies,
+  component: AuthorizedAgenciesComponent,
 });
 
 const AGENCY_MODAL_WIDTH = "520px";
+
+function AuthorizedAgenciesComponent() {
+  const isRouteAllowed = useIsRolesAllowed([
+    KC_USER_GROUPS.SUPERUSER,
+    KC_USER_GROUPS.ADMIN,
+  ]);
+
+  if (isRouteAllowed) {
+    return <Agencies />;
+  } else {
+    return <Unauthorized />;
+  }
+}
 
 export function Agencies() {
   const queryClient = useQueryClient();
@@ -134,6 +149,7 @@ export function Agencies() {
           tableTitle: "Agencies",
           tableAddRecordButtonText: "Agency",
           tableAddRecordFunction: () => handleOpenModal(),
+          tableAddRecordButtonVisibility: true,
         }}
       />
     </>
