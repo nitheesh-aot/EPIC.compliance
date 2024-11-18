@@ -8,7 +8,6 @@ import {
   Outlet,
   useMatches,
 } from "@tanstack/react-router";
-// import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { useRef, useEffect } from "react";
 import { AuthContextProps } from "react-oidc-context";
 
@@ -64,7 +63,6 @@ function Layout() {
           <Outlet />
         </Box>
       </Box>
-      {/* <TanStackRouterDevtools /> */}
     </>
   );
 }

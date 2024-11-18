@@ -3,6 +3,7 @@ import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import PageLink from "@/components/Shared/PageLink";
+import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
 import { useCaseFilesData } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
 import { useDrawer } from "@/store/drawerStore";
@@ -24,6 +25,10 @@ export function CaseFiles() {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
   const { data: caseFilesList, isLoading } = useCaseFilesData();
+  const showCreateCaseFileButton = useIsRolesAllowed([
+    KC_USER_GROUPS.USER,
+    KC_USER_GROUPS.SUPERUSER,
+  ]);
 
   const createUniqueFilterList = useCallback(
     (key: keyof CaseFile, subKey?: string): string[] => {
@@ -220,6 +225,7 @@ export function CaseFiles() {
           tableTitle: "Case Files",
           tableAddRecordButtonText: "Case File",
           tableAddRecordFunction: handleOpenModal,
+          tableAddRecordButtonVisibility: showCreateCaseFileButton
         }}
       />
     </>
