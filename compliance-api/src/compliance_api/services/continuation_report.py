@@ -1,7 +1,10 @@
 """ContinuationReport Service."""
 
+from flask import g
+
 from compliance_api.auth import auth
 from compliance_api.exceptions import PermissionDeniedError
+from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.continuation_report import ContinuationReport as ContinuationReportModel
 from compliance_api.models.continuation_report import ContinuationReportKey as ContinuationReportKeyModel
 from compliance_api.models.db import session_scope
@@ -25,6 +28,35 @@ class ContinuationReportService:
         return created_entry
 
     @classmethod
+    def update(cls, entry_id, report_entry: dict):
+        """Update continuation report entry."""
+        entry = ContinuationReportModel.find_by_id(entry_id)
+        if not entry:
+            return None
+        _access_check_update_delete(entry.case_file_id, entry.created_by)
+        with session_scope() as session:
+            updated_entry = ContinuationReportModel.update_entry(
+                entry_id, report_entry, session
+            )
+            keys = report_entry.get("keys", [])
+            _insert_or_update_keys(entry_id, keys, session)
+        return updated_entry
+
+    @classmethod
+    def delete(cls, entry_id):
+        """Delete continuation report entry."""
+        entry = ContinuationReportModel.find_by_id(entry_id)
+        _access_check_update_delete(entry.case_file_id, entry.created_by)
+        if not entry:
+            return None
+        with session_scope() as session:
+            deleted_entry = ContinuationReportModel.update_entry(
+                entry_id, {"is_deleted": True, "is_active": False}, session
+            )
+            _insert_or_update_keys(entry_id, [], session)
+        return deleted_entry
+
+    @classmethod
     def get_by_case_file_id(cls, case_file_id, page_no, page_size, search_text):
         """Get all crs by case file id."""
         return ContinuationReportModel.get_by_case_file(
@@ -34,35 +66,55 @@ class ContinuationReportService:
 
 def _access_check(report_entry: dict):
     """Access check."""
-    from compliance_api.services.case_file import CaseFileService  # pylint: disable=import-outside-toplevel
     if not auth.has_permission(
         [PermissionEnum.SUPERUSER]
-    ) and not CaseFileService.is_logged_user_primary_or_officer(
-        report_entry.get("case_file_id")
-    ):
+    ) and not _is_logged_user_primary_or_officer(report_entry.get("case_file_id")):
         raise PermissionDeniedError(
             "You don't have the correct permission to perform this operation."
         )
 
 
+def _access_check_update_delete(case_file_id, created_by):
+    """Access check for update."""
+    auth_user_guid = g.token_info["preferred_username"]
+    if auth.has_permission([PermissionEnum.SUPERUSER]):
+        return
+    if auth_user_guid == created_by and _is_logged_user_primary_or_officer(
+        case_file_id
+    ):
+        return
+    raise PermissionDeniedError(
+        "You don't have the correct permission to perform this operation."
+    )
+
+
+def _is_logged_user_primary_or_officer(case_file_id):
+    """Check to see if the given user is primary or other officer in the case file."""
+    auth_user_guid = g.token_info["preferred_username"]
+    case_file = CaseFileModel.find_by_id(case_file_id)
+    #  The logged in user should be primary or officer in the associated
+    #  case file
+    return case_file.primary_officer.auth_user_guid == auth_user_guid or any(
+        officer.officer.auth_user_guid == auth_user_guid
+        for officer in case_file.case_file_officers
+    )
+
+
 def _insert_or_update_keys(report_id, keys, session=None):
     """Insert or update keys for continuatino report."""
-    if keys:
-        existing_keys = ContinuationReportKeyModel.get_by_report_id(report_id)
-        existing_keys = {
-            entry.key for entry in existing_keys if entry.is_active is True
-        }
+    existing_keys = ContinuationReportKeyModel.get_by_report_id(report_id)
+    existing_keys = {entry.key for entry in existing_keys if entry.is_active is True}
 
-        new_keys = {key.get("key") for key in keys}
-        keys_to_be_deleted = existing_keys.difference(new_keys)
-        keysto_be_added = new_keys.difference(existing_keys)
-        if keys_to_be_deleted:
-            ContinuationReportKeyModel.bulk_delete(
-                report_id, list(keys_to_be_deleted), session
-            )
-        if keysto_be_added:
-            key_objects = [key for key in keys if key.get("key") in keysto_be_added]
-            ContinuationReportKeyModel.bulk_insert(report_id, key_objects, session)
+    new_keys = {key.get("key") for key in keys}
+    keys_to_be_deleted = existing_keys.difference(new_keys)
+    keysto_be_added = new_keys.difference(existing_keys)
+    if keys_to_be_deleted:
+        ContinuationReportKeyModel.bulk_delete(
+            report_id, list(keys_to_be_deleted), session
+        )
+    if keysto_be_added:
+        key_objects = [key for key in keys if key.get("key") in keysto_be_added]
+        ContinuationReportKeyModel.bulk_insert(report_id, key_objects, session)
 
 
 def _create_report_entry(report_entry_data: dict):

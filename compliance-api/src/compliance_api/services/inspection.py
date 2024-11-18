@@ -21,10 +21,10 @@ from compliance_api.models import InspectionUnapprovedProject as InspectionUnapp
 from compliance_api.models import IRStatusOption as IRStatusOptionModel
 from compliance_api.models.db import session_scope
 from compliance_api.models.inspection.inspection_enum import InspectionAttendanceOptionEnum, InspectionStatusEnum
+from compliance_api.services.case_file import CaseFileService
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
 from compliance_api.utils.enum import ContextEnum, PermissionEnum
 
-from .continuation_report import ContinuationReportService
 from .epic_track_service.track_service import TrackService
 
 
@@ -147,6 +147,8 @@ class InspectionService:
     @classmethod
     def create(cls, inspection_data: dict):
         """Create inspection."""
+        from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
+
         _access_check_create(inspection_data)
         inspection_obj = _create_inspection_object(inspection_data)
         with session_scope() as session:
@@ -275,8 +277,6 @@ class InspectionService:
 
 def _access_check_create(inspection_data: dict):
     """Access check."""
-    from .case_file import CaseFileService  # pylint: disable=import-outside-toplevel
-
     if not auth.has_permission(
         [PermissionEnum.SUPERUSER]
     ) and not CaseFileService.is_logged_user_primary_or_officer(
@@ -327,7 +327,7 @@ def _set_inspection_project_parameters(inspection):
         )
         if not status:
             raise BusinessError(
-                f"No status found with ID {inspection.project_status_id}"
+                f"No status found with ID {inspection.project_status_id}", 500
             )
         setattr(inspection, "project_status", status)
     return inspection
