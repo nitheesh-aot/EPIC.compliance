@@ -14,8 +14,6 @@ from compliance_api.models.db import session_scope
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 from compliance_api.utils.enum import ContextEnum, PermissionEnum
 
-from .continuation_report import ContinuationReportService
-
 
 class CaseFileService:
     """CaseFile Service."""
@@ -44,6 +42,7 @@ class CaseFileService:
     @classmethod
     def create(cls, case_file_data: dict):
         """Create case file."""
+        from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
         case_file_obj = _create_case_file_object(case_file_data)
         _validate_existence_by_file_number(case_file_obj.get("case_file_number", None))
         with session_scope() as session:
