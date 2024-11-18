@@ -27,7 +27,6 @@ from .inspection import (
     InspectionStatusEnum, InspectionType, InspectionTypeOption, InspectionUnapprovedProject, IRStatusOption)
 from .position import Position
 from .project import Project
-from .project_status import ProjectStatusOption
 from .requirement_source import RequirementSource
 from .staff_user import StaffUser
 from .topic import Topic

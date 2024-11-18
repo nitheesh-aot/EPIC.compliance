@@ -5,7 +5,8 @@ from datetime import datetime
 from flask import g
 
 from compliance_api.auth import auth
-from compliance_api.exceptions import PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError
+from compliance_api.exceptions import (
+    BusinessError, PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError)
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionAgency as InspectionAgencyModel
 from compliance_api.models import InspectionAttendance as InspectionAttendanceModel
@@ -275,6 +276,7 @@ class InspectionService:
 def _access_check_create(inspection_data: dict):
     """Access check."""
     from .case_file import CaseFileService  # pylint: disable=import-outside-toplevel
+
     if not auth.has_permission(
         [PermissionEnum.SUPERUSER]
     ) and not CaseFileService.is_logged_user_primary_or_officer(
@@ -313,6 +315,21 @@ def _set_inspection_project_parameters(inspection):
         setattr(inspection, "type", project.type)
         setattr(inspection, "sub_type", project.sub_type)
         setattr(inspection, "regulated_party", project.regulated_party)
+    if inspection.project_status_id:
+        project_statuses = TrackService.get_project_statuses()
+        status = next(
+            (
+                stat
+                for stat in project_statuses
+                if stat["id"] == inspection.project_status_id
+            ),
+            None,
+        )
+        if not status:
+            raise BusinessError(
+                f"No status found with ID {inspection.project_status_id}"
+            )
+        setattr(inspection, "project_status", status)
     return inspection
 
 

@@ -23,9 +23,21 @@ class TrackService:
         return project_response.json()
 
     @staticmethod
+    def get_project_statuses():
+        """Return the project statuses from track."""
+        project_status_response = _request_track_service(
+            "project-states?components=compliance"
+        )
+        if project_status_response.status_code != 200:
+            raise BusinessError("Error finding project statuses")
+        return project_status_response.json()
+
+    @staticmethod
     def get_first_nation_by_id(first_nation_id: int):
         """Return firstnation by id."""
-        first_nation_response = _request_track_service(f"indigenous-nations/{first_nation_id}")
+        first_nation_response = _request_track_service(
+            f"indigenous-nations/{first_nation_id}"
+        )
         if first_nation_response.status_code != 200:
             raise BusinessError(
                 f"Error finding the first nation with ID {first_nation_id} from EPIC.track server"
