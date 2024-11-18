@@ -141,6 +141,7 @@ export function Topics() {
           tableTitle: "Topics",
           tableAddRecordButtonText: "Topic",
           tableAddRecordFunction: () => handleOpenModal(),
+          tableAddRecordButtonVisibility: true,
         }}
       />
     </>

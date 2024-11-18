@@ -245,6 +245,7 @@ export function Staff() {
           tableTitle: "Staff",
           tableAddRecordButtonText: "Staff Member",
           tableAddRecordFunction: () => handleAddStaffModal(),
+          tableAddRecordButtonVisibility: true,
         }}
       />
     </>

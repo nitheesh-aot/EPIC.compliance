@@ -30,6 +30,7 @@ describe("MasterDataTable Component", () => {
         tableTitle: "User Data",
         tableAddRecordButtonText: "Add User",
         tableAddRecordFunction: addRecordFunction,
+        tableAddRecordButtonVisibility: true,
       },
       enableExport: true,
       tableName: "UserTable",
