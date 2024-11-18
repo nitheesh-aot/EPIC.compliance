@@ -15,10 +15,10 @@ class ContinuationReportService:
     """ContinuationReportService."""
 
     @classmethod
-    def create(cls, report_entry: dict, system_generated=False, ho_session=None):
+    def create(cls, report_entry: dict, ho_session=None):
         """Create continuation report entry."""
         _access_check(report_entry)
-        report_entry_obj = _create_report_entry(report_entry, system_generated)
+        report_entry_obj = _create_report_entry(report_entry)
         with session_scope() as session:
             created_entry = ContinuationReportModel.create_entry(
                 report_entry_obj, ho_session or session
@@ -76,7 +76,6 @@ def _access_check(report_entry: dict):
 
 def _access_check_update_delete(case_file_id, created_by):
     """Access check for update."""
-
     auth_user_guid = g.token_info["preferred_username"]
     if auth.has_permission([PermissionEnum.SUPERUSER]):
         return
@@ -118,17 +117,13 @@ def _insert_or_update_keys(report_id, keys, session=None):
         ContinuationReportKeyModel.bulk_insert(report_id, key_objects, session)
 
 
-def _create_report_entry(report_entry_data: dict, sys_generated=False):
+def _create_report_entry(report_entry_data: dict):
     """Create the report entry object."""
     text = report_entry_data.get("text")
-    if sys_generated:
-        rich_text = f"<p>{text}</p>"
-    else:
-        rich_text = report_entry_data.get("rich_text")
     return {
         "case_file_id": report_entry_data.get("case_file_id"),
         "text": text,
-        "rich_text": rich_text,
+        "rich_text": report_entry_data.get("rich_text"),
         "date_created": report_entry_data.get("date_created"),
         "context_type": report_entry_data.get("context_type"),
         "context_id": report_entry_data.get("context_id"),

@@ -90,10 +90,6 @@ class Inspection(BaseModelVersioned):
     inspection_status = Column(Enum(InspectionStatusEnum), nullable=True)
     project_status_id = Column(
         Integer,
-        ForeignKey(
-            "project_status_options.id",
-            name="inspection_project_status_id_project_status_options_id_fkey",
-        ),
         nullable=True,
     )
 
@@ -130,9 +126,6 @@ class Inspection(BaseModelVersioned):
         "IRStatusOption", foreign_keys=[ir_status_id], lazy="joined"
     )
     project = relationship("Project", foreign_keys=[project_id], lazy="joined")
-    project_status = relationship(
-        "ProjectStatusOption", foreign_keys=[project_status_id], lazy="joined"
-    )
     primary_officer = relationship(
         "StaffUser", foreign_keys=[primary_officer_id], lazy="joined"
     )

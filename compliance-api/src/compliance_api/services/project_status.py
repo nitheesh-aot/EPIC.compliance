@@ -1,6 +1,6 @@
 """Service to manage project status."""
 
-from compliance_api.models.project_status import ProjectStatusOption as ProjectStatusOptionModel
+from .epic_track_service.track_service import TrackService
 
 
 class ProjectStatusService:
@@ -9,4 +9,4 @@ class ProjectStatusService:
     @classmethod
     def get_all_project_status_options(cls):
         """Get all project status options."""
-        return ProjectStatusOptionModel.get_all(sort_by="sort_order")
+        return TrackService.get_project_statuses()
