@@ -13,10 +13,25 @@ import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import { useQueryClient } from "@tanstack/react-query";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import Unauthorized from "@/components/Shared/Unauthorized";
+import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
 
 export const Route = createFileRoute("/_authenticated/admin/staff")({
-  component: Staff,
+  component: AuthorizedStaffComponent,
 });
+
+function AuthorizedStaffComponent() {
+  const isRouteAllowed = useIsRolesAllowed([
+    KC_USER_GROUPS.SUPERUSER,
+    KC_USER_GROUPS.ADMIN,
+  ]);
+
+  if (isRouteAllowed) {
+    return <Staff />;
+  } else {
+    return <Unauthorized />;
+  }
+}
 
 const STAFF_MODAL_WIDTH = "520px";
 
