@@ -43,6 +43,7 @@ class CaseFileService:
     def create(cls, case_file_data: dict):
         """Create case file."""
         from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
+
         case_file_obj = _create_case_file_object(case_file_data)
         _validate_existence_by_file_number(case_file_obj.get("case_file_number", None))
         with session_scope() as session:
@@ -53,7 +54,9 @@ class CaseFileService:
             cr_entry = _create_cr_entry(
                 created_case_file.id, created_case_file.case_file_number
             )
-            ContinuationReportService.create(cr_entry, ho_session=session)
+            ContinuationReportService.create(
+                cr_entry, sys_generated=True, ho_session=session
+            )
         return created_case_file
 
     @classmethod
