@@ -117,6 +117,7 @@ export default function ContinuationReport({
             )}
           </Box>
           <TextField
+            disabled
             variant="outlined"
             size="small"
             placeholder="Search"
