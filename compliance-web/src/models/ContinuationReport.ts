@@ -36,10 +36,10 @@ export interface ContinuationReportFormData {
 }
 
 export interface ContinuationReportAPIData {
-  case_file_id: number;
+  case_file_id?: number;
   text: string;
   rich_text: string;
   date_created: string;
-  context_type: string;
-  context_id: number;
+  context_type?: string;
+  context_id?: number;
 }

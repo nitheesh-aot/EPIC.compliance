@@ -16,16 +16,30 @@ const fetchContinuationReportEntries = (
   });
 };
 
-const createContinuationReportEntry = (caseFile: ContinuationReportAPIData) => {
+const createContinuationReportEntry = (crEntry: ContinuationReportAPIData) => {
   return request({
     url: "/continuation-reports",
     method: "post",
-    data: caseFile,
+    data: crEntry,
   });
+};
+
+const updateContinuationReportEntry = ({
+  id,
+  crEntry,
+}: {
+  id: number;
+  crEntry: ContinuationReportAPIData;
+}) => {
+  return request({ url: `/continuation-reports/${id}`, method: "patch", data: crEntry });
 };
 
 export const useCreateContinuationReportEntry = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: createContinuationReportEntry, onSuccess });
+};
+
+export const useUpdateContinuationReportEntry = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: updateContinuationReportEntry, onSuccess });
 };
 
 export const useContinuationReportEntries = (

@@ -8,6 +8,12 @@ import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
 import { Stack, Typography } from "@mui/material";
 import { ContinuationReport } from "@/models/ContinuationReport";
 import ContinuationReportTimelineEntry from "./ContinuationReportTimelineEntry";
+import { BCDesignTokens } from "epic.theme";
+import { useCallback } from "react";
+import { useModal } from "@/store/modalStore";
+import ContinuationReportEntryModal from "./ContinuationReportEntryModal";
+import { useQueryClient } from "@tanstack/react-query";
+import { notify } from "@/store/snackbarStore";
 
 interface ContinuationReportTimelineProps {
   crtList: ContinuationReport[];
@@ -16,6 +22,40 @@ interface ContinuationReportTimelineProps {
 export default function ContinuationReportTimeline({
   crtList,
 }: ContinuationReportTimelineProps) {
+  const queryClient = useQueryClient();
+  const { setOpen, setClose } = useModal();
+
+  const handleOnSubmit = useCallback(
+    (submitMsg: string, caseFileId: number) => {
+      queryClient.invalidateQueries({
+        queryKey: ["continuation-reports", caseFileId],
+      });
+      setClose();
+      notify.success(submitMsg);
+    },
+    [queryClient, setClose]
+  );
+
+  const handleEditEntry = useCallback(
+    (crtEntry: ContinuationReport) => {
+      setOpen({
+        content: (
+          <ContinuationReportEntryModal
+            onSubmit={(msg) => handleOnSubmit(msg, crtEntry.case_file_id)}
+            context={{
+              caseFileId: crtEntry.case_file_id,
+              contextType: crtEntry.context_type,
+              contextId: crtEntry.context_id,
+            }}
+            continuationReportEntry={crtEntry}
+          />
+        ),
+        width: "640px",
+      });
+    },
+    [setOpen, handleOnSubmit]
+  );
+
   return (
     <Timeline
       sx={{
@@ -24,7 +64,18 @@ export default function ContinuationReportTimeline({
       }}
     >
       {crtList.map((crt) => (
-        <TimelineItem key={crt.id} sx={{ minHeight: 54 }}>
+        <TimelineItem
+          key={crt.id}
+          sx={{
+            minHeight: 54,
+            cursor: "pointer",
+            ":hover": {
+              background: BCDesignTokens.themeGray30,
+              borderRadius: BCDesignTokens.layoutBorderRadiusLarge,
+            },
+          }}
+          onClick={() => handleEditEntry(crt)}
+        >
           <TimelineOppositeContent
             color="textSecondary"
             sx={{ padding: "8px 8px 4px 0px", flex: 0.1 }}

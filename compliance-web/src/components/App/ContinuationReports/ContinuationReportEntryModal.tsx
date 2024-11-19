@@ -5,17 +5,24 @@ import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
-import { Dayjs } from "dayjs";
-import { ContinuationReportAPIData, ContinuationReportFormData } from "@/models/ContinuationReport";
+import dayjs, { Dayjs } from "dayjs";
+import {
+  ContinuationReport,
+  ContinuationReportAPIData,
+  ContinuationReportFormData,
+} from "@/models/ContinuationReport";
 import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledRichTextEditor";
 import ControlledDateTimeField from "@/components/Shared/Controlled/ControlledDateTimeField";
-import { useCreateContinuationReportEntry } from "@/hooks/useContinuationReports";
+import {
+  useCreateContinuationReportEntry,
+  useUpdateContinuationReportEntry,
+} from "@/hooks/useContinuationReports";
 import dateUtils from "@/utils/dateUtils";
 import { ContinuationReportContextType } from "./ContinuationReport";
 
 type ContinuationReportEntryModal = {
   onSubmit: (submitMsg: string) => void;
-  continuationReportEntry?: unknown;
+  continuationReportEntry?: ContinuationReport;
   context: ContinuationReportContextType;
 };
 
@@ -50,6 +57,13 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
   const defaultValues = useMemo<ContinuationReportFormData>(() => {
     if (continuationReportEntry) {
       // map existing data
+      return {
+        dateOfEntry: dayjs(continuationReportEntry.date_created),
+        entry: {
+          html: continuationReportEntry.rich_text,
+          text: continuationReportEntry.text,
+        },
+      };
     }
     return initFormData;
   }, [continuationReportEntry]);
@@ -75,21 +89,26 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
   };
 
   const { mutate: addEntry } = useCreateContinuationReportEntry(onSuccess);
-  // const { mutate: updateStaff } = useUpdateStaff(onSuccess);
+  const { mutate: updateEntry } = useUpdateContinuationReportEntry(onSuccess);
 
   const onSubmitHandler = (data: ContinuationReportSchemaType) => {
     const crEntry: ContinuationReportAPIData = {
-      case_file_id: context.caseFileId,
       text: data.entry.text,
       rich_text: data.entry.html,
       date_created: dateUtils.dateToISO(data.dateOfEntry),
-      context_type: context.contextType,
-      context_id: context.contextId
-    }
-    if(continuationReportEntry) {
-      //TODO: Update
+    };
+    if (continuationReportEntry) {
+      updateEntry({
+        id: continuationReportEntry.id,
+        crEntry,
+      });
     } else {
-      addEntry(crEntry)
+      addEntry({
+        ...crEntry,
+        case_file_id: context.caseFileId,
+        context_type: context.contextType,
+        context_id: context.contextId,
+      });
     }
   };
 
@@ -97,17 +116,16 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
     <>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmitHandler)}>
-          <ModalTitleBar title={"Add Entry"} />
+          <ModalTitleBar
+            title={continuationReportEntry ? "Edit Entry" : "Add Entry"}
+          />
           <DialogContent dividers>
             <ControlledDateTimeField
               name="dateOfEntry"
               label="Date and Time"
               sx={{ width: "50%" }}
             />
-            <ControlledRichTextEditor
-              label="Entry"
-              name="entry"
-            />
+            <ControlledRichTextEditor label="Entry" name="entry" />
           </DialogContent>
           <ModalActions
             primaryActionButtonText={
