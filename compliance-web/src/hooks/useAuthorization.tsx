@@ -31,7 +31,7 @@ export const useIsRolesAllowed = (
   // Check if the logged-in user is part of the provided users list
   const isUserAllowed =
     users?.some(
-      (user) => user.auth_user_guid === authUser?.profile?.preferred_username
+      (user) => user?.auth_user_guid === authUser?.profile?.preferred_username
     ) ?? false;
 
   return isRoleAllowed || isUserAllowed;
