@@ -14,18 +14,23 @@ import { useModal } from "@/store/modalStore";
 import ContinuationReportEntryModal from "./ContinuationReportEntryModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { notify } from "@/store/snackbarStore";
+import { useAuth } from "react-oidc-context";
+import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
 
 interface ContinuationReportTimelineProps {
   crtList: ContinuationReport[];
-  isAllowEdit?: boolean;
 }
 
 export default function ContinuationReportTimeline({
   crtList,
-  isAllowEdit,
 }: ContinuationReportTimelineProps) {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
+  const { user: authUser } = useAuth();
+
+  const allowCREntryEdit = useIsRolesAllowed(
+    [KC_USER_GROUPS.SUPERUSER],
+  );
 
   const handleOnSubmit = useCallback(
     (submitMsg: string, caseFileId: number) => {
@@ -69,6 +74,10 @@ export default function ContinuationReportTimeline({
       : {},
   });
 
+  const isCurrentUserEntry = (entryUserId?: string) => {
+    return authUser?.profile?.preferred_username === entryUserId;
+  };
+
   return (
     <Timeline
       sx={{
@@ -79,9 +88,15 @@ export default function ContinuationReportTimeline({
       {crtList.map((crt) => (
         <TimelineItem
           key={crt.id}
-          sx={timelineItemStyles(isAllowEdit && !crt.system_generated)}
+          sx={timelineItemStyles(
+            !crt.system_generated &&
+              (allowCREntryEdit ||
+                isCurrentUserEntry(crt.created_by_user?.auth_user_guid))
+          )}
           onClick={
-            isAllowEdit && !crt.system_generated
+            !crt.system_generated &&
+            (allowCREntryEdit ||
+              isCurrentUserEntry(crt.created_by_user?.auth_user_guid))
               ? () => handleEditEntry(crt)
               : undefined
           }

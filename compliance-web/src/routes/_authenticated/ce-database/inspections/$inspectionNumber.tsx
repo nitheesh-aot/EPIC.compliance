@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { Box } from "@mui/material";
@@ -13,10 +13,7 @@ import ContinuationReport from "@/components/App/ContinuationReports/Continuatio
 import InspectionGeneralInformation from "@/components/App/Inspections/Profile/InspectionGeneralInformation";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
-
-import { AttendanceEnum } from "@/components/App/Inspections/InspectionFormUtils";
 import { CR_CONTEXT_TYPE } from "@/utils/constants";
-import { StaffUser } from "@/models/Staff";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/$inspectionNumber"
@@ -30,26 +27,22 @@ function InspectionProfilePage() {
   const { inspectionNumber } = useParams({ strict: false });
   const { setOpen, setClose } = useDrawer();
 
-  const { status, data: inspectionData, isError, error, isLoading } =
-    useInspectionByNumber(inspectionNumber!);
-
-  const primaryOfficer = inspectionData?.primary_officer || null;
-  const attendingOfficers: StaffUser[] = useMemo(() => {
-    const officers = inspectionData?.inspectionAttendances?.find(
-      (attendance) =>
-        attendance?.attendance_option_id?.toString() === AttendanceEnum.OFFICERS
-    )?.data as StaffUser[];
-    return Array.isArray(officers) ? officers : [];
-  }, [inspectionData]);
+  const {
+    status,
+    data: inspectionData,
+    isError,
+    error,
+    isLoading,
+  } = useInspectionByNumber(inspectionNumber!);
 
   const showEditInspectionButton = useIsRolesAllowed(
     [KC_USER_GROUPS.SUPERUSER],
-    primaryOfficer ? [primaryOfficer] : []
+    inspectionData?.primary_officer ? [inspectionData?.primary_officer] : []
   );
 
   const showCreateCREntryButton = useIsRolesAllowed(
     [KC_USER_GROUPS.SUPERUSER],
-    primaryOfficer ? [primaryOfficer, ...attendingOfficers] : attendingOfficers
+    inspectionData?.primary_officer ? [inspectionData?.primary_officer] : []
   );
 
   // Event handlers
