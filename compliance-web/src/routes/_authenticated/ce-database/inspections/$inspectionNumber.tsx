@@ -1,19 +1,21 @@
+import React, { useMemo, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
+import { createFileRoute, useParams } from "@tanstack/react-router";
+import { Box } from "@mui/material";
 import { useInspectionByNumber } from "@/hooks/useInspections";
 import { useDrawer } from "@/store/drawerStore";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
 import { notify } from "@/store/snackbarStore";
+
+import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
 import FileProfileHeader from "@/components/App/FileProfileHeader";
-import { Box } from "@mui/material";
 import ContinuationReport from "@/components/App/ContinuationReports/ContinuationReport";
-import React from "react";
 import InspectionGeneralInformation from "@/components/App/Inspections/Profile/InspectionGeneralInformation";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
-import { CR_CONTEXT_TYPE } from "@/utils/constants";
-import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
+
 import { AttendanceEnum } from "@/components/App/Inspections/InspectionFormUtils";
+import { CR_CONTEXT_TYPE } from "@/utils/constants";
 import { StaffUser } from "@/models/Staff";
 
 export const Route = createFileRoute(
@@ -28,33 +30,41 @@ function InspectionProfilePage() {
   const { inspectionNumber } = useParams({ strict: false });
   const { setOpen, setClose } = useDrawer();
 
-  const {
-    status,
-    data: inspectionData,
-    isError,
-    error,
-    isLoading,
-  } = useInspectionByNumber(inspectionNumber!);
+  const { status, data: inspectionData, isError, error, isLoading } =
+    useInspectionByNumber(inspectionNumber!);
+
+  const primaryOfficer = inspectionData?.primary_officer || null;
+  const attendingOfficers: StaffUser[] = useMemo(() => {
+    const officers = inspectionData?.inspectionAttendances?.find(
+      (attendance) =>
+        attendance?.attendance_option_id?.toString() === AttendanceEnum.OFFICERS
+    )?.data as StaffUser[];
+    return Array.isArray(officers) ? officers : [];
+  }, [inspectionData]);
 
   const showEditInspectionButton = useIsRolesAllowed(
     [KC_USER_GROUPS.SUPERUSER],
-    inspectionData?.primary_officer ? [inspectionData.primary_officer] : []
-  );
-  const showCreateCREntryButton = useIsRolesAllowed(
-    [KC_USER_GROUPS.SUPERUSER],
-    inspectionData
-      ? [
-          ...[inspectionData.primary_officer],
-          ...(inspectionData.inspectionAttendances.find(
-            (attendance) =>
-              attendance.attendance_option_id.toString() ===
-              AttendanceEnum.OFFICERS
-          )?.data as StaffUser[]),
-        ]
-      : []
+    primaryOfficer ? [primaryOfficer] : []
   );
 
-  const handleOpenEditModal = () => {
+  const showCreateCREntryButton = useIsRolesAllowed(
+    [KC_USER_GROUPS.SUPERUSER],
+    primaryOfficer ? [primaryOfficer, ...attendingOfficers] : attendingOfficers
+  );
+
+  // Event handlers
+  const handleOnSubmit = useCallback(
+    (submitMsg: string) => {
+      queryClient.invalidateQueries({
+        queryKey: ["inspection", inspectionNumber],
+      });
+      setClose();
+      notify.success(submitMsg);
+    },
+    [queryClient, inspectionNumber, setClose]
+  );
+
+  const handleOpenEditModal = useCallback(() => {
     setOpen({
       content: (
         <InspectionDrawer
@@ -64,47 +74,40 @@ function InspectionProfilePage() {
       ),
       width: "1118px",
     });
-  };
+  }, [setOpen, handleOnSubmit, inspectionData]);
 
-  const handleOnSubmit = (submitMsg: string) => {
-    queryClient.invalidateQueries({
-      queryKey: ["inspection", inspectionNumber],
-    });
-    setClose();
-    notify.success(submitMsg);
-  };
+  // Conditional rendering
+  if (isError) {
+    return <ErrorPage error={error} />;
+  }
 
-  if (isError) return <ErrorPage error={error} />;
+  if (!inspectionNumber || status === "pending") {
+    return <LoadingPage isLoading={isLoading} />;
+  }
 
   return (
     <>
-      {!inspectionNumber || status === "pending" ? (
-        <LoadingPage isLoading={isLoading} />
-      ) : (
-        <>
-          <FileProfileHeader
-            fileNumber={inspectionNumber}
-            status={inspectionData.inspection_status}
-            breadcrumbs={[
-              { label: "Inspections", to: "/ce-database/inspections" },
-              { label: inspectionNumber },
-            ]}
-          />
-          <Box p={"1rem 1rem 1.25rem 3.75rem"} display={"flex"} gap={3}>
-            <InspectionGeneralInformation
-              inspectionData={inspectionData}
-              onEdit={handleOpenEditModal}
-              allowEdit={showEditInspectionButton}
-            />
-            <ContinuationReport
-              caseFileId={inspectionData.case_file_id}
-              contextType={CR_CONTEXT_TYPE.INSPECTION}
-              contextId={inspectionData.id}
-              allowCreateEntry={showCreateCREntryButton}
-            />
-          </Box>
-        </>
-      )}
+      <FileProfileHeader
+        fileNumber={inspectionNumber}
+        status={inspectionData.inspection_status}
+        breadcrumbs={[
+          { label: "Inspections", to: "/ce-database/inspections" },
+          { label: inspectionNumber },
+        ]}
+      />
+      <Box p="1rem 1rem 1.25rem 3.75rem" display="flex" gap={3}>
+        <InspectionGeneralInformation
+          inspectionData={inspectionData}
+          onEdit={handleOpenEditModal}
+          allowEdit={showEditInspectionButton}
+        />
+        <ContinuationReport
+          caseFileId={inspectionData.case_file_id}
+          contextType={CR_CONTEXT_TYPE.INSPECTION}
+          contextId={inspectionData.id}
+          allowCreateEntry={showCreateCREntryButton}
+        />
+      </Box>
     </>
   );
 }
