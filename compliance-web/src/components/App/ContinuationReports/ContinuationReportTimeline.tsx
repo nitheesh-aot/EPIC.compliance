@@ -58,6 +58,17 @@ export default function ContinuationReportTimeline({
     [setOpen, handleOnSubmit]
   );
 
+  const timelineItemStyles = (isAllowEdit?: boolean) => ({
+    minHeight: 54,
+    cursor: isAllowEdit ? "pointer" : "default",
+    ":hover": isAllowEdit
+      ? {
+          background: BCDesignTokens.themeGray30,
+          borderRadius: BCDesignTokens.layoutBorderRadiusLarge,
+        }
+      : {},
+  });
+
   return (
     <Timeline
       sx={{
@@ -68,17 +79,12 @@ export default function ContinuationReportTimeline({
       {crtList.map((crt) => (
         <TimelineItem
           key={crt.id}
-          sx={{
-            minHeight: 54,
-            cursor: isAllowEdit ? "pointer" : "default",
-            ":hover": isAllowEdit
-              ? {
-                  background: BCDesignTokens.themeGray30,
-                  borderRadius: BCDesignTokens.layoutBorderRadiusLarge,
-                }
-              : {},
-          }}
-          onClick={isAllowEdit ? () => handleEditEntry(crt) : undefined}
+          sx={timelineItemStyles(isAllowEdit && !crt.system_generated)}
+          onClick={
+            isAllowEdit && !crt.system_generated
+              ? () => handleEditEntry(crt)
+              : undefined
+          }
         >
           <TimelineOppositeContent
             color="textSecondary"
