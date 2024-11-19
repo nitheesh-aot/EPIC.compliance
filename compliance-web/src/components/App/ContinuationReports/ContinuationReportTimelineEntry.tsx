@@ -22,7 +22,8 @@ export default function ContinuationReportTimelineEntry({
     }
   }, []);
 
-  const handleReadMoreClick = () => {
+  const handleReadMoreClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.stopPropagation();
     setIsExpanded(!isExpanded);
   };
 
