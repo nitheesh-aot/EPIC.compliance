@@ -78,8 +78,6 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
   // const { mutate: updateStaff } = useUpdateStaff(onSuccess);
 
   const onSubmitHandler = (data: ContinuationReportSchemaType) => {
-    // eslint-disable-next-line no-console
-    console.log(data);
     const crEntry: ContinuationReportAPIData = {
       case_file_id: context.caseFileId,
       text: data.entry.text,

@@ -4,6 +4,7 @@ import ContinuationReport from "@/components/App/ContinuationReports/Continuatio
 import FileProfileHeader from "@/components/App/FileProfileHeader";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
+import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
 import { useComplaintByNumber } from "@/hooks/useComplaints";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
@@ -32,6 +33,15 @@ function ComplaintProfilePage() {
     error,
     isLoading,
   } = useComplaintByNumber(complaintNumber!);
+
+  const showEditComplaintButton = useIsRolesAllowed(
+    [KC_USER_GROUPS.SUPERUSER],
+    complaintData?.primary_officer ? [complaintData.primary_officer] : []
+  );
+  const showCreateCREntryButton = useIsRolesAllowed(
+    [KC_USER_GROUPS.SUPERUSER],
+    complaintData?.primary_officer ? [complaintData.primary_officer] : []
+  );
 
   const handleOpenEditModal = () => {
     setOpen({
@@ -70,11 +80,13 @@ function ComplaintProfilePage() {
             <ComplaintGeneralInformation
               complaintData={complaintData}
               onEdit={handleOpenEditModal}
+              allowEdit={showEditComplaintButton}
             />
             <ContinuationReport
               caseFileId={complaintData.case_file_id}
               contextType={CR_CONTEXT_TYPE.COMPLAINT}
               contextId={complaintData.id}
+              allowCreateEntry={showCreateCREntryButton}
             />
           </Box>
         </>

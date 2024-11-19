@@ -12,6 +12,9 @@ import InspectionGeneralInformation from "@/components/App/Inspections/Profile/I
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
 import { CR_CONTEXT_TYPE } from "@/utils/constants";
+import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
+import { AttendanceEnum } from "@/components/App/Inspections/InspectionFormUtils";
+import { StaffUser } from "@/models/Staff";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/$inspectionNumber"
@@ -32,6 +35,24 @@ function InspectionProfilePage() {
     error,
     isLoading,
   } = useInspectionByNumber(inspectionNumber!);
+
+  const showEditInspectionButton = useIsRolesAllowed(
+    [KC_USER_GROUPS.SUPERUSER],
+    inspectionData?.primary_officer ? [inspectionData.primary_officer] : []
+  );
+  const showCreateCREntryButton = useIsRolesAllowed(
+    [KC_USER_GROUPS.SUPERUSER],
+    inspectionData
+      ? [
+          ...[inspectionData.primary_officer],
+          ...(inspectionData.inspectionAttendances.find(
+            (attendance) =>
+              attendance.attendance_option_id.toString() ===
+              AttendanceEnum.OFFICERS
+          )?.data as StaffUser[]),
+        ]
+      : []
+  );
 
   const handleOpenEditModal = () => {
     setOpen({
@@ -73,11 +94,13 @@ function InspectionProfilePage() {
             <InspectionGeneralInformation
               inspectionData={inspectionData}
               onEdit={handleOpenEditModal}
+              allowEdit={showEditInspectionButton}
             />
             <ContinuationReport
               caseFileId={inspectionData.case_file_id}
               contextType={CR_CONTEXT_TYPE.INSPECTION}
               contextId={inspectionData.id}
+              allowCreateEntry={showCreateCREntryButton}
             />
           </Box>
         </>

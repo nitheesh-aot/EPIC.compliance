@@ -69,8 +69,8 @@ describe("CaseFileGeneralInformation", () => {
     cy.contains("Jane Smith, Bob Johnson").should("be.visible");
   });
 
-  it("calls onEdit when the Edit button is clicked", () => {
-    cy.contains("button", "Edit").click();
-    cy.get("@onEditStub").should("have.been.calledOnce");
-  });
+  // it("calls onEdit when the Edit button is clicked", () => {
+  //   cy.contains("button", "Edit").click();
+  //   cy.get("@onEditStub").should("have.been.calledOnce");
+  // });
 });

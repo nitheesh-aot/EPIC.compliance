@@ -69,6 +69,7 @@ const NoDataComponent = ({ ...props }) => {
 interface MRT_EAO_TitleToolbarProps {
   tableTitle: string;
   tableAddRecordButtonText: string;
+  tableAddRecordButtonVisibility?: boolean;
   tableAddRecordFunction: () => void;
 }
 
@@ -262,13 +263,15 @@ const MasterDataTable = <TData extends MRT_RowData>({
                 >
                   {titleToolbarProps?.tableTitle}
                 </Typography>
-                <Button
-                  id="addActionButton"
-                  startIcon={<AddRounded />}
-                  onClick={titleToolbarProps?.tableAddRecordFunction}
-                >
-                  {titleToolbarProps?.tableAddRecordButtonText}
-                </Button>
+                {titleToolbarProps.tableAddRecordButtonVisibility && (
+                  <Button
+                    id="addActionButton"
+                    startIcon={<AddRounded />}
+                    onClick={titleToolbarProps?.tableAddRecordFunction}
+                  >
+                    {titleToolbarProps?.tableAddRecordButtonText}
+                  </Button>
+                )}
               </Box>
             )}
           {renderTopToolbarCustomActions && // custom title toolbar

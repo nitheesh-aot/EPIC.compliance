@@ -2,6 +2,8 @@ import TopicModal from "@/components/App/Topics/TopicModal";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import Unauthorized from "@/components/Shared/Unauthorized";
+import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
 import { useDeleteTopic, useTopicsData } from "@/hooks/useTopics";
 import { Topic } from "@/models/Topic";
 import { useModal } from "@/store/modalStore";
@@ -14,8 +16,21 @@ import { MRT_ColumnDef } from "material-react-table";
 import { useMemo } from "react";
 
 export const Route = createFileRoute("/_authenticated/admin/topics")({
-  component: Topics,
+  component: AuthorizedTopicsComponent,
 });
+
+function AuthorizedTopicsComponent() {
+  const isRouteAllowed = useIsRolesAllowed([
+    KC_USER_GROUPS.SUPERUSER,
+    KC_USER_GROUPS.ADMIN,
+  ]);
+
+  if (isRouteAllowed) {
+    return <Topics />;
+  } else {
+    return <Unauthorized />;
+  }
+}
 
 const TOPIC_MODAL_WIDTH = "520px";
 
@@ -126,6 +141,7 @@ export function Topics() {
           tableTitle: "Topics",
           tableAddRecordButtonText: "Topic",
           tableAddRecordFunction: () => handleOpenModal(),
+          tableAddRecordButtonVisibility: true,
         }}
       />
     </>

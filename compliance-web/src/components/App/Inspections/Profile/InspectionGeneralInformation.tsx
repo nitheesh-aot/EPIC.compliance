@@ -10,11 +10,12 @@ import { useMenuStore } from "@/store/menuStore";
 interface InspectionGeneralInformationProps {
   inspectionData: Inspection;
   onEdit: () => void;
+  allowEdit?: boolean;
 }
 
 const InspectionGeneralInformation: React.FC<
   InspectionGeneralInformationProps
-> = ({ inspectionData, onEdit }) => {
+> = ({ inspectionData, onEdit, allowEdit }) => {
   const { appHeaderHeight } = useMenuStore();
 
   const inAttendance = useMemo(() => {
@@ -74,15 +75,17 @@ const InspectionGeneralInformation: React.FC<
     >
       <Box display={"flex"} justifyContent={"space-between"} my={3}>
         <Typography variant="h6">General Information</Typography>
-        <Button
-          variant="text"
-          color="primary"
-          size="small"
-          onClick={onEdit}
-          startIcon={<EditRounded />}
-        >
-          Edit
-        </Button>
+        {allowEdit && (
+          <Button
+            variant="text"
+            color="primary"
+            size="small"
+            onClick={onEdit}
+            startIcon={<EditRounded />}
+          >
+            Edit
+          </Button>
+        )}
       </Box>
       <Box display={"flex"} flexDirection={"column"}>
         {properties.map((property) => (

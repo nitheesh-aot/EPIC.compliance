@@ -3,6 +3,7 @@ import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import PageLink from "@/components/Shared/PageLink";
+import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
 import { useInspectionsData } from "@/hooks/useInspections";
 import { Inspection } from "@/models/Inspection";
 import { useDrawer } from "@/store/drawerStore";
@@ -21,6 +22,9 @@ export function Inspections() {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
   const { data: inspectionsList, isLoading } = useInspectionsData();
+  const showCreateInspectionButton = useIsRolesAllowed([
+    KC_USER_GROUPS.SUPERUSER,
+  ]);
 
   const createUniqueFilterList = useCallback(
     (key: keyof Inspection, subKey?: string): string[] => {
@@ -254,6 +258,7 @@ export function Inspections() {
         tableTitle: "Inspections",
         tableAddRecordButtonText: "Inspection",
         tableAddRecordFunction: handleOpenDrawer,
+        tableAddRecordButtonVisibility: showCreateInspectionButton,
       }}
     />
   );

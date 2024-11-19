@@ -9,25 +9,29 @@ import CaseFileComplaintsTable from "./CaseFileComplaintsTable";
 interface CaseFileGeneralInformationProps {
   caseFileData: CaseFile;
   onEdit: () => void;
+  allowEdit?: boolean;
 }
 
 const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
   caseFileData,
   onEdit,
+  allowEdit,
 }) => {
   return (
     <Box display={"flex"} flexGrow={1} flexDirection={"column"} width={"60%"}>
       <Box display={"flex"} justifyContent={"space-between"} my={3}>
         <Typography variant="h6">General Information</Typography>
-        <Button
-          variant="text"
-          color="primary"
-          size="small"
-          onClick={onEdit}
-          startIcon={<EditRounded />}
-        >
-          Edit
-        </Button>
+        {allowEdit && (
+          <Button
+            variant="text"
+            color="primary"
+            size="small"
+            onClick={onEdit}
+            startIcon={<EditRounded />}
+          >
+            Edit
+          </Button>
+        )}
       </Box>
       <Box display={"flex"} gap={8}>
         <Box>
