@@ -52,8 +52,7 @@ class StaffUserSchemaSkeleton(AutoSchemaBase):  # pylint: disable=too-many-ances
         if data.get("supervisor_id") is None:
             data["supervisor"] = None
         if data.get("permission", None):
-            print(f"PERMISSION {data.get('permission', None)}")
-            data["permission"] = getattr(PermissionEnum, data.get("permission")).value
+            data["permission"] = getattr(PermissionEnum, data.get("permission")).name
         return data
 
 
