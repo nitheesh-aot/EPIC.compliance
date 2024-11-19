@@ -17,10 +17,12 @@ import { notify } from "@/store/snackbarStore";
 
 interface ContinuationReportTimelineProps {
   crtList: ContinuationReport[];
+  isAllowEdit?: boolean;
 }
 
 export default function ContinuationReportTimeline({
   crtList,
+  isAllowEdit,
 }: ContinuationReportTimelineProps) {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
@@ -68,13 +70,15 @@ export default function ContinuationReportTimeline({
           key={crt.id}
           sx={{
             minHeight: 54,
-            cursor: "pointer",
-            ":hover": {
-              background: BCDesignTokens.themeGray30,
-              borderRadius: BCDesignTokens.layoutBorderRadiusLarge,
-            },
+            cursor: isAllowEdit ? "pointer" : "default",
+            ":hover": isAllowEdit
+              ? {
+                  background: BCDesignTokens.themeGray30,
+                  borderRadius: BCDesignTokens.layoutBorderRadiusLarge,
+                }
+              : {},
           }}
-          onClick={() => handleEditEntry(crt)}
+          onClick={isAllowEdit ? () => handleEditEntry(crt) : undefined}
         >
           <TimelineOppositeContent
             color="textSecondary"
