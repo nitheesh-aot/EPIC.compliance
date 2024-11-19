@@ -143,7 +143,6 @@ export default function ContinuationReport({
               >
                 <ContinuationReportTimeline
                   crtList={continuationReportData.items}
-                  isAllowEdit={allowCreateEntry}
                 />
               </Box>
               <ContinuationReportPagination
