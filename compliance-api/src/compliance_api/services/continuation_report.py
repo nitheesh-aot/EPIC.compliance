@@ -15,10 +15,10 @@ class ContinuationReportService:
     """ContinuationReportService."""
 
     @classmethod
-    def create(cls, report_entry: dict, ho_session=None):
+    def create(cls, report_entry: dict, sys_generated: bool = False, ho_session=None):
         """Create continuation report entry."""
         _access_check(report_entry)
-        report_entry_obj = _create_report_entry(report_entry)
+        report_entry_obj = _create_report_entry(report_entry, sys_generated)
         with session_scope() as session:
             created_entry = ContinuationReportModel.create_entry(
                 report_entry_obj, ho_session or session
@@ -117,7 +117,7 @@ def _insert_or_update_keys(report_id, keys, session=None):
         ContinuationReportKeyModel.bulk_insert(report_id, key_objects, session)
 
 
-def _create_report_entry(report_entry_data: dict):
+def _create_report_entry(report_entry_data: dict, sys_generated: bool = False):
     """Create the report entry object."""
     text = report_entry_data.get("text")
     return {
@@ -125,6 +125,7 @@ def _create_report_entry(report_entry_data: dict):
         "text": text,
         "rich_text": report_entry_data.get("rich_text"),
         "date_created": report_entry_data.get("date_created"),
+        "system_generated": sys_generated,
         "context_type": report_entry_data.get("context_type"),
         "context_id": report_entry_data.get("context_id"),
     }

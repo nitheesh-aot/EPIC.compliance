@@ -170,7 +170,9 @@ class ComplaintService:
                 created_complaint.complaint_number,
                 created_complaint.case_file_id,
             )
-            ContinuationReportService.create(cr_entry, ho_session=session)
+            ContinuationReportService.create(
+                cr_entry, sys_generated=True, ho_session=session
+            )
         return created_complaint
 
 

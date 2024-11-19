@@ -118,7 +118,7 @@ class InspectionService:
                         {
                             "id": officer.officer.id,
                             "name": f"{officer.officer.first_name} {officer.officer.last_name}",
-                            "auth_user_guid": officer.officer.auth_user_guid
+                            "auth_user_guid": officer.officer.auth_user_guid,
                         }
                         for officer in officers
                     ]
@@ -215,7 +215,9 @@ class InspectionService:
                 created_inspection.ir_number,
                 created_inspection.case_file_id,
             )
-            ContinuationReportService.create(cr_entry, ho_session=session)
+            ContinuationReportService.create(
+                cr_entry, sys_generated=True, ho_session=session
+            )
         return created_inspection
 
     @classmethod
