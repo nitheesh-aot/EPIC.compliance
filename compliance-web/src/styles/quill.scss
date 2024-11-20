@@ -12,6 +12,8 @@
 .ql-container {
   font-size: 1rem !important;
   font-family: "BC Sans", "Helvetica", "Arial", "sans-serif" !important;
+  max-height: 360px;
+  overflow: scroll;
   &.ql-snow {
     border: 1px solid #d8d8d8 !important;
     border-radius: 4px;
