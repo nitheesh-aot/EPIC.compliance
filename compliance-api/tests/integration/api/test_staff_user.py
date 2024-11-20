@@ -62,7 +62,7 @@ def test_create_staff_user_mandatory(
     print(result.json)
     assert result.status_code == HTTPStatus.CREATED
     assert result.json["auth_user_guid"] == staff_user_data["auth_user_guid"]
-    assert result.json["permission"] == "Viewer"
+    assert result.json["permission"] == "VIEWER"
     assert result.json["position_id"] == staff_user_data["position_id"]
     assert result.json["first_name"] == firstname
     assert result.json["last_name"] == lastname
@@ -102,7 +102,7 @@ def test_create_staff_user_all_fields(
 
     assert result.status_code == HTTPStatus.CREATED
     assert result.json["auth_user_guid"] == staff_user_data["auth_user_guid"]
-    assert result.json["permission"] == "User"
+    assert result.json["permission"] == "USER"
     assert result.json["position_id"] == staff_user_data["position_id"]
     assert result.json["deputy_director_id"] == staff_user_data["deputy_director_id"]
     assert result.json["supervisor_id"] == staff_user_data["supervisor_id"]
@@ -179,7 +179,7 @@ def test_get_users(mock_auth_service, mocker, client, auth_header_super_user):
     )
     print(filtered_user)
     assert filtered_user is not None
-    assert filtered_user.get("permission", None) == "User"
+    assert filtered_user.get("permission", None) == "USER"
     assert result.status_code == HTTPStatus.OK
 
 
