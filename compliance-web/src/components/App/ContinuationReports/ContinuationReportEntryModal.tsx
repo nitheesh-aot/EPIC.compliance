@@ -15,6 +15,7 @@ import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledR
 import ControlledDateTimeField from "@/components/Shared/Controlled/ControlledDateTimeField";
 import {
   useCreateContinuationReportEntry,
+  useDeleteContinuationReportEntry,
   useUpdateContinuationReportEntry,
 } from "@/hooks/useContinuationReports";
 import dateUtils from "@/utils/dateUtils";
@@ -90,6 +91,7 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
 
   const { mutate: addEntry } = useCreateContinuationReportEntry(onSuccess);
   const { mutate: updateEntry } = useUpdateContinuationReportEntry(onSuccess);
+  const { mutate: deleteEntry } = useDeleteContinuationReportEntry(onSuccess);
 
   const onSubmitHandler = (data: ContinuationReportSchemaType) => {
     const crEntry: ContinuationReportAPIData = {
@@ -112,6 +114,12 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
     }
   };
 
+  const onDeleteEntry = () => {
+    if (continuationReportEntry?.id) {
+      deleteEntry(continuationReportEntry.id);
+    }
+  };
+
   return (
     <>
       <FormProvider {...methods}>
@@ -131,6 +139,7 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
             primaryActionButtonText={
               continuationReportEntry ? "Save" : "Add Entry"
             }
+            onDeleteAction={continuationReportEntry ? onDeleteEntry : undefined}
           />
         </form>
       </FormProvider>
