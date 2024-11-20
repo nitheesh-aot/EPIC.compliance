@@ -34,12 +34,23 @@ const updateContinuationReportEntry = ({
   return request({ url: `/continuation-reports/${id}`, method: "patch", data: crEntry });
 };
 
+const deleteContinuationReportEntry = (id: number) => {
+  return request({ url: `/continuation-reports/${id}`, method: "delete" });
+};
+
 export const useCreateContinuationReportEntry = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: createContinuationReportEntry, onSuccess });
 };
 
 export const useUpdateContinuationReportEntry = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateContinuationReportEntry, onSuccess });
+};
+
+export const useDeleteContinuationReportEntry = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: deleteContinuationReportEntry,
+    onSuccess,
+  });
 };
 
 export const useContinuationReportEntries = (
