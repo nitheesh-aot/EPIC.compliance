@@ -7,13 +7,15 @@ export default function ContinuationReportTimelineEntry({
   renderText,
   createdByUser,
   isSystemGenerated,
+  searchText,
 }: {
   renderText: string;
   createdByUser?: string;
-  isSystemGenerated: boolean
+  isSystemGenerated: boolean;
+  searchText?: string;
 }) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(!!searchText);  // if searchText is there, default should be open
   const [showReadMore, setShowReadMore] = useState(false);
 
   useEffect(() => {
@@ -25,6 +27,15 @@ export default function ContinuationReportTimelineEntry({
   const handleReadMoreClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.stopPropagation();
     setIsExpanded(!isExpanded);
+  };
+
+  const getFormattedText = () => {
+    if (!searchText) return renderText; // If no searchText to highlight, return the original renderText
+    const regex = new RegExp(`(${searchText})`, "g"); // Case-insensitive regex for the word
+    return renderText.replace(
+      regex,
+      `<span style="background-color: yellow;">${searchText}</span>`
+    );
   };
 
   return (
@@ -40,7 +51,7 @@ export default function ContinuationReportTimelineEntry({
           variant="subtitle2"
           component={"div"}
           className="quill-render"
-          dangerouslySetInnerHTML={{ __html: renderText }}
+          dangerouslySetInnerHTML={{ __html: getFormattedText() }}
         />
         {!isSystemGenerated && createdByUser && (
           <Typography

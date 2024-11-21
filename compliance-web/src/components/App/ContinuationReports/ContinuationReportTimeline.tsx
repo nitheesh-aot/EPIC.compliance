@@ -19,10 +19,12 @@ import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
 
 interface ContinuationReportTimelineProps {
   crtList: ContinuationReport[];
+  searchText?: string;
 }
 
 export default function ContinuationReportTimeline({
   crtList,
+  searchText,
 }: ContinuationReportTimelineProps) {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
@@ -125,6 +127,7 @@ export default function ContinuationReportTimeline({
             renderText={crt.rich_text}
             createdByUser={crt.created_by_user?.name}
             isSystemGenerated={crt.system_generated}
+            searchText={searchText}
           />
         </TimelineItem>
       ))}
