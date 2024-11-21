@@ -13,6 +13,7 @@ type CaseFileFormProps = {
   initiationList: Initiation[];
   staffUsersList: StaffUser[];
   isEditMode: boolean;
+  isSuperUser: boolean;
 };
 
 const CaseFileForm: React.FC<CaseFileFormProps> = ({
@@ -20,6 +21,7 @@ const CaseFileForm: React.FC<CaseFileFormProps> = ({
   initiationList,
   staffUsersList,
   isEditMode,
+  isSuperUser,
 }) => {
   return (
     <>
@@ -45,10 +47,14 @@ const CaseFileForm: React.FC<CaseFileFormProps> = ({
             fullWidth
             disabled={isEditMode}
           />
-          <ControlledDateField
-            name="dateCreated"
-            label="Date Created"
-            sx={{ width: "100%" }}
+          <ControlledAutoComplete
+            name="initiation"
+            label="Initiation"
+            options={initiationList}
+            getOptionLabel={(option) => option.name}
+            getOptionKey={(option) => option.id}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            fullWidth
             disabled={isEditMode}
           />
         </Stack>
@@ -73,25 +79,23 @@ const CaseFileForm: React.FC<CaseFileFormProps> = ({
             fullWidth
           />
         </Stack>
-        <Stack direction={"row"} gap={2}>
-          <ControlledAutoComplete
-            name="initiation"
-            label="Initiation"
-            options={initiationList}
-            getOptionLabel={(option) => option.name}
-            getOptionKey={(option) => option.id}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            fullWidth
-            disabled={isEditMode}
-          />
-          <ControlledTextField
-            label="Case File Number"
-            name="caseFileNumber"
-            placeholder="Enter Case File Number"
-            fullWidth
-            disabled={isEditMode}
-          />
-        </Stack>
+        {isSuperUser && (
+          <Stack direction={"row"} gap={2}>
+            <ControlledDateField
+              name="dateCreated"
+              label="Date Created (optional)"
+              sx={{ width: "100%" }}
+              disabled={isEditMode}
+            />
+            <ControlledTextField
+              label="Manual Case File Number (optional)"
+              name="caseFileNumber"
+              placeholder="Enter Case File Number"
+              fullWidth
+              disabled={isEditMode}
+            />
+          </Stack>
+        )}
       </Box>
     </>
   );

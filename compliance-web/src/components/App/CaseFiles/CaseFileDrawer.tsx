@@ -10,8 +10,7 @@ import { Initiation } from "@/models/Initiation";
 import { Project } from "@/models/Project";
 import { StaffUser } from "@/models/Staff";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Alert, Box, Typography } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
+import { Box } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import CaseFileForm from "./CaseFileForm";
@@ -22,6 +21,8 @@ import dayjs, { Dayjs } from "dayjs";
 import { useMenuStore } from "@/store/menuStore";
 import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
+import { KC_USER_GROUPS } from "@/hooks/useAuthorization";
+import { useIsRolesAllowed } from "@/hooks/useAuthorization";
 
 type CaseFileDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -30,23 +31,17 @@ type CaseFileDrawerProps = {
 
 const caseFileFormSchema = yup.object().shape({
   project: yup.object<Project>().nullable().required("Project is required"),
-  dateCreated: yup
-    .mixed<Dayjs>()
+  initiation: yup
+    .object<Initiation>()
     .nullable()
-    .required("Date Created is required"),
+    .required("Initiation is required"),
   primaryOfficer: yup
     .object<StaffUser>()
     .nullable()
     .required("Primary is required"),
   officers: yup.array().of(yup.object<StaffUser>()).nullable(),
-  initiation: yup
-    .object<Initiation>()
-    .nullable()
-    .required("Initiation is required"),
-  caseFileNumber: yup
-    .string()
-    .nullable()
-    .required("Case file number is required"),
+  dateCreated: yup.mixed<Dayjs>().nullable(),
+  caseFileNumber: yup.string().nullable(),
 });
 
 type CaseFileSchemaType = yup.InferType<typeof caseFileFormSchema>;
@@ -70,6 +65,8 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   const { data: initiationList } = useInitiationsData();
   const { data: staffUserList } = useStaffUsersData();
   const { appHeaderHeight } = useMenuStore();
+
+  const isSuperUser = useIsRolesAllowed([KC_USER_GROUPS.SUPERUSER]);
 
   const defaultValues = useMemo<CaseFileFormData>(() => {
     if (caseFile) {
@@ -108,21 +105,25 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   const onSubmitHandler = useCallback(
     (data: CaseFileSchemaType) => {
       const caseFileData: CaseFileAPIData = {
-        project_id: (data.project as Project)?.id ?? "",
-        date_created: dateUtils.dateToISO(data.dateCreated),
+        project_id: (data.project as Project).id,
         initiation_id: (data.initiation as Initiation).id,
-        case_file_number: data.caseFileNumber,
         primary_officer_id: (data.primaryOfficer as StaffUser).id,
         officer_ids:
           (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
       };
+      if (isSuperUser) {
+        caseFileData.date_created = dateUtils.dateToISO(
+          data.dateCreated ?? dayjs()
+        );
+        caseFileData.case_file_number = data.caseFileNumber ?? "";
+      }
       if (caseFile) {
         updateCaseFile({ id: caseFile.id, caseFile: caseFileData });
       } else {
         createCaseFile(caseFileData);
       }
     },
-    [caseFile, createCaseFile, updateCaseFile]
+    [caseFile, createCaseFile, isSuperUser, updateCaseFile]
   );
 
   return (
@@ -142,41 +143,13 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
             initiationList={initiationList ?? []}
             staffUsersList={staffUserList ?? []}
             isEditMode={!!caseFile}
+            isSuperUser={isSuperUser}
           />
-          <InspectionRecords />
         </Box>
         <DrawerActionBarBottom isShowActionBar={!!caseFile} />
       </form>
     </FormProvider>
   );
-
-  function InspectionRecords() {
-    return (
-      <Box paddingY={"0.5rem"} paddingX={"2rem"}>
-        <Typography
-          variant="body2"
-          sx={{
-            fontWeight: BCDesignTokens.typographyFontWeightsBold,
-            color: BCDesignTokens.typographyColorPrimary,
-            marginBottom: BCDesignTokens.layoutMarginMedium,
-          }}
-        >
-          Inspection Records
-        </Typography>
-        <Alert
-          severity="info"
-          variant="outlined"
-          sx={{
-            borderColor: BCDesignTokens.supportBorderColorInfo,
-            backgroundColor: BCDesignTokens.supportSurfaceColorInfo,
-            color: BCDesignTokens.typographyColorPrimary,
-          }}
-        >
-          Once Inspections are created and linked, they will appear here
-        </Alert>
-      </Box>
-    );
-  }
 };
 
 export default CaseFileDrawer;

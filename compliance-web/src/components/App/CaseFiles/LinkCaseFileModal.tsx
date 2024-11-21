@@ -76,10 +76,10 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
 
   const createNewCaseFile = () => {
     const caseFileData: CaseFileAPIData = {
-      project_id: projectId,
+      project_id: projectId!,
       initiation_id: initiationId,
       date_created: dateUtils.dateToISO(new Date()),
-      primary_officer_id: primaryOfficerId,
+      primary_officer_id: primaryOfficerId!,
     };
     createCaseFile(caseFileData);
   };
