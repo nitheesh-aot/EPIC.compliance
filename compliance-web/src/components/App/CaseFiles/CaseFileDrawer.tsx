@@ -94,10 +94,17 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
     reset(defaultValues);
   }, [defaultValues, reset]);
 
-  const onSuccess = useCallback(() => {
-    onSubmit(caseFile ? "Changes saved successfully." : "Successfully added!");
-    reset();
-  }, [caseFile, onSubmit, reset]);
+  const onSuccess = useCallback(
+    (data: CaseFile) => {
+      onSubmit(
+        caseFile
+          ? "Changes saved successfully."
+          : `Case File ${data.case_file_number} was successfully created`
+      );
+      reset();
+    },
+    [caseFile, onSubmit, reset]
+  );
 
   const { mutate: createCaseFile } = useCreateCaseFile(onSuccess);
   const { mutate: updateCaseFile } = useUpdateCaseFile(onSuccess);
@@ -110,20 +117,16 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
         primary_officer_id: (data.primaryOfficer as StaffUser).id,
         officer_ids:
           (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
+        date_created: dateUtils.dateToISO(data.dateCreated ?? dayjs()),
+        case_file_number: data.caseFileNumber ?? undefined,
       };
-      if (isSuperUser) {
-        caseFileData.date_created = dateUtils.dateToISO(
-          data.dateCreated ?? dayjs()
-        );
-        caseFileData.case_file_number = data.caseFileNumber ?? "";
-      }
       if (caseFile) {
         updateCaseFile({ id: caseFile.id, caseFile: caseFileData });
       } else {
         createCaseFile(caseFileData);
       }
     },
-    [caseFile, createCaseFile, isSuperUser, updateCaseFile]
+    [caseFile, createCaseFile, updateCaseFile]
   );
 
   return (

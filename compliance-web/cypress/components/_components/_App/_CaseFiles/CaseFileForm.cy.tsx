@@ -24,72 +24,64 @@ const mockStaffUsers = [
   { id: 3, name: "Alice Johnson" },
 ];
 
-describe("CaseFileForm Component", () => {
-  const setup = () => {
-    const queryClient = new QueryClient();
+const setup = (args: { isSuperUser: boolean }) => {
+  const queryClient = new QueryClient();
 
-    // Create a wrapper component to provide react-hook-form and LocalizationProvider context
-    const Wrapper = ({ children }: { children: React.ReactNode }) => {
-      const methods = useForm({
-        defaultValues: {
-          project: null,
-          dateCreated: null,
-          primaryOfficer: null,
-          officers: [],
-          initiation: null,
-          caseFileNumber: "",
-        },
-      });
+  // Create a wrapper component to provide react-hook-form and LocalizationProvider context
+  const Wrapper = ({ children }: { children: React.ReactNode }) => {
+    const methods = useForm({
+      defaultValues: {
+        project: null,
+        dateCreated: null,
+        primaryOfficer: null,
+        officers: [],
+        initiation: null,
+        caseFileNumber: "",
+      },
+    });
 
-      return (
-        <QueryClientProvider client={queryClient}>
-          <FormProvider {...methods}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              {children}
-            </LocalizationProvider>
-          </FormProvider>
-        </QueryClientProvider>
-      );
-    };
-
-    mount(
-      <Wrapper>
-        <CaseFileForm
-          isEditMode={false}
-          projectList={mockProjects}
-          initiationList={mockInitiations}
-          staffUsersList={mockStaffUsers}
-        />
-      </Wrapper>
+    return (
+      <QueryClientProvider client={queryClient}>
+        <FormProvider {...methods}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            {children}
+          </LocalizationProvider>
+        </FormProvider>
+      </QueryClientProvider>
     );
   };
 
+  mount(
+    <Wrapper>
+      <CaseFileForm
+        isEditMode={false}
+        projectList={mockProjects}
+        isSuperUser={args.isSuperUser}
+        initiationList={mockInitiations}
+        staffUsersList={mockStaffUsers}
+      />
+    </Wrapper>
+  );
+};
+
+describe("CaseFileForm Component User", () => {
   beforeEach(() => {
-    setup();
+    setup({ isSuperUser: false });
   });
 
   it("renders the form with all fields", () => {
     // Verify that all labels exist
     cy.contains("General Information").should("exist");
     cy.contains("Project").should("exist");
-    cy.contains("Date Created").should("exist");
     cy.contains("Primary").should("exist");
     cy.contains("Other Assigned Officers (optional)").should("exist");
     cy.contains("Initiation").should("exist");
-    cy.contains("Case File Number").should("exist");
   });
 
   it("allows selecting a project", () => {
     cy.get('input[name="project"]').click();
     cy.get("li").contains("Project Alpha").click();
     cy.get('input[name="project"]').should("have.value", "Project Alpha");
-  });
-
-  it("allows selecting a date", () => {
-    const day = "15";
-    cy.get('button[aria-label="Choose date"]').click();
-    cy.get(".MuiPickersDay-root").contains(day).click();
-    cy.get('input[name="dateCreated"]').should("contain.value", day);
   });
 
   it("allows selecting primary officer", () => {
@@ -104,9 +96,9 @@ describe("CaseFileForm Component", () => {
     cy.get("li").contains("Jane Smith").click();
 
     cy.get('.MuiAutocomplete-root[name="officers"]').within(() => {
-      cy.get('.MuiAutocomplete-tag').should("have.length", 2);
-      cy.get('.MuiAutocomplete-tag').eq(0).should("contain.text", "John Doe");
-      cy.get('.MuiAutocomplete-tag').eq(1).should("contain.text", "Jane Smith");
+      cy.get(".MuiAutocomplete-tag").should("have.length", 2);
+      cy.get(".MuiAutocomplete-tag").eq(0).should("contain.text", "John Doe");
+      cy.get(".MuiAutocomplete-tag").eq(1).should("contain.text", "Jane Smith");
     });
   });
 
@@ -114,6 +106,32 @@ describe("CaseFileForm Component", () => {
     cy.get('input[name="initiation"]').click();
     cy.get("li").contains("Initiation Beta").click();
     cy.get('input[name="initiation"]').should("have.value", "Initiation Beta");
+  });
+
+});
+
+
+describe("CaseFileForm Component SuperUser", () => {
+  beforeEach(() => {
+    setup({ isSuperUser: true });
+  });
+
+  it("renders the form with all fields", () => {
+    // Verify that all labels exist
+    cy.contains("General Information").should("exist");
+    cy.contains("Project").should("exist");
+    cy.contains("Date Created").should("exist");
+    cy.contains("Primary").should("exist");
+    cy.contains("Other Assigned Officers (optional)").should("exist");
+    cy.contains("Initiation").should("exist");
+    cy.contains("Manual Case File Number").should("exist");
+  });
+
+  it("allows selecting a date", () => {
+    const day = "15";
+    cy.get('button[aria-label="Choose date"]').click();
+    cy.get(".MuiPickersDay-root").contains(day).click();
+    cy.get('input[name="dateCreated"]').should("contain.value", day);
   });
 
   it("allows entering a case file number", () => {
