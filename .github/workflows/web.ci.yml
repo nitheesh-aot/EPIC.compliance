@@ -68,21 +68,17 @@ jobs:
         run: |
           npx cypress run --component --headed --browser chrome
 
-      - name: Sets Codecov branch name
+      - name: Generate Coverage Report
         run: |
-          echo "CODECOV_BRANCH=PR_${{ github.head_ref }}" >> $GITHUB_ENV
-        if: github.event_name == 'pull_request'
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+          npx nyc report --reporter=lcov --reporter=text-summary
+          mkdir -p coverage-report
+          cp -r coverage/lcov-report/* coverage-report/
+  
+      - name: Upload Coverage Report as Artifact
+        uses: actions/upload-artifact@v3
         with:
-          flags: compliance-web
-          name: codecov-compliance-web
-          fail_ci_if_error: true
-          verbose: true
-          override_branch: ${{ env.CODECOV_BRANCH }}
-          token: ${{ secrets.CODECOV_TOKEN }}
-          directory: ./compliance-web/coverage
+          name: coverage-report
+          path: coverage-report/
 
   build-check:
     needs: setup-job
