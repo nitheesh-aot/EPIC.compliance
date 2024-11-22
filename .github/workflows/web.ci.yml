@@ -15,10 +15,6 @@ defaults:
     shell: bash
     working-directory: ./compliance-web
 
-permissions:
-  pull-requests: write
-  issues: write
-
 jobs:
   setup-job:
     runs-on: ubuntu-20.04
@@ -55,6 +51,10 @@ jobs:
     needs: setup-job
     runs-on: ubuntu-20.04
 
+    strategy:
+      matrix:
+        node-version: [18.x]
+
     steps:
       - uses: actions/checkout@v2
 
@@ -74,24 +74,7 @@ jobs:
 
       - name: Generate Coverage Report
         run: |
-          npx nyc report --reporter=text-summary  > coverage-summary.txt
-  
-      - name: Post Coverage Summary to PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const coverageSummary = fs.readFileSync('./compliance-web/coverage-summary.txt', 'utf8');
-            
-            const prComment = `### Code Coverage Summary\n\`\`\`plaintext\n${coverageSummary}\n\`\`\``;
-            await github.rest.issues.createComment({
-              ...context.repo,
-              issue_number: context.payload.pull_request.number,
-              body: prComment,
-            });
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          npx nyc report --reporter=lcov --reporter=text-summary
 
   build-check:
     needs: setup-job
