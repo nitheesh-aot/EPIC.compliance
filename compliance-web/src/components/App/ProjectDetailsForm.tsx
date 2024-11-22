@@ -89,7 +89,6 @@ const ProjectDetailsForm: FC<ProjectDetailsFormProps> = ({ projectList, isEditMo
         name="projectDescription"
         label="Project Description"
         multiline
-        disabled={!!selectedProjectId}
         fullWidth
         minRows={2}
       />

@@ -39,10 +39,12 @@ import dayjs from "dayjs";
 import { formatAuthorization } from "@/utils/appUtils";
 import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
+import { CaseFile } from "@/models/CaseFile";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
   inspection?: Inspection;
+  caseFile?: CaseFile;
 };
 
 const initFormData: InspectionFormData = {
@@ -59,6 +61,7 @@ const initFormData: InspectionFormData = {
 const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   onSubmit,
   inspection,
+  caseFile,
 }) => {
   const { appHeaderHeight } = useMenuStore();
 
@@ -116,8 +119,15 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
         )?.data,
       };
     }
+    if (caseFile) {
+      return {
+        ...initFormData,
+        caseFileId: caseFile.id.toString(),
+        project: caseFile.project,
+      };
+    }
     return initFormData;
-  }, [inspection]);
+  }, [inspection, caseFile]);
 
   const methods = useForm<InspectionSchemaType>({
     resolver: yupResolver(InspectionFormSchema),

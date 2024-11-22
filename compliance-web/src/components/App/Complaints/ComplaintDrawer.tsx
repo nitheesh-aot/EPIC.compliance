@@ -37,10 +37,12 @@ import { formatAuthorization } from "@/utils/appUtils";
 import dayjs from "dayjs";
 import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
+import { CaseFile } from "@/models/CaseFile";
 
 type ComplaintDrawerProps = {
   onSubmit: (submitMsg: string) => void;
   complaint?: Complaint;
+  caseFile?: CaseFile;
 };
 
 const initFormData: ComplaintFormData = {
@@ -53,6 +55,7 @@ const initFormData: ComplaintFormData = {
 const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
   onSubmit,
   complaint,
+  caseFile,
 }) => {
   const { appHeaderHeight } = useMenuStore();
 
@@ -106,8 +109,14 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
             ?.amendment_condition_number ?? "",
       };
     }
+    if (caseFile) {
+      return {
+        ...initFormData,
+        project: caseFile.project,
+      };
+    }
     return initFormData;
-  }, [agenciesList, complaint, firstNationsList]);
+  }, [agenciesList, complaint, firstNationsList, caseFile]);
 
   const methods = useForm<ComplaintSchemaType>({
     resolver: yupResolver(ComplaintFormSchema),
