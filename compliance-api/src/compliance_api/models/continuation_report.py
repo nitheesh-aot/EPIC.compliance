@@ -64,7 +64,7 @@ class ContinuationReport(BaseModelVersioned):
         "StaffUser",
         primaryjoin="ContinuationReport.created_by == foreign(StaffUser.auth_user_guid)",
         lazy="joined",
-        uselist=False
+        uselist=False,
     )
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
     keys = relationship(
@@ -101,11 +101,22 @@ class ContinuationReport(BaseModelVersioned):
         return report_entry
 
     @classmethod
+    def delete_by_case_file(cls, case_file_id, session=None):
+        """Delete continuation report entries by case file id."""
+        cls.query.filter_by(case_file_id=case_file_id, is_deleted=False).update(
+            {cls.is_deleted: True, cls.is_active: False}
+        )
+        if session:
+            session.flush()
+        else:
+            cls.session.commit()
+
+    @classmethod
     def get_by_case_file(cls, case_file_id, page_no, page_size, search_text):
         """Get crs by case file id."""
         query = cls.query.filter_by(case_file_id=case_file_id, is_deleted=False)
         if search_text:
-            query = query.filter(cls.text.like(f"%{search_text}%"))
+            query = query.filter(cls.text.ilike(f"%{search_text}%"))
         query = query.order_by(cls.date_created.desc())
         pagination = query.paginate(page=page_no, per_page=page_size)
         return pagination.items, pagination.total
@@ -155,6 +166,32 @@ class ContinuationReportKey(BaseModelVersioned):
         query.filter(cls.report_id == report_id, cls.key.in_(keys)).update(
             {cls.is_active: False, cls.is_deleted: True}
         )
+
+    @classmethod
+    def delete_keys_by_case_file(cls, case_file_id: int, session=None):
+        """
+        Delete continuation report keys by case file id.
+
+        :param case_file_id: ID of the case file whose keys should be deleted.
+        :param session: SQLAlchemy session object (optional).
+        """
+        keys = (
+            cls.query.join(ContinuationReport)
+            .filter(
+                ContinuationReport.case_file_id == case_file_id,
+                ContinuationReportKey.is_deleted is False,
+            )
+            .all()
+        )
+        key_ids = [key.id for key in keys]
+        if key_ids:
+            cls.query.filter(ContinuationReportKey.id.in_(key_ids)).update(
+                {cls.is_deleted: True, cls.is_active: False}
+            )
+            if session:
+                session.flush()
+            else:
+                cls.session.commit()
 
     @classmethod
     def bulk_insert(cls, report_id: int, keys: list[int], session=None):

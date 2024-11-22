@@ -16,6 +16,7 @@ from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModelVersioned
+from ..inspection.inspection import Inspection as InspectionModel
 
 
 class InspectionOfficer(BaseModelVersioned):
@@ -57,9 +58,7 @@ class InspectionOfficer(BaseModelVersioned):
         return cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
 
     @classmethod
-    def bulk_delete(
-        cls, inspection_id: int, officer_ids: list[int], session=None
-    ):
+    def bulk_delete(cls, inspection_id: int, officer_ids: list[int], session=None):
         """Delete officer ids by id per inspection."""
         query = session.query(InspectionOfficer) if session else cls.query
         query.filter(
@@ -67,9 +66,7 @@ class InspectionOfficer(BaseModelVersioned):
         ).update({cls.is_active: False, cls.is_deleted: True})
 
     @classmethod
-    def bulk_insert(
-        cls, inspection_id: int, officer_ids: list[int], session=None
-    ):
+    def bulk_insert(cls, inspection_id: int, officer_ids: list[int], session=None):
         """Insert officers per inspection."""
         inspection_officer_data = [
             InspectionOfficer(
@@ -83,3 +80,24 @@ class InspectionOfficer(BaseModelVersioned):
         else:
             cls.session.add_all(inspection_officer_data)
             cls.session.commit()
+
+    @classmethod
+    def delete_by_case_file(cls, case_file_id, session=None):
+        """Delete other officers by case_file_id."""
+        officers = (
+            cls.query.join(InspectionModel)
+            .filter(
+                InspectionModel.case_file_id == case_file_id,
+                InspectionOfficer.is_deleted is False,
+            )
+            .all()
+        )
+        officer_ids = [officer.id for officer in officers]
+        if officer_ids:
+            cls.query.filter(InspectionOfficer.id.in_(officer_ids)).update(
+                {cls.is_deleted: True, cls.is_active: False}
+            )
+            if session:
+                session.flush()
+            else:
+                cls.session.commit()

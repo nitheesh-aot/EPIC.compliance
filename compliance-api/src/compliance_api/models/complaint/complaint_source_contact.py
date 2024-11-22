@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModelVersioned
 from ..type import EncryptedType
+from .complaint import Complaint as ComplaintModel
 
 
 class ComplaintSourceContact(BaseModelVersioned):
@@ -72,3 +73,27 @@ class ComplaintSourceContact(BaseModelVersioned):
     def get_by_complaint(cls, complaint_id):
         """Get source contact by complaint id."""
         return cls.query.filter_by(complaint_id=complaint_id, is_deleted=False).first()
+
+    @classmethod
+    def delete_by_case_file(cls, case_file_id, session=None):
+        """Delete the source contact based on case file."""
+        contacts = (
+            cls.query.join(ComplaintModel)
+            .filter(
+                ComplaintModel.case_file_id == case_file_id,
+                ComplaintSourceContact.is_deleted is False,
+            )
+            .all()
+        )
+        contact_ids = [contact.id for contact in contacts]
+        if contact_ids:
+            cls.query.filter(ComplaintSourceContact.id.in_(contact_ids)).update(
+                {
+                    ComplaintSourceContact.is_deleted: True,
+                    ComplaintSourceContact.is_active: False,
+                }
+            )
+            if session:
+                session.flush()
+            else:
+                cls.session.commit()

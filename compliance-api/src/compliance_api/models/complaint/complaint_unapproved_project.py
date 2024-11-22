@@ -4,6 +4,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModelVersioned
+from .complaint import Complaint as ComplaintModel
 
 
 class ComplaintUnapprovedProject(BaseModelVersioned):
@@ -51,6 +52,28 @@ class ComplaintUnapprovedProject(BaseModelVersioned):
     @classmethod
     def get_by_complaint_id(cls, complaint_id):
         """Find unapproved project info based on complaint_id."""
-        return cls.query.filter_by(
-            complaint_id=complaint_id, is_deleted=False
-        ).first()
+        return cls.query.filter_by(complaint_id=complaint_id, is_deleted=False).first()
+
+    @classmethod
+    def delete_by_case_file(cls, case_file_id, session=None):
+        """Delete unapproved project details by case file id."""
+        projects = (
+            cls.query.join(ComplaintModel)
+            .filter(
+                ComplaintModel.case_file_id == case_file_id,
+                ComplaintUnapprovedProject.is_deleted is False,
+            )
+            .all()
+        )
+        project_ids = [project.id for project in projects]
+        if project_ids:
+            cls.query.filter(ComplaintUnapprovedProject.id.in_(project_ids)).update(
+                {
+                    ComplaintUnapprovedProject.is_deleted: True,
+                    ComplaintUnapprovedProject.is_active: False,
+                }
+            )
+            if session:
+                session.flush()
+            else:
+                cls.session.commit()

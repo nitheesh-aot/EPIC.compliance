@@ -60,7 +60,7 @@ class CaseFileService:
         return created_case_file
 
     @classmethod
-    def update(cls, case_file_id: int, case_file_data: dict):
+    def update(cls, case_file_id: int, case_file_data: dict, ho_session=None):
         """Update case file."""
         _access_check_for_update(case_file_id)
         case_file_obj = {
@@ -68,10 +68,10 @@ class CaseFileService:
         }
         with session_scope() as session:
             updated_case_file = CaseFileModel.update_case_file(
-                case_file_id, case_file_obj, session
+                case_file_id, case_file_obj, ho_session or session
             )
             cls.insert_or_update_officers(
-                case_file_id, case_file_data.get("officer_ids", []), session
+                case_file_id, case_file_data.get("officer_ids", []), ho_session or session
             )
         return updated_case_file
 

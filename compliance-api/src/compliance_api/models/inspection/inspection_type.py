@@ -4,6 +4,7 @@ from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModelVersioned
+from ..inspection.inspection import Inspection as InspectionModel
 
 
 class InspectionType(BaseModelVersioned):
@@ -18,7 +19,9 @@ class InspectionType(BaseModelVersioned):
     )
     type_id = Column(
         Integer,
-        ForeignKey("inspection_type_options.id", name="inspection_types_type_id_type_id_fkey"),
+        ForeignKey(
+            "inspection_type_options.id", name="inspection_types_type_id_type_id_fkey"
+        ),
         nullable=False,
         comment="The unique identifier of inspection type option",
     )
@@ -37,9 +40,7 @@ class InspectionType(BaseModelVersioned):
         return cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
 
     @classmethod
-    def bulk_delete(
-        cls, inspection_id: int, type_ids: list[int], session=None
-    ):
+    def bulk_delete(cls, inspection_id: int, type_ids: list[int], session=None):
         """Delete inspection type."""
         query = session.query(InspectionType) if session else cls.query
         query.filter(
@@ -47,9 +48,7 @@ class InspectionType(BaseModelVersioned):
         ).update({cls.is_active: False, cls.is_deleted: True})
 
     @classmethod
-    def bulk_insert(
-        cls, inspection_id: int, type_ids: list[int], session=None
-    ):
+    def bulk_insert(cls, inspection_id: int, type_ids: list[int], session=None):
         """Insert type per inspection."""
         inspection_ir_type_data = [
             InspectionType(**{"inspection_id": inspection_id, "type_id": type_id})
@@ -61,3 +60,24 @@ class InspectionType(BaseModelVersioned):
         else:
             cls.session.add_all(inspection_ir_type_data)
             cls.session.commit()
+
+    @classmethod
+    def delete_by_case_file(cls, case_file_id, session=None):
+        """Delete unapproved project details by case_file_id."""
+        types = (
+            cls.query.join(InspectionModel)
+            .filter(
+                InspectionModel.case_file_id == case_file_id,
+                InspectionType.is_deleted is False,
+            )
+            .all()
+        )
+        type_ids = [type.id for type in types]
+        if type_ids:
+            cls.query.filter(InspectionType.id.in_(type_ids)).update(
+                {cls.is_deleted: True, cls.is_active: False}
+            )
+            if session:
+                session.flush()
+            else:
+                cls.session.commit()

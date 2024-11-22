@@ -175,6 +175,21 @@ class ComplaintService:
             )
         return created_complaint
 
+    @classmethod
+    def delete_by_case_file(cls, case_file_id, ho_session=None):
+        """Delete complaint by case file id."""
+        with session_scope() as session:
+            ComplaintModel.delete_by_case_file(case_file_id, ho_session or session)
+            ComplaintUnapprovedProjectModel.delete_by_case_file(
+                case_file_id, ho_session or session
+            )
+            ComplaintSourceContactModel.delete_by_case_file(
+                case_file_id, ho_session or session
+            )
+            ComplaintRequirementDetailModel.delete_by_case_file(
+                case_file_id, ho_session or session
+            )
+
 
 def _access_check_create(complaint_data: dict):
     """Access check."""
