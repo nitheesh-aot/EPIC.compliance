@@ -77,7 +77,7 @@ jobs:
         with:
           name: Code Coverage
           path: coverage-summary.txt
-          reporter: lcov
+          reporter: plaintext
 
   build-check:
     needs: setup-job
