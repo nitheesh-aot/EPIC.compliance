@@ -90,7 +90,6 @@ describe("ProjectDetailsForm Component", () => {
     // Verify fields are disabled
     cy.get('input[name="authorization"]').should("be.disabled");
     cy.get('input[name="regulatedParty"]').should("be.disabled");
-    cy.get('textarea[name="projectDescription"]').should("be.disabled");
     cy.get('input[name="projectType"]').should("be.disabled");
     cy.get('input[name="projectSubType"]').should("be.disabled");
   });

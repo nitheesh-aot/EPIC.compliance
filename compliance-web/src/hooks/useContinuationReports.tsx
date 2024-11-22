@@ -9,10 +9,11 @@ const fetchContinuationReportEntries = (
   caseFileId: number,
   page: number,
   pageSize: number,
+  searchText?: string,
 ): Promise<ContinuationReportPaginated> => {
   return request({
     url: "/continuation-reports",
-    params: { case_file_id: caseFileId, page_no: page, page_size: pageSize },
+    params: { case_file_id: caseFileId, page_no: page, page_size: pageSize, search_text: searchText },
   });
 };
 
@@ -57,10 +58,11 @@ export const useContinuationReportEntries = (
   caseFileId: number,
   page: number = 1,
   pageSize: number = 10,
+  searchText?: string
 ) => {
   return useQuery({
     queryKey: ["continuation-reports", caseFileId],
-    queryFn: () => fetchContinuationReportEntries(caseFileId, page, pageSize),
+    queryFn: () => fetchContinuationReportEntries(caseFileId, page, pageSize, searchText),
     placeholderData: keepPreviousData,
   });
 };

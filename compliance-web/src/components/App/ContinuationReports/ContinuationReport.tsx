@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useMenuStore } from "@/store/menuStore";
-import { AddRounded, SearchRounded } from "@mui/icons-material";
+import { AddRounded, CloseRounded, SearchRounded } from "@mui/icons-material";
 import ContinuationReportTimeline from "./ContinuationReportTimeline";
 import { useModal } from "@/store/modalStore";
 import ContinuationReportEntryModal from "./ContinuationReportEntryModal";
@@ -40,6 +40,19 @@ export default function ContinuationReport({
   const { setOpen, setClose } = useModal();
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchText, setSearchText] = useState("");
+  const [debouncedSearchText, setDebouncedSearchText] = useState("");
+
+  // Debounce effect
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, 300); // Adjust the delay as needed
+
+    return () => {
+      clearTimeout(handler); // Cleanup the timeout
+    };
+  }, [searchText]);
 
   const {
     status,
@@ -47,7 +60,12 @@ export default function ContinuationReport({
     isError,
     error,
     isLoading,
-  } = useContinuationReportEntries(caseFileId, page, rowsPerPage);
+  } = useContinuationReportEntries(
+    caseFileId,
+    page,
+    rowsPerPage,
+    debouncedSearchText
+  );
 
   const handleOnSubmit = useCallback(
     (submitMsg: string) => {
@@ -88,7 +106,7 @@ export default function ContinuationReport({
     queryClient.invalidateQueries({
       queryKey: ["continuation-reports", caseFileId],
     });
-  }, [queryClient, caseFileId, page, rowsPerPage]);
+  }, [queryClient, caseFileId, page, rowsPerPage, debouncedSearchText]);
 
   return (
     <Box
@@ -117,16 +135,28 @@ export default function ContinuationReport({
             )}
           </Box>
           <TextField
-            disabled
+            id="searchTextField"
             variant="outlined"
             size="small"
             placeholder="Search"
+            value={searchText}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <SearchRounded />
+                  {searchText ? (
+                    <CloseRounded
+                      fontSize="small"
+                      sx={{ cursor: "pointer" }}
+                      onClick={() => setSearchText("")} // Clear the input field
+                    />
+                  ) : (
+                    <SearchRounded />
+                  )}
                 </InputAdornment>
               ),
+            }}
+            onChange={(event) => {
+              setSearchText(event.target.value);
             }}
           />
           {!caseFileId || status === "pending" ? (
@@ -137,12 +167,13 @@ export default function ContinuationReport({
             <>
               <Box
                 sx={{
-                  height: `calc(100vh - ${appHeaderHeight + 302 + 48}px)`, // 302px is the height above the timeline, 64px is height of pagination
+                  height: `calc(100vh - ${appHeaderHeight + 302 + 48}px)`, // 302px is the height above the timeline, 48px is height of pagination
                   overflow: "scroll",
                 }}
               >
                 <ContinuationReportTimeline
                   crtList={continuationReportData.items}
+                  searchText={debouncedSearchText}
                 />
               </Box>
               <ContinuationReportPagination

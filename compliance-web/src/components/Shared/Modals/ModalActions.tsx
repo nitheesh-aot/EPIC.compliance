@@ -30,53 +30,55 @@ const ModalActions: FC<ModalActionsProps> = ({
 
   return (
     <>
-      <DialogActions
-        sx={{
-          padding: "1rem 1.5rem",
-          justifyContent: onDeleteAction ? "space-between" : "flex-end",
-        }}
-      >
-        {onDeleteAction && (
-          <Button
-            variant="text"
-            startIcon={<DeleteOutlineRounded />}
-            onClick={() => {
-              setShowDeleteConfirmation(true);
-            }}
-            disabled={showDeleteConfirmation}
-          >
-            Delete
-          </Button>
-        )}
-        <Box sx={{ display: "flex", gap: "0.75rem" }}>
-          <Button
-            variant="text"
-            onClick={() => {
-              onSecondaryAction?.();
-              setClose();
-            }}
-            disabled={showDeleteConfirmation}
-          >
-            {secondaryActionButtonText ?? "Cancel"}
-          </Button>
-          <Button
-            sx={{ minWidth: 100 }}
-            type={onPrimaryAction ? "button" : "submit"}
-            onClick={onPrimaryAction}
-            disabled={
-              (!!isButtonValidation && !isValid) || showDeleteConfirmation
-            }
-          >
-            {primaryActionButtonText ?? "Ok"}
-          </Button>
-        </Box>
-      </DialogActions>
+      {!showDeleteConfirmation && (
+        <DialogActions
+          sx={{
+            padding: "1rem 1.5rem",
+            justifyContent: onDeleteAction ? "space-between" : "flex-end",
+          }}
+        >
+          {onDeleteAction && (
+            <Button
+              variant="text"
+              startIcon={<DeleteOutlineRounded />}
+              onClick={() => {
+                setShowDeleteConfirmation(true);
+              }}
+              disabled={showDeleteConfirmation}
+            >
+              Delete
+            </Button>
+          )}
+          <Box sx={{ display: "flex", gap: "0.75rem" }}>
+            <Button
+              variant="text"
+              onClick={() => {
+                onSecondaryAction?.();
+                setClose();
+              }}
+              disabled={showDeleteConfirmation}
+            >
+              {secondaryActionButtonText ?? "Cancel"}
+            </Button>
+            <Button
+              sx={{ minWidth: 100 }}
+              type={onPrimaryAction ? "button" : "submit"}
+              onClick={onPrimaryAction}
+              disabled={
+                (!!isButtonValidation && !isValid) || showDeleteConfirmation
+              }
+            >
+              {primaryActionButtonText ?? "Ok"}
+            </Button>
+          </Box>
+        </DialogActions>
+      )}
       {showDeleteConfirmation && (
         <Box
           sx={{
-            background: BCDesignTokens.surfaceColorBackgroundLightBlue,
+            background: BCDesignTokens.supportSurfaceColorDanger,
             borderTop: `${BCDesignTokens.layoutBorderWidthSmall} solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-            padding: "1rem 1.5rem",
+            padding: ".5rem 1.5rem",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -99,7 +101,7 @@ const ModalActions: FC<ModalActionsProps> = ({
           >
             No, Cancel
           </Button>
-          <Button sx={{ minWidth: 100, height: 40 }} onClick={onDeleteAction}>
+          <Button sx={{ minWidth: 100, height: 40 }} onClick={onDeleteAction} color="error">
             Yes, Delete
           </Button>
         </Box>
