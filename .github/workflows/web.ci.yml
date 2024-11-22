@@ -78,7 +78,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const coverageSummary = fs.readFileSync('coverage-summary.txt', 'utf8');
+            const coverageSummary = fs.readFileSync('./compliance-web/coverage-summary.txt', 'utf8');
             
             const prComment = `### Code Coverage Summary\n\`\`\`plaintext\n${coverageSummary}\n\`\`\``;
             await github.rest.issues.createComment({
