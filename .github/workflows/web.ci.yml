@@ -72,12 +72,23 @@ jobs:
         run: |
           npx nyc report --reporter=text-summary  > coverage-summary.txt
   
-      - name: Upload Coverage Summary to PR
-        uses: dorny/test-reporter@v1
+      - name: Post Coverage Summary to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
         with:
-          name: Code Coverage
-          path: coverage-summary.txt
-          reporter: plaintext
+          script: |
+            const fs = require('fs');
+            const coverageSummary = fs.readFileSync('coverage-summary.txt', 'utf8');
+            const { context, github } = require('@actions/github');
+
+            const prComment = `### Code Coverage Summary\n\`\`\`plaintext\n${coverageSummary}\n\`\`\``;
+            const comment = await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.payload.pull_request.number,
+              body: prComment,
+            });
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-check:
     needs: setup-job
