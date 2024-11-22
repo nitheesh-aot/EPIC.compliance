@@ -70,9 +70,7 @@ jobs:
 
       - name: Generate Coverage Report
         run: |
-          npx nyc report --reporter=lcov --reporter=text-summary  > coverage-summary.txt
-          mkdir -p coverage-report
-          cp -r coverage/lcov-report/* coverage-report/
+          npx nyc report --reporter=text-summary  > coverage-summary.txt
   
       - name: Upload Coverage Summary to PR
         uses: dorny/test-reporter@v1
