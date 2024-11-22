@@ -4,6 +4,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModelVersioned
+from ..inspection.inspection import Inspection as InspectionModel
 
 
 class InspectionOtherAttendance(BaseModelVersioned):
@@ -58,3 +59,24 @@ class InspectionOtherAttendance(BaseModelVersioned):
         else:
             cls.session.commit()
         return attendance
+
+    @classmethod
+    def delete_by_case_file(cls, case_file_id, session=None):
+        """Delete other attendance details by case_file_id."""
+        other_attendances = (
+            cls.query.join(InspectionModel)
+            .filter(
+                InspectionModel.case_file_id == case_file_id,
+                InspectionOtherAttendance.is_deleted is False,
+            )
+            .all()
+        )
+        attendance_ids = [att.id for att in other_attendances]
+        if attendance_ids:
+            cls.query.filter(InspectionOtherAttendance.id.in_(attendance_ids)).update(
+                {cls.is_deleted: True, cls.is_active: False}
+            )
+            if session:
+                session.flush()
+            else:
+                cls.session.commit()

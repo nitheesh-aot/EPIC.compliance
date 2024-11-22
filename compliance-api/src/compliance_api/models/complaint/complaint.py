@@ -181,3 +181,14 @@ class Complaint(BaseModelVersioned):
         return cls.query.filter_by(
             complaint_number=complaint_number, is_deleted=False
         ).first()
+
+    @classmethod
+    def delete_by_case_file(cls, case_file_id, session=None):
+        """Delete complaint by case file."""
+        cls.query.filter(
+            Complaint.case_file_id == case_file_id, Complaint.is_deleted is False
+        ).update({Complaint.is_deleted: True, Complaint.is_active: False})
+        if session:
+            session.flush()
+        else:
+            cls.session.commit()

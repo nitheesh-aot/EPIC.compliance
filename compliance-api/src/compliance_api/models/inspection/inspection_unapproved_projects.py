@@ -4,6 +4,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModelVersioned
+from ..inspection.inspection import Inspection as InspectionModel
 
 
 class InspectionUnapprovedProject(BaseModelVersioned):
@@ -54,3 +55,24 @@ class InspectionUnapprovedProject(BaseModelVersioned):
         return cls.query.filter_by(
             inspection_id=inspection_id, is_deleted=False
         ).first()
+
+    @classmethod
+    def delete_by_case_file(cls, case_file_id, session=None):
+        """Delete unapproved project details by case_file_id."""
+        projects = (
+            cls.query.join(InspectionModel)
+            .filter(
+                InspectionModel.case_file_id == case_file_id,
+                InspectionUnapprovedProject.is_deleted is False,
+            )
+            .all()
+        )
+        project_ids = [project.id for project in projects]
+        if project_ids:
+            cls.query.filter(InspectionUnapprovedProject.id.in_(project_ids)).update(
+                {cls.is_deleted: True, cls.is_active: False}
+            )
+            if session:
+                session.flush()
+            else:
+                cls.session.commit()

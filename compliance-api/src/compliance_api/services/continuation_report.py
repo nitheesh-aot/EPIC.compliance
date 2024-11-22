@@ -57,6 +57,17 @@ class ContinuationReportService:
         return deleted_entry
 
     @classmethod
+    def delete_by_case_file(cls, case_file_id, ho_session=None):
+        """Delete continuation report entries by case file id."""
+        with session_scope() as session:
+            ContinuationReportModel.delete_by_case_file(
+                case_file_id, ho_session or session
+            )
+            ContinuationReportKeyModel.delete_keys_by_case_file(
+                case_file_id, ho_session or session
+            )
+
+    @classmethod
     def get_by_case_file_id(cls, case_file_id, page_no, page_size, search_text):
         """Get all crs by case file id."""
         return ContinuationReportModel.get_by_case_file(

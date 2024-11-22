@@ -59,7 +59,9 @@ class Inspection(BaseModelVersioned):
     utm = Column(String, nullable=True, comment="The UTM value of the location")
     primary_officer_id = Column(
         Integer,
-        ForeignKey("staff_users.id", name="inspection_primary_officer_id_staff_id_fkey"),
+        ForeignKey(
+            "staff_users.id", name="inspection_primary_officer_id_staff_id_fkey"
+        ),
         nullable=False,
         comment="The primary officer who created the inspection",
     )
@@ -171,6 +173,17 @@ class Inspection(BaseModelVersioned):
         else:
             cls.session.commit()
         return inspection
+
+    @classmethod
+    def delete_by_case_file(cls, case_file_id, session=None):
+        """Delete inspection by case file id."""
+        cls.query.filter_by(case_file_id=case_file_id, is_deleted=False).update(
+            {cls.is_deleted: True, cls.is_active: False}
+        )
+        if session:
+            session.flush()
+        else:
+            cls.session.commit()
 
     @classmethod
     def get_by_ir_number(cls, ir_number):

@@ -23,6 +23,7 @@ from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
     CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, CaseFileUpdateSchema, KeyValueSchema, StaffUserSchema)
 from compliance_api.services import CaseFileService
+from compliance_api.services.case_file_aggregate import CaseFileAggregateService
 from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
 
@@ -99,7 +100,7 @@ class CaseFiles(Resource):
 
     @staticmethod
     @auth.require
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER])
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.USER])
     @ApiHelper.swagger_decorators(API, endpoint_description="Create a case file")
     @API.expect(case_file_create_model)
     @API.response(code=201, model=case_file_list_model, description="CaseFileCreated")
@@ -142,6 +143,17 @@ class CaseFile(Resource):
         if not updated_case_file:
             raise ResourceNotFoundError(f"CaseFile with {case_file_id} not found")
         return CaseFileSchema().dump(updated_case_file), HTTPStatus.OK
+
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(API, endpoint_description="Delete a CaseFile by id")
+    @API.response(code=204, description="Success")
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
+    def delete(case_file_id):
+        """Delete case file."""
+        CaseFileAggregateService.delete_case_file(case_file_id)
+        return {}, HTTPStatus.NO_CONTENT
 
 
 @cors_preflight("GET, OPTIONS")

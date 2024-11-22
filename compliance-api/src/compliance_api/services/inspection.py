@@ -277,6 +277,31 @@ class InspectionService:
             )
         return updated_case_file
 
+    @classmethod
+    def delete_by_case_file(cls, case_file_id, ho_session=None):
+        """Delete inspection and related entries by case file id."""
+        with session_scope() as session:
+            InspectionModel.delete_by_case_file(case_file_id, ho_session or session)
+            InspectionAgencyModel.delete_by_case_file(
+                case_file_id, ho_session or session
+            )
+            InspectionAttendanceModel.delete_by_case_file(
+                case_file_id, ho_session or session
+            )
+            InspectionFirstnationModel.delete_by_case_file(
+                case_file_id, ho_session or session
+            )
+            InspectionOfficerModel.delete_by_case_file(
+                case_file_id, ho_session or session
+            )
+            InspectionTypeModel.delete_by_case_file(case_file_id, ho_session or session)
+            InspectionUnapprovedProjectModel.delete_by_case_file(
+                case_file_id, ho_session or session
+            )
+            InspectionOtherAttendanceModel.delete_by_case_file(
+                case_file_id, ho_session or session
+            )
+
 
 def _access_check_create(inspection_data: dict):
     """Access check."""
