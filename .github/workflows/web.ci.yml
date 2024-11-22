@@ -79,10 +79,9 @@ jobs:
           script: |
             const fs = require('fs');
             const coverageSummary = fs.readFileSync('coverage-summary.txt', 'utf8');
-            const { context, github } = require('@actions/github');
-
+            
             const prComment = `### Code Coverage Summary\n\`\`\`plaintext\n${coverageSummary}\n\`\`\``;
-            const comment = await github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               ...context.repo,
               issue_number: context.payload.pull_request.number,
               body: prComment,
