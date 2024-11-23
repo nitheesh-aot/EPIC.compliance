@@ -15,14 +15,15 @@ export default function ContinuationReportTimelineEntry({
   searchText?: string;
 }) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [isExpanded, setIsExpanded] = useState(!!searchText);  // if searchText is there, default should be open
+  const [isExpanded, setIsExpanded] = useState(false);
   const [showReadMore, setShowReadMore] = useState(false);
 
   useEffect(() => {
     if (contentRef.current && contentRef.current.scrollHeight > 170) {
       setShowReadMore(true);
     }
-  }, []);
+    setIsExpanded(!!searchText); // if searchText is there, default should be open
+  }, [searchText]);
 
   const handleReadMoreClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.stopPropagation();
@@ -30,12 +31,58 @@ export default function ContinuationReportTimelineEntry({
   };
 
   const getFormattedText = () => {
-    if (!searchText) return renderText; // If no searchText to highlight, return the original renderText
-    const regex = new RegExp(`(${searchText})`, "g"); // Case-insensitive regex for the word
-    return renderText.replace(
-      regex,
-      `<span style="background-color: yellow;">${searchText}</span>`
-    );
+    if (!searchText) return renderText;
+
+    // Create a temporary DOM element to parse the HTML
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = renderText;
+
+    // Function to highlight text in a text node
+    const highlightTextNode = (node: Text) => {
+      const regex = new RegExp(`(${searchText})`, "gi");
+      const matches = node.textContent?.match(regex);
+      if (!matches) return;
+
+      const fragment = document.createDocumentFragment();
+      let lastIndex = 0;
+      let match;
+
+      regex.lastIndex = 0; // Reset regex state
+      while ((match = regex.exec(node.textContent || "")) !== null) {
+        // Add text before match
+        fragment.appendChild(
+          document.createTextNode(
+            node.textContent?.substring(lastIndex, match.index) || ""
+          )
+        );
+
+        // Add highlighted match
+        const highlight = document.createElement("span");
+        highlight.style.backgroundColor = "yellow";
+        highlight.textContent = match[0];
+        fragment.appendChild(highlight);
+
+        lastIndex = regex.lastIndex;
+      }
+
+      // Add remaining text
+      fragment.appendChild(
+        document.createTextNode(node.textContent?.substring(lastIndex) || "")
+      );
+      node.parentNode?.replaceChild(fragment, node);
+    };
+
+    // Recursive function to traverse DOM
+    const traverse = (node: Node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        highlightTextNode(node as Text);
+      } else {
+        node.childNodes.forEach(traverse);
+      }
+    };
+
+    traverse(tempDiv);
+    return tempDiv.innerHTML;
   };
 
   return (
