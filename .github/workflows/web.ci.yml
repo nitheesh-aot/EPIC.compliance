@@ -72,7 +72,7 @@ jobs:
         run: |
           npx cypress run --component --headed --browser chrome
 
-      - name: Generate Coverage Report
+      - name: Coverage Report
         run: |
           npx nyc report --reporter=lcov --reporter=text-summary
 
