@@ -16,7 +16,7 @@ from marshmallow import EXCLUDE, ValidationError, fields, post_dump, validates_s
 
 from compliance_api.models.inspection import (
     Inspection, InspectionAttendance, InspectionAttendanceOptionEnum, InspectionOfficer, InspectionStatusEnum)
-from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .case_file import CaseFileSchema
@@ -287,34 +287,11 @@ class InspectionUpdateSchema(BaseSchema):
 class InspectionCreateSchema(InspectionUpdateSchema):
     """Inspection schema for create."""
 
-    project_id = fields.Int(
-        metadata={
-            "description": "The unique identifier for the project associated with the inspection."
-        },
-        allow_none=True,
-    )
     case_file_id = fields.Int(
         metadata={
             "description": "The unique identifier of the case file associated with the inspection."
         },
         required=True,
-    )
-    unapproved_project_authorization = fields.Str(
-        metadata={
-            "description": "The authorization information of the unapproved project"
-        },
-        allow_none=True,
-    )
-    unapproved_project_regulated_party = fields.Str(
-        metadata={"description": "The regulated_party name of the unapproved project"},
-        allow_none=True,
-    )
-    unapproved_project_type = fields.Str(
-        metadata={"description": "The type of the unapproved project"}, allow_none=True
-    )
-    unapproved_project_sub_type = fields.Str(
-        metadata={"description": "The sub type of the unapproved project"},
-        allow_none=True,
     )
 
 
@@ -332,21 +309,10 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     primary_officer = fields.Nested(
         StaffUserSchema, only=("id", "first_name", "last_name", "name", "auth_user_guid")
     )
-    project = fields.Nested(
-        KeyValueSchema,
-    )
     ir_status = fields.Nested(KeyValueSchema)
     initiation = fields.Nested(KeyValueSchema)
     types = fields.Method("get_inspection_types")
     types_text = fields.Method("get_inspection_type_names")
-    authorization = fields.Str(
-        metadata={"description": "The authorization information of the project"}
-    )
-    regulated_party = fields.Str(
-        metadata={"description": "The regulated party of the project"}
-    )
-    type = fields.Str(metadata={"description": "The type of the project"})
-    sub_type = fields.Str(metadata={"description": "The subtype of the project"})
     project_status = fields.Nested(KeyValueSchema)
 
     @post_dump
@@ -360,11 +326,6 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
             ).value
         else:
             data["inspection_status"] = ""
-        if data.get("project", None) is None:
-            data["project"] = {
-                "name": UNAPPROVED_PROJECT_NAME,
-                "abbreviation": UNAPPROVED_PROJECT_CODE,
-            }
         return data
 
     def get_inspection_types(

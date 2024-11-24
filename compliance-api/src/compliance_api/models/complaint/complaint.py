@@ -18,6 +18,7 @@ from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModelVersioned
+from ..case_file import CaseFile as CaseFileModel
 
 
 class ComplaintStatusEnum(enum.Enum):
@@ -49,17 +50,6 @@ class Complaint(BaseModelVersioned):
         ForeignKey("case_files.id", name="complaints_case_file_id_case_file_id_fkey"),
         nullable=False,
         comment="The unique identifier of the case file associated with the complaint",
-    )
-    project_id = Column(
-        Integer,
-        ForeignKey("projects.id", name="complaints_project_id_projects_id_fkey"),
-        nullable=True,
-        comment="The unique identifier of the project associated with the complaint",
-    )
-    project_description = Column(
-        String,
-        nullable=True,
-        comment="The description of the project associated with the complaint",
     )
     concern_description = Column(
         String, nullable=False, comment="The concern description of the complaint"
@@ -124,7 +114,6 @@ class Complaint(BaseModelVersioned):
         "StaffUser", foreign_keys=[primary_officer_id], lazy="joined"
     )
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
-    project = relationship("Project", foreign_keys=[project_id], lazy="joined")
     requirement_detail = relationship(
         "ComplaintRequirementDetail",
         back_populates="complaint",
@@ -139,13 +128,16 @@ class Complaint(BaseModelVersioned):
         result = (
             cls.query.with_entities(
                 Complaint.case_file_id,
-                Complaint.project_id,
+                CaseFileModel.project_id,
                 func.count(Complaint.id).label(  # pylint: disable=not-callable
                     "complaint_count"
                 ),
             )
-            .filter_by(project_id=project_id, case_file_id=case_file_id)
-            .group_by(Complaint.case_file_id, Complaint.project_id)
+            .filter(
+                CaseFileModel.project_id == project_id,
+                Complaint.case_file_id == case_file_id,
+            )
+            .group_by(Complaint.case_file_id, CaseFileModel.project_id)
             .first()
         )
         return result.complaint_count if result else 0

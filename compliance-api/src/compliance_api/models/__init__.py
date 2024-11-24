@@ -18,15 +18,16 @@ from .agency import Agency
 from .case_file import CaseFile, CaseFileInitiationEnum, CaseFileInitiationOption, CaseFileOfficer, CaseFileStatusEnum
 from .complaint import (
     Complaint, ComplaintReqOrderDetail, ComplaintReqScheduleBDetail, ComplaintRequirementDetail, ComplaintSource,
-    ComplaintSourceContact, ComplaintStatusEnum, ComplaintUnapprovedProject)
+    ComplaintSourceContact, ComplaintStatusEnum)
 from .continuation_report import ContinuationReport, ContinuationReportKey
 from .db import db, ma, migrate
 from .inspection import (
     Inspection, InspectionAgency, InspectionAttendance, InspectionAttendanceOption, InspectionAttendanceOptionEnum,
     InspectionFirstnation, InspectionInitiationOption, InspectionOfficer, InspectionOtherAttendance,
-    InspectionStatusEnum, InspectionType, InspectionTypeOption, InspectionUnapprovedProject, IRStatusOption)
+    InspectionStatusEnum, InspectionType, InspectionTypeOption, IRStatusOption)
 from .position import Position
 from .project import Project
 from .requirement_source import RequirementSource
 from .staff_user import StaffUser
 from .topic import Topic
+from .unapproved_project import UnapprovedProject
