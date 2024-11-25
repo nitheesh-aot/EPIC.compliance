@@ -31,6 +31,11 @@ type CaseFileDrawerProps = {
 
 const caseFileFormSchema = yup.object().shape({
   project: yup.object<Project>().nullable().required("Project is required"),
+  authorization: yup.string().nullable(),
+  regulatedParty: yup.string().nullable(),
+  projectDescription: yup.string().nullable(),
+  projectType: yup.string().nullable(),
+  projectSubType: yup.string().nullable(),
   initiation: yup
     .object<Initiation>()
     .nullable()
@@ -48,6 +53,11 @@ type CaseFileSchemaType = yup.InferType<typeof caseFileFormSchema>;
 
 const initFormData: CaseFileFormData = {
   project: undefined,
+  authorization: undefined,
+  regulatedParty: undefined,
+  projectDescription: undefined,
+  projectType: undefined,
+  projectSubType: undefined,
   dateCreated: undefined,
   primaryOfficer: undefined,
   officers: [],
@@ -60,7 +70,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   caseFile,
 }) => {
   const { data: projectList } = useProjectsData({
-    includeUnapproved: !!caseFile,
+    includeUnapproved: true,
   });
   const { data: initiationList } = useInitiationsData();
   const { data: staffUserList } = useStaffUsersData();

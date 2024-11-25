@@ -19,6 +19,11 @@ export interface CaseFile {
 
 export interface CaseFileFormData {
   project?: Project;
+  authorization?: string;
+  regulatedParty?: string;
+  projectDescription?: string;
+  projectType?: string;
+  projectSubType?: string;
   dateCreated?: Dayjs;
   primaryOfficer?: StaffUser;
   officers?: StaffUser[];
