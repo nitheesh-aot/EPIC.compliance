@@ -1,4 +1,3 @@
-import { useStaffUsersData } from "@/hooks/useStaff";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Stack } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
@@ -37,6 +36,7 @@ import dayjs from "dayjs";
 import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
 import { CaseFile } from "@/models/CaseFile";
+import { useCurrentLoggedInUser } from "@/hooks/useAuthorization";
 
 type ComplaintDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -60,12 +60,17 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
 
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
 
-  const { data: staffUserList } = useStaffUsersData();
   const { data: complaintSourceList } = useComplaintSourcesData();
   const { data: requirementSourceList } = useRequirementSourcesData();
   const { data: agenciesList } = useAgenciesData();
   const { data: firstNationsList } = useFirstNationsData();
   const { data: topicsList } = useTopicsData();
+  const currentUser = useCurrentLoggedInUser();
+
+  const staffUserList = [
+    caseFile?.primary_officer,
+    ...(caseFile?.officers ?? []),
+  ].filter(Boolean) as StaffUser[];
 
   const defaultValues = useMemo<ComplaintFormData>(() => {
     if (complaint) {
@@ -108,13 +113,25 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
       };
     }
     if (caseFile) {
+      const selectedOfficer = staffUserList.find(
+        (user) => user.auth_user_guid === currentUser?.preferred_username
+      );
       return {
         ...initFormData,
+        caseFileId: caseFile.id.toString(),
         project: caseFile.project,
+        primaryOfficer: selectedOfficer,
       };
     }
     return initFormData;
-  }, [agenciesList, complaint, firstNationsList, caseFile]);
+  }, [
+    agenciesList,
+    complaint,
+    firstNationsList,
+    caseFile,
+    staffUserList,
+    currentUser,
+  ]);
 
   const methods = useForm<ComplaintSchemaType>({
     resolver: yupResolver(ComplaintFormSchema),

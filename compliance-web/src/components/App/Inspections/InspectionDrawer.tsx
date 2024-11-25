@@ -63,7 +63,6 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   caseFile,
 }) => {
   const { appHeaderHeight } = useMenuStore();
-  const currentUser = useCurrentLoggedInUser();
 
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
 
@@ -74,6 +73,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const { data: attendanceList } = useAttendanceOptionsData();
   const { data: agenciesList } = useAgenciesData();
   const { data: firstNationsList } = useFirstNationsData();
+  const currentUser = useCurrentLoggedInUser();
 
   const staffUserList = [
     caseFile?.primary_officer,
