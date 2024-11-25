@@ -1,4 +1,3 @@
-import { useStaffUsersData } from "@/hooks/useStaff";
 import { StaffUser } from "@/models/Staff";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Stack } from "@mui/material";
@@ -39,6 +38,7 @@ import { formatAuthorization } from "@/utils/appUtils";
 import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
 import { CaseFile } from "@/models/CaseFile";
+import { useCurrentLoggedInUser } from "@/hooks/useAuthorization";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -63,17 +63,22 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   caseFile,
 }) => {
   const { appHeaderHeight } = useMenuStore();
+  const currentUser = useCurrentLoggedInUser();
 
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
 
   const { data: initiationList } = useInitiationsData();
-  const { data: staffUserList } = useStaffUsersData();
   const { data: irTypeList } = useIRTypesData();
   const { data: irStatusList } = useIRStatusesData();
   const { data: projectStatusList } = useProjectStatusesData();
   const { data: attendanceList } = useAttendanceOptionsData();
   const { data: agenciesList } = useAgenciesData();
   const { data: firstNationsList } = useFirstNationsData();
+
+  const staffUserList = [
+    caseFile?.primary_officer,
+    ...(caseFile?.officers ?? []),
+  ].filter(Boolean) as StaffUser[];
 
   const defaultValues = useMemo<InspectionFormData>(() => {
     if (inspection) {
@@ -118,14 +123,18 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
       };
     }
     if (caseFile) {
+      const selectedOfficer = staffUserList.find(
+        (user) => user.auth_user_guid === currentUser?.preferred_username
+      );
       return {
         ...initFormData,
         caseFileId: caseFile.id.toString(),
         project: caseFile.project,
+        primaryOfficer: selectedOfficer,
       };
     }
     return initFormData;
-  }, [inspection, caseFile]);
+  }, [inspection, caseFile, staffUserList, currentUser]);
 
   const methods = useForm<InspectionSchemaType>({
     resolver: yupResolver(InspectionFormSchema),

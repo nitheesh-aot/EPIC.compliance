@@ -42,7 +42,7 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
           placeholder="Project Description"
           multiline
           fullWidth
-          minRows={3}
+          minRows={4}
         />
         <ControlledTextField
           name="locationDescription"

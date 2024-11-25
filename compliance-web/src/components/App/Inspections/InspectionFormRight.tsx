@@ -133,6 +133,7 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
             <ControlledAutoComplete
               name="inAttendance"
               label="In Attendance (optional)"
+              placeholder="Select groups that attended inspection"
               options={attendanceList}
               getOptionLabel={(option) => option.name}
               getOptionKey={(option) => option.id}
