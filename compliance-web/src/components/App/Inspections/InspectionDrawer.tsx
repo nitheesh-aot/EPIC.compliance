@@ -1,5 +1,4 @@
 import { useStaffUsersData } from "@/hooks/useStaff";
-import { useProjectsData } from "@/hooks/useProjects";
 import { StaffUser } from "@/models/Staff";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Stack } from "@mui/material";
@@ -67,7 +66,6 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
 
-  const { data: projectList } = useProjectsData({ includeUnapproved: true });
   const { data: initiationList } = useInitiationsData();
   const { data: staffUserList } = useStaffUsersData();
   const { data: irTypeList } = useIRTypesData();
@@ -216,15 +214,13 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
           direction={"row"}
         >
           <InspectionFormLeft
-            projectList={projectList ?? []}
             initiationList={initiationList ?? []}
             staffUsersList={staffUserList ?? []}
             irTypeList={irTypeList ?? []}
-            isEditMode={!!inspection}
-          />
-          <InspectionFormRight
             irStatusList={irStatusList ?? []}
             projectStatusList={projectStatusList ?? []}
+          />
+          <InspectionFormRight
             attendanceList={attendanceList ?? []}
             agenciesList={agenciesList ?? []}
             firstNationsList={firstNationsList ?? []}
