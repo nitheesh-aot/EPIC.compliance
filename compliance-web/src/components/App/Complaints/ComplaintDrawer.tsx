@@ -1,5 +1,4 @@
 import { useStaffUsersData } from "@/hooks/useStaff";
-import { useProjectsData } from "@/hooks/useProjects";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Stack } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
@@ -61,7 +60,6 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
 
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
 
-  const { data: projectList } = useProjectsData({ includeUnapproved: true });
   const { data: staffUserList } = useStaffUsersData();
   const { data: complaintSourceList } = useComplaintSourcesData();
   const { data: requirementSourceList } = useRequirementSourcesData();
@@ -201,11 +199,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
           height={`calc(100vh - ${appHeaderHeight + 129}px)`} // 64px (DrawerTitleBar height) + 65px (DrawerActionBar height)
           direction="row"
         >
-          <ComplaintFormLeft
-            projectList={projectList ?? []}
-            staffUsersList={staffUserList ?? []}
-            isEditMode={!!complaint}
-          />
+          <ComplaintFormLeft staffUsersList={staffUserList ?? []} />
           <Box
             sx={{
               width: "399px",
