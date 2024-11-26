@@ -10,4 +10,3 @@ from .inspection_option import (
     InspectionAttendanceOption, InspectionInitiationOption, InspectionTypeOption, IRStatusOption)
 from .inspection_other_attendance import InspectionOtherAttendance
 from .inspection_type import InspectionType
-from .inspection_unapproved_projects import InspectionUnapprovedProject

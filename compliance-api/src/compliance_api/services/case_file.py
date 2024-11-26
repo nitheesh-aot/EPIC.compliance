@@ -10,9 +10,12 @@ from compliance_api.models import CaseFile as CaseFileModel
 from compliance_api.models import CaseFileInitiationOption as CaseFileInitiationOptionModel
 from compliance_api.models import CaseFileOfficer as CaseFileOfficerModel
 from compliance_api.models import CaseFileStatusEnum
+from compliance_api.models import UnapprovedProject as UnapprovedProjectModel
 from compliance_api.models.db import session_scope
-from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_NAME
 from compliance_api.utils.enum import ContextEnum, PermissionEnum
+
+from .epic_track_service.track_service import TrackService
 
 
 class CaseFileService:
@@ -31,7 +34,8 @@ class CaseFileService:
     @classmethod
     def get_by_id(cls, case_file_id: int):
         """Return case file by id."""
-        return CaseFileModel.find_by_id(case_file_id)
+        case_file = CaseFileModel.find_by_id(case_file_id)
+        return _set_project_parameters(case_file)
 
     @classmethod
     def get_other_officers(cls, case_file_id: int):
@@ -48,6 +52,14 @@ class CaseFileService:
         _validate_existence_by_file_number(case_file_obj.get("case_file_number", None))
         with session_scope() as session:
             created_case_file = CaseFileModel.create_case_file(case_file_obj, session)
+            # If Selected Project is unapproved project
+            if not case_file_data.get("project_id", None):
+                unapproved_project_obj = _create_unapproved_project_object(
+                    case_file_data, created_case_file.id
+                )
+                UnapprovedProjectModel.create_project_info(
+                    unapproved_project_obj, session
+                )
             cls.insert_or_update_officers(
                 created_case_file.id, case_file_data.get("officer_ids", []), session
             )
@@ -71,14 +83,17 @@ class CaseFileService:
                 case_file_id, case_file_obj, ho_session or session
             )
             cls.insert_or_update_officers(
-                case_file_id, case_file_data.get("officer_ids", []), ho_session or session
+                case_file_id,
+                case_file_data.get("officer_ids", []),
+                ho_session or session,
             )
         return updated_case_file
 
     @classmethod
     def get_by_file_number(cls, case_file_number: int):
         """Return case file information by file number."""
-        return CaseFileModel.get_by_file_number(case_file_number)
+        case_file = CaseFileModel.get_by_file_number(case_file_number)
+        return _set_project_parameters(case_file)
 
     @classmethod
     def insert_or_update_officers(
@@ -128,6 +143,36 @@ class CaseFileService:
             officer.officer.auth_user_guid == auth_user_guid
             for officer in case_file.case_file_officers
         )
+
+
+def _set_project_parameters(case_file):
+    """Set project parameters."""
+    project_id = case_file.project_id
+    if project_id:
+        project = TrackService.get_project_by_id(project_id)
+        setattr(case_file, "authorization", project.get("ea_certificate", None))
+        setattr(case_file, "type", project.get("type").get("name"))
+        setattr(case_file, "sub_type", project.get("sub_type").get("name"))
+        setattr(case_file, "regulated_party", project.get("proponent").get("name"))
+    if not project_id:
+        project = UnapprovedProjectModel.get_by_case_file_id(case_file.id)
+        setattr(case_file, "authorization", project.authorization)
+        setattr(case_file, "type", project.type)
+        setattr(case_file, "sub_type", project.sub_type)
+        setattr(case_file, "regulated_party", project.regulated_party)
+    return case_file
+
+
+def _create_unapproved_project_object(case_file_data: dict, case_file_id: int):
+    """Create unapproved project object."""
+    return {
+        "name": UNAPPROVED_PROJECT_NAME,
+        "authorization": case_file_data.get("unapproved_project_authorization"),
+        "regulated_party": case_file_data.get("unapproved_project_regulated_party"),
+        "type": case_file_data.get("unapproved_project_type"),
+        "sub_type": case_file_data.get("unapproved_project_sub_type"),
+        "case_file_id": case_file_id,
+    }
 
 
 def _access_check_for_update(case_file_id):

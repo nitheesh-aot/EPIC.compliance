@@ -6,6 +6,7 @@ from flask import g
 
 from compliance_api.auth import auth
 from compliance_api.exceptions import PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError
+from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.complaint import Complaint as ComplaintModel
 from compliance_api.models.complaint import ComplaintReqEACDetail as ComplaintReqEACDetailModel
 from compliance_api.models.complaint import ComplaintReqOrderDetail as ComplaintReqOrderDetailModel
@@ -15,11 +16,10 @@ from compliance_api.models.complaint import ComplaintRequirementSourceEnum
 from compliance_api.models.complaint import ComplaintSource as ComplaintSourceModel
 from compliance_api.models.complaint import ComplaintSourceContact as ComplaintSourceContactModel
 from compliance_api.models.complaint import ComplaintStatusEnum
-from compliance_api.models.complaint import ComplaintUnapprovedProject as ComplaintUnapprovedProjectModel
 from compliance_api.models.db import session_scope
 from compliance_api.services.case_file import CaseFileService
 from compliance_api.services.epic_track_service.track_service import TrackService
-from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE
 from compliance_api.utils.enum import ContextEnum, PermissionEnum
 
 from .continuation_report import ContinuationReportService
@@ -44,7 +44,7 @@ class ComplaintService:
         complaint = ComplaintModel.find_by_id(complaint_id)
         if not complaint:
             return None
-        return _set_project_parameters(complaint)
+        return complaint
 
     @classmethod
     def get_by_complaint_no(cls, complaint_no):
@@ -54,7 +54,7 @@ class ComplaintService:
             return None
         if complaint.source_first_nation_id:
             complaint.first_nation = _get_first_nation(complaint.source_first_nation_id)
-        return _set_project_parameters(complaint)
+        return complaint
 
     @classmethod
     def get_source_contact(cls, complaint_id):
@@ -142,13 +142,6 @@ class ComplaintService:
         complaint_obj = _create_complaint_object(complaint_data)
         with session_scope() as session:
             created_complaint = ComplaintModel.create_complaint(complaint_obj, session)
-            if not _has_project(complaint_data):
-                unapproved_project_obj = _create_unapproved_project_object(
-                    complaint_data, created_complaint.id
-                )
-                ComplaintUnapprovedProjectModel.create_project_info(
-                    unapproved_project_obj, session
-                )
             contact_obj = _create_source_type_contact_object(
                 complaint_data, created_complaint.id
             )
@@ -180,9 +173,6 @@ class ComplaintService:
         """Delete complaint by case file id."""
         with session_scope() as session:
             ComplaintModel.delete_by_case_file(case_file_id, ho_session or session)
-            ComplaintUnapprovedProjectModel.delete_by_case_file(
-                case_file_id, ho_session or session
-            )
             ComplaintSourceContactModel.delete_by_case_file(
                 case_file_id, ho_session or session
             )
@@ -239,29 +229,6 @@ def _remove_existing_requirement_details(
             )
 
 
-def _set_project_parameters(complaint):
-    """Set complaint project parameters."""
-    project_id = complaint.project_id
-    if project_id:
-        project = TrackService.get_project_by_id(project_id)
-        setattr(complaint, "authorization", project.get("ea_certificate", None))
-        setattr(complaint, "type", project.get("type").get("name"))
-        setattr(complaint, "sub_type", project.get("sub_type").get("name"))
-        setattr(complaint, "regulated_party", project.get("proponent").get("name"))
-    if not project_id:
-        project = ComplaintUnapprovedProjectModel.get_by_complaint_id(complaint.id)
-        setattr(complaint, "authorization", project.authorization)
-        setattr(complaint, "type", project.type)
-        setattr(complaint, "sub_type", project.sub_type)
-        setattr(complaint, "regulated_party", project.regulated_party)
-    return complaint
-
-
-def _has_project(complaint_data):
-    """Check if there is a valid project or not."""
-    return complaint_data.get("project_id", None) is not None
-
-
 def _has_requirement_source(complaint_data):
     """Check if requirement source selected or not."""
     return complaint_data.get("requirement_source_id", None) is not None
@@ -314,23 +281,10 @@ def _create_source_type_contact_object(complaint_data: dict, complaint_id):
     }
 
 
-def _create_unapproved_project_object(complaint_data: dict, complaint_id: int):
-    """Create complaint unapproved project object."""
-    return {
-        "name": UNAPPROVED_PROJECT_NAME,
-        "authorization": complaint_data.get("unapproved_project_authorization"),
-        "regulated_party": complaint_data.get("unapproved_project_regulated_party"),
-        "type": complaint_data.get("unapproved_project_type"),
-        "sub_type": complaint_data.get("unapproved_project_sub_type"),
-        "complaint_id": complaint_id,
-    }
-
-
 def _create_complaint_update_object(complaint_data: dict):
     """Create complaint update object."""
     return {
         "location_description": complaint_data.get("location_description", None),
-        "project_description": complaint_data.get("project_description", None),
         "concern_description": complaint_data.get("concern_description", None),
         "primary_officer_id": complaint_data.get("primary_officer_id", None),
         "date_received": complaint_data.get("date_received"),
@@ -343,12 +297,11 @@ def _create_complaint_update_object(complaint_data: dict):
 
 def _create_complaint_object(complaint_data: dict):
     """Create complaint object."""
-    project_id = complaint_data.get("project_id", None)
     case_file_id = complaint_data.get("case_file_id")
+    case_file = CaseFileModel.find_by_id(case_file_id)
     result = _create_complaint_update_object(complaint_data)
-    result["complaint_number"] = _create_complaint_number(project_id, case_file_id)
-    result["case_file_id"] = complaint_data.get("case_file_id")
-    result["project_id"] = project_id
+    result["complaint_number"] = _create_complaint_number(case_file.project_id, case_file_id)
+    result["case_file_id"] = case_file_id
     result["status"] = ComplaintStatusEnum.OPEN
     return result
 

@@ -7,6 +7,7 @@ from flask import g
 from compliance_api.auth import auth
 from compliance_api.exceptions import (
     BusinessError, PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError)
+from compliance_api.models import CaseFile as CaseFileModel
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionAgency as InspectionAgencyModel
 from compliance_api.models import InspectionAttendance as InspectionAttendanceModel
@@ -17,12 +18,11 @@ from compliance_api.models import InspectionOfficer as InspectionOfficerModel
 from compliance_api.models import InspectionOtherAttendance as InspectionOtherAttendanceModel
 from compliance_api.models import InspectionType as InspectionTypeModel
 from compliance_api.models import InspectionTypeOption as InspectionTypeOptionModel
-from compliance_api.models import InspectionUnapprovedProject as InspectionUnapprovedProjectModel
 from compliance_api.models import IRStatusOption as IRStatusOptionModel
 from compliance_api.models.db import session_scope
 from compliance_api.models.inspection.inspection_enum import InspectionAttendanceOptionEnum, InspectionStatusEnum
 from compliance_api.services.case_file import CaseFileService
-from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE
 from compliance_api.utils.enum import ContextEnum, PermissionEnum
 
 from .epic_track_service.track_service import TrackService
@@ -69,13 +69,13 @@ class InspectionService:
             raise ResourceNotFoundError(
                 f"No inspection found for the given ID : {inspection_id}"
             )
-        return _set_inspection_project_parameters(inspection)
+        return _set_project_status(inspection)
 
     @classmethod
     def get_by_ir_number(cls, ir_number):
         """Return inspection by ir number."""
         inspection = InspectionModel.get_by_ir_number(ir_number)
-        return _set_inspection_project_parameters(inspection)
+        return _set_project_status(inspection)
 
     @classmethod
     def get_other_officers(cls, inspection_id):
@@ -156,14 +156,6 @@ class InspectionService:
             created_inspection = InspectionModel.create_inspection(
                 inspection_obj, session
             )
-            # If Selected Project is unapproved project
-            if not inspection_data.get("project_id", None):
-                unapproved_project_obj = _create_unapproved_project_object(
-                    inspection_data, created_inspection.id
-                )
-                InspectionUnapprovedProjectModel.create_project_info(
-                    unapproved_project_obj, session
-                )
             attendance_option_ids = inspection_data.get("attendance_option_ids", [])
             _insert_or_update_inspection_relationship(
                 created_inspection.id,
@@ -295,9 +287,6 @@ class InspectionService:
                 case_file_id, ho_session or session
             )
             InspectionTypeModel.delete_by_case_file(case_file_id, ho_session or session)
-            InspectionUnapprovedProjectModel.delete_by_case_file(
-                case_file_id, ho_session or session
-            )
             InspectionOtherAttendanceModel.delete_by_case_file(
                 case_file_id, ho_session or session
             )
@@ -328,21 +317,8 @@ def _access_check_update(inspection_id: dict):
         )
 
 
-def _set_inspection_project_parameters(inspection):
+def _set_project_status(inspection):
     """Set inspection project parameters."""
-    project_id = inspection.project_id
-    if project_id:
-        project = TrackService.get_project_by_id(project_id)
-        setattr(inspection, "authorization", project.get("ea_certificate", None))
-        setattr(inspection, "type", project.get("type").get("name"))
-        setattr(inspection, "sub_type", project.get("sub_type").get("name"))
-        setattr(inspection, "regulated_party", project.get("proponent").get("name"))
-    if not project_id:
-        project = InspectionUnapprovedProjectModel.get_by_inspection_id(inspection.id)
-        setattr(inspection, "authorization", project.authorization)
-        setattr(inspection, "type", project.type)
-        setattr(inspection, "sub_type", project.sub_type)
-        setattr(inspection, "regulated_party", project.regulated_party)
     if inspection.project_status_id:
         project_statuses = TrackService.get_project_statuses()
         status = next(
@@ -411,18 +387,6 @@ def _insert_or_update_inspection_relationship(
         model_class.bulk_insert(inspection_id, list(entity_ids_to_be_added), session)
 
 
-def _create_unapproved_project_object(inspection_data: dict, inspection_id: int):
-    """Create inspection unapproved project object."""
-    return {
-        "name": UNAPPROVED_PROJECT_NAME,
-        "authorization": inspection_data.get("unapproved_project_authorization"),
-        "regulated_party": inspection_data.get("unapproved_project_regulated_party"),
-        "type": inspection_data.get("unapproved_project_type"),
-        "sub_type": inspection_data.get("unapproved_project_sub_type"),
-        "inspection_id": inspection_id,
-    }
-
-
 def _create_inspection_update_obj(inspection_data: dict):
     """Create inspection update object."""
     return {
@@ -440,12 +404,14 @@ def _create_inspection_update_obj(inspection_data: dict):
 
 def _create_inspection_object(inspection_data: dict):
     """Create inspection object."""
-    project_id = inspection_data.get("project_id", None)
     case_file_id = inspection_data.get("case_file_id")
+    case_file = CaseFileModel.find_by_id(case_file_id)
     return {
-        "ir_number": _create_inspection_record_number(project_id, case_file_id),
+        "ir_number": _create_inspection_record_number(
+            case_file.project_id, case_file_id
+        ),
         "case_file_id": inspection_data.get("case_file_id"),
-        "project_id": project_id,
+        "project_id": case_file.project_id,
         "project_description": inspection_data.get("project_description", None),
         "location_description": inspection_data.get("location_description", None),
         "utm": inspection_data.get("utm", None),
@@ -464,7 +430,7 @@ def _create_inspection_record_number(
 ):  # pylint: disable=inconsistent-return-statements
     """Generate the inspection record number."""
     project_code = _get_project_abbreviation(project_id)
-    case_file = CaseFileService.get_by_id(case_file_id)
+    case_file = CaseFileModel.find_by_id(case_file_id)
     if not case_file:
         raise ResourceNotFoundError("Given case file doesn't exist")
     if case_file.project_id != project_id:
