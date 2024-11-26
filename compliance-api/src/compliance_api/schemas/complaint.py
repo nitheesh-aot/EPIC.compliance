@@ -17,7 +17,7 @@ from marshmallow import EXCLUDE, ValidationError, fields, post_dump, validates_s
 from compliance_api.models import Complaint, ComplaintRequirementDetail, ComplaintSourceContact, ComplaintStatusEnum
 from compliance_api.models.complaint import ComplaintSourceEnum
 from compliance_api.models.requirement_source import RequirementSourceEnum
-from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .case_file import CaseFileSchema
@@ -100,9 +100,6 @@ class ContactCreateSchema(BaseSchema):
 class ComplaintUpdateSchema(BaseSchema):
     """Complaint schema for update."""
 
-    project_description = fields.Str(
-        metadata={"description": "The project description"}, allow_none=True
-    )
     concern_description = fields.Str(
         metadata={"description": "The concern description of the complaint."},
         required=True,
@@ -150,34 +147,11 @@ class ComplaintUpdateSchema(BaseSchema):
 class ComplaintCreateSchema(ComplaintUpdateSchema):
     """Complaint schema for create."""
 
-    project_id = fields.Int(
-        metadata={
-            "description": "The unique identifier for the project associated with the complaint."
-        },
-        allow_none=True,
-    )
     case_file_id = fields.Int(
         metadata={
             "description": "The unique identifier of the case file associated with the complaint."
         },
         required=True,
-    )
-    unapproved_project_authorization = fields.Str(
-        metadata={
-            "description": "The authorization information of the unapproved project"
-        },
-        allow_none=True,
-    )
-    unapproved_project_regulated_party = fields.Str(
-        metadata={"description": "The regulated_party name of the unapproved project"},
-        allow_none=True,
-    )
-    unapproved_project_type = fields.Str(
-        metadata={"description": "The type of the unapproved project"}, allow_none=True
-    )
-    unapproved_project_sub_type = fields.Str(
-        metadata={"description": "The sub type of the unapproved project"},
-        allow_none=True,
     )
 
     @validates_schema
@@ -269,22 +243,11 @@ class ComplaintSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     primary_officer = fields.Nested(
         StaffUserSchema, only=("id", "first_name", "last_name", "name", "auth_user_guid")
     )
-    project = fields.Nested(
-        KeyValueSchema,
-    )
     source_type = fields.Nested(KeyValueSchema)
     agency = fields.Nested(KeyValueSchema)
     first_nation = fields.Nested(KeyValueSchema)
     requirement_source = fields.Nested(KeyValueSchema)
     requirement_detail = fields.Nested(RequirementSoruceDetailSchema, only=["topic"])
-    authorization = fields.Str(
-        metadata={"description": "The authorization information of the project"}
-    )
-    regulated_party = fields.Str(
-        metadata={"description": "The regulated party of the project"}
-    )
-    type = fields.Str(metadata={"description": "The type of the project"})
-    sub_type = fields.Str(metadata={"description": "The subtype of the project"})
 
     @post_dump
     def post_dump_actions(
@@ -295,9 +258,4 @@ class ComplaintSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
             data["status"] = ComplaintStatusEnum(data["status"]).value
         else:
             data["status"] = ""
-        if data.get("project", None) is None:
-            data["project"] = {
-                "name": UNAPPROVED_PROJECT_NAME,
-                "abbreviation": UNAPPROVED_PROJECT_CODE,
-            }
         return data

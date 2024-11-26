@@ -16,6 +16,7 @@ from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModelVersioned
+from ..case_file import CaseFile as CaseFileModel
 from .inspection_enum import InspectionStatusEnum
 
 
@@ -113,9 +114,6 @@ class Inspection(BaseModelVersioned):
     first_nations = relationship(
         "InspectionFirstnation", back_populates="inspection", lazy="select"
     )
-    unapproved_project_info = relationship(
-        "InspectionUnapprovedProject", back_populates="inspection", lazy="select"
-    )
     types = relationship(
         "InspectionType",
         back_populates="inspection",
@@ -136,15 +134,19 @@ class Inspection(BaseModelVersioned):
     def get_count_by_project_nd_case_file_id(cls, project_id: int, case_file_id: int):
         """Return the number of inspection based on the project and case file id."""
         result = (
-            cls.query.with_entities(
+            cls.query.join(CaseFileModel, Inspection.case_file_id == CaseFileModel.id)
+            .with_entities(
                 Inspection.case_file_id,
-                Inspection.project_id,
+                CaseFileModel.project_id,
                 func.count(Inspection.id).label(  # pylint: disable=not-callable
                     "inspection_count"
                 ),
             )
-            .filter_by(project_id=project_id, case_file_id=case_file_id)
-            .group_by(Inspection.case_file_id, Inspection.project_id)
+            .filter(
+                CaseFileModel.project_id == project_id,
+                Inspection.case_file_id == case_file_id,
+            )
+            .group_by(Inspection.case_file_id, CaseFileModel.project_id)
             .first()
         )
         return result.inspection_count if result else 0

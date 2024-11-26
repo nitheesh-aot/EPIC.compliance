@@ -53,6 +53,14 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         exclude=["is_active"],
     )
     initiation = fields.Nested(KeyValueSchema)
+    authorization = fields.Str(
+        metadata={"description": "The authorization information of the project"}
+    )
+    regulated_party = fields.Str(
+        metadata={"description": "The regulated party of the project"}
+    )
+    type = fields.Str(metadata={"description": "The type of the project"})
+    sub_type = fields.Str(metadata={"description": "The subtype of the project"})
 
     @post_dump
     def post_dump_actions(
@@ -74,7 +82,7 @@ class CaseFileSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
 
 
 class CaseFileUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
-    """CaseFile create Schema."""
+    """CaseFile update Schema."""
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
@@ -124,5 +132,22 @@ class CaseFileCreateSchema(CaseFileUpdateSchema):  # pylint: disable=too-many-an
         metadata={
             "description": "The unique case file number. If not provided, the case file number will be auto generated."
         },
+        allow_none=True,
+    )
+    unapproved_project_authorization = fields.Str(
+        metadata={
+            "description": "The authorization information of the unapproved project"
+        },
+        allow_none=True,
+    )
+    unapproved_project_regulated_party = fields.Str(
+        metadata={"description": "The regulated_party name of the unapproved project"},
+        allow_none=True,
+    )
+    unapproved_project_type = fields.Str(
+        metadata={"description": "The type of the unapproved project"}, allow_none=True
+    )
+    unapproved_project_sub_type = fields.Str(
+        metadata={"description": "The sub type of the unapproved project"},
         allow_none=True,
     )
