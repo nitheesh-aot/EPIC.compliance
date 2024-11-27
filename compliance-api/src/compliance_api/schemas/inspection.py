@@ -137,7 +137,7 @@ class InspectionUpdateSchema(BaseSchema):
         fields.Int(
             metadata={"description": "The list of unique identifier of the officers"}
         ),
-        required=False
+        required=False,
     )
     attendance_municipal = fields.Str(
         metadata={"description": "The municipal attendance"}, allow_none=True
@@ -260,7 +260,10 @@ class InspectionUpdateSchema(BaseSchema):
         # Retrieve the context to access other fields
         attendance_option_ids = data.get("attendance_option_ids", [])
         value = data.get("attending_officer_ids", None)
-        if InspectionAttendanceOptionEnum.ATTENDING_OFFICERS.value in attendance_option_ids:
+        if (
+            InspectionAttendanceOptionEnum.ATTENDING_OFFICERS.value
+            in attendance_option_ids
+        ):
             if not value:
                 raise ValidationError(
                     "attending_officer_ids are required when ATTENDING_OFFICERS are included in attendance_option_ids.",
@@ -305,9 +308,12 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         model = Inspection
         include_fk = True
 
-    case_file = fields.Nested(CaseFileSchema, only=("case_file_number", "id"))
+    case_file = fields.Nested(
+        CaseFileSchema, only=("case_file_number", "id", "project", "case_file_status")
+    )
     primary_officer = fields.Nested(
-        StaffUserSchema, only=("id", "first_name", "last_name", "name", "auth_user_guid")
+        StaffUserSchema,
+        only=("id", "first_name", "last_name", "name", "auth_user_guid"),
     )
     ir_status = fields.Nested(KeyValueSchema)
     initiation = fields.Nested(KeyValueSchema)
@@ -328,9 +334,7 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
             data["inspection_status"] = ""
         return data
 
-    def get_inspection_types(
-        self, obj
-    ):  # pylint: disable=no-self-use, unused-argument
+    def get_inspection_types(self, obj):  # pylint: disable=no-self-use, unused-argument
         """Get the inspection type objects."""
         if obj.types:
             return [{"id": o.type.id, "name": o.type.name} for o in obj.types]
