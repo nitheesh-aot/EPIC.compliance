@@ -21,7 +21,8 @@ from flask_restx import Namespace, Resource
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
-    CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, CaseFileUpdateSchema, KeyValueSchema, StaffUserSchema)
+    CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, CaseFileStatusSchema, CaseFileUpdateSchema,
+    KeyValueSchema, StaffUserSchema)
 from compliance_api.services import CaseFileService
 from compliance_api.services.case_file_aggregate import CaseFileAggregateService
 from compliance_api.utils.enum import PermissionEnum
@@ -49,6 +50,9 @@ staff_list_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 case_file_update_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, CaseFileSchema(), "CaseFileUpdate"
+)
+case_file_status_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, CaseFileStatusSchema(), "CaseFileStatus"
 )
 
 
@@ -146,6 +150,7 @@ class CaseFile(Resource):
 
     @staticmethod
     @auth.require
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.USER])
     @ApiHelper.swagger_decorators(API, endpoint_description="Delete a CaseFile by id")
     @API.response(code=204, description="Success")
     @API.response(400, "Bad Request")
@@ -193,3 +198,23 @@ class CaseFileOtherOfficers(Resource):
         """Update a CaseFile by id."""
         officers = CaseFileService.get_other_officers(case_file_id)
         return StaffUserSchema().dump(officers, many=True), HTTPStatus.OK
+
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/<int:case_file_id>/status", methods=["PATCH", "OPTIONS"])
+@API.doc(params={"case_file_id": "The unique identifier for the case file"})
+class CaseFileStatus(Resource):
+    """Update the case file status."""
+
+    @staticmethod
+    @auth.require
+    @API.expect(case_file_status_model)
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Close the case file")
+    @API.response(code=204, description="Case file closed")
+    def patch(case_file_id):
+        """Close case file."""
+        status = CaseFileStatusSchema().load(API.payload)
+        CaseFileService.change_case_file_status(case_file_id, status)
+        return {}, HTTPStatus.NO_CONTENT

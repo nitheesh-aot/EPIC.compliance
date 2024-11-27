@@ -8,6 +8,7 @@ from compliance_api.auth import auth
 from compliance_api.exceptions import (
     BusinessError, PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError)
 from compliance_api.models import CaseFile as CaseFileModel
+from compliance_api.models import CaseFileStatusEnum
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionAgency as InspectionAgencyModel
 from compliance_api.models import InspectionAttendance as InspectionAttendanceModel
@@ -150,8 +151,18 @@ class InspectionService:
         """Create inspection."""
         from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
 
+        case_file_id = inspection_data.get("case_file_id")
+        case_file = CaseFileModel.find_by_id(case_file_id)
+        if case_file.case_file_status == CaseFileStatusEnum.CLOSED:
+            raise UnprocessableEntityError(
+                "Inspection cannot be created with closed case file."
+            )
+        if case_file.is_active is False or case_file.is_deleted is True:
+            raise UnprocessableEntityError(
+                "Inspection cannot be created on deleted or inactive case file."
+            )
         _access_check_create(inspection_data)
-        inspection_obj = _create_inspection_object(inspection_data)
+        inspection_obj = _create_inspection_object(inspection_data, case_file)
         with session_scope() as session:
             created_inspection = InspectionModel.create_inspection(
                 inspection_obj, session
@@ -402,15 +413,13 @@ def _create_inspection_update_obj(inspection_data: dict):
     }
 
 
-def _create_inspection_object(inspection_data: dict):
+def _create_inspection_object(inspection_data: dict, case_file):
     """Create inspection object."""
-    case_file_id = inspection_data.get("case_file_id")
-    case_file = CaseFileModel.find_by_id(case_file_id)
     return {
         "ir_number": _create_inspection_record_number(
-            case_file.project_id, case_file_id
+            case_file.project_id, case_file.id
         ),
-        "case_file_id": inspection_data.get("case_file_id"),
+        "case_file_id": case_file.id,
         "project_id": case_file.project_id,
         "project_description": inspection_data.get("project_description", None),
         "location_description": inspection_data.get("location_description", None),
