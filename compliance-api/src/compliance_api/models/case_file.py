@@ -18,6 +18,7 @@ from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, cast
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModelVersioned
+from .db import db
 
 
 class CaseFileInitiationEnum(enum.Enum):
@@ -123,6 +124,19 @@ class CaseFile(BaseModelVersioned):
         return cls.query.filter_by(
             case_file_number=case_file_number, is_deleted=False
         ).first()
+
+    @classmethod
+    def change_status(
+        cls, case_file_id, case_file_status: CaseFileStatusEnum, session=None
+    ):
+        """Update the case file status."""
+        cls.query.filter(cls.id == case_file_id).update(
+            {cls.case_file_status: case_file_status}
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
 
     @classmethod
     def get_by_project(cls, project_id: int):
