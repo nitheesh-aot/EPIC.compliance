@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """CaseFile Schema."""
-from marshmallow import EXCLUDE, fields, post_dump
+from marshmallow import EXCLUDE, fields, post_dump, post_load
+from marshmallow_enum import EnumField
 
 from compliance_api.models import CaseFile, CaseFileOfficer, CaseFileStatusEnum
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
@@ -151,3 +152,28 @@ class CaseFileCreateSchema(CaseFileUpdateSchema):  # pylint: disable=too-many-an
         metadata={"description": "The sub type of the unapproved project"},
         allow_none=True,
     )
+
+
+class CaseFileStatusSchema(BaseSchema):
+    """CaseFileStatusSchema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    status = EnumField(
+        CaseFileStatusEnum,
+        metadata={"description": "The status of the case file"},
+        required=True,
+    )
+
+    @post_load
+    def extract_status_value(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Extract the value of the status enum."""
+        status_enum = data.get("status")
+        if status_enum:
+            data["status"] = status_enum.value
+        return data
