@@ -116,13 +116,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
       primaryOfficer: selectedOfficer,
       projectDescription: caseFile.project_description,
     };
-  }, [
-    inspection,
-    caseFile.id,
-    caseFile.project_description,
-    staffUserList,
-    currentUser?.preferred_username,
-  ]);
+  }, [inspection, caseFile, staffUserList, currentUser?.preferred_username]);
 
   const methods = useForm<InspectionSchemaType>({
     resolver: yupResolver(InspectionFormSchema),

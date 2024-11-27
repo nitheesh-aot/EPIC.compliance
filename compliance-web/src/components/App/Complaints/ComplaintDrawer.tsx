@@ -60,10 +60,17 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
   const { data: topicsList } = useTopicsData();
   const currentUser = useCurrentLoggedInUser();
 
-  const staffUserList = [
-    caseFile.primary_officer,
-    ...(caseFile.officers ?? []),
-  ].filter(Boolean) as StaffUser[];
+  const staffUserList = Array.from(
+    new Set(
+      [caseFile.primary_officer, ...(caseFile.officers ?? [])]
+        .filter(Boolean)
+        .map((user) => user.id)
+    )
+  ).map((id) =>
+    [caseFile.primary_officer, ...(caseFile.officers ?? [])].find(
+      (user) => user?.id === id
+    )
+  ) as StaffUser[];
 
   const defaultValues = useMemo<ComplaintFormData>(() => {
     if (complaint) {
