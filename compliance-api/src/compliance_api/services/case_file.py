@@ -5,7 +5,8 @@ from datetime import datetime
 from flask import g
 
 from compliance_api.auth import auth
-from compliance_api.exceptions import PermissionDeniedError, ResourceExistsError
+from compliance_api.exceptions import (
+    PermissionDeniedError, ResourceExistsError, ResourceNotFoundError, UnprocessableEntityError)
 from compliance_api.models import CaseFile as CaseFileModel
 from compliance_api.models import CaseFileInitiationOption as CaseFileInitiationOptionModel
 from compliance_api.models import CaseFileOfficer as CaseFileOfficerModel
@@ -144,6 +145,26 @@ class CaseFileService:
             officer.officer.auth_user_guid == auth_user_guid
             for officer in case_file.case_file_officers
         )
+
+    @classmethod
+    def change_case_file_status(cls, case_file_id, status_data):
+        """Change the status of the case file."""
+        _access_check_for_update(case_file_id)
+        case_file = CaseFileModel.find_by_id(case_file_id)
+        if not case_file:
+            raise ResourceNotFoundError("Case file not found.")
+        status_enum = CaseFileStatusEnum(status_data.get("status"))
+        if (
+            case_file.case_file_status == CaseFileStatusEnum.OPEN
+            and status_enum == CaseFileStatusEnum.OPEN
+        ):
+            raise UnprocessableEntityError("The case file is already in Open status.")
+        if (
+            case_file.case_file_status == CaseFileStatusEnum.CLOSED
+            and status_enum == CaseFileStatusEnum.CLOSED
+        ):
+            raise UnprocessableEntityError("The case file is already in Open status.")
+        CaseFileModel.change_status(case_file_id, status_enum)
 
 
 def _set_project_parameters(case_file):

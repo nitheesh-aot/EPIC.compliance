@@ -28,7 +28,6 @@ def upgrade():
     connection = op.get_bind()
     metadata = sa.MetaData()
     metadata.reflect(bind=connection)
-    op.execute("TRUNCATE requirement_sources RESTART IDENTITY CASCADE")
     requirement_source_table = metadata.tables["requirement_sources"]
     document_types = [
         {
@@ -56,7 +55,7 @@ def upgrade():
             "is_deleted": False,
         },
         {
-            "name": "Schedule A – Certified Project Description",
+            "name": "Schedule A - Certified Project Description",
             "sort_order": 4,
             "created_date": datetime.utcnow(),
             "created_by": "system",
@@ -64,7 +63,7 @@ def upgrade():
             "is_deleted": False,
         },
         {
-            "name": "Schedule B – Table of Conditions",
+            "name": "Schedule B - Table of Conditions",
             "sort_order": 5,
             "created_date": datetime.utcnow(),
             "created_by": "system",
@@ -104,7 +103,25 @@ def upgrade():
             "is_deleted": False,
         },
     ]
-    op.bulk_insert(requirement_source_table, document_types)
+    for doc in document_types:
+        # Check if the record exists
+        query = sa.select(requirement_source_table).where(requirement_source_table.c.name == doc["name"])
+        result = connection.execute(query).fetchone()
+        print(result)
+        if result:
+            # If exists, update the sort_order
+            update_stmt = (
+                sa.update(requirement_source_table)
+                .where(requirement_source_table.c.name == doc["name"])
+                .values(sort_order=doc["sort_order"])
+            )
+            connection.execute(update_stmt)
+        else:
+            # If not, insert a new record
+            print('insert')
+            insert_stmt = requirement_source_table.insert().values(doc)
+            connection.execute(insert_stmt)
+    op.execute("DELETE FROM requirement_sources WHERE name='Other'")
     # ### end Alembic commands ###
 
 
