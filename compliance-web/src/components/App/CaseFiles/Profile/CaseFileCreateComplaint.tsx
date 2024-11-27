@@ -20,17 +20,22 @@ const CaseFileCreateComplaint = () => {
 
   const handleOnSubmit = useCallback(
     (submitMsg: string) => {
-      queryClient.invalidateQueries({ queryKey: ["inspections"] });
+      queryClient.invalidateQueries({
+        queryKey: ["complaints-by-caseFileId", caseFileData?.id],
+      });
       setClose();
       notify.success(submitMsg);
     },
-    [queryClient, setClose]
+    [caseFileData, queryClient, setClose]
   );
 
   const handleOpenComplaintDrawer = useCallback(() => {
     setOpen({
       content: (
-        <ComplaintDrawer onSubmit={handleOnSubmit} caseFile={caseFileData} />
+        <ComplaintDrawer
+          onSubmit={handleOnSubmit}
+          caseFile={caseFileData as CaseFile}
+        />
       ),
       width: "1118px",
     });
