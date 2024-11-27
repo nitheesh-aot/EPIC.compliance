@@ -23,6 +23,8 @@ import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
 import { KC_USER_GROUPS } from "@/hooks/useAuthorization";
 import { useIsRolesAllowed } from "@/hooks/useAuthorization";
+import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
+import { formatAuthorization } from "@/utils/appUtils";
 
 type CaseFileDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -87,6 +89,11 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
         officers: caseFile.officers,
         initiation: caseFile.initiation,
         caseFileNumber: caseFile.case_file_number,
+        authorization: formatAuthorization(caseFile.authorization),
+        regulatedParty: caseFile.regulated_party,
+        projectDescription: caseFile.project_description,
+        projectType: caseFile.type,
+        projectSubType: caseFile.sub_type,
       };
     }
     return initFormData;
@@ -119,20 +126,38 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
   const { mutate: createCaseFile } = useCreateCaseFile(onSuccess);
   const { mutate: updateCaseFile } = useUpdateCaseFile(onSuccess);
 
+  const getProjectId = (formData: CaseFileSchemaType) => {
+    const projectId = (formData.project as Project)?.id ?? "";
+    return projectId === UNAPPROVED_PROJECT_ID ? undefined : projectId;
+  };
+
   const onSubmitHandler = useCallback(
     (data: CaseFileSchemaType) => {
-      const caseFileData: CaseFileAPIData = {
-        project_id: (data.project as Project).id,
+      const projectId = getProjectId(data);
+      let caseFileData: CaseFileAPIData = {
+        project_id: projectId,
         initiation_id: (data.initiation as Initiation).id,
         primary_officer_id: (data.primaryOfficer as StaffUser).id,
         officer_ids:
           (data.officers as StaffUser[])?.map((user) => user.id) ?? [],
         date_created: dateUtils.dateToISO(data.dateCreated ?? dayjs()),
         case_file_number: data.caseFileNumber ?? undefined,
+        project_description: data.projectDescription ?? "",
       };
+
       if (caseFile) {
         updateCaseFile({ id: caseFile.id, caseFile: caseFileData });
       } else {
+        if (!projectId) {
+          // map the unapproved fields only during create mode
+          caseFileData = {
+            ...caseFileData,
+            unapproved_project_authorization: data.authorization ?? "",
+            unapproved_project_regulated_party: data.regulatedParty ?? "",
+            unapproved_project_type: data.projectType ?? "",
+            unapproved_project_sub_type: data.projectSubType ?? "",
+          };
+        }
         createCaseFile(caseFileData);
       }
     },

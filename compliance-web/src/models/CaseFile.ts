@@ -15,6 +15,11 @@ export interface CaseFile {
   project: Project;
   primary_officer: StaffUser;
   officers?: StaffUser[];
+  authorization?: string;
+  regulated_party?: string;
+  type?: string;
+  sub_type?: string;
+  project_description?: string;
 }
 
 export interface CaseFileFormData {
@@ -32,10 +37,15 @@ export interface CaseFileFormData {
 }
 
 export interface CaseFileAPIData {
-  project_id: number;
+  project_id?: number;
   initiation_id: string;
   primary_officer_id: number;
   officer_ids?: number[];
   date_created?: string;
   case_file_number?: string;
+  project_description?: string;
+  unapproved_project_authorization?: string;
+  unapproved_project_regulated_party?: string;
+  unapproved_project_type?: string;
+  unapproved_project_sub_type?: string;
 }
