@@ -20,17 +20,22 @@ const CaseFileCreateInspection = () => {
 
   const handleOnSubmit = useCallback(
     (submitMsg: string) => {
-      queryClient.invalidateQueries({ queryKey: ["inspections"] });
+      queryClient.invalidateQueries({
+        queryKey: ["inspections-by-caseFileId", caseFileData?.id],
+      });
       setClose();
       notify.success(submitMsg);
     },
-    [queryClient, setClose]
+    [queryClient, setClose, caseFileData]
   );
 
   const handleOpenInspectionDrawer = useCallback(() => {
     setOpen({
       content: (
-        <InspectionDrawer onSubmit={handleOnSubmit} caseFile={caseFileData} />
+        <InspectionDrawer
+          onSubmit={handleOnSubmit}
+          caseFile={caseFileData as CaseFile}
+        />
       ),
       width: "1118px",
     });
