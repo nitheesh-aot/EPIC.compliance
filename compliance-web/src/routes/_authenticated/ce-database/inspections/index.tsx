@@ -39,8 +39,13 @@ export function Inspections() {
   );
 
   const projectList = useMemo(
-    () => createUniqueFilterList("project", "name"),
-    [createUniqueFilterList]
+    () =>
+      [
+        ...new Set(
+          inspectionsList?.map((ins) => ins.case_file?.project?.name ?? "")
+        ),
+      ].filter(Boolean),
+    [inspectionsList]
   );
   const initiationList = useMemo(
     () => createUniqueFilterList("initiation", "name"),
@@ -78,7 +83,7 @@ export function Inspections() {
         ),
       },
       {
-        accessorKey: "project.name",
+        accessorFn: (row) => row.case_file?.project?.name,
         header: "Project",
         filterVariant: "multi-select",
         filterSelectOptions: projectList,

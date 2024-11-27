@@ -28,7 +28,7 @@ export function Complaints() {
   useEffect(() => {
     setProjectList(
       [
-        ...new Set(complaintsList?.map((comp) => comp.project?.name ?? "")),
+        ...new Set(complaintsList?.map((comp) => comp.case_file?.project?.name ?? "")),
       ].filter(Boolean)
     );
     setTopicList(
@@ -74,7 +74,7 @@ export function Complaints() {
         ),
       },
       {
-        accessorKey: "project.name",
+        accessorFn: (row) => row.case_file?.project?.name,
         header: "Project",
         filterVariant: "multi-select",
         filterSelectOptions: projectList,
