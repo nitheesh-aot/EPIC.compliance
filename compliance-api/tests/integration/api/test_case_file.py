@@ -259,6 +259,7 @@ def test_case_file_update(client, auth_header_super_user, created_staff, mocker)
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
     case_file_data["primary_officer_id"] = created_staff.id
+    case_file_data["project_description"] = "sample description"
     created_result = client.post(
         urljoin(API_BASE_URL, "case-files"),
         data=json.dumps(case_file_data),
@@ -272,6 +273,7 @@ def test_case_file_update(client, auth_header_super_user, created_staff, mocker)
     assert result.status_code == HTTPStatus.OK
     officers = CaseFileService.get_other_officers(result.json["id"])
     assert len(officers) == 0
+    assert result.json.get("project_description") == "sample description"
     #  create one user
     user_data = StaffScenario.default_data.value
     auth_user_guid = fake.word()
@@ -280,6 +282,7 @@ def test_case_file_update(client, auth_header_super_user, created_staff, mocker)
     #  update the payload by adding primary officer and officers
     case_file_data["primary_officer_id"] = new_user.id
     case_file_data["officer_ids"] = [new_user.id]
+    case_file_data["project_description"] = "changed description"
     url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}")
     result = client.patch(
         url, data=json.dumps(case_file_data), headers=auth_header_super_user
@@ -287,6 +290,7 @@ def test_case_file_update(client, auth_header_super_user, created_staff, mocker)
 
     assert result.status_code == HTTPStatus.OK
     assert result.json["primary_officer_id"] == new_user.id
+    assert result.json.get("project_description") == "changed description"
     officers = CaseFileService.get_other_officers(result.json["id"])
     assert len(officers) == 1
     assert officers[0].id == new_user.id

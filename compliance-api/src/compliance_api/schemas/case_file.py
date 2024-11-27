@@ -100,6 +100,9 @@ class CaseFileUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
             }
         )
     )
+    project_description = fields.Str(
+        metadata={"description": "The project description"}, allow_none=True
+    )
 
 
 class CaseFileCreateSchema(CaseFileUpdateSchema):  # pylint: disable=too-many-ancestors

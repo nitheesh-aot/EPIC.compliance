@@ -76,7 +76,8 @@ class CaseFileService:
         """Update case file."""
         _access_check_for_update(case_file_id)
         case_file_obj = {
-            "primary_officer_id": case_file_data.get("primary_officer_id", None)
+            "primary_officer_id": case_file_data.get("primary_officer_id", None),
+            "project_description": case_file_data.get("project_description", None)
         }
         with session_scope() as session:
             updated_case_file = CaseFileModel.update_case_file(
@@ -195,6 +196,7 @@ def _create_case_file_object(case_file_data: dict):
         "date_created": case_file_data.get("date_created"),
         "primary_officer_id": case_file_data.get("primary_officer_id", None),
         "initiation_id": case_file_data.get("initiation_id"),
+        "project_description": case_file_data.get("project_description", None),
         "case_file_status": CaseFileStatusEnum.OPEN,
     }
     if not case_file_data.get("case_file_number", None):
