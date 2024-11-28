@@ -239,9 +239,12 @@ class ComplaintSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         model = Complaint
         include_fk = True
 
-    case_file = fields.Nested(CaseFileSchema, only=("case_file_number", "id"))
+    case_file = fields.Nested(
+        CaseFileSchema, only=("case_file_number", "id", "project", "case_file_status")
+    )
     primary_officer = fields.Nested(
-        StaffUserSchema, only=("id", "first_name", "last_name", "name", "auth_user_guid")
+        StaffUserSchema,
+        only=("id", "first_name", "last_name", "name", "auth_user_guid"),
     )
     source_type = fields.Nested(KeyValueSchema)
     agency = fields.Nested(KeyValueSchema)

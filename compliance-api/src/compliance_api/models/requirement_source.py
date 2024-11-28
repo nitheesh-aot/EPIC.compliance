@@ -15,6 +15,7 @@ class RequirementSourceEnum(Enum):
     COMPLIANCE_AGREEMENT = 6
     ACT_2002 = 7
     NOT_EA_ACT = 8
+    EAC_AMENDMENT = 10
 
 
 class RequirementSource(OptionModel):
