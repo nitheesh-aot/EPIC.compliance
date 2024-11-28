@@ -45,6 +45,11 @@ class CaseFile(BaseModelVersioned):
         autoincrement=True,
         comment="The unique identifier of the case file",
     )
+    project_description = Column(
+        String,
+        nullable=True,
+        comment="The description of the project associated with the case file",
+    )
     project_id = Column(
         Integer,
         ForeignKey("projects.id", name="case_files_project_id_projects_id_fkey"),
