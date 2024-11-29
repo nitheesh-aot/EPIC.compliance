@@ -96,7 +96,7 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
           caseFileStatus: { status: "DELETE" },
         });
       },
-      hidden: false,
+      hidden: true,
     },
   ];
 
