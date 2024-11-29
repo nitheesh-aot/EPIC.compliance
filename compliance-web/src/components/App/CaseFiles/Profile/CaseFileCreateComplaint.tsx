@@ -7,7 +7,13 @@ import ComplaintDrawer from "@/components/App/Complaints/ComplaintDrawer";
 import { useDrawer } from "@/store/drawerStore";
 import { CaseFile } from "@/models/CaseFile";
 
-const CaseFileCreateComplaint = ({ fileNumber }: { fileNumber: string }) => {
+const CaseFileCreateComplaint = ({
+  fileNumber,
+  disabled = false,
+}: {
+  fileNumber: string;
+  disabled?: boolean;
+}) => {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
 
@@ -45,6 +51,7 @@ const CaseFileCreateComplaint = ({ fileNumber }: { fileNumber: string }) => {
       size="small"
       onClick={handleOpenComplaintDrawer}
       startIcon={<AddRounded />}
+      disabled={disabled}
     >
       Complaint
     </Button>

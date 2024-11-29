@@ -45,8 +45,14 @@ const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
       <Box display={"flex"} gap={1}>
         {profileContext === FILE_PROFILE_CONTEXT.CASEFILE && (
           <>
-            <CaseFileCreateInspection fileNumber={fileNumber} />
-            <CaseFileCreateComplaint fileNumber={fileNumber} />
+            <CaseFileCreateInspection
+              fileNumber={fileNumber}
+              disabled={status.toLowerCase() === "closed"}
+            />
+            <CaseFileCreateComplaint
+              fileNumber={fileNumber}
+              disabled={status.toLowerCase() === "closed"}
+            />
             <CaseFileActions status={status} fileNumber={fileNumber} />
           </>
         )}

@@ -3,6 +3,9 @@ import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
 import { useUpdateCaseFileStatus } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
 import { useQueryClient } from "@tanstack/react-query";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import { useModal } from "@/store/modalStore";
+import { notify } from "@/store/snackbarStore";
 
 interface CaseFileActionsProps {
   status: string;
@@ -14,6 +17,7 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
   fileNumber,
 }) => {
   const queryClient = useQueryClient();
+  const { setOpen, setClose } = useModal();
 
   const caseFileData = queryClient.getQueryData<CaseFile>([
     "case-file",
@@ -24,9 +28,21 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
     queryClient.invalidateQueries({
       queryKey: ["case-file", fileNumber],
     });
-  }, [queryClient, fileNumber]);
+    notify.success("Case File status updated!");
+    setClose();
+  }, [queryClient, fileNumber, setClose]);
 
   const { mutate: updateCaseFileStatus } = useUpdateCaseFileStatus(onSuccess);
+
+  const handleConfirmCloseReopen = useCallback(
+    (status: string) => {
+      updateCaseFileStatus({
+        id: caseFileData?.id ?? 0,
+        caseFileStatus: { status },
+      });
+    },
+    [updateCaseFileStatus, caseFileData]
+  );
 
   const actionsList = [
     {
@@ -34,7 +50,7 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
       onClick: () => {
         // Handle linking case file
       },
-      hidden: false,
+      hidden: true,
     },
     {
       text: "Unlink from Case File",
@@ -47,9 +63,15 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
       text: "Close Case File",
       onClick: () => {
         // Handle closing case file
-        updateCaseFileStatus({
-          id: caseFileData?.id ?? 0,
-          caseFileStatus: { status: "CLOSED" },
+        setOpen({
+          content: (
+            <ConfirmationModal
+              title="Close Case File?"
+              description="Are you sure you want to close this case file? This action cannot be undone without reopening the case file."
+              confirmButtonText="Close Case File"
+              onConfirm={() => handleConfirmCloseReopen("CLOSED")}
+            />
+          ),
         });
       },
       hidden: status?.toLowerCase() === "closed",

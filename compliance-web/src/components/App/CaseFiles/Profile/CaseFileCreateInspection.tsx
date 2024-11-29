@@ -7,7 +7,13 @@ import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
 import { useDrawer } from "@/store/drawerStore";
 import { CaseFile } from "@/models/CaseFile";
 
-const CaseFileCreateInspection = ({ fileNumber }: { fileNumber: string }) => {
+const CaseFileCreateInspection = ({
+  fileNumber,
+  disabled = false,
+}: {
+  fileNumber: string;
+  disabled?: boolean;
+}) => {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
 
@@ -45,6 +51,7 @@ const CaseFileCreateInspection = ({ fileNumber }: { fileNumber: string }) => {
       size="small"
       onClick={handleOpenInspectionDrawer}
       startIcon={<AddRounded />}
+      disabled={disabled}
     >
       Inspection
     </Button>
