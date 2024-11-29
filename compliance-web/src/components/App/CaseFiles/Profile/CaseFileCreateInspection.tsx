@@ -6,16 +6,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
 import { useDrawer } from "@/store/drawerStore";
 import { CaseFile } from "@/models/CaseFile";
-import { useParams } from "@tanstack/react-router";
 
-const CaseFileCreateInspection = () => {
+const CaseFileCreateInspection = ({ fileNumber }: { fileNumber: string }) => {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
-  const { caseFileNumber } = useParams({ strict: false });
 
   const caseFileData = queryClient.getQueryData<CaseFile>([
     "case-file",
-    caseFileNumber,
+    fileNumber,
   ]);
 
   const handleOnSubmit = useCallback(

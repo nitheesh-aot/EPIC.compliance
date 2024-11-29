@@ -1,4 +1,4 @@
-import { CaseFile, CaseFileAPIData } from "@/models/CaseFile";
+import { CaseFile, CaseFileAPIData, CaseFileStatusAPIData } from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
 import { StaffUser } from "@/models/Staff";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
@@ -33,6 +33,16 @@ const updateCaseFile = ({
   caseFile: CaseFileAPIData;
 }) => {
   return request({ url: `/case-files/${id}`, method: "patch", data: caseFile });
+};
+
+const updateCaseFileStatus = ({
+  id,
+  caseFileStatus,
+}: {
+  id: number;
+  caseFileStatus: CaseFileStatusAPIData;
+}) => {
+  return request({ url: `/case-files/${id}/status`, method: "patch", data: caseFileStatus });
 };
 
 export const useCaseFilesData = () => {
@@ -87,4 +97,8 @@ export const useCreateCaseFile = (onSuccess: OnSuccessType) => {
 
 export const useUpdateCaseFile = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateCaseFile, onSuccess });
+};
+
+export const useUpdateCaseFileStatus = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: updateCaseFileStatus, onSuccess });
 };

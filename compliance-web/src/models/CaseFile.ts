@@ -49,3 +49,7 @@ export interface CaseFileAPIData {
   unapproved_project_type?: string;
   unapproved_project_sub_type?: string;
 }
+
+export interface CaseFileStatusAPIData {
+  status: string;
+}

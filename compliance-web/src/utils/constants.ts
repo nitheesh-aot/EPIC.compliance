@@ -24,3 +24,5 @@ export const CR_CONTEXT_TYPE = {
   COMPLAINT: "Complaint",
   CASEFILE: "Casefile",
 }
+
+export const FILE_PROFILE_CONTEXT = CR_CONTEXT_TYPE;
