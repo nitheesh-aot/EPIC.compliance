@@ -91,6 +91,7 @@ const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
         propertyName="Project Description"
         propertyValue={caseFileData.project_description}
         size="small"
+        expandable={true}
       />
       <CaseFileComplaintsTable caseFileId={caseFileData.id} />
       <CaseFileInspectionsTable caseFileId={caseFileData.id} />

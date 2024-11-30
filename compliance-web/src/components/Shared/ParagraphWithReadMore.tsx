@@ -35,7 +35,7 @@ export default function ParagraphWithReadMore({
   };
 
   return (
-    <>
+    <Stack flex={1}>
       <Stack
         ref={contentRef}
         sx={{
@@ -55,6 +55,6 @@ export default function ParagraphWithReadMore({
           {isExpanded ? "Read Less" : "Read More"}
         </Link>
       )}
-    </>
+    </Stack>
   );
 }
