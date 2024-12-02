@@ -1,11 +1,15 @@
 import React, { useCallback } from "react";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
-import { useUpdateCaseFileStatus } from "@/hooks/useCaseFiles";
+import {
+  useDeleteCaseFile,
+  useUpdateCaseFileStatus,
+} from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
 import { useQueryClient } from "@tanstack/react-query";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
 import { notify } from "@/store/snackbarStore";
+import { useRouter } from "@tanstack/react-router";
 
 interface CaseFileActionsProps {
   status: string;
@@ -16,6 +20,7 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
   status,
   fileNumber,
 }) => {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
 
@@ -24,7 +29,7 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
     fileNumber,
   ]);
 
-  const onSuccess = useCallback(() => {
+  const onUpdateStatusSuccess = useCallback(() => {
     queryClient.invalidateQueries({
       queryKey: ["case-file", fileNumber],
     });
@@ -32,17 +37,16 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
     setClose();
   }, [queryClient, fileNumber, setClose]);
 
-  const { mutate: updateCaseFileStatus } = useUpdateCaseFileStatus(onSuccess);
+  const onDeleteSuccess = useCallback(() => {
+    notify.success("Case File deleted!");
+    setClose();
+    router.navigate({ to: "/ce-database/case-files" });
+  }, [setClose, router]);
 
-  const handleConfirmCloseReopen = useCallback(
-    (status: string) => {
-      updateCaseFileStatus({
-        id: caseFileData?.id ?? 0,
-        caseFileStatus: { status },
-      });
-    },
-    [updateCaseFileStatus, caseFileData]
+  const { mutate: updateCaseFileStatus } = useUpdateCaseFileStatus(
+    onUpdateStatusSuccess
   );
+  const { mutate: deleteCaseFile } = useDeleteCaseFile(onDeleteSuccess);
 
   const actionsList = [
     {
@@ -69,7 +73,12 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
               title="Close Case File?"
               description="Are you sure you want to close this case file? This action cannot be undone without reopening the case file."
               confirmButtonText="Close Case File"
-              onConfirm={() => handleConfirmCloseReopen("CLOSED")}
+              onConfirm={() => {
+                updateCaseFileStatus({
+                  id: caseFileData?.id ?? 0,
+                  caseFileStatus: { status: "CLOSED" },
+                });
+              }}
             />
           ),
         });
@@ -91,12 +100,18 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
       text: "Delete Case File",
       onClick: () => {
         // Handle deleting case file
-        updateCaseFileStatus({
-          id: caseFileData?.id ?? 0,
-          caseFileStatus: { status: "DELETE" },
+        setOpen({
+          content: (
+            <ConfirmationModal
+              title="Delete Case File?"
+              description="Delete Case File? You are about to delete this case file. Are you sure?"
+              confirmButtonText="Delete"
+              onConfirm={() => deleteCaseFile(caseFileData?.id ?? 0)}
+            />
+          ),
         });
       },
-      hidden: true,
+      hidden: false,
     },
   ];
 

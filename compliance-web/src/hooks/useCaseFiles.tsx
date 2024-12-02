@@ -45,6 +45,10 @@ const updateCaseFileStatus = ({
   return request({ url: `/case-files/${id}/status`, method: "patch", data: caseFileStatus });
 };
 
+const deleteCaseFile = (id: number) => {
+  return request({ url: `/case-files/${id}`, method: "delete" });
+};
+
 export const useCaseFilesData = () => {
   return useQuery({
     queryKey: ["case-files"],
@@ -101,4 +105,8 @@ export const useUpdateCaseFile = (onSuccess: OnSuccessType) => {
 
 export const useUpdateCaseFileStatus = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateCaseFileStatus, onSuccess });
+};
+
+export const useDeleteCaseFile = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: deleteCaseFile, onSuccess });
 };
