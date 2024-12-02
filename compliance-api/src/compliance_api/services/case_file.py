@@ -78,7 +78,7 @@ class CaseFileService:
         _access_check_for_update(case_file_id)
         case_file_obj = {
             "primary_officer_id": case_file_data.get("primary_officer_id", None),
-            "project_description": case_file_data.get("project_description", None)
+            "project_description": case_file_data.get("project_description", None),
         }
         with session_scope() as session:
             updated_case_file = CaseFileModel.update_case_file(
@@ -154,16 +154,10 @@ class CaseFileService:
         if not case_file:
             raise ResourceNotFoundError("Case file not found.")
         status_enum = CaseFileStatusEnum(status_data.get("status"))
-        if (
-            case_file.case_file_status == CaseFileStatusEnum.OPEN
-            and status_enum == CaseFileStatusEnum.OPEN
-        ):
-            raise UnprocessableEntityError("The case file is already in Open status.")
-        if (
-            case_file.case_file_status == CaseFileStatusEnum.CLOSED
-            and status_enum == CaseFileStatusEnum.CLOSED
-        ):
-            raise UnprocessableEntityError("The case file is already in Open status.")
+        if status_enum == case_file.case_file_status:
+            raise UnprocessableEntityError(
+                f"The case file is already in {status_enum.value} status."
+            )
         CaseFileModel.change_status(case_file_id, status_enum)
 
 

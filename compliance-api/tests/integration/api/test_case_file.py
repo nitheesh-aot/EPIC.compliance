@@ -341,3 +341,26 @@ def test_case_file_update_with_primary(client, jwt, created_staff, auth_header_s
     url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}")
     result = client.patch(url, data=json.dumps(case_file_data), headers=headers)
     assert result.status_code == HTTPStatus.OK
+
+def test_case_file_close(client, jwt, created_staff, auth_header_super_user):
+    """Update as primary."""
+    case_file_data = copy.copy(CasefileScenario.default_value.value)
+    case_file_data["case_file_number"] = fake.word()
+    case_file_data["primary_officer_id"] = created_staff.id
+    created_result = client.post(
+        urljoin(API_BASE_URL, "case-files"),
+        data=json.dumps(case_file_data),
+        headers=auth_header_super_user,
+    )
+
+    header = TokenJWTClaims.default.value
+    header["preferred_username"] = created_staff.auth_user_guid
+    headers = factory_auth_header(jwt=jwt, claims=header)
+    print(created_result)
+    url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}/status")
+    result = client.patch(url, data=json.dumps({"status": "OPEN"}), headers=headers)
+    assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+    result = client.patch(url, data=json.dumps({"status": "CLOSED"}), headers=headers)
+    assert result.status_code == HTTPStatus.NO_CONTENT
+    result = client.patch(url, data=json.dumps({"status": "CLOSED"}), headers=headers)
+    assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
