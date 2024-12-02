@@ -10,7 +10,7 @@ import { useComplaintByNumber } from "@/hooks/useComplaints";
 import { CaseFile } from "@/models/CaseFile";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
-import { CR_CONTEXT_TYPE } from "@/utils/constants";
+import { CR_CONTEXT_TYPE, FILE_PROFILE_CONTEXT } from "@/utils/constants";
 import { Box } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
@@ -85,6 +85,7 @@ function ComplaintProfilePage() {
               { label: "Complaints", to: "/ce-database/complaints" },
               { label: complaintNumber },
             ]}
+            profileContext={FILE_PROFILE_CONTEXT.COMPLAINT}
           />
           <Box p={"1rem 1rem 1.25rem 3.75rem"} display={"flex"} gap={3}>
             <ComplaintGeneralInformation

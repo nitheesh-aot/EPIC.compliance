@@ -1,7 +1,7 @@
+import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 import TimelineContent from "@mui/lab/TimelineContent";
-import { Link, Stack, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { useEffect, useRef, useState } from "react";
 
 export default function ContinuationReportTimelineEntry({
   renderText,
@@ -14,22 +14,6 @@ export default function ContinuationReportTimelineEntry({
   isSystemGenerated: boolean;
   searchText?: string;
 }) {
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [showReadMore, setShowReadMore] = useState(false);
-
-  useEffect(() => {
-    if (contentRef.current && contentRef.current.scrollHeight > 170) {
-      setShowReadMore(true);
-    }
-    setIsExpanded(!!searchText); // if searchText is there, default should be open
-  }, [searchText]);
-
-  const handleReadMoreClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.stopPropagation();
-    setIsExpanded(!isExpanded);
-  };
-
   const getFormattedText = () => {
     if (!searchText) return renderText;
 
@@ -87,38 +71,28 @@ export default function ContinuationReportTimelineEntry({
 
   return (
     <TimelineContent sx={{ p: "4px 0px 8px 8px" }}>
-      <Stack
-        ref={contentRef}
-        sx={{
-          maxHeight: isExpanded ? "none" : "150px",
-          overflow: "hidden",
-        }}
-      >
-        <Typography
-          variant="subtitle2"
-          component={"div"}
-          className="quill-render"
-          dangerouslySetInnerHTML={{ __html: getFormattedText() }}
-        />
-        {!isSystemGenerated && createdByUser && (
-          <Typography
-            variant="subtitle2"
-            color={BCDesignTokens.typographyColorDisabled}
-          >
-            Created by {createdByUser}
-          </Typography>
-        )}
-      </Stack>
-      {showReadMore && (
-        <Link
-          fontSize={BCDesignTokens.typographyFontSizeSmallBody}
-          underline="hover"
-          sx={{ cursor: "pointer" }}
-          onClick={handleReadMoreClick}
-        >
-          {isExpanded ? "Read Less" : "Read More"}
-        </Link>
-      )}
+      <ParagraphWithReadMore
+        maxHeight={150}
+        expand={!!searchText}
+        renderTypography={
+          <>
+            <Typography
+              variant="subtitle2"
+              component={"div"}
+              className="quill-render"
+              dangerouslySetInnerHTML={{ __html: getFormattedText() }}
+            />
+            {!isSystemGenerated && createdByUser && (
+              <Typography
+                variant="subtitle2"
+                color={BCDesignTokens.typographyColorDisabled}
+              >
+                Created by {createdByUser}
+              </Typography>
+            )}
+          </>
+        }
+      />
     </TimelineContent>
   );
 }
