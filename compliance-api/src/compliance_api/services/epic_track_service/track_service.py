@@ -2,6 +2,7 @@
 
 import requests
 from flask import current_app, g
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
 
 from compliance_api.exceptions import BusinessError
 from compliance_api.utils.enum import HttpMethod
@@ -45,6 +46,11 @@ class TrackService:
         return first_nation_response.json()
 
 
+@retry(
+    retry=retry_if_exception_type(requests.exceptions.RequestException),
+    stop=stop_after_attempt(3),  # Retry up to 3 times
+    wait=wait_fixed(2),  # Wait 2 seconds between retries
+)
 def _request_track_service(
     relative_url, http_method: HttpMethod = HttpMethod.GET, data=None
 ):
