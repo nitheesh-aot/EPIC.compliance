@@ -78,7 +78,9 @@ class CaseFileService:
         _access_check_for_update(case_file_id)
         case_file_obj = {
             "primary_officer_id": case_file_data.get("primary_officer_id", None),
-            "project_description": case_file_data.get("project_description", None)
+            "project_description": case_file_data.get("project_description", None),
+            "is_deleted": case_file_data.get("is_deleted", False),
+            "is_active": case_file_data.get("is_active", True)
         }
         with session_scope() as session:
             updated_case_file = CaseFileModel.update_case_file(
