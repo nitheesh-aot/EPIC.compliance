@@ -38,7 +38,7 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
   const selectedAttendance = useWatch({
     control,
     name: "inAttendance",
-    defaultValue: [],
+    defaultValue: getValues("inAttendance") ?? [],
   });
 
   useEffect(() => {
