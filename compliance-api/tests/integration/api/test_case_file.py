@@ -157,15 +157,9 @@ def test_get_case_file_by_id(client, auth_header, mocker):
     )
     mock_get_user_by_guid.return_value = {
         "ea_certificate": fake.word(),
-        "type": {
-            "name": fake.word()
-        },
-        "sub_type": {
-            "name": fake.word()
-        },
-        "proponent": {
-            "name": fake.word()
-        }
+        "type": {"name": fake.word()},
+        "sub_type": {"name": fake.word()},
+        "proponent": {"name": fake.word()},
     }
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["project_id"] = 2
@@ -210,15 +204,9 @@ def test_get_case_file_by_number(client, auth_header_super_user, mocker):
     )
     mock_get_user_by_guid.return_value = {
         "ea_certificate": fake.word(),
-        "type": {
-            "name": fake.word()
-        },
-        "sub_type": {
-            "name": fake.word()
-        },
-        "proponent": {
-            "name": fake.word()
-        }
+        "type": {"name": fake.word()},
+        "sub_type": {"name": fake.word()},
+        "proponent": {"name": fake.word()},
     }
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
@@ -245,15 +233,9 @@ def test_case_file_update(client, auth_header_super_user, created_staff, mocker)
     )
     mock_get_user_by_guid.return_value = {
         "ea_certificate": fake.word(),
-        "type": {
-            "name": fake.word()
-        },
-        "sub_type": {
-            "name": fake.word()
-        },
-        "proponent": {
-            "name": fake.word()
-        }
+        "type": {"name": fake.word()},
+        "sub_type": {"name": fake.word()},
+        "proponent": {"name": fake.word()},
     }
     #  creating case file without officers or primary officer
     case_file_data = copy.copy(CasefileScenario.default_value.value)
@@ -308,7 +290,9 @@ def test_case_file_update(client, auth_header_super_user, created_staff, mocker)
     assert len(officers) == 0
 
 
-def test_case_file_update_viewer_fails(client, auth_header, auth_header_super_user, created_staff):
+def test_case_file_update_viewer_fails(
+    client, auth_header, auth_header_super_user, created_staff
+):
     """Update as Viewer."""
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
@@ -323,7 +307,9 @@ def test_case_file_update_viewer_fails(client, auth_header, auth_header_super_us
     assert result.status_code == HTTPStatus.FORBIDDEN
 
 
-def test_case_file_update_with_primary(client, jwt, created_staff, auth_header_super_user):
+def test_case_file_update_with_primary(
+    client, jwt, created_staff, auth_header_super_user
+):
     """Update as primary."""
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
@@ -341,6 +327,7 @@ def test_case_file_update_with_primary(client, jwt, created_staff, auth_header_s
     url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}")
     result = client.patch(url, data=json.dumps(case_file_data), headers=headers)
     assert result.status_code == HTTPStatus.OK
+
 
 def test_case_file_close(client, jwt, created_staff, auth_header_super_user):
     """Update as primary."""
@@ -364,3 +351,22 @@ def test_case_file_close(client, jwt, created_staff, auth_header_super_user):
     assert result.status_code == HTTPStatus.NO_CONTENT
     result = client.patch(url, data=json.dumps({"status": "CLOSED"}), headers=headers)
     assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+def test_case_file_delete(client, jwt, created_staff, auth_header_super_user):
+    """Update as primary."""
+    case_file_data = copy.copy(CasefileScenario.default_value.value)
+    case_file_data["case_file_number"] = fake.word()
+    case_file_data["primary_officer_id"] = created_staff.id
+    created_result = client.post(
+        urljoin(API_BASE_URL, "case-files"),
+        data=json.dumps(case_file_data),
+        headers=auth_header_super_user,
+    )
+
+    url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}")
+    result = client.delete(url, headers=auth_header_super_user)
+    assert result.status_code == HTTPStatus.NO_CONTENT
+    url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}")
+    result = client.get(url, headers=auth_header_super_user)
+    assert result.status_code == HTTPStatus.NOT_FOUND

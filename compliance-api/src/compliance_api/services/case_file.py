@@ -79,6 +79,8 @@ class CaseFileService:
         case_file_obj = {
             "primary_officer_id": case_file_data.get("primary_officer_id", None),
             "project_description": case_file_data.get("project_description", None),
+            "is_deleted": case_file_data.get("is_deleted", False),
+            "is_active": case_file_data.get("is_active", True)
         }
         with session_scope() as session:
             updated_case_file = CaseFileModel.update_case_file(
@@ -163,19 +165,20 @@ class CaseFileService:
 
 def _set_project_parameters(case_file):
     """Set project parameters."""
-    project_id = case_file.project_id
-    if project_id:
-        project = TrackService.get_project_by_id(project_id)
-        setattr(case_file, "authorization", project.get("ea_certificate", None))
-        setattr(case_file, "type", project.get("type").get("name"))
-        setattr(case_file, "sub_type", project.get("sub_type").get("name"))
-        setattr(case_file, "regulated_party", project.get("proponent").get("name"))
-    if not project_id:
-        project = UnapprovedProjectModel.get_by_case_file_id(case_file.id)
-        setattr(case_file, "authorization", project.authorization)
-        setattr(case_file, "type", project.type)
-        setattr(case_file, "sub_type", project.sub_type)
-        setattr(case_file, "regulated_party", project.regulated_party)
+    if case_file:
+        project_id = case_file.project_id
+        if project_id:
+            project = TrackService.get_project_by_id(project_id)
+            setattr(case_file, "authorization", project.get("ea_certificate", None))
+            setattr(case_file, "type", project.get("type").get("name"))
+            setattr(case_file, "sub_type", project.get("sub_type").get("name"))
+            setattr(case_file, "regulated_party", project.get("proponent").get("name"))
+        if not project_id:
+            project = UnapprovedProjectModel.get_by_case_file_id(case_file.id)
+            setattr(case_file, "authorization", project.authorization)
+            setattr(case_file, "type", project.type)
+            setattr(case_file, "sub_type", project.sub_type)
+            setattr(case_file, "regulated_party", project.regulated_party)
     return case_file
 
 

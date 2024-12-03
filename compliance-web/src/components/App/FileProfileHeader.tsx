@@ -1,23 +1,27 @@
-import { ExpandMoreRounded } from "@mui/icons-material";
-import { Box, Typography, Chip, Button } from "@mui/material";
+import { Box, Typography, Chip } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import BreadcrumbsNav, {
   BreadcrumbItem,
 } from "@/components/Shared/BreadcrumbsNav";
 import CaseFileCreateInspection from "@/components/App/CaseFiles/Profile/CaseFileCreateInspection";
 import CaseFileCreateComplaint from "@/components/App/CaseFiles/Profile/CaseFileCreateComplaint";
+import React from "react";
+import { FILE_PROFILE_CONTEXT } from "@/utils/constants";
+import CaseFileActions from "@/components/App/CaseFiles/Profile/CaseFileActions";
+import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
+
 interface FileProfileHeaderProps {
   fileNumber: string;
   status: string;
   breadcrumbs: BreadcrumbItem[];
-  showInspectionComplaintButton?: boolean;
+  profileContext: string;
 }
 
 const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
   fileNumber,
   status,
   breadcrumbs,
-  showInspectionComplaintButton = false,
+  profileContext,
 }) => {
   return (
     <Box
@@ -39,20 +43,23 @@ const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
         </Box>
       </Box>
       <Box display={"flex"} gap={1}>
-        {showInspectionComplaintButton && (
+        {profileContext === FILE_PROFILE_CONTEXT.CASEFILE && (
           <>
-            <CaseFileCreateInspection />
-            <CaseFileCreateComplaint />
+            <CaseFileCreateInspection
+              fileNumber={fileNumber}
+              disabled={status.toLowerCase() === "closed"}
+            />
+            <CaseFileCreateComplaint
+              fileNumber={fileNumber}
+              disabled={status.toLowerCase() === "closed"}
+            />
+            <CaseFileActions status={status} fileNumber={fileNumber} />
           </>
         )}
-        <Button
-          variant="text"
-          size="small"
-          onClick={() => {}}
-          startIcon={<ExpandMoreRounded />}
-        >
-          Actions
-        </Button>
+        {(profileContext === FILE_PROFILE_CONTEXT.INSPECTION ||
+          profileContext === FILE_PROFILE_CONTEXT.COMPLAINT) && (
+          <MenuActionDropdown actions={[]} />
+        )}
       </Box>
     </Box>
   );

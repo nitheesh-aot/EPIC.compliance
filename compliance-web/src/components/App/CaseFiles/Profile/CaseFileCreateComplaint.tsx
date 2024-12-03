@@ -6,16 +6,20 @@ import { useQueryClient } from "@tanstack/react-query";
 import ComplaintDrawer from "@/components/App/Complaints/ComplaintDrawer";
 import { useDrawer } from "@/store/drawerStore";
 import { CaseFile } from "@/models/CaseFile";
-import { useParams } from "@tanstack/react-router";
 
-const CaseFileCreateComplaint = () => {
+const CaseFileCreateComplaint = ({
+  fileNumber,
+  disabled = false,
+}: {
+  fileNumber: string;
+  disabled?: boolean;
+}) => {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
-  const { caseFileNumber } = useParams({ strict: false });
 
   const caseFileData = queryClient.getQueryData<CaseFile>([
     "case-file",
-    caseFileNumber,
+    fileNumber,
   ]);
 
   const handleOnSubmit = useCallback(
@@ -47,6 +51,7 @@ const CaseFileCreateComplaint = () => {
       size="small"
       onClick={handleOpenComplaintDrawer}
       startIcon={<AddRounded />}
+      disabled={disabled}
     >
       Complaint
     </Button>

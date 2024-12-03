@@ -13,7 +13,7 @@ import ContinuationReport from "@/components/App/ContinuationReports/Continuatio
 import InspectionGeneralInformation from "@/components/App/Inspections/Profile/InspectionGeneralInformation";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
-import { CR_CONTEXT_TYPE } from "@/utils/constants";
+import { CR_CONTEXT_TYPE, FILE_PROFILE_CONTEXT } from "@/utils/constants";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
 
@@ -94,6 +94,7 @@ function InspectionProfilePage() {
           { label: "Inspections", to: "/ce-database/inspections" },
           { label: inspectionNumber },
         ]}
+        profileContext={FILE_PROFILE_CONTEXT.INSPECTION}
       />
       <Box p="1rem 1rem 1.25rem 3.75rem" display="flex" gap={3}>
         <InspectionGeneralInformation
