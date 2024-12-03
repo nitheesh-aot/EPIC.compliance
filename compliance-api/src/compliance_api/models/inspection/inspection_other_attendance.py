@@ -51,9 +51,10 @@ class InspectionOtherAttendance(BaseModelVersioned):
         """Update other attendance."""
         query = cls.query.filter_by(inspection_id=inspection_id)
         attendance: InspectionOtherAttendance = query.first()
-        if not attendance or attendance.is_deleted:
-            return None
-        query.update(other_attendance_data)
+        if attendance:
+            query.update(other_attendance_data)
+        else:
+            session.add(InspectionOtherAttendance(**other_attendance_data))
         if session:
             session.flush()
         else:
