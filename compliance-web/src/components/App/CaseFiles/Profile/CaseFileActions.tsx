@@ -104,7 +104,7 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
           content: (
             <ConfirmationModal
               title="Delete Case File?"
-              description="Delete Case File? You are about to delete this case file. Are you sure?"
+              description="You are about to delete this case file. Are you sure?"
               confirmButtonText="Delete"
               onConfirm={() => deleteCaseFile(caseFileData?.id ?? 0)}
             />
