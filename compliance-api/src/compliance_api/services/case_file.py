@@ -156,34 +156,29 @@ class CaseFileService:
         if not case_file:
             raise ResourceNotFoundError("Case file not found.")
         status_enum = CaseFileStatusEnum(status_data.get("status"))
-        if (
-            case_file.case_file_status == CaseFileStatusEnum.OPEN
-            and status_enum == CaseFileStatusEnum.OPEN
-        ):
-            raise UnprocessableEntityError("The case file is already in Open status.")
-        if (
-            case_file.case_file_status == CaseFileStatusEnum.CLOSED
-            and status_enum == CaseFileStatusEnum.CLOSED
-        ):
-            raise UnprocessableEntityError("The case file is already in Open status.")
+        if status_enum == case_file.case_file_status:
+            raise UnprocessableEntityError(
+                f"The case file is already in {status_enum.value} status."
+            )
         CaseFileModel.change_status(case_file_id, status_enum)
 
 
 def _set_project_parameters(case_file):
     """Set project parameters."""
-    project_id = case_file.project_id
-    if project_id:
-        project = TrackService.get_project_by_id(project_id)
-        setattr(case_file, "authorization", project.get("ea_certificate", None))
-        setattr(case_file, "type", project.get("type").get("name"))
-        setattr(case_file, "sub_type", project.get("sub_type").get("name"))
-        setattr(case_file, "regulated_party", project.get("proponent").get("name"))
-    if not project_id:
-        project = UnapprovedProjectModel.get_by_case_file_id(case_file.id)
-        setattr(case_file, "authorization", project.authorization)
-        setattr(case_file, "type", project.type)
-        setattr(case_file, "sub_type", project.sub_type)
-        setattr(case_file, "regulated_party", project.regulated_party)
+    if case_file:
+        project_id = case_file.project_id
+        if project_id:
+            project = TrackService.get_project_by_id(project_id)
+            setattr(case_file, "authorization", project.get("ea_certificate", None))
+            setattr(case_file, "type", project.get("type").get("name"))
+            setattr(case_file, "sub_type", project.get("sub_type").get("name"))
+            setattr(case_file, "regulated_party", project.get("proponent").get("name"))
+        if not project_id:
+            project = UnapprovedProjectModel.get_by_case_file_id(case_file.id)
+            setattr(case_file, "authorization", project.authorization)
+            setattr(case_file, "type", project.type)
+            setattr(case_file, "sub_type", project.sub_type)
+            setattr(case_file, "regulated_party", project.regulated_party)
     return case_file
 
 
