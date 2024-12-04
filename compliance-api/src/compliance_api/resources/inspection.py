@@ -226,3 +226,21 @@ class InspectionByIRNumber(Resource):
         inspection = InspectionService.get_by_ir_number(ir_number)
         inspection_list_schema = InspectionSchema()
         return inspection_list_schema.dump(inspection), HTTPStatus.OK
+
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/<int:inspection_id>/close", methods=["PATCH", "OPTIONS"])
+@API.doc(params={"inspection_id": "The unique identifier for the inspection"})
+class InspectionStatus(Resource):
+    """Update the inspection status."""
+
+    @staticmethod
+    @auth.require
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Close the inspection")
+    @API.response(code=204, description="Inspection Closed")
+    def patch(inspection_id):
+        """Close complaint."""
+        InspectionService.close_inspection(inspection_id)
+        return {}, HTTPStatus.NO_CONTENT

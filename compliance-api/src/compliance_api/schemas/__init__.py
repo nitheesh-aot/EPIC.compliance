@@ -17,8 +17,8 @@ from .case_file import (
     CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, CaseFileStatusSchema, CaseFileUpdateSchema)
 from .common import KeyValueSchema
 from .complaint import (
-    ComplaintCreateSchema, ComplaintSchema, ComplaintSourceContactSchema, ComplaintUpdateSchema,
-    RequirementSoruceDetailSchema, ComplaintStatusSchema)
+    ComplaintCreateSchema, ComplaintSchema, ComplaintSourceContactSchema, ComplaintStatusSchema, ComplaintUpdateSchema,
+    RequirementSoruceDetailSchema)
 from .continuation_report import (
     ContinuationReportCreateSchema, ContinuationReportKeyCreateSchema, ContinuationReportKeySchema,
     ContinuationReportSchema, ContinuationReportUpdateSchema, CRGetQueryParamSchema)

@@ -8,14 +8,8 @@ from flask_restx import Namespace, Resource
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
-    ComplaintCreateSchema,
-    ComplaintSchema,
-    ComplaintSourceContactSchema,
-    ComplaintUpdateSchema,
-    KeyValueSchema,
-    ComplaintStatusSchema,
-    RequirementSoruceDetailSchema,
-)
+    ComplaintCreateSchema, ComplaintSchema, ComplaintSourceContactSchema, ComplaintStatusSchema, ComplaintUpdateSchema,
+    KeyValueSchema, RequirementSoruceDetailSchema)
 from compliance_api.services import ComplaintService
 from compliance_api.utils.util import cors_preflight
 
