@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Complaint Schema Schema."""
-from marshmallow import EXCLUDE, ValidationError, fields, post_dump, validates_schema
+from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load, validates_schema
+from marshmallow_enum import EnumField
 
 from compliance_api.models import Complaint, ComplaintRequirementDetail, ComplaintSourceContact, ComplaintStatusEnum
 from compliance_api.models.complaint import ComplaintSourceEnum
@@ -261,4 +262,29 @@ class ComplaintSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
             data["status"] = ComplaintStatusEnum(data["status"]).value
         else:
             data["status"] = ""
+        return data
+
+
+class ComplaintStatusSchema(BaseSchema):
+    """ComplaintStatusSchema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    status = EnumField(
+        ComplaintStatusEnum,
+        metadata={"description": "The status of the complaint"},
+        required=True,
+    )
+
+    @post_load
+    def extract_status_value(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Extract the value of the status enum."""
+        status_enum = data.get("status")
+        if status_enum:
+            data["status"] = status_enum.value
         return data

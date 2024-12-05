@@ -217,6 +217,7 @@ class InspectionService:
                 created_inspection.id,
                 created_inspection.ir_number,
                 created_inspection.case_file_id,
+                "created",
             )
             ContinuationReportService.create(
                 cr_entry, sys_generated=True, ho_session=session
@@ -279,6 +280,32 @@ class InspectionService:
                 session,
             )
         return updated_case_file
+
+    @classmethod
+    def close_inspection(cls, inspection_id):
+        """Close the inspection."""
+        from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
+
+        _access_check_update(inspection_id)
+        inspection = InspectionModel.find_by_id(inspection_id)
+        if not inspection:
+            raise ResourceNotFoundError("Inspection not found.")
+        if inspection.inspection_status == "Closed":
+            raise UnprocessableEntityError(
+                "The inspection is already in Closed status."
+            )
+        with session_scope() as session:
+            InspectionModel.update_inspection(
+                inspection_id,
+                {"inspection_status": InspectionStatusEnum("Closed")},
+                session,
+            )
+            cr_entry = _create_cr_entry(
+                inspection.id, inspection.ir_number, inspection.case_file_id, "closed"
+            )
+            ContinuationReportService.create(
+                cr_entry, sys_generated=True, ho_session=session
+            )
 
     @classmethod
     def delete_by_case_file(cls, case_file_id, ho_session=None):
@@ -473,12 +500,12 @@ def _create_inspection_other_attendance_object(
     }
 
 
-def _create_cr_entry(inspection_id, ir_no, case_file_id):
+def _create_cr_entry(inspection_id, ir_no, case_file_id, action):
     """Create the continuation report entry."""
     return {
         "case_file_id": case_file_id,
-        "text": f"{ir_no} is created",
-        "rich_text": f"<p>{ir_no} is created</p>",
+        "text": f"{ir_no} is {action}",
+        "rich_text": f"<p>{ir_no} is {action}</p>",
         "date_created": datetime.utcnow().strftime(INPUT_DATE_TIME_FORMAT),
         "context_type": ContextEnum.INSPECTION,
         "context_id": inspection_id,

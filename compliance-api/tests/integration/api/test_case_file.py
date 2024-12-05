@@ -9,9 +9,13 @@ from urllib.parse import urljoin
 import pytest
 from faker import Faker
 
-from compliance_api.models.case_file import CaseFile as CaseFileModel
-from compliance_api.models.case_file import CaseFileStatusEnum
+from compliance_api.models import CaseFile as CaseFileModel
+from compliance_api.models import CaseFileStatusEnum
+from compliance_api.models import ContinuationReport as ContinuationReportModel
+from compliance_api.models import ContinuationReportKey as ContinuationReportKeyModel
+from compliance_api.models import db
 from compliance_api.services.case_file import CaseFileService
+from compliance_api.utils.enum import ContextEnum
 from tests.utilities.factory_scenario import CasefileScenario, StaffScenario, TokenJWTClaims
 from tests.utilities.factory_utils import factory_auth_header
 
@@ -73,6 +77,32 @@ def test_create_case_file_without_file_number(
     assert result.status_code == HTTPStatus.CREATED
     assert result.json["case_file_number"] == f"{datetime.now().year}0001"
     assert result.json["case_file_status"] == CaseFileStatusEnum.OPEN.value
+    #  check continuation report entries
+    cr_entry = (
+        db.session.query(ContinuationReportModel)
+        .filter_by(
+            case_file_id=result.json.get("id"),
+            context_id=result.json.get("id"),
+            context_type=ContextEnum.CASE_FILE,
+        )
+        .first()
+    )
+    assert cr_entry is not None
+    assert cr_entry.text == f"{result.json.get('case_file_number')} is created"
+    assert (
+        cr_entry.rich_text == f"<p>{result.json.get('case_file_number')} is created</p>"
+    )
+    #  Check continuation report entry key
+    cr_key = (
+        db.session.query(ContinuationReportKeyModel)
+        .filter_by(
+            key=result.json.get("case_file_number"),
+            key_context=ContextEnum.CASE_FILE,
+            report_id=cr_entry.id,
+        )
+        .first()
+    )
+    assert cr_key is not None
 
 
 def test_create_case_file_with_non_superuser(client, auth_header, created_staff):
@@ -339,7 +369,8 @@ def test_case_file_close(client, jwt, created_staff, auth_header_super_user):
         data=json.dumps(case_file_data),
         headers=auth_header_super_user,
     )
-
+    case_file_id = created_result.json.get("id")
+    case_file_number = created_result.json.get("case_file_number")
     header = TokenJWTClaims.default.value
     header["preferred_username"] = created_staff.auth_user_guid
     headers = factory_auth_header(jwt=jwt, claims=header)
@@ -349,8 +380,60 @@ def test_case_file_close(client, jwt, created_staff, auth_header_super_user):
     assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
     result = client.patch(url, data=json.dumps({"status": "CLOSED"}), headers=headers)
     assert result.status_code == HTTPStatus.NO_CONTENT
+    cr_entry = (
+        db.session.query(ContinuationReportModel)
+        .filter_by(
+            case_file_id=case_file_id,
+            context_id=case_file_id,
+            context_type=ContextEnum.CASE_FILE,
+            text=f"{case_file_number} is closed"
+        )
+        .first()
+    )
+    assert cr_entry is not None
+    assert (
+        cr_entry.rich_text == f"<p>{case_file_number} is closed</p>"
+    )
+    #  Check continuation report entry key
+    cr_key = (
+        db.session.query(ContinuationReportKeyModel)
+        .filter_by(
+            key=case_file_number,
+            key_context=ContextEnum.CASE_FILE,
+            report_id=cr_entry.id,
+        )
+        .all()
+    )
+    assert cr_key is not None
     result = client.patch(url, data=json.dumps({"status": "CLOSED"}), headers=headers)
     assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+    result = client.patch(url, data=json.dumps({"status": "OPEN"}), headers=headers)
+    assert result.status_code == HTTPStatus.NO_CONTENT
+    cr_entry = (
+        db.session.query(ContinuationReportModel)
+        .filter_by(
+            case_file_id=case_file_id,
+            context_id=case_file_id,
+            context_type=ContextEnum.CASE_FILE,
+            text=f"{case_file_number} is reopened"
+        )
+        .first()
+    )
+    assert cr_entry is not None
+    assert (
+        cr_entry.rich_text == f"<p>{case_file_number} is reopened</p>"
+    )
+    #  Check continuation report entry key
+    cr_key = (
+        db.session.query(ContinuationReportKeyModel)
+        .filter_by(
+            key=case_file_number,
+            key_context=ContextEnum.CASE_FILE,
+            report_id=cr_entry.id,
+        )
+        .all()
+    )
+    assert cr_key is not None
 
 
 def test_case_file_delete(client, jwt, created_staff, auth_header_super_user):

@@ -96,7 +96,7 @@ class ComplaintService:
     @classmethod
     def update(cls, complaint_id: int, complaint_data: dict):
         """Update complaint."""
-        _acces_check_update(complaint_id)
+        _access_check_update(complaint_id)
         complaint_obj = _create_complaint_update_object(complaint_data)
         with session_scope() as session:
             complaint = ComplaintModel.find_by_id(complaint_id)
@@ -161,6 +161,7 @@ class ComplaintService:
             cr_entry = _create_cr_entry(
                 created_complaint.id,
                 created_complaint.complaint_number,
+                "created",
                 created_complaint.case_file_id,
             )
             ContinuationReportService.create(
@@ -180,6 +181,30 @@ class ComplaintService:
                 case_file_id, ho_session or session
             )
 
+    @classmethod
+    def change_case_file_status(cls, complaint_id, status_data):
+        """Change the status of the complaint."""
+        _access_check_update(complaint_id)
+        complaint = ComplaintModel.find_by_id(complaint_id)
+        if not complaint:
+            raise ResourceNotFoundError("Complaint not found.")
+        status_enum = ComplaintStatusEnum(status_data.get("status"))
+        if status_enum == complaint.status:
+            raise UnprocessableEntityError(
+                f"The complaint is already in {status_enum.value} status."
+            )
+        with session_scope() as session:
+            ComplaintModel.change_status(complaint_id, status_enum, session)
+            cr_entry = _create_cr_entry(
+                complaint_id,
+                complaint.complaint_number,
+                "reopened" if status_enum.value == "Open" else "closed",
+                complaint.case_file_id,
+            )
+            ContinuationReportService.create(
+                cr_entry, sys_generated=True, ho_session=session
+            )
+
 
 def _access_check_create(complaint_data: dict):
     """Access check."""
@@ -193,7 +218,7 @@ def _access_check_create(complaint_data: dict):
         )
 
 
-def _acces_check_update(complaint_id):
+def _access_check_update(complaint_id):
     """Acces check create."""
     auth_user_guid = g.token_info["preferred_username"]
     complaint = ComplaintModel.find_by_id(complaint_id)
@@ -369,12 +394,12 @@ def _get_first_nation(first_nation_id):
     return {"id": response.get("id"), "name": response.get("name")}
 
 
-def _create_cr_entry(complaint_id, complaint_no, case_file_id):
+def _create_cr_entry(complaint_id, complaint_no, action, case_file_id):
     """Create the continuation report entry."""
     return {
         "case_file_id": case_file_id,
-        "text": f"{complaint_no} is created",
-        "rich_text": f"<p>{complaint_no} is created</p>",
+        "text": f"{complaint_no} is {action}",
+        "rich_text": f"<p>{complaint_no} is {action}</p>",
         "date_created": datetime.utcnow().strftime(INPUT_DATE_TIME_FORMAT),
         "context_type": ContextEnum.COMPLAINT,
         "context_id": complaint_id,

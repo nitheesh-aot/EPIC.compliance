@@ -8,8 +8,8 @@ from flask_restx import Namespace, Resource
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
-    ComplaintCreateSchema, ComplaintSchema, ComplaintSourceContactSchema, ComplaintUpdateSchema, KeyValueSchema,
-    RequirementSoruceDetailSchema)
+    ComplaintCreateSchema, ComplaintSchema, ComplaintSourceContactSchema, ComplaintStatusSchema, ComplaintUpdateSchema,
+    KeyValueSchema, RequirementSoruceDetailSchema)
 from compliance_api.services import ComplaintService
 from compliance_api.utils.util import cors_preflight
 
@@ -40,6 +40,9 @@ complaint_requirement_details = ApiHelper.convert_ma_schema_to_restx_model(
 complaint_update_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, ComplaintUpdateSchema(), "ComplaintUpdate"
 )
+complaint_status_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, ComplaintStatusSchema(), "ComplaintStatus"
+)
 
 
 @cors_preflight("GET, OPTIONS")
@@ -56,7 +59,9 @@ class ComplaintSources(Resource):
     def get():
         """Fetch all complaint sources."""
         complaint_sources = ComplaintService.get_complaint_sources()
-        current_app.logger.info(f"DATABASE ENCRYPTION KEY: {current_app.config['DB_ECRPT_KEY']}")
+        current_app.logger.info(
+            f"DATABASE ENCRYPTION KEY: {current_app.config['DB_ECRPT_KEY']}"
+        )
         complaint_sources_schema = KeyValueSchema(many=True)
         return complaint_sources_schema.dump(complaint_sources), HTTPStatus.OK
 
@@ -184,3 +189,23 @@ class ComplaintByNumber(Resource):
         complaint = ComplaintService.get_by_complaint_no(complaint_number)
         complaint_list_schema = ComplaintSchema()
         return complaint_list_schema.dump(complaint), HTTPStatus.OK
+
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/<int:complaint_id>/status", methods=["PATCH", "OPTIONS"])
+@API.doc(params={"complaint_id": "The unique identifier for the complaint"})
+class ComplaintStatus(Resource):
+    """Update the complaint status."""
+
+    @staticmethod
+    @auth.require
+    @API.expect(complaint_status_model)
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Close the complaint")
+    @API.response(code=204, description="Complaint Closed")
+    def patch(complaint_id):
+        """Close complaint."""
+        status = ComplaintStatusSchema().load(API.payload)
+        ComplaintService.change_case_file_status(complaint_id, status)
+        return {}, HTTPStatus.NO_CONTENT

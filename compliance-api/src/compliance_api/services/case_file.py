@@ -65,7 +65,7 @@ class CaseFileService:
                 created_case_file.id, case_file_data.get("officer_ids", []), session
             )
             cr_entry = _create_cr_entry(
-                created_case_file.id, created_case_file.case_file_number
+                created_case_file.id, created_case_file.case_file_number, "created"
             )
             ContinuationReportService.create(
                 cr_entry, sys_generated=True, ho_session=session
@@ -80,7 +80,7 @@ class CaseFileService:
             "primary_officer_id": case_file_data.get("primary_officer_id", None),
             "project_description": case_file_data.get("project_description", None),
             "is_deleted": case_file_data.get("is_deleted", False),
-            "is_active": case_file_data.get("is_active", True)
+            "is_active": case_file_data.get("is_active", True),
         }
         with session_scope() as session:
             updated_case_file = CaseFileModel.update_case_file(
@@ -151,6 +151,8 @@ class CaseFileService:
     @classmethod
     def change_case_file_status(cls, case_file_id, status_data):
         """Change the status of the case file."""
+        from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
+
         _access_check_for_update(case_file_id)
         case_file = CaseFileModel.find_by_id(case_file_id)
         if not case_file:
@@ -160,7 +162,16 @@ class CaseFileService:
             raise UnprocessableEntityError(
                 f"The case file is already in {status_enum.value} status."
             )
-        CaseFileModel.change_status(case_file_id, status_enum)
+        with session_scope() as session:
+            CaseFileModel.change_status(case_file_id, status_enum, session)
+            cr_entry = _create_cr_entry(
+                case_file.id,
+                case_file.case_file_number,
+                "reopened" if status_enum.value == "Open" else "closed",
+            )
+            ContinuationReportService.create(
+                cr_entry, sys_generated=True, ho_session=session
+            )
 
 
 def _set_project_parameters(case_file):
@@ -243,12 +254,12 @@ def _validate_existence_by_file_number(case_file_number: int, case_file_id: int 
         )
 
 
-def _create_cr_entry(case_file_id, case_file_number):
+def _create_cr_entry(case_file_id, case_file_number, action):
     """Create the continuation report entry."""
     return {
         "case_file_id": case_file_id,
-        "text": f"{case_file_number} is created",
-        "rich_text": f"<p>{case_file_number} is created</p>",
+        "text": f"{case_file_number} is {action}",
+        "rich_text": f"<p>{case_file_number} is {action}</p>",
         "date_created": datetime.utcnow().strftime(INPUT_DATE_TIME_FORMAT),
         "context_type": ContextEnum.CASE_FILE,
         "context_id": case_file_id,

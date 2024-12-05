@@ -17,7 +17,7 @@ import enum
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModelVersioned
+from ..base_model import BaseModelVersioned, db
 from ..case_file import CaseFile as CaseFileModel
 
 
@@ -164,8 +164,21 @@ class Complaint(BaseModelVersioned):
         if session:
             session.flush()
         else:
-            cls.session.commit()
+            db.session.commit()
         return complaint
+
+    @classmethod
+    def change_status(
+        cls, complaint_id, complaint_status: ComplaintStatusEnum, session=None
+    ):
+        """Update the complaint status."""
+        cls.query.filter(cls.id == complaint_id).update(
+            {cls.status: complaint_status}
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
 
     @classmethod
     def get_by_complaint_number(cls, complaint_number):
@@ -183,4 +196,4 @@ class Complaint(BaseModelVersioned):
         if session:
             session.flush()
         else:
-            cls.session.commit()
+            db.session.commit()
