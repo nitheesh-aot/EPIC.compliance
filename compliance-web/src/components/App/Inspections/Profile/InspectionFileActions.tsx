@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useCallback } from "react";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
+import { useQueryClient } from "@tanstack/react-query";
+import { Inspection } from "@/models/Inspection";
+import { useCloseInspection } from "@/hooks/useInspections";
+import { notify } from "@/store/snackbarStore";
 
 interface InspectionFileActionsProps {
   status: string;
@@ -12,14 +16,30 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
   status,
   fileNumber,
 }) => {
+  const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
+
+  const inspectionData = queryClient.getQueryData<Inspection>([
+    "inspection",
+    fileNumber,
+  ]);
+
+  const onUpdateStatusSuccess = useCallback(() => {
+    queryClient.invalidateQueries({
+      queryKey: ["inspection", fileNumber],
+    });
+    notify.success("Inspection status updated");
+    setClose();
+  }, [fileNumber, queryClient, setClose]);
+
+  const { mutate: closeInspection } = useCloseInspection(
+    onUpdateStatusSuccess
+  );
 
   const actionsList = [
     {
       text: "Cancel Inspection",
       onClick: () => {
-        // eslint-disable-next-line no-console
-        console.log("cancel inspection ", fileNumber);
         // Handle canceling inspection
         setOpen({
           content: (
@@ -40,8 +60,6 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
     {
       text: "Close as Note to File",
       onClick: () => {
-        // eslint-disable-next-line no-console
-        console.log("close inspection ", fileNumber);
         // Handle closing inspection
         setOpen({
           content: (
@@ -50,11 +68,11 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
               description="Are you sure you want to close inspection as note to file?"
               confirmButtonText="Close Inspection"
               onConfirm={() => {
-                // TODO: Implement close inspection
-                setClose();
+                closeInspection({ id: inspectionData?.id ?? 0 });
               }}
             />
           ),
+          width: "420px",
         });
       },
       hidden: status?.toLowerCase() === "closed",
