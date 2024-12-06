@@ -54,7 +54,7 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
       onClick: () => {
         // Handle linking case file
       },
-      hidden: true,
+      hidden: status?.toLowerCase() === "closed",
     },
     {
       text: "Unlink from Case File",

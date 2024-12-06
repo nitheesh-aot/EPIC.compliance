@@ -35,7 +35,9 @@ const fetchInspection = (inspectionNumber: string): Promise<Inspection> => {
   return request({ url: `/inspections/ir-numbers/${inspectionNumber}` });
 };
 
-const fetchInspectionAttendances = (inspectionId: number): Promise<InspectionAttendance[]> => {
+const fetchInspectionAttendances = (
+  inspectionId: number
+): Promise<InspectionAttendance[]> => {
   return request({ url: `/inspections/${inspectionId}/attendance-options` });
 };
 
@@ -50,9 +52,19 @@ const updateInspection = ({
   id: number;
   inspection: InspectionAPIData;
 }) => {
-  return request({ url: `/inspections/${id}`, method: "patch", data: inspection });
+  return request({
+    url: `/inspections/${id}`,
+    method: "patch",
+    data: inspection,
+  });
 };
 
+const closeInspection = ({ id }: { id: number }) => {
+  return request({
+    url: `/inspections/${id}/close`,
+    method: "patch",
+  });
+};
 
 export const useIRTypesData = () => {
   return useQuery({
@@ -101,7 +113,9 @@ export const useInspectionByNumber = (inspectionNumber: string) => {
     queryKey: ["inspection", inspectionNumber],
     queryFn: async () => {
       const inspection = await fetchInspection(inspectionNumber);
-      const inspectionAttendances = await fetchInspectionAttendances(inspection?.id);
+      const inspectionAttendances = await fetchInspectionAttendances(
+        inspection?.id
+      );
       return { ...inspection, inspectionAttendances };
     },
     enabled: !!inspectionNumber,
@@ -122,4 +136,8 @@ export const useCreateInspection = (onSuccess: OnSuccessType) => {
 
 export const useUpdateInspection = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateInspection, onSuccess });
+};
+
+export const useCloseInspection = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: closeInspection, onSuccess });
 };
