@@ -8,7 +8,8 @@ import CaseFileCreateComplaint from "@/components/App/CaseFiles/Profile/CaseFile
 import React from "react";
 import { FILE_PROFILE_CONTEXT } from "@/utils/constants";
 import CaseFileActions from "@/components/App/CaseFiles/Profile/CaseFileActions";
-import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
+import InspectionFileActions from "@/components/App/Inspections/Profile/InspectionFileActions";
+import ComplaintFileActions from "@/components/App/Complaints/Profile/ComplaintFileActions";
 
 interface FileProfileHeaderProps {
   fileNumber: string;
@@ -56,9 +57,11 @@ const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
             <CaseFileActions status={status} fileNumber={fileNumber} />
           </>
         )}
-        {(profileContext === FILE_PROFILE_CONTEXT.INSPECTION ||
-          profileContext === FILE_PROFILE_CONTEXT.COMPLAINT) && (
-          <MenuActionDropdown actions={[]} />
+        {profileContext === FILE_PROFILE_CONTEXT.COMPLAINT && (
+          <ComplaintFileActions status={status} fileNumber={fileNumber} />
+        )}
+        {profileContext === FILE_PROFILE_CONTEXT.INSPECTION && (
+          <InspectionFileActions status={status} fileNumber={fileNumber} />
         )}
       </Box>
     </Box>
