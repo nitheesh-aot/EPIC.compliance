@@ -15,7 +15,8 @@
 """This exports all of the models and schemas used by the application."""
 
 from .agency import Agency
-from .case_file import CaseFile, CaseFileInitiationEnum, CaseFileInitiationOption, CaseFileOfficer, CaseFileStatusEnum
+from .case_file import (
+    CaseFile, CaseFileInitiationEnum, CaseFileInitiationOption, CaseFileLink, CaseFileOfficer, CaseFileStatusEnum)
 from .complaint import (
     Complaint, ComplaintReqOrderDetail, ComplaintReqScheduleBDetail, ComplaintRequirementDetail, ComplaintSource,
     ComplaintSourceContact, ComplaintStatusEnum)

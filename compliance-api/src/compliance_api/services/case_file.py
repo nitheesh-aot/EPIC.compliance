@@ -9,6 +9,7 @@ from compliance_api.exceptions import (
     PermissionDeniedError, ResourceExistsError, ResourceNotFoundError, UnprocessableEntityError)
 from compliance_api.models import CaseFile as CaseFileModel
 from compliance_api.models import CaseFileInitiationOption as CaseFileInitiationOptionModel
+from compliance_api.models import CaseFileLink as CaseFileLinkModel
 from compliance_api.models import CaseFileOfficer as CaseFileOfficerModel
 from compliance_api.models import CaseFileStatusEnum
 from compliance_api.models import UnapprovedProject as UnapprovedProjectModel
@@ -65,7 +66,10 @@ class CaseFileService:
                 created_case_file.id, case_file_data.get("officer_ids", []), session
             )
             cr_entry = _create_cr_entry(
-                created_case_file.id, created_case_file.case_file_number, "created"
+                created_case_file.id,
+                created_case_file.case_file_number,
+                "created",
+                [created_case_file.case_file_number],
             )
             ContinuationReportService.create(
                 cr_entry, sys_generated=True, ho_session=session
@@ -168,10 +172,70 @@ class CaseFileService:
                 case_file.id,
                 case_file.case_file_number,
                 "reopened" if status_enum.value == "Open" else "closed",
+                [case_file.case_file_number],
             )
             ContinuationReportService.create(
                 cr_entry, sys_generated=True, ho_session=session
             )
+
+    @classmethod
+    def link(cls, case_file_id, link):
+        """Link the case file to another one of the same project."""
+        _access_check_for_update(case_file_id)
+        case_file = CaseFileModel.find_by_id(case_file_id)
+        link_case_file_id = link.get("link_case_file_id")
+        link_to_case_file = CaseFileModel.find_by_id(link_case_file_id)
+        _link_case_file_checks(case_file, case_file_id)
+        _link_case_file_checks(link_to_case_file, link_case_file_id)
+        source_link = CaseFileLinkModel.get_links_by_source_and_target(
+            source_id=case_file_id, target_id=link_case_file_id
+        )
+        if source_link:
+            raise UnprocessableEntityError("Given link already exists")
+        with session_scope() as session:
+            created_link = _create_link(
+                source=case_file, target=link_to_case_file, session=session
+            )
+            target_link = CaseFileLinkModel.get_links_by_source_and_target(
+                source_id=link_case_file_id, target_id=case_file_id
+            )
+            if not target_link:
+                _create_link(
+                    source=link_to_case_file, target=case_file, session=session
+                )
+        return created_link
+
+
+def _create_link(source, target, session):
+    """Create case file link entry."""
+    from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
+
+    created_link = CaseFileLinkModel.create_link(
+        {"source_case_id": source.id, "target_case_id": target.id}, session
+    )
+    cr_entry = _create_cr_entry(
+        source.id,
+        source.case_file_number,
+        f"linked to {target.case_file_number}",
+        [source.case_file_number, target.case_file_number],
+    )
+    ContinuationReportService.create(cr_entry, sys_generated=True, ho_session=session)
+
+    return created_link
+
+
+def _link_case_file_checks(case_file, case_file_id):
+    """Validate case file link."""
+    if not case_file:
+        raise ResourceNotFoundError(f"Case file with ID: {case_file_id} not found.")
+    if case_file.is_active is False or case_file.is_deleted is True:
+        raise UnprocessableEntityError(
+            f"Case file should be active and non-deleted. Case file number {case_file.case_file_number}"
+        )
+    if case_file.case_file_status == CaseFileStatusEnum.CLOSED:
+        raise UnprocessableEntityError(
+            f"Closed case file cannot be linked. Case file number {case_file.case_file_number}"
+        )
 
 
 def _set_project_parameters(case_file):
@@ -254,7 +318,7 @@ def _validate_existence_by_file_number(case_file_number: int, case_file_id: int 
         )
 
 
-def _create_cr_entry(case_file_id, case_file_number, action):
+def _create_cr_entry(case_file_id, case_file_number, action, keys):
     """Create the continuation report entry."""
     return {
         "case_file_id": case_file_id,
@@ -263,5 +327,8 @@ def _create_cr_entry(case_file_id, case_file_number, action):
         "date_created": datetime.utcnow().strftime(INPUT_DATE_TIME_FORMAT),
         "context_type": ContextEnum.CASE_FILE,
         "context_id": case_file_id,
-        "keys": [{"key": case_file_number, "key_context": ContextEnum.CASE_FILE}],
+        "keys": [
+            {"key": case_file_number, "key_context": ContextEnum.CASE_FILE}
+            for case_file_number in keys
+        ],
     }

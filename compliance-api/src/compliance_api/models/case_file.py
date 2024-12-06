@@ -84,6 +84,12 @@ class CaseFile(BaseModelVersioned):
         comment="The unique case file number",
     )
     case_file_status = Column(Enum(CaseFileStatusEnum), nullable=True)
+    link_case_file_id = Column(
+        Integer,
+        ForeignKey("case_files.id", name="casefile_link_link_case_file_id_fk"),
+        nullable=True,
+        comment="The case file to link to",
+    )
 
     primary_officer = relationship(
         "StaffUser", foreign_keys=[primary_officer_id], lazy="joined"
@@ -120,7 +126,7 @@ class CaseFile(BaseModelVersioned):
         if session:
             session.flush()
         else:
-            cls.session.commit()
+            db.session.commit()
         return case_file
 
     @classmethod
@@ -224,8 +230,8 @@ class CaseFileOfficer(BaseModelVersioned):
             session.add_all(case_file_officer_data)
             session.flush()
         else:
-            cls.session.add_all(case_file_officer_data)
-            cls.session.commit()
+            db.session.add_all(case_file_officer_data)
+            db.session.commit()
 
 
 class CaseFileInitiationOption(BaseModelVersioned):
@@ -243,3 +249,57 @@ class CaseFileInitiationOption(BaseModelVersioned):
         Integer,
         comment="Order of priority. Mainly used order the options while listing",
     )
+
+
+class CaseFileLink(BaseModelVersioned):
+    """CaseFileLinks Model."""
+
+    __tablename__ = "case_file_links"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+        comment="The unique identifier of the case file link",
+    )
+    source_case_id = Column(
+        Integer,
+        ForeignKey("case_files.id", name="source_case_id_case_files_id_fk"),
+        index=True,
+        nullable=False,
+    )
+    target_case_id = Column(
+        Integer,
+        ForeignKey("case_files.id", name="target_case_id_case_files_id_fk"),
+        index=True,
+        nullable=False,
+    )
+    source = relationship("CaseFile", foreign_keys=[source_case_id], lazy="joined")
+    target = relationship("CaseFile", foreign_keys=[target_case_id], lazy="joined")
+
+    @classmethod
+    def get_links_by_source_id(cls, source_case_file_id):
+        """Get all case file links by source case file id."""
+        return cls.query.filter(
+            cls.source_case_id == source_case_file_id, cls.is_deleted.is_(False)
+        ).all()
+
+    @classmethod
+    def get_links_by_source_and_target(cls, source_id, target_id):
+        """Get case file link by both source case file and target case file id."""
+        return cls.query.filter(
+            cls.source_case_id == source_id,
+            cls.target_case_id == target_id,
+            cls.is_deleted.is_(False),
+        ).first()
+
+    @classmethod
+    def create_link(cls, link_data, session=None):
+        """Persist case file link data in database."""
+        case_file = CaseFileLink(**link_data)
+        if session:
+            session.add(case_file)
+            session.flush()
+        else:
+            case_file.save()
+        return case_file

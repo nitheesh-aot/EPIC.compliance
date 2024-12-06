@@ -386,14 +386,12 @@ def test_case_file_close(client, jwt, created_staff, auth_header_super_user):
             case_file_id=case_file_id,
             context_id=case_file_id,
             context_type=ContextEnum.CASE_FILE,
-            text=f"{case_file_number} is closed"
+            text=f"{case_file_number} is closed",
         )
         .first()
     )
     assert cr_entry is not None
-    assert (
-        cr_entry.rich_text == f"<p>{case_file_number} is closed</p>"
-    )
+    assert cr_entry.rich_text == f"<p>{case_file_number} is closed</p>"
     #  Check continuation report entry key
     cr_key = (
         db.session.query(ContinuationReportKeyModel)
@@ -415,14 +413,12 @@ def test_case_file_close(client, jwt, created_staff, auth_header_super_user):
             case_file_id=case_file_id,
             context_id=case_file_id,
             context_type=ContextEnum.CASE_FILE,
-            text=f"{case_file_number} is reopened"
+            text=f"{case_file_number} is reopened",
         )
         .first()
     )
     assert cr_entry is not None
-    assert (
-        cr_entry.rich_text == f"<p>{case_file_number} is reopened</p>"
-    )
+    assert cr_entry.rich_text == f"<p>{case_file_number} is reopened</p>"
     #  Check continuation report entry key
     cr_key = (
         db.session.query(ContinuationReportKeyModel)
@@ -453,3 +449,35 @@ def test_case_file_delete(client, jwt, created_staff, auth_header_super_user):
     url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}")
     result = client.get(url, headers=auth_header_super_user)
     assert result.status_code == HTTPStatus.NOT_FOUND
+
+
+def test_case_file_linking(client, jwt, created_staff, auth_header_super_user):
+    """Link case file."""
+    #  Create source case file
+    case_file_data = copy.copy(CasefileScenario.default_value.value)
+    case_file_data["case_file_number"] = fake.word()
+    case_file_data["primary_officer_id"] = created_staff.id
+    source_case_file = client.post(
+        urljoin(API_BASE_URL, "case-files"),
+        data=json.dumps(case_file_data),
+        headers=auth_header_super_user,
+    )
+    # Create target case file
+    case_file_data = copy.copy(CasefileScenario.default_value.value)
+    case_file_data["case_file_number"] = fake.word()
+    case_file_data["primary_officer_id"] = created_staff.id
+    target_case_file = client.post(
+        urljoin(API_BASE_URL, "case-files"),
+        data=json.dumps(case_file_data),
+        headers=auth_header_super_user,
+    )
+    print(target_case_file.json.get("id"))
+    url = urljoin(API_BASE_URL, f"case-files/{source_case_file.json.get('id')}/links")
+    post_data = {"link_case_file_id": target_case_file.json.get("id")}
+    result = client.post(
+        url,
+        data=json.dumps(post_data),
+        headers=auth_header_super_user,
+    )
+    print(result.json)
+    assert result.status_code == HTTPStatus.CREATED
