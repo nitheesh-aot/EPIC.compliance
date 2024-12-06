@@ -1,4 +1,4 @@
-import { Complaint, ComplaintAPIData } from "@/models/Complaint";
+import { Complaint, ComplaintAPIData, ComplaintStatusAPIData } from "@/models/Complaint";
 import { ComplaintSource } from "@/models/ComplaintSource";
 import { Contact } from "@/models/Contact";
 import {
@@ -52,6 +52,16 @@ const updateComplaint = ({
   });
 };
 
+const updateComplaintStatus = ({
+  id,
+  caseFileStatus,
+}: {
+  id: number;
+  caseFileStatus: ComplaintStatusAPIData;
+}) => {
+  return request({ url: `/complaints/${id}/status`, method: "patch", data: caseFileStatus });
+};
+
 export const useRequirementSourcesData = () => {
   return useQuery({
     queryKey: ["requirement-sources"],
@@ -100,4 +110,8 @@ export const useCreateComplaint = (onSuccess: OnSuccessType) => {
 
 export const useUpdateComplaint = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateComplaint, onSuccess });
+};
+
+export const useUpdateComplaintStatus = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: updateComplaintStatus, onSuccess });
 };

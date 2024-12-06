@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useCallback } from "react";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
+import { useQueryClient } from "@tanstack/react-query";
+import { Complaint } from "@/models/Complaint";
+import { notify } from "@/store/snackbarStore";
+import { useUpdateComplaintStatus } from "@/hooks/useComplaints";
 
 interface ComplaintFileActionsProps {
   status: string;
@@ -12,14 +16,31 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
   status,
   fileNumber,
 }) => {
+  const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
+
+  const complaintData = queryClient.getQueryData<Complaint>([
+    "complaint",
+    fileNumber,
+  ]);
+
+  const onUpdateStatusSuccess = useCallback(() => {
+    queryClient.invalidateQueries({
+      queryKey: ["complaint", fileNumber],
+    });
+    notify.success("Complaint status updated");
+    setClose();
+  }, [fileNumber, queryClient, setClose]);
+
+  const { mutate: updateComplaintStatus } = useUpdateComplaintStatus(
+    onUpdateStatusSuccess
+  );
+  
 
   const actionsList = [
     {
       text: "Close Complaint",
       onClick: () => {
-        // eslint-disable-next-line no-console
-        console.log("close complaint ", fileNumber);
         // Handle closing complaint
         setOpen({
           content: (
@@ -28,8 +49,10 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
               description="Are you sure you want to close this complaint? This action cannot be undone without reopening the complaint."
               confirmButtonText="Close Complaint"
               onConfirm={() => {
-                // TODO: Implement close complaint
-                setClose()
+                updateComplaintStatus({
+                  id: complaintData?.id ?? 0,
+                  caseFileStatus: { status: "CLOSED" },
+                });
               }}
             />
           ),
@@ -48,8 +71,10 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
               description="Are you sure you want to reopen this complaint?"
               confirmButtonText="Reopen Complaint"
               onConfirm={() => {
-                // TODO: Implement reopen complaint
-                setClose();
+                updateComplaintStatus({
+                  id: complaintData?.id ?? 0,
+                  caseFileStatus: { status: "OPEN" },
+                });
               }}
             />
           ),

@@ -75,3 +75,7 @@ export interface ComplaintAPIData {
   unapproved_project_type?: string;
   unapproved_project_sub_type?: string;
 }
+
+export interface ComplaintStatusAPIData {
+  status: string;
+}
