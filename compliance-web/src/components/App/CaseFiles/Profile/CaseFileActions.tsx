@@ -10,6 +10,7 @@ import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
 import { notify } from "@/store/snackbarStore";
 import { useRouter } from "@tanstack/react-router";
+import LinkCaseFileModal from "@/components/App/CaseFiles/Profile/LinkCaseFileModal";
 
 interface CaseFileActionsProps {
   status: string;
@@ -53,6 +54,15 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
       text: "Link to Case File",
       onClick: () => {
         // Handle linking case file
+        setOpen({
+          content: (
+            <LinkCaseFileModal
+              onSubmit={() => {
+                // TODO: link case file
+              }}
+            />
+          ),
+        });
       },
       hidden: status?.toLowerCase() === "closed",
     },
@@ -60,8 +70,17 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
       text: "Unlink from Case File",
       onClick: () => {
         // Handle unlinking case file
+        setOpen({
+          content: (
+            <LinkCaseFileModal
+              onSubmit={() => {
+                // TODO: link case file
+              }}
+            />
+          ),
+        });
       },
-      hidden: true,
+      hidden: status?.toLowerCase() === "closed",
     },
     {
       text: "Close Case File",
