@@ -15,7 +15,7 @@
 from marshmallow import EXCLUDE, fields, post_dump, post_load
 from marshmallow_enum import EnumField
 
-from compliance_api.models import CaseFile, CaseFileOfficer, CaseFileStatusEnum
+from compliance_api.models import CaseFile, CaseFileLink, CaseFileOfficer, CaseFileStatusEnum
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE, UNAPPROVED_PROJECT_NAME
 
 from .base_schema import AutoSchemaBase, BaseSchema
@@ -180,3 +180,30 @@ class CaseFileStatusSchema(BaseSchema):
         if status_enum:
             data["status"] = status_enum.value
         return data
+
+
+class CaseFileLinkCreateSchema(BaseSchema):
+    """CaseFileLinkSchema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    link_case_file_id = fields.Int(
+        metadata={"description": "The case file to link to."}, required=True
+    )
+
+
+class CaseFileLinkSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
+    """CaseFileLinkSchema."""
+
+    class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
+        """Meta."""
+
+        unknown = EXCLUDE
+        model = CaseFileLink
+        include_fk = True
+
+    source = fields.Nested(CaseFileSchema)
+    target = fields.Nested(CaseFileSchema)

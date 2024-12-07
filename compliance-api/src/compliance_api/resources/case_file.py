@@ -21,8 +21,8 @@ from flask_restx import Namespace, Resource
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
-    CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, CaseFileStatusSchema, CaseFileUpdateSchema,
-    KeyValueSchema, StaffUserSchema)
+    CaseFileCreateSchema, CaseFileLinkCreateSchema, CaseFileLinkSchema, CaseFileOfficerSchema, CaseFileSchema,
+    CaseFileStatusSchema, CaseFileUpdateSchema, KeyValueSchema, StaffUserSchema)
 from compliance_api.services import CaseFileService
 from compliance_api.services.case_file_aggregate import CaseFileAggregateService
 from compliance_api.utils.enum import PermissionEnum
@@ -53,6 +53,12 @@ case_file_update_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 case_file_status_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, CaseFileStatusSchema(), "CaseFileStatus"
+)
+case_file_link_create_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, CaseFileLinkCreateSchema(), "CaseFileLinkCreate"
+)
+case_file_link_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, CaseFileLinkSchema(), "CaseFileLink"
 )
 
 
@@ -218,3 +224,26 @@ class CaseFileStatus(Resource):
         status = CaseFileStatusSchema().load(API.payload)
         CaseFileService.change_case_file_status(case_file_id, status)
         return {}, HTTPStatus.NO_CONTENT
+
+
+@cors_preflight("POST, OPTIONS")
+@API.route("/<int:case_file_id>/links", methods=["POST", "OPTIONS"])
+@API.doc(params={"case_file_id": "The unique identifier for the case file"})
+class CaseFileLinks(Resource):
+    """Link the case file."""
+
+    @staticmethod
+    @auth.require
+    @API.expect(case_file_link_create_model)
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
+    @API.response(code=201, model=case_file_link_model, description="Success")
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Link the case file to another case file"
+    )
+    @API.response(code=204, description="Case file linked")
+    def post(case_file_id):
+        """Link the case file."""
+        link = CaseFileLinkCreateSchema().load(API.payload)
+        created_link = CaseFileService.link(case_file_id, link)
+        return CaseFileLinkSchema().dump(created_link), HTTPStatus.CREATED

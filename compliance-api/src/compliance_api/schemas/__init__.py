@@ -14,7 +14,8 @@
 """Exposes all of the schemas in the compliance_api."""
 from .agency import AgencyCreateSchema, AgencySchema
 from .case_file import (
-    CaseFileCreateSchema, CaseFileOfficerSchema, CaseFileSchema, CaseFileStatusSchema, CaseFileUpdateSchema)
+    CaseFileCreateSchema, CaseFileLinkCreateSchema, CaseFileLinkSchema, CaseFileOfficerSchema, CaseFileSchema,
+    CaseFileStatusSchema, CaseFileUpdateSchema)
 from .common import KeyValueSchema
 from .complaint import (
     ComplaintCreateSchema, ComplaintSchema, ComplaintSourceContactSchema, ComplaintStatusSchema, ComplaintUpdateSchema,
