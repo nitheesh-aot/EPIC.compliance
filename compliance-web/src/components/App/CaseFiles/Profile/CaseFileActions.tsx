@@ -74,8 +74,9 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
           content: (
             <LinkCaseFileModal
               onSubmit={() => {
-                // TODO: link case file
+                // TODO: unlink case file
               }}
+              linkedCaseFiles={caseFileData ? [caseFileData] : []}
             />
           ),
         });

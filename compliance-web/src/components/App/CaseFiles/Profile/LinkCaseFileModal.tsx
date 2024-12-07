@@ -11,6 +11,7 @@ import { useCaseFilesData } from "@/hooks/useCaseFiles";
 
 type LinkCaseFileModalProps = {
   onSubmit: (caseFileId: number) => void;
+  linkedCaseFiles?: CaseFile[];
 };
 
 const linkCaseFileSchema = yup.object().shape({
@@ -26,8 +27,13 @@ const initFormData = {
   caseFile: undefined,
 };
 
-const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({ onSubmit }) => {
-  const { data: caseFilesList } = useCaseFilesData();
+const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
+  onSubmit,
+  linkedCaseFiles,
+}) => {
+  const { data: caseFiles } = useCaseFilesData();
+
+  const caseFilesList = linkedCaseFiles ?? caseFiles;
 
   const methods = useForm<LinkCaseFileFormType>({
     resolver: yupResolver(linkCaseFileSchema),
@@ -49,12 +55,18 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({ onSubmit }) => {
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <ModalTitleBar title="Link to Case File" />
+        <ModalTitleBar
+          title={
+            linkedCaseFiles?.length
+              ? "Unlink from Case File"
+              : "Link to Case File"
+          }
+        />
         <DialogContent dividers>
           <ControlledAutoComplete
             name="caseFile"
             label="Case File"
-            placeholder="Select existing Case File"
+            placeholder="Select Case File"
             options={caseFilesList ?? []}
             getOptionLabel={(option) => option.case_file_number ?? ""}
             getOptionKey={(option) => option.id}
@@ -65,7 +77,12 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({ onSubmit }) => {
           />
         </DialogContent>
         {caseFilesList && caseFilesList.length > 0 && (
-          <ModalActions primaryActionButtonText="Link" isButtonValidation />
+          <ModalActions
+            primaryActionButtonText={
+              linkedCaseFiles?.length ? "Unlink" : "Link"
+            }
+            isButtonValidation
+          />
         )}
       </form>
     </FormProvider>
