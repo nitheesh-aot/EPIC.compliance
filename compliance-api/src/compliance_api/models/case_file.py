@@ -14,7 +14,7 @@
 """Case file Model."""
 import enum
 
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, cast, func
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Index, Integer, String, cast, func
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModelVersioned
@@ -78,7 +78,7 @@ class CaseFile(BaseModelVersioned):
     )
     case_file_number = Column(
         String,
-        unique=True,
+        unique=False,
         index=True,
         nullable=False,
         comment="The unique case file number",
@@ -90,6 +90,7 @@ class CaseFile(BaseModelVersioned):
         nullable=True,
         comment="The case file to link to",
     )
+    is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
 
     primary_officer = relationship(
         "StaffUser", foreign_keys=[primary_officer_id], lazy="joined"
@@ -102,6 +103,15 @@ class CaseFile(BaseModelVersioned):
     )
     initiation = relationship(
         "CaseFileInitiationOption", foreign_keys=[initiation_id], lazy="joined"
+    )
+
+    __table_args__ = (
+        Index(
+            "unique_non_deleted_case_file_number",  # Index name
+            "case_file_number",
+            unique=True,
+            postgresql_where=(is_deleted is False),  # Condition for uniqueness
+        ),
     )
 
     @classmethod
@@ -159,7 +169,7 @@ class CaseFile(BaseModelVersioned):
         """Get the max case file number generated so far."""
         max_number = (
             cls.query.with_entities(
-                func.max(  # pylint: disable=not-callable
+                func.max(
                     cast(
                         func.regexp_replace(cls.case_file_number, "[^0-9]", "", "g"),
                         Integer,
@@ -167,9 +177,9 @@ class CaseFile(BaseModelVersioned):
                 ).label("max_number")
             )
             .filter(
-                func.regexp_replace(  # pylint: disable=not-callable
-                    cls.case_file_number, "[^0-9]", "", "g"
-                ).op("~")(f"^{year}[0-9]+$")
+                func.regexp_replace(cls.case_file_number, "[^0-9]", "", "g").op("~")(
+                    f"^{year}[0-9]{{4}}$"
+                )
             )
             .scalar()
         )
