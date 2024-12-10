@@ -23,6 +23,7 @@ from compliance_api.schemas import (
     InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
     InspectionUpdateSchema, KeyValueSchema, StaffUserSchema)
 from compliance_api.services import InspectionService
+from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
 
 from .apihelper import Api as ApiHelper
@@ -185,8 +186,8 @@ class InspectionAttendances(Resource):
         return inspection_attendance_schema.dump(attendances), HTTPStatus.OK
 
 
-@cors_preflight("GET, PATCH, OPTIONS")
-@API.route("/<int:inspection_id>", methods=["GET", "PATCH", "OPTIONS"])
+@cors_preflight("GET, PATCH, DELETE, OPTIONS")
+@API.route("/<int:inspection_id>", methods=["GET", "PATCH", "OPTIONS", "DELETE"])
 class Inspection(Resource):
     """Inspection resource."""
 
@@ -210,6 +211,18 @@ class Inspection(Resource):
         inspection_data = InspectionUpdateSchema().load(API.payload)
         updated_inspection = InspectionService.update(inspection_id, inspection_data)
         return InspectionSchema().dump(updated_inspection), HTTPStatus.OK
+
+    @staticmethod
+    @auth.require
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER])
+    @ApiHelper.swagger_decorators(API, endpoint_description="Delete a Inspection by id")
+    @API.response(code=204, description="Success")
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
+    def delete(inspection_id):
+        """Delete complaint."""
+        InspectionService.delete_inspection(inspection_id)
+        return {}, HTTPStatus.NO_CONTENT
 
 
 @cors_preflight("GET, OPTIONS")

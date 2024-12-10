@@ -3,7 +3,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModelVersioned
+from ..base_model import BaseModelVersioned, db
 from ..inspection.inspection import Inspection as InspectionModel
 
 
@@ -58,7 +58,7 @@ class InspectionOtherAttendance(BaseModelVersioned):
         if session:
             session.flush()
         else:
-            cls.session.commit()
+            db.session.commit()
         return attendance
 
     @classmethod
@@ -80,4 +80,15 @@ class InspectionOtherAttendance(BaseModelVersioned):
             if session:
                 session.flush()
             else:
-                cls.session.commit()
+                db.session.commit()
+
+    @classmethod
+    def delete_inspection_attendance(cls, inspection_id, session=None):
+        """Delete inspection Type."""
+        cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).update(
+            {cls.is_deleted: True, cls.is_active: False}
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()

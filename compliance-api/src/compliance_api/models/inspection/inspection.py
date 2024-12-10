@@ -15,7 +15,7 @@
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModelVersioned
+from ..base_model import BaseModelVersioned, db
 from ..case_file import CaseFile as CaseFileModel
 from .inspection_enum import InspectionStatusEnum
 
@@ -173,7 +173,7 @@ class Inspection(BaseModelVersioned):
         if session:
             session.flush()
         else:
-            cls.session.commit()
+            db.session.commit()
         return inspection
 
     @classmethod
@@ -185,7 +185,18 @@ class Inspection(BaseModelVersioned):
         if session:
             session.flush()
         else:
-            cls.session.commit()
+            db.session.commit()
+
+    @classmethod
+    def delete_inspection(cls, inspection_id, session=None):
+        """Delete inspection."""
+        cls.query.filter_by(id=inspection_id, is_deleted=False).update(
+            {cls.is_deleted: True, cls.is_active: False}
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
 
     @classmethod
     def get_by_ir_number(cls, ir_number):
