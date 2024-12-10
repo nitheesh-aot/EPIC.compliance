@@ -1,9 +1,9 @@
 """Complaint requirement detail model."""
 
 from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Query, relationship
 
-from ..base_model import BaseModelVersioned
+from ..base_model import BaseModelVersioned, db
 from ..complaint.complaint import Complaint as ComplaintModel
 from .complaint_req_eac_detail import ComplaintReqEACDetail as ComplaintReqEACDetailModel
 from .complaint_req_order_detail import ComplaintReqOrderDetail as ComplaintReqOrderDetailModel
@@ -81,21 +81,38 @@ class ComplaintRequirementDetail(BaseModelVersioned):
         """Delete requirement details by case file."""
         detail_query = cls.query.join(ComplaintModel).filter(
             ComplaintModel.case_file_id == case_file_id,
-            ComplaintRequirementDetail.is_deleted is False,
+            ComplaintRequirementDetail.is_deleted.is_(False),
         )
-        requirements = detail_query.all()
-        requirement_ids = [requirement.id for requirement in requirements]
-        if requirement_ids:
-            cls.query.filter(ComplaintRequirementDetail.id.in_(requirement_ids)).update(
-                {cls.is_deleted: True, cls.is_active: False}
-            )
+        _delete_details(detail_query, cls, session)
 
+    @classmethod
+    def delete_by_complaint(cls, complaint_id, session=None):
+        """Delete by complaint."""
+        detail_query = cls.query.join(ComplaintModel).filter(
+            ComplaintRequirementDetail.complaint_id == complaint_id,
+            ComplaintRequirementDetail.is_deleted.is_(False),
+        )
+        _delete_details(detail_query, cls, session)
+
+
+def _delete_details(detail_query: Query, cls, session=None):
+    """Delete the requirement details."""
+    requirements = detail_query.all()
+    requirement_ids = [requirement.id for requirement in requirements]
+    if requirement_ids:
+        cls.query.filter(ComplaintRequirementDetail.id.in_(requirement_ids)).update(
+            {
+                ComplaintRequirementDetail.is_deleted: True,
+                ComplaintRequirementDetail.is_active: False,
+            },
+            synchronize_session=False,
+        )
         eacs = (
             detail_query.join(
                 ComplaintReqEACDetailModel,
                 ComplaintRequirementDetail.id == ComplaintReqEACDetailModel.req_id,
             )
-            .filter(ComplaintReqEACDetailModel.is_deleted is False)
+            .filter(ComplaintReqEACDetailModel.is_deleted.is_(False))
             .all()
         )
         eac_ids = [eac.id for eac in eacs]
@@ -112,7 +129,7 @@ class ComplaintRequirementDetail(BaseModelVersioned):
                 ComplaintReqOrderDetailModel,
                 ComplaintRequirementDetail.id == ComplaintReqOrderDetailModel.req_id,
             )
-            .filter(ComplaintReqOrderDetailModel.is_deleted is False)
+            .filter(ComplaintReqOrderDetailModel.is_deleted.is_(False))
             .all()
         )
         order_ids = [order.id for order in orders]
@@ -130,7 +147,7 @@ class ComplaintRequirementDetail(BaseModelVersioned):
                 ComplaintRequirementDetail.id
                 == ComplaintReqScheduleBDetailModel.req_id,
             )
-            .filter(ComplaintReqScheduleBDetailModel.is_deleted is False)
+            .filter(ComplaintReqScheduleBDetailModel.is_deleted.is_(False))
             .all()
         )
         schedule_b_ids = [schedule.id for schedule in schedule_b_details]
@@ -143,7 +160,7 @@ class ComplaintRequirementDetail(BaseModelVersioned):
                     ComplaintReqScheduleBDetailModel.is_active: False,
                 }
             )
-        if session:
-            session.flush()
-        else:
-            cls.session.commit()
+    if session:
+        session.flush()
+    else:
+        db.session.commit()
