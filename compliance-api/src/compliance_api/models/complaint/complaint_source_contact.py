@@ -3,7 +3,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModelVersioned
+from ..base_model import BaseModelVersioned, db
 from ..type import EncryptedType
 from .complaint import Complaint as ComplaintModel
 
@@ -66,7 +66,7 @@ class ComplaintSourceContact(BaseModelVersioned):
         if session:
             session.flush()
         else:
-            cls.session.commit()
+            db.session.commit()
         return contact
 
     @classmethod
@@ -96,4 +96,18 @@ class ComplaintSourceContact(BaseModelVersioned):
             if session:
                 session.flush()
             else:
-                cls.session.commit()
+                db.session.commit()
+
+    @classmethod
+    def delete_by_complaint(cls, complaint_id, session=None):
+        """Delete by complaint id."""
+        cls.query.filter(ComplaintSourceContact.complaint_id == complaint_id).update(
+            {
+                ComplaintSourceContact.is_deleted: True,
+                ComplaintSourceContact.is_active: False,
+            }
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()

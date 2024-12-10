@@ -11,6 +11,7 @@ from compliance_api.schemas import (
     ComplaintCreateSchema, ComplaintSchema, ComplaintSourceContactSchema, ComplaintStatusSchema, ComplaintUpdateSchema,
     KeyValueSchema, RequirementSoruceDetailSchema)
 from compliance_api.services import ComplaintService
+from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
 
 from .apihelper import Api as ApiHelper
@@ -108,8 +109,8 @@ class Complaints(Resource):
         return ComplaintSchema().dump(created_complaint), HTTPStatus.CREATED
 
 
-@cors_preflight("GET, PATCH, OPTIONS")
-@API.route("/<int:complaint_id>", methods=["OPTIONS", "GET", "PATCH"])
+@cors_preflight("GET, PATCH, DELETE, OPTIONS")
+@API.route("/<int:complaint_id>", methods=["OPTIONS", "GET", "PATCH", "DELETE"])
 @API.doc(params={"complaint_id": "The unique identifier for the complaint"})
 class Complaint(Resource):
     """Resource for managing a single Complaint."""
@@ -135,6 +136,18 @@ class Complaint(Resource):
         complaint_data = ComplaintUpdateSchema().load(API.payload)
         updated_complaint = ComplaintService.update(complaint_id, complaint_data)
         return ComplaintSchema().dump(updated_complaint), HTTPStatus.OK
+
+    @staticmethod
+    @auth.require
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER])
+    @ApiHelper.swagger_decorators(API, endpoint_description="Delete a Complaint by id")
+    @API.response(code=204, description="Success")
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
+    def delete(complaint_id):
+        """Delete complaint."""
+        ComplaintService.delete_complaint(complaint_id)
+        return {}, HTTPStatus.NO_CONTENT
 
 
 @cors_preflight("GET, OPTIONS")
