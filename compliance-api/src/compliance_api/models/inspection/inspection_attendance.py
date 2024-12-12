@@ -3,7 +3,7 @@
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModelVersioned
+from ..base_model import BaseModelVersioned, db
 from ..inspection.inspection import Inspection as InspectionModel
 
 
@@ -68,8 +68,8 @@ class InspectionAttendance(BaseModelVersioned):
             session.add_all(inspection_officer_data)
             session.flush()
         else:
-            cls.session.add_all(inspection_officer_data)
-            cls.session.commit()
+            db.session.add_all(inspection_officer_data)
+            db.session.commit()
 
     @classmethod
     def delete_by_case_file(cls, case_file_id, session=None):
@@ -91,4 +91,15 @@ class InspectionAttendance(BaseModelVersioned):
         if session:
             session.flush()
         else:
-            cls.session.commit()
+            db.session.commit()
+
+    @classmethod
+    def delete_inspection_attendance(cls, inspection_id, session=None):
+        """Delete inspection Attendance."""
+        cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).update(
+            {cls.is_deleted: True, cls.is_active: False}
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()

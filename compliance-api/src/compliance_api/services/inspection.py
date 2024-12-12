@@ -329,6 +329,31 @@ class InspectionService:
                 case_file_id, ho_session or session
             )
 
+    @classmethod
+    def delete_inspection(cls, inspection_id):
+        """Delete inspection."""
+        from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
+
+        with session_scope() as session:
+            InspectionModel.delete_inspection(inspection_id, session)
+            InspectionTypeModel.delete_inspection_type(inspection_id, session)
+            InspectionOtherAttendanceModel.delete_inspection_attendance(
+                inspection_id, session
+            )
+            InspectionOfficerModel.delete_inspection_officer(inspection_id, session)
+            InspectionFirstnationModel.delete_inspection_firstnation(
+                inspection_id, session
+            )
+            InspectionAttendanceModel.delete_inspection_attendance(
+                inspection_id, session
+            )
+            InspectionAgencyModel.delete_inspection_agency(inspection_id)
+            ContinuationReportService.delete_by_context(
+                context_id=inspection_id,
+                context_type=ContextEnum.INSPECTION,
+                ho_session=session,
+            )
+
 
 def _access_check_create(inspection_data: dict):
     """Access check."""

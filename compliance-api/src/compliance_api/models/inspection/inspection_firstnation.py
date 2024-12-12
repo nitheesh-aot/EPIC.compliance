@@ -3,7 +3,7 @@
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModelVersioned
+from ..base_model import BaseModelVersioned, db
 from ..inspection.inspection import Inspection as InspectionModel
 
 
@@ -55,8 +55,8 @@ class InspectionFirstnation(BaseModelVersioned):
             session.add_all(inspection_firstnation_data)
             session.flush()
         else:
-            cls.session.add_all(inspection_firstnation_data)
-            cls.session.commit()
+            db.session.add_all(inspection_firstnation_data)
+            db.session.commit()
 
     @classmethod
     def delete_by_case_file(cls, case_file_id, session=None):
@@ -77,4 +77,15 @@ class InspectionFirstnation(BaseModelVersioned):
             if session:
                 session.flush()
             else:
-                cls.session.commit()
+                db.session.commit()
+
+    @classmethod
+    def delete_inspection_firstnation(cls, inspection_id, session=None):
+        """Delete inspection firstnation."""
+        cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).update(
+            {cls.is_deleted: True, cls.is_active: False}
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()

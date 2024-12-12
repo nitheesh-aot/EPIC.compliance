@@ -188,6 +188,11 @@ class ComplaintService:
             ComplaintModel.delete_complaint(complaint_id, session)
             ComplaintSourceContactModel.delete_by_complaint(complaint_id, session)
             ComplaintRequirementDetailModel.delete_by_complaint(complaint_id, session)
+            ContinuationReportService.delete_by_context(
+                context_id=complaint_id,
+                context_type=ContextEnum.COMPLAINT,
+                ho_session=session,
+            )
 
     @classmethod
     def change_case_file_status(cls, complaint_id, status_data):
