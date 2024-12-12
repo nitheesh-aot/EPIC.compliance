@@ -479,5 +479,8 @@ def test_case_file_linking(client, jwt, created_staff, auth_header_super_user):
         data=json.dumps(post_data),
         headers=auth_header_super_user,
     )
-    print(result.json)
     assert result.status_code == HTTPStatus.CREATED
+    # Get the link
+    result = client.get(url, headers=auth_header_super_user)
+    assert result.status_code == HTTPStatus.OK
+    assert len(result.json) == 1

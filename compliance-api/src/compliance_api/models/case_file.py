@@ -152,7 +152,7 @@ class CaseFile(BaseModelVersioned):
     ):
         """Update the case file status."""
         cls.query.filter(cls.id == case_file_id).update(
-            {cls.case_file_status: case_file_status}
+            {cls.case_file_status: case_file_status}, synchronize_session=False
         )
         if session:
             session.flush()
@@ -302,6 +302,21 @@ class CaseFileLink(BaseModelVersioned):
             cls.target_case_id == target_id,
             cls.is_deleted.is_(False),
         ).first()
+
+    @classmethod
+    def delete_link(cls, source_id, taget_id, session=None):
+        """Delete the case file link."""
+        cls.query.filter(
+            cls.source_case_id == source_id,
+            cls.target_case_id == taget_id,
+            cls.is_deleted.is_(False),
+        ).update(
+            {cls.is_deleted: True, cls.is_active: False}, synchronize_session=False
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
 
     @classmethod
     def create_link(cls, link_data, session=None):

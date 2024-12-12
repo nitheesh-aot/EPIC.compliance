@@ -205,6 +205,45 @@ class CaseFileService:
                 )
         return created_link
 
+    @classmethod
+    def unlink(cls, case_file_id, unlink):
+        """Unlink the case file from another case file."""
+        _access_check_for_update(case_file_id)
+        unlink_case_file_id = unlink.get("case_file_to_unlink")
+        case_file = CaseFileModel.find_by_id(case_file_id)
+        unlink_case_file = CaseFileModel.find_by_id(unlink_case_file_id)
+        existing_link = CaseFileLinkModel.get_links_by_source_and_target(
+            source_id=case_file_id, target_id=unlink_case_file_id
+        )
+        if not existing_link:
+            raise UnprocessableEntityError("Case file links doesn't exist")
+        with session_scope() as session:
+            _unlink(source=case_file, target=unlink_case_file, session=session)
+            _unlink(source=unlink_case_file, target=case_file, session=session)
+
+    @classmethod
+    def get_linked_case_files(cls, case_file_id):
+        """Get all linked case files."""
+        linked_case_files = CaseFileLinkModel.get_links_by_source_id(case_file_id)
+        links = [link.target for link in linked_case_files]
+        return links
+
+
+def _unlink(source, target, session):
+    """Unlink the case file."""
+    from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
+
+    CaseFileLinkModel.delete_link(
+        source_id=source.id, taget_id=target.id, session=session
+    )
+    cr_entry = _create_cr_entry(
+        source.id,
+        source.case_file_number,
+        f"unlinked from {target.case_file_number}",
+        [source.case_file_number, target.case_file_number],
+    )
+    ContinuationReportService.create(cr_entry, sys_generated=True, ho_session=session)
+
 
 def _create_link(source, target, session):
     """Create case file link entry."""
