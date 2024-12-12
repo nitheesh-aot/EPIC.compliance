@@ -172,9 +172,7 @@ class Complaint(BaseModelVersioned):
         cls, complaint_id, complaint_status: ComplaintStatusEnum, session=None
     ):
         """Update the complaint status."""
-        cls.query.filter(cls.id == complaint_id).update(
-            {cls.status: complaint_status}
-        )
+        cls.query.filter(cls.id == complaint_id).update({cls.status: complaint_status})
         if session:
             session.flush()
         else:
@@ -193,6 +191,17 @@ class Complaint(BaseModelVersioned):
         cls.query.filter(
             Complaint.case_file_id == case_file_id, Complaint.is_deleted is False
         ).update({Complaint.is_deleted: True, Complaint.is_active: False})
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
+
+    @classmethod
+    def delete_complaint(cls, complaint_id, session=None):
+        """Delete complaint."""
+        cls.query.filter(Complaint.id == complaint_id).update(
+            {Complaint.is_deleted: True, Complaint.is_active: False}
+        )
         if session:
             session.flush()
         else:

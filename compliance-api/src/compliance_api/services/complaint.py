@@ -182,6 +182,14 @@ class ComplaintService:
             )
 
     @classmethod
+    def delete_complaint(cls, complaint_id):
+        """Delete complaint."""
+        with session_scope() as session:
+            ComplaintModel.delete_complaint(complaint_id, session)
+            ComplaintSourceContactModel.delete_by_complaint(complaint_id, session)
+            ComplaintRequirementDetailModel.delete_by_complaint(complaint_id, session)
+
+    @classmethod
     def change_case_file_status(cls, complaint_id, status_data):
         """Change the status of the complaint."""
         _access_check_update(complaint_id)
@@ -325,7 +333,9 @@ def _create_complaint_object(complaint_data: dict):
     case_file_id = complaint_data.get("case_file_id")
     case_file = CaseFileModel.find_by_id(case_file_id)
     result = _create_complaint_update_object(complaint_data)
-    result["complaint_number"] = _create_complaint_number(case_file.project_id, case_file_id)
+    result["complaint_number"] = _create_complaint_number(
+        case_file.project_id, case_file_id
+    )
     result["case_file_id"] = case_file_id
     result["status"] = ComplaintStatusEnum.OPEN
     return result
