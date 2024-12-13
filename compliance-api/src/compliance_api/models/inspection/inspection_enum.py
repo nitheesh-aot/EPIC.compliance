@@ -21,3 +21,4 @@ class InspectionStatusEnum(enum.Enum):
 
     OPEN = "Open"
     CLOSED = "Closed"
+    CANCELED = "Canceled"
