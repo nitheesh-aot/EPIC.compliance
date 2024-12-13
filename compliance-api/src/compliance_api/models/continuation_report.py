@@ -17,7 +17,7 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.enum import ContextEnum
 
-from .base_model import BaseModelVersioned
+from .base_model import BaseModelVersioned, db
 
 
 class ContinuationReport(BaseModelVersioned):
@@ -97,7 +97,7 @@ class ContinuationReport(BaseModelVersioned):
         if session:
             session.flush()
         else:
-            cls.session.commit()
+            db.session.commit()
         return report_entry
 
     @classmethod
@@ -109,7 +109,24 @@ class ContinuationReport(BaseModelVersioned):
         if session:
             session.flush()
         else:
-            cls.session.commit()
+            db.session.commit()
+
+    @classmethod
+    def delete_by_context(cls, context_id, context_type, session=None):
+        """
+        Delete continuation report entries.
+
+        :param context_id: The unique ID of the context type.
+        :param context_type: One of the context_type enums.
+        :param session: SQLAlchemy session object (optional).
+        """
+        cls.query.filter_by(context_id=context_id, context_type=context_type).update(
+            {cls.is_deleted: True, cls.is_active: False}
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
 
     @classmethod
     def get_by_case_file(cls, case_file_id, page_no, page_size, search_text):
@@ -177,9 +194,33 @@ class ContinuationReportKey(BaseModelVersioned):
         """
         keys = (
             cls.query.join(ContinuationReport)
+            .filter(ContinuationReport.case_file_id == case_file_id)
+            .all()
+        )
+        key_ids = [key.id for key in keys]
+        if key_ids:
+            cls.query.filter(ContinuationReportKey.id.in_(key_ids)).update(
+                {cls.is_deleted: True, cls.is_active: False}
+            )
+            if session:
+                session.flush()
+            else:
+                db.session.commit()
+
+    @classmethod
+    def delete_keys_by_context(cls, context_id, context_type, session=None):
+        """
+        Delete continuation report entries.
+
+        :param context_id: The unique ID of the context type.
+        :param context_type: One of the context_type enums.
+        :param session: SQLAlchemy session object (optional).
+        """
+        keys = (
+            cls.query.join(ContinuationReport)
             .filter(
-                ContinuationReport.case_file_id == case_file_id,
-                ContinuationReportKey.is_deleted is False,
+                ContinuationReport.context_id == context_id,
+                ContinuationReport.context_type == context_type,
             )
             .all()
         )
@@ -191,7 +232,7 @@ class ContinuationReportKey(BaseModelVersioned):
             if session:
                 session.flush()
             else:
-                cls.session.commit()
+                db.session.commit()
 
     @classmethod
     def bulk_insert(cls, report_id: int, keys: list[int], session=None):
@@ -210,5 +251,5 @@ class ContinuationReportKey(BaseModelVersioned):
             session.add_all(key_data)
             session.flush()
         else:
-            cls.session.add_all(key_data)
-            cls.session.commit()
+            db.session.add_all(key_data)
+            db.session.commit()

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """CaseFile Schema."""
-from marshmallow import EXCLUDE, fields, post_dump, post_load
+from marshmallow import EXCLUDE, Schema, fields, post_dump, post_load, pre_dump
 from marshmallow_enum import EnumField
 
 from compliance_api.models import CaseFile, CaseFileLink, CaseFileOfficer, CaseFileStatusEnum
@@ -207,3 +207,35 @@ class CaseFileLinkSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
 
     source = fields.Nested(CaseFileSchema)
     target = fields.Nested(CaseFileSchema)
+
+
+class CaseFileOptionSchema(Schema):  # pylint: disable=too-many-ancestors
+    """CaseFileOptionSchema."""
+
+    case_file_id = fields.Int(
+        metadata={"description": "The unique identifier of the case file."}
+    )
+    case_file_number = fields.Str(
+        metadata={"description": "The unique case file number of the case file."}
+    )
+
+    @pre_dump
+    def map_id_to_case_file_id(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Map id to case_file_id."""
+        setattr(data, "case_file_id", data.id)
+        return data
+
+
+class CaseFileUnlinkSchema(BaseSchema):
+    """CaseFileUnlinkSchema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    case_file_to_unlink = fields.Int(
+        metadata={"description": "The case file id to unlink"}, required=True
+    )

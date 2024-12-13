@@ -68,6 +68,21 @@ class ContinuationReportService:
             )
 
     @classmethod
+    def delete_by_context(cls, context_id, context_type, ho_session=None):
+        """
+        Delete continuation report entries by context.
+
+        :param context_id: The unique ID of the context type.
+        :param context_type: One of the context_type enums.
+        :param ho_session: SQLAlchemy session object (optional).
+        """
+        with session_scope() as session:
+            ContinuationReportModel.delete_by_context(context_id, context_type, session)
+            ContinuationReportKeyModel.delete_keys_by_context(
+                context_id, context_type, ho_session or session
+            )
+
+    @classmethod
     def get_by_case_file_id(cls, case_file_id, page_no, page_size, search_text):
         """Get all crs by case file id."""
         return ContinuationReportModel.get_by_case_file(
