@@ -21,7 +21,7 @@ from flask_restx import Namespace, Resource
 from compliance_api.auth import auth
 from compliance_api.schemas import (
     InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
-    InspectionUpdateSchema, KeyValueSchema, StaffUserSchema)
+    InspectionStatusSchema, InspectionUpdateSchema, KeyValueSchema, StaffUserSchema)
 from compliance_api.services import InspectionService
 from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
@@ -49,6 +49,9 @@ staff_list_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 inspection_update_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, InspectionUpdateSchema(), "InspectionUpdate"
+)
+inspection_status_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, InspectionStatusSchema(), "InspectionStatus"
 )
 
 
@@ -242,7 +245,7 @@ class InspectionByIRNumber(Resource):
 
 
 @cors_preflight("PATCH, OPTIONS")
-@API.route("/<int:inspection_id>/close", methods=["PATCH", "OPTIONS"])
+@API.route("/<int:inspection_id>/status", methods=["PATCH", "OPTIONS"])
 @API.doc(params={"inspection_id": "The unique identifier for the inspection"})
 class InspectionStatus(Resource):
     """Update the inspection status."""
@@ -250,10 +253,12 @@ class InspectionStatus(Resource):
     @staticmethod
     @auth.require
     @API.response(400, "Bad Request")
+    @API.expect(inspection_status_model)
     @API.response(404, "Not Found")
-    @ApiHelper.swagger_decorators(API, endpoint_description="Close the inspection")
-    @API.response(code=204, description="Inspection Closed")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Change inspection status")
+    @API.response(code=204, description="Inspection status changed")
     def patch(inspection_id):
-        """Close complaint."""
-        InspectionService.close_inspection(inspection_id)
+        """Change Inspection Status."""
+        status = InspectionStatusSchema().load(API.payload)
+        InspectionService.change_status(inspection_id, status)
         return {}, HTTPStatus.NO_CONTENT
