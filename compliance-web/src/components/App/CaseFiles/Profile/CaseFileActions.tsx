@@ -3,6 +3,7 @@ import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
 import {
   useDeleteCaseFile,
   useLinkCaseFile,
+  useUnlinkCaseFile,
   useUpdateCaseFileStatus,
 } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
@@ -43,7 +44,7 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
     queryClient.invalidateQueries({
       queryKey: ["case-file", fileNumber],
     });
-    notify.success("Case File Linked!");
+    notify.success("Case file link is updated");
     setClose();
   }, [queryClient, fileNumber, setClose]);
 
@@ -54,6 +55,7 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
   }, [setClose, router]);
 
   const { mutate: linkCaseFile } = useLinkCaseFile(onLinkCaseFileSuccess);
+  const { mutate: unlinkCaseFile } = useUnlinkCaseFile(onLinkCaseFileSuccess);
   const { mutate: updateCaseFileStatus } = useUpdateCaseFileStatus(
     onUpdateStatusSuccess
   );
@@ -86,8 +88,8 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
           content: (
             <LinkCaseFileModal
               fileNumber={fileNumber}
-              onSubmit={() => {
-                // TODO: unlink case file
+              onSubmit={(caseFileId) => {
+                unlinkCaseFile({id: caseFileData?.id ?? 0, linkId: caseFileId})
               }}
               linkedCaseFiles={caseFileData?.caseFileLinks ?? []}
               isEdit
