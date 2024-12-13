@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inspection Schema Schema."""
-from marshmallow import EXCLUDE, ValidationError, fields, post_dump, validates_schema
+from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load, validates_schema
+from marshmallow_enum import EnumField
 
 from compliance_api.models.inspection import (
     Inspection, InspectionAttendance, InspectionAttendanceOptionEnum, InspectionOfficer, InspectionStatusEnum)
@@ -347,3 +348,44 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         if obj.types:
             return ", ".join([o.type.name for o in obj.types])
         return []
+
+
+class InspectionStatusSchema(BaseSchema):
+    """ComplaintStatusSchema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    status = EnumField(
+        InspectionStatusEnum,
+        metadata={"description": "The status of the complaint"},
+        required=True,
+    )
+
+    @post_load
+    def extract_status_value(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Extract the value of the status enum."""
+        status_enum = data.get("status")
+        if status_enum:
+            data["status"] = status_enum.value
+        return data
+
+    @validates_schema
+    def validate_status(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Ensure only Closed and Canceled status are passed."""
+        # Retrieve the context to access other fields
+        status = data.get("status")
+        if status not in [
+            InspectionStatusEnum("Closed"),
+            InspectionStatusEnum("Canceled"),
+        ]:
+            raise ValidationError(
+                "Invalid status value passed",
+                field_name="status",
+            )

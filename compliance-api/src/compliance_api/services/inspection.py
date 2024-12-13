@@ -282,7 +282,7 @@ class InspectionService:
         return updated_case_file
 
     @classmethod
-    def close_inspection(cls, inspection_id):
+    def change_status(cls, inspection_id, status):
         """Close the inspection."""
         from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
 
@@ -290,18 +290,22 @@ class InspectionService:
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
             raise ResourceNotFoundError("Inspection not found.")
-        if inspection.inspection_status == "Closed":
+        status_enum = InspectionStatusEnum(status.get("status"))
+        if inspection.inspection_status != InspectionStatusEnum.OPEN:
             raise UnprocessableEntityError(
-                "The inspection is already in Closed status."
+                "Inspection has to be in open state to perform the requested action"
             )
         with session_scope() as session:
             InspectionModel.update_inspection(
                 inspection_id,
-                {"inspection_status": InspectionStatusEnum("Closed")},
+                {"inspection_status": InspectionStatusEnum(status_enum.value)},
                 session,
             )
             cr_entry = _create_cr_entry(
-                inspection.id, inspection.ir_number, inspection.case_file_id, "closed"
+                inspection.id,
+                inspection.ir_number,
+                inspection.case_file_id,
+                status_enum.value.lower(),
             )
             ContinuationReportService.create(
                 cr_entry, sys_generated=True, ho_session=session
