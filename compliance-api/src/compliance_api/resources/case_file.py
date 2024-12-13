@@ -21,8 +21,8 @@ from flask_restx import Namespace, Resource
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
-    CaseFileCreateSchema, CaseFileLinkCreateSchema, CaseFileLinkSchema, CaseFileOfficerSchema, CaseFileSchema,
-    CaseFileStatusSchema, CaseFileUpdateSchema, KeyValueSchema, StaffUserSchema)
+    CaseFileCreateSchema, CaseFileLinkCreateSchema, CaseFileLinkSchema, CaseFileOfficerSchema, CaseFileOptionSchema,
+    CaseFileSchema, CaseFileStatusSchema, CaseFileUnlinkSchema, CaseFileUpdateSchema, KeyValueSchema, StaffUserSchema)
 from compliance_api.services import CaseFileService
 from compliance_api.services.case_file_aggregate import CaseFileAggregateService
 from compliance_api.utils.enum import PermissionEnum
@@ -59,6 +59,12 @@ case_file_link_create_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 case_file_link_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, CaseFileLinkSchema(), "CaseFileLink"
+)
+case_file_option_schema = ApiHelper.convert_ma_schema_to_restx_model(
+    API, CaseFileOptionSchema(), "CaseFileOptionSchema"
+)
+case_file_unlink_schema = ApiHelper.convert_ma_schema_to_restx_model(
+    API, CaseFileUnlinkSchema(), "CaseFileUnlinkSchema"
 )
 
 
@@ -226,8 +232,8 @@ class CaseFileStatus(Resource):
         return {}, HTTPStatus.NO_CONTENT
 
 
-@cors_preflight("POST, OPTIONS")
-@API.route("/<int:case_file_id>/links", methods=["POST", "OPTIONS"])
+@cors_preflight("POST, GET, OPTIONS")
+@API.route("/<int:case_file_id>/links", methods=["POST", "GET", "OPTIONS"])
 @API.doc(params={"case_file_id": "The unique identifier for the case file"})
 class CaseFileLinks(Resource):
     """Link the case file."""
@@ -247,3 +253,35 @@ class CaseFileLinks(Resource):
         link = CaseFileLinkCreateSchema().load(API.payload)
         created_link = CaseFileService.link(case_file_id, link)
         return CaseFileLinkSchema().dump(created_link), HTTPStatus.CREATED
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get all linked case files")
+    @API.response(code=200, model=[case_file_option_schema], description="Success")
+    def get(case_file_id):
+        """Get all linked case files."""
+        case_files = CaseFileService.get_linked_case_files(case_file_id)
+        case_file_list_schema = CaseFileOptionSchema(many=True)
+        return case_file_list_schema.dump(case_files), HTTPStatus.OK
+
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/<int:case_file_id>/unlink", methods=["PATCH", "OPTIONS"])
+@API.doc(params={"case_file_id": "The unique identifier for the case file"})
+class CaseFileUnlink(Resource):
+    """Unlink the case file."""
+
+    @staticmethod
+    @auth.require
+    @API.expect(case_file_unlink_schema)
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
+    @API.response(code=204, description="Success")
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Unlink the case file from another case file"
+    )
+    @API.response(code=204, description="Case file is unlined")
+    def patch(case_file_id):
+        """Unlink the case file."""
+        unlink = CaseFileUnlinkSchema().load(API.payload)
+        CaseFileService.unlink(case_file_id, unlink)
+        return {}, HTTPStatus.NO_CONTENT
