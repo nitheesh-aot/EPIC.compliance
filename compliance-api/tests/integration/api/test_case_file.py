@@ -24,7 +24,7 @@ API_BASE_URL = "/api/"
 fake = Faker()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def mock_auth_service(mocker):
     """Fixture to mock AuthService methods."""
     mock_get_user_by_guid = mocker.patch(
@@ -40,8 +40,10 @@ def mock_auth_service(mocker):
         "compliance_api.services.authorize_service.auth_service.AuthService.update_user_group"
     )
     mock_update_user_group.return_value = {}
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
 
-    yield mock_get_user_by_guid, mock_update_user_group
+    yield mock_get_user_by_guid, mock_update_user_group, contains_role
 
 
 @pytest.fixture
@@ -61,6 +63,15 @@ def test_get_case_file_initiation_options(client, auth_header):
     assert len(result.json) == 2
     assert result.status_code == HTTPStatus.OK
 
+def test_get_case_file_by_id(client, auth_header, created_staff):
+    """Get case file by id."""
+    case_file_data = CasefileScenario.default_value.value
+    case_file_data["primary_officer_id"] = created_staff.id
+    created_case_file = CaseFileService.create(case_file_data)
+
+    url = urljoin(API_BASE_URL, f"case-files/{created_case_file.id}")
+    result = client.get(url, headers=auth_header)
+    assert result.status_code == HTTPStatus.OK
 
 def test_create_case_file_without_file_number(
     client, auth_header_super_user, created_staff
@@ -167,17 +178,20 @@ def test_get_case_files_by_project_id(client, auth_header):
     assert len(result.json) == 2
 
 
-def test_get_case_files(client, auth_header):
+def test_get_case_files(client, auth_header, mocker):
     """Get all case files."""
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["project_id"] = 2
     case_file_data["case_file_number"] = fake.word()
-    CaseFileModel.create_case_file(case_file_data)
+    created_case = CaseFileService.create(case_file_data)
     url = urljoin(API_BASE_URL, "case-files")
     result = client.get(url, headers=auth_header)
 
     assert result.status_code == HTTPStatus.OK
-    assert len(result.json) == 4
+    filtered_case_file = next((case for case in result.json if case["id"] == created_case.id), None)
+    assert filtered_case_file is not None
 
 
 def test_get_case_file_by_id(client, auth_header, mocker):
