@@ -12,6 +12,8 @@ import { useCaseFilesData } from "@/hooks/useCaseFiles";
 type LinkCaseFileModalProps = {
   onSubmit: (caseFileId: number) => void;
   linkedCaseFiles?: CaseFile[];
+  fileNumber: string;
+  isEdit?: boolean;
 };
 
 const linkCaseFileSchema = yup.object().shape({
@@ -30,10 +32,22 @@ const initFormData = {
 const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
   onSubmit,
   linkedCaseFiles,
+  fileNumber,
+  isEdit,
 }) => {
   const { data: caseFiles } = useCaseFilesData();
 
-  const caseFilesList = linkedCaseFiles ?? caseFiles;
+  const filteredCaseFileList =
+    caseFiles
+      ?.filter(
+        (caseFile) =>
+          caseFile.case_file_number !== fileNumber &&
+          !linkedCaseFiles?.some((linked) => linked.id === caseFile.id)
+      )
+      .sort((a, b) => a.case_file_number.localeCompare(b.case_file_number)) ??
+    [];
+
+  const caseFilesList = isEdit ? linkedCaseFiles : filteredCaseFileList;
 
   const methods = useForm<LinkCaseFileFormType>({
     resolver: yupResolver(linkCaseFileSchema),
@@ -56,11 +70,7 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <ModalTitleBar
-          title={
-            linkedCaseFiles?.length
-              ? "Unlink from Case File"
-              : "Link to Case File"
-          }
+          title={isEdit ? "Unlink from Case File" : "Link to Case File"}
         />
         <DialogContent dividers>
           <ControlledAutoComplete
@@ -78,9 +88,7 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
         </DialogContent>
         {caseFilesList && caseFilesList.length > 0 && (
           <ModalActions
-            primaryActionButtonText={
-              linkedCaseFiles?.length ? "Unlink" : "Link"
-            }
+            primaryActionButtonText={isEdit ? "Unlink" : "Link"}
             isButtonValidation
           />
         )}

@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
 import {
   useDeleteCaseFile,
+  useLinkCaseFile,
   useUpdateCaseFileStatus,
 } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
@@ -38,12 +39,21 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
     setClose();
   }, [queryClient, fileNumber, setClose]);
 
+  const onLinkCaseFileSuccess = useCallback(() => {
+    queryClient.invalidateQueries({
+      queryKey: ["case-file", fileNumber],
+    });
+    notify.success("Case File Linked!");
+    setClose();
+  }, [queryClient, fileNumber, setClose]);
+
   const onDeleteSuccess = useCallback(() => {
     notify.success("Case File deleted!");
     setClose();
     router.navigate({ to: "/ce-database/case-files" });
   }, [setClose, router]);
 
+  const { mutate: linkCaseFile } = useLinkCaseFile(onLinkCaseFileSuccess);
   const { mutate: updateCaseFileStatus } = useUpdateCaseFileStatus(
     onUpdateStatusSuccess
   );
@@ -57,8 +67,10 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
         setOpen({
           content: (
             <LinkCaseFileModal
-              onSubmit={() => {
-                // TODO: link case file
+              fileNumber={fileNumber}
+              linkedCaseFiles={caseFileData?.caseFileLinks ?? []}
+              onSubmit={(caseFileId) => {
+                linkCaseFile({ id: caseFileData?.id ?? 0, linkId: caseFileId });
               }}
             />
           ),
@@ -73,10 +85,12 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
         setOpen({
           content: (
             <LinkCaseFileModal
+              fileNumber={fileNumber}
               onSubmit={() => {
                 // TODO: unlink case file
               }}
-              linkedCaseFiles={caseFileData ? [caseFileData] : []}
+              linkedCaseFiles={caseFileData?.caseFileLinks ?? []}
+              isEdit
             />
           ),
         });
