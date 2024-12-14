@@ -5,7 +5,11 @@ import { useModal } from "@/store/modalStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { Complaint } from "@/models/Complaint";
 import { notify } from "@/store/snackbarStore";
-import { useUpdateComplaintStatus } from "@/hooks/useComplaints";
+import {
+  useDeleteComplaint,
+  useUpdateComplaintStatus,
+} from "@/hooks/useComplaints";
+import router from "@/router/router";
 
 interface ComplaintFileActionsProps {
   status: string;
@@ -32,10 +36,17 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
     setClose();
   }, [fileNumber, queryClient, setClose]);
 
+  const onDeleteSuccess = useCallback(() => {
+    notify.success("Complaint deleted!");
+    setClose();
+    router.navigate({ to: "/ce-database/complaints" });
+  }, [setClose]);
+
   const { mutate: updateComplaintStatus } = useUpdateComplaintStatus(
     onUpdateStatusSuccess
   );
-  
+
+  const { mutate: deleteComplaint } = useDeleteComplaint(onDeleteSuccess);
 
   const actionsList = [
     {
@@ -93,8 +104,7 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
               description="You are about to delete this complaint. Are you sure?"
               confirmButtonText="Delete"
               onConfirm={() => {
-                // TODO: Implement delete complaint
-                setClose();
+                deleteComplaint(complaintData?.id ?? 0);
               }}
             />
           ),
