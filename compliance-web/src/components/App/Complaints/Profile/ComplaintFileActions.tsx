@@ -62,7 +62,7 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
               onConfirm={() => {
                 updateComplaintStatus({
                   id: complaintData?.id ?? 0,
-                  caseFileStatus: { status: "CLOSED" },
+                  complaintStatus: { status: "CLOSED" },
                 });
               }}
             />
@@ -84,7 +84,7 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
               onConfirm={() => {
                 updateComplaintStatus({
                   id: complaintData?.id ?? 0,
-                  caseFileStatus: { status: "OPEN" },
+                  complaintStatus: { status: "OPEN" },
                 });
               }}
             />

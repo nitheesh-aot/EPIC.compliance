@@ -1,4 +1,8 @@
-import { Complaint, ComplaintAPIData, ComplaintStatusAPIData } from "@/models/Complaint";
+import {
+  Complaint,
+  ComplaintAPIData,
+  ComplaintStatusAPIData,
+} from "@/models/Complaint";
 import { ComplaintSource } from "@/models/ComplaintSource";
 import { Contact } from "@/models/Contact";
 import {
@@ -54,12 +58,16 @@ const updateComplaint = ({
 
 const updateComplaintStatus = ({
   id,
-  caseFileStatus,
+  complaintStatus,
 }: {
   id: number;
-  caseFileStatus: ComplaintStatusAPIData;
+  complaintStatus: ComplaintStatusAPIData;
 }) => {
-  return request({ url: `/complaints/${id}/status`, method: "patch", data: caseFileStatus });
+  return request({
+    url: `/complaints/${id}/status`,
+    method: "patch",
+    data: complaintStatus,
+  });
 };
 
 const deleteComplaint = (id: number) => {

@@ -4,8 +4,8 @@ import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { Inspection } from "@/models/Inspection";
-import { useCloseInspection } from "@/hooks/useInspections";
 import { notify } from "@/store/snackbarStore";
+import { useUpdateInspectionStatus } from "@/hooks/useInspections";
 
 interface InspectionFileActionsProps {
   status: string;
@@ -32,7 +32,7 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
     setClose();
   }, [fileNumber, queryClient, setClose]);
 
-  const { mutate: closeInspection } = useCloseInspection(
+  const { mutate: updateInspectionInspection } = useUpdateInspectionStatus(
     onUpdateStatusSuccess
   );
 
@@ -48,14 +48,16 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
               description="Are you sure you want to cancel this inspection?"
               confirmButtonText="Cancel Inspection"
               onConfirm={() => {
-                // TODO: Implement cancel inspection
-                setClose();
+                updateInspectionInspection({
+                  id: inspectionData?.id ?? 0,
+                  inspectionStatus: { status: "CANCELED" },
+                });
               }}
             />
           ),
         });
       },
-      hidden: status?.toLowerCase() === "closed",
+      hidden: ["canceled", "closed"].includes(status?.toLowerCase()),
     },
     {
       text: "Close as Note to File",
@@ -68,34 +70,17 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
               description="Are you sure you want to close inspection as note to file?"
               confirmButtonText="Close Inspection"
               onConfirm={() => {
-                closeInspection({ id: inspectionData?.id ?? 0 });
+                updateInspectionInspection({
+                  id: inspectionData?.id ?? 0,
+                  inspectionStatus: { status: "CLOSED" },
+                });
               }}
             />
           ),
           width: "420px",
         });
       },
-      hidden: status?.toLowerCase() === "closed",
-    },
-    {
-      text: "Reopen Inspection",
-      onClick: () => {
-        // Handle reopening inspection
-        setOpen({
-          content: (
-            <ConfirmationModal
-              title="Reopen Inspection?"
-              description="Are you sure you want to reopen this inspection?"
-              confirmButtonText="Reopen Inspection"
-              onConfirm={() => {
-                // TODO: Implement reopen inspection
-                setClose();
-              }}
-            />
-          ),
-        });
-      },
-      hidden: status?.toLowerCase() === "open",
+      hidden: ["canceled", "closed"].includes(status?.toLowerCase()),
     },
     {
       text: "Delete Inspection",
