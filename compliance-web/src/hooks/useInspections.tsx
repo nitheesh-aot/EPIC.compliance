@@ -77,6 +77,10 @@ const updateInspectionStatus = ({
   });
 };
 
+const deleteInspection = (id: number) => {
+  return request({ url: `/inspections/${id}`, method: "delete" });
+};
+
 export const useIRTypesData = () => {
   return useQuery({
     queryKey: ["ir-types"],
@@ -151,4 +155,8 @@ export const useUpdateInspection = (onSuccess: OnSuccessType) => {
 
 export const useUpdateInspectionStatus = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateInspectionStatus, onSuccess });
+};
+
+export const useDeleteInspection = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: deleteInspection, onSuccess });
 };

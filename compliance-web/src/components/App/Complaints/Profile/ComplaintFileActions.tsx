@@ -9,7 +9,7 @@ import {
   useDeleteComplaint,
   useUpdateComplaintStatus,
 } from "@/hooks/useComplaints";
-import router from "@/router/router";
+import { useRouter } from "@tanstack/react-router";
 
 interface ComplaintFileActionsProps {
   status: string;
@@ -20,6 +20,7 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
   status,
   fileNumber,
 }) => {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
 
@@ -40,7 +41,7 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
     notify.success("Complaint deleted!");
     setClose();
     router.navigate({ to: "/ce-database/complaints" });
-  }, [setClose]);
+  }, [router, setClose]);
 
   const { mutate: updateComplaintStatus } = useUpdateComplaintStatus(
     onUpdateStatusSuccess

@@ -5,7 +5,11 @@ import { useModal } from "@/store/modalStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { Inspection } from "@/models/Inspection";
 import { notify } from "@/store/snackbarStore";
-import { useUpdateInspectionStatus } from "@/hooks/useInspections";
+import {
+  useDeleteInspection,
+  useUpdateInspectionStatus,
+} from "@/hooks/useInspections";
+import { useRouter } from "@tanstack/react-router";
 
 interface InspectionFileActionsProps {
   status: string;
@@ -16,6 +20,7 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
   status,
   fileNumber,
 }) => {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
 
@@ -32,9 +37,17 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
     setClose();
   }, [fileNumber, queryClient, setClose]);
 
+  const onDeleteSuccess = useCallback(() => {
+    notify.success("Inspection deleted!");
+    setClose();
+    router.navigate({ to: "/ce-database/inspections" });
+  }, [router, setClose]);
+
   const { mutate: updateInspectionInspection } = useUpdateInspectionStatus(
     onUpdateStatusSuccess
   );
+
+  const { mutate: deleteInspection } = useDeleteInspection(onDeleteSuccess);
 
   const actionsList = [
     {
@@ -93,8 +106,7 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
               description="You are about to delete this inspection. Are you sure?"
               confirmButtonText="Delete"
               onConfirm={() => {
-                // TODO: Implement delete inspection
-                setClose();
+                deleteInspection(inspectionData?.id ?? 0);
               }}
             />
           ),
