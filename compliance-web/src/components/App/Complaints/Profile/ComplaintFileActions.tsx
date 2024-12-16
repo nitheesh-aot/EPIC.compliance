@@ -33,9 +33,12 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
     queryClient.invalidateQueries({
       queryKey: ["complaint", fileNumber],
     });
+    queryClient.invalidateQueries({
+      queryKey: ["continuation-reports", complaintData?.case_file_id],
+    });
     notify.success("Complaint status updated");
     setClose();
-  }, [fileNumber, queryClient, setClose]);
+  }, [complaintData, fileNumber, queryClient, setClose]);
 
   const onDeleteSuccess = useCallback(() => {
     notify.success("Complaint deleted!");

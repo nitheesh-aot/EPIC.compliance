@@ -33,9 +33,12 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
     queryClient.invalidateQueries({
       queryKey: ["inspection", fileNumber],
     });
+    queryClient.invalidateQueries({
+      queryKey: ["continuation-reports", inspectionData?.case_file_id],
+    });
     notify.success("Inspection status updated");
     setClose();
-  }, [fileNumber, queryClient, setClose]);
+  }, [fileNumber, inspectionData, queryClient, setClose]);
 
   const onDeleteSuccess = useCallback(() => {
     notify.success("Inspection deleted!");
