@@ -62,6 +62,10 @@ const updateComplaintStatus = ({
   return request({ url: `/complaints/${id}/status`, method: "patch", data: caseFileStatus });
 };
 
+const deleteComplaint = (id: number) => {
+  return request({ url: `/complaints/${id}`, method: "delete" });
+};
+
 export const useRequirementSourcesData = () => {
   return useQuery({
     queryKey: ["requirement-sources"],
@@ -114,4 +118,8 @@ export const useUpdateComplaint = (onSuccess: OnSuccessType) => {
 
 export const useUpdateComplaintStatus = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateComplaintStatus, onSuccess });
+};
+
+export const useDeleteComplaint = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: deleteComplaint, onSuccess });
 };

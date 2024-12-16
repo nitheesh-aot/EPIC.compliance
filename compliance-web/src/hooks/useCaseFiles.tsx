@@ -1,8 +1,15 @@
-import { CaseFile, CaseFileAPIData, CaseFileStatusAPIData } from "@/models/CaseFile";
+import {
+  CaseFile,
+  CaseFileAPIData,
+  CaseFileStatusAPIData,
+} from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
 import { StaffUser } from "@/models/Staff";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
-import { UNAPPROVED_PROJECT_ABBREVIATION, UNAPPROVED_PROJECT_ID } from "@/utils/constants";
+import {
+  UNAPPROVED_PROJECT_ABBREVIATION,
+  UNAPPROVED_PROJECT_ID,
+} from "@/utils/constants";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 const fetchCaseFiles = (projectId?: number): Promise<CaseFile[]> => {
@@ -19,6 +26,10 @@ const fetchOfficers = (caseFileId: number): Promise<StaffUser[]> => {
 
 const fetchInitiations = (): Promise<Initiation[]> => {
   return request({ url: "/case-files/initiation-options" });
+};
+
+const fetchCaseFileLinks = (caseFileId: number): Promise<CaseFile[]> => {
+  return request({ url: `/case-files/${caseFileId}/links` });
 };
 
 const createCaseFile = (caseFile: CaseFileAPIData) => {
@@ -42,11 +53,31 @@ const updateCaseFileStatus = ({
   id: number;
   caseFileStatus: CaseFileStatusAPIData;
 }) => {
-  return request({ url: `/case-files/${id}/status`, method: "patch", data: caseFileStatus });
+  return request({
+    url: `/case-files/${id}/status`,
+    method: "patch",
+    data: caseFileStatus,
+  });
 };
 
 const deleteCaseFile = (id: number) => {
   return request({ url: `/case-files/${id}`, method: "delete" });
+};
+
+const linkCaseFile = ({ id, linkId }: { id: number; linkId: number }) => {
+  return request({
+    url: `/case-files/${id}/links`,
+    method: "post",
+    data: { link_case_file_id: linkId },
+  });
+};
+
+const unlinkCaseFile = ({ id, linkId }: { id: number; linkId: number }) => {
+  return request({
+    url: `/case-files/${id}/unlink`,
+    method: "patch",
+    data: { case_file_to_unlink: linkId },
+  });
 };
 
 export const useCaseFilesData = () => {
@@ -62,11 +93,12 @@ export const useCaseFileByNumber = (caseFileNumber: string) => {
     queryFn: async () => {
       const caseFile = await fetchCaseFile(caseFileNumber);
       const officers = await fetchOfficers(caseFile?.id);
+      const caseFileLinks = await fetchCaseFileLinks(caseFile?.id);
       if (caseFile.project.abbreviation === UNAPPROVED_PROJECT_ABBREVIATION) {
         caseFile.project.id = UNAPPROVED_PROJECT_ID;
         delete caseFile.project.abbreviation;
       }
-      return { ...caseFile, officers };
+      return { ...caseFile, officers, caseFileLinks };
     },
     enabled: !!caseFileNumber,
   });
@@ -109,4 +141,12 @@ export const useUpdateCaseFileStatus = (onSuccess: OnSuccessType) => {
 
 export const useDeleteCaseFile = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: deleteCaseFile, onSuccess });
+};
+
+export const useLinkCaseFile = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: linkCaseFile, onSuccess });
+};
+
+export const useUnlinkCaseFile = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: unlinkCaseFile, onSuccess });
 };

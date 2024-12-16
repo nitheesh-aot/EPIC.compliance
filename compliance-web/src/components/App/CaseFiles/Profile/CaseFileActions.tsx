@@ -2,6 +2,8 @@ import React, { useCallback } from "react";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
 import {
   useDeleteCaseFile,
+  useLinkCaseFile,
+  useUnlinkCaseFile,
   useUpdateCaseFileStatus,
 } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
@@ -10,6 +12,7 @@ import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
 import { notify } from "@/store/snackbarStore";
 import { useRouter } from "@tanstack/react-router";
+import LinkCaseFileModal from "@/components/App/CaseFiles/Profile/LinkCaseFileModal";
 
 interface CaseFileActionsProps {
   status: string;
@@ -37,12 +40,22 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
     setClose();
   }, [queryClient, fileNumber, setClose]);
 
+  const onLinkCaseFileSuccess = useCallback(() => {
+    queryClient.invalidateQueries({
+      queryKey: ["case-file", fileNumber],
+    });
+    notify.success("Case file link is updated");
+    setClose();
+  }, [queryClient, fileNumber, setClose]);
+
   const onDeleteSuccess = useCallback(() => {
     notify.success("Case File deleted!");
     setClose();
     router.navigate({ to: "/ce-database/case-files" });
   }, [setClose, router]);
 
+  const { mutate: linkCaseFile } = useLinkCaseFile(onLinkCaseFileSuccess);
+  const { mutate: unlinkCaseFile } = useUnlinkCaseFile(onLinkCaseFileSuccess);
   const { mutate: updateCaseFileStatus } = useUpdateCaseFileStatus(
     onUpdateStatusSuccess
   );
@@ -53,6 +66,17 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
       text: "Link to Case File",
       onClick: () => {
         // Handle linking case file
+        setOpen({
+          content: (
+            <LinkCaseFileModal
+              fileNumber={fileNumber}
+              linkedCaseFiles={caseFileData?.caseFileLinks ?? []}
+              onSubmit={(caseFileId) => {
+                linkCaseFile({ id: caseFileData?.id ?? 0, linkId: caseFileId });
+              }}
+            />
+          ),
+        });
       },
       hidden: status?.toLowerCase() === "closed",
     },
@@ -60,8 +84,20 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
       text: "Unlink from Case File",
       onClick: () => {
         // Handle unlinking case file
+        setOpen({
+          content: (
+            <LinkCaseFileModal
+              fileNumber={fileNumber}
+              onSubmit={(caseFileId) => {
+                unlinkCaseFile({id: caseFileData?.id ?? 0, linkId: caseFileId})
+              }}
+              linkedCaseFiles={caseFileData?.caseFileLinks ?? []}
+              isEdit
+            />
+          ),
+        });
       },
-      hidden: true,
+      hidden: status?.toLowerCase() === "closed",
     },
     {
       text: "Close Case File",
