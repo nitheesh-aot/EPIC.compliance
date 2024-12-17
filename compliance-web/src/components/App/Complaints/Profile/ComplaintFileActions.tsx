@@ -9,7 +9,7 @@ import {
   useDeleteComplaint,
   useUpdateComplaintStatus,
 } from "@/hooks/useComplaints";
-import router from "@/router/router";
+import { useRouter } from "@tanstack/react-router";
 
 interface ComplaintFileActionsProps {
   status: string;
@@ -20,6 +20,7 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
   status,
   fileNumber,
 }) => {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
 
@@ -32,15 +33,18 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
     queryClient.invalidateQueries({
       queryKey: ["complaint", fileNumber],
     });
+    queryClient.invalidateQueries({
+      queryKey: ["continuation-reports", complaintData?.case_file_id],
+    });
     notify.success("Complaint status updated");
     setClose();
-  }, [fileNumber, queryClient, setClose]);
+  }, [complaintData, fileNumber, queryClient, setClose]);
 
   const onDeleteSuccess = useCallback(() => {
     notify.success("Complaint deleted!");
     setClose();
     router.navigate({ to: "/ce-database/complaints" });
-  }, [setClose]);
+  }, [router, setClose]);
 
   const { mutate: updateComplaintStatus } = useUpdateComplaintStatus(
     onUpdateStatusSuccess
@@ -62,7 +66,7 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
               onConfirm={() => {
                 updateComplaintStatus({
                   id: complaintData?.id ?? 0,
-                  caseFileStatus: { status: "CLOSED" },
+                  complaintStatus: { status: "CLOSED" },
                 });
               }}
             />
@@ -84,7 +88,7 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
               onConfirm={() => {
                 updateComplaintStatus({
                   id: complaintData?.id ?? 0,
-                  caseFileStatus: { status: "OPEN" },
+                  complaintStatus: { status: "OPEN" },
                 });
               }}
             />

@@ -1,6 +1,10 @@
 import { Attendance, InspectionAttendance } from "@/models/Attendance";
 import { Initiation } from "@/models/Initiation";
-import { Inspection, InspectionAPIData } from "@/models/Inspection";
+import {
+  Inspection,
+  InspectionAPIData,
+  InspectionStatusAPIData,
+} from "@/models/Inspection";
 import { IRStatus } from "@/models/IRStatus";
 import { IRType } from "@/models/IRType";
 import { ProjectStatus } from "@/models/ProjectStatus";
@@ -59,11 +63,22 @@ const updateInspection = ({
   });
 };
 
-const closeInspection = ({ id }: { id: number }) => {
+const updateInspectionStatus = ({
+  id,
+  inspectionStatus,
+}: {
+  id: number;
+  inspectionStatus: InspectionStatusAPIData;
+}) => {
   return request({
-    url: `/inspections/${id}/close`,
+    url: `/inspections/${id}/status`,
     method: "patch",
+    data: inspectionStatus,
   });
+};
+
+const deleteInspection = (id: number) => {
+  return request({ url: `/inspections/${id}`, method: "delete" });
 };
 
 export const useIRTypesData = () => {
@@ -138,6 +153,10 @@ export const useUpdateInspection = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateInspection, onSuccess });
 };
 
-export const useCloseInspection = (onSuccess: OnSuccessType) => {
-  return useMutation({ mutationFn: closeInspection, onSuccess });
+export const useUpdateInspectionStatus = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: updateInspectionStatus, onSuccess });
+};
+
+export const useDeleteInspection = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: deleteInspection, onSuccess });
 };

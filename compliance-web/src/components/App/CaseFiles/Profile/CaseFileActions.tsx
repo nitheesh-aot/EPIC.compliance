@@ -32,21 +32,25 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
     fileNumber,
   ]);
 
-  const onUpdateStatusSuccess = useCallback(() => {
+  const closeAndRefresh = useCallback(() => {
     queryClient.invalidateQueries({
       queryKey: ["case-file", fileNumber],
     });
-    notify.success("Case File status updated!");
+    queryClient.invalidateQueries({
+      queryKey: ["continuation-reports", caseFileData?.id],
+    });
     setClose();
-  }, [queryClient, fileNumber, setClose]);
+  }, [caseFileData, fileNumber, queryClient, setClose]);
+
+  const onUpdateStatusSuccess = useCallback(() => {
+    notify.success("Case File status updated!");
+    closeAndRefresh();
+  }, [closeAndRefresh]);
 
   const onLinkCaseFileSuccess = useCallback(() => {
-    queryClient.invalidateQueries({
-      queryKey: ["case-file", fileNumber],
-    });
     notify.success("Case file link is updated");
-    setClose();
-  }, [queryClient, fileNumber, setClose]);
+    closeAndRefresh();
+  }, [closeAndRefresh]);
 
   const onDeleteSuccess = useCallback(() => {
     notify.success("Case File deleted!");
@@ -89,7 +93,10 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
             <LinkCaseFileModal
               fileNumber={fileNumber}
               onSubmit={(caseFileId) => {
-                unlinkCaseFile({id: caseFileData?.id ?? 0, linkId: caseFileId})
+                unlinkCaseFile({
+                  id: caseFileData?.id ?? 0,
+                  linkId: caseFileId,
+                });
               }}
               linkedCaseFiles={caseFileData?.caseFileLinks ?? []}
               isEdit

@@ -78,3 +78,7 @@ export interface InspectionAPIData {
   unapproved_project_type?: string;
   unapproved_project_sub_type?: string;
 }
+
+export interface InspectionStatusAPIData {
+  status: string;
+}
