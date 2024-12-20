@@ -1,10 +1,10 @@
-import React, { useMemo } from "react";
-import { EditRounded } from "@mui/icons-material";
-import { Box, Button, Typography } from "@mui/material";
 import FileProfileProperty from "@/components/App/FileProfileProperty";
 import { Inspection } from "@/models/Inspection";
-import dateUtils from "@/utils/dateUtils";
 import { useMenuStore } from "@/store/menuStore";
+import dateUtils from "@/utils/dateUtils";
+import { EditRounded } from "@mui/icons-material";
+import { Box, Button, Typography } from "@mui/material";
+import React, { useMemo } from "react";
 
 interface InspectionGeneralInformationProps {
   inspectionData: Inspection;
@@ -34,6 +34,7 @@ const InspectionGeneralInformation: React.FC<
   }, [inspectionData.inspectionAttendances]);
 
   const properties = [
+    { name: "Case File", value: inspectionData.case_file.case_file_number, link: true},
     { name: "Project", value: inspectionData.case_file?.project?.name },
     { name: "Project Description", value: inspectionData.project_description },
     {
@@ -85,6 +86,8 @@ const InspectionGeneralInformation: React.FC<
             key={property.name}
             propertyName={property.name}
             propertyValue={property.value}
+            linksList={property.link ? [property.value] : null}
+            linkRoute={property.link ? "/ce-database/case-files" : null}
           />
         ))}
       </Box>
