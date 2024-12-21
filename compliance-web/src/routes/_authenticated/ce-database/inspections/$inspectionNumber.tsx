@@ -16,6 +16,8 @@ import LoadingPage from "@/components/Shared/LoadingPage";
 import { CR_CONTEXT_TYPE, FILE_PROFILE_CONTEXT } from "@/utils/constants";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
+import TabPanel from "@/components/Shared/TabPanel";
+import { useTab } from "@/store/tabStore";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/$inspectionNumber"
@@ -28,7 +30,7 @@ function InspectionProfilePage() {
   const queryClient = useQueryClient();
   const { inspectionNumber } = useParams({ strict: false });
   const { setOpen, setClose } = useDrawer();
-
+  const { currentTab } = useTab();
   const {
     status,
     data: inspectionData,
@@ -97,11 +99,16 @@ function InspectionProfilePage() {
         profileContext={FILE_PROFILE_CONTEXT.INSPECTION}
       />
       <Box p="1rem 1rem 1.25rem 3.75rem" display="flex" gap={3}>
-        <InspectionGeneralInformation
-          inspectionData={inspectionData}
-          onEdit={handleOpenEditModal}
-          allowEdit={showEditInspectionButton}
-        />
+        <TabPanel value={currentTab} index={0} id="inspection-profile">
+          <InspectionGeneralInformation
+            inspectionData={inspectionData}
+            onEdit={handleOpenEditModal}
+            allowEdit={showEditInspectionButton}
+          />
+        </TabPanel>
+        <TabPanel value={currentTab} index={1} id="inspection-requirements">
+          Item 2
+        </TabPanel>
         <ContinuationReport
           caseFileId={inspectionData.case_file_id}
           contextType={CR_CONTEXT_TYPE.INSPECTION}
