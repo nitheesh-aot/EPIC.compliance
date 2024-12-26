@@ -27,6 +27,7 @@ export type ContinuationReportContextType = {
   contextType: string;
   contextId: number;
   allowCreateEntry?: boolean;
+  isInspection?: boolean;
 };
 
 export default function ContinuationReport({
@@ -34,6 +35,7 @@ export default function ContinuationReport({
   contextType,
   contextId,
   allowCreateEntry,
+  isInspection,
 }: ContinuationReportContextType) {
   const queryClient = useQueryClient();
   const { appHeaderHeight } = useMenuStore();
@@ -42,6 +44,8 @@ export default function ContinuationReport({
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchText, setSearchText] = useState("");
   const [debouncedSearchText, setDebouncedSearchText] = useState("");
+
+  const inspectionOffset = isInspection ? 28 : 0;
 
   // Debounce effect
   useEffect(() => {
@@ -112,7 +116,7 @@ export default function ContinuationReport({
     <Box
       width={"40%"}
       bgcolor={BCDesignTokens.surfaceColorBackgroundLightGray}
-      height={`calc(100vh - ${appHeaderHeight + 198}px)`}
+      height={`calc(100vh - ${appHeaderHeight + 198 + inspectionOffset}px)`}
       p={3}
       pb={2}
     >
@@ -167,7 +171,7 @@ export default function ContinuationReport({
             <>
               <Box
                 sx={{
-                  height: `calc(100vh - ${appHeaderHeight + 302 + 48}px)`, // 302px is the height above the timeline, 48px is height of pagination
+                  height: `calc(100vh - ${appHeaderHeight + 302 + 48 + inspectionOffset}px)`, // 302px is the height above the timeline, 48px is height of pagination
                   overflow: "scroll",
                 }}
               >

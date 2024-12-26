@@ -4,7 +4,6 @@ import { Box, Button, Typography } from "@mui/material";
 import FileProfileProperty from "@/components/App/FileProfileProperty";
 import { Inspection } from "@/models/Inspection";
 import dateUtils from "@/utils/dateUtils";
-import { useMenuStore } from "@/store/menuStore";
 
 interface InspectionGeneralInformationProps {
   inspectionData: Inspection;
@@ -15,8 +14,6 @@ interface InspectionGeneralInformationProps {
 const InspectionGeneralInformation: React.FC<
   InspectionGeneralInformationProps
 > = ({ inspectionData, onEdit, allowEdit }) => {
-  const { appHeaderHeight } = useMenuStore();
-
   const inAttendance = useMemo(() => {
     return inspectionData.inspectionAttendances
       ?.map((attendance) => {
@@ -61,8 +58,7 @@ const InspectionGeneralInformation: React.FC<
       display={"flex"}
       flexGrow={1}
       flexDirection={"column"}
-      width={"75%"}
-      height={`calc(100vh - ${appHeaderHeight + 158}px)`} // 158px is the height of the FileProfileHeader and the padding
+      // height={`calc(100vh - ${appHeaderHeight + 158}px)`} // 158px is the height of the FileProfileHeader and the padding
       overflow={"auto"}
     >
       <Box display={"flex"} justifyContent={"space-between"} my={3}>
