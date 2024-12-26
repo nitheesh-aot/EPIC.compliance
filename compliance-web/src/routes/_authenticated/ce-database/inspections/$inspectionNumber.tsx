@@ -18,6 +18,8 @@ import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
 import TabPanel from "@/components/Shared/TabPanel";
 import { useTab } from "@/store/tabStore";
+import InspectionRequirements from "@/components/App/Inspections/Profile/InspectionRequirements";
+import ComingSoon from "@/components/Shared/ComingSoon";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/$inspectionNumber"
@@ -107,13 +109,20 @@ function InspectionProfilePage() {
           />
         </TabPanel>
         <TabPanel value={currentTab} index={1} id="inspection-requirements">
-          Item 2
+          <InspectionRequirements />
+        </TabPanel>
+        <TabPanel value={currentTab} index={2} id="inspection-enforcement">
+          <ComingSoon />
+        </TabPanel>
+        <TabPanel value={currentTab} index={3} id="inspection-report">
+          <ComingSoon />
         </TabPanel>
         <ContinuationReport
           caseFileId={inspectionData.case_file_id}
           contextType={CR_CONTEXT_TYPE.INSPECTION}
           contextId={inspectionData.id}
           allowCreateEntry={showCreateCREntryButton}
+          isInspection
         />
       </Box>
     </>
