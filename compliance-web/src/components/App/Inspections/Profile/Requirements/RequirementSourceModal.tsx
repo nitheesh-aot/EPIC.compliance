@@ -1,7 +1,7 @@
 import { DialogContent, Stack } from "@mui/material";
 import { useEffect, useMemo } from "react";
 import * as yup from "yup";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
@@ -11,6 +11,7 @@ import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAut
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledRichTextEditor";
 import { useRequirementSourcesData } from "@/hooks/useComplaints";
+import { RequirementSourceEnum } from "@/utils/constants";
 
 type RequirementSourceModalProps = {
   onSubmit: (submitMsg: string) => void;
@@ -59,7 +60,13 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
     defaultValues,
   });
 
-  const { handleSubmit, reset } = methods;
+  const { handleSubmit, reset, control, getValues } = methods;
+
+  const selectedRequirementSource = useWatch({
+    control,
+    name: "requirementSource",
+    defaultValue: getValues("requirementSource") ?? undefined,
+  }) as RequirementSource;
 
   useEffect(() => {
     reset(defaultValues);
@@ -89,11 +96,13 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
               getOptionKey={(option) => option.id}
               isOptionEqualToValue={(option, value) => option.id === value.id}
             />
-            <ControlledTextField
-              name="sourceAmendmentNumber"
-              label="Amendment #"
-              fullWidth
-            />
+            {selectedRequirementSource?.id === RequirementSourceEnum.EACA && (
+              <ControlledTextField
+                name="sourceAmendmentNumber"
+                label="Amendment #"
+                fullWidth
+              />
+            )}
             <Stack direction={"row"} gap={2}>
               <ControlledTextField
                 name="sourceNumber"

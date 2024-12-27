@@ -4,7 +4,6 @@ import { FC, useEffect } from "react";
 import { RequirementSource } from "@/models/RequirementSource";
 import { BCDesignTokens } from "epic.theme";
 import { useFormContext, useWatch } from "react-hook-form";
-import { RequirementSourceEnum } from "./ComplaintFormUtils";
 import { Topic } from "@/models/Topic";
 import { useDrawer } from "@/store/drawerStore";
 import DynamicInputField, {
@@ -12,6 +11,7 @@ import DynamicInputField, {
 } from "@/components/App/DynamicInputField";
 import { useModal } from "@/store/modalStore";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import { RequirementSourceEnum } from "@/utils/constants";
 
 type RequirementSourceFormProps = {
   requirementSourceList: RequirementSource[];
@@ -151,6 +151,7 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
     [RequirementSourceEnum.OTHER]: [
       sharedRequirementSourceField("description", "Description"),
     ],
+    [RequirementSourceEnum.EACA]: [sharedRequirementSourceField()],
   };
 
   const isRequirementSourceSelected = Object.values(
