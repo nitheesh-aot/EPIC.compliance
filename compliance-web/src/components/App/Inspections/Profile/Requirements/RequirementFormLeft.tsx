@@ -4,20 +4,20 @@ import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAut
 import { BCDesignTokens } from "epic.theme";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledRichTextEditor";
-import { IRStatus } from "@/models/IRStatus";
-import { IRType } from "@/models/IRType";
 import { Topic } from "@/models/Topic";
+import { EnforcementAction } from "@/models/EnforcementAction";
+import { ComplianceFinding } from "@/models/ComplianceFinding";
 
 type RequirementFormLeftProps = {
-  irTypeList: IRType[];
-  irStatusList: IRStatus[];
+  enforcementActionsList: EnforcementAction[];
+  complianceFindingsList: ComplianceFinding[];
   topicList: Topic[];
   appHeaderHeight: number;
 };
 
 const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
-  irTypeList,
-  irStatusList,
+  enforcementActionsList,
+  complianceFindingsList,
   topicList,
   appHeaderHeight,
 }) => {
@@ -51,7 +51,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
           <ControlledAutoComplete
             name="complianceFinding"
             label="Compliance Finding"
-            options={irTypeList}
+            options={complianceFindingsList}
             getOptionLabel={(option) => option.name}
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -60,7 +60,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
           <ControlledAutoComplete
             name="enforcementAction"
             label="Enforcement Action"
-            options={irStatusList}
+            options={enforcementActionsList}
             getOptionLabel={(option) => option.name}
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}

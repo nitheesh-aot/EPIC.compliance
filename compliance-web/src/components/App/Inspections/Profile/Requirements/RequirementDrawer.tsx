@@ -6,8 +6,6 @@ import { useCallback } from "react";
 import { useMenuStore } from "@/store/menuStore";
 import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
-import { useIRTypesData } from "@/hooks/useInspections";
-import { useIRStatusesData } from "@/hooks/useInspections";
 import RequirementFormLeft from "./RequirementFormLeft";
 import * as yup from "yup";
 import { useTopicsData } from "@/hooks/useTopics";
@@ -15,6 +13,7 @@ import { Topic } from "@/models/Topic";
 import { IRType } from "@/models/IRType";
 import { IRStatus } from "@/models/IRStatus";
 import { InspectionRequirementFormData } from "@/models/InspectionRequirement";
+import { useComplianceFindingsData, useEnforcementActionsData } from "@/hooks/useInspectionRequirements";
 
 type RequirementDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -53,9 +52,9 @@ const initFormData: InspectionRequirementFormData = {
 const RequirementDrawer: React.FC<RequirementDrawerProps> = ({ onSubmit }) => {
   const { appHeaderHeight } = useMenuStore();
 
+  const { data: enforcementActionsList } = useEnforcementActionsData();
+  const { data: complianceFindingsList } = useComplianceFindingsData();
   const { data: topicsList } = useTopicsData();
-  const { data: irTypeList } = useIRTypesData();
-  const { data: irStatusList } = useIRStatusesData();
 
   const methods = useForm<RequirementSchemaType>({
     resolver: yupResolver(RequirementFormSchema),
@@ -97,8 +96,8 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({ onSubmit }) => {
           direction={"row"}
         >
           <RequirementFormLeft
-            irTypeList={irTypeList ?? []}
-            irStatusList={irStatusList ?? []}
+            complianceFindingsList={complianceFindingsList ?? []}
+            enforcementActionsList={enforcementActionsList ?? []}
             topicList={topicsList ?? []}
             appHeaderHeight={appHeaderHeight}
           />
