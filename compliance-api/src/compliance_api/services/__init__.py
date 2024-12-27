@@ -23,3 +23,5 @@ from .project_status import ProjectStatusService
 from .requirement_source import RequirementSourceService
 from .staff_user import StaffUserService
 from .topic import TopicService
+from .enforcement_action import EnforcementActionService
+from .compliance_finding import ComplianceFindingService

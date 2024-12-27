@@ -1,5 +1,6 @@
-import React, { useCallback } from "react";
+import LinkCaseFileModal from "@/components/App/CaseFiles/Profile/LinkCaseFileModal";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import {
   useDeleteCaseFile,
   useLinkCaseFile,
@@ -7,12 +8,11 @@ import {
   useUpdateCaseFileStatus,
 } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
-import { useQueryClient } from "@tanstack/react-query";
-import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
 import { notify } from "@/store/snackbarStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
-import LinkCaseFileModal from "@/components/App/CaseFiles/Profile/LinkCaseFileModal";
+import React, { useCallback } from "react";
 
 interface CaseFileActionsProps {
   status: string;
@@ -132,9 +132,20 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
       text: "Reopen Case File",
       onClick: () => {
         // Handle reopening case file
-        updateCaseFileStatus({
-          id: caseFileData?.id ?? 0,
-          caseFileStatus: { status: "OPEN" },
+        setOpen({
+          content: (
+            <ConfirmationModal
+              title="Reopen Case File?"
+              description="You are about to reopen this case file. Are you sure?"
+              confirmButtonText="Reopen Case File"
+              onConfirm={() => {
+                updateCaseFileStatus({
+                  id: caseFileData?.id ?? 0,
+                  caseFileStatus: { status: "OPEN" },
+                });
+              }}
+            />
+          ),
         });
       },
       hidden: status?.toLowerCase() === "open",

@@ -9,4 +9,7 @@ from .inspection_officer import InspectionOfficer
 from .inspection_option import (
     InspectionAttendanceOption, InspectionInitiationOption, InspectionTypeOption, IRStatusOption)
 from .inspection_other_attendance import InspectionOtherAttendance
+from .inspection_req_detail_doc import InspectionReqDetailDocument
+from .inspection_req_source_detail import InspectionReqSourceDetail
+from .inspection_requirement import InspectionRequirement
 from .inspection_type import InspectionType

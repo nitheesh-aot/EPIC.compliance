@@ -1,11 +1,9 @@
-import { StaffUser } from "@/models/Staff";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { Stack } from "@mui/material";
-import { FormProvider, useForm } from "react-hook-form";
-import InspectionFormLeft from "./InspectionFormLeft";
+import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
+import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
-import { useCallback, useMemo } from "react";
-import { useMenuStore } from "@/store/menuStore";
+import { useAgenciesData } from "@/hooks/useAgencies";
+import { useCurrentLoggedInUser } from "@/hooks/useAuthorization";
+import { useFirstNationsData } from "@/hooks/useFirstNations";
 import {
   useAttendanceOptionsData,
   useCreateInspection,
@@ -15,21 +13,23 @@ import {
   useProjectStatusesData,
   useUpdateInspection,
 } from "@/hooks/useInspections";
+import { useStaffUsersData } from "@/hooks/useStaff";
+import { CaseFile } from "@/models/CaseFile";
 import { Inspection, InspectionFormData } from "@/models/Inspection";
+import { useMenuStore } from "@/store/menuStore";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Stack } from "@mui/material";
+import dayjs from "dayjs";
+import { useCallback, useMemo } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import InspectionFormLeft from "./InspectionFormLeft";
 import InspectionFormRight from "./InspectionFormRight";
-import { useAgenciesData } from "@/hooks/useAgencies";
-import { useFirstNationsData } from "@/hooks/useFirstNations";
 import {
   AttendanceEnum,
   formatInspectionData,
   InspectionFormSchema,
   InspectionSchemaType,
 } from "./InspectionFormUtils";
-import dayjs from "dayjs";
-import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
-import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
-import { CaseFile } from "@/models/CaseFile";
-import { useCurrentLoggedInUser } from "@/hooks/useAuthorization";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -62,6 +62,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const { data: attendanceList } = useAttendanceOptionsData();
   const { data: agenciesList } = useAgenciesData();
   const { data: firstNationsList } = useFirstNationsData();
+  const { data: inattendanceOfficersList } = useStaffUsersData()
   const currentUser = useCurrentLoggedInUser();
 
   const staffUserList = [
@@ -184,7 +185,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
             attendanceList={attendanceList ?? []}
             agenciesList={agenciesList ?? []}
             firstNationsList={firstNationsList ?? []}
-            staffList={staffUserList ?? []}
+            staffList={inattendanceOfficersList ?? []}
           />
         </Stack>
         <DrawerActionBarBottom isShowActionBar={!!inspection} />

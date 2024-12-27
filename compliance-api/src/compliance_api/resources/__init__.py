@@ -36,6 +36,8 @@ from .project_status import API as PROJECT_STATUS_API
 from .requirement_source import API as REQUIREMENT_SOURCE_API
 from .staff_user import API as USER_API
 from .topic import API as TOPIC_API
+from .enforcement_action import API as ENFORCEMENT_ACTION_API
+from .compliance_finding import API as COMPLIANCE_FINDING_API
 
 
 __all__ = ("API_BLUEPRINT", "OPS_BLUEPRINT")
@@ -81,3 +83,5 @@ API.add_namespace(TOPIC_API)
 API.add_namespace(COMPLAINT_API)
 API.add_namespace(REQUIREMENT_SOURCE_API)
 API.add_namespace(CONTINUATION_REPORT_API)
+API.add_namespace(ENFORCEMENT_ACTION_API)
+API.add_namespace(COMPLIANCE_FINDING_API)

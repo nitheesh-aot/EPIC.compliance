@@ -1,30 +1,30 @@
+import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
+import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
+import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
+import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
 import {
   useCreateCaseFile,
   useInitiationsData,
   useUpdateCaseFile,
 } from "@/hooks/useCaseFiles";
-import { useStaffUsersData } from "@/hooks/useStaff";
 import { useProjectsData } from "@/hooks/useProjects";
+import { useStaffUsersData } from "@/hooks/useStaff";
 import { CaseFile, CaseFileAPIData, CaseFileFormData } from "@/models/CaseFile";
 import { Initiation } from "@/models/Initiation";
 import { Project } from "@/models/Project";
 import { StaffUser } from "@/models/Staff";
+import router from "@/router/router";
+import { useMenuStore } from "@/store/menuStore";
+import { formatAuthorization } from "@/utils/appUtils";
+import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
+import dateUtils from "@/utils/dateUtils";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box } from "@mui/material";
+import dayjs, { Dayjs } from "dayjs";
+import { useCallback, useEffect, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import CaseFileForm from "./CaseFileForm";
-import dateUtils from "@/utils/dateUtils";
-import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
-import { useCallback, useEffect, useMemo } from "react";
-import dayjs, { Dayjs } from "dayjs";
-import { useMenuStore } from "@/store/menuStore";
-import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
-import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
-import { KC_USER_GROUPS } from "@/hooks/useAuthorization";
-import { useIsRolesAllowed } from "@/hooks/useAuthorization";
-import { UNAPPROVED_PROJECT_ID } from "@/utils/constants";
-import { formatAuthorization } from "@/utils/appUtils";
 
 type CaseFileDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -118,6 +118,12 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
           ? "Changes saved successfully."
           : `Case File ${data.case_file_number} was successfully created`
       );
+      if (!caseFile) {
+        router.navigate({
+          to:`/ce-database/case-files/$caseFileNumber`,
+          params: { caseFileNumber: data.case_file_number }
+        });
+      }
       reset();
     },
     [caseFile, onSubmit, reset]
