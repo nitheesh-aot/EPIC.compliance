@@ -13,7 +13,11 @@ import { Topic } from "@/models/Topic";
 import { IRType } from "@/models/IRType";
 import { IRStatus } from "@/models/IRStatus";
 import { InspectionRequirementFormData } from "@/models/InspectionRequirement";
-import { useComplianceFindingsData, useEnforcementActionsData } from "@/hooks/useInspectionRequirements";
+import {
+  useComplianceFindingsData,
+  useEnforcementActionsData,
+} from "@/hooks/useInspectionRequirements";
+import RequirementFormRight from "./RequirementFormRight";
 
 type RequirementDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -101,6 +105,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({ onSubmit }) => {
             topicList={topicsList ?? []}
             appHeaderHeight={appHeaderHeight}
           />
+          <RequirementFormRight />
         </Stack>
         <DrawerActionBarBottom isShowActionBar={false} />
       </form>
