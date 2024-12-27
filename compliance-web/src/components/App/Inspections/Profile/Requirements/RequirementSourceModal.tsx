@@ -106,7 +106,15 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
             <Stack direction={"row"} gap={2}>
               <ControlledTextField
                 name="sourceNumber"
-                label="Condition # (optional)"
+                label={
+                  [
+                    RequirementSourceEnum.SCHEDULE_B,
+                    RequirementSourceEnum.EAC,
+                    RequirementSourceEnum.EACA,
+                  ].includes(selectedRequirementSource?.id as RequirementSourceEnum)
+                    ? "Condition # (optional)"
+                    : "Section # (optional)"
+                }
                 fullWidth
               />
               <ControlledTextField
