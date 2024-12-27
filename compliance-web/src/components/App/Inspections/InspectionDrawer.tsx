@@ -30,6 +30,7 @@ import {
   InspectionFormSchema,
   InspectionSchemaType,
 } from "./InspectionFormUtils";
+import { StaffUser } from "@/models/Staff";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
