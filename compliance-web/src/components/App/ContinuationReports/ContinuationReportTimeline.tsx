@@ -1,21 +1,21 @@
+import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
+import { ContinuationReport } from "@/models/ContinuationReport";
+import { useModal } from "@/store/modalStore";
+import { notify } from "@/store/snackbarStore";
 import dateUtils from "@/utils/dateUtils";
 import Timeline from "@mui/lab/Timeline";
-import TimelineItem from "@mui/lab/TimelineItem";
-import TimelineSeparator from "@mui/lab/TimelineSeparator";
 import TimelineConnector from "@mui/lab/TimelineConnector";
 import TimelineDot from "@mui/lab/TimelineDot";
+import TimelineItem from "@mui/lab/TimelineItem";
 import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
+import TimelineSeparator from "@mui/lab/TimelineSeparator";
 import { Stack, Typography } from "@mui/material";
-import { ContinuationReport } from "@/models/ContinuationReport";
-import ContinuationReportTimelineEntry from "./ContinuationReportTimelineEntry";
+import { useQueryClient } from "@tanstack/react-query";
 import { BCDesignTokens } from "epic.theme";
 import { useCallback } from "react";
-import { useModal } from "@/store/modalStore";
-import ContinuationReportEntryModal from "./ContinuationReportEntryModal";
-import { useQueryClient } from "@tanstack/react-query";
-import { notify } from "@/store/snackbarStore";
 import { useAuth } from "react-oidc-context";
-import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
+import ContinuationReportEntryModal from "./ContinuationReportEntryModal";
+import ContinuationReportTimelineEntry from "./ContinuationReportTimelineEntry";
 
 interface ContinuationReportTimelineProps {
   crtList: ContinuationReport[];
@@ -125,6 +125,7 @@ export default function ContinuationReportTimeline({
           <ContinuationReportTimelineEntry
             key={crt.id}
             renderText={crt.rich_text}
+            keys={crt.keys}
             createdByUser={crt.created_by_user?.name}
             isSystemGenerated={crt.system_generated}
             searchText={searchText}

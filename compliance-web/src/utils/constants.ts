@@ -25,4 +25,10 @@ export const CR_CONTEXT_TYPE = {
   CASEFILE: "Casefile",
 }
 
+export const CR_CONTEXT_LINK: Record<string, string> = {
+  "Inspection": "/ce-database/inspections",
+  "Complaint": "/ce-database/complaints",
+  "Casefile": "/ce-database/case-files",
+}
+
 export const FILE_PROFILE_CONTEXT = CR_CONTEXT_TYPE;
