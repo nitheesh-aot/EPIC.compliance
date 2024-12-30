@@ -8,12 +8,16 @@ type ControlledRichTextEditorProps = {
   name: string;
   label: string;
   placeholder?: string;
+  height?: string;
+  marginBottom?: string;
 };
 
 const ControlledRichTextEditor: React.FC<ControlledRichTextEditorProps> = ({
   name,
   label,
   placeholder = "",
+  height,
+  marginBottom,
 }) => {
   const editorRef = useRef<HTMLDivElement | null>(null); // Reference to the Quill container
   const quillRef = useRef<Quill | null>(null); // Reference to the Quill instance
@@ -87,7 +91,7 @@ const ControlledRichTextEditor: React.FC<ControlledRichTextEditorProps> = ({
   }, [defaultValues, name, placeholder, setValue, handleImageUpload]);
 
   return (
-    <FormControl fullWidth>
+    <FormControl fullWidth sx={{ marginBottom: marginBottom ?? "1.5rem" }}>
       <InputLabel
         sx={{
           position: "static",
@@ -109,7 +113,7 @@ const ControlledRichTextEditor: React.FC<ControlledRichTextEditorProps> = ({
           <Box mt={"-2.15rem"}>
             <div
               ref={editorRef}
-              style={{ minHeight: "180px" }}
+              style={height ? { maxHeight: "none", height: height } : {}}
               defaultValue={field.value.html || ""}
             />
             {errors[name] && <span>{errors[name]?.message?.toString()}</span>}

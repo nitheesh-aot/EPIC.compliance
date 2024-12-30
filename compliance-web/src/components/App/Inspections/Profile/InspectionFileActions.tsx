@@ -4,8 +4,12 @@ import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { Inspection } from "@/models/Inspection";
-import { useCloseInspection } from "@/hooks/useInspections";
 import { notify } from "@/store/snackbarStore";
+import {
+  useDeleteInspection,
+  useUpdateInspectionStatus,
+} from "@/hooks/useInspections";
+import { useRouter } from "@tanstack/react-router";
 
 interface InspectionFileActionsProps {
   status: string;
@@ -16,6 +20,7 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
   status,
   fileNumber,
 }) => {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
 
@@ -28,13 +33,24 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
     queryClient.invalidateQueries({
       queryKey: ["inspection", fileNumber],
     });
+    queryClient.invalidateQueries({
+      queryKey: ["continuation-reports", inspectionData?.case_file_id],
+    });
     notify.success("Inspection status updated");
     setClose();
-  }, [fileNumber, queryClient, setClose]);
+  }, [fileNumber, inspectionData, queryClient, setClose]);
 
-  const { mutate: closeInspection } = useCloseInspection(
+  const onDeleteSuccess = useCallback(() => {
+    notify.success("Inspection deleted!");
+    setClose();
+    router.navigate({ to: "/ce-database/inspections" });
+  }, [router, setClose]);
+
+  const { mutate: updateInspectionInspection } = useUpdateInspectionStatus(
     onUpdateStatusSuccess
   );
+
+  const { mutate: deleteInspection } = useDeleteInspection(onDeleteSuccess);
 
   const actionsList = [
     {
@@ -48,14 +64,16 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
               description="Are you sure you want to cancel this inspection?"
               confirmButtonText="Cancel Inspection"
               onConfirm={() => {
-                // TODO: Implement cancel inspection
-                setClose();
+                updateInspectionInspection({
+                  id: inspectionData?.id ?? 0,
+                  inspectionStatus: { status: "CANCELED" },
+                });
               }}
             />
           ),
         });
       },
-      hidden: status?.toLowerCase() === "closed",
+      hidden: ["canceled", "closed"].includes(status?.toLowerCase()),
     },
     {
       text: "Close as Note to File",
@@ -68,34 +86,17 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
               description="Are you sure you want to close inspection as note to file?"
               confirmButtonText="Close Inspection"
               onConfirm={() => {
-                closeInspection({ id: inspectionData?.id ?? 0 });
+                updateInspectionInspection({
+                  id: inspectionData?.id ?? 0,
+                  inspectionStatus: { status: "CLOSED" },
+                });
               }}
             />
           ),
           width: "420px",
         });
       },
-      hidden: status?.toLowerCase() === "closed",
-    },
-    {
-      text: "Reopen Inspection",
-      onClick: () => {
-        // Handle reopening inspection
-        setOpen({
-          content: (
-            <ConfirmationModal
-              title="Reopen Inspection?"
-              description="Are you sure you want to reopen this inspection?"
-              confirmButtonText="Reopen Inspection"
-              onConfirm={() => {
-                // TODO: Implement reopen inspection
-                setClose();
-              }}
-            />
-          ),
-        });
-      },
-      hidden: status?.toLowerCase() === "open",
+      hidden: ["canceled", "closed"].includes(status?.toLowerCase()),
     },
     {
       text: "Delete Inspection",
@@ -108,8 +109,7 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
               description="You are about to delete this inspection. Are you sure?"
               confirmButtonText="Delete"
               onConfirm={() => {
-                // TODO: Implement delete inspection
-                setClose();
+                deleteInspection(inspectionData?.id ?? 0);
               }}
             />
           ),

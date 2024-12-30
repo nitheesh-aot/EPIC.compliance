@@ -1,4 +1,8 @@
-import { Complaint, ComplaintAPIData, ComplaintStatusAPIData } from "@/models/Complaint";
+import {
+  Complaint,
+  ComplaintAPIData,
+  ComplaintStatusAPIData,
+} from "@/models/Complaint";
 import { ComplaintSource } from "@/models/ComplaintSource";
 import { Contact } from "@/models/Contact";
 import {
@@ -54,12 +58,20 @@ const updateComplaint = ({
 
 const updateComplaintStatus = ({
   id,
-  caseFileStatus,
+  complaintStatus,
 }: {
   id: number;
-  caseFileStatus: ComplaintStatusAPIData;
+  complaintStatus: ComplaintStatusAPIData;
 }) => {
-  return request({ url: `/complaints/${id}/status`, method: "patch", data: caseFileStatus });
+  return request({
+    url: `/complaints/${id}/status`,
+    method: "patch",
+    data: complaintStatus,
+  });
+};
+
+const deleteComplaint = (id: number) => {
+  return request({ url: `/complaints/${id}`, method: "delete" });
 };
 
 export const useRequirementSourcesData = () => {
@@ -114,4 +126,8 @@ export const useUpdateComplaint = (onSuccess: OnSuccessType) => {
 
 export const useUpdateComplaintStatus = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateComplaintStatus, onSuccess });
+};
+
+export const useDeleteComplaint = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: deleteComplaint, onSuccess });
 };

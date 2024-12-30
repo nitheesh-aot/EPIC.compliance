@@ -93,6 +93,16 @@ const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
         size="small"
         expandable={true}
       />
+      {!!caseFileData.caseFileLinks?.length && (
+        <FileProfileProperty
+          propertyName="Linked Case Files"
+          linksList={caseFileData.caseFileLinks?.map(
+            (link) => link.case_file_number
+          )}
+          linkRoute="/ce-database/case-files"
+          size="small"
+        />
+      )}
       <CaseFileComplaintsTable caseFileId={caseFileData.id} />
       <CaseFileInspectionsTable caseFileId={caseFileData.id} />
     </Box>

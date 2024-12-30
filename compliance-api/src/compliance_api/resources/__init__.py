@@ -27,7 +27,9 @@ from .agency import API as AGENCY_API
 from .apihelper import Api
 from .case_file import API as CASE_FILE_API
 from .complaint import API as COMPLAINT_API
+from .compliance_finding import API as COMPLIANCE_FINDING_API
 from .continuation_report import API as CONTINUATION_REPORT_API
+from .enforcement_action import API as ENFORCEMENT_ACTION_API
 from .inspection import API as INSPECTION_API
 from .ops import API as OPS_API
 from .position import API as POSITION_API
@@ -81,3 +83,5 @@ API.add_namespace(TOPIC_API)
 API.add_namespace(COMPLAINT_API)
 API.add_namespace(REQUIREMENT_SOURCE_API)
 API.add_namespace(CONTINUATION_REPORT_API)
+API.add_namespace(ENFORCEMENT_ACTION_API)
+API.add_namespace(COMPLIANCE_FINDING_API)

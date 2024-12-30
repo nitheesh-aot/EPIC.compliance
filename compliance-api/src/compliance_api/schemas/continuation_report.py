@@ -55,7 +55,7 @@ class ContinuationReportKeySchema(AutoSchemaBase):  # pylint: disable=too-many-a
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of key_context enum."""
         if "key_context" in data and data["key_context"] is not None:
-            data["key_context"] = ContextEnum(data["key_context"]).name
+            data["key_context"] = ContextEnum(data["key_context"]).value
         else:
             data["key_context"] = ""
         return data
@@ -87,7 +87,7 @@ class ContinuationReportSchema(AutoSchemaBase):  # pylint: disable=too-many-ance
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of context enum."""
         if "context_type" in data and data["context_type"] is not None:
-            data["context_type"] = ContextEnum(data["context_type"]).name
+            data["context_type"] = ContextEnum(data["context_type"]).value
         else:
             data["context_type"] = ""
         return data

@@ -15,7 +15,7 @@ export interface ContinuationReport {
   keys: CRKeys[];
 }
 
-interface CRKeys {
+export interface CRKeys {
   key_context: string;
   id: number;
   key: string;

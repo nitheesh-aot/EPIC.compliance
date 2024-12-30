@@ -1,14 +1,12 @@
-import React from "react";
-import { EditRounded } from "@mui/icons-material";
-import { Box, Button, Typography } from "@mui/material";
+import { ComplaintSourceEnum } from "@/components/App/Complaints/ComplaintFormUtils";
 import FileProfileProperty from "@/components/App/FileProfileProperty";
-import dateUtils from "@/utils/dateUtils";
 import { Complaint } from "@/models/Complaint";
 import { useMenuStore } from "@/store/menuStore";
-import {
-  ComplaintSourceEnum,
-  RequirementSourceEnum,
-} from "@/components/App/Complaints/ComplaintFormUtils";
+import { RequirementSourceEnum } from "@/utils/constants";
+import dateUtils from "@/utils/dateUtils";
+import { EditRounded } from "@mui/icons-material";
+import { Box, Button, Typography } from "@mui/material";
+import React from "react";
 
 interface ComplaintGeneralInformationProps {
   complaintData: Complaint;
@@ -22,6 +20,11 @@ const ComplaintGeneralInformation: React.FC<
   const { appHeaderHeight } = useMenuStore();
 
   const generalProperties = [
+    {
+      name: "Case File",
+      value: complaintData.case_file.case_file_number,
+      link: true,
+    },
     { name: "Project Name", value: complaintData.case_file?.project?.name },
     {
       name: "Concern Description",
@@ -157,6 +160,8 @@ const ComplaintGeneralInformation: React.FC<
             key={property.name}
             propertyName={property.name}
             propertyValue={property.value}
+            linksList={property.link ? [property.value] : undefined}
+            linkRoute={property.link ? "/ce-database/case-files" : undefined}
           />
         ))}
       </Box>

@@ -5,7 +5,11 @@ import { useModal } from "@/store/modalStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { Complaint } from "@/models/Complaint";
 import { notify } from "@/store/snackbarStore";
-import { useUpdateComplaintStatus } from "@/hooks/useComplaints";
+import {
+  useDeleteComplaint,
+  useUpdateComplaintStatus,
+} from "@/hooks/useComplaints";
+import { useRouter } from "@tanstack/react-router";
 
 interface ComplaintFileActionsProps {
   status: string;
@@ -16,6 +20,7 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
   status,
   fileNumber,
 }) => {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
 
@@ -28,14 +33,24 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
     queryClient.invalidateQueries({
       queryKey: ["complaint", fileNumber],
     });
+    queryClient.invalidateQueries({
+      queryKey: ["continuation-reports", complaintData?.case_file_id],
+    });
     notify.success("Complaint status updated");
     setClose();
-  }, [fileNumber, queryClient, setClose]);
+  }, [complaintData, fileNumber, queryClient, setClose]);
+
+  const onDeleteSuccess = useCallback(() => {
+    notify.success("Complaint deleted!");
+    setClose();
+    router.navigate({ to: "/ce-database/complaints" });
+  }, [router, setClose]);
 
   const { mutate: updateComplaintStatus } = useUpdateComplaintStatus(
     onUpdateStatusSuccess
   );
-  
+
+  const { mutate: deleteComplaint } = useDeleteComplaint(onDeleteSuccess);
 
   const actionsList = [
     {
@@ -51,7 +66,7 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
               onConfirm={() => {
                 updateComplaintStatus({
                   id: complaintData?.id ?? 0,
-                  caseFileStatus: { status: "CLOSED" },
+                  complaintStatus: { status: "CLOSED" },
                 });
               }}
             />
@@ -73,7 +88,7 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
               onConfirm={() => {
                 updateComplaintStatus({
                   id: complaintData?.id ?? 0,
-                  caseFileStatus: { status: "OPEN" },
+                  complaintStatus: { status: "OPEN" },
                 });
               }}
             />
@@ -93,8 +108,7 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
               description="You are about to delete this complaint. Are you sure?"
               confirmButtonText="Delete"
               onConfirm={() => {
-                // TODO: Implement delete complaint
-                setClose();
+                deleteComplaint(complaintData?.id ?? 0);
               }}
             />
           ),

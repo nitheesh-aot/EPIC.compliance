@@ -20,6 +20,7 @@ export interface CaseFile {
   type?: string;
   sub_type?: string;
   project_description?: string;
+  caseFileLinks?: CaseFile[];
 }
 
 export interface CaseFileFormData {

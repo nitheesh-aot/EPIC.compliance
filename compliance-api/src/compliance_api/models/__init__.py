@@ -20,14 +20,19 @@ from .case_file import (
 from .complaint import (
     Complaint, ComplaintReqOrderDetail, ComplaintReqScheduleBDetail, ComplaintRequirementDetail, ComplaintSource,
     ComplaintSourceContact, ComplaintStatusEnum)
+from .compliance_finding import ComplianceFindingOption, ComplianceFindingOptionEnum
 from .continuation_report import ContinuationReport, ContinuationReportKey
 from .db import db, ma, migrate
+from .document_type import DocumentType
+from .enforcement_action import EnforcementActionOption, EnforcementActionOptionEnum
 from .inspection import (
     Inspection, InspectionAgency, InspectionAttendance, InspectionAttendanceOption, InspectionAttendanceOptionEnum,
     InspectionFirstnation, InspectionInitiationOption, InspectionOfficer, InspectionOtherAttendance,
-    InspectionStatusEnum, InspectionType, InspectionTypeOption, IRStatusOption)
+    InspectionReqDetailDocument, InspectionReqSourceDetail, InspectionRequirement, InspectionStatusEnum, InspectionType,
+    InspectionTypeOption, IRStatusOption)
 from .position import Position
 from .project import Project
+from .req_source_document_map import RequirementSourceDocumentMap
 from .requirement_source import RequirementSource
 from .staff_user import StaffUser
 from .topic import Topic

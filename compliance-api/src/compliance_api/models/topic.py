@@ -15,8 +15,10 @@ class Topic(BaseModelVersioned):
 
     __tablename__ = "topics"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(150), nullable=False)
+    id = Column(
+        Integer, primary_key=True, autoincrement=True, comment="The unique identifier"
+    )
+    name = Column(String(150), nullable=False, comment="Name of the topic")
 
     @classmethod
     def get_by_name(cls, topic: str) -> Topic:

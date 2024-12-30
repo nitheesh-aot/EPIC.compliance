@@ -8,6 +8,7 @@ import { Topic } from "@/models/Topic";
 import {
   REGEX_EMAIL,
   REGEX_PHONE_NUMBER,
+  RequirementSourceEnum,
 } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import { Dayjs } from "dayjs";
@@ -17,17 +18,6 @@ export enum ComplaintSourceEnum {
   FIRST_NATION = "2",
   AGENCY = "3",
   OTHER = "4",
-}
-
-export enum RequirementSourceEnum {
-  SCHEDULE_B = "1",
-  EAC = "3",
-  CPD = "4",
-  ACT2018 = "5",
-  COMPLAINCE_AGREEMENT = "6",
-  ACT2022 = "7",
-  NOT_EA_ACT = "8",
-  OTHER = "9",
 }
 
 export const ComplaintFormSchema = yup.object().shape({

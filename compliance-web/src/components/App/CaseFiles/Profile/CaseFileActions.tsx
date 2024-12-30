@@ -1,15 +1,18 @@
-import React, { useCallback } from "react";
+import LinkCaseFileModal from "@/components/App/CaseFiles/Profile/LinkCaseFileModal";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import {
   useDeleteCaseFile,
+  useLinkCaseFile,
+  useUnlinkCaseFile,
   useUpdateCaseFileStatus,
 } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
-import { useQueryClient } from "@tanstack/react-query";
-import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
 import { notify } from "@/store/snackbarStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
+import React, { useCallback } from "react";
 
 interface CaseFileActionsProps {
   status: string;
@@ -29,13 +32,25 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
     fileNumber,
   ]);
 
-  const onUpdateStatusSuccess = useCallback(() => {
+  const closeAndRefresh = useCallback(() => {
     queryClient.invalidateQueries({
       queryKey: ["case-file", fileNumber],
     });
-    notify.success("Case File status updated!");
+    queryClient.invalidateQueries({
+      queryKey: ["continuation-reports", caseFileData?.id],
+    });
     setClose();
-  }, [queryClient, fileNumber, setClose]);
+  }, [caseFileData, fileNumber, queryClient, setClose]);
+
+  const onUpdateStatusSuccess = useCallback(() => {
+    notify.success("Case File status updated!");
+    closeAndRefresh();
+  }, [closeAndRefresh]);
+
+  const onLinkCaseFileSuccess = useCallback(() => {
+    notify.success("Case file link is updated");
+    closeAndRefresh();
+  }, [closeAndRefresh]);
 
   const onDeleteSuccess = useCallback(() => {
     notify.success("Case File deleted!");
@@ -43,6 +58,8 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
     router.navigate({ to: "/ce-database/case-files" });
   }, [setClose, router]);
 
+  const { mutate: linkCaseFile } = useLinkCaseFile(onLinkCaseFileSuccess);
+  const { mutate: unlinkCaseFile } = useUnlinkCaseFile(onLinkCaseFileSuccess);
   const { mutate: updateCaseFileStatus } = useUpdateCaseFileStatus(
     onUpdateStatusSuccess
   );
@@ -53,6 +70,17 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
       text: "Link to Case File",
       onClick: () => {
         // Handle linking case file
+        setOpen({
+          content: (
+            <LinkCaseFileModal
+              fileNumber={fileNumber}
+              linkedCaseFiles={caseFileData?.caseFileLinks ?? []}
+              onSubmit={(caseFileId) => {
+                linkCaseFile({ id: caseFileData?.id ?? 0, linkId: caseFileId });
+              }}
+            />
+          ),
+        });
       },
       hidden: status?.toLowerCase() === "closed",
     },
@@ -60,8 +88,23 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
       text: "Unlink from Case File",
       onClick: () => {
         // Handle unlinking case file
+        setOpen({
+          content: (
+            <LinkCaseFileModal
+              fileNumber={fileNumber}
+              onSubmit={(caseFileId) => {
+                unlinkCaseFile({
+                  id: caseFileData?.id ?? 0,
+                  linkId: caseFileId,
+                });
+              }}
+              linkedCaseFiles={caseFileData?.caseFileLinks ?? []}
+              isEdit
+            />
+          ),
+        });
       },
-      hidden: true,
+      hidden: status?.toLowerCase() === "closed",
     },
     {
       text: "Close Case File",
@@ -89,9 +132,20 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
       text: "Reopen Case File",
       onClick: () => {
         // Handle reopening case file
-        updateCaseFileStatus({
-          id: caseFileData?.id ?? 0,
-          caseFileStatus: { status: "OPEN" },
+        setOpen({
+          content: (
+            <ConfirmationModal
+              title="Reopen Case File?"
+              description="You are about to reopen this case file. Are you sure?"
+              confirmButtonText="Reopen Case File"
+              onConfirm={() => {
+                updateCaseFileStatus({
+                  id: caseFileData?.id ?? 0,
+                  caseFileStatus: { status: "OPEN" },
+                });
+              }}
+            />
+          ),
         });
       },
       hidden: status?.toLowerCase() === "open",
