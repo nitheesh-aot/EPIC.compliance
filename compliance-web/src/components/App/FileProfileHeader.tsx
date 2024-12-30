@@ -10,6 +10,7 @@ import { FILE_PROFILE_CONTEXT } from "@/utils/constants";
 import CaseFileActions from "@/components/App/CaseFiles/Profile/CaseFileActions";
 import InspectionFileActions from "@/components/App/Inspections/Profile/InspectionFileActions";
 import ComplaintFileActions from "@/components/App/Complaints/Profile/ComplaintFileActions";
+import InspectionFileTabs from "@/components/App/Inspections/Profile/InspectionFileTabs";
 
 interface FileProfileHeaderProps {
   fileNumber: string;
@@ -26,44 +27,53 @@ const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
 }) => {
   return (
     <Box
+      id="file-profile-header"
       display={"flex"}
-      justifyContent={"space-between"}
+      flexDirection={"column"}
       bgcolor={BCDesignTokens.surfaceColorBackgroundLightGray}
-      padding={"1.5rem 2.5rem 1.5rem 3.75rem"}
     >
-      <Box display={"flex"} flexDirection={"column"} gap={1}>
-        <BreadcrumbsNav items={breadcrumbs} />
-        <Box display={"flex"} gap={1} alignItems={"center"}>
-          <Typography variant="h3">{fileNumber}</Typography>
-          <Chip
-            label={status}
-            color={status?.toLowerCase() === "open" ? "success" : "error"}
-            variant="outlined"
-            size="small"
-          />
+      <Box
+        display={"flex"}
+        justifyContent={"space-between"}
+        padding={"1.5rem 2.5rem 1.5rem 3.75rem"}
+      >
+        <Box display={"flex"} flexDirection={"column"} gap={1}>
+          <BreadcrumbsNav items={breadcrumbs} />
+          <Box display={"flex"} gap={1} alignItems={"center"}>
+            <Typography variant="h3">{fileNumber}</Typography>
+            <Chip
+              label={status}
+              color={status?.toLowerCase() === "open" ? "success" : "error"}
+              variant="outlined"
+              size="small"
+            />
+          </Box>
+        </Box>
+        <Box display={"flex"} gap={1}>
+          {profileContext === FILE_PROFILE_CONTEXT.CASEFILE && (
+            <>
+              <CaseFileCreateInspection
+                fileNumber={fileNumber}
+                disabled={status.toLowerCase() === "closed"}
+              />
+              <CaseFileCreateComplaint
+                fileNumber={fileNumber}
+                disabled={status.toLowerCase() === "closed"}
+              />
+              <CaseFileActions status={status} fileNumber={fileNumber} />
+            </>
+          )}
+          {profileContext === FILE_PROFILE_CONTEXT.COMPLAINT && (
+            <ComplaintFileActions status={status} fileNumber={fileNumber} />
+          )}
+          {profileContext === FILE_PROFILE_CONTEXT.INSPECTION && (
+            <InspectionFileActions status={status} fileNumber={fileNumber} />
+          )}
         </Box>
       </Box>
-      <Box display={"flex"} gap={1}>
-        {profileContext === FILE_PROFILE_CONTEXT.CASEFILE && (
-          <>
-            <CaseFileCreateInspection
-              fileNumber={fileNumber}
-              disabled={status.toLowerCase() === "closed"}
-            />
-            <CaseFileCreateComplaint
-              fileNumber={fileNumber}
-              disabled={status.toLowerCase() === "closed"}
-            />
-            <CaseFileActions status={status} fileNumber={fileNumber} />
-          </>
-        )}
-        {profileContext === FILE_PROFILE_CONTEXT.COMPLAINT && (
-          <ComplaintFileActions status={status} fileNumber={fileNumber} />
-        )}
-        {profileContext === FILE_PROFILE_CONTEXT.INSPECTION && (
-          <InspectionFileActions status={status} fileNumber={fileNumber} />
-        )}
-      </Box>
+      {profileContext === FILE_PROFILE_CONTEXT.INSPECTION && (
+        <InspectionFileTabs />
+      )}
     </Box>
   );
 };
