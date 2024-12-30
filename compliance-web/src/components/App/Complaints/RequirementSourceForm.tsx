@@ -1,17 +1,17 @@
-import { Box } from "@mui/material";
-import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
-import { FC, useEffect } from "react";
-import { RequirementSource } from "@/models/RequirementSource";
-import { BCDesignTokens } from "epic.theme";
-import { useFormContext, useWatch } from "react-hook-form";
-import { Topic } from "@/models/Topic";
-import { useDrawer } from "@/store/drawerStore";
 import DynamicInputField, {
   DynamicInputFieldConfig,
 } from "@/components/App/DynamicInputField";
-import { useModal } from "@/store/modalStore";
+import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import { RequirementSource } from "@/models/RequirementSource";
+import { Topic } from "@/models/Topic";
+import { useDrawer } from "@/store/drawerStore";
+import { useModal } from "@/store/modalStore";
 import { RequirementSourceEnum } from "@/utils/constants";
+import { Box } from "@mui/material";
+import { BCDesignTokens } from "epic.theme";
+import { FC, useEffect } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
 
 type RequirementSourceFormProps = {
   requirementSourceList: RequirementSource[];
@@ -107,8 +107,8 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
     return {
       type: "text",
       name: name ?? "conditionDescription",
-      label: label ?? "Condition Description",
-      required: true,
+      label: `${label ?? "Condition Description"} (optional)`,
+      required: false,
     };
   };
 
