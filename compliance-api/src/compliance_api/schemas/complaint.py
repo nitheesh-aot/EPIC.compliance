@@ -168,16 +168,6 @@ class ComplaintCreateSchema(ComplaintUpdateSchema):
                     "Topic is required when requirement_source is selected",
                     field_name="requirement_source_details.topic_id",
                 )
-            if not requirement_source_details.get(
-                "description", None
-            ) and requirement_source_id not in [
-                RequirementSourceEnum.SCHEDULE_B.value,
-                RequirementSourceEnum.ORDER.value,
-            ]:
-                raise ValidationError(
-                    "Description is required when requirement_source is selected",
-                    field_name="requirement_source_details.description",
-                )
 
     @validates_schema
     def validate_order(

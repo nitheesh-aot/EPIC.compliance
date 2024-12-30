@@ -77,26 +77,8 @@ export const ComplaintFormSchema = yup.object().shape({
   }),
   amendmentNumber: yup.string().nullable(),
   amendmentConditionNumber: yup.string().nullable(),
-  description: yup.string().when("requirementSource", {
-    is: (reqSource: RequirementSource) =>
-      [RequirementSourceEnum.NOT_EA_ACT, RequirementSourceEnum.OTHER].includes(
-        reqSource?.id as RequirementSourceEnum
-      ),
-    then: (schema) => schema.required("Description is required"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-  conditionDescription: yup.string().when("requirementSource", {
-    is: (reqSource: RequirementSource) =>
-      [
-        RequirementSourceEnum.EAC,
-        RequirementSourceEnum.CPD,
-        RequirementSourceEnum.ACT2018,
-        RequirementSourceEnum.COMPLAINCE_AGREEMENT,
-        RequirementSourceEnum.ACT2022,
-      ].includes(reqSource?.id as RequirementSourceEnum),
-    then: (schema) => schema.required("Condition Description is required"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
+  description: yup.string().nullable(),
+  conditionDescription: yup.string().nullable(),
   topic: yup
     .object<Topic>()
     .nullable()
