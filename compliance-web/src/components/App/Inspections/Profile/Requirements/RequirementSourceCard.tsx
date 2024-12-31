@@ -161,9 +161,14 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
               <ParagraphWithReadMore
                 maxHeight={84}
                 renderTypography={
-                  <Typography variant="body2" display={"flex"} flex={1}>
-                    {data.description?.text}
-                  </Typography>
+                  <Typography
+                    variant="subtitle2"
+                    component={"div"}
+                    className="quill-render"
+                    dangerouslySetInnerHTML={{
+                      __html: data.description?.html ?? "",
+                    }}
+                  />
                 }
               />
             </Box>

@@ -25,16 +25,9 @@ type RequirementDrawerProps = {
 
 const RequirementFormSchema = yup.object().shape({
   requirementSummary: yup.string().nullable(),
-  topic: yup.object<Topic>().nullable().required("Primary is required"),
-  complianceFinding: yup
-    .object<IRType>()
-    .nullable()
-    .required("Compliance Finding is required"),
-  enforcementAction: yup
-    .array()
-    .of(yup.object<IRStatus>())
-    .min(1, "At least one Enforcement Action is required")
-    .required("Enforcement Action is required"),
+  topic: yup.object<Topic>().nullable().required("Topic is required"),
+  complianceFinding: yup.object<IRType>().nullable(),
+  enforcementAction: yup.array().of(yup.object<IRStatus>()).nullable(),
   findings: yup
     .object({
       html: yup.string().required("Entry is required"),

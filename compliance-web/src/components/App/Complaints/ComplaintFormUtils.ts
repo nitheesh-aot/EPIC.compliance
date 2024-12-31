@@ -149,7 +149,7 @@ export const formatComplaintData = (
       case RequirementSourceEnum.NOT_EA_ACT:
       case RequirementSourceEnum.OTHER:
         complaintData.requirement_source_details.description =
-          formData.description;
+          formData.description ?? "";
         break;
       case RequirementSourceEnum.ACT2018:
       case RequirementSourceEnum.ACT2022:

@@ -27,4 +27,14 @@
   p {
     margin: 0;
   }
+  a {
+    margin: 0;
+    -webkit-text-decoration: none;
+    text-decoration: none;
+    color: #255a90;
+    &:hover {
+      -webkit-text-decoration: underline;
+      text-decoration: underline;
+    }
+  }
 }
