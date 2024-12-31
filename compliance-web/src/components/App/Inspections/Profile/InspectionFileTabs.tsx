@@ -23,12 +23,27 @@ const InspectionFileTabs: React.FC<InspectionFileTabsProps> = () => {
       <Tabs
         value={currentTab}
         onChange={handleChange}
+        TabIndicatorProps={{
+          style: {
+            background: BCDesignTokens.surfaceColorBorderDark,
+          },
+        }}
         sx={{
           minHeight: "36px",
           marginTop: "-0.5rem",
           paddingLeft: "3.75rem",
           "& .MuiTabs-flexContainer": {
             gap: "1rem",
+          },
+          "& .MuiTab-root": {
+            paddingX: "0.5rem",
+            "&:first-of-type": {
+              paddingLeft: "0",
+            },
+          },
+          "& .Mui-selected": {
+            color: BCDesignTokens.typographyColorPrimary,
+            fontWeight: BCDesignTokens.typographyFontWeightsBold,
           },
         }}
       >

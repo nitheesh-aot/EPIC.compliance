@@ -82,8 +82,8 @@ const InspectionGeneralInformation: React.FC<
             key={property.name}
             propertyName={property.name}
             propertyValue={property.value}
-            linksList={property.link ? [property.value] : null}
-            linkRoute={property.link ? "/ce-database/case-files" : null}
+            linksList={property.link ? [property.value] : undefined}
+            linkRoute={property.link ? "/ce-database/case-files" : undefined}
           />
         ))}
       </Box>

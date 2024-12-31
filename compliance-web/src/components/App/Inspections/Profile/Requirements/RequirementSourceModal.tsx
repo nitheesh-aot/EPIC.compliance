@@ -14,14 +14,14 @@ import { useRequirementSourcesData } from "@/hooks/useComplaints";
 import { RequirementSourceEnum } from "@/utils/constants";
 
 type RequirementSourceModalProps = {
-  onSubmit: (submitMsg: string) => void;
+  onSubmit: (data: RequirementSourceFormData) => void;
 };
 
 const requirementSourceFormSchema = yup.object().shape({
   requirementSource: yup
     .object<RequirementSource>()
     .nullable()
-    .required("Name is required"),
+    .required("Requirement Source is required"),
   sourceNumber: yup.string().nullable(),
   sourceTitle: yup.string().nullable(),
   sourceAmendmentNumber: yup.string().nullable(),
@@ -72,14 +72,10 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
     reset(defaultValues);
   }, [defaultValues, reset]);
 
-  const onSuccess = () => {
-    onSubmit("Successfully added!");
-  };
-
   const onSubmitHandler = (data: RequirementSourceSchemaType) => {
     // eslint-disable-next-line no-console
     console.log(data);
-    onSuccess();
+    onSubmit(data as RequirementSourceFormData);
   };
 
   return (

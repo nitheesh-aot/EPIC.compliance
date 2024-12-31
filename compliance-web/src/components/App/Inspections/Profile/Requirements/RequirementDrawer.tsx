@@ -29,12 +29,12 @@ const RequirementFormSchema = yup.object().shape({
   complianceFinding: yup
     .object<IRType>()
     .nullable()
-    .required("Primary is required"),
+    .required("Compliance Finding is required"),
   enforcementAction: yup
     .array()
     .of(yup.object<IRStatus>())
-    .min(1, "At least one Type is required")
-    .required("Type is required"),
+    .min(1, "At least one Enforcement Action is required")
+    .required("Enforcement Action is required"),
   findings: yup
     .object({
       html: yup.string().required("Entry is required"),
