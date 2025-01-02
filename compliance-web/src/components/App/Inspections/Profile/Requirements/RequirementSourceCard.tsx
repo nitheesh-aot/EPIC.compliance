@@ -27,10 +27,11 @@ type RequirementSourceCardProps = {
   data: RequirementSourceFormData;
   index: number;
   onEdit: (data: RequirementSourceFormData) => void;
+  onDelete: (data: RequirementSourceFormData) => void;
 };
 
 const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
-  ({ data, index, onEdit }) => {
+  ({ data, index, onEdit, onDelete }) => {
     const [isExpanded, setIsExpanded] = useState(index === 0);
 
     const isCondition = [
@@ -120,7 +121,11 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                 </IconButton>
               </Tooltip>
               <Tooltip title="Delete" arrow>
-                <IconButton size="small" color="secondary">
+                <IconButton
+                  size="small"
+                  color="secondary"
+                  onClick={() => onDelete(data)}
+                >
                   <DeleteOutlineRounded />
                 </IconButton>
               </Tooltip>
