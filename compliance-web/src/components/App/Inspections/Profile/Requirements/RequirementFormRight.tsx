@@ -12,16 +12,37 @@ const RequirementFormRight: FC = () => {
     RequirementSourceFormData[]
   >([]);
 
-  const handleOnSubmit = (data: RequirementSourceFormData) => {
-    setClose();
-    // eslint-disable-next-line no-console
-    console.log(data);
+  const handleOnAddSubmit = (data: RequirementSourceFormData) => {
     setRequirementSourceFormData((prevData) => [...prevData, data]);
+    setClose();
+  };
+
+  const handleOnEditSubmit = (data: RequirementSourceFormData) => {
+    setRequirementSourceFormData((prevData) =>
+      prevData.map((item) =>
+        item.id === data.id ? { ...item, ...data } : item
+      )
+    );
+    setClose();
   };
 
   const handleAddRequirementSourceModal = () => {
     setOpen({
-      content: <RequirementSourceModal onSubmit={handleOnSubmit} />,
+      content: <RequirementSourceModal onSubmit={handleOnAddSubmit} />,
+      width: "640px",
+    });
+  };
+
+  const handleEditRequirementSourceModal = (
+    data: RequirementSourceFormData
+  ) => {
+    setOpen({
+      content: (
+        <RequirementSourceModal
+          onSubmit={handleOnEditSubmit}
+          requirementSourceData={data}
+        />
+      ),
       width: "640px",
     });
   };
@@ -43,7 +64,12 @@ const RequirementFormRight: FC = () => {
         Requirement Source
       </Button>
       {requirementSourceFormData.map((data, index) => (
-        <RequirementSourceCard key={index} data={data} index={index} />
+        <RequirementSourceCard
+          key={index}
+          data={data}
+          index={index}
+          onEdit={handleEditRequirementSourceModal}
+        />
       ))}
     </Box>
   );

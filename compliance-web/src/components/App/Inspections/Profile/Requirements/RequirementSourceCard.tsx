@@ -26,10 +26,11 @@ import { RequirementSourceEnum } from "@/utils/constants";
 type RequirementSourceCardProps = {
   data: RequirementSourceFormData;
   index: number;
+  onEdit: (data: RequirementSourceFormData) => void;
 };
 
 const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
-  ({ data, index }) => {
+  ({ data, index, onEdit }) => {
     const [isExpanded, setIsExpanded] = useState(index === 0);
 
     const isCondition = [
@@ -110,7 +111,11 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                 </IconButton>
               </Tooltip>
               <Tooltip title="Edit" arrow>
-                <IconButton size="small" color="secondary">
+                <IconButton
+                  size="small"
+                  color="secondary"
+                  onClick={() => onEdit(data)}
+                >
                   <EditOutlined />
                 </IconButton>
               </Tooltip>

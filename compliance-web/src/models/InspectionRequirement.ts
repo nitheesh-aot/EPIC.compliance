@@ -16,6 +16,7 @@ export interface InspectionRequirementFormData {
 }
 
 export interface RequirementSourceFormData {
+  id?: number;
   requirementSource?: RequirementSource;
   sourceNumber?: string;
   sourceTitle?: string,
