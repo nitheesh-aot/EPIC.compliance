@@ -57,8 +57,26 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         comment="The description of the requirement source detail",
     )
     inspection_requirement = relationship(
-        "InspectionRequirement", foreign_keys=[requirement_id], lazy="select"
+        "InspectionRequirement",
+        back_populates="requirement_source_details",
+        lazy="select",
     )
     requirement_source = relationship(
         "RequirementSource", foreign_keys=[requirement_source_id], lazy="joined"
     )
+    documents = relationship(
+        "InspectionReqDetailDocument",
+        back_populates="requirement_source_detail",
+        lazy="joined",
+    )
+
+    @classmethod
+    def create_source_detail(cls, source_detail_obj, session=None):
+        """Persist source detail in database."""
+        source_detail = InspectionReqSourceDetail(**source_detail_obj)
+        if session:
+            session.add(source_detail)
+            session.flush()
+        else:
+            source_detail.save()
+        return source_detail

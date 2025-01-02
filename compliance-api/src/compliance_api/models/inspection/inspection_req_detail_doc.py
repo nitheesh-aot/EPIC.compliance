@@ -34,7 +34,7 @@ class InspectionReqDetailDocument(BaseModelVersioned):
         comment="The unique identifier of the document type",
         nullable=False,
     )
-    document_title = Column(String, nullable=False, comment="The title of the document")
+    document_title = Column(String, nullable=True, comment="The title of the document")
     section_number = Column(
         String,
         nullable=True,
@@ -49,8 +49,21 @@ class InspectionReqDetailDocument(BaseModelVersioned):
         String, nullable=True, comment="Additional description of the document"
     )
     requirement_source_detail = relationship(
-        "InspectionReqSourceDetail", foreign_keys=[req_detail_id], lazy="select"
+        "InspectionReqSourceDetail",
+        back_populates="documents",
+        lazy="select",
     )
     document_type = relationship(
         "DocumentType", foreign_keys=[document_type_id], lazy="select"
     )
+
+    @classmethod
+    def create_doc_detail(cls, doc_detail_obj, session=None):
+        """Persist doc detail in database."""
+        doc_detail = InspectionReqDetailDocument(**doc_detail_obj)
+        if session:
+            session.add(doc_detail)
+            session.flush()
+        else:
+            doc_detail.save()
+        return doc_detail
