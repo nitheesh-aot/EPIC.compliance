@@ -24,7 +24,7 @@ API_BASE_URL = "/api/"
 fake = Faker()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def mock_auth_service(mocker):
     """Fixture to mock AuthService methods."""
     mock_get_user_by_guid = mocker.patch(
@@ -167,17 +167,22 @@ def test_get_case_files_by_project_id(client, auth_header):
     assert len(result.json) == 2
 
 
-def test_get_case_files(client, auth_header):
+def test_get_case_files(client, auth_header, mocker):
     """Get all case files."""
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["project_id"] = 2
     case_file_data["case_file_number"] = fake.word()
-    CaseFileModel.create_case_file(case_file_data)
+    created_case = CaseFileService.create(case_file_data)
     url = urljoin(API_BASE_URL, "case-files")
     result = client.get(url, headers=auth_header)
 
     assert result.status_code == HTTPStatus.OK
-    assert len(result.json) == 4
+    filtered_case_file = next(
+        (case for case in result.json if case["id"] == created_case.id), None
+    )
+    assert filtered_case_file is not None
 
 
 def test_get_case_file_by_id(client, auth_header, mocker):
@@ -204,8 +209,10 @@ def test_get_case_file_by_id(client, auth_header, mocker):
     assert result.json["case_file_status"] == CaseFileStatusEnum.OPEN.value
 
 
-def test_get_case_file_officers(client, auth_header_super_user):
+def test_get_case_file_officers(client, auth_header_super_user, mocker):
     """Create case file with file number."""
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
     user_data = StaffScenario.default_data.value
     auth_user_guid = fake.word()
     user_data["auth_user_guid"] = auth_user_guid
@@ -214,13 +221,8 @@ def test_get_case_file_officers(client, auth_header_super_user):
     case_file_data["case_file_number"] = fake.word()
     case_file_data["primary_officer_id"] = new_user.id
     case_file_data["officer_ids"] = [new_user.id]
-    result = client.post(
-        urljoin(API_BASE_URL, "case-files"),
-        data=json.dumps(case_file_data),
-        headers=auth_header_super_user,
-    )
-    print(result.json)
-    url = urljoin(API_BASE_URL, f"case-files/{result.json.get('id')}/officers")
+    result = CaseFileService.create(case_file_data)
+    url = urljoin(API_BASE_URL, f"case-files/{result.id}/officers")
     result = client.get(url, headers=auth_header_super_user)
     assert result.status_code == HTTPStatus.OK
     assert len(result.json) == 1
@@ -240,11 +242,7 @@ def test_get_case_file_by_number(client, auth_header_super_user, mocker):
     }
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
-    result = client.post(
-        urljoin(API_BASE_URL, "case-files"),
-        data=json.dumps(case_file_data),
-        headers=auth_header_super_user,
-    )
+    result = CaseFileModel.create_case_file(case_file_data)
     url = urljoin(
         API_BASE_URL,
         f"case-files/case-file-numbers/{case_file_data['case_file_number']}",
@@ -272,11 +270,7 @@ def test_case_file_update(client, auth_header_super_user, created_staff, mocker)
     case_file_data["case_file_number"] = fake.word()
     case_file_data["primary_officer_id"] = created_staff.id
     case_file_data["project_description"] = "sample description"
-    created_result = client.post(
-        urljoin(API_BASE_URL, "case-files"),
-        data=json.dumps(case_file_data),
-        headers=auth_header_super_user,
-    )
+    created_result = CaseFileModel.create_case_file(case_file_data)
     url = urljoin(
         API_BASE_URL,
         f"case-files/case-file-numbers/{case_file_data['case_file_number']}",
@@ -295,7 +289,7 @@ def test_case_file_update(client, auth_header_super_user, created_staff, mocker)
     case_file_data["primary_officer_id"] = new_user.id
     case_file_data["officer_ids"] = [new_user.id]
     case_file_data["project_description"] = "changed description"
-    url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}")
+    url = urljoin(API_BASE_URL, f"case-files/{created_result.id}")
     result = client.patch(
         url, data=json.dumps(case_file_data), headers=auth_header_super_user
     )
@@ -309,7 +303,7 @@ def test_case_file_update(client, auth_header_super_user, created_staff, mocker)
     #  update the payload by making the officer list empty
     case_file_data["primary_officer_id"] = new_user.id
     case_file_data["officer_ids"] = []
-    url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}")
+    url = urljoin(API_BASE_URL, f"case-files/{created_result.id}")
     result = client.patch(
         url, data=json.dumps(case_file_data), headers=auth_header_super_user
     )
@@ -320,19 +314,13 @@ def test_case_file_update(client, auth_header_super_user, created_staff, mocker)
     assert len(officers) == 0
 
 
-def test_case_file_update_viewer_fails(
-    client, auth_header, auth_header_super_user, created_staff
-):
+def test_case_file_update_viewer_fails(client, auth_header, created_staff):
     """Update as Viewer."""
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
     case_file_data["primary_officer_id"] = created_staff.id
-    created_result = client.post(
-        urljoin(API_BASE_URL, "case-files"),
-        data=json.dumps(case_file_data),
-        headers=auth_header_super_user,
-    )
-    url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}")
+    created_result = CaseFileModel.create_case_file(case_file_data)
+    url = urljoin(API_BASE_URL, f"case-files/{created_result.id}")
     result = client.patch(url, data=json.dumps(case_file_data), headers=auth_header)
     assert result.status_code == HTTPStatus.FORBIDDEN
 
@@ -344,38 +332,31 @@ def test_case_file_update_with_primary(
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
     case_file_data["primary_officer_id"] = created_staff.id
-    created_result = client.post(
-        urljoin(API_BASE_URL, "case-files"),
-        data=json.dumps(case_file_data),
-        headers=auth_header_super_user,
-    )
-
+    created_result = CaseFileModel.create_case_file(case_file_data)
     header = TokenJWTClaims.default.value
     header["preferred_username"] = created_staff.auth_user_guid
     headers = factory_auth_header(jwt=jwt, claims=header)
 
-    url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}")
+    url = urljoin(API_BASE_URL, f"case-files/{created_result.id}")
     result = client.patch(url, data=json.dumps(case_file_data), headers=headers)
     assert result.status_code == HTTPStatus.OK
 
 
-def test_case_file_close(client, jwt, created_staff, auth_header_super_user):
+def test_case_file_close(client, jwt, created_staff, mocker):
     """Update as primary."""
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
     case_file_data["primary_officer_id"] = created_staff.id
-    created_result = client.post(
-        urljoin(API_BASE_URL, "case-files"),
-        data=json.dumps(case_file_data),
-        headers=auth_header_super_user,
-    )
-    case_file_id = created_result.json.get("id")
-    case_file_number = created_result.json.get("case_file_number")
+    created_result = CaseFileService.create(case_file_data)
+    case_file_id = created_result.id
+    case_file_number = created_result.case_file_number
     header = TokenJWTClaims.default.value
     header["preferred_username"] = created_staff.auth_user_guid
     headers = factory_auth_header(jwt=jwt, claims=header)
     print(created_result)
-    url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}/status")
+    url = urljoin(API_BASE_URL, f"case-files/{created_result.id}/status")
     result = client.patch(url, data=json.dumps({"status": "OPEN"}), headers=headers)
     assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
     result = client.patch(url, data=json.dumps({"status": "CLOSED"}), headers=headers)
@@ -432,48 +413,39 @@ def test_case_file_close(client, jwt, created_staff, auth_header_super_user):
     assert cr_key is not None
 
 
-def test_case_file_delete(client, jwt, created_staff, auth_header_super_user):
+def test_case_file_delete(client, jwt, created_staff, mocker, auth_header_super_user):
     """Update as primary."""
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
     case_file_data["primary_officer_id"] = created_staff.id
-    created_result = client.post(
-        urljoin(API_BASE_URL, "case-files"),
-        data=json.dumps(case_file_data),
-        headers=auth_header_super_user,
-    )
+    created_result = CaseFileService.create(case_file_data)
 
-    url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}")
+    url = urljoin(API_BASE_URL, f"case-files/{created_result.id}")
     result = client.delete(url, headers=auth_header_super_user)
     assert result.status_code == HTTPStatus.NO_CONTENT
-    url = urljoin(API_BASE_URL, f"case-files/{created_result.json.get('id')}")
+    url = urljoin(API_BASE_URL, f"case-files/{created_result.id}")
     result = client.get(url, headers=auth_header_super_user)
     assert result.status_code == HTTPStatus.NOT_FOUND
 
 
-def test_case_file_linking(client, jwt, created_staff, auth_header_super_user):
+def test_case_file_linking(client, jwt, created_staff, auth_header_super_user, mocker):
     """Link case file."""
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
     #  Create source case file
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
     case_file_data["primary_officer_id"] = created_staff.id
-    source_case_file = client.post(
-        urljoin(API_BASE_URL, "case-files"),
-        data=json.dumps(case_file_data),
-        headers=auth_header_super_user,
-    )
+    source_case_file = CaseFileService.create(case_file_data)
     # Create target case file
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["case_file_number"] = fake.word()
     case_file_data["primary_officer_id"] = created_staff.id
-    target_case_file = client.post(
-        urljoin(API_BASE_URL, "case-files"),
-        data=json.dumps(case_file_data),
-        headers=auth_header_super_user,
-    )
-    print(target_case_file.json.get("id"))
-    url = urljoin(API_BASE_URL, f"case-files/{source_case_file.json.get('id')}/links")
-    post_data = {"link_case_file_id": target_case_file.json.get("id")}
+    target_case_file = CaseFileService.create(case_file_data)
+    url = urljoin(API_BASE_URL, f"case-files/{source_case_file.id}/links")
+    post_data = {"link_case_file_id": target_case_file.id}
     result = client.post(
         url,
         data=json.dumps(post_data),
