@@ -37,6 +37,14 @@ class InspectionReqDetailDocCreateSchema(BaseSchema):
     )
 
 
+class InspectionReqDetailDocUpdateSchema(InspectionReqDetailDocCreateSchema):
+    id = fields.Int(
+        metadata={
+            "description": "The unique identifier of the requirement detail document"
+        }
+    )
+
+
 class InspectionReqSourceDetailCreateSchema(BaseSchema):
     """InspectionReqSourceDetailSchema."""
 
@@ -70,7 +78,18 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
     documents = fields.List(fields.Nested(InspectionReqDetailDocCreateSchema))
 
 
-class InspectionRequirementCreateSchema(BaseSchema):
+class InspectionReqSourceDetailUpdateSchema(InspectionReqSourceDetailCreateSchema):
+    """InspectionRequirementUpdateSchema."""
+
+    id = fields.Int(
+        metadata={
+            "description": "The unique identifier of the requirement source detail."
+        }
+    )
+    documents = fields.List(fields.Nested(InspectionReqDetailDocUpdateSchema))
+
+
+class InspectionRequirementCreateSchema(InspectionReqSourceDetailCreateSchema):
     """InspectionRequirementCreateSchema."""
 
     summary = fields.Str(
@@ -97,6 +116,17 @@ class InspectionRequirementCreateSchema(BaseSchema):
     )
     requirement_source_details = fields.List(
         fields.Nested(InspectionReqSourceDetailCreateSchema)
+    )
+
+
+class InspectionRequirementUpdateSchema(BaseSchema):
+    """InspectionRequirementUpdateSchema."""
+
+    id = fields.Int(
+        metadata={"description": "The unique identifier of the requirement"}
+    )
+    requirement_source_details = fields.List(
+        fields.Nested(InspectionReqSourceDetailUpdateSchema)
     )
 
 

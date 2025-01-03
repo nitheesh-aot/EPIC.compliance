@@ -62,7 +62,7 @@ class InspectionRequirement(BaseModelVersioned):
     requirement_source_details = relationship(
         "InspectionReqSourceDetail",
         back_populates="inspection_requirement",
-        lazy="select"
+        lazy="select",
     )
 
     @classmethod
@@ -79,8 +79,8 @@ class InspectionRequirement(BaseModelVersioned):
     @classmethod
     def get_by_inspection_id(cls, inspection_id):
         """Get requirements by inspection id."""
-        return db.session.query(InspectionRequirement).filter(
-            InspectionRequirement.inspection_id == inspection_id,
-            InspectionRequirement.is_deleted.is_(False),
-            InspectionRequirement.is_active.is_(True)
-        ).all()
+        return (
+            db.session.query(InspectionRequirement)
+            .filter_by(inspection_id == inspection_id, is_deleted=False, is_active=True)
+            .all()
+        )

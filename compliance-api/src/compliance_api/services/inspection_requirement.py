@@ -15,6 +15,11 @@ class InspectionRequirementService:
         return InspectionRequirementModel.get_by_inspection_id(inspection_id)
 
     @classmethod
+    def get_by_id(cls, requirement_id):
+        """Get inspection requirement by id."""
+        return InspectionReqDetailDocumentModel.find_by_id(requirement_id)
+
+    @classmethod
     def create(cls, inspection_id, requirement_data):
         """Create inspection requirement."""
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
@@ -39,6 +44,12 @@ class InspectionRequirementService:
         return created_requirement
 
 
+    @classmethod
+    def update(cls, inspection_id, requirement_id, requirement_data):
+        """Update inspection requirement."""
+        requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
+        with session_scope() as session:
+            updated_requirement = InspectionRequirementModel
 def _create_requirement_obj(inspection_id, requirement_data):
     """Create inspection requirement object."""
     return {
