@@ -60,6 +60,7 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         "InspectionRequirement",
         back_populates="requirement_source_details",
         lazy="select",
+        uselist=False
     )
     requirement_source = relationship(
         "RequirementSource", foreign_keys=[requirement_source_id], lazy="joined"
@@ -67,7 +68,7 @@ class InspectionReqSourceDetail(BaseModelVersioned):
     documents = relationship(
         "InspectionReqDetailDocument",
         back_populates="requirement_source_detail",
-        lazy="joined",
+        lazy="select",
     )
 
     @classmethod

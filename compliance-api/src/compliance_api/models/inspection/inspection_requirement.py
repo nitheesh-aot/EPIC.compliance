@@ -3,7 +3,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModelVersioned
+from ..base_model import BaseModelVersioned, db
 
 
 class InspectionRequirement(BaseModelVersioned):
@@ -20,6 +20,7 @@ class InspectionRequirement(BaseModelVersioned):
         Integer,
         ForeignKey("inspections.id", name="inspection_requirements_inspection_id_fkey"),
         nullable=False,
+        index=True,
         comment="The unique identifier of the inspection",
     )
     summary = Column(String, nullable=False, comment="The summary of the requirement")
@@ -61,7 +62,7 @@ class InspectionRequirement(BaseModelVersioned):
     requirement_source_details = relationship(
         "InspectionReqSourceDetail",
         back_populates="inspection_requirement",
-        lazy="joined",
+        lazy="select"
     )
 
     @classmethod
@@ -74,3 +75,12 @@ class InspectionRequirement(BaseModelVersioned):
         else:
             requirement.save()
         return requirement
+
+    @classmethod
+    def get_by_inspection_id(cls, inspection_id):
+        """Get requirements by inspection id."""
+        return db.session.query(InspectionRequirement).filter(
+            InspectionRequirement.inspection_id == inspection_id,
+            InspectionRequirement.is_deleted.is_(False),
+            InspectionRequirement.is_active.is_(True)
+        ).all()

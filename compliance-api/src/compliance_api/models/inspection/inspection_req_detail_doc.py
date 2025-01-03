@@ -52,6 +52,7 @@ class InspectionReqDetailDocument(BaseModelVersioned):
         "InspectionReqSourceDetail",
         back_populates="documents",
         lazy="select",
+        uselist=False
     )
     document_type = relationship(
         "DocumentType", foreign_keys=[document_type_id], lazy="select"

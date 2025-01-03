@@ -28,6 +28,15 @@ class InspectionRequirements(Resource):
     """InspectionRequirements."""
 
     @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get all requirements by inspection")
+    @auth.require
+    @API.response(code=200, description="Success", model=[inspection_requirement_list_model])
+    def get(inspection_id):
+        """Get requirements by inspection id."""
+        requirements = InspectionRequirementService.get_all(inspection_id)
+        return InspectionRequirementSchema(many=True).dump(requirements), HTTPStatus.OK
+
+    @staticmethod
     @ApiHelper.swagger_decorators(API, endpoint_description="Create an inspection")
     @API.expect(inspection_requirement_create_model)
     @API.response(

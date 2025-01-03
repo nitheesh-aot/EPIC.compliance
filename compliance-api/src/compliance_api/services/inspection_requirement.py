@@ -10,6 +10,11 @@ class InspectionRequirementService:
     """InspectionRequirementService."""
 
     @classmethod
+    def get_all(cls, inspection_id):
+        """Get all requirements by inspection id."""
+        return InspectionRequirementModel.get_by_inspection_id(inspection_id)
+
+    @classmethod
     def create(cls, inspection_id, requirement_data):
         """Create inspection requirement."""
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)

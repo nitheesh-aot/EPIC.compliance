@@ -125,8 +125,7 @@ class InspectionReqSourceDetailSchema(
         model = InspectionReqSourceDetail
         include_fk = True
 
-
-documents = fields.List(fields.Nested(InspectionReqDetailDocSchema))
+    documents = fields.List(fields.Nested(InspectionReqDetailDocSchema))
 
 
 class InspectionRequirementSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
