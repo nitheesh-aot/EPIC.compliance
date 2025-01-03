@@ -26,10 +26,12 @@ import { RequirementSourceEnum } from "@/utils/constants";
 type RequirementSourceCardProps = {
   data: RequirementSourceFormData;
   index: number;
+  onEdit: (data: RequirementSourceFormData) => void;
+  onDelete: (data: RequirementSourceFormData) => void;
 };
 
 const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
-  ({ data, index }) => {
+  ({ data, index, onEdit, onDelete }) => {
     const [isExpanded, setIsExpanded] = useState(index === 0);
 
     const isCondition = [
@@ -110,12 +112,20 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                 </IconButton>
               </Tooltip>
               <Tooltip title="Edit" arrow>
-                <IconButton size="small" color="secondary">
+                <IconButton
+                  size="small"
+                  color="secondary"
+                  onClick={() => onEdit(data)}
+                >
                   <EditOutlined />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Delete" arrow>
-                <IconButton size="small" color="secondary">
+                <IconButton
+                  size="small"
+                  color="secondary"
+                  onClick={() => onDelete(data)}
+                >
                   <DeleteOutlineRounded />
                 </IconButton>
               </Tooltip>
@@ -161,9 +171,14 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
               <ParagraphWithReadMore
                 maxHeight={84}
                 renderTypography={
-                  <Typography variant="body2" display={"flex"} flex={1}>
-                    {data.description?.text}
-                  </Typography>
+                  <Typography
+                    variant="subtitle2"
+                    component={"div"}
+                    className="quill-render"
+                    dangerouslySetInnerHTML={{
+                      __html: data.description?.html ?? "",
+                    }}
+                  />
                 }
               />
             </Box>

@@ -15,6 +15,7 @@ import { RequirementSourceEnum } from "@/utils/constants";
 
 type RequirementSourceModalProps = {
   onSubmit: (data: RequirementSourceFormData) => void;
+  requirementSourceData?: RequirementSourceFormData;
 };
 
 const requirementSourceFormSchema = yup.object().shape({
@@ -47,12 +48,13 @@ const initFormData: RequirementSourceFormData = {
 
 const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
   onSubmit,
+  requirementSourceData,
 }) => {
   const { data: requirementSourceList } = useRequirementSourcesData();
 
   const defaultValues = useMemo<RequirementSourceFormData>(() => {
-    return initFormData;
-  }, []);
+    return requirementSourceData ?? initFormData;
+  }, [requirementSourceData]);
 
   const methods = useForm<RequirementSourceSchemaType>({
     resolver: yupResolver(requirementSourceFormSchema),
@@ -75,14 +77,24 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
   const onSubmitHandler = (data: RequirementSourceSchemaType) => {
     // eslint-disable-next-line no-console
     console.log(data);
-    onSubmit(data as RequirementSourceFormData);
+    const formData = data as RequirementSourceFormData;
+    if (!requirementSourceData) {
+      formData.id = Date.now();
+    }
+    onSubmit(formData);
   };
 
   return (
     <>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmitHandler)}>
-          <ModalTitleBar title={"Add Requirement Source"} />
+          <ModalTitleBar
+            title={
+              requirementSourceData
+                ? "Edit Requirement Source"
+                : "Add Requirement Source"
+            }
+          />
           <DialogContent dividers>
             <ControlledAutoComplete
               name="requirementSource"
@@ -91,6 +103,7 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
               getOptionLabel={(option) => option.name}
               getOptionKey={(option) => option.id}
               isOptionEqualToValue={(option, value) => option.id === value.id}
+              disabled={!!requirementSourceData}
             />
             {selectedRequirementSource?.id === RequirementSourceEnum.EACA && (
               <ControlledTextField
@@ -107,7 +120,9 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
                     RequirementSourceEnum.SCHEDULE_B,
                     RequirementSourceEnum.EAC,
                     RequirementSourceEnum.EACA,
-                  ].includes(selectedRequirementSource?.id as RequirementSourceEnum)
+                  ].includes(
+                    selectedRequirementSource?.id as RequirementSourceEnum
+                  )
                     ? "Condition # (optional)"
                     : "Section # (optional)"
                 }
@@ -121,7 +136,9 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
             </Stack>
             <ControlledRichTextEditor label="Description" name="description" />
           </DialogContent>
-          <ModalActions primaryActionButtonText={"Add"} />
+          <ModalActions
+            primaryActionButtonText={requirementSourceData ? "Save" : "Add"}
+          />
         </form>
       </FormProvider>
     </>

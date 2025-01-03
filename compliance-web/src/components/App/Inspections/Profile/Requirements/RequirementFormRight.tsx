@@ -5,6 +5,7 @@ import { useModal } from "@/store/modalStore";
 import RequirementSourceModal from "./RequirementSourceModal";
 import { RequirementSourceFormData } from "@/models/InspectionRequirement";
 import RequirementSourceCard from "./RequirementSourceCard";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 const RequirementFormRight: FC = () => {
   const { setOpen, setClose } = useModal();
@@ -12,17 +13,59 @@ const RequirementFormRight: FC = () => {
     RequirementSourceFormData[]
   >([]);
 
-  const handleOnSubmit = (data: RequirementSourceFormData) => {
-    setClose();
-    // eslint-disable-next-line no-console
-    console.log(data);
+  const handleOnAddSubmit = (data: RequirementSourceFormData) => {
     setRequirementSourceFormData((prevData) => [...prevData, data]);
+    setClose();
   };
 
-  const handleAddRequirementSourceModal = () => {
+  const handleOnEditSubmit = (data: RequirementSourceFormData) => {
+    setRequirementSourceFormData((prevData) =>
+      prevData.map((item) =>
+        item.id === data.id ? { ...item, ...data } : item
+      )
+    );
+    setClose();
+  };
+
+  const handleOnDeleteSubmit = (data: RequirementSourceFormData) => {
+    setRequirementSourceFormData((prevData) =>
+      prevData.filter((item) => item.id !== data.id)
+    );
+    setClose();
+  };
+
+  const handleAddRequirementSource = () => {
     setOpen({
-      content: <RequirementSourceModal onSubmit={handleOnSubmit} />,
+      content: <RequirementSourceModal onSubmit={handleOnAddSubmit} />,
       width: "640px",
+    });
+  };
+
+  const handleEditRequirementSource = (data: RequirementSourceFormData) => {
+    setOpen({
+      content: (
+        <RequirementSourceModal
+          onSubmit={handleOnEditSubmit}
+          requirementSourceData={data}
+        />
+      ),
+      width: "640px",
+    });
+  };
+
+  const handleDeleteRequirementSource = (data: RequirementSourceFormData) => {
+    setOpen({
+      content: (
+        <ConfirmationModal
+          title="Delete Requirement Source?"
+          description={`You are about to delete ${data.requirementSource?.name}.
+          This is the primary requirement source. 
+          Deleting it will also permanently remove all associated documents. 
+          Are you sure you want to proceed?`}
+          confirmButtonText="Delete"
+          onConfirm={() => handleOnDeleteSubmit(data)}
+        />
+      ),
     });
   };
 
@@ -37,13 +80,19 @@ const RequirementFormRight: FC = () => {
     >
       <Button
         color="secondary"
-        onClick={handleAddRequirementSourceModal}
+        onClick={handleAddRequirementSource}
         startIcon={<AddRounded />}
       >
         Requirement Source
       </Button>
       {requirementSourceFormData.map((data, index) => (
-        <RequirementSourceCard key={index} data={data} index={index} />
+        <RequirementSourceCard
+          key={index}
+          data={data}
+          index={index}
+          onEdit={handleEditRequirementSource}
+          onDelete={handleDeleteRequirementSource}
+        />
       ))}
     </Box>
   );

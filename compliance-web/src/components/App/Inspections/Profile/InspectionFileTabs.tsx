@@ -40,10 +40,10 @@ const InspectionFileTabs: React.FC<InspectionFileTabsProps> = () => {
             "&:first-of-type": {
               paddingLeft: "0",
             },
-          },
-          "& .Mui-selected": {
-            color: BCDesignTokens.typographyColorPrimary,
-            fontWeight: BCDesignTokens.typographyFontWeightsBold,
+            "&.Mui-selected": {
+              color: BCDesignTokens.typographyColorPrimary,
+              fontWeight: BCDesignTokens.typographyFontWeightsBold,
+            },
           },
         }}
       >
