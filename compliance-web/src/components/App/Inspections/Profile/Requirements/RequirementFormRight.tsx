@@ -46,7 +46,7 @@ const RequirementFormRight: FC = () => {
       content: (
         <RequirementSourceModal
           onSubmit={handleOnEditSubmit}
-          requirementSourceData={data}
+          requirementSourceFormData={data}
         />
       ),
       width: "640px",
@@ -66,6 +66,20 @@ const RequirementFormRight: FC = () => {
           onConfirm={() => handleOnDeleteSubmit(data)}
         />
       ),
+    });
+  };
+
+  const handleAddRequirementSourceSection = (
+    data: RequirementSourceFormData
+  ) => {
+    setOpen({
+      content: (
+        <RequirementSourceModal
+          onSubmit={handleOnAddSubmit}
+          requirementSource={data.requirementSource}
+        />
+      ),
+      width: "640px",
     });
   };
 
@@ -92,6 +106,7 @@ const RequirementFormRight: FC = () => {
           index={index}
           onEdit={handleEditRequirementSource}
           onDelete={handleDeleteRequirementSource}
+          onAddSection={handleAddRequirementSourceSection}
         />
       ))}
     </Box>

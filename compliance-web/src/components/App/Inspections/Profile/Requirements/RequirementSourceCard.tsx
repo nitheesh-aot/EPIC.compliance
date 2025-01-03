@@ -28,10 +28,11 @@ type RequirementSourceCardProps = {
   index: number;
   onEdit: (data: RequirementSourceFormData) => void;
   onDelete: (data: RequirementSourceFormData) => void;
+  onAddSection: (data: RequirementSourceFormData) => void;
 };
 
 const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
-  ({ data, index, onEdit, onDelete }) => {
+  ({ data, index, onEdit, onDelete, onAddSection }) => {
     const [isExpanded, setIsExpanded] = useState(index === 0);
 
     const isCondition = [
@@ -89,6 +90,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
             size="small"
             onClick={(e) => {
               e.stopPropagation();
+              onAddSection(data);
             }}
             startIcon={<AddRounded />}
             sx={{
@@ -156,9 +158,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                 >
                   Title:
                 </Typography>
-                <Typography variant="body2" fontWeight={700}>
-                  {data.sourceTitle}
-                </Typography>
+                <Typography variant="body2">{data.sourceTitle}</Typography>
               </Box>
             </Box>
             <Box>
