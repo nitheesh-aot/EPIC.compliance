@@ -19,6 +19,7 @@ from .compliance_finding import ComplianceFindingService
 from .continuation_report import ContinuationReportService
 from .enforcement_action import EnforcementActionService
 from .inspection import InspectionService
+from .inspection_requirement import InspectionRequirementService
 from .position import PositionService
 from .project import ProjectService
 from .project_status import ProjectStatusService

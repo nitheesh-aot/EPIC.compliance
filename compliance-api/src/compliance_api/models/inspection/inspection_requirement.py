@@ -3,7 +3,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModelVersioned
+from ..base_model import BaseModelVersioned, db
 
 
 class InspectionRequirement(BaseModelVersioned):
@@ -20,6 +20,7 @@ class InspectionRequirement(BaseModelVersioned):
         Integer,
         ForeignKey("inspections.id", name="inspection_requirements_inspection_id_fkey"),
         nullable=False,
+        index=True,
         comment="The unique identifier of the inspection",
     )
     summary = Column(String, nullable=False, comment="The summary of the requirement")
@@ -35,7 +36,7 @@ class InspectionRequirement(BaseModelVersioned):
             "enforcement_action_options.id",
             name="insepction_requirements_enforcement_action_fkey",
         ),
-        nullable=False,
+        nullable=True,
         comment="The enforcement action taken on the requirement",
     )
     compliance_finding_id = Column(
@@ -44,12 +45,12 @@ class InspectionRequirement(BaseModelVersioned):
             "compliance_finding_options.id",
             name="inspection_req_compliance_finding_fkey",
         ),
-        nullable=False,
+        nullable=True,
         comment="Compliance finding of the requirement",
     )
-    findings = Column(
-        String, comment="The findings of the requirement"
-    )
+    findings = Column(String, nullable=True, comment="The findings of the requirement")
+    sort_order = Column(Integer, nullable=False, comment="The order of requirements")
+
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
     topic = relationship("Topic", foreign_keys=[topic_id], lazy="joined")
     enforcement_action = relationship(
@@ -58,3 +59,28 @@ class InspectionRequirement(BaseModelVersioned):
     compliance_finding = relationship(
         "ComplianceFindingOption", foreign_keys=[compliance_finding_id], lazy="joined"
     )
+    requirement_source_details = relationship(
+        "InspectionReqSourceDetail",
+        back_populates="inspection_requirement",
+        lazy="select"
+    )
+
+    @classmethod
+    def create_requirement(cls, requirement_obj, session=None):
+        """Persist inspection requirement in database."""
+        requirement = InspectionRequirement(**requirement_obj)
+        if session:
+            session.add(requirement)
+            session.flush()
+        else:
+            requirement.save()
+        return requirement
+
+    @classmethod
+    def get_by_inspection_id(cls, inspection_id):
+        """Get requirements by inspection id."""
+        return db.session.query(InspectionRequirement).filter(
+            InspectionRequirement.inspection_id == inspection_id,
+            InspectionRequirement.is_deleted.is_(False),
+            InspectionRequirement.is_active.is_(True)
+        ).all()

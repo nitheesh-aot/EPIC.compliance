@@ -31,6 +31,7 @@ from .compliance_finding import API as COMPLIANCE_FINDING_API
 from .continuation_report import API as CONTINUATION_REPORT_API
 from .enforcement_action import API as ENFORCEMENT_ACTION_API
 from .inspection import API as INSPECTION_API
+from .inspection_requirement import API as INSPECTION_REQUIREMENT_API
 from .ops import API as OPS_API
 from .position import API as POSITION_API
 from .project import API as PROJECT_API
@@ -85,3 +86,4 @@ API.add_namespace(REQUIREMENT_SOURCE_API)
 API.add_namespace(CONTINUATION_REPORT_API)
 API.add_namespace(ENFORCEMENT_ACTION_API)
 API.add_namespace(COMPLIANCE_FINDING_API)
+API.add_namespace(INSPECTION_REQUIREMENT_API, path="inspections/<int:inspection_id>/requirements")
