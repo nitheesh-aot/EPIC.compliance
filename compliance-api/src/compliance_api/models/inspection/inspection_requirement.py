@@ -81,6 +81,20 @@ class InspectionRequirement(BaseModelVersioned):
         """Get requirements by inspection id."""
         return (
             db.session.query(InspectionRequirement)
-            .filter_by(inspection_id == inspection_id, is_deleted=False, is_active=True)
+            .filter_by(inspection_id=inspection_id, is_deleted=False, is_active=True)
             .all()
         )
+
+    @classmethod
+    def update_requirement(cls, requirement_id, requirement_data, session=None):
+        """Update inspection requirement."""
+        query = cls.query.filter_by(id=requirement_id)
+        requirement: InspectionRequirement = query.first()
+        if not requirement or requirement.is_deleted:
+            return None
+        query.update(requirement_data)
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
+        return requirement

@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inspection requirement Schema Schema."""
-from marshmallow import EXCLUDE, fields
+from marshmallow import EXCLUDE, ValidationError, fields, validates_schema
 
 from compliance_api.models import InspectionReqDetailDocument, InspectionReqSourceDetail, InspectionRequirement
+from compliance_api.models.requirement_source import RequirementSourceEnum
 
 from .base_schema import AutoSchemaBase, BaseSchema
 
@@ -38,6 +39,8 @@ class InspectionReqDetailDocCreateSchema(BaseSchema):
 
 
 class InspectionReqDetailDocUpdateSchema(InspectionReqDetailDocCreateSchema):
+    """InspectionReqDetailDocUpdateSchema."""
+
     id = fields.Int(
         metadata={
             "description": "The unique identifier of the requirement detail document"
@@ -77,6 +80,58 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
     )
     documents = fields.List(fields.Nested(InspectionReqDetailDocCreateSchema))
 
+    @validates_schema
+    def validate_section_number(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Ensure the correct requirement is selected for the section number."""
+        section_number = data.get("section_number", [])
+        requirement_source_id = data.get("requirement_source_id", None)
+        if section_number and RequirementSourceEnum(requirement_source_id) not in [
+            RequirementSourceEnum.ACT_2002,
+            RequirementSourceEnum.ACT_2018,
+            RequirementSourceEnum.COMPLIANCE_AGREEMENT,
+            RequirementSourceEnum.CERTIFIED_PROJECT_DESCRIPTION,
+            RequirementSourceEnum.NOT_EA_ACT,
+        ]:
+            raise ValidationError(
+                "Invalid requirement source for the given section number",
+                field_name="section_number",
+            )
+
+    @validates_schema
+    def validate_amendment_number(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Ensure the correct requirement is selected for the amendment number."""
+        amendment_number = data.get("amendment_number", [])
+        requirement_source_id = data.get("requirement_source_id", None)
+        if (
+            amendment_number
+            and RequirementSourceEnum(requirement_source_id)
+            != RequirementSourceEnum.EAC_AMENDMENT
+        ):
+            raise ValidationError(
+                "Invalid requirement source for the given amendment number",
+                field_name="amendment_number",
+            )
+
+    @validates_schema
+    def validate_condition_number(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Ensure the correct requirement is selected for the condition number."""
+        condition_number = data.get("condition_number", [])
+        requirement_source_id = data.get("requirement_source_id", None)
+        if condition_number and RequirementSourceEnum(requirement_source_id) not in [
+            RequirementSourceEnum.SCHEDULE_B,
+            RequirementSourceEnum.EAC_CERTIFICATE,
+        ]:
+            raise ValidationError(
+                "Invalid requirement source for the given condition number",
+                field_name="condition_number",
+            )
+
 
 class InspectionReqSourceDetailUpdateSchema(InspectionReqSourceDetailCreateSchema):
     """InspectionRequirementUpdateSchema."""
@@ -89,7 +144,7 @@ class InspectionReqSourceDetailUpdateSchema(InspectionReqSourceDetailCreateSchem
     documents = fields.List(fields.Nested(InspectionReqDetailDocUpdateSchema))
 
 
-class InspectionRequirementCreateSchema(InspectionReqSourceDetailCreateSchema):
+class InspectionRequirementCreateSchema(BaseSchema):
     """InspectionRequirementCreateSchema."""
 
     summary = fields.Str(
@@ -119,7 +174,7 @@ class InspectionRequirementCreateSchema(InspectionReqSourceDetailCreateSchema):
     )
 
 
-class InspectionRequirementUpdateSchema(BaseSchema):
+class InspectionRequirementUpdateSchema(InspectionRequirementCreateSchema):
     """InspectionRequirementUpdateSchema."""
 
     id = fields.Int(

@@ -27,29 +27,104 @@ class InspectionRequirementService:
             created_requirement = InspectionRequirementModel.create_requirement(
                 requirement_obj, session
             )
-            for source_detail_data in requirement_data["requirement_source_details"]:
-                source_detail_obj = _create_requirement_source_detail_obj(
-                    created_requirement.id, source_detail_data
-                )
-                created_source_detail = (
-                    InspectionReqSourceDetailModel.create_source_detail(
-                        source_detail_obj, session
-                    )
-                )
-                for doc_detail_data in source_detail_data["documents"]:
-                    doc_detail_obj = _create_requirement_source_doc_obj(
-                        created_source_detail.id, doc_detail_data
-                    )
-                    InspectionReqDetailDocumentModel.create_doc_detail(doc_detail_obj)
+            _create_update_source_details_nd_docs(
+                created_requirement.id, requirement_data, session
+            )
         return created_requirement
-
 
     @classmethod
     def update(cls, inspection_id, requirement_id, requirement_data):
         """Update inspection requirement."""
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
         with session_scope() as session:
-            updated_requirement = InspectionRequirementModel
+            updated_requirement = InspectionRequirementModel.update_requirement(
+                requirement_id, requirement_obj, session
+            )
+            _handle_deletion_req_detail_nd_doc(
+                requirement_id, requirement_data, session
+            )
+            _create_update_source_details_nd_docs(
+                requirement_id, requirement_data, session
+            )
+        return updated_requirement
+
+
+def _create_update_source_details_nd_docs(
+    requirement_id, requirement_data, session=None
+):
+    """
+    Persist the source details and related document details.
+
+    This function check if the id is present in the data. If it is present, no need to
+    create object again.
+    """
+    for source_detail_data in requirement_data.get("requirement_source_details", []):
+        req_detail_id = source_detail_data.get("id", None)
+        source_detail_obj = _create_requirement_source_detail_obj(
+            requirement_id, source_detail_data
+        )
+        if not req_detail_id:
+            created_source_detail = InspectionReqSourceDetailModel.create_source_detail(
+                source_detail_obj, session
+            )
+            req_detail_id = created_source_detail.id
+        else:
+            source_detail_obj = {**source_detail_obj, "id": req_detail_id}
+            InspectionReqSourceDetailModel.update_requirement_source_detail(
+                req_detail_id, source_detail_obj, session
+            )
+        for doc_detail_data in source_detail_data.get("documents", []):
+            doc_detail_id = doc_detail_data.get("id", None)
+            doc_detail_obj = _create_requirement_source_doc_obj(
+                req_detail_id, doc_detail_data
+            )
+            if not doc_detail_id:
+                InspectionReqDetailDocumentModel.create_doc_detail(
+                    doc_detail_obj, session
+                )
+            else:
+                doc_detail_obj = {**doc_detail_obj, "id": doc_detail_id}
+                InspectionReqDetailDocumentModel.update_doc_detail(
+                    doc_detail_id, doc_detail_obj, session
+                )
+
+
+def _handle_deletion_req_detail_nd_doc(
+    requirement_id,
+    requirement_data,
+    session=None,
+):
+    """Handle the deletion of requirement details and related document entry."""
+    existing_details = InspectionReqSourceDetailModel.get_all_by_requirement_id(
+        requirement_id
+    )
+    existing_detail_ids = {detail.id for detail in existing_details}
+    incoming_details_ids = {
+        detail.get("id", None)
+        for detail in requirement_data.get("requirement_source_details")
+        if detail.get("id", None) is not None
+    }
+    incoming_doc_detail_ids = set(
+        doc.get("id", None)
+        for detail in requirement_data.get("requirement_source_details")
+        for doc in detail.get("documents", [])
+        if doc.get("id", None) is not None
+    )
+    existing_doc_detail_ids = {
+        doc.id for detail in existing_details for doc in detail.documents
+    }
+    details_to_be_deleted = existing_detail_ids.difference(incoming_details_ids)
+    doc_details_to_be_deleted = existing_doc_detail_ids.difference(
+        incoming_doc_detail_ids
+    )
+    InspectionReqDetailDocumentModel.delete_req_doc_details_by_ids(
+        details_to_be_deleted, session
+    )
+    InspectionReqDetailDocumentModel.delete_req_doc_details_by_ids(
+        doc_details_to_be_deleted, session
+    )
+
+
 def _create_requirement_obj(inspection_id, requirement_data):
     """Create inspection requirement object."""
     return {
