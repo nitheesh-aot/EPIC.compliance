@@ -29,8 +29,10 @@ from .case_file import API as CASE_FILE_API
 from .complaint import API as COMPLAINT_API
 from .compliance_finding import API as COMPLIANCE_FINDING_API
 from .continuation_report import API as CONTINUATION_REPORT_API
+from .document_type import API as DOCUMENT_TYPE_API
 from .enforcement_action import API as ENFORCEMENT_ACTION_API
 from .inspection import API as INSPECTION_API
+from .inspection_requirement import API as INSPECTION_REQUIREMENT_API
 from .ops import API as OPS_API
 from .position import API as POSITION_API
 from .project import API as PROJECT_API
@@ -85,3 +87,5 @@ API.add_namespace(REQUIREMENT_SOURCE_API)
 API.add_namespace(CONTINUATION_REPORT_API)
 API.add_namespace(ENFORCEMENT_ACTION_API)
 API.add_namespace(COMPLIANCE_FINDING_API)
+API.add_namespace(INSPECTION_REQUIREMENT_API, path="inspections/<int:inspection_id>/requirements")
+API.add_namespace(DOCUMENT_TYPE_API)
