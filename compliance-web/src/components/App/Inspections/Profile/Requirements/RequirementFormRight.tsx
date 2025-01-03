@@ -83,6 +83,19 @@ const RequirementFormRight: FC = () => {
     });
   };
 
+  // Grouping the requirementSourceFormData by requirementSource
+  const groupedData = requirementSourceFormData.reduce((acc, item) => {
+    const sourceId = item.requirementSource?.id;
+    if (sourceId === undefined) {
+      return acc;
+    }
+    if (!acc[sourceId]) {
+      acc[sourceId] = [];
+    }
+    acc[sourceId].push(item);
+    return acc;
+  }, {} as { [key: string]: RequirementSourceFormData[] });
+
   return (
     <Box
       sx={{
@@ -99,10 +112,10 @@ const RequirementFormRight: FC = () => {
       >
         Requirement Source
       </Button>
-      {requirementSourceFormData.map((data, index) => (
+      {Object.entries(groupedData).map(([sourceId, items], index) => (
         <RequirementSourceCard
-          key={index}
-          data={data}
+          key={sourceId}
+          data={items}
           index={index}
           onEdit={handleEditRequirementSource}
           onDelete={handleDeleteRequirementSource}
