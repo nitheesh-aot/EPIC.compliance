@@ -29,10 +29,11 @@ type RequirementSourceCardProps = {
   onEdit: (data: RequirementSourceFormData) => void;
   onDelete: (data: RequirementSourceFormData) => void;
   onAddSection: (data: RequirementSourceFormData) => void;
+  onAddRelatedDocument: (data: RequirementSourceFormData) => void;
 };
 
 const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
-  ({ data, index, onEdit, onDelete, onAddSection }) => {
+  ({ data, index, onEdit, onDelete, onAddSection, onAddRelatedDocument }) => {
     const [isExpanded, setIsExpanded] = useState(index === 0);
 
     const requirementSource = data[0].requirementSource;
@@ -125,7 +126,11 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                     gap={".25rem"}
                   >
                     <Tooltip title="Add Related Document" arrow>
-                      <IconButton size="small" color="secondary">
+                      <IconButton
+                        size="small"
+                        color="secondary"
+                        onClick={() => onAddRelatedDocument(item)}
+                      >
                         <PostAddOutlined />
                       </IconButton>
                     </Tooltip>

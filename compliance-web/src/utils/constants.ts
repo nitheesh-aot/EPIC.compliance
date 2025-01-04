@@ -31,6 +31,11 @@ export enum RequirementSourceEnum {
   EACA = "10",
 }
 
+export enum RequirementDocumentTypeEnum {
+  MANAGEMENT_PLAN = "1",
+  OTHER_DOCUMENT = "2",
+}
+
 export const CR_CONTEXT_TYPE = {
   INSPECTION: "Inspection",
   COMPLAINT: "Complaint",

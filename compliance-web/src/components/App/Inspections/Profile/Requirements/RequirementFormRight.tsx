@@ -6,6 +6,7 @@ import RequirementSourceModal from "./RequirementSourceModal";
 import { RequirementSourceFormData } from "@/models/InspectionRequirement";
 import RequirementSourceCard from "./RequirementSourceCard";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import RequirementRelatedDocumentModal from "./RequirementRelatedDocumentModal";
 
 const RequirementFormRight: FC = () => {
   const { setOpen, setClose } = useModal();
@@ -83,18 +84,35 @@ const RequirementFormRight: FC = () => {
     });
   };
 
+  const handleAddRequirementRelatedDocument = (
+    data: RequirementSourceFormData
+  ) => {
+    setOpen({
+      content: (
+        <RequirementRelatedDocumentModal
+          onSubmit={handleOnAddSubmit}
+          requirementSourceFormData={data}
+        />
+      ),
+      width: "640px",
+    });
+  };
+
   // Grouping the requirementSourceFormData by requirementSource
-  const groupedData = requirementSourceFormData.reduce((acc, item) => {
-    const sourceId = item.requirementSource?.id;
-    if (sourceId === undefined) {
+  const groupedData = requirementSourceFormData.reduce(
+    (acc, item) => {
+      const sourceId = item.requirementSource?.id;
+      if (sourceId === undefined) {
+        return acc;
+      }
+      if (!acc[sourceId]) {
+        acc[sourceId] = [];
+      }
+      acc[sourceId].push(item);
       return acc;
-    }
-    if (!acc[sourceId]) {
-      acc[sourceId] = [];
-    }
-    acc[sourceId].push(item);
-    return acc;
-  }, {} as { [key: string]: RequirementSourceFormData[] });
+    },
+    {} as { [key: string]: RequirementSourceFormData[] }
+  );
 
   return (
     <Box
@@ -120,6 +138,7 @@ const RequirementFormRight: FC = () => {
           onEdit={handleEditRequirementSource}
           onDelete={handleDeleteRequirementSource}
           onAddSection={handleAddRequirementSourceSection}
+          onAddRelatedDocument={handleAddRequirementRelatedDocument}
         />
       ))}
     </Box>
