@@ -1,3 +1,4 @@
+import { RequirementDocumentType } from "./RequirementDocumentType";
 import { IRStatus } from "./IRStatus";
 import { IRType } from "./IRType";
 import { RequirementSource } from "./RequirementSource";
@@ -25,4 +26,19 @@ export interface RequirementSourceFormData {
     html: string;
     text: string;
   },
+  relatedDocuments?: RequirementRelatedDocumentFormData[];
+}
+
+export interface RequirementRelatedDocumentFormData {
+  id?: number;
+  sourceFormId?: number;
+  condition?: string;
+  relatedDocument?: RequirementDocumentType;
+  documentTitle?: string;
+  sectionNumber?: string;
+  sectionTitle?: string;
+  description?: {
+    html: string;
+    text: string;
+  };
 }
