@@ -47,8 +47,14 @@ const RequirementFormRight: FC = () => {
           return {
             ...item,
             relatedDocuments: item.relatedDocuments
-              ? [...item.relatedDocuments, data]
-              : [data],
+              ? [
+                  ...item.relatedDocuments.map((doc) => ({
+                    ...doc,
+                    documentTitle: data.documentTitle,
+                  })),
+                  data,
+                ]
+              : [{ ...data, documentTitle: data.documentTitle }],
           };
         }
         return item;

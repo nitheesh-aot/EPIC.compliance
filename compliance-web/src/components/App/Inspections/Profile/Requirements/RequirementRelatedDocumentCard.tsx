@@ -21,15 +21,15 @@ import { RequirementRelatedDocumentFormData } from "@/models/InspectionRequireme
 import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 
 interface RequirementRelatedDocumentCardProps {
-  relatedDocument: RequirementRelatedDocumentFormData;
+  relatedDocumentSections: RequirementRelatedDocumentFormData[];
   index: number;
   onAddRelatedDocumentSection: () => void;
 }
 
 const RequirementRelatedDocumentCard: FC<
   RequirementRelatedDocumentCardProps
-> = ({ relatedDocument, index, onAddRelatedDocumentSection }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+> = ({ index, onAddRelatedDocumentSection, relatedDocumentSections }) => {
+  const [isExpanded, setIsExpanded] = useState(true);
 
   return (
     <Accordion
@@ -71,7 +71,9 @@ const RequirementRelatedDocumentCard: FC<
         <Box display={"flex"} alignItems={"flex-start"} gap={0.5}>
           {isExpanded ? <ExpandLessRounded /> : <ExpandMoreRounded />}
           <Typography variant="body2" fontWeight={700}>
-            {relatedDocument.documentTitle}
+            {relatedDocumentSections.length
+              ? relatedDocumentSections[0].documentTitle
+              : ""}
           </Typography>
         </Box>
         <Button
@@ -95,71 +97,85 @@ const RequirementRelatedDocumentCard: FC<
           Section
         </Button>
       </AccordionSummary>
-      <AccordionDetails sx={{ padding: "1rem" }}>
-        <Box display={"flex"} justifyContent={"flex-end"} gap={".25rem"}>
-          <Tooltip title="Edit" arrow>
-            <IconButton size="small" color="secondary" onClick={() => {}}>
-              <EditOutlined />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Delete" arrow>
-            <IconButton size="small" color="secondary" onClick={() => {}}>
-              <DeleteOutlineRounded />
-            </IconButton>
-          </Tooltip>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            gap: "1rem",
-            marginBottom: ".5rem",
-          }}
-        >
-          <Box>
-            <Typography
-              variant="subtitle2"
-              color={BCDesignTokens.typographyColorPlaceholder}
+      <AccordionDetails sx={{ padding: "0" }}>
+        {relatedDocumentSections
+          .sort((a, b) =>
+            (a.sectionNumber ?? "").localeCompare(b.sectionNumber ?? "")
+          )
+          .map((section, idx) => (
+            <Box
+              key={idx}
+              sx={{
+                padding: "1rem",
+                borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+              }}
             >
-              Section #:
-            </Typography>
-            <Typography variant="body2" fontWeight={700}>
-              {relatedDocument.sectionNumber}
-            </Typography>
-          </Box>
-          <Box>
-            <Typography
-              variant="subtitle2"
-              color={BCDesignTokens.typographyColorPlaceholder}
-            >
-              Section Title:
-            </Typography>
-            <Typography variant="body2">
-              {relatedDocument.sectionTitle}
-            </Typography>
-          </Box>
-        </Box>
-        <Box>
-          <Typography
-            variant="subtitle2"
-            color={BCDesignTokens.typographyColorPlaceholder}
-          >
-            Description:
-          </Typography>
-          <ParagraphWithReadMore
-            maxHeight={84}
-            renderTypography={
-              <Typography
-                variant="subtitle2"
-                component={"div"}
-                className="quill-render"
-                dangerouslySetInnerHTML={{
-                  __html: relatedDocument.description?.html ?? "",
+              <Box display={"flex"} justifyContent={"flex-end"} gap={".25rem"}>
+                <Tooltip title="Edit" arrow>
+                  <IconButton size="small" color="secondary" onClick={() => {}}>
+                    <EditOutlined />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Delete" arrow>
+                  <IconButton size="small" color="secondary" onClick={() => {}}>
+                    <DeleteOutlineRounded />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: "1rem",
+                  marginBottom: ".5rem",
                 }}
-              />
-            }
-          />
-        </Box>
+              >
+                <Box>
+                  <Typography
+                    variant="subtitle2"
+                    color={BCDesignTokens.typographyColorPlaceholder}
+                  >
+                    Section #:
+                  </Typography>
+                  <Typography variant="body2" fontWeight={700}>
+                    {section.sectionNumber}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography
+                    variant="subtitle2"
+                    color={BCDesignTokens.typographyColorPlaceholder}
+                  >
+                    Section Title:
+                  </Typography>
+                  <Typography variant="body2">
+                    {section.sectionTitle}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box>
+                <Typography
+                  variant="subtitle2"
+                  color={BCDesignTokens.typographyColorPlaceholder}
+                >
+                  Description:
+                </Typography>
+                <ParagraphWithReadMore
+                  maxHeight={84}
+                  renderTypography={
+                    <Typography
+                      variant="subtitle2"
+                      component={"div"}
+                      className="quill-render"
+                      dangerouslySetInnerHTML={{
+                        __html: section.description?.html ?? "",
+                      }}
+                    />
+                  }
+                />
+              </Box>
+            </Box>
+          ))}
       </AccordionDetails>
     </Accordion>
   );

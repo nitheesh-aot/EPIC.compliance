@@ -224,22 +224,19 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                       />
                     </Box>
                   </Box>
-                  {item.relatedDocuments
-                    ?.sort((a, b) =>
-                      (a.sectionNumber ?? "").localeCompare(
-                        b.sectionNumber ?? ""
-                      )
-                    )
-                    .map((relatedDocument, idy) => (
+                  {item.relatedDocuments?.length &&
+                    item.relatedDocuments.length > 0 && (
                       <RequirementRelatedDocumentCard
-                        key={idy}
-                        index={idy}
-                        relatedDocument={relatedDocument}
+                        index={idx}
+                        relatedDocumentSections={item.relatedDocuments || []}
                         onAddRelatedDocumentSection={() =>
-                          onAddRelatedDocumentSection(relatedDocument, item)
+                          onAddRelatedDocumentSection(
+                            item.relatedDocuments?.[0] ?? {},
+                            item
+                          )
                         }
                       />
-                    ))}
+                    )}
                 </Box>
               ))}
           </Stack>
