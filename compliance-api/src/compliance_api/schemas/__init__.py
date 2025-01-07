@@ -26,7 +26,8 @@ from .continuation_report import (
 from .inspection import (
     InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
     InspectionStatusSchema, InspectionUpdateSchema)
-from .inspection_requirement import InspectionRequirementCreateSchema, InspectionRequirementSchema
+from .inspection_requirement import (
+    InspectionRequirementCreateSchema, InspectionRequirementSchema, InspectionRequirementUpdateSchema)
 from .paginate import PaginationParameterSchema
 from .project import ProjectSchema
 from .staff_user import StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateSchema
