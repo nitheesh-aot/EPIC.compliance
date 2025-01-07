@@ -26,11 +26,12 @@ export interface RequirementSourceFormData {
     html: string;
     text: string;
   },
+  relatedDocuments?: RequirementRelatedDocumentFormData[];
 }
 
 export interface RequirementRelatedDocumentFormData {
   id?: number;
-  requirementSource?: RequirementSource;
+  sourceFormId?: number;
   condition?: string;
   relatedDocument?: RequirementDocumentType;
   documentTitle?: string;

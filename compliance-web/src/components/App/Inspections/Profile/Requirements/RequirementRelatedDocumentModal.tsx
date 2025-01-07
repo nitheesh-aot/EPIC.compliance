@@ -88,7 +88,9 @@ const RequirementRelatedDocumentModal: React.FC<
   }, [defaultValues, reset]);
 
   const onSubmitHandler = (data: RequirementRelatedDocumentSchemaType) => {
-    onSubmit(data as RequirementRelatedDocumentFormData);
+    const formData = data as RequirementRelatedDocumentFormData;
+    formData.sourceFormId = requirementSourceFormData.id;
+    onSubmit(formData);
   };
 
   return (

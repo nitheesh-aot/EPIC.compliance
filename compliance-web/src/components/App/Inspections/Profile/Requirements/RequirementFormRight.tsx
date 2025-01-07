@@ -3,7 +3,10 @@ import { Box, Button } from "@mui/material";
 import { AddRounded } from "@mui/icons-material";
 import { useModal } from "@/store/modalStore";
 import RequirementSourceModal from "./RequirementSourceModal";
-import { RequirementSourceFormData } from "@/models/InspectionRequirement";
+import {
+  RequirementRelatedDocumentFormData,
+  RequirementSourceFormData,
+} from "@/models/InspectionRequirement";
 import RequirementSourceCard from "./RequirementSourceCard";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import RequirementRelatedDocumentModal from "./RequirementRelatedDocumentModal";
@@ -32,6 +35,26 @@ const RequirementFormRight: FC = () => {
     setRequirementSourceFormData((prevData) =>
       prevData.filter((item) => item.id !== data.id)
     );
+    setClose();
+  };
+
+  const handleOnAddRelatedDocumentSubmit = (
+    data: RequirementRelatedDocumentFormData
+  ) => {
+    setRequirementSourceFormData((prevData) => {
+      const updatedData = prevData.map((item) => {
+        if (item.id === data.sourceFormId) {
+          return {
+            ...item,
+            relatedDocuments: item.relatedDocuments
+              ? [...item.relatedDocuments, data]
+              : [data],
+          };
+        }
+        return item;
+      });
+      return updatedData;
+    });
     setClose();
   };
 
@@ -90,7 +113,7 @@ const RequirementFormRight: FC = () => {
     setOpen({
       content: (
         <RequirementRelatedDocumentModal
-          onSubmit={handleOnAddSubmit}
+          onSubmit={handleOnAddRelatedDocumentSubmit}
           requirementSourceFormData={data}
         />
       ),
