@@ -134,7 +134,7 @@ def _create_requirement_obj(inspection_id, requirement_data):
         "sort_order": requirement_data.get("sort_order"),
         "enforcement_action_id": requirement_data.get("enforcement_action_id", None),
         "compliance_finding_id": requirement_data.get("compliance_finding_id", None),
-        "findings": requirement_data.get("findings", None),
+        "findings": requirement_data.get("findings"),
     }
 
 
@@ -147,7 +147,7 @@ def _create_requirement_source_detail_obj(requirement_id, requirement_source_dat
         "condition_number": requirement_source_data.get("condition_number", None),
         "amendment_number": requirement_source_data.get("amendment_number", None),
         "title": requirement_source_data.get("title", None),
-        "description": requirement_source_data.get("description", None),
+        "description": requirement_source_data.get("description"),
     }
 
 
