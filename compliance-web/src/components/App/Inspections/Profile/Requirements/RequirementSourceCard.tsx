@@ -22,6 +22,7 @@ import { RequirementSourceFormData } from "@/models/InspectionRequirement";
 import { BCDesignTokens } from "epic.theme";
 import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 import { RequirementSourceEnum } from "@/utils/constants";
+import RequirementRelatedDocumentCard from "./RequirementRelatedDocumentCard";
 
 type RequirementSourceCardProps = {
   data: RequirementSourceFormData[];
@@ -111,98 +112,110 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
           <Stack>
             {data
               .slice()
-              .sort((a, b) => (a.sourceNumber ?? '').localeCompare(b.sourceNumber ?? ''))
+              .sort((a, b) =>
+                (a.sourceNumber ?? "").localeCompare(b.sourceNumber ?? "")
+              )
               .map((item, idx) => (
-                <Box
-                  key={idx}
-                  sx={{
-                    padding: "0.5rem 1rem 1rem",
-                    borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-                  }}
-                >
-                  <Box
-                    display={"flex"}
-                    justifyContent={"flex-end"}
-                    gap={".25rem"}
-                  >
-                    <Tooltip title="Add Related Document" arrow>
-                      <IconButton
-                        size="small"
-                        color="secondary"
-                        onClick={() => onAddRelatedDocument(item)}
-                      >
-                        <PostAddOutlined />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Edit" arrow>
-                      <IconButton
-                        size="small"
-                        color="secondary"
-                        onClick={() => onEdit(item)}
-                      >
-                        <EditOutlined />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete" arrow>
-                      <IconButton
-                        size="small"
-                        color="secondary"
-                        onClick={() => onDelete(item)}
-                      >
-                        <DeleteOutlineRounded />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
+                <Box key={idx}>
                   <Box
                     sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      gap: "1rem",
-                      marginBottom: ".5rem",
+                      padding: "0.5rem 1rem 1rem",
+                      borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
                     }}
                   >
-                    <Box>
-                      <Typography
-                        variant="subtitle2"
-                        color={BCDesignTokens.typographyColorPlaceholder}
-                      >
-                        {isCondition ? "Condition #:" : "Section #:"}
-                      </Typography>
-                      <Typography variant="body2" fontWeight={700}>
-                        {item.sourceNumber}
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Typography
-                        variant="subtitle2"
-                        color={BCDesignTokens.typographyColorPlaceholder}
-                      >
-                        Title:
-                      </Typography>
-                      <Typography variant="body2">{item.sourceTitle}</Typography>
-                    </Box>
-                  </Box>
-                  <Box>
-                    <Typography
-                      variant="subtitle2"
-                      color={BCDesignTokens.typographyColorPlaceholder}
+                    <Box
+                      display={"flex"}
+                      justifyContent={"flex-end"}
+                      gap={".25rem"}
                     >
-                      Description:
-                    </Typography>
-                    <ParagraphWithReadMore
-                      maxHeight={84}
-                      renderTypography={
+                      <Tooltip title="Add Related Document" arrow>
+                        <IconButton
+                          size="small"
+                          color="secondary"
+                          onClick={() => onAddRelatedDocument(item)}
+                        >
+                          <PostAddOutlined />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Edit" arrow>
+                        <IconButton
+                          size="small"
+                          color="secondary"
+                          onClick={() => onEdit(item)}
+                        >
+                          <EditOutlined />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete" arrow>
+                        <IconButton
+                          size="small"
+                          color="secondary"
+                          onClick={() => onDelete(item)}
+                        >
+                          <DeleteOutlineRounded />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: "1rem",
+                        marginBottom: ".5rem",
+                      }}
+                    >
+                      <Box>
                         <Typography
                           variant="subtitle2"
-                          component={"div"}
-                          className="quill-render"
-                          dangerouslySetInnerHTML={{
-                            __html: item.description?.html ?? "",
-                          }}
-                        />
-                      }
-                    />
+                          color={BCDesignTokens.typographyColorPlaceholder}
+                        >
+                          {isCondition ? "Condition #:" : "Section #:"}
+                        </Typography>
+                        <Typography variant="body2" fontWeight={700}>
+                          {item.sourceNumber}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography
+                          variant="subtitle2"
+                          color={BCDesignTokens.typographyColorPlaceholder}
+                        >
+                          Title:
+                        </Typography>
+                        <Typography variant="body2">
+                          {item.sourceTitle}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box>
+                      <Typography
+                        variant="subtitle2"
+                        color={BCDesignTokens.typographyColorPlaceholder}
+                      >
+                        Description:
+                      </Typography>
+                      <ParagraphWithReadMore
+                        maxHeight={84}
+                        renderTypography={
+                          <Typography
+                            variant="subtitle2"
+                            component={"div"}
+                            className="quill-render"
+                            dangerouslySetInnerHTML={{
+                              __html: item.description?.html ?? "",
+                            }}
+                          />
+                        }
+                      />
+                    </Box>
                   </Box>
+                  {item.relatedDocuments?.map((relatedDocument, idy) => (
+                    <RequirementRelatedDocumentCard
+                      key={idy}
+                      index={idy}
+                      relatedDocument={relatedDocument}
+                    />
+                  ))}
                 </Box>
               ))}
           </Stack>
