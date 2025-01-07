@@ -18,7 +18,10 @@ import {
   ExpandMoreRounded,
   PostAddOutlined,
 } from "@mui/icons-material";
-import { RequirementSourceFormData } from "@/models/InspectionRequirement";
+import {
+  RequirementRelatedDocumentFormData,
+  RequirementSourceFormData,
+} from "@/models/InspectionRequirement";
 import { BCDesignTokens } from "epic.theme";
 import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 import { RequirementSourceEnum } from "@/utils/constants";
@@ -31,10 +34,22 @@ type RequirementSourceCardProps = {
   onDelete: (data: RequirementSourceFormData) => void;
   onAddSection: (data: RequirementSourceFormData) => void;
   onAddRelatedDocument: (data: RequirementSourceFormData) => void;
+  onAddRelatedDocumentSection: (
+    docData: RequirementRelatedDocumentFormData,
+    srcData: RequirementSourceFormData
+  ) => void;
 };
 
 const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
-  ({ data, index, onEdit, onDelete, onAddSection, onAddRelatedDocument }) => {
+  ({
+    data,
+    index,
+    onEdit,
+    onDelete,
+    onAddSection,
+    onAddRelatedDocument,
+    onAddRelatedDocumentSection,
+  }) => {
     const [isExpanded, setIsExpanded] = useState(index === 0);
 
     const requirementSource = data[0].requirementSource;
@@ -209,13 +224,22 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                       />
                     </Box>
                   </Box>
-                  {item.relatedDocuments?.map((relatedDocument, idy) => (
-                    <RequirementRelatedDocumentCard
-                      key={idy}
-                      index={idy}
-                      relatedDocument={relatedDocument}
-                    />
-                  ))}
+                  {item.relatedDocuments
+                    ?.sort((a, b) =>
+                      (a.sectionNumber ?? "").localeCompare(
+                        b.sectionNumber ?? ""
+                      )
+                    )
+                    .map((relatedDocument, idy) => (
+                      <RequirementRelatedDocumentCard
+                        key={idy}
+                        index={idy}
+                        relatedDocument={relatedDocument}
+                        onAddRelatedDocumentSection={() =>
+                          onAddRelatedDocumentSection(relatedDocument, item)
+                        }
+                      />
+                    ))}
                 </Box>
               ))}
           </Stack>

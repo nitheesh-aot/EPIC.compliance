@@ -121,6 +121,23 @@ const RequirementFormRight: FC = () => {
     });
   };
 
+  const handleAddRelatedDocumentSection = (
+    docData: RequirementRelatedDocumentFormData,
+    srcData: RequirementSourceFormData
+  ) => {
+    setOpen({
+      content: (
+        <RequirementRelatedDocumentModal
+          onSubmit={handleOnAddRelatedDocumentSubmit}
+          requirementSourceFormData={srcData}
+          relatedDocumentData={docData}
+          isAddSection={true}
+        />
+      ),
+      width: "640px",
+    });
+  };
+
   // Grouping the requirementSourceFormData by requirementSource
   const groupedData = requirementSourceFormData.reduce(
     (acc, item) => {
@@ -162,6 +179,7 @@ const RequirementFormRight: FC = () => {
           onDelete={handleDeleteRequirementSource}
           onAddSection={handleAddRequirementSourceSection}
           onAddRelatedDocument={handleAddRequirementRelatedDocument}
+          onAddRelatedDocumentSection={handleAddRelatedDocumentSection}
         />
       ))}
     </Box>

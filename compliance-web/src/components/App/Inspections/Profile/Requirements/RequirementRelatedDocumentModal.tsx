@@ -24,6 +24,7 @@ type RequirementRelatedDocumentModalProps = {
   onSubmit: (data: RequirementRelatedDocumentFormData) => void;
   requirementSourceFormData: RequirementSourceFormData;
   relatedDocumentData?: RequirementRelatedDocumentFormData;
+  isAddSection?: boolean;
 };
 
 const relatedDocumentFormSchema = yup.object().shape({
@@ -56,7 +57,12 @@ const initFormData: RequirementRelatedDocumentFormData = {
 
 const RequirementRelatedDocumentModal: React.FC<
   RequirementRelatedDocumentModalProps
-> = ({ onSubmit, relatedDocumentData, requirementSourceFormData }) => {
+> = ({
+  onSubmit,
+  relatedDocumentData,
+  requirementSourceFormData,
+  isAddSection,
+}) => {
   const { data: documentTypeList } = useDocumentTypesData();
 
   const isScheduleB =
@@ -64,16 +70,25 @@ const RequirementRelatedDocumentModal: React.FC<
     RequirementSourceEnum.SCHEDULE_B;
 
   const defaultValues = useMemo<RequirementRelatedDocumentFormData>(() => {
+    const defaultData = relatedDocumentData ?? initFormData;
+    if (isAddSection) {
+      return {
+        ...defaultData,
+        sectionNumber: "",
+        sectionTitle: "",
+        description: undefined,
+      };
+    }
     if (!isScheduleB) {
       return {
-        ...initFormData,
+        ...defaultData,
         relatedDocument: documentTypeList?.find(
           (doc) => doc.id === RequirementDocumentTypeEnum.OTHER_DOCUMENT
         ), // auto select "Other Document" if not Schedule B
       };
     }
-    return relatedDocumentData ?? initFormData;
-  }, [relatedDocumentData, isScheduleB, documentTypeList]);
+    return defaultData;
+  }, [relatedDocumentData, isScheduleB, documentTypeList, isAddSection]);
 
   const methods = useForm<RequirementRelatedDocumentSchemaType>({
     resolver: yupResolver(relatedDocumentFormSchema),
@@ -99,7 +114,9 @@ const RequirementRelatedDocumentModal: React.FC<
         <ModalTitleBar
           title={
             relatedDocumentData
-              ? "Edit Related Document"
+              ? isAddSection
+                ? "Add Section"
+                : "Edit Related Document"
               : "Add Related Document"
           }
         />
@@ -138,7 +155,7 @@ const RequirementRelatedDocumentModal: React.FC<
             getOptionLabel={(option) => option.name}
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
-            disabled={!isScheduleB}
+            disabled={!isScheduleB || isAddSection}
           />
           <ControlledTextField
             name="documentTitle"
@@ -164,7 +181,9 @@ const RequirementRelatedDocumentModal: React.FC<
           <ControlledRichTextEditor label="Description" name="description" />
         </DialogContent>
         <ModalActions
-          primaryActionButtonText={relatedDocumentData ? "Save" : "Add"}
+          primaryActionButtonText={
+            relatedDocumentData ? (isAddSection ? "Add" : "Save") : "Add"
+          }
         />
       </form>
     </FormProvider>

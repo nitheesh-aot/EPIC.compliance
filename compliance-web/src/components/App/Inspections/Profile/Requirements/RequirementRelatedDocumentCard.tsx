@@ -23,11 +23,12 @@ import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 interface RequirementRelatedDocumentCardProps {
   relatedDocument: RequirementRelatedDocumentFormData;
   index: number;
+  onAddRelatedDocumentSection: () => void;
 }
 
 const RequirementRelatedDocumentCard: FC<
   RequirementRelatedDocumentCardProps
-> = ({ relatedDocument, index }) => {
+> = ({ relatedDocument, index, onAddRelatedDocumentSection }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -79,6 +80,7 @@ const RequirementRelatedDocumentCard: FC<
           size="small"
           onClick={(e) => {
             e.stopPropagation();
+            onAddRelatedDocumentSection();
           }}
           startIcon={<AddRounded />}
           sx={{
