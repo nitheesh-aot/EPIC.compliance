@@ -3,7 +3,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModelVersioned
+from ..base_model import BaseModelVersioned, db
 
 
 class InspectionReqSourceDetail(BaseModelVersioned):
@@ -60,7 +60,7 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         "InspectionRequirement",
         back_populates="requirement_source_details",
         lazy="select",
-        uselist=False
+        uselist=False,
     )
     requirement_source = relationship(
         "RequirementSource", foreign_keys=[requirement_source_id], lazy="joined"
@@ -81,3 +81,37 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         else:
             source_detail.save()
         return source_detail
+
+    @classmethod
+    def update_requirement_source_detail(
+        cls, req_detail_id, source_detail_data, session=None
+    ):
+        """Update requirement detail."""
+        query = cls.query.filter_by(id=req_detail_id)
+        source_detail: InspectionReqSourceDetail = query.first()
+        if not source_detail or source_detail.is_deleted:
+            return None
+        query.update(source_detail_data)
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
+        return source_detail
+
+    @classmethod
+    def get_all_by_requirement_id(cls, requirement_id):
+        """Get all requirement detail entries by requirement_id."""
+        return cls.query.filter_by(
+            requirement_id=requirement_id, is_active=True, is_deleted=False
+        ).all()
+
+    @classmethod
+    def delete_req_details_by_ids(cls, req_detail_ids, session=None):
+        """Delete the requirement details by req_detail_ids."""
+        cls.query.filter(InspectionReqSourceDetail.id.in_(req_detail_ids)).update(
+            {cls.is_deleted: True, cls.is_active: False}
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()

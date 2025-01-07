@@ -33,7 +33,7 @@ from .inspection import (
 from .position import Position
 from .project import Project
 from .req_source_document_map import RequirementSourceDocumentMap
-from .requirement_source import RequirementSource
+from .requirement_source import RequirementSource, RequirementSourceEnum
 from .staff_user import StaffUser
 from .topic import Topic
 from .unapproved_project import UnapprovedProject

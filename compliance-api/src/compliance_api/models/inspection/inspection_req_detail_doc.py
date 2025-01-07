@@ -3,7 +3,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModelVersioned
+from ..base_model import BaseModelVersioned, db
 
 
 class InspectionReqDetailDocument(BaseModelVersioned):
@@ -52,7 +52,7 @@ class InspectionReqDetailDocument(BaseModelVersioned):
         "InspectionReqSourceDetail",
         back_populates="documents",
         lazy="select",
-        uselist=False
+        uselist=False,
     )
     document_type = relationship(
         "DocumentType", foreign_keys=[document_type_id], lazy="select"
@@ -68,3 +68,28 @@ class InspectionReqDetailDocument(BaseModelVersioned):
         else:
             doc_detail.save()
         return doc_detail
+
+    @classmethod
+    def update_doc_detail(cls, doc_detail_id, doc_detail_data, session=None):
+        """Update requirement doc detail."""
+        query = cls.query.filter_by(id=doc_detail_id)
+        doc_detail: InspectionReqDetailDocument = query.first()
+        if not doc_detail or doc_detail.is_deleted:
+            return None
+        query.update(doc_detail_data)
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
+        return doc_detail
+
+    @classmethod
+    def delete_req_doc_details_by_ids(cls, req_doc_detail_ids, session=None):
+        """Delete the requirement doc details by req_doc_detail_ids."""
+        cls.query.filter(InspectionReqDetailDocument.id.in_(req_doc_detail_ids)).update(
+            {cls.is_deleted: True, cls.is_active: False}
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
