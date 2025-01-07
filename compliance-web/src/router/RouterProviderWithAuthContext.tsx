@@ -15,17 +15,9 @@ export default function RouterProviderWithAuthContext() {
 
   useEffect(() => {
     // the `return` is important - addAccessTokenExpiring() returns a cleanup function
-    // eslint-disable-next-line no-console
-    console.log(
-      "authentication",
-      authentication.user?.expires_in,
-      new Date((authentication.user?.expires_at as number) * 1000)
-    );
     return authentication.events.addAccessTokenExpiring(() => {
       // eslint-disable-next-line no-console
-      console.log(
-        "AccessTokenExpiring"
-      );
+      console.log("AccessTokenExpiring: Refreshing token");
       authentication.signinSilent();
     });
   }, [authentication, authentication.events, authentication.signinSilent]);
