@@ -104,26 +104,29 @@ const RequirementRelatedDocumentModal: React.FC<
           }
         />
         <DialogContent dividers>
-          <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-            <Box>
-              <Typography
-                variant="subtitle2"
-                color={BCDesignTokens.typographyColorPlaceholder}
-              >
+          <Box
+            sx={{
+              display: "flex",
+              gap: 3,
+              mb: 2,
+              p: "0.75rem",
+              backgroundColor: BCDesignTokens.surfaceColorBackgroundLightBlue,
+              borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
+            }}
+          >
+            <Box width="40%" display="flex" flexDirection="column" gap={0.5}>
+              <Typography variant="caption" fontWeight={700}>
                 Title:
               </Typography>
-              <Typography variant="body2" fontWeight={700}>
+              <Typography variant="body2">
                 {requirementSourceFormData.requirementSource?.name}
               </Typography>
             </Box>
-            <Box>
-              <Typography
-                variant="subtitle2"
-                color={BCDesignTokens.typographyColorPlaceholder}
-              >
+            <Box display="flex" flexDirection="column" gap={0.5}>
+              <Typography variant="caption" fontWeight={700}>
                 Condition #:
               </Typography>
-              <Typography variant="body2" fontWeight={700}>
+              <Typography variant="body2">
                 {requirementSourceFormData.sourceNumber}
               </Typography>
             </Box>
