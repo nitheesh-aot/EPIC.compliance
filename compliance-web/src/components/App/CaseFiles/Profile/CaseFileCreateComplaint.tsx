@@ -1,11 +1,11 @@
+import ComplaintDrawer from "@/components/App/Complaints/ComplaintDrawer";
+import { CaseFile } from "@/models/CaseFile";
+import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import { AddRounded } from "@mui/icons-material";
 import { Button } from "@mui/material";
-import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import ComplaintDrawer from "@/components/App/Complaints/ComplaintDrawer";
-import { useDrawer } from "@/store/drawerStore";
-import { CaseFile } from "@/models/CaseFile";
+import { useCallback } from "react";
 
 const CaseFileCreateComplaint = ({
   fileNumber,
@@ -27,6 +27,9 @@ const CaseFileCreateComplaint = ({
       queryClient.invalidateQueries({
         queryKey: ["complaints-by-caseFileId", caseFileData?.id],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["continuation-reports", caseFileData?.id],
+      })
       setClose();
       notify.success(submitMsg);
     },
