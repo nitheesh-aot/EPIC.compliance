@@ -64,6 +64,25 @@ const RequirementFormRight: FC = () => {
     setClose();
   };
 
+  const handleOnDeleteRelatedDocumentSectionSubmit = (
+    data: RequirementRelatedDocumentFormData
+  ) => {
+    setRequirementSourceFormData((prevData) =>
+      prevData.map((item) => {
+        if (item.id === data.sourceFormId) {
+          return {
+            ...item,
+            relatedDocuments: item.relatedDocuments?.filter(
+              (doc) => doc.id !== data.id
+            ),
+          };
+        }
+        return item;
+      })
+    );
+    setClose();
+  };
+
   const handleAddRequirementSource = () => {
     setOpen({
       content: <RequirementSourceModal onSubmit={handleOnAddSubmit} />,
@@ -144,6 +163,22 @@ const RequirementFormRight: FC = () => {
     });
   };
 
+  const handleDeleteRequirementRelatedDocumentSection = (
+    data: RequirementRelatedDocumentFormData
+  ) => {
+    setOpen({
+      content: (
+        <ConfirmationModal
+          title="Delete Section?"
+          description={`You are about to delete this section: #${data.sectionNumber} - ${data.sectionTitle}.
+          Are you sure you want to proceed?`}
+          confirmButtonText="Delete"
+          onConfirm={() => handleOnDeleteRelatedDocumentSectionSubmit(data)}
+        />
+      ),
+    });
+  };
+
   // Grouping the requirementSourceFormData by requirementSource
   const groupedData = requirementSourceFormData.reduce(
     (acc, item) => {
@@ -186,6 +221,7 @@ const RequirementFormRight: FC = () => {
           onAddSection={handleAddRequirementSourceSection}
           onAddRelatedDocument={handleAddRequirementRelatedDocument}
           onAddRelatedDocumentSection={handleAddRelatedDocumentSection}
+          onDeleteRelatedDocumentSection={handleDeleteRequirementRelatedDocumentSection}
         />
       ))}
     </Box>

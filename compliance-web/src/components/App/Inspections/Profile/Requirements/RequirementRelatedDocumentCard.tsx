@@ -24,11 +24,19 @@ interface RequirementRelatedDocumentCardProps {
   relatedDocumentSections: RequirementRelatedDocumentFormData[];
   index: number;
   onAddRelatedDocumentSection: () => void;
+  onDeleteRelatedDocumentSection: (
+    data: RequirementRelatedDocumentFormData
+  ) => void;
 }
 
 const RequirementRelatedDocumentCard: FC<
   RequirementRelatedDocumentCardProps
-> = ({ index, onAddRelatedDocumentSection, relatedDocumentSections }) => {
+> = ({
+  index,
+  relatedDocumentSections,
+  onAddRelatedDocumentSection,
+  onDeleteRelatedDocumentSection,
+}) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
@@ -117,7 +125,11 @@ const RequirementRelatedDocumentCard: FC<
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Delete" arrow>
-                  <IconButton size="small" color="secondary" onClick={() => {}}>
+                  <IconButton
+                    size="small"
+                    color="secondary"
+                    onClick={() => onDeleteRelatedDocumentSection(section)}
+                  >
                     <DeleteOutlineRounded />
                   </IconButton>
                 </Tooltip>

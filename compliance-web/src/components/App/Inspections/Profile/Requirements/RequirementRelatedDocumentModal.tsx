@@ -105,6 +105,9 @@ const RequirementRelatedDocumentModal: React.FC<
   const onSubmitHandler = (data: RequirementRelatedDocumentSchemaType) => {
     const formData = data as RequirementRelatedDocumentFormData;
     formData.sourceFormId = requirementSourceFormData.id;
+    if (!relatedDocumentData || isAddSection) {
+      formData.id = Date.now();
+    }
     onSubmit(formData);
   };
 
