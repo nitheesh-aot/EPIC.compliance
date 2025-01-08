@@ -8,6 +8,7 @@ from compliance_api.auth import auth
 from compliance_api.schemas.inspection_requirement import (
     InspectionRequirementCreateSchema, InspectionRequirementSchema, InspectionRequirementUpdateSchema)
 from compliance_api.services import InspectionRequirementService
+from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
 
 from .apihelper import Api as ApiHelper
@@ -101,3 +102,15 @@ class InspectionRequirement(Resource):
             inspection_id, requirement_id, requirement_data
         )
         return InspectionRequirementSchema().dump(updated_requirement), HTTPStatus.OK
+
+    @staticmethod
+    @auth.require
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER])
+    @ApiHelper.swagger_decorators(API, endpoint_description="Delete a Inspection requirement by id")
+    @API.response(code=204, description="Success")
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
+    def delete(inspection_id, requirement_id):
+        """Delete complaint."""
+        InspectionRequirementService.delete(inspection_id, requirement_id)
+        return {}, HTTPStatus.NO_CONTENT

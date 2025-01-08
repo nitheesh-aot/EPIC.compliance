@@ -1,9 +1,15 @@
 """InspectionRequirementService."""
 
+from flask import g
+
+from compliance_api.auth import auth
+from compliance_api.exceptions import PermissionDeniedError
+from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionReqDetailDocument as InspectionReqDetailDocumentModel
 from compliance_api.models import InspectionReqSourceDetail as InspectionReqSourceDetailModel
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models.db import session_scope
+from compliance_api.utils.enum import PermissionEnum
 
 
 class InspectionRequirementService:
@@ -47,6 +53,32 @@ class InspectionRequirementService:
                 requirement_id, requirement_data, session
             )
         return updated_requirement
+
+    @classmethod
+    def delete(cls, inspection_id, requirement_id):
+        """Delete the requirement"""
+        _access_check(inspection_id)
+        with session_scope() as session:
+            InspectionRequirementModel.delete_requirement(requirement_id, session)
+            InspectionReqSourceDetailModel.delete_by_requirement_id(
+                requirement_id, session
+            )
+            InspectionReqDetailDocumentModel.delete_by_requirement_id(
+                requirement_id, session
+            )
+
+
+def _access_check(inspection_id: dict):
+    """Access check for update."""
+    auth_user_guid = g.token_info["preferred_username"]
+    inspection = InspectionModel.find_by_id(inspection_id)
+    if (
+        not auth.has_permission([PermissionEnum.SUPERUSER])
+        and not inspection.primary_officer.auth_user_guid == auth_user_guid
+    ):
+        raise PermissionDeniedError(
+            "You don't have the correct permission to perform this operation."
+        )
 
 
 def _create_update_source_details_nd_docs(

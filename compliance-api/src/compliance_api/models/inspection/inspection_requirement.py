@@ -77,11 +77,23 @@ class InspectionRequirement(BaseModelVersioned):
         return requirement
 
     @classmethod
+    def delete_requirement(cls, requirement_id, session=None):
+        """Delete the requirement."""
+        cls.query.filter_by(id=requirement_id, is_deleted=False).update(
+            {cls.is_active: False, cls.is_deleted: True}
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
+
+    @classmethod
     def get_by_inspection_id(cls, inspection_id):
         """Get requirements by inspection id."""
         return (
             db.session.query(InspectionRequirement)
             .filter_by(inspection_id=inspection_id, is_deleted=False, is_active=True)
+            .order_by(cls.sort_order)
             .all()
         )
 

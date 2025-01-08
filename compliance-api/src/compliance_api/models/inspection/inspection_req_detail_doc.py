@@ -4,6 +4,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModelVersioned, db
+from .inspection_req_source_detail import InspectionReqSourceDetail
 
 
 class InspectionReqDetailDocument(BaseModelVersioned):
@@ -88,6 +89,23 @@ class InspectionReqDetailDocument(BaseModelVersioned):
         """Delete the requirement doc details by req_doc_detail_ids."""
         cls.query.filter(InspectionReqDetailDocument.id.in_(req_doc_detail_ids)).update(
             {cls.is_deleted: True, cls.is_active: False}
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
+
+    @classmethod
+    def delete_by_requirement_id(cls, requirement_id, session=None):
+        """Delete requirement doc details by requirement_id."""
+        requirement_details = (
+            db.session.query(InspectionReqSourceDetail)
+            .filter_by(requirement_id=requirement_id, is_deleted=False)
+            .all()
+        )
+        requirement_detail_ids = [detail.id for detail in requirement_details]
+        cls.query.filter_by(cls.req_detail_id.in_(requirement_detail_ids)).update(
+            {cls.is_active: False, cls.is_deleted: True}
         )
         if session:
             session.flush()
