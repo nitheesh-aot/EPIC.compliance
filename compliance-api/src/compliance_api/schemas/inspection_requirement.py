@@ -64,19 +64,20 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
     condition_number = fields.Str(
         metadata={
             "description": "The optional condition number associated with"
-            "rquirement sources(Schedule B, EAC Certificate)"
+            "rquirement sources(Schedule B, EAC Certificate, EAC Amendment)"
         }
     )
     amendment_number = fields.Str(
         metadata={
-            "description": "The optional amendment number if the requirement source is EAC Amendment"
+            "description": "The amendment number if the requirement source is EAC Amendment"
         }
     )
     title = fields.Str(
         metadata={"description": "The title of the requirement source detail"}
     )
     description = fields.Str(
-        metadata={"description": "The description of the requirement source detail"}
+        metadata={"description": "The description of the requirement source detail"},
+        required=True
     )
     documents = fields.List(fields.Nested(InspectionReqDetailDocCreateSchema))
 
@@ -107,12 +108,12 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
         amendment_number = data.get("amendment_number", [])
         requirement_source_id = data.get("requirement_source_id", None)
         if (
-            amendment_number
-            and RequirementSourceEnum(requirement_source_id)
-            != RequirementSourceEnum.EAC_AMENDMENT
+            RequirementSourceEnum(requirement_source_id)
+            == RequirementSourceEnum.EAC_AMENDMENT
+            and not amendment_number
         ):
             raise ValidationError(
-                "Invalid requirement source for the given amendment number",
+                "Amendment number is mandatory when the requirement source is EAC_AMENDMENT",
                 field_name="amendment_number",
             )
 
@@ -126,6 +127,7 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
         if condition_number and RequirementSourceEnum(requirement_source_id) not in [
             RequirementSourceEnum.SCHEDULE_B,
             RequirementSourceEnum.EAC_CERTIFICATE,
+            RequirementSourceEnum.EAC_AMENDMENT,
         ]:
             raise ValidationError(
                 "Invalid requirement source for the given condition number",
@@ -163,7 +165,8 @@ class InspectionRequirementCreateSchema(BaseSchema):
         metadata={"description": "The unique identifier of the compliance findings."}
     )
     findings = fields.Str(
-        metadata={"description": "The requirement findings in html format."}
+        metadata={"description": "The requirement findings in html format."},
+        required=True
     )
     sort_order = fields.Int(
         metadata={"description": "The order of the inspection requirements"},
