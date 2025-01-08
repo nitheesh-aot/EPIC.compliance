@@ -80,6 +80,7 @@ class InspectionRequirement(Resource):
     @ApiHelper.swagger_decorators(
         API, endpoint_description="Fetch inspection requirement by id"
     )
+    @API.response(404, "Not Found")
     @auth.require
     def get(requirement_id):
         """Fetch all inspection requirement."""
@@ -94,6 +95,7 @@ class InspectionRequirement(Resource):
     @ApiHelper.swagger_decorators(
         API, endpoint_description="Update inspection requirement"
     )
+    @API.response(404, "Not Found")
     @auth.require
     def patch(inspection_id, requirement_id):
         """Update inspection inspection requirement."""

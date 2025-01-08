@@ -3,7 +3,7 @@
 from flask import g
 
 from compliance_api.auth import auth
-from compliance_api.exceptions import PermissionDeniedError
+from compliance_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionReqDetailDocument as InspectionReqDetailDocumentModel
 from compliance_api.models import InspectionReqSourceDetail as InspectionReqSourceDetailModel
@@ -28,6 +28,11 @@ class InspectionRequirementService:
     @classmethod
     def create(cls, inspection_id, requirement_data):
         """Create inspection requirement."""
+        inspection = InspectionModel.find_by_id(inspection_id)
+        if not inspection:
+            raise ResourceNotFoundError(
+                f"Inspection with given ID {inspection_id} not found"
+            )
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
         with session_scope() as session:
             created_requirement = InspectionRequirementModel.create_requirement(
@@ -41,6 +46,11 @@ class InspectionRequirementService:
     @classmethod
     def update(cls, inspection_id, requirement_id, requirement_data):
         """Update inspection requirement."""
+        inspection = InspectionModel.find_by_id(inspection_id)
+        if not inspection:
+            raise ResourceNotFoundError(
+                f"Inspection with given ID {inspection_id} not found"
+            )
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
         with session_scope() as session:
             updated_requirement = InspectionRequirementModel.update_requirement(
@@ -56,7 +66,17 @@ class InspectionRequirementService:
 
     @classmethod
     def delete(cls, inspection_id, requirement_id):
-        """Delete the requirement"""
+        """Delete the requirement."""
+        inspection = InspectionModel.find_by_id(inspection_id)
+        if not inspection:
+            raise ResourceNotFoundError(
+                f"Inspection with given ID {inspection_id} not found"
+            )
+        requirement = InspectionRequirementModel.find_by_id(requirement_id)
+        if not requirement:
+            raise ResourceNotFoundError(
+                f"Inspection requirement with given ID {requirement_id} not found"
+            )
         _access_check(inspection_id)
         with session_scope() as session:
             InspectionRequirementModel.delete_requirement(requirement_id, session)

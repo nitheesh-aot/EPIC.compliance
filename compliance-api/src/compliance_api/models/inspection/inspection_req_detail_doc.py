@@ -104,7 +104,7 @@ class InspectionReqDetailDocument(BaseModelVersioned):
             .all()
         )
         requirement_detail_ids = [detail.id for detail in requirement_details]
-        cls.query.filter_by(cls.req_detail_id.in_(requirement_detail_ids)).update(
+        cls.query.filter(cls.req_detail_id.in_(requirement_detail_ids)).update(
             {cls.is_active: False, cls.is_deleted: True}
         )
         if session:
