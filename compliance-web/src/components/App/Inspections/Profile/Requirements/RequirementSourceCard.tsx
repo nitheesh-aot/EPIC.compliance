@@ -19,7 +19,8 @@ import {
   PostAddOutlined,
 } from "@mui/icons-material";
 import {
-  RequirementRelatedDocumentFormData,
+  RequirementRelatedDocumentData,
+  RequirementRelatedDocumentSectionData,
   RequirementSourceFormData,
 } from "@/models/InspectionRequirement";
 import { BCDesignTokens } from "epic.theme";
@@ -35,11 +36,12 @@ type RequirementSourceCardProps = {
   onAddSection: (data: RequirementSourceFormData) => void;
   onAddRelatedDocument: (data: RequirementSourceFormData) => void;
   onAddRelatedDocumentSection: (
-    docData: RequirementRelatedDocumentFormData,
+    docData: RequirementRelatedDocumentData,
     srcData: RequirementSourceFormData
   ) => void;
   onDeleteRelatedDocumentSection: (
-    data: RequirementRelatedDocumentFormData
+    data: RequirementRelatedDocumentSectionData,
+    docData: RequirementRelatedDocumentData
   ) => void;
 };
 
@@ -228,22 +230,19 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                       />
                     </Box>
                   </Box>
-                  {item.relatedDocuments &&
-                    item.relatedDocuments.length > 0 && (
-                      <RequirementRelatedDocumentCard
-                        index={idx}
-                        relatedDocumentSections={item.relatedDocuments || []}
-                        onAddRelatedDocumentSection={() =>
-                        onAddRelatedDocumentSection(
-                          item.relatedDocuments?.[0] ?? {},
-                          item
-                        )
+                  {item.relatedDocuments?.map((relatedDocument, docIdx) => (
+                    <RequirementRelatedDocumentCard
+                      key={docIdx}
+                      index={docIdx}
+                      relatedDocument={relatedDocument}
+                      onAddRelatedDocumentSection={() =>
+                        onAddRelatedDocumentSection(relatedDocument, item)
                       }
-                      onDeleteRelatedDocumentSection={
-                        onDeleteRelatedDocumentSection
+                      onDeleteRelatedDocumentSection={(data) =>
+                        onDeleteRelatedDocumentSection(data, relatedDocument)
                       }
                     />
-                  )}
+                  ))}
                 </Box>
               ))}
           </Stack>

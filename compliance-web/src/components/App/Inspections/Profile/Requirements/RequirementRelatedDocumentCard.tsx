@@ -17,15 +17,15 @@ import {
 import { AddRounded } from "@mui/icons-material";
 import { BCDesignTokens } from "epic.theme";
 import { ExpandLessRounded } from "@mui/icons-material";
-import { RequirementRelatedDocumentFormData } from "@/models/InspectionRequirement";
+import { RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData } from "@/models/InspectionRequirement";
 import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 
 interface RequirementRelatedDocumentCardProps {
-  relatedDocumentSections: RequirementRelatedDocumentFormData[];
+  relatedDocument: RequirementRelatedDocumentData;
   index: number;
   onAddRelatedDocumentSection: () => void;
   onDeleteRelatedDocumentSection: (
-    data: RequirementRelatedDocumentFormData
+    data: RequirementRelatedDocumentSectionData
   ) => void;
 }
 
@@ -33,7 +33,7 @@ const RequirementRelatedDocumentCard: FC<
   RequirementRelatedDocumentCardProps
 > = ({
   index,
-  relatedDocumentSections,
+  relatedDocument,
   onAddRelatedDocumentSection,
   onDeleteRelatedDocumentSection,
 }) => {
@@ -79,9 +79,7 @@ const RequirementRelatedDocumentCard: FC<
         <Box display={"flex"} alignItems={"flex-start"} gap={0.5}>
           {isExpanded ? <ExpandLessRounded /> : <ExpandMoreRounded />}
           <Typography variant="body2" fontWeight={700}>
-            {relatedDocumentSections.length
-              ? relatedDocumentSections[0].documentTitle
-              : ""}
+            {relatedDocument.documentTitle}
           </Typography>
         </Box>
         <Button
@@ -106,8 +104,8 @@ const RequirementRelatedDocumentCard: FC<
         </Button>
       </AccordionSummary>
       <AccordionDetails sx={{ padding: "0" }}>
-        {relatedDocumentSections
-          .sort((a, b) =>
+        {relatedDocument.sections
+          ?.sort((a, b) =>
             (a.sectionNumber ?? "").localeCompare(b.sectionNumber ?? "")
           )
           .map((section, idx) => (

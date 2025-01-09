@@ -4,7 +4,8 @@ import { AddRounded } from "@mui/icons-material";
 import { useModal } from "@/store/modalStore";
 import RequirementSourceModal from "./RequirementSourceModal";
 import {
-  RequirementRelatedDocumentFormData,
+  RequirementRelatedDocumentData,
+  RequirementRelatedDocumentSectionData,
   RequirementSourceFormData,
 } from "@/models/InspectionRequirement";
 import RequirementSourceCard from "./RequirementSourceCard";
@@ -39,23 +40,27 @@ const RequirementFormRight: FC = () => {
   };
 
   const handleOnAddRelatedDocumentSubmit = (
-    data: RequirementRelatedDocumentFormData
+    data: RequirementRelatedDocumentData
   ) => {
     setRequirementSourceFormData((prevData) => {
       const updatedData = prevData.map((item) => {
         if (item.id === data.sourceFormId) {
-          return {
-            ...item,
-            relatedDocuments: item.relatedDocuments
-              ? [
-                  ...item.relatedDocuments.map((doc) => ({
-                    ...doc,
-                    documentTitle: data.documentTitle,
-                  })),
-                  data,
-                ]
-              : [{ ...data, documentTitle: data.documentTitle }],
-          };
+          const existingDocumentIndex = item.relatedDocuments?.findIndex(
+            (doc) => doc.id === data.id
+          );
+          if (
+            item.relatedDocuments &&
+            existingDocumentIndex !== undefined &&
+            existingDocumentIndex >= 0
+          ) {
+            item.relatedDocuments[existingDocumentIndex] = data;
+          } else {
+            if (!item.relatedDocuments) {
+              item.relatedDocuments = [];
+            }
+            item.relatedDocuments.push(data);
+          }
+          return item;
         }
         return item;
       });
@@ -65,16 +70,26 @@ const RequirementFormRight: FC = () => {
   };
 
   const handleOnDeleteRelatedDocumentSectionSubmit = (
-    data: RequirementRelatedDocumentFormData
+    data: RequirementRelatedDocumentSectionData
   ) => {
     setRequirementSourceFormData((prevData) =>
       prevData.map((item) => {
         if (item.id === data.sourceFormId) {
           return {
             ...item,
-            relatedDocuments: item.relatedDocuments?.filter(
-              (doc) => doc.id !== data.id
-            ),
+            relatedDocuments: item.relatedDocuments
+              ?.map((doc) => {
+                if (doc.id === data.relatedDocumentFormId) {
+                  const updatedSections = doc.sections?.filter(
+                    (section) => section.id !== data.id
+                  );
+                  return updatedSections?.length === 0
+                    ? null
+                    : { ...doc, sections: updatedSections };
+                }
+                return doc;
+              })
+              .filter((doc) => doc !== null),
           };
         }
         return item;
@@ -139,7 +154,7 @@ const RequirementFormRight: FC = () => {
       content: (
         <RequirementRelatedDocumentModal
           onSubmit={handleOnAddRelatedDocumentSubmit}
-          requirementSourceFormData={data}
+          requirementSourceData={data}
         />
       ),
       width: "640px",
@@ -147,16 +162,15 @@ const RequirementFormRight: FC = () => {
   };
 
   const handleAddRelatedDocumentSection = (
-    docData: RequirementRelatedDocumentFormData,
+    docData: RequirementRelatedDocumentData,
     srcData: RequirementSourceFormData
   ) => {
     setOpen({
       content: (
         <RequirementRelatedDocumentModal
           onSubmit={handleOnAddRelatedDocumentSubmit}
-          requirementSourceFormData={srcData}
+          requirementSourceData={srcData}
           relatedDocumentData={docData}
-          isAddSection={true}
         />
       ),
       width: "640px",
@@ -164,16 +178,21 @@ const RequirementFormRight: FC = () => {
   };
 
   const handleDeleteRequirementRelatedDocumentSection = (
-    data: RequirementRelatedDocumentFormData
+    data: RequirementRelatedDocumentSectionData,
+    docData: RequirementRelatedDocumentData
   ) => {
+    const description = `You are about to delete this section: #${data.sectionNumber} - ${data.sectionTitle}.
+    ${docData.sections?.length === 1 ? "This will result in deleting the whole document." : ""}
+    Are you sure you want to proceed?`;
     setOpen({
       content: (
         <ConfirmationModal
           title="Delete Section?"
-          description={`You are about to delete this section: #${data.sectionNumber} - ${data.sectionTitle}.
-          Are you sure you want to proceed?`}
+          description={description}
           confirmButtonText="Delete"
-          onConfirm={() => handleOnDeleteRelatedDocumentSectionSubmit(data)}
+          onConfirm={() =>
+            handleOnDeleteRelatedDocumentSectionSubmit(data)
+          }
         />
       ),
     });
@@ -221,7 +240,9 @@ const RequirementFormRight: FC = () => {
           onAddSection={handleAddRequirementSourceSection}
           onAddRelatedDocument={handleAddRequirementRelatedDocument}
           onAddRelatedDocumentSection={handleAddRelatedDocumentSection}
-          onDeleteRelatedDocumentSection={handleDeleteRequirementRelatedDocumentSection}
+          onDeleteRelatedDocumentSection={
+            handleDeleteRequirementRelatedDocumentSection
+          }
         />
       ))}
     </Box>
