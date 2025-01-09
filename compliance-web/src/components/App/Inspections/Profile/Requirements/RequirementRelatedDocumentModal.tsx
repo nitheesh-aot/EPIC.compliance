@@ -79,10 +79,7 @@ const RequirementRelatedDocumentModal: React.FC<
         documentTitle: "",
         sectionNumber: "",
         sectionTitle: "",
-        description: {
-          html: "",
-          text: "",
-        },
+        description: undefined,
       };
       if (relatedDocumentData) {
         defaultData.relatedDocument =

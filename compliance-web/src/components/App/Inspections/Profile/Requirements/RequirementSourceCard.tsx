@@ -219,6 +219,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                         Description:
                       </Typography>
                       <ParagraphWithReadMore
+                        key={item.description?.html}
                         maxHeight={84}
                         renderTypography={
                           <Typography

@@ -182,6 +182,7 @@ const RequirementRelatedDocumentCard: FC<
                   Description:
                 </Typography>
                 <ParagraphWithReadMore
+                  key={section.description?.html}
                   maxHeight={84}
                   renderTypography={
                     <Typography
