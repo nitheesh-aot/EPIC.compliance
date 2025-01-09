@@ -17,7 +17,10 @@ import {
 import { AddRounded } from "@mui/icons-material";
 import { BCDesignTokens } from "epic.theme";
 import { ExpandLessRounded } from "@mui/icons-material";
-import { RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData } from "@/models/InspectionRequirement";
+import {
+  RequirementRelatedDocumentData,
+  RequirementRelatedDocumentSectionData,
+} from "@/models/InspectionRequirement";
 import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 
 interface RequirementRelatedDocumentCardProps {
@@ -25,6 +28,9 @@ interface RequirementRelatedDocumentCardProps {
   index: number;
   onAddRelatedDocumentSection: () => void;
   onDeleteRelatedDocumentSection: (
+    data: RequirementRelatedDocumentSectionData
+  ) => void;
+  onEditRelatedDocumentSection: (
     data: RequirementRelatedDocumentSectionData
   ) => void;
 }
@@ -36,6 +42,7 @@ const RequirementRelatedDocumentCard: FC<
   relatedDocument,
   onAddRelatedDocumentSection,
   onDeleteRelatedDocumentSection,
+  onEditRelatedDocumentSection,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -118,7 +125,11 @@ const RequirementRelatedDocumentCard: FC<
             >
               <Box display={"flex"} justifyContent={"flex-end"} gap={".25rem"}>
                 <Tooltip title="Edit" arrow>
-                  <IconButton size="small" color="secondary" onClick={() => {}}>
+                  <IconButton
+                    size="small"
+                    color="secondary"
+                    onClick={() => onEditRelatedDocumentSection(section)}
+                  >
                     <EditOutlined />
                   </IconButton>
                 </Tooltip>

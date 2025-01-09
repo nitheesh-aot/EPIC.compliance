@@ -177,12 +177,41 @@ const RequirementFormRight: FC = () => {
     });
   };
 
-  const handleDeleteRequirementRelatedDocumentSection = (
-    data: RequirementRelatedDocumentSectionData,
-    docData: RequirementRelatedDocumentData
+  const filterSourceData = (data: RequirementRelatedDocumentSectionData) => {
+    const srcData = requirementSourceFormData.find(
+      (item) => item.id === data.sourceFormId
+    );
+    const docData = srcData?.relatedDocuments?.find(
+      (doc) => doc.id === data.relatedDocumentFormId
+    );
+    return { srcData, docData };
+  };
+
+  const handleEditRelatedDocumentSection = (
+    data: RequirementRelatedDocumentSectionData
   ) => {
+    const { srcData, docData } = filterSourceData(data);
+
+    setOpen({
+      content: (
+        <RequirementRelatedDocumentModal
+          onSubmit={handleOnAddRelatedDocumentSubmit}
+          requirementSourceData={srcData!}
+          relatedDocumentData={docData!}
+          relatedDocumentSectionData={data}
+          isEditSection={true}
+        />
+      ),
+      width: "640px",
+    });
+  };
+
+  const handleDeleteRequirementRelatedDocumentSection = (
+    data: RequirementRelatedDocumentSectionData
+  ) => {
+    const { docData } = filterSourceData(data);
     const description = `You are about to delete this section: #${data.sectionNumber} - ${data.sectionTitle}.
-    ${docData.sections?.length === 1 ? "This will result in deleting the whole document." : ""}
+    ${docData?.sections?.length === 1 ? "This will result in deleting the whole document." : ""}
     Are you sure you want to proceed?`;
     setOpen({
       content: (
@@ -190,9 +219,7 @@ const RequirementFormRight: FC = () => {
           title="Delete Section?"
           description={description}
           confirmButtonText="Delete"
-          onConfirm={() =>
-            handleOnDeleteRelatedDocumentSectionSubmit(data)
-          }
+          onConfirm={() => handleOnDeleteRelatedDocumentSectionSubmit(data)}
         />
       ),
     });
@@ -240,6 +267,7 @@ const RequirementFormRight: FC = () => {
           onAddSection={handleAddRequirementSourceSection}
           onAddRelatedDocument={handleAddRequirementRelatedDocument}
           onAddRelatedDocumentSection={handleAddRelatedDocumentSection}
+          onEditRelatedDocumentSection={handleEditRelatedDocumentSection}
           onDeleteRelatedDocumentSection={
             handleDeleteRequirementRelatedDocumentSection
           }

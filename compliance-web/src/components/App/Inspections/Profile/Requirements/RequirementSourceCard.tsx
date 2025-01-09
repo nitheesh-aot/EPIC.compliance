@@ -39,9 +39,11 @@ type RequirementSourceCardProps = {
     docData: RequirementRelatedDocumentData,
     srcData: RequirementSourceFormData
   ) => void;
+  onEditRelatedDocumentSection: (
+    data: RequirementRelatedDocumentSectionData
+  ) => void;
   onDeleteRelatedDocumentSection: (
-    data: RequirementRelatedDocumentSectionData,
-    docData: RequirementRelatedDocumentData
+    data: RequirementRelatedDocumentSectionData
   ) => void;
 };
 
@@ -55,6 +57,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
     onAddRelatedDocument,
     onAddRelatedDocumentSection,
     onDeleteRelatedDocumentSection,
+    onEditRelatedDocumentSection,
   }) => {
     const [isExpanded, setIsExpanded] = useState(index === 0);
 
@@ -238,8 +241,11 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                       onAddRelatedDocumentSection={() =>
                         onAddRelatedDocumentSection(relatedDocument, item)
                       }
-                      onDeleteRelatedDocumentSection={(data) =>
-                        onDeleteRelatedDocumentSection(data, relatedDocument)
+                      onDeleteRelatedDocumentSection={
+                        onDeleteRelatedDocumentSection
+                      }
+                      onEditRelatedDocumentSection={
+                        onEditRelatedDocumentSection
                       }
                     />
                   ))}

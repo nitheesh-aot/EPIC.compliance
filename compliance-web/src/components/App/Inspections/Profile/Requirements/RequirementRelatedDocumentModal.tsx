@@ -50,13 +50,13 @@ type RequirementRelatedDocumentSchemaType = yup.InferType<
   typeof relatedDocumentFormSchema
 >;
 
-const initFormData: RequirementRelatedDocumentSectionFormData = {
-  relatedDocument: undefined,
-  documentTitle: "",
-  sectionNumber: "",
-  sectionTitle: "",
-  description: undefined,
-};
+// const initFormData: RequirementRelatedDocumentSectionFormData = {
+//   relatedDocument: undefined,
+//   documentTitle: "",
+//   sectionNumber: "",
+//   sectionTitle: "",
+//   description: undefined,
+// };
 
 const RequirementRelatedDocumentModal: React.FC<
   RequirementRelatedDocumentModalProps
@@ -75,14 +75,26 @@ const RequirementRelatedDocumentModal: React.FC<
 
   const defaultValues =
     useMemo<RequirementRelatedDocumentSectionFormData>(() => {
-      const defaultData = initFormData;
+      const defaultData: RequirementRelatedDocumentSectionFormData = {
+        documentTitle: "",
+        sectionNumber: "",
+        sectionTitle: "",
+        description: {
+          html: "",
+          text: "",
+        },
+      };
       if (relatedDocumentData) {
-        defaultData.relatedDocument = relatedDocumentData.relatedDocument;
-        defaultData.documentTitle = relatedDocumentData.documentTitle;
+        defaultData.relatedDocument =
+          relatedDocumentData.relatedDocument ?? undefined;
+        defaultData.documentTitle = relatedDocumentData.documentTitle ?? "";
         if (isEditSection) {
-          defaultData.sectionNumber = relatedDocumentSectionData?.sectionNumber;
-          defaultData.sectionTitle = relatedDocumentSectionData?.sectionTitle;
-          defaultData.description = relatedDocumentSectionData?.description;
+          defaultData.sectionNumber =
+            relatedDocumentSectionData?.sectionNumber ?? "";
+          defaultData.sectionTitle =
+            relatedDocumentSectionData?.sectionTitle ?? "";
+          defaultData.description =
+            relatedDocumentSectionData?.description ?? undefined;
         }
       }
       if (!isScheduleB) {
@@ -132,7 +144,14 @@ const RequirementRelatedDocumentModal: React.FC<
       sectionTitle: formData.sectionTitle,
       description: formData.description,
     };
-    reqRelatedDocumentData.sections?.push(reqSectionData);
+    if (isEditSection) {
+      reqRelatedDocumentData.sections = reqRelatedDocumentData.sections?.map(
+        (section) =>
+          section.id === reqSectionData.id ? reqSectionData : section
+      );
+    } else {
+      reqRelatedDocumentData.sections?.push(reqSectionData);
+    }
     onSubmit(reqRelatedDocumentData);
   };
 
