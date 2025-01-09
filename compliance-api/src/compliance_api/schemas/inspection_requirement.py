@@ -77,7 +77,7 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
     )
     description = fields.Str(
         metadata={"description": "The description of the requirement source detail"},
-        required=True
+        required=True,
     )
     documents = fields.List(fields.Nested(InspectionReqDetailDocCreateSchema))
 
@@ -166,10 +166,6 @@ class InspectionRequirementCreateSchema(BaseSchema):
     )
     findings = fields.Str(
         metadata={"description": "The requirement findings in html format."},
-        required=True
-    )
-    sort_order = fields.Int(
-        metadata={"description": "The order of the inspection requirements"},
         required=True,
     )
     requirement_source_details = fields.List(
@@ -185,6 +181,17 @@ class InspectionRequirementUpdateSchema(InspectionRequirementCreateSchema):
     )
     requirement_source_details = fields.List(
         fields.Nested(InspectionReqSourceDetailUpdateSchema)
+    )
+
+
+class InspectionSortOrderSchema(BaseSchema):
+    """InspectionSortOrderSchema."""
+
+    order = fields.Int(
+        metadata={
+            "description": "The index to which the inspection requirement should be moved."
+        },
+        required=True,
     )
 
 

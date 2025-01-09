@@ -3,7 +3,7 @@
 from flask import g
 
 from compliance_api.auth import auth
-from compliance_api.exceptions import PermissionDeniedError, ResourceNotFoundError
+from compliance_api.exceptions import BadRequestError, PermissionDeniedError, ResourceNotFoundError
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionReqDetailDocument as InspectionReqDetailDocumentModel
 from compliance_api.models import InspectionReqSourceDetail as InspectionReqSourceDetailModel
@@ -28,12 +28,11 @@ class InspectionRequirementService:
     @classmethod
     def create(cls, inspection_id, requirement_data):
         """Create inspection requirement."""
-        inspection = InspectionModel.find_by_id(inspection_id)
-        if not inspection:
-            raise ResourceNotFoundError(
-                f"Inspection with given ID {inspection_id} not found"
-            )
+        _inspection_check(inspection_id)
+        _access_check(inspection_id)
+        requirements = InspectionRequirementModel.get_by_inspection_id(inspection_id)
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
+        requirement_obj["sort_order"] = len(requirements) + 1
         with session_scope() as session:
             created_requirement = InspectionRequirementModel.create_requirement(
                 requirement_obj, session
@@ -46,11 +45,9 @@ class InspectionRequirementService:
     @classmethod
     def update(cls, inspection_id, requirement_id, requirement_data):
         """Update inspection requirement."""
-        inspection = InspectionModel.find_by_id(inspection_id)
-        if not inspection:
-            raise ResourceNotFoundError(
-                f"Inspection with given ID {inspection_id} not found"
-            )
+        _inspection_check(inspection_id)
+        _requirement_check(requirement_id)
+        _access_check(inspection_id)
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
         with session_scope() as session:
             updated_requirement = InspectionRequirementModel.update_requirement(
@@ -67,16 +64,8 @@ class InspectionRequirementService:
     @classmethod
     def delete(cls, inspection_id, requirement_id):
         """Delete the requirement."""
-        inspection = InspectionModel.find_by_id(inspection_id)
-        if not inspection:
-            raise ResourceNotFoundError(
-                f"Inspection with given ID {inspection_id} not found"
-            )
-        requirement = InspectionRequirementModel.find_by_id(requirement_id)
-        if not requirement:
-            raise ResourceNotFoundError(
-                f"Inspection requirement with given ID {requirement_id} not found"
-            )
+        _inspection_check(inspection_id)
+        _requirement_check(requirement_id)
         _access_check(inspection_id)
         with session_scope() as session:
             InspectionRequirementModel.delete_requirement(requirement_id, session)
@@ -86,6 +75,54 @@ class InspectionRequirementService:
             InspectionReqDetailDocumentModel.delete_by_requirement_id(
                 requirement_id, session
             )
+            # Querying the latest requirements after deleting the item
+            requirements = InspectionRequirementModel.get_by_inspection_id(
+                inspection_id
+            )
+            _update_sort_order_subsequent(requirements)
+
+    @classmethod
+    def update_sort_order(cls, inspection_id, requirement_id, sort_order_data):
+        """Update the sort order of the inspection requirement."""
+        _inspection_check(inspection_id)
+        requirement = _requirement_check(requirement_id)
+        _access_check(inspection_id)
+
+        new_sort_order = sort_order_data.get("order")
+        requirements = InspectionRequirementModel.get_by_inspection_id(inspection_id)
+        if new_sort_order > len(requirements):
+            raise BadRequestError(
+                f"Invaid order. The order should be less than or equal to {len(requirements)}"
+            )
+        del requirements[requirement.sort_order - 1]
+        requirements.insert(new_sort_order - 1, requirement)
+        _update_sort_order_subsequent(requirements, commit=True)
+
+
+def _update_sort_order_subsequent(requirements, commit=False):
+    """Update the new sort order for the requirement."""
+    for index, req in enumerate(requirements):
+        req.update({"sort_order": index + 1}, commit=commit)
+
+
+def _inspection_check(inspection_id):
+    """Check if the inspection and requirement exists."""
+    inspection = InspectionModel.find_by_id(inspection_id)
+    if not inspection:
+        raise ResourceNotFoundError(
+            f"Inspection with given ID {inspection_id} not found"
+        )
+    return inspection
+
+
+def _requirement_check(requirement_id):
+    """Check if requirement exists."""
+    requirement = InspectionRequirementModel.find_by_id(requirement_id)
+    if not requirement:
+        raise ResourceNotFoundError(
+            f"Inspection requirement with given ID {requirement_id} not found"
+        )
+    return requirement
 
 
 def _access_check(inspection_id: dict):
@@ -183,7 +220,6 @@ def _create_requirement_obj(inspection_id, requirement_data):
         "inspection_id": inspection_id,
         "summary": requirement_data.get("summary"),
         "topic_id": requirement_data.get("topic_id"),
-        "sort_order": requirement_data.get("sort_order"),
         "enforcement_action_id": requirement_data.get("enforcement_action_id", None),
         "compliance_finding_id": requirement_data.get("compliance_finding_id", None),
         "findings": requirement_data.get("findings"),

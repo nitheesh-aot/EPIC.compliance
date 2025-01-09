@@ -1,6 +1,6 @@
 """InspectionRequirement Model."""
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModelVersioned, db
@@ -50,6 +50,7 @@ class InspectionRequirement(BaseModelVersioned):
     )
     findings = Column(String, nullable=True, comment="The findings of the requirement")
     sort_order = Column(Integer, nullable=False, comment="The order of requirements")
+    is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
 
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
     topic = relationship("Topic", foreign_keys=[topic_id], lazy="joined")
@@ -63,6 +64,15 @@ class InspectionRequirement(BaseModelVersioned):
         "InspectionReqSourceDetail",
         back_populates="inspection_requirement",
         lazy="select",
+    )
+    __table_args__ = (
+        Index(
+            "unique_non_deleted_sort_order",  # Index name
+            "inspection_id",
+            "sort_order",
+            unique=True,
+            postgresql_where=(is_deleted.is_(False)),  # Condition for uniqueness
+        ),
     )
 
     @classmethod
@@ -79,13 +89,15 @@ class InspectionRequirement(BaseModelVersioned):
     @classmethod
     def delete_requirement(cls, requirement_id, session=None):
         """Delete the requirement."""
-        cls.query.filter_by(id=requirement_id, is_deleted=False).update(
-            {cls.is_active: False, cls.is_deleted: True}
-        )
+        requirement = cls.find_by_id(requirement_id)
+        if not requirement:
+            return None
+        requirement.update({"is_active": False, "is_deleted": True}, commit=False)
         if session:
             session.flush()
         else:
             db.session.commit()
+        return requirement
 
     @classmethod
     def get_by_inspection_id(cls, inspection_id):
