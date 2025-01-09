@@ -10,8 +10,10 @@ import ControlledTextField from "@/components/Shared/Controlled/ControlledTextFi
 import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledRichTextEditor";
 import { useDocumentTypesData } from "@/hooks/useInspectionRequirements";
 import {
-  RequirementRelatedDocumentFormData,
+  RequirementRelatedDocumentSectionFormData,
+  RequirementRelatedDocumentData,
   RequirementSourceFormData,
+  RequirementRelatedDocumentSectionData,
 } from "@/models/InspectionRequirement";
 import { RequirementDocumentType } from "@/models/RequirementDocumentType";
 import { BCDesignTokens } from "epic.theme";
@@ -21,9 +23,11 @@ import {
 } from "@/utils/constants";
 
 type RequirementRelatedDocumentModalProps = {
-  onSubmit: (data: RequirementRelatedDocumentFormData) => void;
-  requirementSourceFormData: RequirementSourceFormData;
-  relatedDocumentData?: RequirementRelatedDocumentFormData;
+  onSubmit: (data: RequirementRelatedDocumentData) => void;
+  requirementSourceData: RequirementSourceFormData;
+  relatedDocumentData?: RequirementRelatedDocumentData;
+  relatedDocumentSectionData?: RequirementRelatedDocumentSectionData;
+  isEditSection?: boolean;
 };
 
 const relatedDocumentFormSchema = yup.object().shape({
@@ -46,34 +50,69 @@ type RequirementRelatedDocumentSchemaType = yup.InferType<
   typeof relatedDocumentFormSchema
 >;
 
-const initFormData: RequirementRelatedDocumentFormData = {
-  relatedDocument: undefined,
-  documentTitle: "",
-  sectionNumber: "",
-  sectionTitle: "",
-  description: undefined,
-};
+// const initFormData: RequirementRelatedDocumentSectionFormData = {
+//   relatedDocument: undefined,
+//   documentTitle: "",
+//   sectionNumber: "",
+//   sectionTitle: "",
+//   description: undefined,
+// };
 
 const RequirementRelatedDocumentModal: React.FC<
   RequirementRelatedDocumentModalProps
-> = ({ onSubmit, relatedDocumentData, requirementSourceFormData }) => {
+> = ({
+  onSubmit,
+  requirementSourceData,
+  relatedDocumentData,
+  relatedDocumentSectionData,
+  isEditSection,
+}) => {
   const { data: documentTypeList } = useDocumentTypesData();
 
   const isScheduleB =
-    requirementSourceFormData.requirementSource?.id ===
+    requirementSourceData.requirementSource?.id ===
     RequirementSourceEnum.SCHEDULE_B;
 
-  const defaultValues = useMemo<RequirementRelatedDocumentFormData>(() => {
-    if (!isScheduleB) {
-      return {
-        ...initFormData,
-        relatedDocument: documentTypeList?.find(
-          (doc) => doc.id === RequirementDocumentTypeEnum.OTHER_DOCUMENT
-        ), // auto select "Other Document" if not Schedule B
+  const defaultValues =
+    useMemo<RequirementRelatedDocumentSectionFormData>(() => {
+      const defaultData: RequirementRelatedDocumentSectionFormData = {
+        documentTitle: "",
+        sectionNumber: "",
+        sectionTitle: "",
+        description: {
+          html: "",
+          text: "",
+        },
       };
-    }
-    return relatedDocumentData ?? initFormData;
-  }, [relatedDocumentData, isScheduleB, documentTypeList]);
+      if (relatedDocumentData) {
+        defaultData.relatedDocument =
+          relatedDocumentData.relatedDocument ?? undefined;
+        defaultData.documentTitle = relatedDocumentData.documentTitle ?? "";
+        if (isEditSection) {
+          defaultData.sectionNumber =
+            relatedDocumentSectionData?.sectionNumber ?? "";
+          defaultData.sectionTitle =
+            relatedDocumentSectionData?.sectionTitle ?? "";
+          defaultData.description =
+            relatedDocumentSectionData?.description ?? undefined;
+        }
+      }
+      if (!isScheduleB) {
+        return {
+          ...defaultData,
+          relatedDocument: documentTypeList?.find(
+            (doc) => doc.id === RequirementDocumentTypeEnum.OTHER_DOCUMENT
+          ), // auto select "Other Document" if not Schedule B
+        };
+      }
+      return defaultData;
+    }, [
+      relatedDocumentData,
+      isScheduleB,
+      documentTypeList,
+      isEditSection,
+      relatedDocumentSectionData,
+    ]);
 
   const methods = useForm<RequirementRelatedDocumentSchemaType>({
     resolver: yupResolver(relatedDocumentFormSchema),
@@ -88,9 +127,32 @@ const RequirementRelatedDocumentModal: React.FC<
   }, [defaultValues, reset]);
 
   const onSubmitHandler = (data: RequirementRelatedDocumentSchemaType) => {
-    const formData = data as RequirementRelatedDocumentFormData;
-    formData.sourceFormId = requirementSourceFormData.id;
-    onSubmit(formData);
+    const formData = data as RequirementRelatedDocumentSectionFormData;
+    const reqRelatedDocumentData: RequirementRelatedDocumentData = {
+      id: relatedDocumentData?.id ?? Date.now(),
+      sourceFormId: requirementSourceData.id,
+      relatedDocument: formData.relatedDocument,
+      documentTitle: formData.documentTitle,
+      sections: relatedDocumentData?.sections ?? [],
+    };
+    const reqSectionData: RequirementRelatedDocumentSectionData = {
+      id: relatedDocumentSectionData?.id ?? Date.now(),
+      sourceFormId: requirementSourceData.id,
+      relatedDocumentFormId:
+        relatedDocumentData?.id ?? reqRelatedDocumentData.id,
+      sectionNumber: formData.sectionNumber,
+      sectionTitle: formData.sectionTitle,
+      description: formData.description,
+    };
+    if (isEditSection) {
+      reqRelatedDocumentData.sections = reqRelatedDocumentData.sections?.map(
+        (section) =>
+          section.id === reqSectionData.id ? reqSectionData : section
+      );
+    } else {
+      reqRelatedDocumentData.sections?.push(reqSectionData);
+    }
+    onSubmit(reqRelatedDocumentData);
   };
 
   return (
@@ -99,7 +161,9 @@ const RequirementRelatedDocumentModal: React.FC<
         <ModalTitleBar
           title={
             relatedDocumentData
-              ? "Edit Related Document"
+              ? isEditSection
+                ? "Edit Related Document"
+                : "Add Section"
               : "Add Related Document"
           }
         />
@@ -119,7 +183,7 @@ const RequirementRelatedDocumentModal: React.FC<
                 Title:
               </Typography>
               <Typography variant="body2">
-                {requirementSourceFormData.requirementSource?.name}
+                {requirementSourceData.requirementSource?.name}
               </Typography>
             </Box>
             <Box display="flex" flexDirection="column" gap={0.5}>
@@ -127,7 +191,7 @@ const RequirementRelatedDocumentModal: React.FC<
                 Condition #:
               </Typography>
               <Typography variant="body2">
-                {requirementSourceFormData.sourceNumber}
+                {requirementSourceData.sourceNumber}
               </Typography>
             </Box>
           </Box>
@@ -138,7 +202,7 @@ const RequirementRelatedDocumentModal: React.FC<
             getOptionLabel={(option) => option.name}
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
-            disabled={!isScheduleB}
+            disabled={!isScheduleB || isEditSection}
           />
           <ControlledTextField
             name="documentTitle"
@@ -164,7 +228,9 @@ const RequirementRelatedDocumentModal: React.FC<
           <ControlledRichTextEditor label="Description" name="description" />
         </DialogContent>
         <ModalActions
-          primaryActionButtonText={relatedDocumentData ? "Save" : "Add"}
+          primaryActionButtonText={
+            relatedDocumentData ? (isEditSection ? "Save" : "Add") : "Add"
+          }
         />
       </form>
     </FormProvider>

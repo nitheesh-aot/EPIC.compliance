@@ -18,7 +18,11 @@ import {
   ExpandMoreRounded,
   PostAddOutlined,
 } from "@mui/icons-material";
-import { RequirementSourceFormData } from "@/models/InspectionRequirement";
+import {
+  RequirementRelatedDocumentData,
+  RequirementRelatedDocumentSectionData,
+  RequirementSourceFormData,
+} from "@/models/InspectionRequirement";
 import { BCDesignTokens } from "epic.theme";
 import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 import { RequirementSourceEnum } from "@/utils/constants";
@@ -31,10 +35,30 @@ type RequirementSourceCardProps = {
   onDelete: (data: RequirementSourceFormData) => void;
   onAddSection: (data: RequirementSourceFormData) => void;
   onAddRelatedDocument: (data: RequirementSourceFormData) => void;
+  onAddRelatedDocumentSection: (
+    docData: RequirementRelatedDocumentData,
+    srcData: RequirementSourceFormData
+  ) => void;
+  onEditRelatedDocumentSection: (
+    data: RequirementRelatedDocumentSectionData
+  ) => void;
+  onDeleteRelatedDocumentSection: (
+    data: RequirementRelatedDocumentSectionData
+  ) => void;
 };
 
 const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
-  ({ data, index, onEdit, onDelete, onAddSection, onAddRelatedDocument }) => {
+  ({
+    data,
+    index,
+    onEdit,
+    onDelete,
+    onAddSection,
+    onAddRelatedDocument,
+    onAddRelatedDocumentSection,
+    onDeleteRelatedDocumentSection,
+    onEditRelatedDocumentSection,
+  }) => {
     const [isExpanded, setIsExpanded] = useState(index === 0);
 
     const requirementSource = data[0].requirementSource;
@@ -209,11 +233,20 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                       />
                     </Box>
                   </Box>
-                  {item.relatedDocuments?.map((relatedDocument, idy) => (
+                  {item.relatedDocuments?.map((relatedDocument, docIdx) => (
                     <RequirementRelatedDocumentCard
-                      key={idy}
-                      index={idy}
+                      key={docIdx}
+                      index={docIdx}
                       relatedDocument={relatedDocument}
+                      onAddRelatedDocumentSection={() =>
+                        onAddRelatedDocumentSection(relatedDocument, item)
+                      }
+                      onDeleteRelatedDocumentSection={
+                        onDeleteRelatedDocumentSection
+                      }
+                      onEditRelatedDocumentSection={
+                        onEditRelatedDocumentSection
+                      }
                     />
                   ))}
                 </Box>

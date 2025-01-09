@@ -26,19 +26,37 @@ export interface RequirementSourceFormData {
     html: string;
     text: string;
   },
-  relatedDocuments?: RequirementRelatedDocumentFormData[];
+  relatedDocuments?: RequirementRelatedDocumentData[];
 }
 
-export interface RequirementRelatedDocumentFormData {
+export interface RequirementRelatedDocumentData {
   id?: number;
   sourceFormId?: number;
-  condition?: string;
   relatedDocument?: RequirementDocumentType;
   documentTitle?: string;
+  sections?: RequirementRelatedDocumentSectionData[];
+}
+
+export interface RequirementRelatedDocumentSectionData {
+  id?: number;
+  sourceFormId?: number;
+  relatedDocumentFormId?: number;
   sectionNumber?: string;
   sectionTitle?: string;
   description?: {
     html: string;
     text: string;
   };
+}
+
+export interface RequirementRelatedDocumentSectionFormData {
+  id?: number;
+  relatedDocument?: RequirementDocumentType,
+  documentTitle?: string,
+  sectionNumber?: string,
+  sectionTitle?: string,
+  description?: {
+    html: string;
+    text: string;
+  },
 }
