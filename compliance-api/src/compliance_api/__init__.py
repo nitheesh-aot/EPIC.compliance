@@ -2,8 +2,8 @@
 
 This module is for the initiation of the flask app.
 """
-
 import os
+# import ssl
 from http import HTTPStatus
 
 import secure
@@ -121,6 +121,8 @@ def setup_jwt_manager(app_context, jwt_manager):
         return claims.get("groups", [])
 
     app_context.config["JWT_ROLE_CALLBACK"] = custom_role_callback
+    # if os.getenv("FLASK_ENV") == "development":
+    #     ssl._create_default_https_context = ssl._create_unverified_context
     jwt_manager.init_app(app_context)
 
 

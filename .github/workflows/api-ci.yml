@@ -63,6 +63,7 @@ jobs:
       JWT_OIDC_TEST_ISSUER: "http://localhost:8081/auth/"
       JWT_OIDC_TEST_ALGORITHMS: "RS256"
       JWT_OIDC_TEST_WELL_KNOWN_CONFIG: "http://localhost:8081/auth/realms/eao-epic/.well-known/openid-configuration"
+      DB_ECRPT_KEY: f1e3a5a4b9e86357d5b3041ac719d411
 
     runs-on: ubuntu-20.04
 

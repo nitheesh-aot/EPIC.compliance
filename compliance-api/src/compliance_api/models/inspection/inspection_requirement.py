@@ -53,6 +53,11 @@ class InspectionRequirement(BaseModelVersioned):
         back_populates="inspection_requirement",
         lazy="select",
     )
+    enforcement_actions = relationship(
+        "InspectionReqEnforcementMap",
+        back_populates="requirement",
+        lazy="select"
+    )
     __table_args__ = (
         Index(
             "unique_non_deleted_sort_order",  # Index name
