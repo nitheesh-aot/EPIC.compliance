@@ -3,18 +3,12 @@
 from flask import g
 
 from compliance_api.auth import auth
-from compliance_api.exceptions import (
-    BadRequestError,
-    PermissionDeniedError,
-    ResourceNotFoundError,
-)
-from compliance_api.models import (
-    Inspection as InspectionModel,
-    InspectionReqDetailDocument as InspectionReqDetailDocumentModel,
-    InspectionReqSourceDetail as InspectionReqSourceDetailModel,
-    InspectionRequirement as InspectionRequirementModel,
-    InspectionReqEnforcementMap as InspectionReqEnforcementMapModel,
-)
+from compliance_api.exceptions import BadRequestError, PermissionDeniedError, ResourceNotFoundError
+from compliance_api.models import Inspection as InspectionModel
+from compliance_api.models import InspectionReqDetailDocument as InspectionReqDetailDocumentModel
+from compliance_api.models import InspectionReqEnforcementMap as InspectionReqEnforcementMapModel
+from compliance_api.models import InspectionReqSourceDetail as InspectionReqSourceDetailModel
+from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models.db import session_scope
 from compliance_api.utils.enum import PermissionEnum
 
@@ -48,7 +42,8 @@ class InspectionRequirementService:
                 created_requirement.id, requirement_data, session
             )
             cls.insert_or_update_enforcements(
-                created_requirement.id, requirement_data.get("enforcement_ids", [])
+                created_requirement.id,
+                requirement_data.get("enforcement_action_ids", []),
             )
         return created_requirement
 
@@ -70,7 +65,7 @@ class InspectionRequirementService:
                 requirement_id, requirement_data, session
             )
             cls.insert_or_update_enforcements(
-                requirement_id, requirement_data.get("enforcement_ids", [])
+                requirement_id, requirement_data.get("enforcement_action_ids", [])
             )
         return updated_requirement
 
@@ -123,14 +118,16 @@ class InspectionRequirementService:
                     requirement_id
                 )
             )
-            existing_enf_ids = {enf.enforcement_id for enf in existing_enforecements}
+            existing_enf_ids = {
+                enf.enforcement_action_id for enf in existing_enforecements
+            }
 
             new_enf_ids = set(enforcement_ids)
             enf_ids_to_be_deleted = existing_enf_ids.difference(new_enf_ids)
             enf_ids_to_be_added = new_enf_ids.difference(existing_enf_ids)
             if enf_ids_to_be_deleted:
                 InspectionReqEnforcementMapModel.bulk_delete(
-                    requirement_id, list(enf_ids_to_be_deleted), session
+                    requirement_id, list(enf_ids_to_be_deleted)
                 )
             if enf_ids_to_be_added:
                 InspectionReqEnforcementMapModel.bulk_insert(
@@ -259,7 +256,6 @@ def _create_requirement_obj(inspection_id, requirement_data):
         "inspection_id": inspection_id,
         "summary": requirement_data.get("summary"),
         "topic_id": requirement_data.get("topic_id"),
-        "enforcement_action_id": requirement_data.get("enforcement_action_id", None),
         "compliance_finding_id": requirement_data.get("compliance_finding_id", None),
         "findings": requirement_data.get("findings"),
     }
@@ -286,7 +282,6 @@ def _create_requirement_source_doc_obj(
         "req_detail_id": requirement_source_detail_id,
         "document_type_id": requirement_source_doc_data.get("document_type_id"),
         "document_title": requirement_source_doc_data.get("document_title"),
-        "description": requirement_source_doc_data.get("description"),
         "section_number": requirement_source_doc_data.get("section_number", None),
         "section_title": requirement_source_doc_data.get("section_title", None),
         "description": requirement_source_doc_data.get("description", None),

@@ -48,7 +48,7 @@ class InspectionReqEnforcementMap(BaseModelVersioned):
         ).all()
 
     @classmethod
-    def bulk_delete(cls, requirement_id: int, enforcement_ids: list[int], session=None):
+    def bulk_delete(cls, requirement_id: int, enforcement_ids: list[int]):
         """Delete enforcement ids per inspection."""
         mappings = cls.query.filter(
             cls.requirement_id == requirement_id,
@@ -64,7 +64,7 @@ class InspectionReqEnforcementMap(BaseModelVersioned):
         """Insert enforcement per requirement."""
         requirement_enforcement_map = [
             InspectionReqEnforcementMap(
-                **{"requirement_id": requirement_id, "enforcement_id": enforcement_id}
+                **{"requirement_id": requirement_id, "enforcement_action_id": enforcement_id}
             )
             for enforcement_id in enforcement_ids
         ]
