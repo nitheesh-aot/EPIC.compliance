@@ -169,7 +169,9 @@ class CaseFile(Resource):
     @API.response(404, "Not Found")
     def delete(case_file_id):
         """Delete case file."""
-        CaseFileAggregateService.delete_case_file(case_file_id)
+        deleted_case_file = CaseFileAggregateService.delete_case_file(case_file_id)
+        if not deleted_case_file:
+            raise ResourceNotFoundError(f"CaseFile with {case_file_id} not found")
         return {}, HTTPStatus.NO_CONTENT
 
 

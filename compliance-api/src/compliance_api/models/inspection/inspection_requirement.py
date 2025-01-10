@@ -1,6 +1,6 @@
 """InspectionRequirement Model."""
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModelVersioned, db
@@ -30,15 +30,6 @@ class InspectionRequirement(BaseModelVersioned):
         nullable=False,
         comment="The topic of the requirement",
     )
-    enforcement_action_id = Column(
-        Integer,
-        ForeignKey(
-            "enforcement_action_options.id",
-            name="insepction_requirements_enforcement_action_fkey",
-        ),
-        nullable=True,
-        comment="The enforcement action taken on the requirement",
-    )
     compliance_finding_id = Column(
         Integer,
         ForeignKey(
@@ -50,12 +41,10 @@ class InspectionRequirement(BaseModelVersioned):
     )
     findings = Column(String, nullable=True, comment="The findings of the requirement")
     sort_order = Column(Integer, nullable=False, comment="The order of requirements")
+    is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
 
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
     topic = relationship("Topic", foreign_keys=[topic_id], lazy="joined")
-    enforcement_action = relationship(
-        "EnforcementActionOption", foreign_keys=[enforcement_action_id], lazy="joined"
-    )
     compliance_finding = relationship(
         "ComplianceFindingOption", foreign_keys=[compliance_finding_id], lazy="joined"
     )
@@ -63,6 +52,20 @@ class InspectionRequirement(BaseModelVersioned):
         "InspectionReqSourceDetail",
         back_populates="inspection_requirement",
         lazy="select",
+    )
+    enforcement_actions = relationship(
+        "InspectionReqEnforcementMap",
+        back_populates="requirement",
+        lazy="select"
+    )
+    __table_args__ = (
+        Index(
+            "unique_non_deleted_sort_order",  # Index name
+            "inspection_id",
+            "sort_order",
+            unique=True,
+            postgresql_where=(is_deleted.is_(False)),  # Condition for uniqueness
+        ),
     )
 
     @classmethod
@@ -77,11 +80,25 @@ class InspectionRequirement(BaseModelVersioned):
         return requirement
 
     @classmethod
+    def delete_requirement(cls, requirement_id, session=None):
+        """Delete the requirement."""
+        requirement = cls.find_by_id(requirement_id)
+        if not requirement:
+            return None
+        requirement.update({"is_active": False, "is_deleted": True}, commit=False)
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
+        return requirement
+
+    @classmethod
     def get_by_inspection_id(cls, inspection_id):
         """Get requirements by inspection id."""
         return (
             db.session.query(InspectionRequirement)
             .filter_by(inspection_id=inspection_id, is_deleted=False, is_active=True)
+            .order_by(cls.sort_order)
             .all()
         )
 
