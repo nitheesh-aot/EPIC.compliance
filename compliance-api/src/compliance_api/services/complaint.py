@@ -96,6 +96,9 @@ class ComplaintService:
     @classmethod
     def update(cls, complaint_id: int, complaint_data: dict):
         """Update complaint."""
+        complaint = ComplaintModel.find_by_id(complaint_id)
+        if not complaint:
+            return None
         _access_check_update(complaint_id)
         complaint_obj = _create_complaint_update_object(complaint_data)
         with session_scope() as session:
@@ -184,6 +187,9 @@ class ComplaintService:
     @classmethod
     def delete_complaint(cls, complaint_id):
         """Delete complaint."""
+        complaint = ComplaintModel.find_by_id(complaint_id)
+        if not complaint:
+            raise ResourceNotFoundError(f"Complaint with ID {complaint_id} not found")
         with session_scope() as session:
             ComplaintModel.delete_complaint(complaint_id, session)
             ComplaintSourceContactModel.delete_by_complaint(complaint_id, session)
@@ -197,10 +203,10 @@ class ComplaintService:
     @classmethod
     def change_case_file_status(cls, complaint_id, status_data):
         """Change the status of the complaint."""
-        _access_check_update(complaint_id)
         complaint = ComplaintModel.find_by_id(complaint_id)
+        _access_check_update(complaint)
         if not complaint:
-            raise ResourceNotFoundError("Complaint not found.")
+            raise ResourceNotFoundError(f"Complaint with ID {complaint_id} not found")
         status_enum = ComplaintStatusEnum(status_data.get("status"))
         if status_enum == complaint.status:
             raise UnprocessableEntityError(
@@ -231,10 +237,9 @@ def _access_check_create(complaint_data: dict):
         )
 
 
-def _access_check_update(complaint_id):
+def _access_check_update(complaint):
     """Acces check create."""
     auth_user_guid = g.token_info["preferred_username"]
-    complaint = ComplaintModel.find_by_id(complaint_id)
     if (
         not auth.has_permission([PermissionEnum.SUPERUSER])
         and not complaint.primary_officer.auth_user_guid == auth_user_guid

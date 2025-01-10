@@ -1,6 +1,4 @@
 """Case file aggregate service."""
-
-from compliance_api.exceptions import BusinessError
 from compliance_api.models import UnapprovedProject
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import session_scope
@@ -15,9 +13,7 @@ class CaseFileAggregateService:
         """Delete a case file an all its associated dependecies."""
         case_file = CaseFileModel.find_by_id(case_file_id)
         if not case_file:
-            raise BusinessError(
-                f"The case with given ID {case_file_id} not found.", 500
-            )
+            return None
         with session_scope() as session:
             CaseFileService.update(
                 case_file_id,
@@ -28,3 +24,4 @@ class CaseFileAggregateService:
             ContinuationReportService.delete_by_case_file(case_file_id, session)
             InspectionService.delete_by_case_file(case_file_id, session)
             ComplaintService.delete_by_case_file(case_file_id, session)
+        return case_file

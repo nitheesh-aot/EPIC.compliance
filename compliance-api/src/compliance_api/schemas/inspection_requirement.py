@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inspection requirement Schema Schema."""
-from marshmallow import EXCLUDE, ValidationError, fields, validates_schema
+from marshmallow import EXCLUDE, ValidationError, fields, pre_dump, validates_schema
 
 from compliance_api.models import InspectionReqDetailDocument, InspectionReqSourceDetail, InspectionRequirement
 from compliance_api.models.requirement_source import RequirementSourceEnum
 
 from .base_schema import AutoSchemaBase, BaseSchema
+from .common import KeyValueSchema
 
 
 class InspectionReqDetailDocCreateSchema(BaseSchema):
@@ -28,6 +29,9 @@ class InspectionReqDetailDocCreateSchema(BaseSchema):
         required=True,
     )
     document_title = fields.Str(metadata={"description": "The title of the document"})
+    description = fields.Str(
+        metadata={"description": "The description of the document"}, required=True
+    )
     section_number = fields.Str(
         metadata={
             "description": "The highlighted section number in the uploaded document"
@@ -77,7 +81,7 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
     )
     description = fields.Str(
         metadata={"description": "The description of the requirement source detail"},
-        required=True
+        required=True,
     )
     documents = fields.List(fields.Nested(InspectionReqDetailDocCreateSchema))
 
@@ -158,18 +162,15 @@ class InspectionRequirementCreateSchema(BaseSchema):
         },
         required=True,
     )
-    enforcement_action_id = fields.Int(
-        metadata={"description": "The enforcement action identifier."}
+    enforcement_action_ids = fields.List(
+        fields.Int(metadata={"description": "The enforcement action identifier."}),
+        allow_none=True,
     )
     compliance_finding_id = fields.Int(
         metadata={"description": "The unique identifier of the compliance findings."}
     )
     findings = fields.Str(
         metadata={"description": "The requirement findings in html format."},
-        required=True
-    )
-    sort_order = fields.Int(
-        metadata={"description": "The order of the inspection requirements"},
         required=True,
     )
     requirement_source_details = fields.List(
@@ -188,6 +189,17 @@ class InspectionRequirementUpdateSchema(InspectionRequirementCreateSchema):
     )
 
 
+class InspectionSortOrderSchema(BaseSchema):
+    """InspectionSortOrderSchema."""
+
+    order = fields.Int(
+        metadata={
+            "description": "The index to which the inspection requirement should be moved."
+        },
+        required=True,
+    )
+
+
 class InspectionReqDetailDocSchema(
     AutoSchemaBase
 ):  # pylint: disable=too-many-ancestors
@@ -199,6 +211,8 @@ class InspectionReqDetailDocSchema(
         unknown = EXCLUDE
         model = InspectionReqDetailDocument
         include_fk = True
+
+    document_type = fields.Nested(KeyValueSchema)
 
 
 class InspectionReqSourceDetailSchema(
@@ -214,6 +228,7 @@ class InspectionReqSourceDetailSchema(
         include_fk = True
 
     documents = fields.List(fields.Nested(InspectionReqDetailDocSchema))
+    requirement_source = fields.Nested(KeyValueSchema)
 
 
 class InspectionRequirementSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
@@ -229,3 +244,24 @@ class InspectionRequirementSchema(AutoSchemaBase):  # pylint: disable=too-many-a
     requirement_source_details = fields.List(
         fields.Nested(InspectionReqSourceDetailSchema)
     )
+    topic = fields.Nested(KeyValueSchema)
+    compliance_finding = fields.Nested(KeyValueSchema)
+    enforcement_action_data = fields.List(fields.Nested(KeyValueSchema))
+
+    @pre_dump
+    def pre_dump_enforcement_actions(
+        self, obj, many, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Extract the value of the enforcement actions."""
+        if hasattr(obj, "enforcement_actions"):
+            prepared_enforcement_actions = []
+            for action in obj.enforcement_actions:
+                if hasattr(action, "enforcement_action") and action.enforcement_action:
+                    prepared_enforcement_actions.append(
+                        {
+                            "id": action.enforcement_action.id,
+                            "name": action.enforcement_action.name,
+                        }
+                    )
+            obj.enforcement_action_data = prepared_enforcement_actions
+        return obj

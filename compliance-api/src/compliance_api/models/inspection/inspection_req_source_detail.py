@@ -115,3 +115,14 @@ class InspectionReqSourceDetail(BaseModelVersioned):
             session.flush()
         else:
             db.session.commit()
+
+    @classmethod
+    def delete_by_requirement_id(cls, requirement_id, session=None):
+        """Delete requirement source details by requirement id."""
+        cls.query.filter_by(requirement_id=requirement_id, is_deleted=False).update(
+            {cls.is_active: False, cls.is_deleted: True}
+        )
+        if session:
+            session.flush()
+        else:
+            db.session.commit()

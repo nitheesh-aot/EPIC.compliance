@@ -76,6 +76,10 @@ class InspectionService:
     def get_by_ir_number(cls, ir_number):
         """Return inspection by ir number."""
         inspection = InspectionModel.get_by_ir_number(ir_number)
+        if not inspection:
+            raise ResourceNotFoundError(
+                f"No inspection found for the given IR Number : {ir_number}"
+            )
         return _set_project_status(inspection)
 
     @classmethod
@@ -227,7 +231,10 @@ class InspectionService:
     @classmethod
     def update(cls, inspection_id: int, inspection_data: dict):
         """Update inspection."""
-        _access_check_update(inspection_id)
+        inspection = InspectionModel.find_by_id(inspection_id)
+        if not inspection:
+            raise ResourceNotFoundError(f"Inspection with ID {inspection_id} not found")
+        _access_check_update(inspection)
         inspection_obj = _create_inspection_update_obj(inspection_data)
         with session_scope() as session:
             updated_case_file = InspectionModel.update_inspection(
@@ -286,7 +293,10 @@ class InspectionService:
         """Close the inspection."""
         from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
 
-        _access_check_update(inspection_id)
+        inspection = InspectionModel.find_by_id(inspection_id)
+        if not inspection:
+            raise ResourceNotFoundError(f"Inspection with ID {inspection_id} not found")
+        _access_check_update(inspection)
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
             raise ResourceNotFoundError("Inspection not found.")
@@ -338,6 +348,9 @@ class InspectionService:
         """Delete inspection."""
         from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
 
+        inspection = InspectionModel.find_by_id(inspection_id)
+        if not inspection:
+            raise ResourceNotFoundError(f"Inspection with ID {inspection_id} not found")
         with session_scope() as session:
             InspectionModel.delete_inspection(inspection_id, session)
             InspectionTypeModel.delete_inspection_type(inspection_id, session)
@@ -371,10 +384,9 @@ def _access_check_create(inspection_data: dict):
         )
 
 
-def _access_check_update(inspection_id: dict):
+def _access_check_update(inspection: dict):
     """Access check for update."""
     auth_user_guid = g.token_info["preferred_username"]
-    inspection = InspectionModel.find_by_id(inspection_id)
     if (
         not auth.has_permission([PermissionEnum.SUPERUSER])
         and not inspection.primary_officer.auth_user_guid == auth_user_guid
