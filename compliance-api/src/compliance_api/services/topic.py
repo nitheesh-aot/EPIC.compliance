@@ -17,7 +17,7 @@ class TopicService:
     @classmethod
     def get_all(cls):
         """Get all topics."""
-        users = TopicModel.get_all(default_filters=False)
+        users = TopicModel.get_all(default_filters=False, sort_by="name")
         return users
 
     @classmethod

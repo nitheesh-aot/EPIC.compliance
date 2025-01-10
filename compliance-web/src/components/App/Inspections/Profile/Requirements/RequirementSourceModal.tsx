@@ -83,8 +83,6 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
   }, [defaultValues, reset]);
 
   const onSubmitHandler = (data: RequirementSourceSchemaType) => {
-    // eslint-disable-next-line no-console
-    console.log(data);
     const formData = data as RequirementSourceFormData;
     if (!requirementSourceFormData) {
       formData.id = Date.now();
