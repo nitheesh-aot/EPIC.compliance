@@ -57,6 +57,7 @@ export const formatRequirementAPIData = (
             document_title: document.documentTitle ?? "",
             section_number: section.sectionNumber ?? "",
             section_title: section.sectionTitle ?? "",
+            description: section.description?.html ?? "",
           };
           requirementSource.documents.push(srcDocument);
         });
@@ -68,10 +69,9 @@ export const formatRequirementAPIData = (
     inspection_id: inspectionId,
     summary: formData.requirementSummary ?? "",
     topic_id: formData.topic?.id ?? 0,
-    enforcement_action_id: formData.enforcementAction?.[0]?.id ?? "",
+    enforcement_action_ids: formData.enforcementAction?.map((action) => action.id) ?? [],
     compliance_finding_id: formData.complianceFinding?.id ?? "",
     findings: formData.findings?.html ?? "",
-    sort_order: 0,
     requirement_source_details: requirementSourceDetails,
   };
 

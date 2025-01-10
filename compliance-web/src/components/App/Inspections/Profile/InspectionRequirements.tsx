@@ -7,6 +7,7 @@ import RequirementDrawer from "@/components/App/Inspections/Profile/Requirements
 import { Inspection } from "@/models/Inspection";
 import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
 import RequirementCard from "./Requirements/RequirementCard";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
@@ -15,6 +16,7 @@ interface InspectionRequirementsProps {
 const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   inspectionData,
 }) => {
+  const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
 
   const { data: inspectionRequirementsData } = useInspectionRequirementsData(
@@ -26,10 +28,13 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 
   const handleOnSubmit = useCallback(
     (submitMsg: string) => {
+      queryClient.invalidateQueries({
+        queryKey: ["inspection-requirements", inspectionData.id],
+      });
       setClose();
       notify.success(submitMsg);
     },
-    [setClose]
+    [setClose, queryClient, inspectionData]
   );
 
   const handleOpenRequirementModal = useCallback(() => {
