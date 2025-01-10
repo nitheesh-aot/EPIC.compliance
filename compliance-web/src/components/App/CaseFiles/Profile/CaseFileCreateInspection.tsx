@@ -1,11 +1,11 @@
+import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
+import { CaseFile } from "@/models/CaseFile";
+import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import { AddRounded } from "@mui/icons-material";
 import { Button } from "@mui/material";
-import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
-import { useDrawer } from "@/store/drawerStore";
-import { CaseFile } from "@/models/CaseFile";
+import { useCallback } from "react";
 
 const CaseFileCreateInspection = ({
   fileNumber,
@@ -27,6 +27,9 @@ const CaseFileCreateInspection = ({
       queryClient.invalidateQueries({
         queryKey: ["inspections-by-caseFileId", caseFileData?.id],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["continuation-reports", caseFileData?.id],
+      })
       setClose();
       notify.success(submitMsg);
     },
