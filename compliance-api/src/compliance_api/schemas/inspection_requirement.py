@@ -14,7 +14,11 @@
 """Inspection requirement Schema Schema."""
 from marshmallow import EXCLUDE, ValidationError, fields, validates_schema
 
-from compliance_api.models import InspectionReqDetailDocument, InspectionReqSourceDetail, InspectionRequirement
+from compliance_api.models import (
+    InspectionReqDetailDocument,
+    InspectionReqSourceDetail,
+    InspectionRequirement,
+)
 from compliance_api.models.requirement_source import RequirementSourceEnum
 
 from .base_schema import AutoSchemaBase, BaseSchema
@@ -28,6 +32,7 @@ class InspectionReqDetailDocCreateSchema(BaseSchema):
         required=True,
     )
     document_title = fields.Str(metadata={"description": "The title of the document"})
+    description = fields.Str(metadata={"description": "The description of the document"})
     section_number = fields.Str(
         metadata={
             "description": "The highlighted section number in the uploaded document"
@@ -158,8 +163,9 @@ class InspectionRequirementCreateSchema(BaseSchema):
         },
         required=True,
     )
-    enforcement_action_id = fields.Int(
-        metadata={"description": "The enforcement action identifier."}
+    enforcement_action_ids = fields.List(
+        fields.Int(metadata={"description": "The enforcement action identifier."}),
+        allow_none=True
     )
     compliance_finding_id = fields.Int(
         metadata={"description": "The unique identifier of the compliance findings."}

@@ -13,3 +13,4 @@ from .inspection_req_detail_doc import InspectionReqDetailDocument
 from .inspection_req_source_detail import InspectionReqSourceDetail
 from .inspection_requirement import InspectionRequirement
 from .inspection_type import InspectionType
+from .inspection_req_enforcement_map import InspectionReqEnforcementMap

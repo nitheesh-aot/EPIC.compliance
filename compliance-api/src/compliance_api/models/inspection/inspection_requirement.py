@@ -30,15 +30,6 @@ class InspectionRequirement(BaseModelVersioned):
         nullable=False,
         comment="The topic of the requirement",
     )
-    enforcement_action_id = Column(
-        Integer,
-        ForeignKey(
-            "enforcement_action_options.id",
-            name="insepction_requirements_enforcement_action_fkey",
-        ),
-        nullable=True,
-        comment="The enforcement action taken on the requirement",
-    )
     compliance_finding_id = Column(
         Integer,
         ForeignKey(
@@ -54,9 +45,6 @@ class InspectionRequirement(BaseModelVersioned):
 
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
     topic = relationship("Topic", foreign_keys=[topic_id], lazy="joined")
-    enforcement_action = relationship(
-        "EnforcementActionOption", foreign_keys=[enforcement_action_id], lazy="joined"
-    )
     compliance_finding = relationship(
         "ComplianceFindingOption", foreign_keys=[compliance_finding_id], lazy="joined"
     )
