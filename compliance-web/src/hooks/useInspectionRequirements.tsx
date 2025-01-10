@@ -3,7 +3,7 @@ import { RequirementDocumentType } from "@/models/RequirementDocumentType";
 import { EnforcementAction } from "@/models/EnforcementAction";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { InspectionRequirementAPIData } from "@/models/InspectionRequirement";
+import { InspectionRequirement, InspectionRequirementAPIData } from "@/models/InspectionRequirement";
 
 const fetchEnforcementActions = (): Promise<EnforcementAction[]> => {
   return request({ url: "/enforcement-actions" });
@@ -15,6 +15,10 @@ const fetchComplianceFindings = (): Promise<ComplianceFinding[]> => {
 
 const fetchDocumentTypes = (): Promise<RequirementDocumentType[]> => {
   return request({ url: "/document-types" });
+};
+
+const fetchInspectionRequirements = (inspectionId: number): Promise<InspectionRequirement[]> => {
+  return request({ url: `/inspections/${inspectionId}/requirements` });
 };
 
 const createInspectionRequirement = (
@@ -46,6 +50,13 @@ export const useDocumentTypesData = () => {
   return useQuery({
     queryKey: ["document-types"],
     queryFn: fetchDocumentTypes,
+  });
+};
+
+export const useInspectionRequirementsData = (inspectionId: number) => {
+  return useQuery({
+    queryKey: ["inspection-requirements", inspectionId],
+    queryFn: () => fetchInspectionRequirements(inspectionId),
   });
 };
 

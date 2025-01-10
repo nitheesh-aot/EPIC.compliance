@@ -27,6 +27,7 @@ import { BCDesignTokens } from "epic.theme";
 import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 import { RequirementSourceEnum } from "@/utils/constants";
 import RequirementRelatedDocumentCard from "./RequirementRelatedDocumentCard";
+import { isRequirementSourceCondition } from "./RequirementUtils";
 
 type RequirementSourceCardProps = {
   data: RequirementSourceFormData[];
@@ -62,11 +63,9 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
     const [isExpanded, setIsExpanded] = useState(index === 0);
 
     const requirementSource = data[0].requirementSource;
-    const isCondition = [
-      RequirementSourceEnum.SCHEDULE_B,
-      RequirementSourceEnum.EAC,
-      RequirementSourceEnum.EACA,
-    ].includes(requirementSource?.id as RequirementSourceEnum);
+    const isCondition = isRequirementSourceCondition(
+      requirementSource?.id ?? ""
+    );
 
     return (
       <Accordion

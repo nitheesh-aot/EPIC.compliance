@@ -1,0 +1,88 @@
+import React from "react";
+import { Box, Grid, Typography } from "@mui/material";
+import { BCDesignTokens } from "epic.theme";
+import { InspectionRequirement } from "@/models/InspectionRequirement";
+
+interface RequirementCardProps {
+  requirement: InspectionRequirement;
+  index: number;
+}
+
+const RequirementCard: React.FC<RequirementCardProps> = ({ requirement, index }) => {
+  return (
+    <Box
+      key={requirement.id}
+      sx={{
+        mb: 2,
+        border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+        borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
+      }}
+    >
+      <Box
+        sx={{
+          p: "0.75rem 1.5rem",
+          backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
+        }}
+      >
+        <Typography variant="body1">
+          #{index + 1}. {requirement.summary}
+        </Typography>
+      </Box>
+      <Box sx={{ p: "0.5rem 1.5rem 1rem" }}>
+        <Grid container spacing={1}>
+          <Grid item xs={12}>
+            <Typography
+              variant="body2"
+              color={BCDesignTokens.typographyColorPlaceholder}
+            >
+              Topic
+            </Typography>
+            <Typography variant="body1">{requirement.topic_id}</Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography
+              variant="body2"
+              color={BCDesignTokens.typographyColorPlaceholder}
+            >
+              Source
+            </Typography>
+            <Typography variant="body1">
+              {requirement.requirement_source_details?.[0]?.requirement_source_id}
+            </Typography>
+          </Grid>
+          <Grid item xs={8}>
+            <Typography
+              variant="body2"
+              color={BCDesignTokens.typographyColorPlaceholder}
+            >
+              Condition #
+            </Typography>
+            <Typography variant="body1">
+              {requirement.requirement_source_details?.[0]?.condition_number}
+            </Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Typography
+              variant="body2"
+              color={BCDesignTokens.typographyColorPlaceholder}
+            >
+              Compliance Finding
+            </Typography>
+            <Typography variant="body1">{""}</Typography>
+          </Grid>
+          <Grid item xs={8}>
+            <Typography
+              variant="body2"
+              color={BCDesignTokens.typographyColorPlaceholder}
+            >
+              Enforcement Action
+            </Typography>
+            <Typography variant="body1">{""}</Typography>
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
+  );
+};
+
+export default RequirementCard;
