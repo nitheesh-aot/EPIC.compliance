@@ -60,3 +60,31 @@ export interface RequirementRelatedDocumentSectionFormData {
     text: string;
   },
 }
+
+export interface InspectionRequirementAPIData {
+  inspection_id?: number,
+  summary: string,
+  topic_id: number,
+  enforcement_action_id: string,
+  compliance_finding_id: string,
+  findings: string,
+  sort_order: number,
+  requirement_source_details: InspectionRequirementSourceAPIData[]
+}
+
+export interface InspectionRequirementSourceAPIData {
+  requirement_source_id: string,
+  section_number?: string,
+  condition_number?: string,
+  amendment_number?: string,
+  title: string,
+  description: string,
+  documents: InspectionRequirementSourceDocumentAPIData[]
+}
+
+export interface InspectionRequirementSourceDocumentAPIData {
+  document_type_id: string,
+  document_title: string,
+  section_number: string,
+  section_title: string
+}

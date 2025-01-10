@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useState, useEffect } from "react";
 import { Box, Button } from "@mui/material";
 import { AddRounded } from "@mui/icons-material";
 import { useModal } from "@/store/modalStore";
@@ -12,11 +12,19 @@ import RequirementSourceCard from "./RequirementSourceCard";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import RequirementRelatedDocumentModal from "./RequirementRelatedDocumentModal";
 
-const RequirementFormRight: FC = () => {
+interface RequirementFormRightProps {
+  onDataChange: (data: RequirementSourceFormData[]) => void;
+}
+
+const RequirementFormRight: FC<RequirementFormRightProps> = ({ onDataChange }) => {
   const { setOpen, setClose } = useModal();
   const [requirementSourceFormData, setRequirementSourceFormData] = useState<
     RequirementSourceFormData[]
   >([]);
+
+  useEffect(() => {
+    onDataChange(requirementSourceFormData);
+  }, [requirementSourceFormData, onDataChange]);
 
   const handleOnAddSubmit = (data: RequirementSourceFormData) => {
     setRequirementSourceFormData((prevData) => [...prevData, data]);

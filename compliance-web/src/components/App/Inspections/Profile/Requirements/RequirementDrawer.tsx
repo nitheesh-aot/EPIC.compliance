@@ -2,7 +2,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Stack } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useMenuStore } from "@/store/menuStore";
 import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
@@ -12,14 +12,24 @@ import { useTopicsData } from "@/hooks/useTopics";
 import { Topic } from "@/models/Topic";
 import { IRType } from "@/models/IRType";
 import { IRStatus } from "@/models/IRStatus";
-import { InspectionRequirementFormData } from "@/models/InspectionRequirement";
+import {
+  InspectionRequirementAPIData,
+  InspectionRequirementFormData,
+  InspectionRequirementSourceAPIData,
+  InspectionRequirementSourceDocumentAPIData,
+  RequirementSourceFormData,
+} from "@/models/InspectionRequirement";
 import {
   useComplianceFindingsData,
+  useCreateInspectionRequirement,
   useEnforcementActionsData,
 } from "@/hooks/useInspectionRequirements";
 import RequirementFormRight from "./RequirementFormRight";
+import { Inspection } from "@/models/Inspection";
+import { RequirementSourceEnum } from "@/utils/constants";
 
 type RequirementDrawerProps = {
+  inspectionData: Inspection;
   onSubmit: (submitMsg: string) => void;
 };
 
@@ -46,8 +56,14 @@ const initFormData: InspectionRequirementFormData = {
   findings: undefined,
 };
 
-const RequirementDrawer: React.FC<RequirementDrawerProps> = ({ onSubmit }) => {
+const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
+  inspectionData,
+  onSubmit,
+}) => {
   const { appHeaderHeight } = useMenuStore();
+  const [requirementSourceList, setRequirementSourceList] = useState<
+    RequirementSourceFormData[]
+  >([]);
 
   const { data: enforcementActionsList } = useEnforcementActionsData();
   const { data: complianceFindingsList } = useComplianceFindingsData();
@@ -59,29 +75,82 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({ onSubmit }) => {
     defaultValues: initFormData,
   });
 
-  const { handleSubmit } = methods;
+  const { handleSubmit, reset } = methods;
 
-  // const onSuccess = useCallback(
-  //   (data: Inspection) => {
-  //     // eslint-disable-next-line no-console
-  //     console.log("data", data);
-  //     onSubmit("Changes saved successfully!");
-  //     reset();
-  //   },
-  //   [onSubmit, reset]
-  // );
+  const onSuccess = useCallback(
+    (data: InspectionRequirementAPIData) => {
+      // eslint-disable-next-line no-console
+      console.log("data", data);
+      onSubmit("Changes saved successfully!");
+      reset();
+    },
+    [onSubmit, reset]
+  );
 
-  // const { mutate: createInspection } = useCreateInspection(onSuccess);
-  // const { mutate: updateInspection } = useUpdateInspection(onSuccess);
+  const { mutate: createInspectionRequirement } =
+    useCreateInspectionRequirement(onSuccess);
 
   const onSubmitHandler = useCallback(
     (formData: RequirementSchemaType) => {
       // eslint-disable-next-line no-console
-      console.log("formData", formData);
-      onSubmit("Changes saved successfully!");
+      console.log("formData", formData, requirementSourceList);
+      const formLeftData = formData as InspectionRequirementFormData;
+      const requirementSourceDetails: InspectionRequirementSourceAPIData[] =
+        requirementSourceList.map((item) => {
+          const requirementSource: InspectionRequirementSourceAPIData = {
+            requirement_source_id: item.requirementSource?.id ?? "",
+            amendment_number: item.sourceAmendmentNumber ?? "",
+            title: item.sourceTitle ?? "",
+            description: item.description?.html ?? "",
+            documents: [],
+          };
+          if (
+            [
+              RequirementSourceEnum.SCHEDULE_B,
+              RequirementSourceEnum.EAC,
+              RequirementSourceEnum.EACA,
+            ].includes(item.requirementSource?.id as RequirementSourceEnum)
+          ) {
+            requirementSource.condition_number = item.sourceNumber ?? "";
+          } else {
+            requirementSource.section_number = item.sourceNumber ?? "";
+          }
+          item.relatedDocuments?.forEach((document) => {
+            document.sections?.forEach((section) => {
+              const srcDocument: InspectionRequirementSourceDocumentAPIData = {
+                document_type_id: document.relatedDocument?.id ?? "",
+                document_title: document.documentTitle ?? "",
+                section_number: section.sectionNumber ?? "",
+                section_title: section.sectionTitle ?? "",
+              };
+              requirementSource.documents.push(srcDocument);
+            });
+          });
+          return requirementSource;
+        });
+      const inspectionRequirementPayload: InspectionRequirementAPIData = {
+        inspection_id: inspectionData.id,
+        summary: formLeftData.requirementSummary ?? "",
+        topic_id: formLeftData.topic?.id ?? 0,
+        enforcement_action_id: formLeftData.enforcementAction?.[0]?.id ?? "",
+        compliance_finding_id: formLeftData.complianceFinding?.id ?? "",
+        findings: formLeftData.findings?.html ?? "",
+        sort_order: 0,
+        requirement_source_details: requirementSourceDetails,
+      };
+
+      // eslint-disable-next-line no-console
+      console.log("inspectionRequirementPayload", inspectionRequirementPayload);
+
+      createInspectionRequirement(inspectionRequirementPayload);
     },
-    [onSubmit]
+    [createInspectionRequirement, requirementSourceList, inspectionData]
   );
+
+  const onDataChange = (data: RequirementSourceFormData[]) => {
+    setRequirementSourceList(data);
+    return data;
+  };
 
   return (
     <FormProvider {...methods}>
@@ -98,7 +167,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({ onSubmit }) => {
             topicList={topicsList ?? []}
             appHeaderHeight={appHeaderHeight}
           />
-          <RequirementFormRight />
+          <RequirementFormRight onDataChange={onDataChange} />
         </Stack>
         <DrawerActionBarBottom isShowActionBar={false} />
       </form>

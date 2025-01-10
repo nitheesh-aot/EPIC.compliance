@@ -4,10 +4,15 @@ import { Box, Button, Typography } from "@mui/material";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import RequirementDrawer from "@/components/App/Inspections/Profile/Requirements/RequirementDrawer";
+import { Inspection } from "@/models/Inspection";
 
-interface InspectionRequirementsProps {}
+interface InspectionRequirementsProps {
+  inspectionData: Inspection;
+}
 
-const InspectionRequirements: React.FC<InspectionRequirementsProps> = () => {
+const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
+  inspectionData,
+}) => {
   const { setOpen, setClose } = useDrawer();
 
   const handleOnSubmit = useCallback(
@@ -23,11 +28,12 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = () => {
       content: (
         <RequirementDrawer
           onSubmit={handleOnSubmit}
+          inspectionData={inspectionData}
         />
       ),
       width: "1228px",
     });
-  }, [setOpen, handleOnSubmit]);
+  }, [setOpen, handleOnSubmit, inspectionData]);
 
   return (
     <Box
