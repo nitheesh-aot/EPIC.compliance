@@ -42,7 +42,8 @@ class InspectionRequirementService:
                 created_requirement.id, requirement_data, session
             )
             cls.insert_or_update_enforcements(
-                created_requirement.id, requirement_data.get("enforcement_action_ids", [])
+                created_requirement.id,
+                requirement_data.get("enforcement_action_ids", []),
             )
         return created_requirement
 
@@ -117,14 +118,16 @@ class InspectionRequirementService:
                     requirement_id
                 )
             )
-            existing_enf_ids = {enf.enforcement_action_id for enf in existing_enforecements}
+            existing_enf_ids = {
+                enf.enforcement_action_id for enf in existing_enforecements
+            }
 
             new_enf_ids = set(enforcement_ids)
             enf_ids_to_be_deleted = existing_enf_ids.difference(new_enf_ids)
             enf_ids_to_be_added = new_enf_ids.difference(existing_enf_ids)
             if enf_ids_to_be_deleted:
                 InspectionReqEnforcementMapModel.bulk_delete(
-                    requirement_id, list(enf_ids_to_be_deleted), session
+                    requirement_id, list(enf_ids_to_be_deleted)
                 )
             if enf_ids_to_be_added:
                 InspectionReqEnforcementMapModel.bulk_insert(
