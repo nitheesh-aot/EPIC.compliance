@@ -23,9 +23,6 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     inspectionData.id
   );
 
-  // eslint-disable-next-line no-console
-  console.log("inspectionRequirementsData", inspectionRequirementsData);
-
   const handleOnSubmit = useCallback(
     (submitMsg: string) => {
       queryClient.invalidateQueries({
