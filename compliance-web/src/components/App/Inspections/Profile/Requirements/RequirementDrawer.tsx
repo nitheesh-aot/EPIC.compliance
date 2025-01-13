@@ -2,52 +2,51 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Stack } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useMenuStore } from "@/store/menuStore";
 import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
 import RequirementFormLeft from "./RequirementFormLeft";
-import * as yup from "yup";
 import { useTopicsData } from "@/hooks/useTopics";
-import { Topic } from "@/models/Topic";
-import { IRType } from "@/models/IRType";
-import { IRStatus } from "@/models/IRStatus";
-import { InspectionRequirementFormData } from "@/models/InspectionRequirement";
+import {
+  InspectionRequirementFormData,
+  RequirementSourceFormData,
+} from "@/models/InspectionRequirement";
+import { Inspection } from "@/models/Inspection";
+import { EnforcementAction } from "@/models/EnforcementAction";
 import {
   useComplianceFindingsData,
+  useCreateInspectionRequirement,
   useEnforcementActionsData,
 } from "@/hooks/useInspectionRequirements";
 import RequirementFormRight from "./RequirementFormRight";
+import {
+  formatRequirementAPIData,
+  RequirementFormSchema,
+  RequirementSchemaType,
+} from "./RequirementUtils";
 
 type RequirementDrawerProps = {
+  inspectionData: Inspection;
   onSubmit: (submitMsg: string) => void;
 };
-
-const RequirementFormSchema = yup.object().shape({
-  requirementSummary: yup.string().nullable(),
-  topic: yup.object<Topic>().nullable().required("Topic is required"),
-  complianceFinding: yup.object<IRType>().nullable(),
-  enforcementAction: yup.array().of(yup.object<IRStatus>()).nullable(),
-  findings: yup
-    .object({
-      html: yup.string().required("Entry is required"),
-      text: yup.string().required("Entry is required"),
-    })
-    .nullable(),
-});
-
-export type RequirementSchemaType = yup.InferType<typeof RequirementFormSchema>;
 
 const initFormData: InspectionRequirementFormData = {
   requirementSummary: "",
   topic: undefined,
   complianceFinding: undefined,
-  enforcementAction: [] as IRStatus[],
+  enforcementAction: [] as EnforcementAction[],
   findings: undefined,
 };
 
-const RequirementDrawer: React.FC<RequirementDrawerProps> = ({ onSubmit }) => {
+const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
+  inspectionData,
+  onSubmit,
+}) => {
   const { appHeaderHeight } = useMenuStore();
+  const [requirementSourceList, setRequirementSourceList] = useState<
+    RequirementSourceFormData[]
+  >([]);
 
   const { data: enforcementActionsList } = useEnforcementActionsData();
   const { data: complianceFindingsList } = useComplianceFindingsData();
@@ -59,29 +58,34 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({ onSubmit }) => {
     defaultValues: initFormData,
   });
 
-  const { handleSubmit } = methods;
+  const { handleSubmit, reset } = methods;
 
-  // const onSuccess = useCallback(
-  //   (data: Inspection) => {
-  //     // eslint-disable-next-line no-console
-  //     console.log("data", data);
-  //     onSubmit("Changes saved successfully!");
-  //     reset();
-  //   },
-  //   [onSubmit, reset]
-  // );
+  const onSuccess = useCallback(() => {
+    onSubmit("Changes saved successfully!");
+    reset();
+  }, [onSubmit, reset]);
 
-  // const { mutate: createInspection } = useCreateInspection(onSuccess);
-  // const { mutate: updateInspection } = useUpdateInspection(onSuccess);
+  const { mutate: createInspectionRequirement } =
+    useCreateInspectionRequirement(onSuccess);
 
   const onSubmitHandler = useCallback(
     (formData: RequirementSchemaType) => {
-      // eslint-disable-next-line no-console
-      console.log("formData", formData);
-      onSubmit("Changes saved successfully!");
+      const formLeftData = formData as InspectionRequirementFormData;
+      const inspectionRequirementPayload = formatRequirementAPIData(
+        inspectionData.id,
+        formLeftData,
+        requirementSourceList
+      );
+
+      createInspectionRequirement(inspectionRequirementPayload);
     },
-    [onSubmit]
+    [createInspectionRequirement, requirementSourceList, inspectionData]
   );
+
+  const onRequirementSourceListDataChange = (data: RequirementSourceFormData[]) => {
+    setRequirementSourceList(data);
+    return data;
+  };
 
   return (
     <FormProvider {...methods}>
@@ -98,7 +102,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({ onSubmit }) => {
             topicList={topicsList ?? []}
             appHeaderHeight={appHeaderHeight}
           />
-          <RequirementFormRight />
+          <RequirementFormRight onDataChange={onRequirementSourceListDataChange} />
         </Stack>
         <DrawerActionBarBottom isShowActionBar={false} />
       </form>

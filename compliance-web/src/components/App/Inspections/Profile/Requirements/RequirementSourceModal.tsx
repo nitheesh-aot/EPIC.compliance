@@ -12,6 +12,7 @@ import ControlledTextField from "@/components/Shared/Controlled/ControlledTextFi
 import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledRichTextEditor";
 import { useRequirementSourcesData } from "@/hooks/useComplaints";
 import { RequirementSourceEnum } from "@/utils/constants";
+import { isRequirementSourceCondition } from "./RequirementUtils";
 
 type RequirementSourceModalProps = {
   onSubmit: (data: RequirementSourceFormData) => void;
@@ -32,7 +33,8 @@ const requirementSourceFormSchema = yup.object().shape({
       html: yup.string().required("Description is required"),
       text: yup.string().required("Description is required"),
     })
-    .nullable(),
+    .nullable()
+    .required("Description is required"),
 });
 
 type RequirementSourceSchemaType = yup.InferType<
@@ -122,12 +124,8 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
               <ControlledTextField
                 name="sourceNumber"
                 label={
-                  [
-                    RequirementSourceEnum.SCHEDULE_B,
-                    RequirementSourceEnum.EAC,
-                    RequirementSourceEnum.EACA,
-                  ].includes(
-                    selectedRequirementSource?.id as RequirementSourceEnum
+                  isRequirementSourceCondition(
+                    selectedRequirementSource?.id ?? ""
                   )
                     ? "Condition # (optional)"
                     : "Section # (optional)"

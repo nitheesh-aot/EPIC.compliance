@@ -109,7 +109,7 @@ function InspectionProfilePage() {
           />
         </TabPanel>
         <TabPanel value={currentTab} index={1} id="inspection-requirements">
-          <InspectionRequirements />
+          <InspectionRequirements inspectionData={inspectionData} />
         </TabPanel>
         <TabPanel value={currentTab} index={2} id="inspection-enforcement">
           <ComingSoon />

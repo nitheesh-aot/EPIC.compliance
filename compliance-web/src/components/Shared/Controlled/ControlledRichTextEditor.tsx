@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useCallback } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css"; // Include the default theme
 import { Controller, useFormContext } from "react-hook-form";
-import { Box, FormControl, InputLabel } from "@mui/material";
+import { Box, FormControl, InputLabel, Typography } from "@mui/material";
+import { BCDesignTokens } from "epic.theme";
 
 type ControlledRichTextEditorProps = {
   name: string;
@@ -11,6 +12,19 @@ type ControlledRichTextEditorProps = {
   height?: string;
   marginBottom?: string;
 };
+
+interface ExtendedFieldErrors {
+  html: {
+    message: string;
+    ref: string;
+    type: string;
+  };
+  text: {
+    message: string;
+    ref: string;
+    type: string;
+  };
+}
 
 const ControlledRichTextEditor: React.FC<ControlledRichTextEditorProps> = ({
   name,
@@ -90,6 +104,27 @@ const ControlledRichTextEditor: React.FC<ControlledRichTextEditorProps> = ({
     });
   }, [defaultValues, name, placeholder, setValue, handleImageUpload]);
 
+  const isErrorMessage = () => {
+    const error: ExtendedFieldErrors = errors[
+      name
+    ] as unknown as ExtendedFieldErrors;
+    return error && error.text && error.text.message;
+  };
+
+  const renderError = () => {
+    if (isErrorMessage()) {
+      return (
+        <Typography
+          variant="body2"
+          style={{ color: BCDesignTokens.typographyColorDanger }}
+        >
+          {isErrorMessage().toString()}
+        </Typography>
+      );
+    }
+    return null;
+  };
+
   return (
     <FormControl fullWidth sx={{ marginBottom: marginBottom ?? "1.5rem" }}>
       <InputLabel
@@ -98,7 +133,9 @@ const ControlledRichTextEditor: React.FC<ControlledRichTextEditorProps> = ({
           transform: "none",
           fontSize: "0.875rem",
           lineHeight: "1.5rem",
-          color: "#474543",
+          color: isErrorMessage()
+            ? BCDesignTokens.typographyColorDanger
+            : BCDesignTokens.typographyColorPrimary,
         }}
         htmlFor={name}
         size="small"
@@ -116,7 +153,7 @@ const ControlledRichTextEditor: React.FC<ControlledRichTextEditorProps> = ({
               style={height ? { maxHeight: "none", height: height } : {}}
               defaultValue={field.value.html || ""}
             />
-            {errors[name] && <span>{errors[name]?.message?.toString()}</span>}
+            {renderError()}
           </Box>
         )}
       />
