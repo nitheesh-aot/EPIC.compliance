@@ -1,6 +1,7 @@
 """Test suite for staff user."""
 
 import json
+from datetime import datetime
 from http import HTTPStatus
 from urllib.parse import urljoin
 
@@ -208,9 +209,9 @@ def test_get_user_by_id_not_found(mock_auth_service, client, auth_header_super_u
 def test_update_staff(mock_auth_service, client, auth_header_super_user):
     """Update staff user."""
     staff_data = StaffScenario.default_data.value
-    staff_data["auth_user_guid"] = fake.word()
+    staff_data["auth_user_guid"] = str(datetime.utcnow().timestamp() * 1000)
     created_user = StaffScenario.create(staff_data)
-    staff_data["auth_user_guid"] = fake.word()
+    staff_data["auth_user_guid"] = str(datetime.utcnow().timestamp() * 1000)
     another_user = StaffScenario.create(staff_data)
     url = urljoin(API_BASE_URL, f"staff-users/{created_user.id}")
     update_payload = {

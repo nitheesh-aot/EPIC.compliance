@@ -26,10 +26,10 @@ from .common import KeyValueSchema
 from .staff_user import StaffUserSchema
 
 
-class RequirementSoruceDetailSchema(
+class RequirementSourceDetailSchema(
     AutoSchemaBase
 ):  # pylint: disable=too-many-ancestors
-    """RequirementSoruceDetailSchema."""
+    """RequirementSourceDetailSchema."""
 
     class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
         """Meta."""
@@ -241,7 +241,7 @@ class ComplaintSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     agency = fields.Nested(KeyValueSchema)
     first_nation = fields.Nested(KeyValueSchema)
     requirement_source = fields.Nested(KeyValueSchema)
-    requirement_detail = fields.Nested(RequirementSoruceDetailSchema, only=["topic"])
+    requirement_detail = fields.Nested(RequirementSourceDetailSchema, only=["topic"])
 
     @post_dump
     def post_dump_actions(

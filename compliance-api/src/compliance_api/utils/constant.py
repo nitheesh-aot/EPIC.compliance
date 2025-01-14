@@ -12,3 +12,7 @@ GROUP_MAP = {
     PermissionEnum.USER: "/COMPLIANCE/USER",
     PermissionEnum.ADMIN: "/COMPLIANCE/ADMIN"
 }
+DELETE_DIC_PARAMS = {
+    "is_active": False,
+    "is_deleted": True
+}

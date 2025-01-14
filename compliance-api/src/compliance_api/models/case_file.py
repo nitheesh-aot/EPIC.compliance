@@ -17,6 +17,8 @@ import enum
 from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Index, Integer, String, cast, func
 from sqlalchemy.orm import relationship
 
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
 from .base_model import BaseModelVersioned
 from .db import db
 
@@ -225,9 +227,11 @@ class CaseFileOfficer(BaseModelVersioned):
     def bulk_delete(cls, case_file_id: int, officer_ids: list[int], session=None):
         """Delete officer ids by id per case file."""
         query = session.query(CaseFileOfficer) if session else cls.query
-        query.filter(
+        officers = query.filter(
             cls.case_file_id == case_file_id, cls.officer_id.in_(officer_ids)
-        ).update({cls.is_active: False, cls.is_deleted: True})
+        )
+        for officer in officers:
+            officer.update(DELETE_DIC_PARAMS, commit=not session)
 
     @classmethod
     def bulk_insert(cls, case_file_id: int, officer_ids: list[int], session=None):

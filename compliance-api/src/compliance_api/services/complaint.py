@@ -68,22 +68,15 @@ class ComplaintService:
         if not complaint:
             raise ResourceNotFoundError(f"Compalint with id: {complaint_id} not found")
         requirement = ComplaintRequirementDetailModel.get_by_complaint(complaint_id)
+        source_mapping = {
+            ComplaintRequirementSourceEnum.EAC_CERTIFICATE.value: ComplaintReqEACDetailModel.get_by_requirement,
+            ComplaintRequirementSourceEnum.ORDER.value: ComplaintReqOrderDetailModel.get_by_requirement,
+            ComplaintRequirementSourceEnum.SCHEDULE_B.value: ComplaintReqScheduleBDetailModel.get_by_requirement,
+        }
+
         data = None
-        if (
-            complaint.requirement_source_id
-            == ComplaintRequirementSourceEnum.EAC_CERTIFICATE.value
-        ):
-            data = ComplaintReqEACDetailModel.get_by_requirement(requirement.id)
-        if (
-            complaint.requirement_source_id
-            == ComplaintRequirementSourceEnum.ORDER.value
-        ):
-            data = ComplaintReqOrderDetailModel.get_by_requirement(requirement.id)
-        if (
-            complaint.requirement_source_id
-            == ComplaintRequirementSourceEnum.SCHEDULE_B.value
-        ):
-            data = ComplaintReqScheduleBDetailModel.get_by_requirement(requirement.id)
+        if requirement and complaint.requirement_source_id in source_mapping:
+            data = source_mapping[complaint.requirement_source_id](requirement.id)
         if data:
             setattr(requirement, "additional_details", data.to_dict())
         return requirement

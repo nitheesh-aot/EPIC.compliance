@@ -9,7 +9,7 @@ from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
     ComplaintCreateSchema, ComplaintSchema, ComplaintSourceContactSchema, ComplaintStatusSchema, ComplaintUpdateSchema,
-    KeyValueSchema, RequirementSoruceDetailSchema)
+    KeyValueSchema, RequirementSourceDetailSchema)
 from compliance_api.services import ComplaintService
 from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
@@ -36,7 +36,7 @@ complaint_source_contact_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 
 complaint_requirement_details = ApiHelper.convert_ma_schema_to_restx_model(
-    API, RequirementSoruceDetailSchema(), "RequirementDetails"
+    API, RequirementSourceDetailSchema(), "RequirementDetails"
 )
 complaint_update_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, ComplaintUpdateSchema(), "ComplaintUpdate"
@@ -162,7 +162,7 @@ class ComplaintRequirementDetails(Resource):
     def get(complaint_id):
         """Fetch a complaint requirement details."""
         requirements = ComplaintService.get_requirement_details(complaint_id)
-        return RequirementSoruceDetailSchema().dump(requirements), HTTPStatus.OK
+        return RequirementSourceDetailSchema().dump(requirements), HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS")
@@ -197,6 +197,8 @@ class ComplaintByNumber(Resource):
     def get(complaint_number):
         """Fetch all complaint."""
         complaint = ComplaintService.get_by_complaint_no(complaint_number)
+        if not complaint:
+            raise ResourceNotFoundError(f"Complaint with {complaint_number} not found")
         complaint_list_schema = ComplaintSchema()
         return complaint_list_schema.dump(complaint), HTTPStatus.OK
 
