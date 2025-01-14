@@ -18,7 +18,7 @@ function TabPanel(props: TabPanelProps) {
     index,
     id,
     width = "75%",
-    height = `calc(100vh - ${appHeaderHeight + 198}px)`, // 198px is the height of the FileProfileHeader, 28px is the height of the TabPanel
+    height = `calc(100vh - ${appHeaderHeight + 188}px)`, // 198px is the height of the FileProfileHeader, 28px is the height of the TabPanel
     ...other
   } = props;
 
@@ -31,6 +31,7 @@ function TabPanel(props: TabPanelProps) {
       {...other}
       width={width}
       height={height}
+      overflow={"auto"}
     >
       {value === index && children}
     </Box>

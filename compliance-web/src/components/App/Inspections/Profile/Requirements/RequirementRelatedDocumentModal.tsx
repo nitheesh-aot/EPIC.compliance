@@ -40,23 +40,17 @@ const relatedDocumentFormSchema = yup.object().shape({
   sectionTitle: yup.string().nullable(),
   description: yup
     .object({
-      html: yup.string().nullable(),
-      text: yup.string().nullable(),
+      html: yup.string().required("Description is required"),
+      text: yup.string().required("Description is required"),
     })
-    .nullable(),
+    .nullable()
+    .required("Description is required"),
 });
 
 type RequirementRelatedDocumentSchemaType = yup.InferType<
   typeof relatedDocumentFormSchema
 >;
 
-// const initFormData: RequirementRelatedDocumentSectionFormData = {
-//   relatedDocument: undefined,
-//   documentTitle: "",
-//   sectionNumber: "",
-//   sectionTitle: "",
-//   description: undefined,
-// };
 
 const RequirementRelatedDocumentModal: React.FC<
   RequirementRelatedDocumentModalProps
