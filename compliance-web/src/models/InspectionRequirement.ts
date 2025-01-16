@@ -105,6 +105,7 @@ export interface RequirementRelatedDocumentSectionFormData {
 }
 
 export interface InspectionRequirementAPIData {
+  id?: number,
   inspection_id?: number,
   summary: string,
   topic_id: number,

@@ -19,6 +19,7 @@ import {
   useComplianceFindingsData,
   useCreateInspectionRequirement,
   useEnforcementActionsData,
+  useUpdateInspectionRequirement,
 } from "@/hooks/useInspectionRequirements";
 import RequirementFormRight from "./RequirementFormRight";
 import {
@@ -75,6 +76,8 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
 
   const { mutate: createInspectionRequirement } =
     useCreateInspectionRequirement(onSuccess);
+  const { mutate: updateInspectionRequirement } =
+    useUpdateInspectionRequirement(onSuccess);
 
   const onSubmitHandler = useCallback(
     (formData: RequirementSchemaType) => {
@@ -85,9 +88,26 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
         requirementSourceList
       );
 
-      createInspectionRequirement(inspectionRequirementPayload);
+      if (requirement) {
+        updateInspectionRequirement({
+          inspectionId: inspectionData.id,
+          requirementId: requirement.id,
+          inspectionRequirement: inspectionRequirementPayload,
+        });
+      } else {
+        createInspectionRequirement({
+          inspectionId: inspectionData.id,
+          inspectionRequirement: inspectionRequirementPayload,
+        });
+      }
     },
-    [createInspectionRequirement, requirementSourceList, inspectionData]
+    [
+      inspectionData,
+      requirementSourceList,
+      requirement,
+      updateInspectionRequirement,
+      createInspectionRequirement,
+    ]
   );
 
   const onRequirementSourceListDataChange = (
@@ -100,7 +120,10 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <DrawerTitleBar title={"Create Requirement"} isFormDirtyCheck />
+        <DrawerTitleBar
+          title={requirement ? "Edit Requirement" : "Create Requirement"}
+          isFormDirtyCheck
+        />
         <DrawerActionBarTop isShowActionBar={!requirement} />
         <Stack
           height={`calc(100vh - ${appHeaderHeight + 129}px)`} // 64px (DrawerTitleBar height) + 65px (DrawerActionBar height)
@@ -114,7 +137,9 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           />
           <RequirementFormRight
             onDataChange={onRequirementSourceListDataChange}
-            requirementSourceFormDataList={defaultValues.requirementSourceDetails ?? []}
+            requirementSourceFormDataList={
+              defaultValues.requirementSourceDetails ?? []
+            }
           />
         </Stack>
         <DrawerActionBarBottom isShowActionBar={!!requirement} />
