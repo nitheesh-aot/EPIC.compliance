@@ -14,13 +14,14 @@ import RequirementRelatedDocumentModal from "./RequirementRelatedDocumentModal";
 
 interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
+  requirementSourceFormDataList: RequirementSourceFormData[];
 }
 
-const RequirementFormRight: FC<RequirementFormRightProps> = ({ onDataChange }) => {
+const RequirementFormRight: FC<RequirementFormRightProps> = ({ onDataChange, requirementSourceFormDataList }) => {
   const { setOpen, setClose } = useModal();
   const [requirementSourceFormData, setRequirementSourceFormData] = useState<
     RequirementSourceFormData[]
-  >([]);
+  >(requirementSourceFormDataList);
 
   useEffect(() => {
     onDataChange(requirementSourceFormData);

@@ -44,7 +44,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
           options={topicList}
           getOptionLabel={(option) => option.name}
           getOptionKey={(option) => option.id}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
+          isOptionEqualToValue={(option, value) => option.id.toString() === value.id.toString()}
           fullWidth
         />
         <Stack direction={"row"} gap={2}>
@@ -63,7 +63,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
             options={enforcementActionsList}
             getOptionLabel={(option) => option.name}
             getOptionKey={(option) => option.id}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
+            isOptionEqualToValue={(option, value) => option.id.toString() === value.id.toString()}
             fullWidth
             multiple
           />

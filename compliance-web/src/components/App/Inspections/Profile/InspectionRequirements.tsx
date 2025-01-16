@@ -8,6 +8,7 @@ import { Inspection } from "@/models/Inspection";
 import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
 import RequirementCard from "./Requirements/RequirementCard";
 import { useQueryClient } from "@tanstack/react-query";
+import { InspectionRequirement } from "@/models/InspectionRequirement";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
@@ -34,12 +35,25 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     [setClose, queryClient, inspectionData]
   );
 
-  const handleOpenRequirementModal = useCallback(() => {
+  const handleOpenAddRequirementModal = useCallback(() => {
     setOpen({
       content: (
         <RequirementDrawer
           onSubmit={handleOnSubmit}
           inspectionData={inspectionData}
+        />
+      ),
+      width: "1228px",
+    });
+  }, [setOpen, handleOnSubmit, inspectionData]);
+
+  const handleOpenEditRequirementModal = useCallback((requirement: InspectionRequirement) => {
+    setOpen({
+      content: (
+        <RequirementDrawer
+          onSubmit={handleOnSubmit}
+          inspectionData={inspectionData}
+          requirement={requirement}
         />
       ),
       width: "1228px",
@@ -59,7 +73,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
           variant="text"
           color="primary"
           size="small"
-          onClick={handleOpenRequirementModal}
+          onClick={handleOpenAddRequirementModal}
           startIcon={<AddRounded />}
         >
           New Requirement
@@ -70,6 +84,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
           key={requirement.id}
           requirement={requirement}
           index={index}
+          onEdit={() => handleOpenEditRequirementModal(requirement)}
         />
       ))}
     </Box>

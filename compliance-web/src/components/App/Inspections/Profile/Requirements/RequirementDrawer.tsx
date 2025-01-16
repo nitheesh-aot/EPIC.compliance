@@ -2,13 +2,14 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Stack } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useMenuStore } from "@/store/menuStore";
 import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
 import RequirementFormLeft from "./RequirementFormLeft";
 import { useTopicsData } from "@/hooks/useTopics";
 import {
+  InspectionRequirement,
   InspectionRequirementFormData,
   RequirementSourceFormData,
 } from "@/models/InspectionRequirement";
@@ -22,6 +23,7 @@ import {
 import RequirementFormRight from "./RequirementFormRight";
 import {
   formatRequirementAPIData,
+  formatRequirementFormData,
   RequirementFormSchema,
   RequirementSchemaType,
 } from "./RequirementUtils";
@@ -29,6 +31,7 @@ import {
 type RequirementDrawerProps = {
   inspectionData: Inspection;
   onSubmit: (submitMsg: string) => void;
+  requirement?: InspectionRequirement;
 };
 
 const initFormData: InspectionRequirementFormData = {
@@ -42,6 +45,7 @@ const initFormData: InspectionRequirementFormData = {
 const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   inspectionData,
   onSubmit,
+  requirement,
 }) => {
   const { appHeaderHeight } = useMenuStore();
   const [requirementSourceList, setRequirementSourceList] = useState<
@@ -52,10 +56,14 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const { data: complianceFindingsList } = useComplianceFindingsData();
   const { data: topicsList } = useTopicsData();
 
+  const defaultValues = useMemo<InspectionRequirementFormData>(() => {
+    return requirement ? formatRequirementFormData(requirement) : initFormData;
+  }, [requirement]);
+
   const methods = useForm<RequirementSchemaType>({
     resolver: yupResolver(RequirementFormSchema),
     mode: "onBlur",
-    defaultValues: initFormData,
+    defaultValues: defaultValues,
   });
 
   const { handleSubmit, reset } = methods;
@@ -82,7 +90,9 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     [createInspectionRequirement, requirementSourceList, inspectionData]
   );
 
-  const onRequirementSourceListDataChange = (data: RequirementSourceFormData[]) => {
+  const onRequirementSourceListDataChange = (
+    data: RequirementSourceFormData[]
+  ) => {
     setRequirementSourceList(data);
     return data;
   };
@@ -91,7 +101,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <DrawerTitleBar title={"Create Requirement"} isFormDirtyCheck />
-        <DrawerActionBarTop isShowActionBar={true} />
+        <DrawerActionBarTop isShowActionBar={!requirement} />
         <Stack
           height={`calc(100vh - ${appHeaderHeight + 129}px)`} // 64px (DrawerTitleBar height) + 65px (DrawerActionBar height)
           direction={"row"}
@@ -102,9 +112,12 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
             topicList={topicsList ?? []}
             appHeaderHeight={appHeaderHeight}
           />
-          <RequirementFormRight onDataChange={onRequirementSourceListDataChange} />
+          <RequirementFormRight
+            onDataChange={onRequirementSourceListDataChange}
+            requirementSourceFormDataList={defaultValues.requirementSourceDetails ?? []}
+          />
         </Stack>
-        <DrawerActionBarBottom isShowActionBar={false} />
+        <DrawerActionBarBottom isShowActionBar={!!requirement} />
       </form>
     </FormProvider>
   );

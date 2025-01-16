@@ -55,7 +55,8 @@ export interface InspectionRequirementFormData {
   findings?: {
     html: string;
     text: string;
-  }
+  };
+  requirementSourceDetails?: RequirementSourceFormData[];
 }
 
 export interface RequirementSourceFormData {

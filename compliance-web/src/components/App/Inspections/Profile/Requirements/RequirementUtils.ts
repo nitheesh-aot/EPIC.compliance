@@ -3,7 +3,7 @@ import { ComplianceFinding } from "@/models/ComplianceFinding";
 import { EnforcementAction } from "@/models/EnforcementAction";
 import * as yup from "yup";
 import { RequirementSourceEnum } from "@/utils/constants";
-import { InspectionRequirementFormData } from "@/models/InspectionRequirement";
+import { InspectionRequirement, InspectionRequirementFormData, RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData } from "@/models/InspectionRequirement";
 import { InspectionRequirementAPIData, InspectionRequirementSourceAPIData, InspectionRequirementSourceDocumentAPIData, RequirementSourceFormData } from "@/models/InspectionRequirement";
 
 export const RequirementFormSchema = yup.object().shape({
@@ -76,4 +76,51 @@ export const formatRequirementAPIData = (
   };
 
   return inspectionRequirementPayload;
+};
+
+
+export const formatRequirementFormData = (requirement: InspectionRequirement): InspectionRequirementFormData => {
+  const requirementSourceDetails: RequirementSourceFormData[] = requirement.requirement_source_details.map((item) => {
+    const relatedDocuments: RequirementRelatedDocumentData[] = [];
+    item.documents.forEach((document) => {
+      const existingDocumentIndex = relatedDocuments.findIndex(
+        (doc) => doc.documentTitle === document.document_title
+      );
+      const section: RequirementRelatedDocumentSectionData = {
+        id: Date.now(),
+        sourceFormId: item.id,
+        relatedDocumentFormId: document.id,
+        sectionNumber: document.section_number,
+        sectionTitle: document.section_title,
+        description: { html: document.description, text: document.description },
+      };
+
+      if (existingDocumentIndex !== -1) {
+        relatedDocuments[existingDocumentIndex]?.sections?.push(section);
+      } else {
+        relatedDocuments.push({
+          id: document.id,
+          documentTitle: document.document_title,
+          sections: [section],
+        });
+      }
+    });
+    return {
+      id: item.id,
+      requirementSource: item.requirement_source,
+      sourceNumber: item.section_number ?? item.condition_number,
+      sourceTitle: item.title,
+      sourceAmendmentNumber: item.amendment_number,
+      description: { html: item.description, text: item.description },
+      relatedDocuments: relatedDocuments,
+    };
+  });
+  return {
+    requirementSummary: requirement.summary,
+    topic: requirement.topic,
+    complianceFinding: requirement.compliance_finding,
+    enforcementAction: requirement.enforcement_action_data,
+    findings: { html: requirement.findings, text: requirement.findings },
+    requirementSourceDetails: requirementSourceDetails,
+  };
 };
