@@ -31,7 +31,6 @@ export const isRequirementSourceCondition = (id: string): boolean =>
 
 
 export const formatRequirementAPIData = (
-  inspectionId: number,
   formData: InspectionRequirementFormData,
   requirementSourceList: RequirementSourceFormData[]
 ): InspectionRequirementAPIData => {
@@ -66,7 +65,6 @@ export const formatRequirementAPIData = (
     });
 
   const inspectionRequirementPayload: InspectionRequirementAPIData = {
-    inspection_id: inspectionId,
     summary: formData.requirementSummary ?? "",
     topic_id: formData.topic?.id ?? 0,
     enforcement_action_ids: formData.enforcementAction?.map((action) => action.id) ?? [],
@@ -100,6 +98,7 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
       } else {
         relatedDocuments.push({
           id: document.id,
+          relatedDocument: document.document_type,
           documentTitle: document.document_title,
           sections: [section],
         });

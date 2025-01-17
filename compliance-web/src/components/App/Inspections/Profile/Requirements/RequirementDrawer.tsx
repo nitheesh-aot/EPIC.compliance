@@ -83,7 +83,6 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     (formData: RequirementSchemaType) => {
       const formLeftData = formData as InspectionRequirementFormData;
       const inspectionRequirementPayload = formatRequirementAPIData(
-        inspectionData.id,
         formLeftData,
         requirementSourceList
       );

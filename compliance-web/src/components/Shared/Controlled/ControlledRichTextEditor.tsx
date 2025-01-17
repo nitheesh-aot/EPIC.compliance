@@ -84,6 +84,7 @@ const ControlledRichTextEditor: React.FC<ControlledRichTextEditorProps> = ({
         toolbar: {
           container: [
             ["bold", "italic", "underline", "strike"],
+            [{ indent: "+1" }, { indent: "-1" }],
             [{ list: "ordered" }, { list: "bullet" }],
           ],
           handlers: {
