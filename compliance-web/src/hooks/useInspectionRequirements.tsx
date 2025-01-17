@@ -56,6 +56,19 @@ const updateInspectionRequirement = ({
   });
 };
 
+const deleteInspectionRequirement = ({
+  inspectionId,
+  requirementId,
+}: {
+  inspectionId: number;
+  requirementId: number;
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/requirements/${requirementId}`,
+    method: "delete",
+  });
+};
+
 export const useEnforcementActionsData = () => {
   return useQuery({
     queryKey: ["enforcement-actions"],
@@ -90,4 +103,8 @@ export const useCreateInspectionRequirement = (onSuccess: OnSuccessType) => {
 
 export const useUpdateInspectionRequirement = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateInspectionRequirement, onSuccess });
+};
+
+export const useDeleteInspectionRequirement = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: deleteInspectionRequirement, onSuccess });
 };

@@ -18,6 +18,7 @@ import { EnforcementAction } from "@/models/EnforcementAction";
 import {
   useComplianceFindingsData,
   useCreateInspectionRequirement,
+  useDeleteInspectionRequirement,
   useEnforcementActionsData,
   useUpdateInspectionRequirement,
 } from "@/hooks/useInspectionRequirements";
@@ -74,10 +75,27 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     reset();
   }, [onSubmit, reset]);
 
+  const onDeleteSuccess = useCallback(() => {
+    onSubmit("Requirement deleted successfully!");
+    reset();
+  }, [onSubmit, reset]);
+
   const { mutate: createInspectionRequirement } =
     useCreateInspectionRequirement(onSuccess);
   const { mutate: updateInspectionRequirement } =
     useUpdateInspectionRequirement(onSuccess);
+
+  const { mutate: deleteInspectionRequirement } =
+    useDeleteInspectionRequirement(onDeleteSuccess);
+
+  const onDeleteRequirement = () => {
+    if (requirement) {
+      deleteInspectionRequirement({
+        inspectionId: inspectionData.id,
+        requirementId: requirement.id,
+      });
+    }
+  };
 
   const onSubmitHandler = useCallback(
     (formData: RequirementSchemaType) => {
@@ -141,7 +159,12 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
             }
           />
         </Stack>
-        <DrawerActionBarBottom isShowActionBar={!!requirement} />
+        <DrawerActionBarBottom
+          isShowActionBar={!!requirement}
+          onDeleteAction={onDeleteRequirement}
+          onDeleteTitle="Delete Requirement"
+          onDeleteDescription="You are about to delete this Requirement. Are you sure?"
+        />
       </form>
     </FormProvider>
   );
