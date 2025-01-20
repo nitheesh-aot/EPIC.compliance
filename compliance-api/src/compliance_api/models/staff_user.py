@@ -10,7 +10,7 @@ from typing import Optional
 from sqlalchemy import Boolean, Column, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import relationship
 
-from .base_model import BaseModelVersioned
+from .base_model import BaseModelVersioned, db
 
 
 class StaffUser(BaseModelVersioned):
@@ -50,8 +50,12 @@ class StaffUser(BaseModelVersioned):
         comment="The unique identifier from the identity provider.",
     )
     position = relationship("Position", foreign_keys=[position_id], lazy="joined")
-    deputy_director = relationship("StaffUser", remote_side=[id], foreign_keys=[deputy_director_id])
-    supervisor = relationship("StaffUser", remote_side=[id], foreign_keys=[supervisor_id])
+    deputy_director = relationship(
+        "StaffUser", remote_side=[id], foreign_keys=[deputy_director_id]
+    )
+    supervisor = relationship(
+        "StaffUser", remote_side=[id], foreign_keys=[supervisor_id]
+    )
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
     __table_args__ = (
         Index(
@@ -94,3 +98,17 @@ class StaffUser(BaseModelVersioned):
             auth_user_guid=auth_guid, is_deleted=False
         ).first()
         return staff_user
+
+    @classmethod
+    def delete_staff_user(cls, staff_user_id, session=None):
+        """Delete the staff user."""
+        user = cls.find_by_id(staff_user_id)
+        if not user:
+            return None
+        user.is_deleted = True
+        user.is_active = False
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
+        return user

@@ -50,6 +50,7 @@ class AgencyService:
         if not agency:
             return None
         agency.is_deleted = True
+        agency.is_active = False
         db.session.flush()
         if commit:
             db.session.commit()
