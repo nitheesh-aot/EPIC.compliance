@@ -1,40 +1,79 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { useDrawer } from "@/store/drawerStore";
 import { Box, Button } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useFormContext } from "react-hook-form";
+import { DeleteOutlineRounded } from "@mui/icons-material";
+import { useModal } from "@/store/modalStore";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
-const DrawerActionBarBottom: React.FC<{ isShowActionBar: boolean }> =
-  React.memo(({ isShowActionBar }) => {
+type DrawerActionBarBottomProps = {
+  isShowActionBar: boolean;
+  onDeleteAction?: () => void;
+  onDeleteTitle?: string;
+  onDeleteDescription?: string;
+};
+
+const DrawerActionBarBottom: React.FC<DrawerActionBarBottomProps> = React.memo(
+  ({ isShowActionBar, onDeleteAction, onDeleteTitle, onDeleteDescription }) => {
     const { setClose } = useDrawer();
+    const { setOpen, setClose: setModalClose } = useModal();
 
     const {
       formState: { isValid, isDirty },
     } = useFormContext();
 
-    const boxStyles = useMemo(
-      () => ({
-        backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
-        padding: "0.75rem 2rem",
-        display: "flex",
-        justifyContent: "flex-end",
-        gap: "1rem",
-      }),
-      []
-    );
+    const handleDelete = () => {
+      setOpen({
+        content: (
+          <ConfirmationModal
+            title={onDeleteTitle ?? "Delete"}
+            description={
+              onDeleteDescription ??
+              "Are you sure you want to delete this item?"
+            }
+            confirmButtonText="Delete"
+            onConfirm={() => {
+              onDeleteAction?.();
+              setModalClose();
+            }}
+          />
+        ),
+      });
+    };
 
     return (
       isShowActionBar && (
-        <Box sx={boxStyles}>
-          <Button onClick={setClose} color="secondary" disabled={!isDirty}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={!isValid || !isDirty}>
-            Save
-          </Button>
+        <Box
+          sx={{
+            backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
+            padding: "0.75rem 2rem",
+            display: "flex",
+            justifyContent: onDeleteAction ? "space-between" : "flex-end",
+          }}
+        >
+          {onDeleteAction && (
+            <Button
+              variant="text"
+              color="error"
+              startIcon={<DeleteOutlineRounded />}
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          )}
+          <Box sx={{ display: "flex", gap: "1rem" }}>
+            <Button onClick={setClose} color="secondary" disabled={!isDirty}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!isValid || !isDirty}>
+              Save
+            </Button>
+          </Box>
         </Box>
       )
     );
-  });
+  }
+);
 
 export default DrawerActionBarBottom;

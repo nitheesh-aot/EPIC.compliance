@@ -7,11 +7,13 @@ import { isRequirementSourceCondition } from "./RequirementUtils";
 interface RequirementCardProps {
   requirement: InspectionRequirement;
   index: number;
+  onEdit: () => void;
 }
 
 const RequirementCard: React.FC<RequirementCardProps> = ({
   requirement,
   index,
+  onEdit,
 }) => {
   const isCondition = isRequirementSourceCondition(
     requirement.requirement_source_details?.[0]?.requirement_source_id.toString()
@@ -24,7 +26,12 @@ const RequirementCard: React.FC<RequirementCardProps> = ({
         mb: 2,
         border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
         borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
+        "&:hover": {
+          cursor: "pointer",
+          boxShadow: `0px 4px 6px 0px ${BCDesignTokens.surfaceColorBorderDefault}`,
+        },
       }}
+      onClick={onEdit}
     >
       <Box
         sx={{

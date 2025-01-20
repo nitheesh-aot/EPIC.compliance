@@ -35,6 +35,7 @@ export interface InspectionRequirement {
         {
           id: number,
           req_detail_id: number,
+          document_type: RequirementDocumentType,
           document_type_id: number,
           document_title: string,
           section_number: string,
@@ -55,7 +56,8 @@ export interface InspectionRequirementFormData {
   findings?: {
     html: string;
     text: string;
-  }
+  };
+  requirementSourceDetails?: RequirementSourceFormData[];
 }
 
 export interface RequirementSourceFormData {
@@ -104,7 +106,7 @@ export interface RequirementRelatedDocumentSectionFormData {
 }
 
 export interface InspectionRequirementAPIData {
-  inspection_id?: number,
+  id?: number,
   summary: string,
   topic_id: number,
   enforcement_action_ids: string[],
