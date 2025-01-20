@@ -43,6 +43,17 @@ class AuthService:
             )
         return update_group_response
 
+    @staticmethod
+    def delete_user_group(auth_user_guid: str, group: str, del_sub_group_mappings=True):
+        """Delete the user-group mapping in identity server."""
+        delete_response = _request_auth_service(
+            f"users/{auth_user_guid}/groups/{group}?del_sub_group_mappings={del_sub_group_mappings}",
+            HttpMethod.DELETE,
+        )
+        if delete_response.status_code != 204:
+            raise BusinessError("Delete group mapping failed")
+        return delete_response
+
 
 def _request_auth_service(
     relative_url, http_method: HttpMethod = HttpMethod.GET, data=None
