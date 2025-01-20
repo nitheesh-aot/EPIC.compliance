@@ -1,6 +1,6 @@
 app:
   name: compliance
-  url: https://compliance-web-c8b80a-dev.apps.gold.devops.gov.bc.ca
+  url: https://dev.compliance.eao.gov.bc.ca
   api: https://compliance-api-c8b80a-dev.apps.gold.devops.gov.bc.ca
   auth_url: https://auth-api-c72cba-dev.apps.gold.devops.gov.bc.ca
   track_api_url: https://epictrack-api-c72cba-dev.apps.gold.devops.gov.bc.ca
