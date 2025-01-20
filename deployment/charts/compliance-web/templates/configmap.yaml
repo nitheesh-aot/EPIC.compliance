@@ -14,7 +14,7 @@ data:
         "VITE_TRACK_API_URL": "{{ .Values.app.track_api_url }}",
         "VITE_VERSION": "{{ .Values.app.version }}",
         "VITE_APP_TITLE": "EPIC.compliance",
-        "VITE_APP_URL": "https://{{ .Values.app.url }}",
+        "VITE_APP_URL": "{{ .Values.app.url }}",
         "VITE_OIDC_AUTHORITY": "{{ .Values.keycloak.url }}",
         "VITE_CLIENT_ID": "{{ .Values.keycloak.client }}",
         "VITE_INPROGRESS_FEATURES": "{{ .Values.app.in_progress_features }}"
