@@ -31,6 +31,10 @@ def mock_auth_service(mocker):
         "compliance_api.services.authorize_service.auth_service.AuthService.update_user_group"
     )
     mock_update_user_group.return_value = {}
+    mock_update_user_group = mocker.patch(
+        "compliance_api.services.authorize_service.auth_service.AuthService.delete_user_group"
+    )
+    mock_update_user_group.return_value = {}
 
     yield mock_get_user_by_guid, mock_update_user_group
 

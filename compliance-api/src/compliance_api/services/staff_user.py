@@ -1,7 +1,6 @@
 """Service for user management."""
 
 from compliance_api.exceptions import ResourceExistsError, ResourceNotFoundError, UnprocessableEntityError
-from compliance_api.models import db
 from compliance_api.models.db import session_scope
 from compliance_api.models.staff_user import StaffUser as StaffUserModel
 from compliance_api.utils.constant import AUTH_APP
@@ -84,15 +83,12 @@ class StaffUserService:
         return updated_user
 
     @classmethod
-    def delete_user(cls, user_id, commit=True):
+    def delete_user(cls, user_id):
         """Delete the staff user entity permenantly from database."""
-        user = StaffUserModel.find_by_id(user_id)
-        if not user:
-            return None
-        user.is_deleted = True
-        db.session.flush()
-        if commit:
-            db.session.commit()
+        with session_scope() as session:
+            user = StaffUserModel.delete_staff_user(user_id, session)
+            #  Here we have to delete all the AUTH_APP(COMPLIANEC) level permission from keycloak
+            AuthService.delete_user_group(user.auth_user_guid, group=AUTH_APP)
         return user
 
     @classmethod

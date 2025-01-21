@@ -49,6 +49,7 @@ class TopicService:
         if not topic:
             return None
         topic.is_deleted = True
+        topic.is_active = False
         db.session.flush()
         if commit:
             db.session.commit()
