@@ -18,7 +18,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   inspectionData,
 }) => {
   const queryClient = useQueryClient();
-  const { setOpen, setClose } = useDrawer();
+  const { setOpen } = useDrawer();
 
   const { data: inspectionRequirementsData } = useInspectionRequirementsData(
     inspectionData.id
@@ -29,10 +29,9 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
       queryClient.invalidateQueries({
         queryKey: ["inspection-requirements", inspectionData.id],
       });
-      setClose();
       notify.success(submitMsg);
     },
-    [setClose, queryClient, inspectionData]
+    [queryClient, inspectionData]
   );
 
   const handleOpenAddRequirementModal = useCallback(() => {

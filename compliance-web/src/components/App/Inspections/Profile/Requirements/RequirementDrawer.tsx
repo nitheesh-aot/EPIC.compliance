@@ -74,8 +74,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
 
   const onSuccess = useCallback(() => {
     onSubmit("Changes saved successfully!");
-    reset();
-  }, [onSubmit, reset]);
+  }, [onSubmit]);
 
   const onDeleteSuccess = useCallback(() => {
     onSubmit("Requirement deleted successfully!");
