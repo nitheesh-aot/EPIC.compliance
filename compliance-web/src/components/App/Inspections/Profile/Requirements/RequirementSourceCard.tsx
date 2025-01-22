@@ -110,26 +110,28 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                 ` #${data[0].sourceAmendmentNumber}`}
             </Typography>
           </Box>
-          <Button
-            variant="text"
-            color="secondary"
-            size="small"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddSection(data[0]);
-            }}
-            startIcon={<AddRounded />}
-            sx={{
-              backgroundColor: "transparent",
-              paddingY: 0,
-              height: "auto",
-              "& .MuiButton-startIcon": {
-                mr: 0,
-              },
-            }}
-          >
-            {isCondition ? "Condition" : "Section"}
-          </Button>
+          {isExpanded && (
+            <Button
+              variant="text"
+              color="secondary"
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddSection(data[0]);
+              }}
+              startIcon={<AddRounded />}
+              sx={{
+                backgroundColor: "transparent",
+                paddingY: 0,
+                height: "auto",
+                "& .MuiButton-startIcon": {
+                  mr: 0,
+                },
+              }}
+            >
+              {isCondition ? "Condition" : "Section"}
+            </Button>
+          )}
         </AccordionSummary>
         <AccordionDetails sx={{ padding: "0" }}>
           <Stack>

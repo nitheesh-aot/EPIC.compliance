@@ -89,26 +89,28 @@ const RequirementRelatedDocumentCard: FC<
             {relatedDocument.documentTitle}
           </Typography>
         </Box>
-        <Button
-          variant="text"
-          color="secondary"
-          size="small"
-          onClick={(e) => {
-            e.stopPropagation();
-            onAddRelatedDocumentSection();
-          }}
-          startIcon={<AddRounded />}
-          sx={{
-            backgroundColor: "transparent",
-            paddingY: 0,
-            height: "auto",
-            "& .MuiButton-startIcon": {
-              mr: 0,
-            },
-          }}
-        >
-          Section
-        </Button>
+        {isExpanded && (
+          <Button
+            variant="text"
+            color="secondary"
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddRelatedDocumentSection();
+            }}
+            startIcon={<AddRounded />}
+            sx={{
+              backgroundColor: "transparent",
+              paddingY: 0,
+              height: "auto",
+              "& .MuiButton-startIcon": {
+                mr: 0,
+              },
+            }}
+          >
+            Section
+          </Button>
+        )}
       </AccordionSummary>
       <AccordionDetails sx={{ padding: "0" }}>
         {relatedDocument.sections
