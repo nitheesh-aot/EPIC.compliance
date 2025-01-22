@@ -8,12 +8,14 @@ interface RequirementCardProps {
   requirement: InspectionRequirement;
   index: number;
   onEdit: () => void;
+  isActive: boolean;
 }
 
 const RequirementCard: React.FC<RequirementCardProps> = ({
   requirement,
   index,
   onEdit,
+  isActive,
 }) => {
   const isCondition = isRequirementSourceCondition(
     requirement.requirement_source_details?.[0]?.requirement_source_id.toString()
@@ -30,6 +32,9 @@ const RequirementCard: React.FC<RequirementCardProps> = ({
           cursor: "pointer",
           boxShadow: `0px 4px 6px 0px ${BCDesignTokens.surfaceColorBorderDefault}`,
         },
+        ...(isActive && {
+          borderColor: BCDesignTokens.surfaceColorBorderActive,
+        }),
       }}
       onClick={onEdit}
     >

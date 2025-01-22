@@ -19,6 +19,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const { setOpen } = useDrawer();
+  const [activeRequirementId, setActiveRequirementId] = React.useState<number | null>(null);
 
   const { data: inspectionRequirementsData } = useInspectionRequirementsData(
     inspectionData.id
@@ -48,10 +49,14 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 
   const handleOpenEditRequirementModal = useCallback(
     (requirement: InspectionRequirement, index: number) => {
+      setActiveRequirementId(requirement.id);
       setOpen({
         content: (
           <RequirementDrawer
-            onSubmit={handleOnSubmit}
+            onSubmit={(submitMsg) => {
+              setActiveRequirementId(null);
+              handleOnSubmit(submitMsg);
+            }}
             inspectionData={inspectionData}
             requirement={requirement}
             index={index}
@@ -88,6 +93,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
           requirement={requirement}
           index={index}
           onEdit={() => handleOpenEditRequirementModal(requirement, index)}
+          isActive={requirement.id === activeRequirementId}
         />
       ))}
     </Box>
