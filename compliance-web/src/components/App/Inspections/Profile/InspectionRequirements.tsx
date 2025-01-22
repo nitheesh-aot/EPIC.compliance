@@ -47,18 +47,22 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     });
   }, [setOpen, handleOnSubmit, inspectionData]);
 
-  const handleOpenEditRequirementModal = useCallback((requirement: InspectionRequirement) => {
-    setOpen({
-      content: (
-        <RequirementDrawer
-          onSubmit={handleOnSubmit}
-          inspectionData={inspectionData}
-          requirement={requirement}
-        />
-      ),
-      width: "1228px",
-    });
-  }, [setOpen, handleOnSubmit, inspectionData]);
+  const handleOpenEditRequirementModal = useCallback(
+    (requirement: InspectionRequirement, index: number) => {
+      setOpen({
+        content: (
+          <RequirementDrawer
+            onSubmit={handleOnSubmit}
+            inspectionData={inspectionData}
+            requirement={requirement}
+            index={index}
+          />
+        ),
+        width: "1228px",
+      });
+    },
+    [setOpen, handleOnSubmit, inspectionData]
+  );
 
   return (
     <Box
@@ -84,7 +88,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
           key={requirement.id}
           requirement={requirement}
           index={index}
-          onEdit={() => handleOpenEditRequirementModal(requirement)}
+          onEdit={() => handleOpenEditRequirementModal(requirement, index)}
         />
       ))}
     </Box>
