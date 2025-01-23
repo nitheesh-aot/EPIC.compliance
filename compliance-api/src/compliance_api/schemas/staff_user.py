@@ -90,6 +90,10 @@ class StaffUserUpdateSchema(BaseSchema):
         metadata={"description": "The permission level of the staff user."},
         required=True,
     )
+    is_active = fields.Bool(
+        metadata={"description": "Indicate if the staff is active or not"},
+        required=True,
+    )
 
     @post_load
     def extract_permission_value(
@@ -131,6 +135,10 @@ class StaffUserCreateSchema(BaseSchema):
     permission = EnumField(
         PermissionEnum,
         metadata={"description": "The permission level of the staff user."},
+        required=True,
+    )
+    is_active = fields.Bool(
+        metadata={"description": "Indicate if the staff is active or not"},
         required=True,
     )
 

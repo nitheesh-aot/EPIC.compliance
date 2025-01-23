@@ -216,7 +216,14 @@ class CaseFileOfficer(BaseModelVersioned):
         back_populates="case_file_officers",
         lazy="joined",
     )
-    officer = relationship("StaffUser", foreign_keys=[officer_id], lazy="joined")
+    officer = relationship(
+        "StaffUser",
+        foreign_keys=[officer_id],
+        lazy="select",
+        primaryjoin="and_(StaffUser.id == CaseFileOfficer.officer_id, "
+        "StaffUser.is_active == True, "
+        "StaffUser.is_deleted == False)",
+    )
 
     @classmethod
     def get_all_by_case_file_id(cls, case_file_id: int):

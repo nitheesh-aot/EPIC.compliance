@@ -16,6 +16,7 @@ import {
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { CaseFile } from "@/models/CaseFile";
 import { Inspection, InspectionFormData } from "@/models/Inspection";
+import { StaffUser } from "@/models/Staff";
 import { useMenuStore } from "@/store/menuStore";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Stack } from "@mui/material";
@@ -30,7 +31,6 @@ import {
   InspectionFormSchema,
   InspectionSchemaType,
 } from "./InspectionFormUtils";
-import { StaffUser } from "@/models/Staff";
 
 type InspectionDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -63,7 +63,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const { data: attendanceList } = useAttendanceOptionsData();
   const { data: agenciesList } = useAgenciesData();
   const { data: firstNationsList } = useFirstNationsData();
-  const { data: inattendanceOfficersList } = useStaffUsersData()
+  const { data: inattendanceOfficersList } = useStaffUsersData(true)
   const currentUser = useCurrentLoggedInUser();
 
   const staffUserList = [

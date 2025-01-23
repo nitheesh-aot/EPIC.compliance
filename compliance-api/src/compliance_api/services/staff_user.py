@@ -27,7 +27,7 @@ class StaffUserService:
     def get_all_staff_users(cls):
         """Get all users."""
         # Get users from compliance database
-        users = StaffUserModel.get_all()
+        users = StaffUserModel.get_all(default_filters=False)
         # Get compliance users from epic system
         auth_users = AuthService.get_epic_users_by_app()
         # Merge the two sets of users to set the permission in the result
@@ -78,8 +78,11 @@ class StaffUserService:
             permission = user_data.get("permission")
             user_data.pop("permission")
             updated_user = StaffUserModel.update_staff(user_id, user_data, session)
-            AuthService.update_user_group(auth_user_guid, group_payload)
-            setattr(updated_user, "permission", permission)
+            if not user_data.get("is_active"):
+                AuthService.delete_user_group(user.auth_user_guid, AUTH_APP)
+            else:
+                AuthService.update_user_group(auth_user_guid, group_payload)
+                setattr(updated_user, "permission", permission)
         return updated_user
 
     @classmethod
@@ -106,6 +109,7 @@ def _create_staff_user_object(user_data: dict, auth_user: dict):
         "deputy_director_id": user_data.get("deputy_director_id"),
         "supervisor_id": user_data.get("supervisor_id", None),
         "auth_user_guid": auth_user.get("username", None),
+        "is_active": auth_user.get("is_active")
     }
 
 
