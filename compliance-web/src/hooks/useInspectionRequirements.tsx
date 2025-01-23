@@ -56,6 +56,24 @@ const updateInspectionRequirement = ({
   });
 };
 
+const updateInspectionRequirementOrder = ({
+  inspectionId,
+  requirementId,
+  sortOrder,
+}: {
+  inspectionId: number;
+  requirementId: number;
+  sortOrder: number;
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/requirements/${requirementId}/sort-order`,
+    method: "patch",
+    data: {
+      order: sortOrder,
+    },
+  });
+};
+
 const deleteInspectionRequirement = ({
   inspectionId,
   requirementId,
@@ -103,6 +121,13 @@ export const useCreateInspectionRequirement = (onSuccess: OnSuccessType) => {
 
 export const useUpdateInspectionRequirement = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateInspectionRequirement, onSuccess });
+};
+
+export const useUpdateInspectionRequirementOrder = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: updateInspectionRequirementOrder,
+    onSuccess,
+  });
 };
 
 export const useDeleteInspectionRequirement = (onSuccess: OnSuccessType) => {

@@ -4,7 +4,9 @@ import { BCDesignTokens } from "epic.theme";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { isRequirementSourceCondition } from "./RequirementUtils";
 import { DragIndicatorRounded } from "@mui/icons-material";
-import { Reorder, useDragControls } from "framer-motion";
+import { Reorder } from "framer-motion";
+import { useUpdateInspectionRequirementOrder } from "@/hooks/useInspectionRequirements";
+import { notify } from "@/store/snackbarStore";
 interface RequirementCardProps {
   requirement: InspectionRequirement;
   index: number;
@@ -18,21 +20,32 @@ const RequirementCard: React.FC<RequirementCardProps> = ({
   onEdit,
   isActive,
 }) => {
-  const dragControls = useDragControls();
   const [isDragging, setIsDragging] = React.useState(false);
 
   const isCondition = isRequirementSourceCondition(
     requirement.requirement_source_details?.[0]?.requirement_source_id.toString()
   );
 
+  const onSuccess = () => {
+    notify.success("Requirement sort order updated");
+  };
+
+  const { mutate: updateInspectionRequirementOrder } =
+    useUpdateInspectionRequirementOrder(onSuccess);
+
   return (
     <Reorder.Item
       key={requirement.id}
       value={requirement}
-      dragListener={false}
-      dragControls={dragControls}
       onDragStart={() => setIsDragging(true)}
-      onDragEnd={() => setTimeout(() => setIsDragging(false), 100)}
+      onDragEnd={() => {
+        updateInspectionRequirementOrder({
+          inspectionId: requirement.inspection_id,
+          requirementId: requirement.id,
+          sortOrder: index + 1,
+        });
+        setTimeout(() => setIsDragging(false), 100);
+      }}
     >
       <Box
         sx={{
@@ -61,10 +74,6 @@ const RequirementCard: React.FC<RequirementCardProps> = ({
             p: "0.75rem 1.5rem",
             pl: 0,
             backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
-          }}
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            dragControls.start(e);
           }}
         >
           <DragIndicatorRounded
