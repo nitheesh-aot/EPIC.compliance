@@ -1,5 +1,5 @@
 :root {
-  font-family: 'BC Sans';
+  font-family: "BC Sans";
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -11,14 +11,15 @@ a {
   text-decoration: inherit;
 }
 
-body, #root {
+body,
+#root {
   margin: 0;
   height: 100vh;
   width: 100%;
 }
 * {
   scrollbar-width: thin;
-  scrollbar-color: #B7B7B7 transparent;
+  scrollbar-color: #b7b7b7 transparent;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -32,7 +33,7 @@ body, #root {
 
   &::-webkit-scrollbar-thumb {
     border-radius: 6px;
-    background-color: #B7B7B7;
+    background-color: #b7b7b7;
     min-height: 24px;
     min-width: 24px;
   }
@@ -52,4 +53,10 @@ body, #root {
   &::-webkit-scrollbar-corner {
     background-color: transparent;
   }
+}
+
+.reorder-list {
+  padding: 0;
+  list-style: none;
+  margin: 0;
 }
