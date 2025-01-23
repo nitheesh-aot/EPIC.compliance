@@ -58,15 +58,6 @@ class InspectionRequirement(BaseModelVersioned):
         back_populates="requirement",
         lazy="select"
     )
-    # __table_args__ = (
-    #     Index(
-    #         "unique_non_deleted_sort_order",  # Index name
-    #         "inspection_id",
-    #         "sort_order",
-    #         unique=True,
-    #         postgresql_where=(is_deleted.is_(False)),  # Condition for uniqueness
-    #     ),
-    # )
 
     @classmethod
     def create_requirement(cls, requirement_obj, session=None):
