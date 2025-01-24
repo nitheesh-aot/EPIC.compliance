@@ -34,6 +34,7 @@ type RequirementDrawerProps = {
   inspectionData: Inspection;
   onSubmit: (submitMsg: string) => void;
   requirement?: InspectionRequirement;
+  index?: number;
 };
 
 const initFormData: InspectionRequirementFormData = {
@@ -48,6 +49,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   inspectionData,
   onSubmit,
   requirement,
+  index,
 }) => {
   const { appHeaderHeight } = useMenuStore();
   const [requirementSourceList, setRequirementSourceList] = useState<
@@ -72,8 +74,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
 
   const onSuccess = useCallback(() => {
     onSubmit("Changes saved successfully!");
-    reset();
-  }, [onSubmit, reset]);
+  }, [onSubmit]);
 
   const onDeleteSuccess = useCallback(() => {
     onSubmit("Requirement deleted successfully!");
@@ -138,7 +139,11 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <DrawerTitleBar
-          title={requirement ? "Edit Requirement" : "Create Requirement"}
+          title={
+            requirement
+              ? `Edit Requirement ${index !== undefined ? `#${index + 1}` : ""}`
+              : "Create Requirement"
+          }
           isFormDirtyCheck
         />
         <DrawerActionBarTop isShowActionBar={!requirement} />

@@ -38,9 +38,11 @@ export default function ParagraphWithReadMore({
     <Stack flex={1}>
       <Stack
         ref={contentRef}
+        className="ql-editor"
         sx={{
           maxHeight: isExpanded ? "none" : `${maxHeight}px`,
           overflow: "hidden",
+          padding: 0,
         }}
       >
         {renderTypography}

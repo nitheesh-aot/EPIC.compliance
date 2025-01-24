@@ -17,7 +17,10 @@ interface RequirementFormRightProps {
   requirementSourceFormDataList: RequirementSourceFormData[];
 }
 
-const RequirementFormRight: FC<RequirementFormRightProps> = ({ onDataChange, requirementSourceFormDataList }) => {
+const RequirementFormRight: FC<RequirementFormRightProps> = ({
+  onDataChange,
+  requirementSourceFormDataList,
+}) => {
   const { setOpen, setClose } = useModal();
   const [requirementSourceFormData, setRequirementSourceFormData] = useState<
     RequirementSourceFormData[]
@@ -127,14 +130,20 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({ onDataChange, req
   };
 
   const handleDeleteRequirementSource = (data: RequirementSourceFormData) => {
+    const isLastItem =
+      groupedData[data.requirementSource?.id ?? ""].length === 1;
+    const description = isLastItem
+      ? `You are about to delete ${data.requirementSource?.name}.
+      This is the primary requirement source. 
+      Deleting it will also permanently remove all associated documents. 
+      Are you sure you want to proceed?`
+      : `You are about to delete ${data.requirementSource?.name}.
+      Are you sure you want to proceed?`;
     setOpen({
       content: (
         <ConfirmationModal
           title="Delete Requirement Source?"
-          description={`You are about to delete ${data.requirementSource?.name}.
-          This is the primary requirement source. 
-          Deleting it will also permanently remove all associated documents. 
-          Are you sure you want to proceed?`}
+          description={description}
           confirmButtonText="Delete"
           onConfirm={() => handleOnDeleteSubmit(data)}
         />

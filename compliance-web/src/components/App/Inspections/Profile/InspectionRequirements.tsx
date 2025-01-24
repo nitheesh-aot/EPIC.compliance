@@ -9,6 +9,7 @@ import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements
 import RequirementCard from "./Requirements/RequirementCard";
 import { useQueryClient } from "@tanstack/react-query";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
+import { Reorder } from "framer-motion";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
@@ -18,21 +19,32 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   inspectionData,
 }) => {
   const queryClient = useQueryClient();
-  const { setOpen, setClose } = useDrawer();
+  const { setOpen } = useDrawer();
+  const [activeRequirementId, setActiveRequirementId] = React.useState<
+    number | null
+  >(null);
+  const [inspectionRequirements, setInspectionRequirements] = React.useState<
+    InspectionRequirement[]
+  >([]);
 
   const { data: inspectionRequirementsData } = useInspectionRequirementsData(
     inspectionData.id
   );
+
+  React.useEffect(() => {
+    if (inspectionRequirementsData) {
+      setInspectionRequirements(inspectionRequirementsData);
+    }
+  }, [inspectionRequirementsData]);
 
   const handleOnSubmit = useCallback(
     (submitMsg: string) => {
       queryClient.invalidateQueries({
         queryKey: ["inspection-requirements", inspectionData.id],
       });
-      setClose();
       notify.success(submitMsg);
     },
-    [setClose, queryClient, inspectionData]
+    [queryClient, inspectionData]
   );
 
   const handleOpenAddRequirementModal = useCallback(() => {
@@ -47,18 +59,26 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     });
   }, [setOpen, handleOnSubmit, inspectionData]);
 
-  const handleOpenEditRequirementModal = useCallback((requirement: InspectionRequirement) => {
-    setOpen({
-      content: (
-        <RequirementDrawer
-          onSubmit={handleOnSubmit}
-          inspectionData={inspectionData}
-          requirement={requirement}
-        />
-      ),
-      width: "1228px",
-    });
-  }, [setOpen, handleOnSubmit, inspectionData]);
+  const handleOpenEditRequirementModal = useCallback(
+    (requirement: InspectionRequirement, index: number) => {
+      setActiveRequirementId(requirement.id);
+      setOpen({
+        content: (
+          <RequirementDrawer
+            onSubmit={(submitMsg) => {
+              setActiveRequirementId(null);
+              handleOnSubmit(submitMsg);
+            }}
+            inspectionData={inspectionData}
+            requirement={requirement}
+            index={index}
+          />
+        ),
+        width: "1228px",
+      });
+    },
+    [setOpen, handleOnSubmit, inspectionData]
+  );
 
   return (
     <Box
@@ -79,14 +99,22 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
           New Requirement
         </Button>
       </Box>
-      {inspectionRequirementsData?.map((requirement, index) => (
-        <RequirementCard
-          key={requirement.id}
-          requirement={requirement}
-          index={index}
-          onEdit={() => handleOpenEditRequirementModal(requirement)}
-        />
-      ))}
+      <Reorder.Group
+        axis="y"
+        onReorder={setInspectionRequirements}
+        values={inspectionRequirements}
+        className="reorder-list"
+      >
+        {inspectionRequirements?.map((requirement, index) => (
+          <RequirementCard
+            key={requirement.id}
+            requirement={requirement}
+            index={index}
+            onEdit={() => handleOpenEditRequirementModal(requirement, index)}
+            isActive={requirement.id === activeRequirementId}
+          />
+        ))}
+      </Reorder.Group>
     </Box>
   );
 };

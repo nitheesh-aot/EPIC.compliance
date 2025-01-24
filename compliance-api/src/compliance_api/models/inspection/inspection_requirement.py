@@ -1,6 +1,6 @@
 """InspectionRequirement Model."""
 
-from sqlalchemy import Boolean, Column, ForeignKey, Index, Integer, String
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModelVersioned, db
@@ -57,15 +57,6 @@ class InspectionRequirement(BaseModelVersioned):
         "InspectionReqEnforcementMap",
         back_populates="requirement",
         lazy="select"
-    )
-    __table_args__ = (
-        Index(
-            "unique_non_deleted_sort_order",  # Index name
-            "inspection_id",
-            "sort_order",
-            unique=True,
-            postgresql_where=(is_deleted.is_(False)),  # Condition for uniqueness
-        ),
     )
 
     @classmethod
