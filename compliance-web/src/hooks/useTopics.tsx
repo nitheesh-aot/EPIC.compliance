@@ -27,7 +27,12 @@ const deleteTopic = (id: number) => {
 export const useTopicsData = () => {
   return useQuery({
     queryKey: ["topics"],
-    queryFn: fetchTopics,
+    queryFn: async () => {
+      const topics = await fetchTopics();
+      return topics.sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+      );
+    },
   });
 };
 
