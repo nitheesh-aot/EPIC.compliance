@@ -1,24 +1,24 @@
-import { DialogContent } from "@mui/material";
-import { useEffect, useMemo } from "react";
-import * as yup from "yup";
-import { FormProvider, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
-import ModalActions from "@/components/Shared/Modals/ModalActions";
-import dayjs, { Dayjs } from "dayjs";
-import {
-  ContinuationReport,
-  ContinuationReportAPIData,
-  ContinuationReportFormData,
-} from "@/models/ContinuationReport";
-import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledRichTextEditor";
 import ControlledDateTimeField from "@/components/Shared/Controlled/ControlledDateTimeField";
+import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledRichTextEditor";
+import ModalActions from "@/components/Shared/Modals/ModalActions";
+import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import {
   useCreateContinuationReportEntry,
   useDeleteContinuationReportEntry,
   useUpdateContinuationReportEntry,
 } from "@/hooks/useContinuationReports";
+import {
+  ContinuationReport,
+  ContinuationReportAPIData,
+  ContinuationReportFormData,
+} from "@/models/ContinuationReport";
 import dateUtils from "@/utils/dateUtils";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { DialogContent } from "@mui/material";
+import dayjs, { Dayjs } from "dayjs";
+import { useEffect, useMemo } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import * as yup from "yup";
 import { ContinuationReportContextType } from "./ContinuationReport";
 
 type ContinuationReportEntryModal = {
@@ -74,7 +74,7 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
     mode: "onBlur",
     defaultValues,
   });
-
+  const maxSelectableDate = dayjs().add(1, "day");
   const { handleSubmit, reset } = methods;
 
   useEffect(() => {
@@ -132,6 +132,7 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
               name="dateOfEntry"
               label="Date and Time"
               sx={{ width: "50%" }}
+              maxDateTime={maxSelectableDate}
             />
             <ControlledRichTextEditor label="Entry" name="entry" />
           </DialogContent>

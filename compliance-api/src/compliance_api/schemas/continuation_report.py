@@ -1,6 +1,8 @@
 """Schema of continuation report."""
 
-from marshmallow import EXCLUDE, fields, post_dump
+from datetime import datetime, timedelta
+
+from marshmallow import EXCLUDE, ValidationError, fields, post_dump, validates
 from marshmallow_enum import EnumField
 
 from compliance_api.models.continuation_report import ContinuationReport, ContinuationReportKey
@@ -116,6 +118,15 @@ class ContinuationReportUpdateSchema(BaseSchema):  # pylint: disable=too-many-an
             "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
         },
     )
+
+    @validates("date_created")
+    def validate_date_created(self, value):  # pylint: disable=no-self-use
+        """Validate that date_created is not later than current date + 1."""
+        current_date_plus_one = datetime.utcnow() + timedelta(days=1)
+        if value > current_date_plus_one:
+            raise ValidationError(
+                f"date_created must not be later than {current_date_plus_one.strftime(INPUT_DATE_TIME_FORMAT)}."
+            )
 
 
 class ContinuationReportCreateSchema(
