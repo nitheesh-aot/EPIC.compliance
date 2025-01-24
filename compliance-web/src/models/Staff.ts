@@ -1,6 +1,6 @@
-import { Position } from "./Position";
-import { Permission } from "./Permission";
 import { AuthUser } from "./AuthUser";
+import { Permission } from "./Permission";
+import { Position } from "./Position";
 
 export interface StaffUser {
   id: number;
@@ -15,6 +15,7 @@ export interface StaffUser {
   position?: Position;
   deputy_director?: StaffUser;
   supervisor?: StaffUser;
+  is_active: boolean;
 }
 
 export type StaffFormData = {
@@ -23,6 +24,7 @@ export type StaffFormData = {
   deputyDirector?: StaffUser;
   supervisor?: StaffUser;
   permission?: Permission;
+  isActive: boolean;
 }
 
 export interface StaffAPIData {
@@ -31,4 +33,5 @@ export interface StaffAPIData {
   permission: string;
   supervisor_id?: number;
   deputy_director_id?: number;
+  is_active: boolean;
 }

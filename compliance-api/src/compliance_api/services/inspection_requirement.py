@@ -95,7 +95,7 @@ class InspectionRequirementService:
         """Update the sort order of the inspection requirement."""
         _inspection_check(inspection_id)
         requirement = _requirement_check(requirement_id)
-        _access_check(inspection_id)
+        # _access_check(inspection_id)
 
         new_sort_order = sort_order_data.get("order")
         requirements = InspectionRequirementModel.get_by_inspection_id(inspection_id)

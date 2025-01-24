@@ -1,23 +1,23 @@
+import ModalActions from "@/components/Shared/Modals/ModalActions";
+import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import {
+  useAddStaff,
+  useAuthUsersData,
   usePermissionsData,
   usePositionsData,
-  useAuthUsersData,
-  useAddStaff,
   useUpdateStaff,
 } from "@/hooks/useStaff";
+import { AuthUser } from "@/models/AuthUser";
 import { Permission } from "@/models/Permission";
 import { Position } from "@/models/Position";
 import { StaffAPIData, StaffFormData, StaffUser } from "@/models/Staff";
-import { DialogContent } from "@mui/material";
-import { useEffect, useMemo } from "react";
-import StaffForm from "./StaffForm";
-import { AuthUser } from "@/models/AuthUser";
-import { useQueryClient } from "@tanstack/react-query";
-import * as yup from "yup";
-import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
-import ModalActions from "@/components/Shared/Modals/ModalActions";
+import { DialogContent } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import * as yup from "yup";
+import StaffForm from "./StaffForm";
 
 type StaffModalProps = {
   onSubmit: (submitMsg: string) => void;
@@ -33,6 +33,7 @@ const staffFormSchema = yup.object().shape({
     .object<Permission>()
     .nullable()
     .required("Permission is required"),
+  isActive: yup.bool().required()
 });
 
 type StaffSchemaType = yup.InferType<typeof staffFormSchema>;
@@ -43,6 +44,7 @@ const initFormData: StaffFormData = {
   deputyDirector: undefined,
   supervisor: undefined,
   permission: undefined,
+  isActive: false,
 };
 
 const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
@@ -72,6 +74,7 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
         supervisor:
           staffUsersList?.find((item) => item.id === staff.supervisor_id) ||
           undefined,
+        isActive: staff.is_active
       };
     }
     return initFormData;
@@ -105,12 +108,16 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
       position_id: (data.position as Position)?.id ?? "",
       deputy_director_id: (data.deputyDirector as StaffUser)?.id,
       supervisor_id: (data.supervisor as StaffUser)?.id,
+      is_active: data.isActive
     };
     if (staff) {
       updateStaff({ id: staff.id, staff: staffData });
     } else {
       addStaff(staffData);
     }
+    queryClient.invalidateQueries({
+      queryKey: ["staff-users"],
+    });
   };
 
   return (

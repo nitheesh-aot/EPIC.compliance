@@ -1,10 +1,11 @@
-import React from "react";
-import { Stack } from "@mui/material";
+import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
+import ControlledSwitch from "@/components/Shared/Controlled/ControlledSwitch";
+import { AuthUser } from "@/models/AuthUser";
 import { Permission } from "@/models/Permission";
 import { Position } from "@/models/Position";
 import { StaffUser } from "@/models/Staff";
-import { AuthUser } from "@/models/AuthUser";
-import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
+import { Stack } from "@mui/material";
+import React from "react";
 
 type StaffFormProps = {
   existingStaff?: StaffUser;
@@ -71,6 +72,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
         getOptionKey={(option) => option.id}
         isOptionEqualToValue={(option, value) => option.id === value.id}
       />
+      <ControlledSwitch name="isActive" label="Active" />
     </>
   );
 };

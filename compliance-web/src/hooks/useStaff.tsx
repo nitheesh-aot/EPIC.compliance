@@ -1,9 +1,9 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { OnSuccessType, request, requestAuthAPI } from "@/utils/axiosUtils";
-import { Position } from "@/models/Position";
-import { Permission } from "@/models/Permission";
-import { StaffAPIData, StaffUser } from "@/models/Staff";
 import { AuthUser } from "@/models/AuthUser";
+import { Permission } from "@/models/Permission";
+import { Position } from "@/models/Position";
+import { StaffAPIData, StaffUser } from "@/models/Staff";
+import { OnSuccessType, request, requestAuthAPI } from "@/utils/axiosUtils";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 const fetchStaffUsers = (): Promise<StaffUser[]> => {
   return request({ url: "/staff-users" });
@@ -34,10 +34,18 @@ const deleteStaff = (id: number) => {
   return request({ url: `/staff-users/${id}`, method: "delete" });
 };
 
-export const useStaffUsersData = () => {
+export const useStaffUsersData = (
+  is_active: boolean | undefined = undefined
+) => {
   return useQuery({
     queryKey: ["staff-users"],
-    queryFn: fetchStaffUsers,
+    queryFn: async () => {
+      const staff = await fetchStaffUsers();
+      if (is_active === undefined) {
+        return staff;
+      }
+      return staff.filter((p) => p.is_active === is_active);
+    },
   });
 };
 

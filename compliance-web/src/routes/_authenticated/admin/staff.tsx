@@ -1,20 +1,21 @@
 import StaffModal from "@/components/App/Staff/StaffModal";
+import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
+import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
+import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import Unauthorized from "@/components/Shared/Unauthorized";
+import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
+import { useDeleteStaff, useStaffUsersData } from "@/hooks/useStaff";
+import { StaffUser } from "@/models/Staff";
 import { useModal } from "@/store/modalStore";
 import { notify } from "@/store/snackbarStore";
 import { DeleteOutlineRounded, EditOutlined } from "@mui/icons-material";
-import { Box, IconButton } from "@mui/material";
+import { Box, Chip, IconButton } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { StaffUser } from "@/models/Staff";
-import { useDeleteStaff, useStaffUsersData } from "@/hooks/useStaff";
+import { BCDesignTokens } from "epic.theme";
 import { MRT_ColumnDef } from "material-react-table";
 import { useEffect, useMemo, useState } from "react";
-import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
-import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
-import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
-import { useQueryClient } from "@tanstack/react-query";
-import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
-import Unauthorized from "@/components/Shared/Unauthorized";
-import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
 
 export const Route = createFileRoute("/_authenticated/admin/staff")({
   component: AuthorizedStaffComponent,
@@ -203,10 +204,42 @@ export function Staff() {
           );
         },
       },
+      {
+        accessorFn: (row) => (row.is_active ? "Active" : "Inactive"),
+        header: "Status",
+        Cell: ({ row }) => {
+          return (
+            <Chip
+              label={row.original.is_active ? "Active" : "Inactive"}
+              style={{
+                backgroundColor: row.original.is_active
+                  ? BCDesignTokens.supportSurfaceColorSuccess
+                  : BCDesignTokens.surfaceColorPrimaryButtonDisabled,
+              }}
+              variant="outlined"
+              size="small"
+            />
+          );
+        },
+        filterVariant: "multi-select",
+        filterSelectOptions: ["Active", "Inactive"],
+        filterValue: ["Active"],
+        Filter: ({ header, column }) => {
+          return (
+            <TableFilter
+              isMulti
+              header={header}
+              column={column}
+              variant="inline"
+              name="statusFilter"
+              placeholder="Filter Status"
+            />
+          );
+        },
+      },
     ],
     [deputyList, permissionList, positionList, supervisorList]
   );
-
   return (
     <>
       <MasterDataTable
@@ -219,6 +252,7 @@ export function Staff() {
               desc: false,
             },
           ],
+          columnFilters: [{ id: "Status", value: ["Active"] }],
         }}
         state={{
           isLoading: isLoading,
