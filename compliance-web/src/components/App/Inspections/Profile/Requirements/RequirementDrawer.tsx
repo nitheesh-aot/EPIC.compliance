@@ -169,6 +169,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           onDeleteAction={onDeleteRequirement}
           onDeleteTitle="Delete Requirement"
           onDeleteDescription="You are about to delete this Requirement. Are you sure?"
+          dirtyCheck={false}
         />
       </form>
     </FormProvider>
