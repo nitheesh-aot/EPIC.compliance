@@ -3,6 +3,8 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import Query, relationship
 
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
 from ..base_model import BaseModelVersioned, db
 from ..complaint.complaint import Complaint as ComplaintModel
 from .complaint_req_eac_detail import ComplaintReqEACDetail as ComplaintReqEACDetailModel
@@ -64,11 +66,11 @@ class ComplaintRequirementDetail(BaseModelVersioned):
         requirement: ComplaintRequirementDetail = query.first()
         if not requirement:
             return None
-        query.update(requirement_source_data)
+        requirement.update(requirement_source_data, commit=False)
         if session:
             session.flush()
         else:
-            cls.session.commit()
+            db.session.commit()
         return requirement
 
     @classmethod
@@ -96,70 +98,51 @@ class ComplaintRequirementDetail(BaseModelVersioned):
 
 
 def _delete_details(detail_query: Query, cls, session=None):
-    """Delete the requirement details."""
+    """
+    Delete the requirement details and related records across multiple models.
+
+    Args:
+        detail_query (Query): Query object for fetching details.
+        cls: Model class to perform additional queries.
+        session: Optional SQLAlchemy session. If not provided, `db.session` will be used.
+    """
+    def process_related_records(query, model, foreign_key, commit=False):
+        """
+        Process related records for a given model.
+
+        Args:
+            query (Query): Base query to join with the related model.
+            model: Related model to query.
+            foreign_key: The foreign key field linking the models.
+            commit (bool): Whether to commit the updates.
+        """
+        related_records = (
+            query.join(model, ComplaintRequirementDetail.id == foreign_key)
+            .filter(model.is_deleted.is_(False))
+            .all()
+        )
+        related_ids = [record.id for record in related_records]
+        if related_ids:
+            related_details = cls.query.filter(model.id.in_(related_ids)).all()
+            for detail in related_details:
+                detail.update(DELETE_DIC_PARAMS, commit=commit)
+
+    # Fetch all requirements
     requirements = detail_query.all()
     requirement_ids = [requirement.id for requirement in requirements]
+
     if requirement_ids:
-        cls.query.filter(ComplaintRequirementDetail.id.in_(requirement_ids)).update(
-            {
-                ComplaintRequirementDetail.is_deleted: True,
-                ComplaintRequirementDetail.is_active: False,
-            },
-            synchronize_session=False,
-        )
-        eacs = (
-            detail_query.join(
-                ComplaintReqEACDetailModel,
-                ComplaintRequirementDetail.id == ComplaintReqEACDetailModel.req_id,
-            )
-            .filter(ComplaintReqEACDetailModel.is_deleted.is_(False))
-            .all()
-        )
-        eac_ids = [eac.id for eac in eacs]
-        if eac_ids:
-            cls.query.filter(ComplaintReqEACDetailModel.id.in_(eac_ids)).update(
-                {
-                    ComplaintReqEACDetailModel.is_deleted: True,
-                    ComplaintReqEACDetailModel.is_active: False,
-                }
-            )
+        # Update ComplaintRequirementDetail records
+        details = cls.query.filter(ComplaintRequirementDetail.id.in_(requirement_ids)).all()
+        for detail in details:
+            detail.update(DELETE_DIC_PARAMS, commit=False)
 
-        orders = (
-            detail_query.join(
-                ComplaintReqOrderDetailModel,
-                ComplaintRequirementDetail.id == ComplaintReqOrderDetailModel.req_id,
-            )
-            .filter(ComplaintReqOrderDetailModel.is_deleted.is_(False))
-            .all()
-        )
-        order_ids = [order.id for order in orders]
-        if order_ids:
-            cls.query.filter(ComplaintReqOrderDetailModel.id.in_(order_ids)).update(
-                {
-                    ComplaintReqOrderDetailModel.is_deleted: True,
-                    ComplaintReqOrderDetailModel.is_active: False,
-                }
-            )
+        # Process related models
+        process_related_records(detail_query, ComplaintReqEACDetailModel, ComplaintReqEACDetailModel.req_id)
+        process_related_records(detail_query, ComplaintReqOrderDetailModel, ComplaintReqOrderDetailModel.req_id)
+        process_related_records(detail_query, ComplaintReqScheduleBDetailModel, ComplaintReqScheduleBDetailModel.req_id)
 
-        schedule_b_details = (
-            detail_query.join(
-                ComplaintReqScheduleBDetailModel,
-                ComplaintRequirementDetail.id
-                == ComplaintReqScheduleBDetailModel.req_id,
-            )
-            .filter(ComplaintReqScheduleBDetailModel.is_deleted.is_(False))
-            .all()
-        )
-        schedule_b_ids = [schedule.id for schedule in schedule_b_details]
-        if schedule_b_ids:
-            cls.query.filter(
-                ComplaintReqScheduleBDetailModel.id.in_(schedule_b_ids)
-            ).update(
-                {
-                    ComplaintReqScheduleBDetailModel.is_deleted: True,
-                    ComplaintReqScheduleBDetailModel.is_active: False,
-                }
-            )
+    # Commit changes
     if session:
         session.flush()
     else:

@@ -3,6 +3,8 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
 from ..base_model import BaseModelVersioned, db
 from .inspection_req_source_detail import InspectionReqSourceDetail
 
@@ -80,7 +82,7 @@ class InspectionReqDetailDocument(BaseModelVersioned):
         doc_detail: InspectionReqDetailDocument = query.first()
         if not doc_detail or doc_detail.is_deleted:
             return None
-        query.update(doc_detail_data)
+        doc_detail.update(doc_detail_data, commit=False)
         if session:
             session.flush()
         else:
@@ -90,9 +92,11 @@ class InspectionReqDetailDocument(BaseModelVersioned):
     @classmethod
     def delete_req_doc_details_by_ids(cls, req_doc_detail_ids, session=None):
         """Delete the requirement doc details by req_doc_detail_ids."""
-        cls.query.filter(InspectionReqDetailDocument.id.in_(req_doc_detail_ids)).update(
-            {cls.is_deleted: True, cls.is_active: False}
-        )
+        details = cls.query.filter(
+            InspectionReqDetailDocument.id.in_(req_doc_detail_ids)
+        ).all()
+        for detail in details:
+            detail.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:
@@ -107,9 +111,9 @@ class InspectionReqDetailDocument(BaseModelVersioned):
             .all()
         )
         requirement_detail_ids = [detail.id for detail in requirement_details]
-        cls.query.filter(cls.req_detail_id.in_(requirement_detail_ids)).update(
-            {cls.is_active: False, cls.is_deleted: True}
-        )
+        details = cls.query.filter(cls.req_detail_id.in_(requirement_detail_ids)).all()
+        for detail in details:
+            detail.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:

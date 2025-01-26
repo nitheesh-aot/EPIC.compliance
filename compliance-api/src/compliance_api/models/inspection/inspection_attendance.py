@@ -3,6 +3,8 @@
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
 from ..base_model import BaseModelVersioned, db
 from ..inspection.inspection import Inspection as InspectionModel
 
@@ -50,10 +52,15 @@ class InspectionAttendance(BaseModelVersioned):
     @classmethod
     def bulk_delete(cls, inspection_id: int, option_ids: list[int], session=None):
         """Delete attendance ids by id per inspection."""
-        query = session.query(InspectionAttendance) if session else cls.query
-        query.filter(
+        attendances = cls.query.filter(
             cls.inspection_id == inspection_id, cls.attendance_option_id.in_(option_ids)
-        ).update({cls.is_active: False, cls.is_deleted: True})
+        ).all()
+        for att in attendances:
+            att.update(DELETE_DIC_PARAMS, commit=False)
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
 
     @classmethod
     def bulk_insert(cls, inspection_id: int, option_ids: list[int], session=None):
@@ -84,10 +91,11 @@ class InspectionAttendance(BaseModelVersioned):
         )
         attendance_ids = [attendance.id for attendance in attendances]
         if attendance_ids:
-            cls.query.filter(InspectionAttendance.id.in_(attendance_ids)).update(
-                {cls.is_deleted: True, cls.is_active: False}
-            )
-
+            attendances = cls.query.filter(
+                InspectionAttendance.id.in_(attendance_ids)
+            ).all()
+            for att in attendances:
+                att.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:
@@ -96,9 +104,11 @@ class InspectionAttendance(BaseModelVersioned):
     @classmethod
     def delete_inspection_attendance(cls, inspection_id, session=None):
         """Delete inspection Attendance."""
-        cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).update(
-            {cls.is_deleted: True, cls.is_active: False}
-        )
+        attendances = cls.query.filter_by(
+            inspection_id=inspection_id, is_deleted=False
+        ).all()
+        for att in attendances:
+            att.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:

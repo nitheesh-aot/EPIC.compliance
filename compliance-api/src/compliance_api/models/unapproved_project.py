@@ -3,7 +3,9 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from .base_model import BaseModelVersioned
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
+from .base_model import BaseModelVersioned, db
 
 
 class UnapprovedProject(BaseModelVersioned):
@@ -56,11 +58,13 @@ class UnapprovedProject(BaseModelVersioned):
     @classmethod
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete unapproved project details by case_file_id."""
-        cls.query.filter(
+        projects = cls.query.filter(
             UnapprovedProject.case_file_id == case_file_id,
             UnapprovedProject.is_deleted is False,
-        ).update({cls.is_deleted: True, cls.is_active: False})
+        ).all()
+        for project in projects:
+            project.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:
-            cls.session.commit()
+            db.session.commit()

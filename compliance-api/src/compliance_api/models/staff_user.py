@@ -84,7 +84,7 @@ class StaffUser(BaseModelVersioned):
         user: StaffUser = query.first()
         if not user or user.is_deleted:
             return None
-        query.update(user_dict)
+        user.update(user_dict, commit=False)
         if session:
             session.flush()
         else:

@@ -15,6 +15,7 @@
 from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
 from compliance_api.utils.enum import ContextEnum
 
 from .base_model import BaseModelVersioned, db
@@ -93,7 +94,7 @@ class ContinuationReport(BaseModelVersioned):
         report_entry: ContinuationReport = query.first()
         if not report_entry or report_entry.is_deleted:
             return None
-        query.update(report_entry_obj)
+        report_entry.update(report_entry_obj, commit=False)
         if session:
             session.flush()
         else:
@@ -103,9 +104,9 @@ class ContinuationReport(BaseModelVersioned):
     @classmethod
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete continuation report entries by case file id."""
-        cls.query.filter_by(case_file_id=case_file_id, is_deleted=False).update(
-            {cls.is_deleted: True, cls.is_active: False}
-        )
+        case_files = cls.query.filter_by(case_file_id=case_file_id, is_deleted=False).all()
+        for case_file in case_files:
+            case_file.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:
@@ -120,9 +121,9 @@ class ContinuationReport(BaseModelVersioned):
         :param context_type: One of the context_type enums.
         :param session: SQLAlchemy session object (optional).
         """
-        cls.query.filter_by(context_id=context_id, context_type=context_type).update(
-            {cls.is_deleted: True, cls.is_active: False}
-        )
+        entries = cls.query.filter_by(context_id=context_id, context_type=context_type).all()
+        for entry in entries:
+            entry.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:
@@ -179,10 +180,13 @@ class ContinuationReportKey(BaseModelVersioned):
     @classmethod
     def bulk_delete(cls, report_id, keys, session=None):
         """Delete continuation report keys."""
-        query = session.query(ContinuationReportKey) if session else cls.query
-        query.filter(cls.report_id == report_id, cls.key.in_(keys)).update(
-            {cls.is_active: False, cls.is_deleted: True}
-        )
+        keys = cls.query.filter(cls.report_id == report_id, cls.key.in_(keys)).all()
+        for key_item in keys:
+            key_item.update(DELETE_DIC_PARAMS, commit=False)
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
 
     @classmethod
     def delete_keys_by_case_file(cls, case_file_id: int, session=None):
@@ -199,9 +203,9 @@ class ContinuationReportKey(BaseModelVersioned):
         )
         key_ids = [key.id for key in keys]
         if key_ids:
-            cls.query.filter(ContinuationReportKey.id.in_(key_ids)).update(
-                {cls.is_deleted: True, cls.is_active: False}
-            )
+            keys = cls.query.filter(ContinuationReportKey.id.in_(key_ids)).all()
+            for key_item in keys:
+                key_item.update(DELETE_DIC_PARAMS, commit=False)
             if session:
                 session.flush()
             else:

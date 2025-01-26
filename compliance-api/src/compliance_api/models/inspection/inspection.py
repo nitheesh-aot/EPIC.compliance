@@ -15,6 +15,8 @@
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
 from ..base_model import BaseModelVersioned, db
 from ..case_file import CaseFile as CaseFileModel
 from .inspection_enum import InspectionStatusEnum
@@ -169,7 +171,7 @@ class Inspection(BaseModelVersioned):
         inspection: Inspection = query.first()
         if not inspection or inspection.is_deleted:
             return None
-        query.update(inspection_data)
+        inspection.update(inspection_data, commit=False)
         if session:
             session.flush()
         else:
@@ -179,9 +181,11 @@ class Inspection(BaseModelVersioned):
     @classmethod
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete inspection by case file id."""
-        cls.query.filter_by(case_file_id=case_file_id, is_deleted=False).update(
-            {cls.is_deleted: True, cls.is_active: False}
-        )
+        inspections = cls.query.filter_by(
+            case_file_id=case_file_id, is_deleted=False
+        ).all()
+        for inspection in inspections:
+            inspection.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:
@@ -190,9 +194,8 @@ class Inspection(BaseModelVersioned):
     @classmethod
     def delete_inspection(cls, inspection_id, session=None):
         """Delete inspection."""
-        cls.query.filter_by(id=inspection_id, is_deleted=False).update(
-            {cls.is_deleted: True, cls.is_active: False}
-        )
+        inspection = cls.query.filter_by(id=inspection_id, is_deleted=False).first()
+        inspection.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:

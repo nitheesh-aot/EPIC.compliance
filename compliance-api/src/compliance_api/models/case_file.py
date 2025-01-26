@@ -134,7 +134,7 @@ class CaseFile(BaseModelVersioned):
         case_file: CaseFile = query.first()
         if not case_file or case_file.is_deleted:
             return None
-        query.update(case_file_data)
+        case_file.update(case_file_data, commit=False)
         if session:
             session.flush()
         else:
@@ -153,13 +153,16 @@ class CaseFile(BaseModelVersioned):
         cls, case_file_id, case_file_status: CaseFileStatusEnum, session=None
     ):
         """Update the case file status."""
-        cls.query.filter(cls.id == case_file_id).update(
-            {cls.case_file_status: case_file_status}, synchronize_session=False
-        )
+        query = cls.query.filter(cls.id == case_file_id)
+        case_file: CaseFile = query.first()
+        if not case_file or case_file.is_deleted:
+            return None
+        case_file.update({"case_file_status": case_file_status}, commit=False)
         if session:
             session.flush()
         else:
             db.session.commit()
+        return case_file
 
     @classmethod
     def get_by_project(cls, project_id: int):
@@ -317,13 +320,13 @@ class CaseFileLink(BaseModelVersioned):
     @classmethod
     def delete_link(cls, source_id, taget_id, session=None):
         """Delete the case file link."""
-        cls.query.filter(
+        links = cls.query.filter(
             cls.source_case_id == source_id,
             cls.target_case_id == taget_id,
             cls.is_deleted.is_(False),
-        ).update(
-            {cls.is_deleted: True, cls.is_active: False}, synchronize_session=False
-        )
+        ).all()
+        for link in links:
+            link.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:
