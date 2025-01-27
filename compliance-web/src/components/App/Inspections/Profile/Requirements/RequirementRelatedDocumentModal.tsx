@@ -128,6 +128,7 @@ const RequirementRelatedDocumentModal: React.FC<
     };
     const reqSectionData: RequirementRelatedDocumentSectionData = {
       id: relatedDocumentSectionData?.id ?? Date.now(),
+      dbId: relatedDocumentSectionData?.dbId ?? undefined,
       sourceFormId: requirementSourceData.id,
       relatedDocumentFormId:
         relatedDocumentData?.id ?? reqRelatedDocumentData.id,

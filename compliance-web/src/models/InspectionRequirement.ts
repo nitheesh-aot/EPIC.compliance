@@ -49,6 +49,7 @@ export interface InspectionRequirement {
 }
 
 export interface InspectionRequirementFormData {
+  id?: number;
   requirementSummary?: string;
   topic?: Topic;
   complianceFinding?: IRType;
@@ -62,6 +63,7 @@ export interface InspectionRequirementFormData {
 
 export interface RequirementSourceFormData {
   id?: number;
+  dbId?: number;
   requirementSource?: RequirementSource;
   sourceNumber?: string;
   sourceTitle?: string,
@@ -83,6 +85,7 @@ export interface RequirementRelatedDocumentData {
 
 export interface RequirementRelatedDocumentSectionData {
   id?: number;
+  dbId?: number;
   sourceFormId?: number;
   relatedDocumentFormId?: number;
   sectionNumber?: string;
@@ -116,6 +119,7 @@ export interface InspectionRequirementAPIData {
 }
 
 export interface InspectionRequirementSourceAPIData {
+  id?: number,
   requirement_source_id: string,
   section_number?: string,
   condition_number?: string,
@@ -126,6 +130,7 @@ export interface InspectionRequirementSourceAPIData {
 }
 
 export interface InspectionRequirementSourceDocumentAPIData {
+  id?: number,
   document_type_id: string,
   document_title: string,
   section_number: string,
