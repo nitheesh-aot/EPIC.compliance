@@ -3,6 +3,8 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
 from ..base_model import BaseModelVersioned, db
 from ..type import EncryptedType
 from .complaint import Complaint as ComplaintModel
@@ -62,7 +64,7 @@ class ComplaintSourceContact(BaseModelVersioned):
         contact: ComplaintSourceContact = query.first()
         if not contact:
             return None
-        query.update(contact_data)
+        contact.update(contact_data, commit=False)
         if session:
             session.flush()
         else:
@@ -87,12 +89,9 @@ class ComplaintSourceContact(BaseModelVersioned):
         )
         contact_ids = [contact.id for contact in contacts]
         if contact_ids:
-            cls.query.filter(ComplaintSourceContact.id.in_(contact_ids)).update(
-                {
-                    ComplaintSourceContact.is_deleted: True,
-                    ComplaintSourceContact.is_active: False,
-                }
-            )
+            contact_details = cls.query.filter(ComplaintSourceContact.id.in_(contact_ids)).all()
+            for contact in contact_details:
+                contact.update(DELETE_DIC_PARAMS, commit=False)
             if session:
                 session.flush()
             else:
@@ -101,12 +100,8 @@ class ComplaintSourceContact(BaseModelVersioned):
     @classmethod
     def delete_by_complaint(cls, complaint_id, session=None):
         """Delete by complaint id."""
-        cls.query.filter(ComplaintSourceContact.complaint_id == complaint_id).update(
-            {
-                ComplaintSourceContact.is_deleted: True,
-                ComplaintSourceContact.is_active: False,
-            }
-        )
+        contact = cls.query.filter(ComplaintSourceContact.complaint_id == complaint_id).first()
+        contact.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:

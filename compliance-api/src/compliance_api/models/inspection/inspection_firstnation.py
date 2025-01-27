@@ -3,6 +3,8 @@
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
 from ..base_model import BaseModelVersioned, db
 from ..inspection.inspection import Inspection as InspectionModel
 
@@ -37,10 +39,15 @@ class InspectionFirstnation(BaseModelVersioned):
     @classmethod
     def bulk_delete(cls, inspection_id: int, firstnation_ids: list[int], session=None):
         """Delete firstnation ids by id per inspection."""
-        query = session.query(InspectionFirstnation) if session else cls.query
-        query.filter(
+        firstnations = cls.query.filter(
             cls.inspection_id == inspection_id, cls.firstnation_id.in_(firstnation_ids)
-        ).update({cls.is_active: False, cls.is_deleted: True})
+        ).all()
+        for first_nation in firstnations:
+            first_nation.update(DELETE_DIC_PARAMS, commit=False)
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
 
     @classmethod
     def bulk_insert(cls, inspection_id: int, firstnation_ids: list[int], session=None):
@@ -71,9 +78,11 @@ class InspectionFirstnation(BaseModelVersioned):
         )
         firstnation_ids = [firstnation.id for firstnation in firstnations]
         if firstnation_ids:
-            cls.query.filter(InspectionFirstnation.id.in_(firstnation_ids)).update(
-                {cls.is_deleted: True, cls.is_active: False}
-            )
+            first_nations = cls.query.filter(
+                InspectionFirstnation.id.in_(firstnation_ids)
+            ).all()
+            for first_nation in first_nations:
+                first_nation.update(DELETE_DIC_PARAMS, commit=False)
             if session:
                 session.flush()
             else:
@@ -82,9 +91,11 @@ class InspectionFirstnation(BaseModelVersioned):
     @classmethod
     def delete_inspection_firstnation(cls, inspection_id, session=None):
         """Delete inspection firstnation."""
-        cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).update(
-            {cls.is_deleted: True, cls.is_active: False}
-        )
+        first_nations = cls.query.filter_by(
+            inspection_id=inspection_id, is_deleted=False
+        ).all()
+        for first_nation in first_nations:
+            first_nation.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:

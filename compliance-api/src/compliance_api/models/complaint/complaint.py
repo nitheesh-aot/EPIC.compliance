@@ -17,6 +17,8 @@ import enum
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
 from ..base_model import BaseModelVersioned, db
 from ..case_file import CaseFile as CaseFileModel
 
@@ -160,7 +162,7 @@ class Complaint(BaseModelVersioned):
         complaint: Complaint = query.first()
         if not complaint or complaint.is_deleted:
             return None
-        query.update(complaint_data)
+        complaint.update(complaint_data, commit=False)
         if session:
             session.flush()
         else:
@@ -172,7 +174,8 @@ class Complaint(BaseModelVersioned):
         cls, complaint_id, complaint_status: ComplaintStatusEnum, session=None
     ):
         """Update the complaint status."""
-        cls.query.filter(cls.id == complaint_id).update({cls.status: complaint_status})
+        complaint = cls.query.filter(cls.id == complaint_id).first()
+        complaint.update({"status": complaint_status}, commit=False)
         if session:
             session.flush()
         else:
@@ -188,9 +191,11 @@ class Complaint(BaseModelVersioned):
     @classmethod
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete complaint by case file."""
-        cls.query.filter(
+        complaints = cls.query.filter(
             Complaint.case_file_id == case_file_id, Complaint.is_deleted is False
-        ).update({Complaint.is_deleted: True, Complaint.is_active: False})
+        ).all()
+        for complaint in complaints:
+            complaint.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:
@@ -199,9 +204,8 @@ class Complaint(BaseModelVersioned):
     @classmethod
     def delete_complaint(cls, complaint_id, session=None):
         """Delete complaint."""
-        cls.query.filter(Complaint.id == complaint_id).update(
-            {Complaint.is_deleted: True, Complaint.is_active: False}
-        )
+        complaint = cls.query.filter(Complaint.id == complaint_id).first()
+        complaint.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:

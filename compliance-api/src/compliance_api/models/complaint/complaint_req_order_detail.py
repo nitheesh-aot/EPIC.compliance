@@ -3,7 +3,9 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
-from ..base_model import BaseModelVersioned
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
+from ..base_model import BaseModelVersioned, db
 
 
 class ComplaintReqOrderDetail(BaseModelVersioned):
@@ -49,12 +51,14 @@ class ComplaintReqOrderDetail(BaseModelVersioned):
     @classmethod
     def delete_order_details(cls, requirement_id, session=None):
         """Mark the details as deleted."""
-        query = cls.query.filter_by(req_id=requirement_id, is_deleted=False)
-        query.update({"is_deleted": True, "is_active": False})
+        requirement = cls.query.filter_by(
+            req_id=requirement_id, is_deleted=False
+        ).first()
+        requirement.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:
-            session.commit()
+            db.session.commit()
 
     @classmethod
     def get_by_requirement(cls, req_id):

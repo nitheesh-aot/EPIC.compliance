@@ -48,7 +48,7 @@ def mock_auth_service(mocker):
 def created_staff(mocker):
     """Create staff."""
     user_data = StaffScenario.default_data.value
-    auth_user_guid = fake.word()
+    auth_user_guid = str(datetime.utcnow().timestamp() * 1000)
     user_data["auth_user_guid"] = auth_user_guid
     new_user = StaffScenario.create(user_data)
     return new_user
@@ -330,7 +330,7 @@ def test_case_file_update_with_primary(
 ):
     """Update as primary."""
     case_file_data = copy.copy(CasefileScenario.default_value.value)
-    case_file_data["case_file_number"] = fake.word()
+    case_file_data["case_file_number"] = str(datetime.utcnow().timestamp() * 1000)
     case_file_data["primary_officer_id"] = created_staff.id
     created_result = CaseFileModel.create_case_file(case_file_data)
     header = TokenJWTClaims.default.value
@@ -347,7 +347,7 @@ def test_case_file_close(client, jwt, created_staff, mocker):
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
     contains_role.return_value = True
     case_file_data = copy.copy(CasefileScenario.default_value.value)
-    case_file_data["case_file_number"] = fake.word()
+    case_file_data["case_file_number"] = str(datetime.utcnow().timestamp() * 1000)
     case_file_data["primary_officer_id"] = created_staff.id
     created_result = CaseFileService.create(case_file_data)
     case_file_id = created_result.id
@@ -418,7 +418,7 @@ def test_case_file_delete(client, jwt, created_staff, mocker, auth_header_super_
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
     contains_role.return_value = True
     case_file_data = copy.copy(CasefileScenario.default_value.value)
-    case_file_data["case_file_number"] = fake.word()
+    case_file_data["case_file_number"] = str(datetime.utcnow().timestamp() * 1000)
     case_file_data["primary_officer_id"] = created_staff.id
     created_result = CaseFileService.create(case_file_data)
 
@@ -436,12 +436,12 @@ def test_case_file_linking(client, jwt, created_staff, auth_header_super_user, m
     contains_role.return_value = True
     #  Create source case file
     case_file_data = copy.copy(CasefileScenario.default_value.value)
-    case_file_data["case_file_number"] = fake.word()
+    case_file_data["case_file_number"] = str(datetime.utcnow().timestamp() * 1000)
     case_file_data["primary_officer_id"] = created_staff.id
     source_case_file = CaseFileService.create(case_file_data)
     # Create target case file
     case_file_data = copy.copy(CasefileScenario.default_value.value)
-    case_file_data["case_file_number"] = fake.word()
+    case_file_data["case_file_number"] = str(datetime.utcnow().timestamp() * 1000)
     case_file_data["primary_officer_id"] = created_staff.id
     target_case_file = CaseFileService.create(case_file_data)
     url = urljoin(API_BASE_URL, f"case-files/{source_case_file.id}/links")

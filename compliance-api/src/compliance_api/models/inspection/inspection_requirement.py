@@ -3,6 +3,8 @@
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
 from ..base_model import BaseModelVersioned, db
 
 
@@ -76,7 +78,7 @@ class InspectionRequirement(BaseModelVersioned):
         requirement = cls.find_by_id(requirement_id)
         if not requirement:
             return None
-        requirement.update({"is_active": False, "is_deleted": True}, commit=False)
+        requirement.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:
@@ -100,7 +102,7 @@ class InspectionRequirement(BaseModelVersioned):
         requirement: InspectionRequirement = query.first()
         if not requirement or requirement.is_deleted:
             return None
-        query.update(requirement_data)
+        requirement.update(requirement_data, commit=False)
         if session:
             session.flush()
         else:

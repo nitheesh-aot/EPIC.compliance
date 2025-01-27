@@ -3,6 +3,8 @@
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
 from ..base_model import BaseModelVersioned, db
 
 
@@ -57,7 +59,7 @@ class InspectionReqEnforcementMap(BaseModelVersioned):
             cls.is_deleted.is_(False),
         )
         for mapp in mappings:
-            mapp.update({"is_active": False, "is_deleted": True}, commit=False)
+            mapp.update(DELETE_DIC_PARAMS, commit=False)
 
     @classmethod
     def bulk_insert(cls, requirement_id: int, enforcement_ids: list[int], session=None):

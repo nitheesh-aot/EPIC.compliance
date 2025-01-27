@@ -3,6 +3,8 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
 from ..base_model import BaseModelVersioned, db
 from ..inspection.inspection import Inspection as InspectionModel
 
@@ -52,7 +54,7 @@ class InspectionOtherAttendance(BaseModelVersioned):
         query = cls.query.filter_by(inspection_id=inspection_id)
         attendance: InspectionOtherAttendance = query.first()
         if attendance:
-            query.update(other_attendance_data)
+            attendance.update(other_attendance_data, commit=False)
         else:
             session.add(InspectionOtherAttendance(**other_attendance_data))
         if session:
@@ -74,9 +76,11 @@ class InspectionOtherAttendance(BaseModelVersioned):
         )
         attendance_ids = [att.id for att in other_attendances]
         if attendance_ids:
-            cls.query.filter(InspectionOtherAttendance.id.in_(attendance_ids)).update(
-                {cls.is_deleted: True, cls.is_active: False}
-            )
+            attendances = cls.query.filter(
+                InspectionOtherAttendance.id.in_(attendance_ids)
+            ).all()
+            for att in attendances:
+                att.update(DELETE_DIC_PARAMS, commit=False)
             if session:
                 session.flush()
             else:
@@ -84,10 +88,12 @@ class InspectionOtherAttendance(BaseModelVersioned):
 
     @classmethod
     def delete_inspection_attendance(cls, inspection_id, session=None):
-        """Delete inspection Type."""
-        cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).update(
-            {cls.is_deleted: True, cls.is_active: False}
-        )
+        """Delete inspection other attendance."""
+        other_attendances = cls.query.filter_by(
+            inspection_id=inspection_id, is_deleted=False
+        ).all()
+        for att in other_attendances:
+            att.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:

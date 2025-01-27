@@ -3,6 +3,8 @@
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
 from ..base_model import BaseModelVersioned, db
 from ..inspection.inspection import Inspection as InspectionModel
 
@@ -40,10 +42,15 @@ class InspectionAgency(BaseModelVersioned):
     @classmethod
     def bulk_delete(cls, inspection_id: int, agency_ids: list[int], session=None):
         """Delete agency ids by id per inspection."""
-        query = session.query(InspectionAgency) if session else cls.query
-        query.filter(
+        agencies = cls.query.filter(
             cls.inspection_id == inspection_id, cls.agency_id.in_(agency_ids)
-        ).update({cls.is_active: False, cls.is_deleted: True})
+        ).all()
+        for agency in agencies:
+            agency.update(DELETE_DIC_PARAMS, commit=False)
+        if session:
+            session.flush()
+        else:
+            db.session.commit()
 
     @classmethod
     def bulk_insert(cls, inspection_id: int, agency_ids: list[int], session=None):
@@ -72,10 +79,9 @@ class InspectionAgency(BaseModelVersioned):
         )
         agency_ids = [agency.id for agency in agencies]
         if agency_ids:
-            cls.query.filter(InspectionAgency.id.in_(agency_ids)).update(
-                {cls.is_deleted: True, cls.is_active: False}
-            )
-
+            agencies = cls.query.filter(InspectionAgency.id.in_(agency_ids)).all()
+            for agency in agencies:
+                agency.update(DELETE_DIC_PARAMS, commit=False)
             if session:
                 session.flush()
             else:
@@ -84,9 +90,9 @@ class InspectionAgency(BaseModelVersioned):
     @classmethod
     def delete_inspection_agency(cls, inspection_id, session=None):
         """Delete inspection Agency."""
-        cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).update(
-            {cls.is_deleted: True, cls.is_active: False}
-        )
+        agencies = cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
+        for agency in agencies:
+            agency.update(DELETE_DIC_PARAMS, commit=False)
         if session:
             session.flush()
         else:
