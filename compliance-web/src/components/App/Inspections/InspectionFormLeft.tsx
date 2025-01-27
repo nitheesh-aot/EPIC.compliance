@@ -6,9 +6,10 @@ import { BCDesignTokens } from "epic.theme";
 import { Initiation } from "@/models/Initiation";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import { IRType } from "@/models/IRType";
-import ControlledDateRangePicker from "@/components/Shared/Controlled/ControlledDateRangePicker";
 import { IRStatus } from "@/models/IRStatus";
 import { ProjectStatus } from "@/models/ProjectStatus";
+import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
+import { useFormContext } from "react-hook-form";
 
 type InspectionFormLeftProps = {
   initiationList: Initiation[];
@@ -25,6 +26,10 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
   irStatusList,
   projectStatusList,
 }) => {
+  const { watch } = useFormContext();
+  const startDate = watch("startDate");
+  const endDate = watch("endDate");
+
   return (
     <>
       <Box
@@ -91,7 +96,18 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
             multiple
             fullWidth
           />
-          <ControlledDateRangePicker name="dateRange" label="Dates" fullWidth />
+          <Stack direction={"row"} gap={2} sx={{ width: "100%" }}>
+            <ControlledDateField
+              name="startDate"
+              label="Start Date"
+              maxDate={endDate}
+            />
+            <ControlledDateField
+              name="endDate"
+              label="End Date (optional)"
+              minDate={startDate}
+            />
+          </Stack>
         </Stack>
         <Stack direction={"row"} gap={2}>
           <ControlledAutoComplete

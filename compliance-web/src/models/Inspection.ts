@@ -1,6 +1,6 @@
+import { Dayjs } from "dayjs";
 import { InspectionAttendance } from "./Attendance";
 import { CaseFile } from "./CaseFile";
-import { DateRange } from "./DateRange";
 import { Initiation } from "./Initiation";
 import { IRStatus } from "./IRStatus";
 import { IRType } from "./IRType";
@@ -45,7 +45,8 @@ export interface Inspection {
 
 export interface InspectionFormData {
   project?: Project;
-  dateRange?: DateRange;
+  startDate?: Dayjs;
+  endDate?: Dayjs;
   primaryOfficer?: StaffUser;
   initiation?: Initiation;
   irTypes?: IRType[];
@@ -62,7 +63,7 @@ export interface InspectionAPIData {
   case_file_id?: number;
   inspection_type_ids: string[];
   start_date: string;
-  end_date: string;
+  end_date?: string;
   initiation_id: string;
   ir_status_id?: string;
   project_status_id?: string;

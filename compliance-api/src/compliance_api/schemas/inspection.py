@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inspection Schema Schema."""
-from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load, validates_schema
+from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load, pre_load, validates_schema
 from marshmallow_enum import EnumField
 
 from compliance_api.models.inspection import (
@@ -105,7 +105,7 @@ class InspectionUpdateSchema(BaseSchema):
     end_date = fields.DateTime(
         format=INPUT_DATE_TIME_FORMAT,
         metadata={"description": "The inspection end date in ISO 8601 format."},
-        required=True,
+        allow_none=True,
         error_messages={
             "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
         },
@@ -154,6 +154,16 @@ class InspectionUpdateSchema(BaseSchema):
         ),
         required=False,
     )
+    
+    @pre_load
+    def end_date_populate(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Populate the end_date if it is not provided."""
+        if data.get("end_date") is None:
+            data["end_date"] = data["start_date"]
+            
+        return data
 
     @validates_schema
     def validate_attendance_other(
