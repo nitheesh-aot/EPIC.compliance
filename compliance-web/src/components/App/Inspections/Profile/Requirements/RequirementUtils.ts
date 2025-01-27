@@ -44,6 +44,9 @@ export const formatRequirementAPIData = (
         description: item.description?.html ?? "",
         documents: [],
       };
+      if (item.dbId) {
+        requirementSource.id = item.dbId;
+      }
       if (isRequirementSourceCondition(item.requirementSource?.id ?? "")) {
         requirementSource.condition_number = item.sourceNumber ?? "";
       } else {
@@ -58,6 +61,9 @@ export const formatRequirementAPIData = (
             section_title: section.sectionTitle ?? "",
             description: section.description?.html ?? "",
           };
+          if (section.dbId) {
+            srcDocument.id = section.dbId;
+          }
           requirementSource.documents.push(srcDocument);
         });
       });
@@ -78,26 +84,28 @@ export const formatRequirementAPIData = (
 
 
 export const formatRequirementFormData = (requirement: InspectionRequirement): InspectionRequirementFormData => {
-  const requirementSourceDetails: RequirementSourceFormData[] = requirement.requirement_source_details.map((item) => {
+  const requirementSourceDetails: RequirementSourceFormData[] = requirement?.requirement_source_details?.map((item) => {
     const relatedDocuments: RequirementRelatedDocumentData[] = [];
-    item.documents.forEach((document) => {
+    item.documents.forEach((document, index) => {
       const existingDocumentIndex = relatedDocuments.findIndex(
         (doc) => doc.documentTitle === document.document_title
       );
+      const docFormId = existingDocumentIndex >= 0 ? relatedDocuments[existingDocumentIndex].id : Date.now() + index;
       const section: RequirementRelatedDocumentSectionData = {
-        id: Date.now(),
+        id: document.id,
+        dbId: document.id,
         sourceFormId: item.id,
-        relatedDocumentFormId: document.id,
+        relatedDocumentFormId: docFormId,
         sectionNumber: document.section_number,
         sectionTitle: document.section_title,
         description: { html: document.description, text: document.description },
       };
 
-      if (existingDocumentIndex !== -1) {
+      if (existingDocumentIndex >= 0) {
         relatedDocuments[existingDocumentIndex]?.sections?.push(section);
       } else {
         relatedDocuments.push({
-          id: document.id,
+          id: docFormId,
           relatedDocument: document.document_type,
           documentTitle: document.document_title,
           sections: [section],
@@ -106,6 +114,7 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
     });
     return {
       id: item.id,
+      dbId: item.id,
       requirementSource: item.requirement_source,
       sourceNumber: item.section_number ?? item.condition_number,
       sourceTitle: item.title,
@@ -115,6 +124,7 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
     };
   });
   return {
+    id: requirement.id,
     requirementSummary: requirement.summary,
     topic: requirement.topic,
     complianceFinding: requirement.compliance_finding,
