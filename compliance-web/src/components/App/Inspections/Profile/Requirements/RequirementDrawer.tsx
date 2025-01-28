@@ -1,20 +1,6 @@
-import { yupResolver } from "@hookform/resolvers/yup";
-import { Stack } from "@mui/material";
-import { FormProvider, useForm } from "react-hook-form";
-import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
-import { useCallback, useEffect, useState } from "react";
-import { useMenuStore } from "@/store/menuStore";
-import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
-import RequirementFormLeft from "./RequirementFormLeft";
-import { useTopicsData } from "@/hooks/useTopics";
-import {
-  InspectionRequirement,
-  InspectionRequirementFormData,
-  RequirementSourceFormData,
-} from "@/models/InspectionRequirement";
-import { Inspection } from "@/models/Inspection";
-import { EnforcementAction } from "@/models/EnforcementAction";
+import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
+import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
 import {
   useComplianceFindingsData,
   useCreateInspectionRequirement,
@@ -22,6 +8,20 @@ import {
   useEnforcementActionsData,
   useUpdateInspectionRequirement,
 } from "@/hooks/useInspectionRequirements";
+import { useTopicsData } from "@/hooks/useTopics";
+import { EnforcementAction } from "@/models/EnforcementAction";
+import { Inspection } from "@/models/Inspection";
+import {
+  InspectionRequirement,
+  InspectionRequirementFormData,
+  RequirementSourceFormData,
+} from "@/models/InspectionRequirement";
+import { useMenuStore } from "@/store/menuStore";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Stack } from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import RequirementFormLeft from "./RequirementFormLeft";
 import RequirementFormRight from "./RequirementFormRight";
 import {
   formatRequirementAPIData,

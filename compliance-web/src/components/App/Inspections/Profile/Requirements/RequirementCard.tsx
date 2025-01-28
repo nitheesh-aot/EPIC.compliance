@@ -1,12 +1,12 @@
-import React from "react";
+import { useUpdateInspectionRequirementOrder } from "@/hooks/useInspectionRequirements";
+import { InspectionRequirement } from "@/models/InspectionRequirement";
+import { notify } from "@/store/snackbarStore";
+import { DragIndicatorRounded } from "@mui/icons-material";
 import { Box, Grid, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { InspectionRequirement } from "@/models/InspectionRequirement";
-import { isRequirementSourceCondition } from "./RequirementUtils";
-import { DragIndicatorRounded } from "@mui/icons-material";
 import { Reorder } from "framer-motion";
-import { useUpdateInspectionRequirementOrder } from "@/hooks/useInspectionRequirements";
-import { notify } from "@/store/snackbarStore";
+import React from "react";
+import { isRequirementSourceCondition } from "./RequirementUtils";
 interface RequirementCardProps {
   requirement: InspectionRequirement;
   index: number;
@@ -131,7 +131,7 @@ const RequirementCard: React.FC<RequirementCardProps> = ({
                 Compliance Finding
               </Typography>
               <Typography variant="body1">
-                {requirement.compliance_finding.name}
+                {requirement.compliance_finding?.name}
               </Typography>
             </Grid>
             <Grid item xs={8}>
