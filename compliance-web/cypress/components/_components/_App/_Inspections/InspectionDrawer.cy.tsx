@@ -8,6 +8,8 @@ import { AttendanceEnum } from "@/components/App/Inspections/InspectionFormUtils
 import { CaseFile } from "@/models/CaseFile";
 import { AuthProvider } from "react-oidc-context";
 import { OidcConfig } from "@/utils/config";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 describe("InspectionDrawer Component", () => {
   let mockOnSubmit: sinon.SinonStub;
@@ -18,10 +20,10 @@ describe("InspectionDrawer Component", () => {
     project: { id: 1, name: "Test Project" },
     date_created: "2023-04-15T12:00:00Z",
     initiation: { id: "1", name: "Test Initiation" },
-    primary_officer: { id: 1, name: "John Doe", auth_user_guid: "123" },
+    primary_officer: { id: 1, name: "John Doe", auth_user_guid: "123", is_active: true },
     officers: [
-      { id: 2, name: "Jane Smith", auth_user_guid: "124" },
-      { id: 3, name: "Bob Johnson", auth_user_guid: "125" },
+      { id: 2, name: "Jane Smith", auth_user_guid: "124", is_active: true },
+      { id: 3, name: "Bob Johnson", auth_user_guid: "125", is_active: true },
     ],
     project_id: 0,
     primary_officer_id: 0,
@@ -45,7 +47,7 @@ describe("InspectionDrawer Component", () => {
     type: "Type",
     sub_type: "Sub Type",
     location_description: "Location Description",
-    primary_officer: { id: 1, name: "Officer Name" },
+    primary_officer: { id: 1, name: "Officer Name", is_active: true },
     ir_status: { id: "1", name: "Status" },
     project_status: { id: "1", name: "Project Status" },
     types: [
@@ -79,7 +81,7 @@ describe("InspectionDrawer Component", () => {
       initiation: { id: "1", name: "Initiation" },
       is_active: true,
       project: { id: 1, name: "Project" },
-      primary_officer: { id: 1, name: "Officer Name" },
+      primary_officer: { id: 1, name: "Officer Name", is_active: true },
     },
   };
 
@@ -97,7 +99,9 @@ describe("InspectionDrawer Component", () => {
     return (
       <QueryClientProvider client={queryClient}>
         <AuthProvider {...OidcConfig}>
-          {children}
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            {children}
+          </LocalizationProvider>
         </AuthProvider>
       </QueryClientProvider>
     );

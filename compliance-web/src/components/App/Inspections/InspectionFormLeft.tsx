@@ -98,11 +98,13 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
           />
           <Stack direction={"row"} gap={2} sx={{ width: "100%" }}>
             <ControlledDateField
+              className="cy-start-date"
               name="startDate"
               label="Start Date"
               maxDate={endDate}
             />
             <ControlledDateField
+              className="cy-end-date"
               name="endDate"
               label="End Date (optional)"
               minDate={startDate}

@@ -66,10 +66,8 @@ describe("InspectionFormUtils", () => {
         primaryOfficer: { id: 1, full_name: "John Doe" },
         officers: [{ id: 2, full_name: "Jane Smith" }],
         irTypes: [{ id: 1, name: "IR Type Alpha" }],
-        dateRange: {
-          startDate: dayjs("2023-01-01"),
-          endDate: dayjs("2023-01-02"),
-        },
+        startDate: dayjs("2023-01-01"),
+        endDate: dayjs("2023-01-02"),
         initiation: { id: 1, name: "Initiation Alpha" },
         irStatus: { id: 1, name: "Status 1" },
         projectStatus: { id: 1, name: "Status 1" },

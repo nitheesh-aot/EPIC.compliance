@@ -19,9 +19,9 @@ const mockInitiations: Initiation[] = [
 ];
 
 const mockStaffUsers = [
-  { id: 1, name: "John Doe" },
-  { id: 2, name: "Jane Smith" },
-  { id: 3, name: "Alice Johnson" },
+  { id: 1, name: "John Doe", is_active: true },
+  { id: 2, name: "Jane Smith", is_active: true },
+  { id: 3, name: "Alice Johnson", is_active: true },
 ];
 
 const setup = (args: { isSuperUser: boolean }) => {

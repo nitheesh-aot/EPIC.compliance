@@ -7,8 +7,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs"; // Adjust to your date adapter
 
 const mockStaffUsers = [
-  { id: 1, name: "John Doe" },
-  { id: 2, name: "Jane Smith" },
+  { id: 1, name: "John Doe", is_active: true },
+  { id: 2, name: "Jane Smith", is_active: true },
 ];
 
 describe("ComplaintFormLeft Component", () => {
