@@ -40,9 +40,10 @@ type InspectionDrawerProps = {
 
 const initFormData: InspectionFormData = {
   project: undefined,
-  dateRange: undefined,
   primaryOfficer: undefined,
   irTypes: [],
+  startDate: undefined,
+  endDate: undefined,
   initiation: undefined,
   irStatus: undefined,
   projectStatus: undefined,
@@ -81,10 +82,8 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
         irStatus: inspection.ir_status,
         projectStatus: inspection.project_status,
         irTypes: inspection.types,
-        dateRange: {
-          startDate: dayjs(inspection.start_date),
-          endDate: dayjs(inspection.end_date),
-        },
+        startDate: dayjs(inspection.start_date),
+        endDate: dayjs(inspection.end_date),
         inAttendance: inspection.inspectionAttendances?.map(
           (item) => item.attendance_option
         ),
