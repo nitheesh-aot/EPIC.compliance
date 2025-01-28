@@ -1,10 +1,10 @@
-import { RequirementDocumentType } from "./RequirementDocumentType";
-import { IRStatus } from "./IRStatus";
-import { IRType } from "./IRType";
-import { RequirementSource } from "./RequirementSource";
-import { Topic } from "./Topic";
 import { ComplianceFinding } from "./ComplianceFinding";
 import { EnforcementAction } from "./EnforcementAction";
+import { IRStatus } from "./IRStatus";
+import { IRType } from "./IRType";
+import { RequirementDocumentType } from "./RequirementDocumentType";
+import { RequirementSource } from "./RequirementSource";
+import { Topic } from "./Topic";
 
 export interface InspectionRequirement {
   id: number;
@@ -113,7 +113,7 @@ export interface InspectionRequirementAPIData {
   summary: string,
   topic_id: number,
   enforcement_action_ids: string[],
-  compliance_finding_id: string,
+  compliance_finding_id?: string,
   findings: string,
   requirement_source_details: InspectionRequirementSourceAPIData[]
 }

@@ -167,7 +167,8 @@ class InspectionRequirementCreateSchema(BaseSchema):
         allow_none=True,
     )
     compliance_finding_id = fields.Int(
-        metadata={"description": "The unique identifier of the compliance findings."}
+        metadata={"description": "The unique identifier of the compliance findings."},
+        allow_none=True
     )
     findings = fields.Str(
         metadata={"description": "The requirement findings in html format."},

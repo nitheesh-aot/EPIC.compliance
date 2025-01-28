@@ -54,11 +54,12 @@ class InspectionRequirement(BaseModelVersioned):
         "InspectionReqSourceDetail",
         back_populates="inspection_requirement",
         lazy="select",
+        primaryjoin="and_(InspectionReqSourceDetail.requirement_id == InspectionRequirement.id, "
+        "InspectionReqSourceDetail.is_active == True, "
+        "InspectionReqSourceDetail.is_deleted == False)",
     )
     enforcement_actions = relationship(
-        "InspectionReqEnforcementMap",
-        back_populates="requirement",
-        lazy="select"
+        "InspectionReqEnforcementMap", back_populates="requirement", lazy="select"
     )
 
     @classmethod

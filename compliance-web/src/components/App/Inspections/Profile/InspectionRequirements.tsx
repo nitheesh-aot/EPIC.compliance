@@ -1,15 +1,15 @@
-import React, { useCallback } from "react";
-import { AddRounded } from "@mui/icons-material";
-import { Box, Button, Typography } from "@mui/material";
+import RequirementDrawer from "@/components/App/Inspections/Profile/Requirements/RequirementDrawer";
+import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
+import { Inspection } from "@/models/Inspection";
+import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
-import RequirementDrawer from "@/components/App/Inspections/Profile/Requirements/RequirementDrawer";
-import { Inspection } from "@/models/Inspection";
-import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
-import RequirementCard from "./Requirements/RequirementCard";
+import { AddRounded } from "@mui/icons-material";
+import { Box, Button, Typography } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
-import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { Reorder } from "framer-motion";
+import React, { useCallback } from "react";
+import RequirementCard from "./Requirements/RequirementCard";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
