@@ -154,7 +154,7 @@ class InspectionUpdateSchema(BaseSchema):
         ),
         required=False,
     )
-    
+
     @pre_load
     def end_date_populate(
         self, data, **kwargs
@@ -162,7 +162,6 @@ class InspectionUpdateSchema(BaseSchema):
         """Populate the end_date if it is not provided."""
         if data.get("end_date") is None:
             data["end_date"] = data["start_date"]
-            
         return data
 
     @validates_schema
