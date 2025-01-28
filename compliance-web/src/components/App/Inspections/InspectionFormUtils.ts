@@ -1,6 +1,5 @@
 import { Agency } from "@/models/Agency";
 import { Attendance } from "@/models/Attendance";
-import { DateRange } from "@/models/DateRange";
 import { FirstNation } from "@/models/FirstNation";
 import { Initiation } from "@/models/Initiation";
 import { InspectionAPIData } from "@/models/Inspection";
@@ -33,25 +32,22 @@ export const InspectionFormSchema = yup.object().shape({
     .of(yup.object<IRType>())
     .min(1, "At least one Type is required")
     .required("Type is required"),
-  dateRange: yup
-    .object<DateRange>()
-    .shape({
-      startDate: yup
-        .mixed<Dayjs>()
-        .required("Start date is required")
-        .typeError("Invalid date"),
-      endDate: yup
-        .mixed<Dayjs>()
-        .required("End date is required")
-        .typeError("Invalid date")
-      // .min(yup.ref("startDate"), "End date cannot be before start date"),
-    })
+  startDate: yup
+    .mixed<Dayjs>()
+    .required("Start date is required")
+    .typeError("Invalid date"),
+  endDate: yup
+    .mixed<Dayjs>()
+    .nullable()
+    .typeError("Invalid date")
     .test(
-      "required",
-      "Date is required",
-      (value) => !!value?.startDate || !!value?.endDate
-    )
-    .nullable(),
+      "is-greater",
+      "End date must be greater than start date",
+      function (value) {
+        const { startDate } = this.parent;
+        return !value || !startDate || value.isAfter(startDate);
+      }
+    ),
   initiation: yup
     .object<Initiation>()
     .nullable()
@@ -141,12 +137,10 @@ export const formatInspectionData = (
     inspection_type_ids:
       (formData.irTypes as IRType[])?.map((ir) => ir.id) ?? [],
     initiation_id: (formData.initiation as Initiation).id,
-    start_date: dateUtils.dateToISO(
-      formData.dateRange?.startDate ?? new Date()
-    ),
-    end_date: dateUtils.dateToISO(
-      formData.dateRange?.endDate ?? new Date()
-    ),
+    start_date: dateUtils.dateToISO(formData.startDate ?? new Date()),
+    end_date: formData.endDate
+      ? dateUtils.dateToISO(formData.endDate)
+      : undefined,
     primary_officer_id: (formData.primaryOfficer as StaffUser)?.id,
     location_description: formData.locationDescription ?? "",
     utm: formData.utm ?? "",

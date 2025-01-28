@@ -23,8 +23,8 @@ const mockInitiations = [
 ];
 
 const mockStaffUsers = [
-  { id: 1, name: "John Doe" },
-  { id: 2, name: "Jane Smith" },
+  { id: 1, name: "John Doe", is_active: true },
+  { id: 2, name: "Jane Smith", is_active: true },
 ];
 
 const mockIRTypes = [
@@ -85,7 +85,8 @@ describe("InspectionFormLeft Component", () => {
     cy.contains("UTM (optional)").should("exist");
     cy.contains("Primary").should("exist");
     cy.contains("Type").should("exist");
-    cy.contains("Dates").should("exist");
+    cy.contains("Start Date").should("exist");
+    cy.contains("End Date").should("exist");
     cy.contains("Initiation").should("exist");
   });
 
@@ -126,11 +127,17 @@ describe("InspectionFormLeft Component", () => {
   });
 
   it("allows selecting a date range", () => {
-    cy.get('input[name="dateRange"]').click();
-    cy.get(".MuiPickersDay-root").contains("10").click(); // Select the start date
-    cy.get(".MuiPickersDay-root").contains("20").click(); // Select the end date
-    cy.get('input[name="dateRange"]').should("contain.value", "10");
-    cy.get('input[name="dateRange"]').should("contain.value", "20");
+
+    cy.get('.cy-start-date').should("exist");
+    cy.get('.cy-end-date').should("exist");
+    
+    cy.get('.cy-start-date button[aria-label="Choose date"]').click();
+    cy.get(".MuiPickersDay-root", { timeout: 10000 }).contains("10").click(); // Select the start date
+    cy.get('input[name="startDate"]').should("contain.value", "10");
+    
+    cy.get('.cy-end-date button[aria-label="Choose date"]').click();
+    cy.get(".MuiPickersDay-root", { timeout: 10000 }).contains("20").click(); // Select the end date
+    cy.get('input[name="endDate"]').should("contain.value", "20");
   });
 
   it("allows selecting initiation", () => {

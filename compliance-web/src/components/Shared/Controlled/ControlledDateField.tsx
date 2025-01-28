@@ -2,7 +2,7 @@ import { FC } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { DatePicker, DatePickerProps } from "@mui/x-date-pickers";
 import { Dayjs } from "dayjs";
-import { TextFieldProps } from '@mui/material';
+import { TextFieldProps } from "@mui/material";
 import { DATE_FORMAT } from "@/utils/constants";
 
 type IFormDateInputProps = {
@@ -42,7 +42,21 @@ const ControlledDateField: FC<IFormDateInputProps> = ({
               placeholder: placeHolder,
               InputLabelProps: {
                 shrink: true, // for always display the placeholder
-              }
+              },
+              sx: {
+                "& .MuiOutlinedInput-root": {
+                  paddingRight: "0",
+                  "& .MuiOutlinedInput-input": {
+                    paddingRight: "0",
+                  },
+                  "& .MuiInputAdornment-positionEnd": {
+                    "& .MuiIconButton-root": {
+                      marginRight: "0",
+                    },
+                  },
+                },
+              },
+              
             } as TextFieldProps,
           }}
           {...otherProps}
