@@ -44,32 +44,6 @@ const Menu = (props: MenuProps) => {
           <Box sx={{ maxHeight: "300px", overflowY: "auto" }}>
             {props.children}
           </Box>
-          <Box
-            sx={{
-              display: "flex",
-              padding: "1rem",
-              alignItems: "flex-start",
-              gap: "1rem",
-              justifyContent: "space-between",
-              borderBottomLeftRadius: "4px",
-              borderBottomRightRadius: "4px",
-            }}
-          >
-            <Button
-              variant="outlined"
-              onClick={filterProps?.onCancel}
-              fullWidth
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              onClick={filterProps?.applyFilters}
-              fullWidth
-            >
-              Apply
-            </Button>
-          </Box>
         </components.Menu>
       </Box>
     </>

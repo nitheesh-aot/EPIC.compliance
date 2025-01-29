@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import Menu from "./components/Menu";
 import Option from "./components/Option";
@@ -24,33 +24,14 @@ const FilterSelect = (props: SelectProps) => {
   const [menuStyle, setMenuStyle] = useState<any>({});
   const selectRef = useRef<any | null>(null);
 
-  const isOptionSelected = (o: OptionType) =>
-    isMulti ? selectedOptions.includes(o.value) : selectedOptions === o.value;
+  const isOptionSelected = useCallback(
+    (o: OptionType) =>
+      isMulti ? selectedOptions.includes(o.value) : selectedOptions === o.value,
+    [isMulti, selectedOptions]
+  );
 
-  const handleChange = (newValue: any, actionMeta: any) => {
-    if (!isMulti) {
-      if (isOptionSelected(newValue)) {
-        setSelectedOptions("");
-      } else {
-        setSelectedOptions(newValue.value);
-      }
-      return;
-    }
-    const { option } = actionMeta;
-    if (option === undefined) return;
-
-    if (isOptionSelected(option)) {
-      setSelectedOptions(
-        selectedOptions.filter((o: string) => o !== option.value)
-      );
-    } else {
-      let value = [...selectedOptions, option.value];
-      value = Array.from(new Set<string>(value));
-      setSelectedOptions(value || []);
-    }
-  };
-
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
+    if (!selectedOptions) return;
     if (props.filterAppliedCallback) {
       const options = selectedOptions;
       props.filterAppliedCallback(options);
@@ -69,9 +50,39 @@ const FilterSelect = (props: SelectProps) => {
       );
       setSelectValue(value);
     }
-    setMenuIsOpen(false);
-    selectRef.current?.blur();
-  };
+    // setMenuIsOpen(false);
+    // selectRef.current?.blur();
+  }, [props, selectedOptions, isMulti, options]);
+
+  const handleChange = useCallback(
+    (newValue: any, actionMeta: any) => {
+      if (!isMulti) {
+        if (isOptionSelected(newValue)) {
+          setSelectedOptions("");
+        } else {
+          setSelectedOptions(newValue.value);
+        }
+        return;
+      }
+      const { option } = actionMeta;
+      if (option === undefined) return;
+
+      if (isOptionSelected(option)) {
+        setSelectedOptions(
+          selectedOptions.filter((o: string) => o !== option.value)
+        );
+      } else {
+        let value = [...selectedOptions, option.value];
+        value = Array.from(new Set<string>(value));
+        setSelectedOptions(value || []);
+      }
+    },
+    [isMulti, isOptionSelected, selectedOptions]
+  );
+
+  useEffect(() => {
+    applyFilters();
+  }, [selectedOptions, applyFilters]);
 
   const clearFilters = () => {
     setSelectedOptions([]);
@@ -83,10 +94,10 @@ const FilterSelect = (props: SelectProps) => {
   };
 
   const onCancel = () => {
-    const currentValues = isMulti
-      ? selectValue.map((v: OptionType) => v.value)
-      : selectValue.value;
-    setSelectedOptions(currentValues || isMulti ? [] : "");
+    // const currentValues = isMulti
+    //   ? selectValue.map((v: OptionType) => v.value)
+    //   : selectValue.value;
+    // setSelectedOptions(currentValues ?? isMulti ? [] : "");
     setMenuIsOpen(false);
     selectRef.current?.blur();
   };
@@ -100,7 +111,7 @@ const FilterSelect = (props: SelectProps) => {
       if (rightEdgeOfMenu > windowWidth) {
         const overflow = rightEdgeOfMenu - windowWidth;
         const newPosition = {
-          transform: `translateX(${-(overflow + 80)}px)`,
+          transform: `translateX(${-(overflow + 50)}px)`,
         };
         setMenuStyle(newPosition);
       } else {
@@ -125,11 +136,9 @@ const FilterSelect = (props: SelectProps) => {
 
   const isSearchable = () => {
     if (props.isSearchable !== undefined) return props.isSearchable;
-
     if (selectValue instanceof Array) {
       return selectValue.length === 0;
     }
-
     return !selectValue;
   };
 
@@ -214,6 +223,7 @@ const FilterSelect = (props: SelectProps) => {
                 ? BCDesignTokens.surfaceColorBorderActive
                 : "transparent",
             }),
+            cursor: "pointer",
           }),
           menu: (base) => ({
             ...base,
@@ -221,7 +231,7 @@ const FilterSelect = (props: SelectProps) => {
             marginBlock: "0px",
             border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
             borderRadius: "4px",
-            py: "0.25rem",
+            paddingBottom: "0.25rem",
             ...menuStyle,
           }),
           placeholder: (base, props) => ({
