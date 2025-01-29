@@ -1,10 +1,6 @@
 """Service for user management."""
 
-from compliance_api.exceptions import (
-    ResourceExistsError,
-    ResourceNotFoundError,
-    UnprocessableEntityError,
-)
+from compliance_api.exceptions import ResourceExistsError, ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models.db import session_scope
 from compliance_api.models.staff_user import StaffUser as StaffUserModel
 from compliance_api.utils.constant import AUTH_APP
