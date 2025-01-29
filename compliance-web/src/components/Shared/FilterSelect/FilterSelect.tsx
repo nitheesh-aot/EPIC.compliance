@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import Menu from "./components/Menu";
 import Option from "./components/Option";
@@ -24,17 +24,6 @@ const FilterSelect = (props: SelectProps) => {
   const [menuStyle, setMenuStyle] = useState<any>({});
   const selectRef = useRef<any | null>(null);
 
-  const selectAllOption = useMemo(
-    () => ({
-      label: "Select All",
-      value: "<SELECT_ALL>",
-    }),
-    []
-  );
-
-  const isSelectAllSelected = () =>
-    selectedOptions.includes(selectAllOption.value);
-
   const isOptionSelected = (o: OptionType) =>
     isMulti ? selectedOptions.includes(o.value) : selectedOptions === o.value;
 
@@ -50,35 +39,20 @@ const FilterSelect = (props: SelectProps) => {
     const { option } = actionMeta;
     if (option === undefined) return;
 
-    if (option.value === selectAllOption.value) {
-      if (isSelectAllSelected()) {
-        setSelectedOptions([]);
-      } else {
-        const options = [...(props.options?.map((o: any) => o.value) || [])];
-        setSelectedOptions([selectAllOption.value, ...options]);
-      }
+    if (isOptionSelected(option)) {
+      setSelectedOptions(
+        selectedOptions.filter((o: string) => o !== option.value)
+      );
     } else {
-      if (isOptionSelected(option)) {
-        setSelectedOptions(
-          selectedOptions.filter(
-            (o: string) => o !== option.value && o !== selectAllOption.value
-          )
-        );
-      } else {
-        let value = [...selectedOptions, option.value];
-        value = Array.from(new Set<string>(value));
-        setSelectedOptions(value || []);
-      }
+      let value = [...selectedOptions, option.value];
+      value = Array.from(new Set<string>(value));
+      setSelectedOptions(value || []);
     }
   };
 
   const applyFilters = () => {
     if (props.filterAppliedCallback) {
-      const options = isMulti
-        ? (selectedOptions as string[]).filter(
-            (p) => p !== selectAllOption.value
-          )
-        : selectedOptions;
+      const options = selectedOptions;
       props.filterAppliedCallback(options);
     }
     if (selectedOptions.length === 0) {
@@ -146,10 +120,8 @@ const FilterSelect = (props: SelectProps) => {
   }, [isMulti, menuIsOpen, selectValue]);
 
   useEffect(() => {
-    let filterOptions = props.options as OptionType[];
-    if (isMulti) filterOptions = [selectAllOption, ...filterOptions];
-    setOptions(filterOptions);
-  }, [isMulti, props.options, selectAllOption]);
+    setOptions(props.options as OptionType[]);
+  }, [props.options]);
 
   const isSearchable = () => {
     if (props.isSearchable !== undefined) return props.isSearchable;
@@ -229,11 +201,13 @@ const FilterSelect = (props: SelectProps) => {
             height: "2.25rem",
             minHeight: "2.25rem",
             borderWidth: "1px",
-            borderStyle: props.hasValue ? "none" : "solid",
+            // borderStyle: props.hasValue ? "none" : "solid",
             borderColor:
               props.isFocused || props.menuIsOpen
                 ? BCDesignTokens.surfaceColorBorderActive
-                : BCDesignTokens.surfaceColorBorderDefault,
+                : props.hasValue
+                  ? BCDesignTokens.themeBlue20
+                  : BCDesignTokens.surfaceColorBorderDefault,
             boxShadow: "none",
             ...(props.selectProps.filterProps?.variant === "bar" && {
               borderColor: props.isFocused
@@ -247,6 +221,7 @@ const FilterSelect = (props: SelectProps) => {
             marginBlock: "0px",
             border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
             borderRadius: "4px",
+            py: "0.25rem",
             ...menuStyle,
           }),
           placeholder: (base, props) => ({

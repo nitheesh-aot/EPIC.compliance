@@ -7,64 +7,12 @@ import {
   MRT_TableOptions,
   useMaterialReactTable,
 } from "material-react-table";
-import {
-  Box,
-  Button,
-  Container,
-  IconButton,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Box, Button, IconButton, Tooltip, Typography } from "@mui/material";
 import { FiltersCache } from "./FiltersCache";
 import { exportToCsv } from "./utils";
 import { BCDesignTokens } from "epic.theme";
-import {
-  AddRounded,
-  DownloadRounded,
-  SearchRounded,
-} from "@mui/icons-material";
-
-const NoDataComponent = ({ ...props }) => {
-  const { table } = props;
-  return (
-    <Container
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "400px",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "2rem",
-          alignItems: "center",
-        }}
-      >
-        <SearchRounded sx={{ fontSize: "2rem" }} />
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="h2" color="initial">
-            No results found
-          </Typography>
-          {table.options.data.length > 0 && (
-            <Typography variant="h4">
-              Adjust your parameters and try again
-            </Typography>
-          )}
-        </Box>
-      </Box>
-    </Container>
-  );
-};
+import { AddRounded, DownloadRounded } from "@mui/icons-material";
+import DataTableNoData from "./DataTableNoData";
 
 interface MRT_EAO_TitleToolbarProps {
   tableTitle: string;
@@ -243,7 +191,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
           });
       },
     },
-    renderEmptyRowsFallback: ({ table }) => <NoDataComponent table={table} />,
+    renderEmptyRowsFallback: ({ table }) => <DataTableNoData table={table} />,
     renderTopToolbarCustomActions: ({ table }) => {
       return (
         <>

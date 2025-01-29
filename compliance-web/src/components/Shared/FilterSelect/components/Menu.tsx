@@ -3,7 +3,7 @@ import { BCDesignTokens } from "epic.theme";
 import { components, MenuProps } from "react-select";
 
 const Menu = (props: MenuProps) => {
-  const { filterProps  } = props.selectProps;
+  const { filterProps } = props.selectProps;
   return (
     <>
       <Box
@@ -17,7 +17,7 @@ const Menu = (props: MenuProps) => {
         }}
       >
         <components.Menu {...props}>
-          {props.isMulti && props.options.length > 5 && (
+          {props.isMulti && props.options.length >= 7 && (
             <Box
               sx={{
                 display: "flex",

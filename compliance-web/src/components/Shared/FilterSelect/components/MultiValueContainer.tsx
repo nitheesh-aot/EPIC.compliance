@@ -1,41 +1,27 @@
-import { MultiValueProps } from "react-select";
-import { Box, Typography } from "@mui/material";
+import { components, MultiValueProps } from "react-select";
+import { Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 
 const MultiValue = (props: MultiValueProps) => {
   const { filterProps } = props.selectProps;
   return (
-    <>
-      {props.index === 0 && props.selectProps.value && (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            alignSelf: "stretch",
-            borderRadius: "4px",
-            background: BCDesignTokens.surfaceColorBackgroundLightBlue,
-            cursor: "pointer",
-            maxWidth: "70%",
-          }}
+    <components.MultiValueContainer {...props}>
+      {props.index === 0 && Array.isArray(props.selectProps.value) && (
+        <Typography
           key={props.index}
+          variant="body2"
+          align="left"
+          sx={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            fontWeight: BCDesignTokens.typographyFontWeightsBold,
+            color: BCDesignTokens.themeBlue80,
+          }}
         >
-          <Typography
-            variant="body2"
-            align="left"
-            sx={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              fontWeight: BCDesignTokens.typographyFontWeightsBold,
-              color: BCDesignTokens.themeBlue80,
-            }}
-          >
-            {filterProps?.variant === "inline"
-              ? "Filtered"
-              : `${props.selectProps.placeholder} (${
-                  (props.selectProps.value as []).length
-                })`}
-          </Typography>
-        </Box>
+          {filterProps?.variant === "inline"
+            ? "Filtered"
+            : `${props.selectProps.placeholder} (${props.selectProps.value.length})`}
+        </Typography>
       )}
       {props.index === 0 && !filterProps?.selectedOptions && (
         <Typography
@@ -46,7 +32,7 @@ const MultiValue = (props: MultiValueProps) => {
           {props.selectProps.placeholder}
         </Typography>
       )}
-    </>
+    </components.MultiValueContainer>
   );
 };
 
