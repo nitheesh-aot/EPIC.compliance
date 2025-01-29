@@ -132,7 +132,7 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
             {
                 "kid": "epic-compliance",
                 "kty": "RSA",
-                "alg": "RSA256",
+                "alg": "RS256",
                 "use": "sig",
                 "n": "3VRgQebxojvZlZv+rySZioGXjK5Ky4YOZ0LxFbQztwY93XaPeutDKAp7wNaYfRrx1Gwu0PpBgj+Lmg3vTqPvjR"
                 "b0Uc23hr1cT68hHxgjIjvk7xXzGv66xwIPOWZXed4LcLbdCf67qvjjFT3ZD7poXnXM5lWlBHrIHQ5s7iUia9eHwoe96d"
@@ -148,7 +148,7 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
             {
                 "kid": "epic-compliance",
                 "kty": "RSA",
-                "alg": "RSA256",
+                "alg": "RS256",
                 "use": "sig",
                 "n": "3VRgQebxojvZlZv+rySZioGXjK5Ky4YOZ0LxFbQztwY93XaPeutDKAp7wNaYfRrx1Gwu0PpBgj+Lmg3vTqPvjRb0Uc23hr"
                 "1cT68hHxgjIjvk7xXzGv66xwIPOWZXed4LcLbdCf67qvjjFT3ZD7poXnXM5lWlBHrIHQ5s7iUia9eHwoe96dDRzvDGrsoUvs"
@@ -173,33 +173,34 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
         ]
     }
 
-    JWT_OIDC_TEST_PRIVATE_KEY_PEM = """-----BEGIN RSA PRIVATE KEY-----
-    MIIEpAIBAAKCAQEA3VRgQebxojvZlZv+rySZioGXjK5Ky4YOZ0LxFbQztwY93XaP
-    eutDKAp7wNaYfRrx1Gwu0PpBgj+Lmg3vTqPvjRb0Uc23hr1cT68hHxgjIjvk7xXz
-    Gv66xwIPOWZXed4LcLbdCf67qvjjFT3ZD7poXnXM5lWlBHrIHQ5s7iUia9eHwoe9
-    6dDRzvDGrsoUvs1z5BdKvXby5usNQSWl6a0jrJ0KBatIY//9k8mwmDZ7iBEz4ag9
-    ly1KXiwMQfzdSo5r/xX63sV/8P33AjLtDEZYTUDr/YVMyh7G5MocyIDOM89dXpX3
-    qdRY1RvTK0+Tg+hshMZQyEXO8qui/FrXhCrPVwIDAQABAoIBAHl04A3KKjeZGGId
-    ZLnAH/H+A6hTzP+65RSNi7cZWHfLmQ97DGmryQKkHh1Ipg2hR6wGYfqUGnbbYER9
-    +SDynXaTbiel+FycdZfUxxxFJqKWs57wMKRTvTOQUcJyAvcBfs2vy8S8YUgFpLf3
-    ZLJY3QVZJ8QOo6u9pSssy2I0RpteefjvLwXhDnLbICaBA7KOaSH+DMUFXnQ93RTk
-    YwF9rn27A4cYcNzleazqc2AkOCgrDhWHBBVlULNo/z0pFIm8tqwpsX1Z/xWH14DY
-    WJTT3BHWGfsLUwms7I/1YnUOIrtUdfHtW+34aet9Pqs40Qj8DS2XHalorIDDUfyX
-    xSp+W6ECgYEA8q6SzNQ5NspxnO5dWjcX7xXtkJarAXlRczpYguhZcN0QJ/45bYzp
-    V4RyrB3YLK9fY1NIVea2m2Cd9oM1vjHtyKb2Y7ZkQOvHKofw3MxIOvF5YZrvXTLP
-    TN6QjvG69zl/OzSE/6locG6YEMiPnAsMW3bnIC3uou+YyHW/sHis/60CgYEA6XnT
-    HcAzjKOtd5XDlXYgUqlhvgCDikmqOG4lxg5kIKKNajp/NX0KW8kYqOQBe/HeyS1x
-    6rukvOFMPJhsKri4x7n0KFHIfGID0ynv4WdWzSqtO57wYSmTe4bv4J7u5jNLBxkZ
-    8/aYjdt1eqFzbf32eV4FYJrAQHlLYZoY9jnn25MCgYEA3UC36jLabs+nQXI4fhWY
-    pouRaa9T/SYEUk+xfrgjQzjoj+3BodVEsFu6yJz1B9hj2QSHAHo1pfcyTRtXFi4j
-    IjrGjCYvxNixXl9OA5/jgonBJnHBJXE7elO36/sLgHZVPz8kuopTA55w2WxhMd0I
-    ySLgmYAG/1n+K1TfDR8YaokCgYB87g8lkD8FNmAP6Tdqtna9RJ1kienZCWnoIChe
-    Pj0dqV16RirjeDEexBBJ7xdMNzQ6+fJG5HlWCEg+9GCMy6M0XDBlkr1wsRHS4FHX
-    jvBHgFqJ2JZPp2ufYajhzKmQzEmNVsUoYf9niNLn95RIeuh0MPc3phbRaRYI9+f7
-    eSizuQKBgQCXe8j8d5enRKGDZIRi/5hlEcDgVaueByIdjvAQCWROYCoJrTpw53WJ
-    bzZ9jbd/juNGwzNvNT2pkgzepXG3003DJqsz1sdC1koGtcNOLoGkCCZbXyacVWnp
-    VS+CMnSpT0PIVOiafB9RCHQteVOA927L1lQR13sKoSgoapgW60SFJA==
-    -----END RSA PRIVATE KEY-----"""
+    JWT_OIDC_TEST_PRIVATE_KEY_PEM = """-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDdVGBB5vGiO9mV
+m/6vJJmKgZeMrkrLhg5nQvEVtDO3Bj3ddo9660MoCnvA1ph9GvHUbC7Q+kGCP4ua
+De9Oo++NFvRRzbeGvVxPryEfGCMiO+TvFfMa/rrHAg85Zld53gtwtt0J/ruq+OMV
+PdkPumhedczmVaUEesgdDmzuJSJr14fCh73p0NHO8MauyhS+zXPkF0q9dvLm6w1B
+JaXprSOsnQoFq0hj//2TybCYNnuIETPhqD2XLUpeLAxB/N1Kjmv/FfrexX/w/fcC
+Mu0MRlhNQOv9hUzKHsbkyhzIgM4zz11elfep1FjVG9MrT5OD6GyExlDIRc7yq6L8
+WteEKs9XAgMBAAECggEAeXTgDcoqN5kYYh1kucAf8f4DqFPM/7rlFI2LtxlYd8uZ
+D3sMaavJAqQeHUimDaFHrAZh+pQadttgRH35IPKddpNuJ6X4XJx1l9THHEUmopaz
+nvAwpFO9M5BRwnIC9wF+za/LxLxhSAWkt/dksljdBVknxA6jq72lKyzLYjRGm155
++O8vBeEOctsgJoEDso5pIf4MxQVedD3dFORjAX2ufbsDhxhw3OV5rOpzYCQ4KCsO
+FYcEFWVQs2j/PSkUiby2rCmxfVn/FYfXgNhYlNPcEdYZ+wtTCazsj/VidQ4iu1R1
+8e1b7fhp630+qzjRCPwNLZcdqWisgMNR/JfFKn5boQKBgQDyrpLM1Dk2ynGc7l1a
+NxfvFe2QlqsBeVFzOliC6Flw3RAn/jltjOlXhHKsHdgsr19jU0hV5rabYJ32gzW+
+Me3IpvZjtmRA68cqh/DczEg68Xlhmu9dMs9M3pCO8br3OX87NIT/qWhwbpgQyI+c
+CwxbducgLe6i75jIdb+weKz/rQKBgQDpedMdwDOMo613lcOVdiBSqWG+AIOKSao4
+biXGDmQgoo1qOn81fQpbyRio5AF78d7JLXHqu6S84Uw8mGwquLjHufQoUch8YgPT
+Ke/hZ1bNKq07nvBhKZN7hu/gnu7mM0sHGRnz9piN23V6oXNt/fZ5XgVgmsBAeUth
+mhj2OefbkwKBgQDdQLfqMtpuz6dBcjh+FZimi5Fpr1P9JgRST7F+uCNDOOiP7cGh
+1USwW7rInPUH2GPZBIcAejWl9zJNG1cWLiMiOsaMJi/E2LFeX04Dn+OCicEmccEl
+cTt6U7fr+wuAdlU/PyS6ilMDnnDZbGEx3QjJIuCZgAb/Wf4rVN8NHxhqiQKBgHzu
+DyWQPwU2YA/pN2q2dr1EnWSJ6dkJaeggKF4+PR2pXXpGKuN4MR7EEEnvF0w3NDr5
+8kbkeVYISD70YIzLozRcMGWSvXCxEdLgUdeO8EeAWonYlk+na59hqOHMqZDMSY1W
+xShh/2eI0uf3lEh66HQw9zemFtFpFgj35/t5KLO5AoGBAJd7yPx3l6dEoYNkhGL/
+mGURwOBVq54HIh2O8BAJZE5gKgmtOnDndYlvNn2Nt3+O40bDM281PamSDN6lcbfT
+TcMmqzPWx0LWSga1w04ugaQIJltfJpxVaelVL4IydKlPQ8hU6Jp8H1EIdC15U4D3
+bsvWVBHXewqhKChqmBbrRIUk
+-----END PRIVATE KEY-----"""
 
 
 class DockerConfig(_Config):  # pylint: disable=too-few-public-methods

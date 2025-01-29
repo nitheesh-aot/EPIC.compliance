@@ -22,7 +22,6 @@ const StaffForm: React.FC<StaffFormProps> = ({
   authUsersList,
   staffUsersList,
 }) => {
-  console.log(existingStaff)
   return (
     <>
       <ControlledAutoComplete

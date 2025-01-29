@@ -68,7 +68,7 @@ export function Staff() {
     );
     setPermissionList(
       [
-        ...new Set(staffUsersList.map((staff) => staff.permission?.name)),
+        ...new Set(staffUsersList?.map((staff) => staff.permission?.name)),
       ].filter(Boolean)
     );
   }, [staffUsersList]);
