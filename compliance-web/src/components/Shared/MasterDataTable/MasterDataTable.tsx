@@ -6,6 +6,8 @@ import {
   MRT_TableInstance,
   MRT_TableOptions,
   useMaterialReactTable,
+  MRT_Column,
+  MRT_Header,
 } from "material-react-table";
 import { Box, Button, IconButton, Tooltip, Typography } from "@mui/material";
 import { FiltersCache } from "./FiltersCache";
@@ -13,6 +15,7 @@ import { exportToCsv } from "./utils";
 import { BCDesignTokens } from "epic.theme";
 import { AddRounded, DownloadRounded } from "@mui/icons-material";
 import DataTableNoData from "./DataTableNoData";
+import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 
 interface MRT_EAO_TitleToolbarProps {
   tableTitle: string;
@@ -60,7 +63,25 @@ const MasterDataTable = <TData extends MRT_RowData>({
   };
 
   const table = useMaterialReactTable({
-    columns: columns,
+    columns: columns.map((column) => ({
+      ...column,
+      ...(column.filterSelectOptions &&
+        column.filterVariant === "multi-select" && {
+          Filter: (props: {
+            column: MRT_Column<TData>;
+            header: MRT_Header<TData>;
+          }) => (
+            <TableFilter
+              isMulti
+              header={props.header}
+              column={props.column}
+              variant="inline"
+              name={`${props.column.id}Filter`}
+              placeholder={"Filter"}
+            />
+          ),
+        }),
+    })),
     data: data,
     globalFilterFn: "contains",
     enableHiding: false,

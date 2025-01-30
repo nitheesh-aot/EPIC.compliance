@@ -1,4 +1,3 @@
-import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import PageLink from "@/components/Shared/PageLink";
@@ -87,32 +86,12 @@ export function Inspections() {
         header: "Project",
         filterVariant: "multi-select",
         filterSelectOptions: projectList,
-        Filter: ({ header, column }) => (
-          <TableFilter
-            isMulti
-            header={header}
-            column={column}
-            variant="inline"
-            name="projectFilter"
-            placeholder="Filter"
-          />
-        ),
       },
       {
         accessorKey: "ir_status.name",
         header: "Stage",
         filterVariant: "multi-select",
         filterSelectOptions: irStatusList,
-        Filter: ({ header, column }) => (
-          <TableFilter
-            isMulti
-            header={header}
-            column={column}
-            variant="inline"
-            name="stageFilter"
-            placeholder="Filter"
-          />
-        ),
         size: 120,
       },
       {
@@ -120,16 +99,6 @@ export function Inspections() {
         header: "Type",
         filterVariant: "multi-select",
         filterSelectOptions: irTypeList,
-        Filter: ({ header, column }) => (
-          <TableFilter
-            isMulti
-            header={header}
-            column={column}
-            variant="inline"
-            name="typeFilter"
-            placeholder="Filter"
-          />
-        ),
         size: 120,
       },
       {
@@ -137,16 +106,6 @@ export function Inspections() {
         header: "Initiation",
         filterVariant: "multi-select",
         filterSelectOptions: initiationList,
-        Filter: ({ header, column }) => (
-          <TableFilter
-            isMulti
-            header={header}
-            column={column}
-            variant="inline"
-            name="initiationFilter"
-            placeholder="Filter"
-          />
-        ),
       },
       {
         accessorKey: "inspection_status",
@@ -169,16 +128,6 @@ export function Inspections() {
         },
         filterVariant: "multi-select",
         filterSelectOptions: inspectionStatusList,
-        Filter: ({ header, column }) => (
-          <TableFilter
-            isMulti
-            header={header}
-            column={column}
-            variant="inline"
-            name="inspectionStatusFilter"
-            placeholder="Filter"
-          />
-        ),
         size: 120,
       },
       {
@@ -187,16 +136,6 @@ export function Inspections() {
         header: "Primary",
         filterVariant: "multi-select",
         filterSelectOptions: staffUserList,
-        Filter: ({ header, column }) => (
-          <TableFilter
-            isMulti
-            header={header}
-            column={column}
-            variant="inline"
-            name="primaryOfficerFilter"
-            placeholder="Filter"
-          />
-        ),
       },
       {
         accessorKey: "case_file.case_file_number",

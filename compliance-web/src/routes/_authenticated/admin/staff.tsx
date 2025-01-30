@@ -1,5 +1,4 @@
 import StaffModal from "@/components/App/Staff/StaffModal";
-import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
@@ -135,18 +134,6 @@ export function Staff() {
         header: "Position",
         filterVariant: "multi-select",
         filterSelectOptions: positionList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="positionFilter"
-              placeholder="Filter Positions"
-            />
-          );
-        },
       },
       {
         accessorFn: (row) => row.supervisor?.name,
@@ -154,18 +141,6 @@ export function Staff() {
         header: "Supervisor",
         filterVariant: "multi-select",
         filterSelectOptions: supervisorList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="supervisorFilter"
-              placeholder="Filter Supervisors"
-            />
-          );
-        },
       },
       {
         accessorFn: (row) => row.deputy_director?.name,
@@ -173,36 +148,12 @@ export function Staff() {
         header: "Deputy Director",
         filterVariant: "multi-select",
         filterSelectOptions: deputyList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="deputyFilter"
-              placeholder="Filter Deputy Directors"
-            />
-          );
-        },
       },
       {
         accessorKey: "permission",
         header: "Permission Level",
         filterVariant: "multi-select",
         filterSelectOptions: permissionList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="permissionFilter"
-              placeholder="Filter Permissions"
-            />
-          );
-        },
       },
       {
         accessorFn: (row) => (row.is_active ? "Active" : "Inactive"),
@@ -224,18 +175,6 @@ export function Staff() {
         filterVariant: "multi-select",
         filterSelectOptions: ["Active", "Inactive"],
         filterValue: ["Active"],
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="statusFilter"
-              placeholder="Filter Status"
-            />
-          );
-        },
       },
     ],
     [deputyList, permissionList, positionList, supervisorList]
