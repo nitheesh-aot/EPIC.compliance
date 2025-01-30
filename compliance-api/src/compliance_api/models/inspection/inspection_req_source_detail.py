@@ -71,6 +71,9 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         "InspectionReqDetailDocument",
         back_populates="requirement_source_detail",
         lazy="select",
+        primaryjoin="and_(InspectionReqDetailDocument.req_detail_id == InspectionReqSourceDetail.id, "
+        "InspectionReqDetailDocument.is_active == True, "
+        "InspectionReqDetailDocument.is_deleted == False)",
     )
 
     @classmethod
@@ -110,7 +113,9 @@ class InspectionReqSourceDetail(BaseModelVersioned):
     @classmethod
     def delete_req_details_by_ids(cls, req_detail_ids, session=None):
         """Delete the requirement details by req_detail_ids."""
-        details = cls.query.filter(InspectionReqSourceDetail.id.in_(req_detail_ids)).all()
+        details = cls.query.filter(
+            InspectionReqSourceDetail.id.in_(req_detail_ids)
+        ).all()
         for detail in details:
             detail.update(DELETE_DIC_PARAMS, commit=False)
         if session:
@@ -121,7 +126,9 @@ class InspectionReqSourceDetail(BaseModelVersioned):
     @classmethod
     def delete_by_requirement_id(cls, requirement_id, session=None):
         """Delete requirement source details by requirement id."""
-        details = cls.query.filter_by(requirement_id=requirement_id, is_deleted=False).all()
+        details = cls.query.filter_by(
+            requirement_id=requirement_id, is_deleted=False
+        ).all()
         for detail in details:
             detail.update(DELETE_DIC_PARAMS, commit=False)
         if session:

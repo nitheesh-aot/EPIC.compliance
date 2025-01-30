@@ -1,10 +1,9 @@
-import { Topic } from "@/models/Topic";
 import { ComplianceFinding } from "@/models/ComplianceFinding";
 import { EnforcementAction } from "@/models/EnforcementAction";
-import * as yup from "yup";
+import { InspectionRequirement, InspectionRequirementAPIData, InspectionRequirementFormData, InspectionRequirementSourceAPIData, InspectionRequirementSourceDocumentAPIData, RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData, RequirementSourceFormData } from "@/models/InspectionRequirement";
+import { Topic } from "@/models/Topic";
 import { RequirementSourceEnum } from "@/utils/constants";
-import { InspectionRequirement, InspectionRequirementFormData, RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData } from "@/models/InspectionRequirement";
-import { InspectionRequirementAPIData, InspectionRequirementSourceAPIData, InspectionRequirementSourceDocumentAPIData, RequirementSourceFormData } from "@/models/InspectionRequirement";
+import * as yup from "yup";
 
 export const RequirementFormSchema = yup.object().shape({
   requirementSummary: yup.string().required("Summary is required"),
@@ -74,7 +73,7 @@ export const formatRequirementAPIData = (
     summary: formData.requirementSummary ?? "",
     topic_id: formData.topic?.id ?? 0,
     enforcement_action_ids: formData.enforcementAction?.map((action) => action.id) ?? [],
-    compliance_finding_id: formData.complianceFinding?.id ?? "",
+    compliance_finding_id: formData.complianceFinding?.id ?? undefined,
     findings: formData.findings?.html ?? "",
     requirement_source_details: requirementSourceDetails,
   };

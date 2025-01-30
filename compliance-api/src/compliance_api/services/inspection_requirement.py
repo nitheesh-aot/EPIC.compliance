@@ -242,7 +242,7 @@ def _handle_deletion_req_detail_nd_doc(
     doc_details_to_be_deleted = existing_doc_detail_ids.difference(
         incoming_doc_detail_ids
     )
-    InspectionReqDetailDocumentModel.delete_req_doc_details_by_ids(
+    InspectionReqSourceDetailModel.delete_req_details_by_ids(
         details_to_be_deleted, session
     )
     InspectionReqDetailDocumentModel.delete_req_doc_details_by_ids(
