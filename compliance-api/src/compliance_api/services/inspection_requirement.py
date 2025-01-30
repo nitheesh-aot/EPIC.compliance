@@ -258,6 +258,8 @@ def _create_requirement_obj(inspection_id, requirement_data):
         "topic_id": requirement_data.get("topic_id"),
         "compliance_finding_id": requirement_data.get("compliance_finding_id", None),
         "findings": requirement_data.get("findings"),
+        "agency_id": requirement_data.get("agency_id", None),
+        "req_type": requirement_data.get("req_type")
     }
 
 

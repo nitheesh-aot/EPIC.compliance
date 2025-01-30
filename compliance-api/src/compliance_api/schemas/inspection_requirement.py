@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inspection requirement Schema Schema."""
-from marshmallow import EXCLUDE, ValidationError, fields, pre_dump, validates_schema
+from marshmallow import EXCLUDE, ValidationError, fields, post_dump, pre_dump, validates_schema
+from marshmallow_enum import EnumField
 
-from compliance_api.models import InspectionReqDetailDocument, InspectionReqSourceDetail, InspectionRequirement
+from compliance_api.models import (
+    InspectionReqDetailDocument, InspectionReqSourceDetail, InspectionRequirement, InspectionRequirementTypeEnum)
 from compliance_api.models.requirement_source import RequirementSourceEnum
 
 from .base_schema import AutoSchemaBase, BaseSchema
@@ -153,6 +155,11 @@ class InspectionReqSourceDetailUpdateSchema(InspectionReqSourceDetailCreateSchem
 class InspectionRequirementCreateSchema(BaseSchema):
     """InspectionRequirementCreateSchema."""
 
+    req_type = EnumField(
+        InspectionRequirementTypeEnum,
+        metadata={"description": "The type of inspection requirement"},
+        required=True,
+    )
     summary = fields.Str(
         metadata={"description": "The summary of the requirement."}, required=True
     )
@@ -162,12 +169,20 @@ class InspectionRequirementCreateSchema(BaseSchema):
         },
         required=True,
     )
+    agency_id = fields.Int(
+        metadata={
+            "description": "The unique identifier of the agency only if the requirement"
+            "type is regulatory considerations"
+        },
+        allow_none=True,
+    )
     enforcement_action_ids = fields.List(
         fields.Int(metadata={"description": "The enforcement action identifier."}),
         allow_none=True,
     )
     compliance_finding_id = fields.Int(
-        metadata={"description": "The unique identifier of the compliance findings."}
+        metadata={"description": "The unique identifier of the compliance findings."},
+        allow_none=True,
     )
     findings = fields.Str(
         metadata={"description": "The requirement findings in html format."},
@@ -176,6 +191,19 @@ class InspectionRequirementCreateSchema(BaseSchema):
     requirement_source_details = fields.List(
         fields.Nested(InspectionReqSourceDetailCreateSchema)
     )
+
+    @validates_schema
+    def validate_agency_id(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Validate the agency if the requirement type is regulatory considerations."""
+        req_type = data.get("req_type")
+        agency_id = data.get("agency_id", None)
+        if req_type == InspectionRequirementTypeEnum.REG and not agency_id:
+            raise ValidationError(
+                "Agency is required if the requirement type is Regulatory Consideration",
+                field_name="agency_id",
+            )
 
 
 class InspectionRequirementUpdateSchema(InspectionRequirementCreateSchema):
@@ -246,6 +274,7 @@ class InspectionRequirementSchema(AutoSchemaBase):  # pylint: disable=too-many-a
     )
     topic = fields.Nested(KeyValueSchema)
     compliance_finding = fields.Nested(KeyValueSchema)
+    agency = fields.Nested(KeyValueSchema)
     enforcement_action_data = fields.List(fields.Nested(KeyValueSchema))
 
     @pre_dump
@@ -265,3 +294,14 @@ class InspectionRequirementSchema(AutoSchemaBase):  # pylint: disable=too-many-a
                     )
             obj.enforcement_action_data = prepared_enforcement_actions
         return obj
+
+    @post_dump
+    def nullify_nested(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Make nested objects null if the referenced ID is null."""
+        data["req_type"] = {
+            "id": data.get("req_type").name,
+            "name": data.get("req_type").value,
+        }
+        return data
