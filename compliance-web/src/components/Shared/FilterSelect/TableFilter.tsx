@@ -42,6 +42,9 @@ const makeTableFilter =
               }
         ) => toOptionType(option)
       );
+      filterOptions.sort((a: { label: string }, b: { label: string }) =>
+        a.label.localeCompare(b.label)
+      );
       return filterOptions;
     }, [column]);
 
