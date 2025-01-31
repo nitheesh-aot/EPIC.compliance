@@ -1,6 +1,4 @@
-import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
-import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import PageLink from "@/components/Shared/PageLink";
 import { useComplaintsData } from "@/hooks/useComplaints";
 import { Complaint } from "@/models/Complaint";
@@ -28,7 +26,9 @@ export function Complaints() {
   useEffect(() => {
     setProjectList(
       [
-        ...new Set(complaintsList?.map((comp) => comp.case_file?.project?.name ?? "")),
+        ...new Set(
+          complaintsList?.map((comp) => comp.case_file?.project?.name ?? "")
+        ),
       ].filter(Boolean)
     );
     setTopicList(
@@ -64,8 +64,7 @@ export function Complaints() {
       {
         accessorKey: "complaint_number",
         header: "Complaint #",
-        sortingFn: "sortFn",
-        filterFn: searchFilter,
+        filterFn: "contains",
         Cell: ({ row }) => (
           <PageLink
             to="/ce-database/complaints/$complaintNumber"
@@ -78,36 +77,12 @@ export function Complaints() {
         header: "Project",
         filterVariant: "multi-select",
         filterSelectOptions: projectList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="projectFilter"
-              placeholder="Filter"
-            />
-          );
-        },
       },
       {
         accessorFn: (row) => row.requirement_detail?.topic?.name,
         header: "Topic",
         filterVariant: "multi-select",
         filterSelectOptions: topicList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="topicFilter"
-              placeholder="Filter"
-            />
-          );
-        },
         size: 150,
       },
       {
@@ -115,24 +90,13 @@ export function Complaints() {
         id: "date_received",
         header: "Date Received",
         size: 120,
+        filterFn: "contains",
       },
       {
         accessorKey: "source_type.name",
         header: "Complaint Source",
         filterVariant: "multi-select",
         filterSelectOptions: complaintSourceList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="sourceFilter"
-              placeholder="Filter"
-            />
-          );
-        },
         size: 150,
       },
       {
@@ -140,18 +104,6 @@ export function Complaints() {
         header: "Primary",
         filterVariant: "multi-select",
         filterSelectOptions: officerList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="officerFilter"
-              placeholder="Filter"
-            />
-          );
-        },
       },
       {
         accessorKey: "status",
@@ -174,24 +126,12 @@ export function Complaints() {
         },
         filterVariant: "multi-select",
         filterSelectOptions: statusList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="complaintStatusFilter"
-              placeholder="Filter"
-            />
-          );
-        },
         size: 150,
       },
       {
         accessorKey: "case_file.case_file_number",
         header: "Case File #",
-        filterFn: searchFilter,
+        filterFn: "contains",
         Cell: ({ row }) => (
           <PageLink
             to="/ce-database/case-files/$caseFileNumber"

@@ -1,4 +1,3 @@
-import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import { useComplaintsByCaseFileId } from "@/hooks/useComplaints";
@@ -20,9 +19,7 @@ const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
     setStaffUserList(
       [
         ...new Set(
-          complaints?.map(
-            (complaint) => complaint.primary_officer?.name ?? ""
-          )
+          complaints?.map((complaint) => complaint.primary_officer?.name ?? "")
         ),
       ].filter(Boolean)
     );
@@ -90,18 +87,6 @@ const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
         },
         filterVariant: "multi-select",
         filterSelectOptions: complaintStatusList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="inspectionStatusFilter"
-              placeholder="Filter"
-            />
-          );
-        },
         size: 100,
       },
       {
@@ -109,18 +94,6 @@ const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
         header: "Topic",
         filterVariant: "multi-select",
         filterSelectOptions: topicList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="topicFilter"
-              placeholder="Filter"
-            />
-          );
-        },
         size: 120,
       },
       {
@@ -128,18 +101,6 @@ const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
         header: "Source",
         filterVariant: "multi-select",
         filterSelectOptions: complaintSourceList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="sourceFilter"
-              placeholder="Filter"
-            />
-          );
-        },
         size: 120,
       },
       {
@@ -148,18 +109,6 @@ const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
         header: "Primary",
         filterVariant: "multi-select",
         filterSelectOptions: staffUserList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="primaryOfficerFilter"
-              placeholder="Filter"
-            />
-          );
-        },
         size: 120,
       },
     ],

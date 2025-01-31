@@ -1,4 +1,3 @@
-import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import { useInspectionsByCaseFileId } from "@/hooks/useInspections";
@@ -76,18 +75,6 @@ const CaseFileInspectionsTable = ({ caseFileId }: { caseFileId: number }) => {
         },
         filterVariant: "multi-select",
         filterSelectOptions: inspectionStatusList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="inspectionStatusFilter"
-              placeholder="Filter"
-            />
-          );
-        },
         size: 100,
       },
       // TODO: Add map correct values for the next 3 columns
@@ -112,18 +99,6 @@ const CaseFileInspectionsTable = ({ caseFileId }: { caseFileId: number }) => {
         header: "Primary",
         filterVariant: "multi-select",
         filterSelectOptions: staffUserList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="primaryOfficerFilter"
-              placeholder="Filter"
-            />
-          );
-        },
         size: 120,
       },
     ],

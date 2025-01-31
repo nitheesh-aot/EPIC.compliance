@@ -1,52 +1,37 @@
-import { MultiValueProps } from "react-select";
-import { Box, Typography } from "@mui/material";
+import { components, MultiValueProps } from "react-select";
+import { Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 
-const MultiValue = (props: MultiValueProps) => {
-  const { filterProps } = props.selectProps;
+const MultiValue = ({ selectProps, index, ...props }: MultiValueProps) => {
+  const { filterProps, value, placeholder } = selectProps;
+  const selectedValue = Array.isArray(value) ? value : [value];
+  const hasSelectedValue = selectedValue.length > 0;
   return (
-    <>
-      {props.index === 0 && props.selectProps.value && (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            alignSelf: "stretch",
-            borderRadius: "4px",
-            background: BCDesignTokens.surfaceColorBackgroundLightBlue,
-            cursor: "pointer",
-            maxWidth: "70%",
-          }}
-          key={props.index}
-        >
-          <Typography
-            variant="body2"
-            align="left"
-            sx={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              fontWeight: BCDesignTokens.typographyFontWeightsBold,
-              color: BCDesignTokens.themeBlue80,
-            }}
-          >
-            {filterProps?.variant === "inline"
-              ? "Filtered"
-              : `${props.selectProps.placeholder} (${
-                  (props.selectProps.value as []).length
-                })`}
-          </Typography>
-        </Box>
-      )}
-      {props.index === 0 && !filterProps?.selectedOptions && (
+    <components.MultiValueContainer {...props} selectProps={selectProps}>
+      {index === 0 && (
         <Typography
+          key={index}
           variant="body2"
           align="left"
-          sx={{ color: BCDesignTokens.typographyColorPlaceholder }}
+          sx={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            fontWeight: hasSelectedValue
+              ? BCDesignTokens.typographyFontWeightsBold
+              : undefined,
+            color: hasSelectedValue
+              ? BCDesignTokens.themeBlue80
+              : BCDesignTokens.typographyColorPlaceholder,
+          }}
         >
-          {props.selectProps.placeholder}
+          {hasSelectedValue
+            ? filterProps?.variant === "inline"
+              ? "Filtered"
+              : `${placeholder} (${selectedValue.length})`
+            : placeholder}
         </Typography>
       )}
-    </>
+    </components.MultiValueContainer>
   );
 };
 

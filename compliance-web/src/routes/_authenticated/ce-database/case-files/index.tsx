@@ -1,7 +1,5 @@
 import CaseFileDrawer from "@/components/App/CaseFiles/CaseFileDrawer";
-import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
-import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import PageLink from "@/components/Shared/PageLink";
 import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
 import { useCaseFilesData } from "@/hooks/useCaseFiles";
@@ -93,8 +91,7 @@ export function CaseFiles() {
       {
         accessorKey: "case_file_number",
         header: "Case File #",
-        sortingFn: "sortFn",
-        filterFn: searchFilter,
+        filterFn: "contains",
         Cell: ({ row }) => {
           return (
             <PageLink
@@ -111,41 +108,18 @@ export function CaseFiles() {
         header: "Project",
         filterVariant: "multi-select",
         filterSelectOptions: projectList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="projectFilter"
-              placeholder="Filter Projects"
-            />
-          );
-        },
       },
       {
         accessorKey: "initiation.name",
         header: "Initiation",
         filterVariant: "multi-select",
         filterSelectOptions: initiationList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="initiationFilter"
-              placeholder="Filter Initiations"
-            />
-          );
-        },
       },
       {
         accessorFn: (row) => dateUtils.formatDate(row.date_created),
         id: "date_created",
         header: "Date Created",
+        filterFn: "contains",
       },
       {
         accessorKey: "case_file_status",
@@ -168,18 +142,6 @@ export function CaseFiles() {
         },
         filterVariant: "multi-select",
         filterSelectOptions: statusList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="statusFilter"
-              placeholder="Filter Status"
-            />
-          );
-        },
       },
       {
         accessorFn: (row) => row.primary_officer?.name,
@@ -187,18 +149,6 @@ export function CaseFiles() {
         header: "Primary",
         filterVariant: "multi-select",
         filterSelectOptions: staffUserList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="leadOfficersFilter"
-              placeholder="Filter Primary"
-            />
-          );
-        },
       },
     ],
     [initiationList, projectList, staffUserList, statusList]
@@ -225,7 +175,7 @@ export function CaseFiles() {
           tableTitle: "Case Files",
           tableAddRecordButtonText: "Case File",
           tableAddRecordFunction: handleOpenModal,
-          tableAddRecordButtonVisibility: showCreateCaseFileButton
+          tableAddRecordButtonVisibility: showCreateCaseFileButton,
         }}
       />
     </>

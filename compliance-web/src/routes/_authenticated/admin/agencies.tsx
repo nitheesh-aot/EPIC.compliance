@@ -1,6 +1,5 @@
 import AgencyModal from "@/components/App/Agencies/AgencyModal";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
-import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import Unauthorized from "@/components/Shared/Unauthorized";
 import { useAgenciesData, useDeleteAgency } from "@/hooks/useAgencies";
@@ -45,15 +44,13 @@ export function Agencies() {
       {
         accessorKey: "name",
         header: "Name",
-        sortingFn: "sortFn",
-        filterFn: searchFilter,
+        filterFn: "contains",
         size: 450,
       },
       {
         accessorKey: "abbreviation",
         header: "Abbreviation",
-        sortingFn: "sortFn",
-        filterFn: searchFilter,
+        filterFn: "contains",
         size: 200,
       },
     ],

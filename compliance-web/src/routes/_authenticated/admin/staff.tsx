@@ -1,7 +1,5 @@
 import StaffModal from "@/components/App/Staff/StaffModal";
-import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
-import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import Unauthorized from "@/components/Shared/Unauthorized";
 import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
@@ -68,7 +66,9 @@ export function Staff() {
     );
     setPermissionList(
       [
-        ...new Set(staffUsersList?.map((staff) => staff.permission?.name)),
+        ...new Set(
+          staffUsersList?.map((staff) => staff.permission?.name ?? "")
+        ),
       ].filter(Boolean)
     );
   }, [staffUsersList]);
@@ -127,26 +127,13 @@ export function Staff() {
       {
         accessorKey: "name",
         header: "Name",
-        sortingFn: "sortFn",
-        filterFn: searchFilter,
+        filterFn: "contains",
       },
       {
         accessorKey: "position.name",
         header: "Position",
         filterVariant: "multi-select",
         filterSelectOptions: positionList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="positionFilter"
-              placeholder="Filter Positions"
-            />
-          );
-        },
       },
       {
         accessorFn: (row) => row.supervisor?.name,
@@ -154,18 +141,6 @@ export function Staff() {
         header: "Supervisor",
         filterVariant: "multi-select",
         filterSelectOptions: supervisorList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="supervisorFilter"
-              placeholder="Filter Supervisors"
-            />
-          );
-        },
       },
       {
         accessorFn: (row) => row.deputy_director?.name,
@@ -173,36 +148,12 @@ export function Staff() {
         header: "Deputy Director",
         filterVariant: "multi-select",
         filterSelectOptions: deputyList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="deputyFilter"
-              placeholder="Filter Deputy Directors"
-            />
-          );
-        },
       },
       {
         accessorFn: (row) => row.permission?.name,
         header: "Permission Level",
         filterVariant: "multi-select",
         filterSelectOptions: permissionList,
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="permissionFilter"
-              placeholder="Filter Permissions"
-            />
-          );
-        },
       },
       {
         accessorFn: (row) => (row.is_active ? "Active" : "Inactive"),
@@ -223,18 +174,6 @@ export function Staff() {
         },
         filterVariant: "multi-select",
         filterSelectOptions: ["Active", "Inactive"],
-        Filter: ({ header, column }) => {
-          return (
-            <TableFilter
-              isMulti
-              header={header}
-              column={column}
-              variant="inline"
-              name="statusFilter"
-              placeholder="Filter Status"
-            />
-          );
-        },
       },
     ],
     [deputyList, permissionList, positionList, supervisorList]
@@ -250,7 +189,13 @@ export function Staff() {
               id: "name",
               desc: false,
             },
-          ]
+          ],
+          columnFilters: [
+            {
+              id: "Status",
+              value: ["Active"],
+            },
+          ],
         }}
         state={{
           isLoading: isLoading,

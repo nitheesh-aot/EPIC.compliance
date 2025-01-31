@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   MaterialReactTable,
   MRT_ColumnDef,
@@ -6,65 +6,16 @@ import {
   MRT_TableInstance,
   MRT_TableOptions,
   useMaterialReactTable,
+  MRT_Column,
+  MRT_Header,
 } from "material-react-table";
-import {
-  Box,
-  Button,
-  Container,
-  IconButton,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Box, Button, IconButton, Tooltip, Typography } from "@mui/material";
 import { FiltersCache } from "./FiltersCache";
 import { exportToCsv } from "./utils";
 import { BCDesignTokens } from "epic.theme";
-import {
-  AddRounded,
-  DownloadRounded,
-  SearchRounded,
-} from "@mui/icons-material";
-
-const NoDataComponent = ({ ...props }) => {
-  const { table } = props;
-  return (
-    <Container
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "400px",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "2rem",
-          alignItems: "center",
-        }}
-      >
-        <SearchRounded sx={{ fontSize: "2rem" }} />
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="h2" color="initial">
-            No results found
-          </Typography>
-          {table.options.data.length > 0 && (
-            <Typography variant="h4">
-              Adjust your parameters and try again
-            </Typography>
-          )}
-        </Box>
-      </Box>
-    </Container>
-  );
-};
+import { AddRounded, DownloadRounded } from "@mui/icons-material";
+import DataTableNoData from "./DataTableNoData";
+import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
 
 interface MRT_EAO_TitleToolbarProps {
   tableTitle: string;
@@ -97,12 +48,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
   isStackedTables,
   ...rest
 }: MaterialReactTableProps<TData>) => {
-  const { initialState, state, icons, ...otherProps } = rest;
-  const [otherPropsData, setOtherPropsData] = useState(otherProps);
-
-  useEffect(() => {
-    setOtherPropsData(otherProps);
-  }, [columns, data, otherProps]);
+  const { initialState, state, ...otherProps } = rest;
 
   const checkBoxStyle = {
     width: "2.75rem !important",
@@ -112,7 +58,25 @@ const MasterDataTable = <TData extends MRT_RowData>({
   };
 
   const table = useMaterialReactTable({
-    columns: columns,
+    columns: columns.map((column) => ({
+      ...column,
+      ...(column.filterSelectOptions &&
+        column.filterVariant === "multi-select" && {
+          Filter: (props: {
+            column: MRT_Column<TData>;
+            header: MRT_Header<TData>;
+          }) => (
+            <TableFilter
+              isMulti
+              header={props.header}
+              column={props.column}
+              variant="inline"
+              name={`${props.column.id}Filter`}
+              placeholder={"Filter"}
+            />
+          ),
+        }),
+    })),
     data: data,
     globalFilterFn: "contains",
     enableHiding: false,
@@ -231,19 +195,19 @@ const MasterDataTable = <TData extends MRT_RowData>({
         },
       },
     },
-    sortingFns: {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      sortFn: (rowA: any, rowB: any, columnId: string) => {
-        return rowA
-          ?.getValue(columnId)
-          ?.localeCompare(rowB?.getValue(columnId), "en", {
-            numeric: true,
-            ignorePunctuation: false,
-            sensitivity: "base",
-          });
-      },
-    },
-    renderEmptyRowsFallback: ({ table }) => <NoDataComponent table={table} />,
+    // sortingFns: {
+    //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    //   sortFn: (rowA: any, rowB: any, columnId: string) => {
+    //     return rowA
+    //       ?.getValue(columnId)
+    //       ?.localeCompare(rowB?.getValue(columnId), "en", {
+    //         numeric: true,
+    //         ignorePunctuation: false,
+    //         sensitivity: "base",
+    //       });
+    //   },
+    // },
+    renderEmptyRowsFallback: ({ table }) => <DataTableNoData table={table} />,
     renderTopToolbarCustomActions: ({ table }) => {
       return (
         <>
@@ -306,18 +270,13 @@ const MasterDataTable = <TData extends MRT_RowData>({
       columnPinning: { right: ["mrt-row-actions"] },
       ...state,
     },
-    icons: {
-      FilterAltIcon: () => null,
-      CloseIcon: () => null,
-      ...icons,
-    },
     filterFns: {
       multiSelectFilter: (row, id, filterValue) => {
         if (filterValue.length === 0) return true;
         return filterValue.includes(row.getValue(id));
       },
     },
-    ...otherPropsData,
+    ...otherProps,
   });
 
   useEffect(() => {
