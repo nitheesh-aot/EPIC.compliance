@@ -1,6 +1,5 @@
 import CaseFileDrawer from "@/components/App/CaseFiles/CaseFileDrawer";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
-import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import PageLink from "@/components/Shared/PageLink";
 import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
 import { useCaseFilesData } from "@/hooks/useCaseFiles";
@@ -92,8 +91,7 @@ export function CaseFiles() {
       {
         accessorKey: "case_file_number",
         header: "Case File #",
-        sortingFn: "sortFn",
-        filterFn: searchFilter,
+        filterFn: "contains",
         Cell: ({ row }) => {
           return (
             <PageLink
@@ -121,6 +119,7 @@ export function CaseFiles() {
         accessorFn: (row) => dateUtils.formatDate(row.date_created),
         id: "date_created",
         header: "Date Created",
+        filterFn: "contains",
       },
       {
         accessorKey: "case_file_status",

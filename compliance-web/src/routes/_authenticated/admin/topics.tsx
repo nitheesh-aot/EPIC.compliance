@@ -1,6 +1,5 @@
 import TopicModal from "@/components/App/Topics/TopicModal";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
-import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import Unauthorized from "@/components/Shared/Unauthorized";
 import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
@@ -45,8 +44,7 @@ export function Topics() {
       {
         accessorKey: "name",
         header: "Name",
-        sortingFn: "sortFn",
-        filterFn: searchFilter,
+        filterFn: "contains",
       },
     ],
     []

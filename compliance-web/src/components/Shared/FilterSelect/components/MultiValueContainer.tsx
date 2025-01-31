@@ -2,34 +2,33 @@ import { components, MultiValueProps } from "react-select";
 import { Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 
-const MultiValue = (props: MultiValueProps) => {
-  const { filterProps } = props.selectProps;
+const MultiValue = ({ selectProps, index, ...props }: MultiValueProps) => {
+  const { filterProps, value, placeholder } = selectProps;
+  const selectedValue = Array.isArray(value) ? value : [value];
+  const hasSelectedValue = selectedValue.length > 0;
   return (
-    <components.MultiValueContainer {...props}>
-      {props.index === 0 && Array.isArray(props.selectProps.value) && (
+    <components.MultiValueContainer {...props} selectProps={selectProps}>
+      {index === 0 && (
         <Typography
-          key={props.index}
+          key={index}
           variant="body2"
           align="left"
           sx={{
             overflow: "hidden",
             textOverflow: "ellipsis",
-            fontWeight: BCDesignTokens.typographyFontWeightsBold,
-            color: BCDesignTokens.themeBlue80,
+            fontWeight: hasSelectedValue
+              ? BCDesignTokens.typographyFontWeightsBold
+              : undefined,
+            color: hasSelectedValue
+              ? BCDesignTokens.themeBlue80
+              : BCDesignTokens.typographyColorPlaceholder,
           }}
         >
-          {filterProps?.variant === "inline"
-            ? "Filtered"
-            : `${props.selectProps.placeholder} (${props.selectProps.value.length})`}
-        </Typography>
-      )}
-      {props.index === 0 && !filterProps?.selectedOptions && (
-        <Typography
-          variant="body2"
-          align="left"
-          sx={{ color: BCDesignTokens.typographyColorPlaceholder }}
-        >
-          {props.selectProps.placeholder}
+          {hasSelectedValue
+            ? filterProps?.variant === "inline"
+              ? "Filtered"
+              : `${placeholder} (${selectedValue.length})`
+            : placeholder}
         </Typography>
       )}
     </components.MultiValueContainer>

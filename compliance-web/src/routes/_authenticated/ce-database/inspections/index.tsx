@@ -1,5 +1,4 @@
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
-import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import PageLink from "@/components/Shared/PageLink";
 import { useInspectionsData } from "@/hooks/useInspections";
 import { Inspection } from "@/models/Inspection";
@@ -72,8 +71,7 @@ export function Inspections() {
       {
         accessorKey: "ir_number",
         header: "IR #",
-        sortingFn: "sortFn",
-        filterFn: searchFilter,
+        filterFn: "contains",
         Cell: ({ row }) => (
           <PageLink
             to="/ce-database/inspections/$inspectionNumber"
@@ -140,7 +138,7 @@ export function Inspections() {
       {
         accessorKey: "case_file.case_file_number",
         header: "Case File #",
-        filterFn: searchFilter,
+        filterFn: "contains",
         Cell: ({ row }) => (
           <PageLink
             to="/ce-database/case-files/$caseFileNumber"

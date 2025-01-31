@@ -1,5 +1,4 @@
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
-import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import PageLink from "@/components/Shared/PageLink";
 import { useComplaintsData } from "@/hooks/useComplaints";
 import { Complaint } from "@/models/Complaint";
@@ -65,8 +64,7 @@ export function Complaints() {
       {
         accessorKey: "complaint_number",
         header: "Complaint #",
-        sortingFn: "sortFn",
-        filterFn: searchFilter,
+        filterFn: "contains",
         Cell: ({ row }) => (
           <PageLink
             to="/ce-database/complaints/$complaintNumber"
@@ -92,6 +90,7 @@ export function Complaints() {
         id: "date_received",
         header: "Date Received",
         size: 120,
+        filterFn: "contains",
       },
       {
         accessorKey: "source_type.name",
@@ -132,7 +131,7 @@ export function Complaints() {
       {
         accessorKey: "case_file.case_file_number",
         header: "Case File #",
-        filterFn: searchFilter,
+        filterFn: "contains",
         Cell: ({ row }) => (
           <PageLink
             to="/ce-database/case-files/$caseFileNumber"

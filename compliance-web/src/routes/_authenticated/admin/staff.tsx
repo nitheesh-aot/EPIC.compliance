@@ -1,6 +1,5 @@
 import StaffModal from "@/components/App/Staff/StaffModal";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
-import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import Unauthorized from "@/components/Shared/Unauthorized";
 import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
@@ -126,8 +125,7 @@ export function Staff() {
       {
         accessorKey: "name",
         header: "Name",
-        sortingFn: "sortFn",
-        filterFn: searchFilter,
+        filterFn: "contains",
       },
       {
         accessorKey: "position.name",
@@ -174,7 +172,6 @@ export function Staff() {
         },
         filterVariant: "multi-select",
         filterSelectOptions: ["Active", "Inactive"],
-        filterValue: ["Active"],
       },
     ],
     [deputyList, permissionList, positionList, supervisorList]
