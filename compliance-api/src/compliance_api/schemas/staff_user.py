@@ -33,9 +33,10 @@ class StaffUserSchemaSkeleton(AutoSchemaBase):  # pylint: disable=too-many-ances
         include_fk = True
 
     position = fields.Nested(KeyValueSchema, dump_only=True)
-    permission = fields.Str(
-        metadata={"description": "The permission level of the user in the app"}
-    )
+    # permission = fields.Str(
+    #     metadata={"description": "The permission level of the user in the app"}
+    # )
+    permission = fields.Raw()
     name = fields.Method("get_full_name")
 
     def get_full_name(self, obj):  # pylint: disable=no-self-use
@@ -52,7 +53,11 @@ class StaffUserSchemaSkeleton(AutoSchemaBase):  # pylint: disable=too-many-ances
         if data.get("supervisor_id") is None:
             data["supervisor"] = None
         if data.get("permission") in [p.name for p in PermissionEnum]:
-            data["permission"] = getattr(PermissionEnum, data.get("permission")).name
+            # data["permission"] = getattr(PermissionEnum, data.get("permission")).value
+            data["permission"] = {
+                "id": getattr(PermissionEnum, data.get("permission")).name,
+                "name": getattr(PermissionEnum, data.get("permission")).value
+            }
         return data
 
 

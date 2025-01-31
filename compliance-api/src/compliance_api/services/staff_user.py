@@ -109,7 +109,7 @@ def _create_staff_user_object(user_data: dict, auth_user: dict):
         "deputy_director_id": user_data.get("deputy_director_id"),
         "supervisor_id": user_data.get("supervisor_id", None),
         "auth_user_guid": auth_user.get("username", None),
-        "is_active": auth_user.get("is_active")
+        "is_active": auth_user.get("is_active"),
     }
 
 
@@ -129,7 +129,11 @@ def _set_permission_level_in_compliance_user_obj(
     """Set the permission level in compliance user."""
     if auth_user and auth_user.get("groups", None):
         sorted_groups = sorted(auth_user.get("groups", None), key=_get_level)
-        if sorted_groups[-1] and sorted_groups[-1]["name"]:
+        if (
+            sorted_groups[-1]
+            and sorted_groups[-1]["name"]
+            and sorted_groups[-1]["name"] in [p.name for p in PermissionEnum]
+        ):
             setattr(compliance_user, "permission", sorted_groups[-1]["name"])
     return compliance_user
 

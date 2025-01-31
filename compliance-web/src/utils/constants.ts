@@ -9,6 +9,8 @@ export const DATE_TIME_FORMAT = "YYYY-MM-DD HH:mm";
 export const UNAPPROVED_PROJECT_ID = 99999;
 export const UNAPPROVED_PROJECT_ABBREVIATION = "UNPRVD";
 
+export const DEPUTY_DIRECTOR_POSITION = 3
+
 export const INITIATION = {
   INSPECTION_ID: "1",
   COMPLAINTS_ID: "2",

@@ -4,8 +4,9 @@ import { AuthUser } from "@/models/AuthUser";
 import { Permission } from "@/models/Permission";
 import { Position } from "@/models/Position";
 import { StaffUser } from "@/models/Staff";
+import { DEPUTY_DIRECTOR_POSITION } from "@/utils/constants";
 import { Stack } from "@mui/material";
-import React from "react";
+import React, { useMemo } from "react";
 
 type StaffFormProps = {
   existingStaff?: StaffUser;
@@ -22,6 +23,11 @@ const StaffForm: React.FC<StaffFormProps> = ({
   authUsersList,
   staffUsersList,
 }) => {
+  const deputyDirectors = useMemo(
+    () =>
+      staffUsersList?.filter((p) => p.position_id == DEPUTY_DIRECTOR_POSITION),
+    [staffUsersList]
+  );
   return (
     <>
       <ControlledAutoComplete
@@ -47,7 +53,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
           name="deputyDirector"
           label="Deputy Director"
           placeholder="Search for a Name"
-          options={staffUsersList ?? []}
+          options={deputyDirectors ?? []}
           getOptionLabel={(option) => option.name}
           getOptionKey={(option) => option.id}
           isOptionEqualToValue={(option, value) => option.id === value.id}

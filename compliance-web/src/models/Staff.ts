@@ -11,7 +11,7 @@ export interface StaffUser {
   position_id?: number;
   deputy_director_id?: number;
   supervisor_id?: number;
-  permission?: string;
+  permission?: Permission;
   position?: Position;
   deputy_director?: StaffUser;
   supervisor?: StaffUser;

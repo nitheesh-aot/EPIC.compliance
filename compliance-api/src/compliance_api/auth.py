@@ -57,7 +57,7 @@ class Auth:  # pylint: disable=too-few-public-methods
             @wraps(f)
             def wrapper(*args, **kwargs):
                 mapped_groups = _map_permission_to_groups(permissions)
-                if jwt.contains_role(mapped_groups):
+                if jwt.contains_role(roles=mapped_groups):
                     return f(*args, **kwargs)
 
                 raise PermissionDeniedError(
@@ -72,13 +72,13 @@ class Auth:  # pylint: disable=too-few-public-methods
     @classmethod
     def has_role(cls, role):
         """Validate the role."""
-        return jwt.validate_roles(role)
+        return jwt.validate_roles(required_roles=role)
 
     @classmethod
     def has_permission(cls, permissions):
         """Check to see if the user has right permissions."""
         mapped_groups = _map_permission_to_groups(permissions)
-        return jwt.contains_role(mapped_groups)
+        return jwt.contains_role(roles=mapped_groups)
 
 
 def _map_permission_to_groups(permissions):
