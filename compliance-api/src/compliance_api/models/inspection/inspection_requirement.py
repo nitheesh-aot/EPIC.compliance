@@ -1,11 +1,20 @@
 """InspectionRequirement Model."""
 
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
+import enum
+
+from sqlalchemy import Boolean, Column, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
 from ..base_model import BaseModelVersioned, db
+
+
+class InspectionRequirementTypeEnum(enum.Enum):
+    """Type of inspection requirements."""
+
+    REQ = "Requirement"
+    REG = "Regulatory Consideration"
 
 
 class InspectionRequirement(BaseModelVersioned):
@@ -32,6 +41,17 @@ class InspectionRequirement(BaseModelVersioned):
         nullable=False,
         comment="The topic of the requirement",
     )
+    agency_id = Column(
+        Integer,
+        ForeignKey("agencies.id", name="inspection_req_agency_id"),
+        nullable=True,
+        comment="Associated agency if the type is regulatory consideration",
+    )
+    req_type = Column(
+        Enum(InspectionRequirementTypeEnum),
+        nullable=False,
+        default=InspectionRequirementTypeEnum.REG,
+    )
     compliance_finding_id = Column(
         Integer,
         ForeignKey(
@@ -49,6 +69,9 @@ class InspectionRequirement(BaseModelVersioned):
     topic = relationship("Topic", foreign_keys=[topic_id], lazy="joined")
     compliance_finding = relationship(
         "ComplianceFindingOption", foreign_keys=[compliance_finding_id], lazy="joined"
+    )
+    agency = relationship(
+        "Agency", foreign_keys=[agency_id], lazy="joined"
     )
     requirement_source_details = relationship(
         "InspectionReqSourceDetail",

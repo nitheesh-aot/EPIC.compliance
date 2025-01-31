@@ -21,6 +21,7 @@ from .document_type import DocumentTypeService
 from .enforcement_action import EnforcementActionService
 from .inspection import InspectionService
 from .inspection_requirement import InspectionRequirementService
+from .inspection_requirement_type import InspectionRequirementTypeService
 from .position import PositionService
 from .project import ProjectService
 from .project_status import ProjectStatusService
