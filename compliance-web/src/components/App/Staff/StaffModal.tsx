@@ -65,7 +65,7 @@ const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {
           undefined,
         position: staff.position || undefined,
         permission:
-          permissionsList?.find((item) => item.id === staff.permission) ||
+          permissionsList?.find((item) => item.id === staff.permission?.id) ||
           undefined,
         deputyDirector:
           staffUsersList?.find(

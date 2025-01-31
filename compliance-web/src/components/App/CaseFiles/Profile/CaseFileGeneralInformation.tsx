@@ -1,11 +1,11 @@
+import FileProfileProperty from "@/components/App/FileProfileProperty";
+import { CaseFile } from "@/models/CaseFile";
+import { formatAuthorization } from "@/utils/appUtils";
 import dateUtils from "@/utils/dateUtils";
 import { EditRounded } from "@mui/icons-material";
 import { Box, Button, Stack, Typography } from "@mui/material";
-import FileProfileProperty from "@/components/App/FileProfileProperty";
-import { CaseFile } from "@/models/CaseFile";
-import CaseFileInspectionsTable from "./CaseFileInspectionsTable";
 import CaseFileComplaintsTable from "./CaseFileComplaintsTable";
-import { formatAuthorization } from "@/utils/appUtils";
+import CaseFileInspectionsTable from "./CaseFileInspectionsTable";
 
 interface CaseFileGeneralInformationProps {
   caseFileData: CaseFile;
@@ -47,7 +47,7 @@ const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
             size="small"
           />
           <FileProfileProperty
-            propertyName="Certificate Holder"
+            propertyName="Regulated Party"
             propertyValue={caseFileData.regulated_party}
             size="small"
           />
