@@ -37,8 +37,8 @@ const mockPermissions: Permission[] = [
 ];
 
 const mockStaffUsers: StaffUser[] = [
-  { id: 1, name: "Alice Johnson" },
-  { id: 2, name: "Bob Brown" },
+  { id: 1, name: "Alice Johnson", is_active: true, position_id: 3 },
+  { id: 2, name: "Bob Brown", is_active: true, position_id: 2 },
 ];
 
 describe("StaffForm Component", () => {
