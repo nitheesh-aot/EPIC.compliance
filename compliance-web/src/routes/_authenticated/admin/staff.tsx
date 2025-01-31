@@ -68,7 +68,7 @@ export function Staff() {
     );
     setPermissionList(
       [
-        ...new Set(staffUsersList?.map((staff) => staff.permission ?? "")),
+        ...new Set(staffUsersList?.map((staff) => staff.permission?.name)),
       ].filter(Boolean)
     );
   }, [staffUsersList]);
@@ -187,7 +187,7 @@ export function Staff() {
         },
       },
       {
-        accessorKey: "permission",
+        accessorFn: (row) => row.permission?.name,
         header: "Permission Level",
         filterVariant: "multi-select",
         filterSelectOptions: permissionList,
@@ -223,7 +223,6 @@ export function Staff() {
         },
         filterVariant: "multi-select",
         filterSelectOptions: ["Active", "Inactive"],
-        filterValue: ["Active"],
         Filter: ({ header, column }) => {
           return (
             <TableFilter
@@ -251,8 +250,7 @@ export function Staff() {
               id: "name",
               desc: false,
             },
-          ],
-          columnFilters: [{ id: "Status", value: ["Active"] }],
+          ]
         }}
         state={{
           isLoading: isLoading,

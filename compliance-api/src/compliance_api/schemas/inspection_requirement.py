@@ -16,7 +16,8 @@ from marshmallow import EXCLUDE, ValidationError, fields, post_dump, pre_dump, v
 from marshmallow_enum import EnumField
 
 from compliance_api.models import (
-    InspectionReqDetailDocument, InspectionReqSourceDetail, InspectionRequirement, InspectionRequirementTypeEnum)
+    EnforcementActionOptionEnum, InspectionReqDetailDocument, InspectionReqSourceDetail, InspectionRequirement,
+    InspectionRequirementTypeEnum)
 from compliance_api.models.requirement_source import RequirementSourceEnum
 
 from .base_schema import AutoSchemaBase, BaseSchema
@@ -182,7 +183,7 @@ class InspectionRequirementCreateSchema(BaseSchema):
     )
     compliance_finding_id = fields.Int(
         metadata={"description": "The unique identifier of the compliance findings."},
-        allow_none=True
+        allow_none=True,
     )
     findings = fields.Str(
         metadata={"description": "The requirement findings in html format."},
@@ -202,6 +203,16 @@ class InspectionRequirementCreateSchema(BaseSchema):
         if req_type == InspectionRequirementTypeEnum.REG and not agency_id:
             raise ValidationError(
                 "Agency is required if the requirement type is Regulatory Consideration",
+                field_name="agency_id",
+            )
+        enforcement_action_ids = data.get("enforcement_action_ids")
+        if (
+            EnforcementActionOptionEnum.REFERRAL_TO_ANOTHER_AGENCY
+            in enforcement_action_ids
+            and not agency_id
+        ):
+            raise ValidationError(
+                "Agency is required if the enforcement actions include REFERRAL_TO_ANOTHER_AGENCY",
                 field_name="agency_id",
             )
 
