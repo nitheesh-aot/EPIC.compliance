@@ -66,7 +66,9 @@ export function Staff() {
     );
     setPermissionList(
       [
-        ...new Set(staffUsersList?.map((staff) => staff.permission?.name)),
+        ...new Set(
+          staffUsersList?.map((staff) => staff.permission?.name ?? "")
+        ),
       ].filter(Boolean)
     );
   }, [staffUsersList]);
@@ -187,7 +189,13 @@ export function Staff() {
               id: "name",
               desc: false,
             },
-          ]
+          ],
+          columnFilters: [
+            {
+              id: "Status",
+              value: ["Active"],
+            },
+          ],
         }}
         state={{
           isLoading: isLoading,
