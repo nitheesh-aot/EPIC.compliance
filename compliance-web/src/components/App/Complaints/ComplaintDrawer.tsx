@@ -66,11 +66,13 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
         .filter(Boolean)
         .map((user) => user.id)
     )
-  ).map((id) =>
-    [caseFile.primary_officer, ...(caseFile.officers ?? [])].find(
-      (user) => user?.id === id
+  )
+    .map((id) =>
+      [caseFile.primary_officer, ...(caseFile.officers ?? [])].find(
+        (user) => user?.id === id
+      )
     )
-  ) as StaffUser[];
+    .sort((a, b) => a?.name.localeCompare(b?.name ?? "") ?? 0) as StaffUser[];
 
   const defaultValues = useMemo<ComplaintFormData>(() => {
     if (complaint) {

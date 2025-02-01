@@ -19,7 +19,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   inspectionData,
 }) => {
   const queryClient = useQueryClient();
-  const { setOpen } = useDrawer();
+  const { setOpen, isOpen } = useDrawer();
   const [activeRequirementId, setActiveRequirementId] = React.useState<
     number | null
   >(null);
@@ -66,7 +66,6 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
         content: (
           <RequirementDrawer
             onSubmit={(submitMsg) => {
-              setActiveRequirementId(null);
               handleOnSubmit(submitMsg);
             }}
             inspectionData={inspectionData}
@@ -79,6 +78,12 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     },
     [setOpen, handleOnSubmit, inspectionData]
   );
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      setActiveRequirementId(null);
+    }
+  }, [isOpen]);
 
   return (
     <Box

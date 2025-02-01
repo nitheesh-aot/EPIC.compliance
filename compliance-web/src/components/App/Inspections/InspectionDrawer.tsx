@@ -64,13 +64,12 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const { data: attendanceList } = useAttendanceOptionsData();
   const { data: agenciesList } = useAgenciesData();
   const { data: firstNationsList } = useFirstNationsData();
-  const { data: inattendanceOfficersList } = useStaffUsersData(true)
+  const { data: inattendanceOfficersList } = useStaffUsersData(true);
   const currentUser = useCurrentLoggedInUser();
 
-  const staffUserList = [
-    caseFile.primary_officer,
-    ...(caseFile.officers ?? []),
-  ].filter(Boolean) as StaffUser[];
+  const staffUserList = [caseFile.primary_officer, ...(caseFile.officers ?? [])]
+    .filter(Boolean)
+    .sort((a, b) => a?.name.localeCompare(b?.name ?? "") ?? 0) as StaffUser[];
 
   const defaultValues = useMemo<InspectionFormData>(() => {
     if (inspection) {
