@@ -5,7 +5,8 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from .base_model import BaseModelVersioned, db
+from .base_model import BaseModelVersioned
+from .utils import with_session
 
 
 class UnapprovedProject(BaseModelVersioned):
@@ -40,14 +41,12 @@ class UnapprovedProject(BaseModelVersioned):
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="select")
 
     @classmethod
+    @with_session
     def create_project_info(cls, project_data, session=None):
         """Persist inspection in database."""
         unapproved_project = UnapprovedProject(**project_data)
-        if session:
-            session.add(unapproved_project)
-            session.flush()
-        else:
-            unapproved_project.save()
+        session.add(unapproved_project)
+        session.flush()
         return unapproved_project
 
     @classmethod
@@ -56,6 +55,7 @@ class UnapprovedProject(BaseModelVersioned):
         return cls.query.filter_by(case_file_id=case_file_id, is_deleted=False).first()
 
     @classmethod
+    @with_session
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete unapproved project details by case_file_id."""
         projects = cls.query.filter(
@@ -64,7 +64,4 @@ class UnapprovedProject(BaseModelVersioned):
         ).all()
         for project in projects:
             project.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()

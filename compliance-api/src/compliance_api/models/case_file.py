@@ -20,7 +20,7 @@ from sqlalchemy.orm import relationship
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
 from .base_model import BaseModelVersioned
-from .db import db
+from .utils import with_session
 
 
 class CaseFileInitiationEnum(enum.Enum):
@@ -117,17 +117,16 @@ class CaseFile(BaseModelVersioned):
     )
 
     @classmethod
+    @with_session
     def create_case_file(cls, case_file_data, session=None):
         """Persist case file data in database."""
         case_file = CaseFile(**case_file_data)
-        if session:
-            session.add(case_file)
-            session.flush()
-        else:
-            case_file.save()
+        session.add(case_file)
+        session.flush()
         return case_file
 
     @classmethod
+    @with_session
     def update_case_file(cls, case_file_id, case_file_data, session=None):
         """Update the case file data in database."""
         query = cls.query.filter_by(id=case_file_id)
@@ -135,10 +134,7 @@ class CaseFile(BaseModelVersioned):
         if not case_file or case_file.is_deleted:
             return None
         case_file.update(case_file_data, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
         return case_file
 
     @classmethod
@@ -149,6 +145,7 @@ class CaseFile(BaseModelVersioned):
         ).first()
 
     @classmethod
+    @with_session
     def change_status(
         cls, case_file_id, case_file_status: CaseFileStatusEnum, session=None
     ):
@@ -158,10 +155,7 @@ class CaseFile(BaseModelVersioned):
         if not case_file or case_file.is_deleted:
             return None
         case_file.update({"case_file_status": case_file_status}, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
         return case_file
 
     @classmethod
@@ -184,7 +178,9 @@ class CaseFile(BaseModelVersioned):
             .filter(
                 func.regexp_replace(cls.case_file_number, "[^0-9]", "", "g").op("~")(
                     f"^{year}[0-9]{{4}}$"
-                )
+                ),
+                cls.is_active.is_(True),
+                cls.is_deleted.is_(False)
             )
             .scalar()
         )
@@ -234,6 +230,7 @@ class CaseFileOfficer(BaseModelVersioned):
         return cls.query.filter_by(case_file_id=case_file_id, is_deleted=False).all()
 
     @classmethod
+    @with_session
     def bulk_delete(cls, case_file_id: int, officer_ids: list[int], session=None):
         """Delete officer ids by id per case file."""
         query = session.query(CaseFileOfficer) if session else cls.query
@@ -242,20 +239,18 @@ class CaseFileOfficer(BaseModelVersioned):
         )
         for officer in officers:
             officer.update(DELETE_DIC_PARAMS, commit=not session)
+        session.flush()
 
     @classmethod
+    @with_session
     def bulk_insert(cls, case_file_id: int, officer_ids: list[int], session=None):
         """Insert officers per case file."""
         case_file_officer_data = [
             CaseFileOfficer(**{"case_file_id": case_file_id, "officer_id": officer_id})
             for officer_id in officer_ids
         ]
-        if session:
-            session.add_all(case_file_officer_data)
-            session.flush()
-        else:
-            db.session.add_all(case_file_officer_data)
-            db.session.commit()
+        session.add_all(case_file_officer_data)
+        session.flush()
 
 
 class CaseFileInitiationOption(BaseModelVersioned):
@@ -318,6 +313,7 @@ class CaseFileLink(BaseModelVersioned):
         ).first()
 
     @classmethod
+    @with_session
     def delete_link(cls, source_id, taget_id, session=None):
         """Delete the case file link."""
         links = cls.query.filter(
@@ -327,18 +323,13 @@ class CaseFileLink(BaseModelVersioned):
         ).all()
         for link in links:
             link.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
 
     @classmethod
+    @with_session
     def create_link(cls, link_data, session=None):
         """Persist case file link data in database."""
         case_file = CaseFileLink(**link_data)
-        if session:
-            session.add(case_file)
-            session.flush()
-        else:
-            case_file.save()
+        session.add(case_file)
+        session.flush()
         return case_file

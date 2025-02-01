@@ -5,8 +5,9 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from ..base_model import BaseModelVersioned, db
+from ..base_model import BaseModelVersioned
 from ..inspection.inspection import Inspection as InspectionModel
+from ..utils import with_session
 
 
 class InspectionOtherAttendance(BaseModelVersioned):
@@ -38,17 +39,16 @@ class InspectionOtherAttendance(BaseModelVersioned):
         ).first()
 
     @classmethod
+    @with_session
     def create_attendance(cls, other_attendance_data, session=None):
         """Persist other attendance data in database."""
         attendance = InspectionOtherAttendance(**other_attendance_data)
-        if session:
-            session.add(attendance)
-            session.flush()
-        else:
-            attendance.save()
+        session.add(attendance)
+        session.flush()
         return attendance
 
     @classmethod
+    @with_session
     def update_attendance(cls, inspection_id, other_attendance_data, session=None):
         """Update other attendance."""
         query = cls.query.filter_by(inspection_id=inspection_id)
@@ -57,13 +57,11 @@ class InspectionOtherAttendance(BaseModelVersioned):
             attendance.update(other_attendance_data, commit=False)
         else:
             session.add(InspectionOtherAttendance(**other_attendance_data))
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
         return attendance
 
     @classmethod
+    @with_session
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete other attendance details by case_file_id."""
         other_attendances = (
@@ -81,12 +79,10 @@ class InspectionOtherAttendance(BaseModelVersioned):
             ).all()
             for att in attendances:
                 att.update(DELETE_DIC_PARAMS, commit=False)
-            if session:
-                session.flush()
-            else:
-                db.session.commit()
+        session.flush()
 
     @classmethod
+    @with_session
     def delete_inspection_attendance(cls, inspection_id, session=None):
         """Delete inspection other attendance."""
         other_attendances = cls.query.filter_by(
@@ -94,7 +90,4 @@ class InspectionOtherAttendance(BaseModelVersioned):
         ).all()
         for att in other_attendances:
             att.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()

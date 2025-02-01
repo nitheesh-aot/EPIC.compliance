@@ -5,8 +5,9 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from ..base_model import BaseModelVersioned, db
+from ..base_model import BaseModelVersioned
 from ..inspection.inspection import Inspection as InspectionModel
+from ..utils import with_session
 
 
 class InspectionFirstnation(BaseModelVersioned):
@@ -37,6 +38,7 @@ class InspectionFirstnation(BaseModelVersioned):
         return cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
 
     @classmethod
+    @with_session
     def bulk_delete(cls, inspection_id: int, firstnation_ids: list[int], session=None):
         """Delete firstnation ids by id per inspection."""
         firstnations = cls.query.filter(
@@ -44,12 +46,10 @@ class InspectionFirstnation(BaseModelVersioned):
         ).all()
         for first_nation in firstnations:
             first_nation.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
 
     @classmethod
+    @with_session
     def bulk_insert(cls, inspection_id: int, firstnation_ids: list[int], session=None):
         """Insert firstnation per inspection."""
         inspection_firstnation_data = [
@@ -58,14 +58,11 @@ class InspectionFirstnation(BaseModelVersioned):
             )
             for firstnation_id in firstnation_ids
         ]
-        if session:
-            session.add_all(inspection_firstnation_data)
-            session.flush()
-        else:
-            db.session.add_all(inspection_firstnation_data)
-            db.session.commit()
+        session.add_all(inspection_firstnation_data)
+        session.flush()
 
     @classmethod
+    @with_session
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete firstnation info by case_file_id."""
         firstnations = (
@@ -83,12 +80,10 @@ class InspectionFirstnation(BaseModelVersioned):
             ).all()
             for first_nation in first_nations:
                 first_nation.update(DELETE_DIC_PARAMS, commit=False)
-            if session:
-                session.flush()
-            else:
-                db.session.commit()
+        session.flush()
 
     @classmethod
+    @with_session
     def delete_inspection_firstnation(cls, inspection_id, session=None):
         """Delete inspection firstnation."""
         first_nations = cls.query.filter_by(
@@ -96,7 +91,4 @@ class InspectionFirstnation(BaseModelVersioned):
         ).all()
         for first_nation in first_nations:
             first_nation.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()

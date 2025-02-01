@@ -5,7 +5,8 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from ..base_model import BaseModelVersioned, db
+from ..base_model import BaseModelVersioned
+from ..utils import with_session
 
 
 class ComplaintReqScheduleBDetail(BaseModelVersioned):
@@ -42,27 +43,23 @@ class ComplaintReqScheduleBDetail(BaseModelVersioned):
         }
 
     @classmethod
+    @with_session
     def create(cls, requirement_obj, session=None):
         """Create schedule b details."""
         requirement_more = ComplaintReqScheduleBDetail(**requirement_obj)
-        if session:
-            session.add(requirement_more)
-            session.flush()
-        else:
-            requirement_more.save()
+        session.add(requirement_more)
+        session.flush()
         return requirement_more
 
     @classmethod
+    @with_session
     def delete_schedule_b_details(cls, requirement_id, session=None):
         """Mark the details as deleted."""
         requirement = cls.query.filter_by(
             req_id=requirement_id, is_deleted=False
         ).first()
         requirement.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
 
     @classmethod
     def get_by_requirement(cls, req_id):

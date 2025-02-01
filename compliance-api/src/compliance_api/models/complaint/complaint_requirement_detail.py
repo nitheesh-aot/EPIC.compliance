@@ -5,8 +5,9 @@ from sqlalchemy.orm import Query, relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from ..base_model import BaseModelVersioned, db
+from ..base_model import BaseModelVersioned
 from ..complaint.complaint import Complaint as ComplaintModel
+from ..utils import with_session
 from .complaint_req_eac_detail import ComplaintReqEACDetail as ComplaintReqEACDetailModel
 from .complaint_req_order_detail import ComplaintReqOrderDetail as ComplaintReqOrderDetailModel
 from .complaint_req_schedule_b_detail import ComplaintReqScheduleBDetail as ComplaintReqScheduleBDetailModel
@@ -47,19 +48,18 @@ class ComplaintRequirementDetail(BaseModelVersioned):
     )
 
     @classmethod
+    @with_session
     def create_detail(cls, requirement_source_data, session=None):
         """Persist details in database."""
         requirement_source_detail = ComplaintRequirementDetail(
             **requirement_source_data
         )
-        if session:
-            session.add(requirement_source_detail)
-            session.flush()
-        else:
-            requirement_source_detail.save()
+        session.add(requirement_source_detail)
+        session.flush()
         return requirement_source_detail
 
     @classmethod
+    @with_session
     def update_detail(cls, complaint_id, requirement_source_data, session=None):
         """Update requirement source details."""
         query = cls.query.filter_by(complaint_id=complaint_id, is_deleted=False)
@@ -67,10 +67,7 @@ class ComplaintRequirementDetail(BaseModelVersioned):
         if not requirement:
             return None
         requirement.update(requirement_source_data, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
         return requirement
 
     @classmethod
@@ -79,6 +76,7 @@ class ComplaintRequirementDetail(BaseModelVersioned):
         return cls.query.filter_by(complaint_id=complaint_id, is_deleted=False).first()
 
     @classmethod
+    @with_session
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete requirement details by case file."""
         detail_query = cls.query.join(ComplaintModel).filter(
@@ -88,6 +86,7 @@ class ComplaintRequirementDetail(BaseModelVersioned):
         _delete_details(detail_query, cls, session)
 
     @classmethod
+    @with_session
     def delete_by_complaint(cls, complaint_id, session=None):
         """Delete by complaint."""
         detail_query = cls.query.join(ComplaintModel).filter(
@@ -142,8 +141,4 @@ def _delete_details(detail_query: Query, cls, session=None):
         process_related_records(detail_query, ComplaintReqOrderDetailModel, ComplaintReqOrderDetailModel.req_id)
         process_related_records(detail_query, ComplaintReqScheduleBDetailModel, ComplaintReqScheduleBDetailModel.req_id)
 
-    # Commit changes
-    if session:
-        session.flush()
-    else:
-        db.session.commit()
+    session.flush()

@@ -5,7 +5,8 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from ..base_model import BaseModelVersioned, db
+from ..base_model import BaseModelVersioned
+from ..utils import with_session
 
 
 class InspectionRequirement(BaseModelVersioned):
@@ -63,40 +64,38 @@ class InspectionRequirement(BaseModelVersioned):
     )
 
     @classmethod
+    @with_session
     def create_requirement(cls, requirement_obj, session=None):
         """Persist inspection requirement in database."""
         requirement = InspectionRequirement(**requirement_obj)
-        if session:
-            session.add(requirement)
-            session.flush()
-        else:
-            requirement.save()
+        session.add(requirement)
+        session.flush()
         return requirement
 
     @classmethod
+    @with_session
     def delete_requirement(cls, requirement_id, session=None):
         """Delete the requirement."""
         requirement = cls.find_by_id(requirement_id)
         if not requirement:
             return None
         requirement.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
         return requirement
 
     @classmethod
     def get_by_inspection_id(cls, inspection_id):
         """Get requirements by inspection id."""
         return (
-            db.session.query(InspectionRequirement)
-            .filter_by(inspection_id=inspection_id, is_deleted=False, is_active=True)
+            cls.query.filter_by(
+                inspection_id=inspection_id, is_deleted=False, is_active=True
+            )
             .order_by(cls.sort_order)
             .all()
         )
 
     @classmethod
+    @with_session
     def update_requirement(cls, requirement_id, requirement_data, session=None):
         """Update inspection requirement."""
         query = cls.query.filter_by(id=requirement_id)
@@ -104,8 +103,5 @@ class InspectionRequirement(BaseModelVersioned):
         if not requirement or requirement.is_deleted:
             return None
         requirement.update(requirement_data, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
         return requirement

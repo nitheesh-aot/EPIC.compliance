@@ -19,8 +19,9 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from ..base_model import BaseModelVersioned, db
+from ..base_model import BaseModelVersioned
 from ..case_file import CaseFile as CaseFileModel
+from ..utils import with_session
 
 
 class ComplaintStatusEnum(enum.Enum):
@@ -134,10 +135,12 @@ class Complaint(BaseModelVersioned):
                 func.count(Complaint.id).label(  # pylint: disable=not-callable
                     "complaint_count"
                 ),
-            )
+            ).join(CaseFileModel, CaseFileModel.id == Complaint.case_file_id)
             .filter(
                 CaseFileModel.project_id == project_id,
                 Complaint.case_file_id == case_file_id,
+                Complaint.is_active.is_(True),
+                Complaint.is_deleted.is_(False)
             )
             .group_by(Complaint.case_file_id, CaseFileModel.project_id)
             .first()
@@ -145,17 +148,16 @@ class Complaint(BaseModelVersioned):
         return result.complaint_count if result else 0
 
     @classmethod
+    @with_session
     def create_complaint(cls, complaint_obj, session=None):
         """Persist inspection in database."""
         complaint = Complaint(**complaint_obj)
-        if session:
-            session.add(complaint)
-            session.flush()
-        else:
-            complaint.save()
+        session.add(complaint)
+        session.flush()
         return complaint
 
     @classmethod
+    @with_session
     def update_complaint(cls, complaint_id, complaint_data, session=None):
         """Update inspection."""
         query = cls.query.filter_by(id=complaint_id)
@@ -163,23 +165,18 @@ class Complaint(BaseModelVersioned):
         if not complaint or complaint.is_deleted:
             return None
         complaint.update(complaint_data, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
         return complaint
 
     @classmethod
+    @with_session
     def change_status(
         cls, complaint_id, complaint_status: ComplaintStatusEnum, session=None
     ):
         """Update the complaint status."""
         complaint = cls.query.filter(cls.id == complaint_id).first()
         complaint.update({"status": complaint_status}, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
 
     @classmethod
     def get_by_complaint_number(cls, complaint_number):
@@ -189,6 +186,7 @@ class Complaint(BaseModelVersioned):
         ).first()
 
     @classmethod
+    @with_session
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete complaint by case file."""
         complaints = cls.query.filter(
@@ -196,17 +194,12 @@ class Complaint(BaseModelVersioned):
         ).all()
         for complaint in complaints:
             complaint.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
 
     @classmethod
+    @with_session
     def delete_complaint(cls, complaint_id, session=None):
         """Delete complaint."""
         complaint = cls.query.filter(Complaint.id == complaint_id).first()
         complaint.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()

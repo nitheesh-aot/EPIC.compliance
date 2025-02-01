@@ -5,7 +5,8 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from ..base_model import BaseModelVersioned, db
+from ..base_model import BaseModelVersioned
+from ..utils import with_session
 
 
 class InspectionReqEnforcementMap(BaseModelVersioned):
@@ -50,7 +51,8 @@ class InspectionReqEnforcementMap(BaseModelVersioned):
         ).all()
 
     @classmethod
-    def bulk_delete(cls, requirement_id: int, enforcement_ids: list[int]):
+    @with_session
+    def bulk_delete(cls, requirement_id: int, enforcement_ids: list[int], session=None):
         """Delete enforcement ids per inspection."""
         mappings = cls.query.filter(
             cls.requirement_id == requirement_id,
@@ -60,8 +62,10 @@ class InspectionReqEnforcementMap(BaseModelVersioned):
         )
         for mapp in mappings:
             mapp.update(DELETE_DIC_PARAMS, commit=False)
+        session.flush()
 
     @classmethod
+    @with_session
     def bulk_insert(cls, requirement_id: int, enforcement_ids: list[int], session=None):
         """Insert enforcement per requirement."""
         requirement_enforcement_map = [
@@ -70,9 +74,5 @@ class InspectionReqEnforcementMap(BaseModelVersioned):
             )
             for enforcement_id in enforcement_ids
         ]
-        if session:
-            session.add_all(requirement_enforcement_map)
-            session.flush()
-        else:
-            db.session.add_all(requirement_enforcement_map)
-            db.session.commit()
+        session.add_all(requirement_enforcement_map)
+        session.flush()

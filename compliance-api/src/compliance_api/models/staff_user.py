@@ -10,7 +10,8 @@ from typing import Optional
 from sqlalchemy import Boolean, Column, ForeignKey, Index, Integer, String
 from sqlalchemy.orm import relationship
 
-from .base_model import BaseModelVersioned, db
+from .base_model import BaseModelVersioned
+from .utils import with_session
 
 
 class StaffUser(BaseModelVersioned):
@@ -67,17 +68,16 @@ class StaffUser(BaseModelVersioned):
     )
 
     @classmethod
+    @with_session
     def create_staff(cls, user_data, session=None) -> StaffUser:
         """Create user."""
         staff_user = StaffUser(**user_data)
-        if session:
-            session.add(staff_user)
-            session.flush()
-        else:
-            staff_user.save()
+        session.add(staff_user)
+        session.flush()
         return staff_user
 
     @classmethod
+    @with_session
     def update_staff(cls, user_id, user_dict, session=None) -> Optional[StaffUser]:
         """Update user."""
         query = StaffUser.query.filter_by(id=user_id)
@@ -85,10 +85,7 @@ class StaffUser(BaseModelVersioned):
         if not user or user.is_deleted:
             return None
         user.update(user_dict, commit=False)
-        if session:
-            session.flush()
-        else:
-            cls.session.commit()
+        session.flush()
         return user
 
     @classmethod
@@ -100,6 +97,7 @@ class StaffUser(BaseModelVersioned):
         return staff_user
 
     @classmethod
+    @with_session
     def delete_staff_user(cls, staff_user_id, session=None):
         """Delete the staff user."""
         user = cls.find_by_id(staff_user_id)
@@ -107,8 +105,5 @@ class StaffUser(BaseModelVersioned):
             return None
         user.is_deleted = True
         user.is_active = False
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
         return user
