@@ -7,6 +7,11 @@ import {
   InspectionRequirement,
   InspectionRequirementAPIData,
 } from "@/models/InspectionRequirement";
+import { InspectionRequirementType } from "@/models/InspectionRequirementType";
+
+const fetchInspectionRequirementTypes = (): Promise<InspectionRequirementType[]> => {
+  return request({ url: "/inspection-requirement-types" });
+};
 
 const fetchEnforcementActions = (): Promise<EnforcementAction[]> => {
   return request({ url: "/enforcement-actions" });
@@ -84,6 +89,13 @@ const deleteInspectionRequirement = ({
   return request({
     url: `/inspections/${inspectionId}/requirements/${requirementId}`,
     method: "delete",
+  });
+};
+
+export const useInspectionRequirementTypesData = () => {
+  return useQuery({
+    queryKey: ["inspection-requirement-types"],
+    queryFn: fetchInspectionRequirementTypes,
   });
 };
 

@@ -6,6 +6,7 @@ import {
   useCreateInspectionRequirement,
   useDeleteInspectionRequirement,
   useEnforcementActionsData,
+  useInspectionRequirementTypesData,
   useUpdateInspectionRequirement,
 } from "@/hooks/useInspectionRequirements";
 import { useTopicsData } from "@/hooks/useTopics";
@@ -29,6 +30,7 @@ import {
   RequirementFormSchema,
   RequirementSchemaType,
 } from "./RequirementUtils";
+import { useAgenciesData } from "@/hooks/useAgencies";
 
 type RequirementDrawerProps = {
   inspectionData: Inspection;
@@ -59,9 +61,12 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     RequirementSourceFormData[]
   >([]);
 
+  const { data: inspectionRequirementTypesList } =
+    useInspectionRequirementTypesData();
   const { data: enforcementActionsList } = useEnforcementActionsData();
   const { data: complianceFindingsList } = useComplianceFindingsData();
   const { data: topicsList } = useTopicsData();
+  const { data: agenciesList } = useAgenciesData();
 
   const methods = useForm<RequirementSchemaType>({
     resolver: yupResolver(RequirementFormSchema),
@@ -179,9 +184,11 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           direction={"row"}
         >
           <RequirementFormLeft
+            inspectionRequirementTypesList={inspectionRequirementTypesList ?? []}
             complianceFindingsList={complianceFindingsList ?? []}
             enforcementActionsList={enforcementActionsList ?? []}
             topicList={topicsList ?? []}
+            agencyList={agenciesList ?? []}
             appHeaderHeight={appHeaderHeight}
           />
           <RequirementFormRight
