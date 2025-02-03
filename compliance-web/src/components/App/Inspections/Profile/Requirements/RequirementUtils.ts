@@ -1,15 +1,27 @@
+import { Agency } from "@/models/Agency";
 import { ComplianceFinding } from "@/models/ComplianceFinding";
 import { EnforcementAction } from "@/models/EnforcementAction";
 import { InspectionRequirement, InspectionRequirementAPIData, InspectionRequirementFormData, InspectionRequirementSourceAPIData, InspectionRequirementSourceDocumentAPIData, RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData, RequirementSourceFormData } from "@/models/InspectionRequirement";
+import { InspectionRequirementType } from "@/models/InspectionRequirementType";
 import { Topic } from "@/models/Topic";
 import { RequirementSourceEnum } from "@/utils/constants";
 import * as yup from "yup";
 
 export const RequirementFormSchema = yup.object().shape({
+  requirementType: yup.object<InspectionRequirementType>().nullable().required("Requirement Type is required"),
   requirementSummary: yup.string().required("Summary is required"),
   topic: yup.object<Topic>().nullable().required("Topic is required"),
   complianceFinding: yup.object<ComplianceFinding>().nullable(),
   enforcementAction: yup.array().of(yup.object<EnforcementAction>()).nullable(),
+  isReferredToAnotherAgency: yup.boolean().nullable(),
+  agency: yup.object<Agency>().nullable().when("isReferredToAnotherAgency", {
+    is: (isReferredToAnotherAgency: boolean) =>
+      isReferredToAnotherAgency,
+    then: (schema) =>
+      schema
+        .required("Agency is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   findings: yup
     .object({
       html: yup.string(),

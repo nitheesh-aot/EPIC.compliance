@@ -1,5 +1,7 @@
+import { Agency } from "./Agency";
 import { ComplianceFinding } from "./ComplianceFinding";
 import { EnforcementAction } from "./EnforcementAction";
+import { InspectionRequirementType } from "./InspectionRequirementType";
 import { IRStatus } from "./IRStatus";
 import { IRType } from "./IRType";
 import { RequirementDocumentType } from "./RequirementDocumentType";
@@ -49,11 +51,13 @@ export interface InspectionRequirement {
 }
 
 export interface InspectionRequirementFormData {
+  requirementType?: InspectionRequirementType;
   id?: number;
   requirementSummary?: string;
   topic?: Topic;
   complianceFinding?: IRType;
   enforcementAction?: IRStatus[];
+  agency?: Agency;
   findings?: {
     html: string;
     text: string;

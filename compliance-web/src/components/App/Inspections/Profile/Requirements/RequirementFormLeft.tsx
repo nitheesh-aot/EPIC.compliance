@@ -1,12 +1,5 @@
-import { FC, useState } from "react";
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-} from "@mui/material";
+import { FC } from "react";
+import { Box, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { BCDesignTokens } from "epic.theme";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
@@ -15,8 +8,11 @@ import { Topic } from "@/models/Topic";
 import { EnforcementAction } from "@/models/EnforcementAction";
 import { ComplianceFinding } from "@/models/ComplianceFinding";
 import { InspectionRequirementType } from "@/models/InspectionRequirementType";
-import { CheckRounded } from "@mui/icons-material";
 import { Agency } from "@/models/Agency";
+import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbox";
+import { useFormContext } from "react-hook-form";
+import { useWatch } from "react-hook-form";
+import ControlledToggleButtonGroup from "@/components/Shared/Controlled/ControlledToggleButtonGroup";
 
 const REQUIREMENT_TYPE_ID = "REQ";
 
@@ -37,19 +33,17 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
   agencyList,
   appHeaderHeight,
 }) => {
-  const [selectedRequirementType, setSelectedRequirementType] =
-    useState<InspectionRequirementType>(
-      inspectionRequirementTypesList[0]
-    );
-  const [isReferredToAnotherAgency, setIsReferredToAnotherAgency] =
-    useState<boolean>(false);
+  const { control } = useFormContext();
+  const isReferredToAnotherAgency = useWatch({
+    control,
+    name: "isReferredToAnotherAgency",
+    defaultValue: false,
+  });
 
-  const handleRequirementType = (
-    _event: React.MouseEvent<HTMLElement>,
-    newSelectedRequirementType: InspectionRequirementType
-  ) => {
-    setSelectedRequirementType(newSelectedRequirementType);
-  };
+  const selectedRequirementType = useWatch({
+    control,
+    name: "requirementType",
+  });
 
   return (
     <>
@@ -62,41 +56,14 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
           boxSizing: "border-box",
         }}
       >
-        <ToggleButtonGroup
-          value={selectedRequirementType}
-          exclusive
-          onChange={handleRequirementType}
+        <ControlledToggleButtonGroup
+          name="requirementType"
+          options={inspectionRequirementTypesList}
           aria-label="requirement type"
-          sx={{
-            marginBottom: "1rem",
-            height: "2.5rem",
-            backgroundColor: BCDesignTokens.surfaceColorBackgroundWhite,
-          }}
-        >
-          {inspectionRequirementTypesList.map((requirementType) => (
-            <ToggleButton
-              key={requirementType.id}
-              value={requirementType}
-              aria-label={requirementType.name}
-              selected={requirementType === selectedRequirementType}
-              sx={{
-                border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-                paddingX: "1rem",
-                "&.Mui-selected": {
-                  border: `1px solid ${BCDesignTokens.surfaceColorBorderDark}`,
-                },
-              }}
-            >
-              {requirementType.name}
-              {requirementType === selectedRequirementType && (
-                <CheckRounded sx={{ marginLeft: "0.5rem" }} fontSize="small" />
-              )}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
+        />
         <ControlledTextField
           name="requirementSummary"
-          label="Requirement Summary"
+          label={selectedRequirementType?.id === REQUIREMENT_TYPE_ID ? "Requirement Summary" : "Summary"}
           placeholder=""
           fullWidth
         />
@@ -112,36 +79,25 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
           fullWidth
         />
         {selectedRequirementType?.id !== REQUIREMENT_TYPE_ID && (
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={isReferredToAnotherAgency}
-                onChange={(event) =>
-                  setIsReferredToAnotherAgency(event.target.checked)
+          <>
+            <ControlledCheckbox
+              name="isReferredToAnotherAgency"
+              label="Mark if issue was referred to another Agency"
+            />
+            {isReferredToAnotherAgency && (
+              <ControlledAutoComplete
+                name="agency"
+                label="Agency"
+                options={agencyList}
+                getOptionLabel={(option) => option.name}
+                getOptionKey={(option) => option.id}
+                isOptionEqualToValue={(option, value) =>
+                  option.id.toString() === value.id.toString()
                 }
-                sx={{
-                  paddingY: 0,
-                }}
+                fullWidth
               />
-            }
-            label="Mark if issue was referred to another Agency"
-            sx={{
-              marginBottom: "1rem",
-            }}
-          />
-        )}
-        {isReferredToAnotherAgency && (
-          <ControlledAutoComplete
-            name="agency"
-            label="Agency"
-            options={agencyList}
-            getOptionLabel={(option) => option.name}
-            getOptionKey={(option) => option.id}
-            isOptionEqualToValue={(option, value) =>
-              option.id.toString() === value.id.toString()
-            }
-            fullWidth
-          />
+            )}
+          </>
         )}
         {selectedRequirementType?.id === REQUIREMENT_TYPE_ID && (
           <Stack direction={"row"} gap={2}>

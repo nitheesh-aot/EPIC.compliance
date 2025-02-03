@@ -40,6 +40,7 @@ type RequirementDrawerProps = {
 };
 
 const initFormData: InspectionRequirementFormData = {
+  requirementType: undefined,
   requirementSummary: "",
   topic: undefined,
   complianceFinding: undefined,
@@ -76,8 +77,13 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const { handleSubmit, reset } = methods;
 
   useEffect(() => {
-    reset(inspectionRequirementData ?? initFormData);
-  }, [inspectionRequirementData, reset]);
+    reset(
+      inspectionRequirementData ?? {
+        ...initFormData,
+        requirementType: inspectionRequirementTypesList?.[0],
+      }
+    );
+  }, [inspectionRequirementData, reset, inspectionRequirementTypesList]);
 
   const onSuccess = useCallback(() => {
     onSubmit("Changes saved successfully!");
@@ -184,7 +190,9 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           direction={"row"}
         >
           <RequirementFormLeft
-            inspectionRequirementTypesList={inspectionRequirementTypesList ?? []}
+            inspectionRequirementTypesList={
+              inspectionRequirementTypesList ?? []
+            }
             complianceFindingsList={complianceFindingsList ?? []}
             enforcementActionsList={enforcementActionsList ?? []}
             topicList={topicsList ?? []}
