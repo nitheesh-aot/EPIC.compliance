@@ -1,15 +1,15 @@
-import React, { useCallback } from "react";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
-import { useModal } from "@/store/modalStore";
-import { useQueryClient } from "@tanstack/react-query";
-import { Inspection } from "@/models/Inspection";
-import { notify } from "@/store/snackbarStore";
 import {
   useDeleteInspection,
   useUpdateInspectionStatus,
 } from "@/hooks/useInspections";
+import { Inspection } from "@/models/Inspection";
+import { useModal } from "@/store/modalStore";
+import { notify } from "@/store/snackbarStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
+import React, { useCallback } from "react";
 
 interface InspectionFileActionsProps {
   status: string;
@@ -73,7 +73,7 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
           ),
         });
       },
-      hidden: ["canceled", "closed"].includes(status?.toLowerCase()),
+      hidden: ["canceled", "closed", "closed as note"].includes(status?.toLowerCase()),
     },
     {
       text: "Close as Note to File",
@@ -88,6 +88,29 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
               onConfirm={() => {
                 updateInspectionInspection({
                   id: inspectionData?.id ?? 0,
+                  inspectionStatus: { status: "CLOSED_AS_NOTE" },
+                });
+              }}
+            />
+          ),
+          width: "420px",
+        });
+      },
+      hidden: ["canceled", "closed as note", "closed"].includes(status?.toLowerCase()),
+    },
+    {
+      text: "Closed",
+      onClick: () => {
+        // Handle closing inspection
+        setOpen({
+          content: (
+            <ConfirmationModal
+              title="Close Inspectio?"
+              description="Are you sure you want to close inspection?"
+              confirmButtonText="Close Inspection"
+              onConfirm={() => {
+                updateInspectionInspection({
+                  id: inspectionData?.id ?? 0,
                   inspectionStatus: { status: "CLOSED" },
                 });
               }}
@@ -96,7 +119,7 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
           width: "420px",
         });
       },
-      hidden: ["canceled", "closed"].includes(status?.toLowerCase()),
+      hidden: ["canceled", "closed", "closed as note"].includes(status?.toLowerCase()),
     },
     {
       text: "Delete Inspection",
