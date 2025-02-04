@@ -5,7 +5,8 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from ..base_model import BaseModelVersioned, db
+from ..base_model import BaseModelVersioned
+from ..utils import with_session
 
 
 class InspectionReqSourceDetail(BaseModelVersioned):
@@ -77,17 +78,16 @@ class InspectionReqSourceDetail(BaseModelVersioned):
     )
 
     @classmethod
+    @with_session
     def create_source_detail(cls, source_detail_obj, session=None):
         """Persist source detail in database."""
         source_detail = InspectionReqSourceDetail(**source_detail_obj)
-        if session:
-            session.add(source_detail)
-            session.flush()
-        else:
-            source_detail.save()
+        session.add(source_detail)
+        session.flush()
         return source_detail
 
     @classmethod
+    @with_session
     def update_requirement_source_detail(
         cls, req_detail_id, source_detail_data, session=None
     ):
@@ -97,10 +97,7 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         if not source_detail or source_detail.is_deleted:
             return None
         source_detail.update(source_detail_data, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
         return source_detail
 
     @classmethod
@@ -111,6 +108,7 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         ).all()
 
     @classmethod
+    @with_session
     def delete_req_details_by_ids(cls, req_detail_ids, session=None):
         """Delete the requirement details by req_detail_ids."""
         details = cls.query.filter(
@@ -118,12 +116,10 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         ).all()
         for detail in details:
             detail.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
 
     @classmethod
+    @with_session
     def delete_by_requirement_id(cls, requirement_id, session=None):
         """Delete requirement source details by requirement id."""
         details = cls.query.filter_by(
@@ -131,7 +127,4 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         ).all()
         for detail in details:
             detail.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()

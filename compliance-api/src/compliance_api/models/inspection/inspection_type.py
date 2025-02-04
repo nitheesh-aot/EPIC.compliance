@@ -5,8 +5,9 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from ..base_model import BaseModelVersioned, db
+from ..base_model import BaseModelVersioned
 from ..inspection.inspection import Inspection as InspectionModel
+from ..utils import with_session
 
 
 class InspectionType(BaseModelVersioned):
@@ -42,6 +43,7 @@ class InspectionType(BaseModelVersioned):
         return cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
 
     @classmethod
+    @with_session
     def bulk_delete(cls, inspection_id: int, type_ids: list[int], session=None):
         """Delete inspection type."""
         types = cls.query.filter(
@@ -49,26 +51,21 @@ class InspectionType(BaseModelVersioned):
         ).all()
         for type_item in types:
             type_item.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
 
     @classmethod
+    @with_session
     def bulk_insert(cls, inspection_id: int, type_ids: list[int], session=None):
         """Insert type per inspection."""
         inspection_ir_type_data = [
             InspectionType(**{"inspection_id": inspection_id, "type_id": type_id})
             for type_id in type_ids
         ]
-        if session:
-            session.add_all(inspection_ir_type_data)
-            session.flush()
-        else:
-            db.session.add_all(inspection_ir_type_data)
-            db.session.commit()
+        session.add_all(inspection_ir_type_data)
+        session.flush()
 
     @classmethod
+    @with_session
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete unapproved project details by case_file_id."""
         types = (
@@ -84,18 +81,13 @@ class InspectionType(BaseModelVersioned):
             types = cls.query.filter(InspectionType.id.in_(type_ids)).all()
             for type_item in types:
                 type_item.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
 
     @classmethod
+    @with_session
     def delete_inspection_type(cls, inspection_id, session=None):
         """Delete inspection Type."""
         types = cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
         for type_item in types:
             type_item.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()

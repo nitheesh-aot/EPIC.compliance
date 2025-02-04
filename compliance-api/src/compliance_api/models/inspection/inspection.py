@@ -17,8 +17,9 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from ..base_model import BaseModelVersioned, db
+from ..base_model import BaseModelVersioned
 from ..case_file import CaseFile as CaseFileModel
+from ..utils import with_session
 from .inspection_enum import InspectionStatusEnum
 
 
@@ -147,6 +148,8 @@ class Inspection(BaseModelVersioned):
             .filter(
                 CaseFileModel.project_id == project_id,
                 Inspection.case_file_id == case_file_id,
+                Inspection.is_active.is_(True),
+                Inspection.is_deleted.is_(False),
             )
             .group_by(Inspection.case_file_id, CaseFileModel.project_id)
             .first()
@@ -154,17 +157,16 @@ class Inspection(BaseModelVersioned):
         return result.inspection_count if result else 0
 
     @classmethod
+    @with_session
     def create_inspection(cls, inspection_obj, session=None):
         """Persist inspection in database."""
         inspection = Inspection(**inspection_obj)
-        if session:
-            session.add(inspection)
-            session.flush()
-        else:
-            inspection.save()
+        session.add(inspection)
+        session.flush()
         return inspection
 
     @classmethod
+    @with_session
     def update_inspection(cls, inspection_id, inspection_data, session=None):
         """Update inspection."""
         query = cls.query.filter_by(id=inspection_id)
@@ -172,13 +174,11 @@ class Inspection(BaseModelVersioned):
         if not inspection or inspection.is_deleted:
             return None
         inspection.update(inspection_data, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
         return inspection
 
     @classmethod
+    @with_session
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete inspection by case file id."""
         inspections = cls.query.filter_by(
@@ -186,20 +186,15 @@ class Inspection(BaseModelVersioned):
         ).all()
         for inspection in inspections:
             inspection.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
 
     @classmethod
+    @with_session
     def delete_inspection(cls, inspection_id, session=None):
         """Delete inspection."""
         inspection = cls.query.filter_by(id=inspection_id, is_deleted=False).first()
         inspection.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
 
     @classmethod
     def get_by_ir_number(cls, ir_number):

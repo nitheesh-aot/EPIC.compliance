@@ -5,8 +5,9 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from ..base_model import BaseModelVersioned, db
+from ..base_model import BaseModelVersioned
 from ..inspection.inspection import Inspection as InspectionModel
+from ..utils import with_session
 
 
 class InspectionAgency(BaseModelVersioned):
@@ -40,6 +41,7 @@ class InspectionAgency(BaseModelVersioned):
         return cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
 
     @classmethod
+    @with_session
     def bulk_delete(cls, inspection_id: int, agency_ids: list[int], session=None):
         """Delete agency ids by id per inspection."""
         agencies = cls.query.filter(
@@ -47,26 +49,21 @@ class InspectionAgency(BaseModelVersioned):
         ).all()
         for agency in agencies:
             agency.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
 
     @classmethod
+    @with_session
     def bulk_insert(cls, inspection_id: int, agency_ids: list[int], session=None):
         """Insert agencies per inspection."""
         inspection_agency_data = [
             InspectionAgency(**{"inspection_id": inspection_id, "agency_id": agency_id})
             for agency_id in agency_ids
         ]
-        if session:
-            session.add_all(inspection_agency_data)
-            session.flush()
-        else:
-            db.session.add_all(inspection_agency_data)
-            db.session.commit()
+        session.add_all(inspection_agency_data)
+        session.flush()
 
     @classmethod
+    @with_session
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete agency by case_file_id."""
         agencies = (
@@ -82,18 +79,13 @@ class InspectionAgency(BaseModelVersioned):
             agencies = cls.query.filter(InspectionAgency.id.in_(agency_ids)).all()
             for agency in agencies:
                 agency.update(DELETE_DIC_PARAMS, commit=False)
-            if session:
-                session.flush()
-            else:
-                db.session.commit()
+        session.flush()
 
     @classmethod
+    @with_session
     def delete_inspection_agency(cls, inspection_id, session=None):
         """Delete inspection Agency."""
         agencies = cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
         for agency in agencies:
             agency.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()

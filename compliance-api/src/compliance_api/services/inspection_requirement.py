@@ -127,7 +127,7 @@ class InspectionRequirementService:
             enf_ids_to_be_added = new_enf_ids.difference(existing_enf_ids)
             if enf_ids_to_be_deleted:
                 InspectionReqEnforcementMapModel.bulk_delete(
-                    requirement_id, list(enf_ids_to_be_deleted)
+                    requirement_id, list(enf_ids_to_be_deleted), session
                 )
             if enf_ids_to_be_added:
                 InspectionReqEnforcementMapModel.bulk_insert(

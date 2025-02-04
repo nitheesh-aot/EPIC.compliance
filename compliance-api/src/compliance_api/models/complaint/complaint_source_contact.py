@@ -5,8 +5,9 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from ..base_model import BaseModelVersioned, db
+from ..base_model import BaseModelVersioned
 from ..type import EncryptedType
+from ..utils import with_session
 from .complaint import Complaint as ComplaintModel
 
 
@@ -47,17 +48,16 @@ class ComplaintSourceContact(BaseModelVersioned):
     )
 
     @classmethod
+    @with_session
     def create_contact(cls, contact_data, session=None):
         """Persist contact info in database."""
         contact = ComplaintSourceContact(**contact_data)
-        if session:
-            session.add(contact)
-            session.flush()
-        else:
-            contact.save()
+        session.add(contact)
+        session.flush()
         return contact
 
     @classmethod
+    @with_session
     def update_contact(cls, complaint_id, contact_data, session=None):
         """Update contact."""
         query = cls.query.filter_by(id=complaint_id, is_deleted=False)
@@ -65,10 +65,7 @@ class ComplaintSourceContact(BaseModelVersioned):
         if not contact:
             return None
         contact.update(contact_data, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
         return contact
 
     @classmethod
@@ -77,6 +74,7 @@ class ComplaintSourceContact(BaseModelVersioned):
         return cls.query.filter_by(complaint_id=complaint_id, is_deleted=False).first()
 
     @classmethod
+    @with_session
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete the source contact based on case file."""
         contacts = (
@@ -92,17 +90,12 @@ class ComplaintSourceContact(BaseModelVersioned):
             contact_details = cls.query.filter(ComplaintSourceContact.id.in_(contact_ids)).all()
             for contact in contact_details:
                 contact.update(DELETE_DIC_PARAMS, commit=False)
-            if session:
-                session.flush()
-            else:
-                db.session.commit()
+        session.flush()
 
     @classmethod
+    @with_session
     def delete_by_complaint(cls, complaint_id, session=None):
         """Delete by complaint id."""
         contact = cls.query.filter(ComplaintSourceContact.complaint_id == complaint_id).first()
         contact.update(DELETE_DIC_PARAMS, commit=False)
-        if session:
-            session.flush()
-        else:
-            db.session.commit()
+        session.flush()
