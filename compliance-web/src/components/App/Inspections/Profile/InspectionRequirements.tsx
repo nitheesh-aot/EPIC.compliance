@@ -8,8 +8,9 @@ import { AddRounded } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { Reorder } from "framer-motion";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import RequirementCard from "./Requirements/RequirementCard";
+import { REGULATORY_CONSIDERATION_TYPE_ID, REQUIREMENT_TYPE_ID } from "./Requirements/RequirementUtils";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
@@ -26,14 +27,26 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   const [inspectionRequirements, setInspectionRequirements] = React.useState<
     InspectionRequirement[]
   >([]);
+  const [regulatoryConsideration, setRegulatoryConsideration] = React.useState<
+    InspectionRequirement | null
+  >(null);
 
   const { data: inspectionRequirementsData } = useInspectionRequirementsData(
     inspectionData.id
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (inspectionRequirementsData) {
-      setInspectionRequirements(inspectionRequirementsData);
+      setInspectionRequirements(
+        inspectionRequirementsData.filter(
+          (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
+        )
+      );
+      setRegulatoryConsideration(
+        inspectionRequirementsData.find(
+          (req) => req.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID
+        ) ?? null
+      );
     }
   }, [inspectionRequirementsData]);
 
@@ -69,7 +82,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
               handleOnSubmit(submitMsg);
             }}
             inspectionData={inspectionData}
-            requirement={requirement}
+            requirement={requirement} 
             index={index}
           />
         ),
@@ -120,6 +133,15 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
           />
         ))}
       </Reorder.Group>
+      {regulatoryConsideration && (
+        <RequirementCard
+          key={regulatoryConsideration.id}
+          requirement={regulatoryConsideration}
+          index={inspectionRequirements.length}
+          onEdit={() => handleOpenEditRequirementModal(regulatoryConsideration, inspectionRequirements.length)}
+          isActive={regulatoryConsideration.id === activeRequirementId}
+        />
+      )}
     </Box>
   );
 };

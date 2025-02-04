@@ -61,6 +61,7 @@ export interface InspectionRequirementFormData {
   complianceFinding?: IRType;
   enforcementAction?: IRStatus[];
   agency?: Agency;
+  isReferredToAnotherAgency?: boolean;
   findings?: {
     html: string;
     text: string;

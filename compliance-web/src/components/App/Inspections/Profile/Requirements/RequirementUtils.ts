@@ -156,6 +156,8 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
     requirementType: requirement.req_type,
     requirementSummary: requirement.summary,
     topic: requirement.topic,
+    agency: requirement.agency,
+    isReferredToAnotherAgency: requirement.agency_id !== undefined,
     complianceFinding: requirement.compliance_finding,
     enforcementAction: requirement.enforcement_action_data,
     findings: { html: requirement.findings, text: requirement.findings },

@@ -5,7 +5,7 @@ import { DragIndicatorRounded } from "@mui/icons-material";
 import { Box, Grid, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { Reorder } from "framer-motion";
-import React from "react";
+import React, { memo, useCallback, useState } from "react";
 import {
   isRequirementSourceCondition,
   REGULATORY_CONSIDERATION_TYPE_ID,
@@ -18,7 +18,6 @@ interface RequirementCardProps {
   isActive: boolean;
 }
 
-// Extract reusable label-value pair component
 const LabelValuePair: React.FC<{
   label: string;
   value: React.ReactNode;
@@ -35,7 +34,6 @@ const LabelValuePair: React.FC<{
   </Grid>
 ));
 
-// Extract card styles
 const cardStyles = {
   card: {
     backgroundColor: BCDesignTokens.surfaceColorBackgroundWhite,
@@ -59,9 +57,9 @@ const cardStyles = {
   },
 };
 
-const RequirementCard: React.FC<RequirementCardProps> = React.memo(
+const RequirementCard: React.FC<RequirementCardProps> = memo(
   ({ requirement, index, onEdit, isActive }) => {
-    const [isDragging, setIsDragging] = React.useState(false);
+    const [isDragging, setIsDragging] = useState(false);
 
     const isRegulatoryConsideration =
       requirement.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID;
@@ -70,14 +68,14 @@ const RequirementCard: React.FC<RequirementCardProps> = React.memo(
       requirement.requirement_source_details?.[0]?.requirement_source_id.toString()
     );
 
-    const onSuccess = React.useCallback(() => {
+    const onSuccess = useCallback(() => {
       notify.success("Requirement sort order updated");
     }, []);
 
     const { mutate: updateInspectionRequirementOrder } =
       useUpdateInspectionRequirementOrder(onSuccess);
 
-    const handleDragEnd = React.useCallback(() => {
+    const handleDragEnd = useCallback(() => {
       updateInspectionRequirementOrder({
         inspectionId: requirement.inspection_id,
         requirementId: requirement.id,
@@ -91,70 +89,71 @@ const RequirementCard: React.FC<RequirementCardProps> = React.memo(
       updateInspectionRequirementOrder,
     ]);
 
-    const handleClick = React.useCallback(() => {
+    const handleClick = useCallback(() => {
       if (!isDragging) {
         onEdit();
       }
     }, [isDragging, onEdit]);
 
-    const renderRegulatoryContent = () => (
-      <>
-        <LabelValuePair label="Summary" value={requirement.summary} />
-        <LabelValuePair
-          label="Topic"
-          value={requirement.topic.name}
-          gridProps={{ xs: 4 }}
-        />
-        <LabelValuePair
-          label="Agency"
-          value={requirement.agency.name}
-          gridProps={{ xs: 8 }}
-        />
-      </>
+    const renderRegulatoryContent = useCallback(
+      () => (
+        <>
+          <LabelValuePair label="Summary" value={requirement.summary} />
+          <LabelValuePair
+            label="Topic"
+            value={requirement.topic.name}
+            gridProps={{ xs: 4 }}
+          />
+          <LabelValuePair
+            label="Agency"
+            value={requirement.agency.name}
+            gridProps={{ xs: 8 }}
+          />
+        </>
+      ),
+      [requirement]
     );
 
-    const renderStandardContent = () => (
-      <>
-        <LabelValuePair label="Topic" value={requirement.topic.name} />
-        <LabelValuePair
-          label="Source"
-          value={
-            requirement.requirement_source_details?.[0]?.requirement_source
-              ?.name
-          }
-          gridProps={{ xs: 4 }}
-        />
-        <LabelValuePair
-          label={isCondition ? "Condition #" : "Section #"}
-          value={
-            isCondition
-              ? requirement.requirement_source_details?.[0]?.condition_number
-              : requirement.requirement_source_details?.[0]?.section_number
-          }
-          gridProps={{ xs: 8 }}
-        />
-        <LabelValuePair
-          label="Compliance Finding"
-          value={requirement.compliance_finding?.name}
-          gridProps={{ xs: 4 }}
-        />
-        <LabelValuePair
-          label="Enforcement Action"
-          value={requirement.enforcement_action_data
-            .map((action) => action.name)
-            .join(", ")}
-          gridProps={{ xs: 8 }}
-        />
-      </>
+    const renderRequirementContent = useCallback(
+      () => (
+        <>
+          <LabelValuePair label="Topic" value={requirement.topic.name} />
+          <LabelValuePair
+            label="Source"
+            value={
+              requirement.requirement_source_details?.[0]?.requirement_source
+                ?.name
+            }
+            gridProps={{ xs: 4 }}
+          />
+          <LabelValuePair
+            label={isCondition ? "Condition #" : "Section #"}
+            value={
+              isCondition
+                ? requirement.requirement_source_details?.[0]?.condition_number
+                : requirement.requirement_source_details?.[0]?.section_number
+            }
+            gridProps={{ xs: 8 }}
+          />
+          <LabelValuePair
+            label="Compliance Finding"
+            value={requirement.compliance_finding?.name}
+            gridProps={{ xs: 4 }}
+          />
+          <LabelValuePair
+            label="Enforcement Action"
+            value={requirement.enforcement_action_data
+              .map((action) => action.name)
+              .join(", ")}
+            gridProps={{ xs: 8 }}
+          />
+        </>
+      ),
+      [isCondition, requirement]
     );
 
-    return (
-      <Reorder.Item
-        key={requirement.id}
-        value={requirement}
-        onDragStart={() => setIsDragging(true)}
-        onDragEnd={handleDragEnd}
-      >
+    const renderCardContent = useCallback(() => {
+      return (
         <Box
           sx={{
             ...cardStyles.card,
@@ -184,15 +183,34 @@ const RequirementCard: React.FC<RequirementCardProps> = React.memo(
             <Grid container spacing={0.5}>
               {isRegulatoryConsideration
                 ? renderRegulatoryContent()
-                : renderStandardContent()}
+                : renderRequirementContent()}
             </Grid>
           </Box>
         </Box>
+      );
+    }, [
+      handleClick,
+      index,
+      isActive,
+      isRegulatoryConsideration,
+      renderRegulatoryContent,
+      renderRequirementContent,
+      requirement,
+    ]);
+
+    return isRegulatoryConsideration ? (
+      renderCardContent()
+    ) : (
+      <Reorder.Item
+        key={requirement.id}
+        value={requirement}
+        onDragStart={() => setIsDragging(true)}
+        onDragEnd={handleDragEnd}
+      >
+        {renderCardContent()}
       </Reorder.Item>
     );
   }
 );
-
-// RequirementCard.displayName = "RequirementCard";
 
 export default RequirementCard;
