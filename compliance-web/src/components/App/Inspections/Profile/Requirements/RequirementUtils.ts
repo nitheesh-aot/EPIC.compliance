@@ -7,6 +7,9 @@ import { Topic } from "@/models/Topic";
 import { RequirementSourceEnum } from "@/utils/constants";
 import * as yup from "yup";
 
+export const REQUIREMENT_TYPE_ID = "REQ";
+export const REGULATORY_CONSIDERATION_TYPE_ID = "REG";
+
 export const RequirementFormSchema = yup.object().shape({
   requirementType: yup.object<InspectionRequirementType>().nullable().required("Requirement Type is required"),
   requirementSummary: yup.string().required("Summary is required"),
@@ -82,6 +85,7 @@ export const formatRequirementAPIData = (
     });
 
   const inspectionRequirementPayload: InspectionRequirementAPIData = {
+    req_type: formData.requirementType?.id ?? "",
     summary: formData.requirementSummary ?? "",
     topic_id: formData.topic?.id ?? 0,
     enforcement_action_ids: formData.enforcementAction?.map((action) => action.id) ?? [],
@@ -93,6 +97,19 @@ export const formatRequirementAPIData = (
   return inspectionRequirementPayload;
 };
 
+export const formatRegulatoryConsiderationAPIData = (
+  formData: InspectionRequirementFormData,
+): InspectionRequirementAPIData => {
+  const inspectionRequirementPayload: InspectionRequirementAPIData = {
+    req_type: formData.requirementType?.id ?? "",
+    summary: formData.requirementSummary ?? "",
+    topic_id: formData.topic?.id ?? 0,
+    findings: formData.findings?.html ?? "",
+    agency_id: formData.agency?.id ?? undefined,
+  };
+
+  return inspectionRequirementPayload;
+}
 
 export const formatRequirementFormData = (requirement: InspectionRequirement): InspectionRequirementFormData => {
   const requirementSourceDetails: RequirementSourceFormData[] = requirement?.requirement_source_details?.map((item) => {
@@ -136,6 +153,7 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
   });
   return {
     id: requirement.id,
+    requirementType: requirement.req_type,
     requirementSummary: requirement.summary,
     topic: requirement.topic,
     complianceFinding: requirement.compliance_finding,

@@ -6,7 +6,11 @@ import { Box, Grid, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { Reorder } from "framer-motion";
 import React from "react";
-import { isRequirementSourceCondition } from "./RequirementUtils";
+import {
+  isRequirementSourceCondition,
+  REGULATORY_CONSIDERATION_TYPE_ID,
+} from "./RequirementUtils";
+
 interface RequirementCardProps {
   requirement: InspectionRequirement;
   index: number;
@@ -14,144 +18,181 @@ interface RequirementCardProps {
   isActive: boolean;
 }
 
-const RequirementCard: React.FC<RequirementCardProps> = ({
-  requirement,
-  index,
-  onEdit,
-  isActive,
-}) => {
-  const [isDragging, setIsDragging] = React.useState(false);
-
-  const isCondition = isRequirementSourceCondition(
-    requirement.requirement_source_details?.[0]?.requirement_source_id.toString()
-  );
-
-  const onSuccess = () => {
-    notify.success("Requirement sort order updated");
-  };
-
-  const { mutate: updateInspectionRequirementOrder } =
-    useUpdateInspectionRequirementOrder(onSuccess);
-
-  return (
-    <Reorder.Item
-      key={requirement.id}
-      value={requirement}
-      onDragStart={() => setIsDragging(true)}
-      onDragEnd={() => {
-        updateInspectionRequirementOrder({
-          inspectionId: requirement.inspection_id,
-          requirementId: requirement.id,
-          sortOrder: index + 1,
-        });
-        setTimeout(() => setIsDragging(false), 100);
-      }}
+// Extract reusable label-value pair component
+const LabelValuePair: React.FC<{
+  label: string;
+  value: React.ReactNode;
+  gridProps?: { xs: number };
+}> = React.memo(({ label, value, gridProps = { xs: 12 } }) => (
+  <Grid item {...gridProps}>
+    <Typography
+      variant="body2"
+      color={BCDesignTokens.typographyColorPlaceholder}
     >
-      <Box
-        sx={{
-          backgroundColor: BCDesignTokens.surfaceColorBackgroundWhite,
-          mb: 2,
-          border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-          borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
-          "&:hover": {
-            cursor: "pointer",
-            boxShadow: `0px 4px 6px 0px ${BCDesignTokens.surfaceColorBorderDefault}`,
-          },
-          ...(isActive && {
-            borderColor: BCDesignTokens.surfaceColorBorderActive,
-          }),
-        }}
-        onClick={() => {
-          if (!isDragging) {
-            onEdit();
+      {label}
+    </Typography>
+    <Typography variant="body1">{value}</Typography>
+  </Grid>
+));
+
+// Extract card styles
+const cardStyles = {
+  card: {
+    backgroundColor: BCDesignTokens.surfaceColorBackgroundWhite,
+    mb: 2,
+    border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+    borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
+    "&:hover": {
+      cursor: "pointer",
+      boxShadow: `0px 4px 6px 0px ${BCDesignTokens.surfaceColorBorderDefault}`,
+    },
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    p: "0.75rem 1.5rem",
+    pl: 0,
+    backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
+  },
+  content: {
+    p: "0.5rem 1.5rem 1rem",
+  },
+};
+
+const RequirementCard: React.FC<RequirementCardProps> = React.memo(
+  ({ requirement, index, onEdit, isActive }) => {
+    const [isDragging, setIsDragging] = React.useState(false);
+
+    const isRegulatoryConsideration =
+      requirement.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID;
+
+    const isCondition = isRequirementSourceCondition(
+      requirement.requirement_source_details?.[0]?.requirement_source_id.toString()
+    );
+
+    const onSuccess = React.useCallback(() => {
+      notify.success("Requirement sort order updated");
+    }, []);
+
+    const { mutate: updateInspectionRequirementOrder } =
+      useUpdateInspectionRequirementOrder(onSuccess);
+
+    const handleDragEnd = React.useCallback(() => {
+      updateInspectionRequirementOrder({
+        inspectionId: requirement.inspection_id,
+        requirementId: requirement.id,
+        sortOrder: index + 1,
+      });
+      setTimeout(() => setIsDragging(false), 100);
+    }, [
+      requirement.inspection_id,
+      requirement.id,
+      index,
+      updateInspectionRequirementOrder,
+    ]);
+
+    const handleClick = React.useCallback(() => {
+      if (!isDragging) {
+        onEdit();
+      }
+    }, [isDragging, onEdit]);
+
+    const renderRegulatoryContent = () => (
+      <>
+        <LabelValuePair label="Summary" value={requirement.summary} />
+        <LabelValuePair
+          label="Topic"
+          value={requirement.topic.name}
+          gridProps={{ xs: 4 }}
+        />
+        <LabelValuePair
+          label="Agency"
+          value={requirement.agency.name}
+          gridProps={{ xs: 8 }}
+        />
+      </>
+    );
+
+    const renderStandardContent = () => (
+      <>
+        <LabelValuePair label="Topic" value={requirement.topic.name} />
+        <LabelValuePair
+          label="Source"
+          value={
+            requirement.requirement_source_details?.[0]?.requirement_source
+              ?.name
           }
-        }}
+          gridProps={{ xs: 4 }}
+        />
+        <LabelValuePair
+          label={isCondition ? "Condition #" : "Section #"}
+          value={
+            isCondition
+              ? requirement.requirement_source_details?.[0]?.condition_number
+              : requirement.requirement_source_details?.[0]?.section_number
+          }
+          gridProps={{ xs: 8 }}
+        />
+        <LabelValuePair
+          label="Compliance Finding"
+          value={requirement.compliance_finding?.name}
+          gridProps={{ xs: 4 }}
+        />
+        <LabelValuePair
+          label="Enforcement Action"
+          value={requirement.enforcement_action_data
+            .map((action) => action.name)
+            .join(", ")}
+          gridProps={{ xs: 8 }}
+        />
+      </>
+    );
+
+    return (
+      <Reorder.Item
+        key={requirement.id}
+        value={requirement}
+        onDragStart={() => setIsDragging(true)}
+        onDragEnd={handleDragEnd}
       >
         <Box
           sx={{
-            display: "flex",
-            alignItems: "center",
-            p: "0.75rem 1.5rem",
-            pl: 0,
-            backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
+            ...cardStyles.card,
+            ...(isActive && {
+              borderColor: BCDesignTokens.surfaceColorBorderActive,
+            }),
           }}
+          onClick={handleClick}
         >
-          <DragIndicatorRounded
-            sx={{ mx: 0.5, mb: 0.25, fontSize: "1.125rem" }}
-            color="action"
-          />
-          <Typography variant="body1">
-            #{index + 1}. {requirement.summary}
-          </Typography>
+          <Box sx={cardStyles.header}>
+            <DragIndicatorRounded
+              sx={{
+                mx: 0.5,
+                mb: 0.25,
+                fontSize: "1.125rem",
+                visibility: isRegulatoryConsideration ? "hidden" : "visible",
+              }}
+              color="action"
+            />
+            <Typography variant="body1">
+              {isRegulatoryConsideration
+                ? "Regulatory Consideration"
+                : `#${index + 1}. ${requirement.summary}`}
+            </Typography>
+          </Box>
+          <Box sx={cardStyles.content}>
+            <Grid container spacing={0.5}>
+              {isRegulatoryConsideration
+                ? renderRegulatoryContent()
+                : renderStandardContent()}
+            </Grid>
+          </Box>
         </Box>
-        <Box sx={{ p: "0.5rem 1.5rem 1rem" }}>
-          <Grid container spacing={0.5}>
-            <Grid item xs={12}>
-              <Typography
-                variant="body2"
-                color={BCDesignTokens.typographyColorPlaceholder}
-              >
-                Topic
-              </Typography>
-              <Typography variant="body1">{requirement.topic.name}</Typography>
-            </Grid>
-            <Grid item xs={4}>
-              <Typography
-                variant="body2"
-                color={BCDesignTokens.typographyColorPlaceholder}
-              >
-                Source
-              </Typography>
-              <Typography variant="body1">
-                {
-                  requirement.requirement_source_details?.[0]
-                    ?.requirement_source?.name
-                }
-              </Typography>
-            </Grid>
-            <Grid item xs={8}>
-              <Typography
-                variant="body2"
-                color={BCDesignTokens.typographyColorPlaceholder}
-              >
-                {isCondition ? "Condition #" : "Section #"}
-              </Typography>
-              <Typography variant="body1">
-                {isCondition
-                  ? requirement.requirement_source_details?.[0]
-                      ?.condition_number
-                  : requirement.requirement_source_details?.[0]?.section_number}
-              </Typography>
-            </Grid>
-            <Grid item xs={4}>
-              <Typography
-                variant="body2"
-                color={BCDesignTokens.typographyColorPlaceholder}
-              >
-                Compliance Finding
-              </Typography>
-              <Typography variant="body1">
-                {requirement.compliance_finding?.name}
-              </Typography>
-            </Grid>
-            <Grid item xs={8}>
-              <Typography
-                variant="body2"
-                color={BCDesignTokens.typographyColorPlaceholder}
-              >
-                Enforcement Action
-              </Typography>
-              <Typography variant="body1">
-                {requirement.enforcement_action_data
-                  .map((action) => action.name)
-                  .join(", ")}
-              </Typography>
-            </Grid>
-          </Grid>
-        </Box>
-      </Box>
-    </Reorder.Item>
-  );
-};
+      </Reorder.Item>
+    );
+  }
+);
+
+// RequirementCard.displayName = "RequirementCard";
 
 export default RequirementCard;

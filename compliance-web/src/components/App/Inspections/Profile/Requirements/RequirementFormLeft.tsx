@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { Box, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { BCDesignTokens } from "epic.theme";
@@ -13,8 +13,7 @@ import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbo
 import { useFormContext } from "react-hook-form";
 import { useWatch } from "react-hook-form";
 import ControlledToggleButtonGroup from "@/components/Shared/Controlled/ControlledToggleButtonGroup";
-
-const REQUIREMENT_TYPE_ID = "REQ";
+import { REQUIREMENT_TYPE_ID } from "./RequirementUtils";
 
 type RequirementFormLeftProps = {
   inspectionRequirementTypesList: InspectionRequirementType[];
@@ -23,6 +22,7 @@ type RequirementFormLeftProps = {
   topicList: Topic[];
   agencyList: Agency[];
   appHeaderHeight: number;
+  onRequirementTypeChange?: (requirementType: InspectionRequirementType | null) => void;
 };
 
 const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
@@ -32,6 +32,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
   topicList,
   agencyList,
   appHeaderHeight,
+  onRequirementTypeChange,
 }) => {
   const { control } = useFormContext();
   const isReferredToAnotherAgency = useWatch({
@@ -44,6 +45,10 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
     control,
     name: "requirementType",
   });
+
+  useEffect(() => {
+    onRequirementTypeChange?.(selectedRequirementType);
+  }, [selectedRequirementType, onRequirementTypeChange]);
 
   return (
     <>

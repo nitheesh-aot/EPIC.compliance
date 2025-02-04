@@ -206,7 +206,7 @@ class InspectionRequirementCreateSchema(BaseSchema):
                 field_name="agency_id",
             )
         enforcement_action_ids = data.get("enforcement_action_ids")
-        if (
+        if req_type == InspectionRequirementTypeEnum.REQ and (
             EnforcementActionOptionEnum.REFERRAL_TO_ANOTHER_AGENCY
             in enforcement_action_ids
             and not agency_id
