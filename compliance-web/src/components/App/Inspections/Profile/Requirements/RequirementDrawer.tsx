@@ -40,6 +40,7 @@ type RequirementDrawerProps = {
   onSubmit: (submitMsg: string) => void;
   requirement?: InspectionRequirement;
   index?: number;
+  isRegulatoryConsiderationExists?: boolean;
 };
 
 const initFormData: InspectionRequirementFormData = {
@@ -56,6 +57,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   onSubmit,
   requirement,
   index,
+  isRegulatoryConsiderationExists,
 }) => {
   const { appHeaderHeight } = useMenuStore();
   const [inspectionRequirementData, setInspectionRequirementData] = useState<
@@ -214,6 +216,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
             onRequirementTypeChange={(requirementType) => {
               setSelectedRequirementType(requirementType ?? undefined);
             }}
+            isRegulatoryConsiderationExists={isRegulatoryConsiderationExists}
           />
           {isRequirement && (
             <RequirementFormRight

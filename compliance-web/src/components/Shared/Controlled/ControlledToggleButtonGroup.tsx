@@ -14,12 +14,14 @@ interface ControlledToggleButtonGroupProps
   name: string;
   options: Array<{ id: string | number; name: string }>;
   sx?: SxProps;
+  disabled?: boolean;
 }
 
 const ControlledToggleButtonGroup: FC<ControlledToggleButtonGroupProps> = ({
   name,
   options,
   sx,
+  disabled,
   ...rest
 }) => {
   const { control } = useFormContext();
@@ -32,6 +34,7 @@ const ControlledToggleButtonGroup: FC<ControlledToggleButtonGroupProps> = ({
           value={value}
           exclusive
           onChange={(_event, newValue) => onChange(newValue)}
+          disabled={disabled}
           sx={{
             marginBottom: "1rem",
             height: "2.5rem",

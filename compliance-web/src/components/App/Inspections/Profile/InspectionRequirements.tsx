@@ -66,11 +66,12 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
         <RequirementDrawer
           onSubmit={handleOnSubmit}
           inspectionData={inspectionData}
+          isRegulatoryConsiderationExists={!!regulatoryConsideration}
         />
       ),
       width: "1228px",
     });
-  }, [setOpen, handleOnSubmit, inspectionData]);
+  }, [setOpen, handleOnSubmit, inspectionData, regulatoryConsideration]);
 
   const handleOpenEditRequirementModal = useCallback(
     (requirement: InspectionRequirement, index: number) => {
@@ -84,12 +85,13 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
             inspectionData={inspectionData}
             requirement={requirement} 
             index={index}
+            isRegulatoryConsiderationExists={!!regulatoryConsideration}
           />
         ),
         width: "1228px",
       });
     },
-    [setOpen, handleOnSubmit, inspectionData]
+    [setOpen, handleOnSubmit, inspectionData, regulatoryConsideration]
   );
 
   React.useEffect(() => {

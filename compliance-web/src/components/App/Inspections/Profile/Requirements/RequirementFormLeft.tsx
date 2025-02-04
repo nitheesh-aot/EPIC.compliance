@@ -23,6 +23,7 @@ type RequirementFormLeftProps = {
   agencyList: Agency[];
   appHeaderHeight: number;
   onRequirementTypeChange?: (requirementType: InspectionRequirementType | null) => void;
+  isRegulatoryConsiderationExists?: boolean;
 };
 
 const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
@@ -33,6 +34,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
   agencyList,
   appHeaderHeight,
   onRequirementTypeChange,
+  isRegulatoryConsiderationExists,
 }) => {
   const { control } = useFormContext();
   const isReferredToAnotherAgency = useWatch({
@@ -65,6 +67,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
           name="requirementType"
           options={inspectionRequirementTypesList}
           aria-label="requirement type"
+          disabled={isRegulatoryConsiderationExists}
         />
         <ControlledTextField
           name="requirementSummary"
