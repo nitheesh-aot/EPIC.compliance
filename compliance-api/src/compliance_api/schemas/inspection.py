@@ -391,8 +391,9 @@ class InspectionStatusSchema(BaseSchema):
         # Retrieve the context to access other fields
         status = data.get("status")
         if status not in [
-            InspectionStatusEnum("Closed"),
-            InspectionStatusEnum("Canceled"),
+            InspectionStatusEnum.CANCELED,
+            InspectionStatusEnum.CLOSED,
+            InspectionStatusEnum.CLOSED_AS_NOTE
         ]:
             raise ValidationError(
                 "Invalid status value passed",
