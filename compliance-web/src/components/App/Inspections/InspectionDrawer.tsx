@@ -68,8 +68,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const currentUser = useCurrentLoggedInUser();
 
   const staffUserList = [caseFile.primary_officer, ...(caseFile.officers ?? [])]
-    .filter(Boolean)
-    .sort((a, b) => a?.name.localeCompare(b?.name ?? "") ?? 0) as StaffUser[];
+    .filter(Boolean) as StaffUser[];
 
   const defaultValues = useMemo<InspectionFormData>(() => {
     if (inspection) {

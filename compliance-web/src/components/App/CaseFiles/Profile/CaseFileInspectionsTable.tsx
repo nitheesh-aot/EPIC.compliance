@@ -36,7 +36,6 @@ const CaseFileInspectionsTable = ({ caseFileId }: { caseFileId: number }) => {
       {
         accessorKey: "ir_number",
         header: "IR #",
-        sortingFn: "sortFn",
         filterFn: searchFilter,
         Cell: ({ row }) => {
           return (

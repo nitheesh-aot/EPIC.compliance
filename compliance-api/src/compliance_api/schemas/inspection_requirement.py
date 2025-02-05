@@ -311,9 +311,8 @@ class InspectionRequirementSchema(AutoSchemaBase):  # pylint: disable=too-many-a
         self, data, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
         """Make nested objects null if the referenced ID is null."""
-        if data.get("req_type") is not None:
-            data["req_type"] = {
-                "id": data.get("req_type").name,
-                "name": data.get("req_type").value,
-            }
+        data["req_type"] = {
+            "id": data.get("req_type").name,
+            "name": data.get("req_type").value,
+        }
         return data

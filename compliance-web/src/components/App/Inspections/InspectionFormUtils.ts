@@ -39,15 +39,7 @@ export const InspectionFormSchema = yup.object().shape({
   endDate: yup
     .mixed<Dayjs>()
     .nullable()
-    .typeError("Invalid date")
-    .test(
-      "is-greater",
-      "End date must be greater than start date",
-      function (value) {
-        const { startDate } = this.parent;
-        return !value || !startDate || value.isAfter(startDate);
-      }
-    ),
+    .typeError("Invalid date"),
   initiation: yup
     .object<Initiation>()
     .nullable()
