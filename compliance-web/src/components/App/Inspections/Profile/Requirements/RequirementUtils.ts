@@ -10,12 +10,18 @@ import * as yup from "yup";
 export const REQUIREMENT_TYPE_ID = "REQ";
 export const REGULATORY_CONSIDERATION_TYPE_ID = "REG";
 
+export enum EnforcementActionEnum {
+  ORDER = "5",
+  REFERRAL_TO_ADMINISTRATIVE_PENALTY = "6",
+}
+
 export const RequirementFormSchema = yup.object().shape({
   requirementType: yup.object<InspectionRequirementType>().nullable().required("Requirement Type is required"),
   requirementSummary: yup.string().required("Summary is required"),
   topic: yup.object<Topic>().nullable().required("Topic is required"),
   complianceFinding: yup.object<ComplianceFinding>().nullable(),
-  enforcementAction: yup.array().of(yup.object<EnforcementAction>()).nullable(),
+  enforcementAction: yup.object<EnforcementAction>().nullable(),
+  isReferralToAdministrativePenalty: yup.boolean().nullable(),
   isReferredToAnotherAgency: yup.boolean().nullable().when('requirementType', {
     is: (requirementType: InspectionRequirementType) => requirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID,
     then: (schema) => schema,
@@ -90,11 +96,15 @@ export const formatRequirementAPIData = (
     req_type: formData.requirementType?.id ?? "",
     summary: formData.requirementSummary ?? "",
     topic_id: formData.topic?.id ?? 0,
-    enforcement_action_ids: formData.enforcementAction?.map((action) => action.id) ?? [],
+    enforcement_action_ids: formData.enforcementAction?.id ? [formData.enforcementAction.id] : [],
     compliance_finding_id: formData.complianceFinding?.id ?? undefined,
     findings: formData.findings?.html ?? "",
     requirement_source_details: requirementSourceDetails,
   };
+
+  if (formData.enforcementAction?.id === EnforcementActionEnum.ORDER && formData.isReferralToAdministrativePenalty) {
+    inspectionRequirementPayload.enforcement_action_ids?.push(EnforcementActionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY);
+  }
 
   return inspectionRequirementPayload;
 };
@@ -161,7 +171,8 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
     agency: requirement.agency,
     isReferredToAnotherAgency: !!requirement.agency_id,
     complianceFinding: requirement.compliance_finding,
-    enforcementAction: requirement.enforcement_action_data,
+    enforcementAction: requirement.enforcement_action_data[0],
+    isReferralToAdministrativePenalty: requirement.enforcement_action_data.some(action => action.id === EnforcementActionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY),
     findings: { html: requirement.findings, text: requirement.findings },
     requirementSourceDetails: requirementSourceDetails,
   };

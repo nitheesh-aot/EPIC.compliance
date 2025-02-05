@@ -14,6 +14,7 @@ import { useFormContext } from "react-hook-form";
 import { useWatch } from "react-hook-form";
 import ControlledToggleButtonGroup from "@/components/Shared/Controlled/ControlledToggleButtonGroup";
 import {
+  EnforcementActionEnum,
   REGULATORY_CONSIDERATION_TYPE_ID,
   REQUIREMENT_TYPE_ID,
 } from "./RequirementUtils";
@@ -51,6 +52,11 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
   const selectedRequirementType = useWatch({
     control,
     name: "requirementType",
+  });
+
+  const enforcementAction = useWatch({
+    control,
+    name: "enforcementAction",
   });
 
   useEffect(() => {
@@ -119,6 +125,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
         {selectedRequirementType?.id === REQUIREMENT_TYPE_ID && (
           <Stack direction={"row"} gap={2}>
             <ControlledAutoComplete
+              sx={{ width: "50%" }}
               name="complianceFinding"
               label="Compliance Finding"
               options={complianceFindingsList}
@@ -127,18 +134,27 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
               isOptionEqualToValue={(option, value) => option.id === value.id}
               fullWidth
             />
-            <ControlledAutoComplete
-              name="enforcementAction"
-              label="Enforcement Action"
-              options={enforcementActionsList}
-              getOptionLabel={(option) => option.name}
-              getOptionKey={(option) => option.id}
-              isOptionEqualToValue={(option, value) =>
-                option.id.toString() === value.id.toString()
-              }
-              fullWidth
-              multiple
-            />
+            <Stack direction={"column"} sx={{ width: "50%" }}>
+              <ControlledAutoComplete
+                name="enforcementAction"
+                label="Enforcement Action"
+                options={enforcementActionsList}
+                getOptionLabel={(option) => option.name}
+                getOptionKey={(option) => option.id}
+                isOptionEqualToValue={(option, value) =>
+                  option.id.toString() === value.id.toString()
+                }
+                fullWidth
+                sx={{ marginBottom: "-0.5rem" }}
+              />
+              {enforcementAction?.id === EnforcementActionEnum.ORDER && (
+                <ControlledCheckbox
+                  name="isReferralToAdministrativePenalty"
+                  label="Add Referral to Administrative Penalty"
+                  fontSize="small"
+                />
+              )}
+            </Stack>
           </Stack>
         )}
         <ControlledRichTextEditor

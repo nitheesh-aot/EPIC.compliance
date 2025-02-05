@@ -2,8 +2,6 @@ import { Agency } from "./Agency";
 import { ComplianceFinding } from "./ComplianceFinding";
 import { EnforcementAction } from "./EnforcementAction";
 import { InspectionRequirementType } from "./InspectionRequirementType";
-import { IRStatus } from "./IRStatus";
-import { IRType } from "./IRType";
 import { RequirementDocumentType } from "./RequirementDocumentType";
 import { RequirementSource } from "./RequirementSource";
 import { Topic } from "./Topic";
@@ -58,8 +56,9 @@ export interface InspectionRequirementFormData {
   id?: number;
   requirementSummary?: string;
   topic?: Topic;
-  complianceFinding?: IRType;
-  enforcementAction?: IRStatus[];
+  complianceFinding?: ComplianceFinding;
+  enforcementAction?: EnforcementAction;
+  isReferralToAdministrativePenalty?: boolean;
   agency?: Agency;
   isReferredToAnotherAgency?: boolean;
   findings?: {

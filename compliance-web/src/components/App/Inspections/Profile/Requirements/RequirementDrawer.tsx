@@ -10,7 +10,6 @@ import {
   useUpdateInspectionRequirement,
 } from "@/hooks/useInspectionRequirements";
 import { useTopicsData } from "@/hooks/useTopics";
-import { EnforcementAction } from "@/models/EnforcementAction";
 import { Inspection } from "@/models/Inspection";
 import {
   InspectionRequirement,
@@ -48,7 +47,7 @@ const initFormData: InspectionRequirementFormData = {
   requirementSummary: "",
   topic: undefined,
   complianceFinding: undefined,
-  enforcementAction: [] as EnforcementAction[],
+  enforcementAction: undefined,
   findings: undefined,
 };
 

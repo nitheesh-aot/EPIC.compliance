@@ -1,12 +1,18 @@
 import { Checkbox, FormControlLabel } from "@mui/material";
+import { BCDesignTokens } from "epic.theme";
 import { FC } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 
 type IFormCheckboxProps = {
   name: string;
   label: string;
+  fontSize?: "small" | "medium";
 };
-const ControlledCheckbox: FC<IFormCheckboxProps> = ({ name, label }) => {
+const ControlledCheckbox: FC<IFormCheckboxProps> = ({
+  name,
+  label,
+  fontSize = "medium",
+}) => {
   const { control } = useFormContext();
   return (
     <Controller
@@ -28,6 +34,12 @@ const ControlledCheckbox: FC<IFormCheckboxProps> = ({ name, label }) => {
           label={label}
           sx={{
             marginBottom: "1.5rem",
+            "& .MuiFormControlLabel-label": {
+              fontSize:
+                fontSize === "small"
+                  ? BCDesignTokens.typographyFontSizeSmallBody
+                  : BCDesignTokens.typographyFontSizeBody,
+            },
           }}
         />
       )}

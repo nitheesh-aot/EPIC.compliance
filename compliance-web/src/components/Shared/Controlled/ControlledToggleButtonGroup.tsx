@@ -55,6 +55,9 @@ const ControlledToggleButtonGroup: FC<ControlledToggleButtonGroupProps> = ({
                 "&.Mui-selected": {
                   border: `1px solid ${BCDesignTokens.surfaceColorBorderDark}`,
                 },
+                "&.MuiToggleButtonGroup-lastButton.Mui-disabled": {
+                  borderLeft: `1px solid ${BCDesignTokens.surfaceColorBorderDark}`,
+                },
               }}
             >
               {option.name}
