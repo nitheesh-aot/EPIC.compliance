@@ -71,9 +71,7 @@ class InspectionRequirement(BaseModelVersioned):
     compliance_finding = relationship(
         "ComplianceFindingOption", foreign_keys=[compliance_finding_id], lazy="joined"
     )
-    agency = relationship(
-        "Agency", foreign_keys=[agency_id], lazy="joined"
-    )
+    agency = relationship("Agency", foreign_keys=[agency_id], lazy="joined")
     requirement_source_details = relationship(
         "InspectionReqSourceDetail",
         back_populates="inspection_requirement",
@@ -83,7 +81,12 @@ class InspectionRequirement(BaseModelVersioned):
         "InspectionReqSourceDetail.is_deleted == False)",
     )
     enforcement_actions = relationship(
-        "InspectionReqEnforcementMap", back_populates="requirement", lazy="select"
+        "InspectionReqEnforcementMap",
+        back_populates="requirement",
+        lazy="select",
+        primaryjoin="and_(InspectionReqEnforcementMap.requirement_id == InspectionRequirement.id, "
+        "InspectionReqEnforcementMap.is_active == True, "
+        "InspectionReqEnforcementMap.is_deleted == False)",
     )
 
     @classmethod
