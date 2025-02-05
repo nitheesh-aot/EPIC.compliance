@@ -11,8 +11,14 @@ export const REQUIREMENT_TYPE_ID = "REQ";
 export const REGULATORY_CONSIDERATION_TYPE_ID = "REG";
 
 export enum EnforcementActionEnum {
+  NOT_APPLICABLE = "2",
   ORDER = "5",
   REFERRAL_TO_ADMINISTRATIVE_PENALTY = "6",
+  REFER_TO_ANOTHER_AGENCY = "7",
+}
+
+export enum ComplianceFindingEnum {
+  IN = "1",
 }
 
 export const RequirementFormSchema = yup.object().shape({
@@ -27,9 +33,10 @@ export const RequirementFormSchema = yup.object().shape({
     then: (schema) => schema,
     otherwise: (schema) => schema.strip(),
   }),
-  agency: yup.object<Agency>().nullable().when(['requirementType', 'isReferredToAnotherAgency'], {
-    is: (requirementType: InspectionRequirementType, isReferred: boolean) =>
-      requirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID && isReferred,
+  agency: yup.object<Agency>().nullable().when(['requirementType', 'isReferredToAnotherAgency', 'enforcementAction'], {
+    is: (requirementType: InspectionRequirementType, isReferred: boolean, enforcementAction: EnforcementAction) =>
+      (requirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID && isReferred) ||
+      (requirementType?.id === REQUIREMENT_TYPE_ID && enforcementAction?.id === EnforcementActionEnum.REFER_TO_ANOTHER_AGENCY),
     then: (schema) => schema.required("Agency is required"),
     otherwise: (schema) => schema.strip(),
   }),
@@ -98,6 +105,7 @@ export const formatRequirementAPIData = (
     topic_id: formData.topic?.id ?? 0,
     enforcement_action_ids: formData.enforcementAction?.id ? [formData.enforcementAction.id] : [],
     compliance_finding_id: formData.complianceFinding?.id ?? undefined,
+    agency_id: formData.agency?.id ?? undefined,
     findings: formData.findings?.html ?? "",
     requirement_source_details: requirementSourceDetails,
   };
