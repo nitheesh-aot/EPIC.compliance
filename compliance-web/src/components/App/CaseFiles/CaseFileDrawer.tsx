@@ -91,7 +91,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
         caseFileNumber: caseFile.case_file_number,
         authorization: formatAuthorization(caseFile.authorization),
         regulatedParty: caseFile.regulated_party,
-        projectDescription: caseFile.project_description,
+        projectDescription: caseFile.project_description ?? "",
         projectType: caseFile.type,
         projectSubType: caseFile.sub_type,
       };

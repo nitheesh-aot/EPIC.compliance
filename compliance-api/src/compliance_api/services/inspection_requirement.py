@@ -226,12 +226,12 @@ def _handle_deletion_req_detail_nd_doc(
     existing_detail_ids = {detail.id for detail in existing_details}
     incoming_details_ids = {
         detail.get("id", None)
-        for detail in requirement_data.get("requirement_source_details")
+        for detail in requirement_data.get("requirement_source_details", [])
         if detail.get("id", None) is not None
     }
     incoming_doc_detail_ids = set(
         doc.get("id", None)
-        for detail in requirement_data.get("requirement_source_details")
+        for detail in requirement_data.get("requirement_source_details", [])
         for doc in detail.get("documents", [])
         if doc.get("id", None) is not None
     )

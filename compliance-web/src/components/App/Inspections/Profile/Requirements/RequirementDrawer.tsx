@@ -6,10 +6,10 @@ import {
   useCreateInspectionRequirement,
   useDeleteInspectionRequirement,
   useEnforcementActionsData,
+  useInspectionRequirementTypesData,
   useUpdateInspectionRequirement,
 } from "@/hooks/useInspectionRequirements";
 import { useTopicsData } from "@/hooks/useTopics";
-import { EnforcementAction } from "@/models/EnforcementAction";
 import { Inspection } from "@/models/Inspection";
 import {
   InspectionRequirement,
@@ -24,24 +24,30 @@ import { FormProvider, useForm } from "react-hook-form";
 import RequirementFormLeft from "./RequirementFormLeft";
 import RequirementFormRight from "./RequirementFormRight";
 import {
+  formatRegulatoryConsiderationAPIData,
   formatRequirementAPIData,
   formatRequirementFormData,
+  REQUIREMENT_TYPE_ID,
   RequirementFormSchema,
   RequirementSchemaType,
 } from "./RequirementUtils";
+import { useAgenciesData } from "@/hooks/useAgencies";
+import { InspectionRequirementType } from "@/models/InspectionRequirementType";
 
 type RequirementDrawerProps = {
   inspectionData: Inspection;
   onSubmit: (submitMsg: string) => void;
   requirement?: InspectionRequirement;
   index?: number;
+  isRegulatoryConsiderationExists?: boolean;
 };
 
 const initFormData: InspectionRequirementFormData = {
+  requirementType: undefined,
   requirementSummary: "",
   topic: undefined,
   complianceFinding: undefined,
-  enforcementAction: [] as EnforcementAction[],
+  enforcementAction: undefined,
   findings: undefined,
 };
 
@@ -50,6 +56,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   onSubmit,
   requirement,
   index,
+  isRegulatoryConsiderationExists,
 }) => {
   const { appHeaderHeight } = useMenuStore();
   const [inspectionRequirementData, setInspectionRequirementData] = useState<
@@ -58,10 +65,16 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const [requirementSourceList, setRequirementSourceList] = useState<
     RequirementSourceFormData[]
   >([]);
+  const [selectedRequirementType, setSelectedRequirementType] = useState<
+    InspectionRequirementType | undefined
+  >(undefined);
 
+  const { data: inspectionRequirementTypesList } =
+    useInspectionRequirementTypesData();
   const { data: enforcementActionsList } = useEnforcementActionsData();
   const { data: complianceFindingsList } = useComplianceFindingsData();
   const { data: topicsList } = useTopicsData();
+  const { data: agenciesList } = useAgenciesData();
 
   const methods = useForm<RequirementSchemaType>({
     resolver: yupResolver(RequirementFormSchema),
@@ -71,8 +84,13 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const { handleSubmit, reset } = methods;
 
   useEffect(() => {
-    reset(inspectionRequirementData ?? initFormData);
-  }, [inspectionRequirementData, reset]);
+    reset(
+      inspectionRequirementData ?? {
+        ...initFormData,
+        requirementType: inspectionRequirementTypesList?.[0],
+      }
+    );
+  }, [inspectionRequirementData, reset, inspectionRequirementTypesList]);
 
   const onSuccess = useCallback(() => {
     onSubmit("Changes saved successfully!");
@@ -112,6 +130,8 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     requirement,
   ]);
 
+  const isRequirement = selectedRequirementType?.id === REQUIREMENT_TYPE_ID;
+
   const { mutate: deleteInspectionRequirement } =
     useDeleteInspectionRequirement(onDeleteSuccess);
 
@@ -127,10 +147,10 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const onSubmitHandler = useCallback(
     (formData: RequirementSchemaType) => {
       const formLeftData = formData as InspectionRequirementFormData;
-      const inspectionRequirementPayload = formatRequirementAPIData(
-        formLeftData,
-        requirementSourceList
-      );
+
+      const inspectionRequirementPayload = isRequirement
+        ? formatRequirementAPIData(formLeftData, requirementSourceList)
+        : formatRegulatoryConsiderationAPIData(formLeftData);
 
       if (inspectionRequirementData) {
         updateInspectionRequirement({
@@ -146,10 +166,11 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       }
     },
     [
-      inspectionData,
+      isRequirement,
       requirementSourceList,
       inspectionRequirementData,
       updateInspectionRequirement,
+      inspectionData.id,
       createInspectionRequirement,
     ]
   );
@@ -161,17 +182,21 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     return data;
   };
 
+  const getDrawerTitle = () => {
+    if (inspectionRequirementData) {
+      return isRequirement
+        ? `Edit Requirement ${index !== undefined ? `#${index + 1}` : ""}`
+        : `Edit Regulatory Consideration`;
+    }
+    return isRequirement
+      ? "Create Requirement"
+      : "Create Regulatory Consideration";
+  };
+
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <DrawerTitleBar
-          title={
-            inspectionRequirementData
-              ? `Edit Requirement ${index !== undefined ? `#${index + 1}` : ""}`
-              : "Create Requirement"
-          }
-          isFormDirtyCheck
-        />
+        <DrawerTitleBar title={getDrawerTitle()} isFormDirtyCheck />
         <DrawerActionBarTop isShowActionBar={!inspectionRequirementData} />
         <Stack
           key={JSON.stringify(inspectionRequirementData)}
@@ -179,15 +204,25 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           direction={"row"}
         >
           <RequirementFormLeft
+            inspectionRequirementTypesList={
+              inspectionRequirementTypesList ?? []
+            }
             complianceFindingsList={complianceFindingsList ?? []}
             enforcementActionsList={enforcementActionsList ?? []}
             topicList={topicsList ?? []}
+            agencyList={agenciesList ?? []}
             appHeaderHeight={appHeaderHeight}
+            onRequirementTypeChange={(requirementType) => {
+              setSelectedRequirementType(requirementType ?? undefined);
+            }}
+            isRegulatoryConsiderationExists={isRegulatoryConsiderationExists}
           />
-          <RequirementFormRight
-            onDataChange={onRequirementSourceListDataChange}
-            requirementSourceFormDataList={requirementSourceList}
-          />
+          {isRequirement && (
+            <RequirementFormRight
+              onDataChange={onRequirementSourceListDataChange}
+              requirementSourceFormDataList={requirementSourceList}
+            />
+          )}
         </Stack>
         <DrawerActionBarBottom
           isShowActionBar={!!inspectionRequirementData}

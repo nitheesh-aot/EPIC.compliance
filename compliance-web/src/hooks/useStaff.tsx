@@ -40,7 +40,8 @@ export const useStaffUsersData = (
   return useQuery({
     queryKey: ["staff-users"],
     queryFn: async () => {
-      const staff = await fetchStaffUsers();
+      let staff = await fetchStaffUsers();
+      staff = staff.sort((a, b) => a.name.localeCompare(b.name));
       if (is_active === undefined) {
         return staff;
       }

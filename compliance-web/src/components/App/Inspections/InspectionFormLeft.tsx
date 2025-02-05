@@ -72,6 +72,7 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             fullWidth
+            isSortOptions
           />
           <ControlledAutoComplete
             name="initiation"

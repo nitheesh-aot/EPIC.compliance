@@ -1,17 +1,20 @@
+import { Agency } from "./Agency";
 import { ComplianceFinding } from "./ComplianceFinding";
 import { EnforcementAction } from "./EnforcementAction";
-import { IRStatus } from "./IRStatus";
-import { IRType } from "./IRType";
+import { InspectionRequirementType } from "./InspectionRequirementType";
 import { RequirementDocumentType } from "./RequirementDocumentType";
 import { RequirementSource } from "./RequirementSource";
 import { Topic } from "./Topic";
 
 export interface InspectionRequirement {
   id: number;
+  req_type: InspectionRequirementType;
   inspection_id: number;
   summary: string;
   topic_id: number;
   topic: Topic;
+  agency_id: number;
+  agency: Agency;
   enforcement_action_id: number;
   compliance_finding_id: number;
   compliance_finding: ComplianceFinding;
@@ -49,11 +52,15 @@ export interface InspectionRequirement {
 }
 
 export interface InspectionRequirementFormData {
+  requirementType?: InspectionRequirementType;
   id?: number;
   requirementSummary?: string;
   topic?: Topic;
-  complianceFinding?: IRType;
-  enforcementAction?: IRStatus[];
+  complianceFinding?: ComplianceFinding;
+  enforcementAction?: EnforcementAction;
+  isReferralToAdministrativePenalty?: boolean;
+  agency?: Agency;
+  isReferredToAnotherAgency?: boolean;
   findings?: {
     html: string;
     text: string;
@@ -110,12 +117,14 @@ export interface RequirementRelatedDocumentSectionFormData {
 
 export interface InspectionRequirementAPIData {
   id?: number,
+  req_type: string,
   summary: string,
   topic_id: number,
-  enforcement_action_ids: string[],
+  agency_id?: number,
+  enforcement_action_ids?: string[],
   compliance_finding_id?: string,
   findings: string,
-  requirement_source_details: InspectionRequirementSourceAPIData[]
+  requirement_source_details?: InspectionRequirementSourceAPIData[]
 }
 
 export interface InspectionRequirementSourceAPIData {

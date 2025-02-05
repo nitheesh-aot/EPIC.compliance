@@ -62,7 +62,6 @@ const DrawerActionBarBottom: React.FC<DrawerActionBarBottomProps> = React.memo(
           {onDeleteAction && (
             <Button
               variant="text"
-              color="error"
               startIcon={<DeleteOutlineRounded />}
               onClick={handleDelete}
             >

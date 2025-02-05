@@ -51,7 +51,6 @@ const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
       {
         accessorKey: "complaint_number",
         header: "Complaint #",
-        sortingFn: "sortFn",
         filterFn: searchFilter,
         Cell: ({ row }) => {
           return (

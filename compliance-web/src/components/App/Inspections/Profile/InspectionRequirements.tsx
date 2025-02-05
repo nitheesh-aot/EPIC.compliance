@@ -8,8 +8,9 @@ import { AddRounded } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { Reorder } from "framer-motion";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import RequirementCard from "./Requirements/RequirementCard";
+import { REGULATORY_CONSIDERATION_TYPE_ID, REQUIREMENT_TYPE_ID } from "./Requirements/RequirementUtils";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
@@ -19,21 +20,33 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   inspectionData,
 }) => {
   const queryClient = useQueryClient();
-  const { setOpen } = useDrawer();
+  const { setOpen, isOpen } = useDrawer();
   const [activeRequirementId, setActiveRequirementId] = React.useState<
     number | null
   >(null);
   const [inspectionRequirements, setInspectionRequirements] = React.useState<
     InspectionRequirement[]
   >([]);
+  const [regulatoryConsideration, setRegulatoryConsideration] = React.useState<
+    InspectionRequirement | null
+  >(null);
 
   const { data: inspectionRequirementsData } = useInspectionRequirementsData(
     inspectionData.id
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (inspectionRequirementsData) {
-      setInspectionRequirements(inspectionRequirementsData);
+      setInspectionRequirements(
+        inspectionRequirementsData.filter(
+          (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
+        )
+      );
+      setRegulatoryConsideration(
+        inspectionRequirementsData.find(
+          (req) => req.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID
+        ) ?? null
+      );
     }
   }, [inspectionRequirementsData]);
 
@@ -53,11 +66,12 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
         <RequirementDrawer
           onSubmit={handleOnSubmit}
           inspectionData={inspectionData}
+          isRegulatoryConsiderationExists={!!regulatoryConsideration}
         />
       ),
       width: "1228px",
     });
-  }, [setOpen, handleOnSubmit, inspectionData]);
+  }, [setOpen, handleOnSubmit, inspectionData, regulatoryConsideration]);
 
   const handleOpenEditRequirementModal = useCallback(
     (requirement: InspectionRequirement, index: number) => {
@@ -66,19 +80,25 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
         content: (
           <RequirementDrawer
             onSubmit={(submitMsg) => {
-              setActiveRequirementId(null);
               handleOnSubmit(submitMsg);
             }}
             inspectionData={inspectionData}
-            requirement={requirement}
+            requirement={requirement} 
             index={index}
+            isRegulatoryConsiderationExists={!!regulatoryConsideration}
           />
         ),
         width: "1228px",
       });
     },
-    [setOpen, handleOnSubmit, inspectionData]
+    [setOpen, handleOnSubmit, inspectionData, regulatoryConsideration]
   );
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      setActiveRequirementId(null);
+    }
+  }, [isOpen]);
 
   return (
     <Box
@@ -115,6 +135,15 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
           />
         ))}
       </Reorder.Group>
+      {regulatoryConsideration && (
+        <RequirementCard
+          key={regulatoryConsideration.id}
+          requirement={regulatoryConsideration}
+          index={inspectionRequirements.length}
+          onEdit={() => handleOpenEditRequirementModal(regulatoryConsideration, inspectionRequirements.length)}
+          isActive={regulatoryConsideration.id === activeRequirementId}
+        />
+      )}
     </Box>
   );
 };

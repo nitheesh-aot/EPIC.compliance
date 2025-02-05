@@ -47,6 +47,7 @@ const ComplaintFormLeft: FC<ComplaintFormLeftProps> = ({ staffUsersList }) => {
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             fullWidth
+            isSortOptions
           />
           <ControlledDateField
             name="dateReceived"

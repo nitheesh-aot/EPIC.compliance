@@ -10,6 +10,7 @@ import {
   Checkbox,
   AutocompleteProps,
 } from "@mui/material";
+import { useMemo } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 
 interface FormAutocompleteProps<T>
@@ -22,6 +23,7 @@ interface FormAutocompleteProps<T>
   multiple?: boolean;
   placeholder?: string;
   onDeleteOption?: (option: T) => void;
+  isSortOptions?: boolean;
 }
 
 const ControlledAutoComplete = <T,>({
@@ -33,12 +35,22 @@ const ControlledAutoComplete = <T,>({
   multiple,
   placeholder = "Select an option...",
   onDeleteOption,
+  isSortOptions = false,
   ...props
 }: FormAutocompleteProps<T>) => {
   const {
     control,
     formState: { errors, defaultValues },
   } = useFormContext();
+
+  const sortedOptions = useMemo(() => {
+    if (isSortOptions) {
+      return options.sort((a, b) =>
+        getOptionLabel(a).localeCompare(getOptionLabel(b))
+      );
+    }
+    return options;
+  }, [isSortOptions, options, getOptionLabel]);
 
   return (
     <Controller
@@ -50,7 +62,7 @@ const ControlledAutoComplete = <T,>({
           {...field}
           {...props}
           id={name}
-          options={options}
+          options={sortedOptions}
           getOptionLabel={getOptionLabel}
           isOptionEqualToValue={isOptionEqualToValue}
           value={field.value ?? (multiple ? [] : null)}

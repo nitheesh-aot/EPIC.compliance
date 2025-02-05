@@ -1,15 +1,45 @@
+import { Agency } from "@/models/Agency";
 import { ComplianceFinding } from "@/models/ComplianceFinding";
 import { EnforcementAction } from "@/models/EnforcementAction";
 import { InspectionRequirement, InspectionRequirementAPIData, InspectionRequirementFormData, InspectionRequirementSourceAPIData, InspectionRequirementSourceDocumentAPIData, RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData, RequirementSourceFormData } from "@/models/InspectionRequirement";
+import { InspectionRequirementType } from "@/models/InspectionRequirementType";
 import { Topic } from "@/models/Topic";
 import { RequirementSourceEnum } from "@/utils/constants";
 import * as yup from "yup";
 
+export const REQUIREMENT_TYPE_ID = "REQ";
+export const REGULATORY_CONSIDERATION_TYPE_ID = "REG";
+
+export enum EnforcementActionEnum {
+  NOT_APPLICABLE = "2",
+  ORDER = "5",
+  REFERRAL_TO_ADMINISTRATIVE_PENALTY = "6",
+  REFER_TO_ANOTHER_AGENCY = "7",
+}
+
+export enum ComplianceFindingEnum {
+  IN = "1",
+}
+
 export const RequirementFormSchema = yup.object().shape({
+  requirementType: yup.object<InspectionRequirementType>().nullable().required("Requirement Type is required"),
   requirementSummary: yup.string().required("Summary is required"),
   topic: yup.object<Topic>().nullable().required("Topic is required"),
   complianceFinding: yup.object<ComplianceFinding>().nullable(),
-  enforcementAction: yup.array().of(yup.object<EnforcementAction>()).nullable(),
+  enforcementAction: yup.object<EnforcementAction>().nullable(),
+  isReferralToAdministrativePenalty: yup.boolean().nullable(),
+  isReferredToAnotherAgency: yup.boolean().nullable().when('requirementType', {
+    is: (requirementType: InspectionRequirementType) => requirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID,
+    then: (schema) => schema,
+    otherwise: (schema) => schema.strip(),
+  }),
+  agency: yup.object<Agency>().nullable().when(['requirementType', 'isReferredToAnotherAgency', 'enforcementAction'], {
+    is: (requirementType: InspectionRequirementType, isReferred: boolean, enforcementAction: EnforcementAction) =>
+      (requirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID && isReferred) ||
+      (requirementType?.id === REQUIREMENT_TYPE_ID && enforcementAction?.id === EnforcementActionEnum.REFER_TO_ANOTHER_AGENCY),
+    then: (schema) => schema.required("Agency is required"),
+    otherwise: (schema) => schema.strip(),
+  }),
   findings: yup
     .object({
       html: yup.string(),
@@ -70,17 +100,36 @@ export const formatRequirementAPIData = (
     });
 
   const inspectionRequirementPayload: InspectionRequirementAPIData = {
+    req_type: formData.requirementType?.id ?? "",
     summary: formData.requirementSummary ?? "",
     topic_id: formData.topic?.id ?? 0,
-    enforcement_action_ids: formData.enforcementAction?.map((action) => action.id) ?? [],
+    enforcement_action_ids: formData.enforcementAction?.id ? [formData.enforcementAction.id] : [],
     compliance_finding_id: formData.complianceFinding?.id ?? undefined,
+    agency_id: formData.agency?.id ?? undefined,
     findings: formData.findings?.html ?? "",
     requirement_source_details: requirementSourceDetails,
   };
 
+  if (formData.enforcementAction?.id === EnforcementActionEnum.ORDER && formData.isReferralToAdministrativePenalty) {
+    inspectionRequirementPayload.enforcement_action_ids?.push(EnforcementActionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY);
+  }
+
   return inspectionRequirementPayload;
 };
 
+export const formatRegulatoryConsiderationAPIData = (
+  formData: InspectionRequirementFormData,
+): InspectionRequirementAPIData => {
+  const inspectionRequirementPayload: InspectionRequirementAPIData = {
+    req_type: formData.requirementType?.id ?? "",
+    summary: formData.requirementSummary ?? "",
+    topic_id: formData.topic?.id ?? 0,
+    findings: formData.findings?.html ?? "",
+    agency_id: formData.agency?.id ?? undefined,
+  };
+
+  return inspectionRequirementPayload;
+}
 
 export const formatRequirementFormData = (requirement: InspectionRequirement): InspectionRequirementFormData => {
   const requirementSourceDetails: RequirementSourceFormData[] = requirement?.requirement_source_details?.map((item) => {
@@ -124,10 +173,14 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
   });
   return {
     id: requirement.id,
+    requirementType: requirement.req_type,
     requirementSummary: requirement.summary,
     topic: requirement.topic,
+    agency: requirement.agency,
+    isReferredToAnotherAgency: !!requirement.agency_id,
     complianceFinding: requirement.compliance_finding,
-    enforcementAction: requirement.enforcement_action_data,
+    enforcementAction: requirement.enforcement_action_data[0],
+    isReferralToAdministrativePenalty: requirement.enforcement_action_data.some(action => action.id === EnforcementActionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY),
     findings: { html: requirement.findings, text: requirement.findings },
     requirementSourceDetails: requirementSourceDetails,
   };
