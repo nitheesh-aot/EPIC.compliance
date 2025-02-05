@@ -216,6 +216,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
               setSelectedRequirementType(requirementType ?? undefined);
             }}
             isRegulatoryConsiderationExists={isRegulatoryConsiderationExists}
+            isEditMode={!!inspectionRequirementData}
           />
           {isRequirement && (
             <RequirementFormRight
