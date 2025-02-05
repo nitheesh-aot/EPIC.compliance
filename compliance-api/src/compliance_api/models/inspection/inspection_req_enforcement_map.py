@@ -59,7 +59,7 @@ class InspectionReqEnforcementMap(BaseModelVersioned):
             cls.enforcement_action_id.in_(enforcement_ids),
             cls.is_active.is_(True),
             cls.is_deleted.is_(False),
-        )
+        ).all()
         for mapp in mappings:
             mapp.update(DELETE_DIC_PARAMS, commit=False)
         session.flush()

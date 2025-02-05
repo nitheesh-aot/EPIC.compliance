@@ -44,6 +44,7 @@ class InspectionRequirementService:
             cls.insert_or_update_enforcements(
                 created_requirement.id,
                 requirement_data.get("enforcement_action_ids", []),
+                session,
             )
         return created_requirement
 
@@ -65,7 +66,9 @@ class InspectionRequirementService:
                 requirement_id, requirement_data, session
             )
             cls.insert_or_update_enforcements(
-                requirement_id, requirement_data.get("enforcement_action_ids", [])
+                requirement_id,
+                requirement_data.get("enforcement_action_ids", []),
+                session,
             )
         return updated_requirement
 
@@ -87,7 +90,9 @@ class InspectionRequirementService:
             requirements = InspectionRequirementModel.get_by_inspection_id(
                 inspection_id
             )
-            cls.insert_or_update_enforcements(requirement_id, enforcement_ids=[])
+            cls.insert_or_update_enforcements(
+                requirement_id, enforcement_ids=[], session=session
+            )
             _update_sort_order_subsequent(requirements)
 
     @classmethod
@@ -259,7 +264,7 @@ def _create_requirement_obj(inspection_id, requirement_data):
         "compliance_finding_id": requirement_data.get("compliance_finding_id", None),
         "findings": requirement_data.get("findings"),
         "agency_id": requirement_data.get("agency_id", None),
-        "req_type": requirement_data.get("req_type")
+        "req_type": requirement_data.get("req_type"),
     }
 
 

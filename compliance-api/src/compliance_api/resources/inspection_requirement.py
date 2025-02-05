@@ -130,9 +130,7 @@ class InspectionRequirementOrder(Resource):
     """Update the sort order of the inspection requirements."""
 
     @staticmethod
-    @API.response(
-        code=200, description="Sucess", model=[inspection_requirement_list_model]
-    )
+    @API.response(code=204, description="Success")
     @API.expect(inspection_sort_order_model)
     @ApiHelper.swagger_decorators(
         API, endpoint_description="Update the sort order of the inspection requirement"
@@ -143,7 +141,7 @@ class InspectionRequirementOrder(Resource):
     def patch(inspection_id, requirement_id):
         """Update inspection inspection requirement."""
         sort_order_data = InspectionSortOrderSchema().load(API.payload)
-        updated_requirement = InspectionRequirementService.update_sort_order(
+        InspectionRequirementService.update_sort_order(
             inspection_id, requirement_id, sort_order_data
         )
-        return InspectionRequirementSchema().dump(updated_requirement), HTTPStatus.OK
+        return {}, HTTPStatus.NO_CONTENT
