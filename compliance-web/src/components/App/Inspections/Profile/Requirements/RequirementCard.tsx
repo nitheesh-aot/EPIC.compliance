@@ -106,7 +106,7 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
           />
           <LabelValuePair
             label="Agency"
-            value={requirement.agency.name}
+            value={requirement.agency?.name ?? ""}
             gridProps={{ xs: 8 }}
           />
         </>

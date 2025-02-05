@@ -200,11 +200,6 @@ class InspectionRequirementCreateSchema(BaseSchema):
         """Validate the agency if the requirement type is regulatory considerations."""
         req_type = data.get("req_type")
         agency_id = data.get("agency_id", None)
-        if req_type == InspectionRequirementTypeEnum.REG and not agency_id:
-            raise ValidationError(
-                "Agency is required if the requirement type is Regulatory Consideration",
-                field_name="agency_id",
-            )
         enforcement_action_ids = data.get("enforcement_action_ids")
         if req_type == InspectionRequirementTypeEnum.REQ and (
             EnforcementActionOptionEnum.REFERRAL_TO_ANOTHER_AGENCY

@@ -16,14 +16,16 @@ export const RequirementFormSchema = yup.object().shape({
   topic: yup.object<Topic>().nullable().required("Topic is required"),
   complianceFinding: yup.object<ComplianceFinding>().nullable(),
   enforcementAction: yup.array().of(yup.object<EnforcementAction>()).nullable(),
-  isReferredToAnotherAgency: yup.boolean().nullable(),
-  agency: yup.object<Agency>().nullable().when("isReferredToAnotherAgency", {
-    is: (isReferredToAnotherAgency: boolean) =>
-      isReferredToAnotherAgency,
-    then: (schema) =>
-      schema
-        .required("Agency is required"),
-    otherwise: (schema) => schema.notRequired(),
+  isReferredToAnotherAgency: yup.boolean().nullable().when('requirementType', {
+    is: (requirementType: InspectionRequirementType) => requirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID,
+    then: (schema) => schema,
+    otherwise: (schema) => schema.strip(),
+  }),
+  agency: yup.object<Agency>().nullable().when(['requirementType', 'isReferredToAnotherAgency'], {
+    is: (requirementType: InspectionRequirementType, isReferred: boolean) =>
+      requirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID && isReferred,
+    then: (schema) => schema.required("Agency is required"),
+    otherwise: (schema) => schema.strip(),
   }),
   findings: yup
     .object({
@@ -157,7 +159,7 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
     requirementSummary: requirement.summary,
     topic: requirement.topic,
     agency: requirement.agency,
-    isReferredToAnotherAgency: requirement.agency_id !== undefined,
+    isReferredToAnotherAgency: !!requirement.agency_id,
     complianceFinding: requirement.compliance_finding,
     enforcementAction: requirement.enforcement_action_data,
     findings: { html: requirement.findings, text: requirement.findings },

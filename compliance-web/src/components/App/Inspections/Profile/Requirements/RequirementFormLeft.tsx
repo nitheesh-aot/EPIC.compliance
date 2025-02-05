@@ -13,7 +13,10 @@ import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbo
 import { useFormContext } from "react-hook-form";
 import { useWatch } from "react-hook-form";
 import ControlledToggleButtonGroup from "@/components/Shared/Controlled/ControlledToggleButtonGroup";
-import { REQUIREMENT_TYPE_ID } from "./RequirementUtils";
+import {
+  REGULATORY_CONSIDERATION_TYPE_ID,
+  REQUIREMENT_TYPE_ID,
+} from "./RequirementUtils";
 
 type RequirementFormLeftProps = {
   inspectionRequirementTypesList: InspectionRequirementType[];
@@ -22,7 +25,9 @@ type RequirementFormLeftProps = {
   topicList: Topic[];
   agencyList: Agency[];
   appHeaderHeight: number;
-  onRequirementTypeChange?: (requirementType: InspectionRequirementType | null) => void;
+  onRequirementTypeChange?: (
+    requirementType: InspectionRequirementType | null
+  ) => void;
   isRegulatoryConsiderationExists?: boolean;
 };
 
@@ -71,7 +76,11 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
         />
         <ControlledTextField
           name="requirementSummary"
-          label={selectedRequirementType?.id === REQUIREMENT_TYPE_ID ? "Requirement Summary" : "Summary"}
+          label={
+            selectedRequirementType?.id === REQUIREMENT_TYPE_ID
+              ? "Requirement Summary"
+              : "Summary"
+          }
           placeholder=""
           fullWidth
         />
@@ -86,7 +95,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
           }
           fullWidth
         />
-        {selectedRequirementType?.id !== REQUIREMENT_TYPE_ID && (
+        {selectedRequirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID && (
           <>
             <ControlledCheckbox
               name="isReferredToAnotherAgency"
