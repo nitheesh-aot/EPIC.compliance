@@ -1,5 +1,5 @@
-import { FC, useEffect, useCallback, memo } from "react";
-import { Box, Stack } from "@mui/material";
+import { FC, useEffect, useCallback, memo, useState } from "react";
+import { Box, Grid, IconButton, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { BCDesignTokens } from "epic.theme";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
@@ -18,6 +18,8 @@ import {
   REQUIREMENT_TYPE_ID,
 } from "./RequirementUtils";
 import ControlledToggleButtonGroup from "@/components/Shared/Controlled/ControlledToggleButtonGroup";
+import { EditOutlined } from "@mui/icons-material";
+import GridLabelValuePair from "./GridLabelValuePair";
 
 type RequirementFormLeftProps = {
   inspectionRequirementTypesList: InspectionRequirementType[];
@@ -30,111 +32,8 @@ type RequirementFormLeftProps = {
     requirementType: InspectionRequirementType | null
   ) => void;
   isRegulatoryConsiderationExists?: boolean;
+  isEditMode?: boolean;
 };
-
-const useRequirementForm = (enforcementActionsList: EnforcementAction[]) => {
-  const { control, setValue } = useFormContext();
-
-  const formValues = useWatch({
-    control,
-    name: [
-      "isReferredToAnotherAgency",
-      "requirementType",
-      "enforcementAction",
-      "complianceFinding",
-    ],
-  });
-
-  const [
-    isReferredToAnotherAgency,
-    selectedRequirementType,
-    enforcementAction,
-    complianceFinding,
-  ] = formValues;
-
-  useEffect(() => {
-    if (complianceFinding?.id === ComplianceFindingEnum.IN) {
-      const notApplicable = enforcementActionsList.find(
-        (action) => action.id === EnforcementActionEnum.NOT_APPLICABLE
-      );
-      if (notApplicable) {
-        setValue("enforcementAction", notApplicable);
-      }
-    }
-  }, [complianceFinding, enforcementActionsList, setValue]);
-
-  return {
-    isReferredToAnotherAgency,
-    selectedRequirementType,
-    enforcementAction,
-    complianceFinding,
-  };
-};
-
-const RequirementTypeSection = memo(
-  ({
-    inspectionRequirementTypesList,
-    isRegulatoryConsiderationExists,
-  }: {
-    inspectionRequirementTypesList: InspectionRequirementType[];
-    isRegulatoryConsiderationExists?: boolean;
-  }) => (
-    <ControlledToggleButtonGroup
-      name="requirementType"
-      options={inspectionRequirementTypesList}
-      aria-label="requirement type"
-      disabled={isRegulatoryConsiderationExists}
-    />
-  )
-);
-
-const ComplianceSection = memo(
-  ({
-    complianceFindingsList,
-    enforcementActionsList,
-  }: {
-    complianceFindingsList: ComplianceFinding[];
-    enforcementActionsList: EnforcementAction[];
-  }) => {
-    const { enforcementAction } = useRequirementForm(enforcementActionsList);
-
-    return (
-      <Stack direction="row" gap={2}>
-        <ControlledAutoComplete
-          sx={{ width: "50%" }}
-          name="complianceFinding"
-          label="Compliance Finding"
-          options={complianceFindingsList}
-          getOptionLabel={(option) => option.name}
-          getOptionKey={(option) => option.id}
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          fullWidth
-        />
-        <Stack direction="column" sx={{ width: "50%" }}>
-          <ControlledAutoComplete
-            name="enforcementAction"
-            label="Enforcement Action"
-            options={enforcementActionsList}
-            getOptionLabel={(option) => option.name}
-            getOptionKey={(option) => option.id}
-            isOptionEqualToValue={(option, value) =>
-              option.id.toString() === value.id.toString()
-            }
-            fullWidth
-            sx={{ marginBottom: "-0.5rem" }}
-          />
-          {enforcementAction?.id === EnforcementActionEnum.ORDER && (
-            <ControlledCheckbox
-              name="isReferralToAdministrativePenalty"
-              label="Add Referral to Administrative Penalty"
-              fontSize="small"
-            />
-          )}
-        </Stack>
-      </Stack>
-    );
-  }
-);
 
 const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
   ({
@@ -146,12 +45,29 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
     appHeaderHeight,
     onRequirementTypeChange,
     isRegulatoryConsiderationExists,
+    isEditMode,
   }) => {
-    const {
-      isReferredToAnotherAgency,
-      selectedRequirementType,
-      enforcementAction,
-    } = useRequirementForm(enforcementActionsList);
+    const { control, setValue, getValues } = useFormContext();
+
+    const isReferredToAnotherAgency = useWatch({
+      control,
+      name: "isReferredToAnotherAgency",
+    });
+
+    const selectedRequirementType = useWatch({
+      control,
+      name: "requirementType",
+    });
+
+    const enforcementAction = useWatch({
+      control,
+      name: "enforcementAction",
+    });
+
+    const complianceFinding = useWatch({
+      control,
+      name: "complianceFinding",
+    });
 
     const handleRequirementTypeChange = useCallback(
       (requirementType: InspectionRequirementType | null) => {
@@ -160,9 +76,178 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
       [onRequirementTypeChange]
     );
 
+    const [isReadOnly, setIsReadOnly] = useState(isEditMode);
+
     useEffect(() => {
       handleRequirementTypeChange(selectedRequirementType);
     }, [selectedRequirementType, handleRequirementTypeChange]);
+
+    useEffect(() => {
+      if (
+        complianceFinding?.id === ComplianceFindingEnum.IN &&
+        !getValues("enforcementAction")?.id
+      ) {
+        const notApplicableAction = enforcementActionsList.find(
+          (action) => action.id === EnforcementActionEnum.NOT_APPLICABLE
+        );
+        setValue("enforcementAction", notApplicableAction);
+      }
+    }, [complianceFinding, enforcementActionsList, setValue, getValues]);
+
+    const ReadOnlySection = () => {
+      const { getValues } = useFormContext();
+      const agencyName = getValues("agency")?.name;
+      return (
+        <Box
+          sx={{
+            borderRadius: "4px",
+            border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+            background: BCDesignTokens.surfaceColorBackgroundWhite,
+            display: "flex",
+            padding: "1rem",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: "0.5rem",
+            alignSelf: "stretch",
+            mb: "1.5rem",
+          }}
+        >
+          <IconButton
+            aria-label="edit"
+            onClick={() => setIsReadOnly(false)}
+            size="small"
+            sx={{ marginBottom: "-1rem", marginTop: "-0.5rem" }}
+          >
+            <EditOutlined sx={{ fontSize: "1.25rem" }} />
+          </IconButton>
+          <Grid container spacing={1}>
+            <GridLabelValuePair
+              label="Requirement Summary"
+              value={getValues("requirementSummary")}
+              gridProps={{ xs: 4 }}
+            />
+            <GridLabelValuePair
+              label="Topic"
+              value={getValues("topic")?.name}
+              gridProps={{ xs: 8 }}
+            />
+            {selectedRequirementType?.id === REQUIREMENT_TYPE_ID && (
+              <>
+                <GridLabelValuePair
+                  label="Compliance Finding"
+                  value={getValues("complianceFinding")?.name}
+                  gridProps={{ xs: 4 }}
+                />
+                <GridLabelValuePair
+                  label="Enforcement Action"
+                  value={getValues("enforcementAction")?.name}
+                  gridProps={{ xs: agencyName ? 4 : 8 }}
+                />
+              </>
+            )}
+            {agencyName && (
+              <GridLabelValuePair
+                label="Agency"
+                value={agencyName}
+                gridProps={{ xs: 4 }}
+              />
+            )}
+          </Grid>
+        </Box>
+      );
+    };
+
+    const EditSection = () => {
+      return (
+        <>
+          {!isEditMode && (
+            <ControlledToggleButtonGroup
+              name="requirementType"
+              options={inspectionRequirementTypesList}
+              aria-label="requirement type"
+              disabled={isRegulatoryConsiderationExists}
+            />
+          )}
+          <ControlledTextField
+            name="requirementSummary"
+            label={
+              selectedRequirementType?.id === REQUIREMENT_TYPE_ID
+                ? "Requirement Summary"
+                : "Summary"
+            }
+            placeholder=""
+            fullWidth
+          />
+          <ControlledAutoComplete
+            name="topic"
+            label="Topic"
+            options={topicList}
+            getOptionLabel={(option) => option.name}
+            getOptionKey={(option) => option.id}
+            isOptionEqualToValue={(option, value) =>
+              option.id.toString() === value.id.toString()
+            }
+            fullWidth
+          />
+          {selectedRequirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID && (
+            <ControlledCheckbox
+              name="isReferredToAnotherAgency"
+              label="Mark if issue was referred to another Agency"
+            />
+          )}
+          {selectedRequirementType?.id === REQUIREMENT_TYPE_ID && (
+            <Stack direction="row" gap={2}>
+              <ControlledAutoComplete
+                sx={{ width: "50%" }}
+                name="complianceFinding"
+                label="Compliance Finding"
+                options={complianceFindingsList}
+                getOptionLabel={(option) => option.name}
+                getOptionKey={(option) => option.id}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                fullWidth
+              />
+              <Stack direction="column" sx={{ width: "50%" }}>
+                <ControlledAutoComplete
+                  name="enforcementAction"
+                  label="Enforcement Action"
+                  options={enforcementActionsList}
+                  getOptionLabel={(option) => option.name}
+                  getOptionKey={(option) => option.id}
+                  isOptionEqualToValue={(option, value) =>
+                    option.id.toString() === value.id.toString()
+                  }
+                  fullWidth
+                  sx={{ marginBottom: "-0.5rem" }}
+                />
+                {enforcementAction?.id === EnforcementActionEnum.ORDER && (
+                  <ControlledCheckbox
+                    name="isReferralToAdministrativePenalty"
+                    label="Add Referral to Administrative Penalty"
+                    fontSize="small"
+                  />
+                )}
+              </Stack>
+            </Stack>
+          )}
+          {(isReferredToAnotherAgency ||
+            enforcementAction?.id ===
+              EnforcementActionEnum.REFER_TO_ANOTHER_AGENCY) && (
+            <ControlledAutoComplete
+              name="agency"
+              label="Agency"
+              options={agencyList}
+              getOptionLabel={(option) => option.name}
+              getOptionKey={(option) => option.id}
+              isOptionEqualToValue={(option, value) =>
+                option.id.toString() === value.id.toString()
+              }
+              fullWidth
+            />
+          )}
+        </>
+      );
+    };
 
     return (
       <Box
@@ -174,62 +259,11 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
           boxSizing: "border-box",
         }}
       >
-        <RequirementTypeSection
-          inspectionRequirementTypesList={inspectionRequirementTypesList}
-          isRegulatoryConsiderationExists={isRegulatoryConsiderationExists}
-        />
-        <ControlledTextField
-          name="requirementSummary"
-          label={
-            selectedRequirementType?.id === REQUIREMENT_TYPE_ID
-              ? "Requirement Summary"
-              : "Summary"
-          }
-          placeholder=""
-          fullWidth
-        />
-        <ControlledAutoComplete
-          name="topic"
-          label="Topic"
-          options={topicList}
-          getOptionLabel={(option) => option.name}
-          getOptionKey={(option) => option.id}
-          isOptionEqualToValue={(option, value) =>
-            option.id.toString() === value.id.toString()
-          }
-          fullWidth
-        />
-        {selectedRequirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID && (
-          <ControlledCheckbox
-            name="isReferredToAnotherAgency"
-            label="Mark if issue was referred to another Agency"
-          />
-        )}
-        {selectedRequirementType?.id === REQUIREMENT_TYPE_ID && (
-          <ComplianceSection
-            complianceFindingsList={complianceFindingsList}
-            enforcementActionsList={enforcementActionsList}
-          />
-        )}
-        {(isReferredToAnotherAgency ||
-          enforcementAction?.id ===
-            EnforcementActionEnum.REFER_TO_ANOTHER_AGENCY) && (
-          <ControlledAutoComplete
-            name="agency"
-            label="Agency"
-            options={agencyList}
-            getOptionLabel={(option) => option.name}
-            getOptionKey={(option) => option.id}
-            isOptionEqualToValue={(option, value) =>
-              option.id.toString() === value.id.toString()
-            }
-            fullWidth
-          />
-        )}
+        {isReadOnly ? <ReadOnlySection /> : <EditSection />}
         <ControlledRichTextEditor
           label="Findings"
           name="findings"
-          height={`calc(100vh - ${appHeaderHeight + 456}px)`}
+          height={`calc(100vh - ${appHeaderHeight + 363}px)`}
           marginBottom="0"
         />
       </Box>

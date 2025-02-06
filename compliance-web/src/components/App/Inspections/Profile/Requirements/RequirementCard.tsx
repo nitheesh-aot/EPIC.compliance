@@ -10,6 +10,7 @@ import {
   isRequirementSourceCondition,
   REGULATORY_CONSIDERATION_TYPE_ID,
 } from "./RequirementUtils";
+import GridLabelValuePair from "./GridLabelValuePair";
 
 interface RequirementCardProps {
   requirement: InspectionRequirement;
@@ -17,22 +18,6 @@ interface RequirementCardProps {
   onEdit: () => void;
   isActive: boolean;
 }
-
-const LabelValuePair: React.FC<{
-  label: string;
-  value: React.ReactNode;
-  gridProps?: { xs: number };
-}> = React.memo(({ label, value, gridProps = { xs: 12 } }) => (
-  <Grid item {...gridProps}>
-    <Typography
-      variant="body2"
-      color={BCDesignTokens.typographyColorPlaceholder}
-    >
-      {label}
-    </Typography>
-    <Typography variant="body1">{value}</Typography>
-  </Grid>
-));
 
 const cardStyles = {
   card: {
@@ -98,13 +83,13 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
     const renderRegulatoryContent = useCallback(
       () => (
         <>
-          <LabelValuePair label="Summary" value={requirement.summary} />
-          <LabelValuePair
+          <GridLabelValuePair label="Summary" value={requirement.summary} />
+          <GridLabelValuePair
             label="Topic"
             value={requirement.topic.name}
             gridProps={{ xs: 4 }}
           />
-          <LabelValuePair
+          <GridLabelValuePair
             label="Agency"
             value={requirement.agency?.name ?? ""}
             gridProps={{ xs: 8 }}
@@ -117,8 +102,8 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
     const renderRequirementContent = useCallback(
       () => (
         <>
-          <LabelValuePair label="Topic" value={requirement.topic.name} />
-          <LabelValuePair
+          <GridLabelValuePair label="Topic" value={requirement.topic.name} />
+          <GridLabelValuePair
             label="Source"
             value={
               requirement.requirement_source_details?.[0]?.requirement_source
@@ -126,7 +111,7 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
             }
             gridProps={{ xs: 4 }}
           />
-          <LabelValuePair
+          <GridLabelValuePair
             label={isCondition ? "Condition #" : "Section #"}
             value={
               isCondition
@@ -135,12 +120,12 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
             }
             gridProps={{ xs: 8 }}
           />
-          <LabelValuePair
+          <GridLabelValuePair
             label="Compliance Finding"
             value={requirement.compliance_finding?.name}
             gridProps={{ xs: 4 }}
           />
-          <LabelValuePair
+          <GridLabelValuePair
             label="Enforcement Action"
             value={requirement.enforcement_action_data
               .map((action) => action.name)
