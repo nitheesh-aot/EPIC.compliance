@@ -315,7 +315,7 @@ class InspectionService:
                 inspection.id,
                 inspection.ir_number,
                 inspection.case_file_id,
-                status_enum.value.lower(),
+                status.get("alt_status_text", status_enum.value).lower()
             )
             ContinuationReportService.create(
                 cr_entry, sys_generated=True, ho_session=session

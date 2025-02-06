@@ -372,6 +372,12 @@ class InspectionStatusSchema(BaseSchema):
         metadata={"description": "The status of the complaint"},
         required=True,
     )
+    alt_status_text = fields.Str(
+        metadata={
+            "description": "Alternate text for the status to be written to continuation report"
+        },
+        allow_none=True
+    )
 
     @post_load
     def extract_status_value(
@@ -390,11 +396,7 @@ class InspectionStatusSchema(BaseSchema):
         """Ensure only Closed and Canceled status are passed."""
         # Retrieve the context to access other fields
         status = data.get("status")
-        if status not in [
-            InspectionStatusEnum.CANCELED,
-            InspectionStatusEnum.CLOSED,
-            InspectionStatusEnum.CLOSED_AS_NOTE
-        ]:
+        if status not in [InspectionStatusEnum.CANCELED, InspectionStatusEnum.CLOSED]:
             raise ValidationError(
                 "Invalid status value passed",
                 field_name="status",

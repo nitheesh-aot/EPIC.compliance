@@ -73,10 +73,10 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
           ),
         });
       },
-      hidden: ["canceled", "closed", "closed as note"].includes(status?.toLowerCase()),
+      hidden: ["canceled", "closed"].includes(status?.toLowerCase()),
     },
     {
-      text: "Close as Note to File",
+      text: "Closed as note to file",
       onClick: () => {
         // Handle closing inspection
         setOpen({
@@ -88,7 +88,10 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
               onConfirm={() => {
                 updateInspectionInspection({
                   id: inspectionData?.id ?? 0,
-                  inspectionStatus: { status: "CLOSED_AS_NOTE" },
+                  inspectionStatus: {
+                    status: "CLOSED",
+                    alt_status_text: "Closed as note to file",
+                  },
                 });
               }}
             />
@@ -96,7 +99,7 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
           width: "420px",
         });
       },
-      hidden: ["canceled", "closed as note", "closed"].includes(status?.toLowerCase()),
+      hidden: ["canceled", "closed"].includes(status?.toLowerCase()),
     },
     {
       text: "Closed",
@@ -119,7 +122,7 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
           width: "420px",
         });
       },
-      hidden: ["canceled", "closed", "closed as note"].includes(status?.toLowerCase()),
+      hidden: ["canceled", "closed"].includes(status?.toLowerCase()),
     },
     {
       text: "Delete Inspection",
