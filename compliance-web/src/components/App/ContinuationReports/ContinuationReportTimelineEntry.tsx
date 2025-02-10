@@ -96,7 +96,6 @@ export default function ContinuationReportTimelineEntry({
             <Typography
               variant="subtitle2"
               component={"div"}
-              className="quill-render"
               dangerouslySetInnerHTML={{ __html: getFormattedText() }}
             />
             {!isSystemGenerated && createdByUser && (

@@ -3,8 +3,7 @@ import LexicalEditor from "@/components/Shared/LexicalEditor/LexicalEditor";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { $getRoot } from "lexical";
 import { useMemo } from "react";
-import { BCDesignTokens } from "epic.theme";
-import { FormControl, FormHelperText, InputLabel } from "@mui/material";
+import { FormControl, FormHelperText } from "@mui/material";
 
 interface ExtendedFieldErrors {
   html: {
@@ -23,10 +22,12 @@ export default function ControlledLexicalEditor({
   name,
   label,
   placeholder = "Enter text...",
+  isAdvanced = false,
 }: {
   name: string;
   label: string;
   placeholder?: string;
+  isAdvanced?: boolean;
 }) {
   const {
     control,
@@ -40,27 +41,15 @@ export default function ControlledLexicalEditor({
 
   return (
     <FormControl fullWidth sx={{ marginBottom: "1.5rem" }}>
-      <InputLabel
-        sx={{
-          position: "static",
-          transform: "none",
-          fontSize: "0.875rem",
-          lineHeight: "1.5rem",
-          color: errorMessage
-            ? BCDesignTokens.typographyColorDanger
-            : BCDesignTokens.typographyColorPrimary,
-        }}
-        htmlFor={name}
-        size="small"
-      >
-        {label}
-      </InputLabel>
       <Controller
         name={name}
         control={control}
         render={({ field }) => (
           <>
             <LexicalEditor
+              name={name}
+              label={label}
+              isAdvanced={isAdvanced}
               errorMsg={errorMessage}
               placeholder={placeholder}
               defaultHtml={field.value?.html}

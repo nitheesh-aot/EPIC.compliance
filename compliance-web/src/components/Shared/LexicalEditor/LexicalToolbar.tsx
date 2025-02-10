@@ -1,10 +1,6 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { mergeRegister } from "@lexical/utils";
 import {
-  FormatAlignCenterRounded,
-  FormatAlignJustifyRounded,
-  FormatAlignLeftRounded,
-  FormatAlignRightRounded,
   FormatBoldRounded,
   FormatItalicRounded,
   FormatStrikethroughRounded,
@@ -15,7 +11,6 @@ import {
   FormatIndentIncreaseRounded,
   FormatListBulletedRounded,
   FormatListNumberedRounded,
-  ChecklistRounded,
 } from "@mui/icons-material";
 import {
   $getSelection,
@@ -29,16 +24,15 @@ import {
   UNDO_COMMAND,
   INDENT_CONTENT_COMMAND,
   OUTDENT_CONTENT_COMMAND,
-  $createParagraphNode,
+  ElementFormatType,
 } from "lexical";
 import {
-  INSERT_CHECK_LIST_COMMAND,
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
 } from "@lexical/list";
-import { $setBlocksType } from "@lexical/selection";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Box, IconButton } from "@mui/material";
+import LexicalToolbarAlign from "./LexicalToolbarAlign";
 
 const LowPriority = 1;
 
@@ -46,7 +40,7 @@ function Divider() {
   return <div className="divider" />;
 }
 
-export default function ToolbarPlugin() {
+export default function ToolbarPlugin({ isAdvanced }: { isAdvanced: boolean }) {
   const [editor] = useLexicalComposerContext();
   const toolbarRef = useRef(null);
   const [canUndo, setCanUndo] = useState(false);
@@ -101,6 +95,10 @@ export default function ToolbarPlugin() {
     );
   }, [editor, $updateToolbar]);
 
+  const handleAlignmentChange = (newAlignment: ElementFormatType) => {
+    editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, newAlignment);
+  };
+
   return (
     <Box className="toolbar" ref={toolbarRef}>
       <IconButton
@@ -108,10 +106,10 @@ export default function ToolbarPlugin() {
         onClick={() => {
           editor.dispatchCommand(UNDO_COMMAND, undefined);
         }}
-        className="toolbar-item spaced"
+        className="toolbar-item"
         aria-label="Undo"
       >
-        <UndoRounded />
+        <UndoRounded fontSize="inherit" />
       </IconButton>
       <IconButton
         disabled={!canRedo}
@@ -121,91 +119,54 @@ export default function ToolbarPlugin() {
         className="toolbar-item"
         aria-label="Redo"
       >
-        <RedoRounded />
+        <RedoRounded fontSize="inherit" />
       </IconButton>
       <Divider />
       <IconButton
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
         }}
-        className={"toolbar-item spaced " + (isBold ? "active" : "")}
+        className={"toolbar-item " + (isBold ? "active" : "")}
         aria-label="Format Bold"
       >
-        <FormatBoldRounded />
+        <FormatBoldRounded fontSize="inherit" />
       </IconButton>
       <IconButton
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
         }}
-        className={"toolbar-item spaced " + (isItalic ? "active" : "")}
+        className={"toolbar-item " + (isItalic ? "active" : "")}
         aria-label="Format Italics"
       >
-        <FormatItalicRounded />
+        <FormatItalicRounded fontSize="inherit" />
       </IconButton>
       <IconButton
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
         }}
-        className={"toolbar-item spaced " + (isUnderline ? "active" : "")}
+        className={"toolbar-item " + (isUnderline ? "active" : "")}
         aria-label="Format Underline"
       >
-        <FormatUnderlinedRounded />
+        <FormatUnderlinedRounded fontSize="inherit" />
       </IconButton>
       <IconButton
         onClick={() => {
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
         }}
-        className={"toolbar-item spaced " + (isStrikethrough ? "active" : "")}
+        className={"toolbar-item " + (isStrikethrough ? "active" : "")}
         aria-label="Format Strikethrough"
       >
-        <FormatStrikethroughRounded />
-      </IconButton>
-      <Divider />
-      <IconButton
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "left");
-        }}
-        className="toolbar-item spaced"
-        aria-label="Left Align"
-      >
-        <FormatAlignLeftRounded />
-      </IconButton>
-      <IconButton
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "center");
-        }}
-        className="toolbar-item spaced"
-        aria-label="Center Align"
-      >
-        <FormatAlignCenterRounded />
-      </IconButton>
-      <IconButton
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "right");
-        }}
-        className="toolbar-item spaced"
-        aria-label="Right Align"
-      >
-        <FormatAlignRightRounded />
-      </IconButton>
-      <IconButton
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, "justify");
-        }}
-        className="toolbar-item"
-        aria-label="Justify Align"
-      >
-        <FormatAlignJustifyRounded />
+        <FormatStrikethroughRounded fontSize="inherit" />
       </IconButton>
       <Divider />
       <IconButton
         onClick={() => {
           editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
         }}
-        className="toolbar-item spaced"
+        className="toolbar-item"
         aria-label="Decrease Indent"
       >
-        <FormatIndentDecreaseRounded />
+        <FormatIndentDecreaseRounded fontSize="inherit" />
       </IconButton>
       <IconButton
         onClick={() => {
@@ -214,42 +175,33 @@ export default function ToolbarPlugin() {
         className="toolbar-item"
         aria-label="Increase Indent"
       >
-        <FormatIndentIncreaseRounded />
+        <FormatIndentIncreaseRounded fontSize="inherit" />
       </IconButton>
       <Divider />
       <IconButton
         onClick={() => {
           editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-          editor.update(() => {
-            const selection = $getSelection();
-            if ($isRangeSelection(selection)) {
-              $setBlocksType(selection, () => $createParagraphNode());
-            }
-          });
         }}
-        className="toolbar-item spaced"
+        className="toolbar-item"
         aria-label="Bulleted List"
       >
-        <FormatListBulletedRounded />
+        <FormatListBulletedRounded fontSize="inherit" />
       </IconButton>
       <IconButton
         onClick={() => {
           editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
         }}
-        className="toolbar-item spaced"
+        className="toolbar-item"
         aria-label="Numbered List"
       >
-        <FormatListNumberedRounded />
+        <FormatListNumberedRounded fontSize="inherit" />
       </IconButton>
-      <IconButton
-        onClick={() => {
-          editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined);
-        }}
-        className="toolbar-item spaced"
-        aria-label="Numbered List"
-      >
-        <ChecklistRounded />
-      </IconButton>
+      {isAdvanced && (
+        <>
+          <Divider />
+          <LexicalToolbarAlign onAlignmentChange={handleAlignmentChange} />
+        </>
+      )}
     </Box>
   );
 }

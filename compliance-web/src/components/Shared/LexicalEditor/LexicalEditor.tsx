@@ -4,11 +4,15 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
-import { Box } from "@mui/material";
+import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { Box, InputLabel } from "@mui/material";
 import LexicalToolbar from "./LexicalToolbar";
 import { EditorState, LexicalEditor as Editor } from "lexical";
 import { $getRoot, $createParagraphNode, $createTextNode } from "lexical";
 import { $generateNodesFromDOM } from "@lexical/html";
+import { BCDesignTokens } from "epic.theme";
+import { ListNode, ListItemNode } from "@lexical/list";
+import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
 
 export type TextEditorValue = {
   html: string;
@@ -55,6 +59,9 @@ type LexicalEditorProps = {
   errorMsg?: string;
   placeholder: string;
   defaultHtml?: string;
+  label?: string;
+  name: string;
+  isAdvanced?: boolean;
   onChange: (editorState: EditorState, editor: Editor) => void;
 };
 
@@ -62,13 +69,16 @@ const LexicalEditor = ({
   errorMsg,
   placeholder,
   defaultHtml = "",
+  label = "",
+  name,
   onChange,
+  isAdvanced = false,
 }: LexicalEditorProps) => {
-  
   // Lexical Editor Configuration
   const editorConfig = {
-    namespace: "MyEditor",
+    namespace: "EAOComplianceEditor",
     theme,
+    nodes: [ListNode, ListItemNode],
     onError(error: unknown) {
       // eslint-disable-next-line no-console
       console.error(error);
@@ -100,30 +110,54 @@ const LexicalEditor = ({
     <LexicalComposer initialConfig={editorConfig}>
       <Box
         sx={{
-          border: errorMsg ? "1px solid red" : "1px solid #ccc",
-          borderRadius: "5px",
-          padding: "10px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
-        <div className="editor-container">
-          <LexicalToolbar />
-          <div className="editor-inner">
-            <RichTextPlugin
-              contentEditable={
-                <ContentEditable
-                  className="editor-input"
-                  aria-placeholder={placeholder}
-                  placeholder={
-                    <div className="editor-placeholder">{placeholder}</div>
-                  }
-                />
-              }
-              ErrorBoundary={LexicalErrorBoundary}
-            />
-            <OnChangePlugin onChange={onChange} />
-            <HistoryPlugin />
-          </div>
-        </div>
+        <InputLabel
+          sx={{
+            position: "static",
+            transform: "none",
+            fontSize: "0.875rem",
+            lineHeight: "1.5rem",
+            color: errorMsg
+              ? BCDesignTokens.typographyColorDanger
+              : BCDesignTokens.typographyColorPrimary,
+          }}
+          htmlFor={name}
+          size="small"
+        >
+          {label}
+        </InputLabel>
+        <LexicalToolbar isAdvanced={isAdvanced} />
+      </Box>
+      <Box
+        className="editor-container"
+        sx={{
+          border: errorMsg
+            ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
+            : `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+        }}
+      >
+        <Box className="editor-inner editor-content">
+          <RichTextPlugin
+            contentEditable={
+              <ContentEditable
+                className="editor-input"
+                aria-placeholder={placeholder}
+                placeholder={
+                  <div className="editor-placeholder">{placeholder}</div>
+                }
+              />
+            }
+            ErrorBoundary={LexicalErrorBoundary}
+          />
+          <OnChangePlugin onChange={onChange} />
+          <ListPlugin />
+          <TabIndentationPlugin maxIndent={7} />
+          <HistoryPlugin />
+        </Box>
       </Box>
     </LexicalComposer>
   );
