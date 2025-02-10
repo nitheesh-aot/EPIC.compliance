@@ -82,5 +82,5 @@ export interface InspectionAPIData {
 
 export interface InspectionStatusAPIData {
   status: string;
-  alt_status_text: string;
+  alt_status_text?: string;
 }
