@@ -11,11 +11,13 @@ import { FC, useEffect, useCallback } from "react";
 type DrawerTitleBarProps = {
   title: string;
   isFormDirtyCheck?: boolean;
+  isDirtyManual?: boolean;
 };
 
 const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
   title,
   isFormDirtyCheck,
+  isDirtyManual,
 }) => {
   const { isOpen, setClose } = useDrawer();
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
@@ -29,7 +31,7 @@ const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
   }, [isOpen, reset, defaultValues]);
 
   const handleClose = useCallback(() => {
-    if (isFormDirtyCheck && isDirty) {
+    if (isFormDirtyCheck && (isDirty || isDirtyManual)) {
       setModalOpen({
         content: (
           <ConfirmationModal
@@ -47,7 +49,7 @@ const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
     } else {
       setClose();
     }
-  }, [isFormDirtyCheck, isDirty, setModalOpen, setModalClose, setClose]);
+  }, [isFormDirtyCheck, isDirty, isDirtyManual, setModalOpen, setModalClose, setClose]);
 
   return (
     <Box

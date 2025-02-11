@@ -10,7 +10,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Reorder } from "framer-motion";
 import React, { useCallback, useEffect } from "react";
 import RequirementCard from "./Requirements/RequirementCard";
-import { REGULATORY_CONSIDERATION_TYPE_ID, REQUIREMENT_TYPE_ID } from "./Requirements/RequirementUtils";
+import {
+  REGULATORY_CONSIDERATION_TYPE_ID,
+  REQUIREMENT_TYPE_ID,
+} from "./Requirements/RequirementUtils";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
@@ -20,16 +23,15 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   inspectionData,
 }) => {
   const queryClient = useQueryClient();
-  const { setOpen, isOpen } = useDrawer();
+  const { setOpen, isOpen, setClose } = useDrawer();
   const [activeRequirementId, setActiveRequirementId] = React.useState<
     number | null
   >(null);
   const [inspectionRequirements, setInspectionRequirements] = React.useState<
     InspectionRequirement[]
   >([]);
-  const [regulatoryConsideration, setRegulatoryConsideration] = React.useState<
-    InspectionRequirement | null
-  >(null);
+  const [regulatoryConsideration, setRegulatoryConsideration] =
+    React.useState<InspectionRequirement | null>(null);
 
   const { data: inspectionRequirementsData } = useInspectionRequirementsData(
     inspectionData.id
@@ -51,13 +53,16 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   }, [inspectionRequirementsData]);
 
   const handleOnSubmit = useCallback(
-    (submitMsg: string) => {
+    (submitMsg: string, isClose: boolean = true) => {
       queryClient.invalidateQueries({
         queryKey: ["inspection-requirements", inspectionData.id],
       });
       notify.success(submitMsg);
+      if (isClose) {
+        setClose();
+      }
     },
-    [queryClient, inspectionData]
+    [queryClient, inspectionData, setClose]
   );
 
   const handleOpenAddRequirementModal = useCallback(() => {
@@ -79,11 +84,9 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
       setOpen({
         content: (
           <RequirementDrawer
-            onSubmit={(submitMsg) => {
-              handleOnSubmit(submitMsg);
-            }}
+            onSubmit={handleOnSubmit}
             inspectionData={inspectionData}
-            requirement={requirement} 
+            requirement={requirement}
             index={index}
             isRegulatoryConsiderationExists={!!regulatoryConsideration}
           />
@@ -140,7 +143,12 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
           key={regulatoryConsideration.id}
           requirement={regulatoryConsideration}
           index={inspectionRequirements.length}
-          onEdit={() => handleOpenEditRequirementModal(regulatoryConsideration, inspectionRequirements.length)}
+          onEdit={() =>
+            handleOpenEditRequirementModal(
+              regulatoryConsideration,
+              inspectionRequirements.length
+            )
+          }
           isActive={regulatoryConsideration.id === activeRequirementId}
         />
       )}

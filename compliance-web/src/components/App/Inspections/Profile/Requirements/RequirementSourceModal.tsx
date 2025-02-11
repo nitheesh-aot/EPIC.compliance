@@ -9,10 +9,10 @@ import { RequirementSource } from "@/models/RequirementSource";
 import { RequirementSourceFormData } from "@/models/InspectionRequirement";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
-import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledRichTextEditor";
 import { useRequirementSourcesData } from "@/hooks/useComplaints";
 import { RequirementSourceEnum } from "@/utils/constants";
 import { isRequirementSourceCondition } from "./RequirementUtils";
+import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 
 type RequirementSourceModalProps = {
   onSubmit: (data: RequirementSourceFormData) => void;
@@ -138,7 +138,7 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
                 fullWidth
               />
             </Stack>
-            <ControlledRichTextEditor label="Description" name="description" />
+            <ControlledLexicalEditor label="Description" name="description" />
           </DialogContent>
           <ModalActions
             primaryActionButtonText={requirementSourceFormData ? "Save" : "Add"}

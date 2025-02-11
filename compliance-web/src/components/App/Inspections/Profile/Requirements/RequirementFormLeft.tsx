@@ -3,7 +3,6 @@ import { Box, Grid, IconButton, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { BCDesignTokens } from "epic.theme";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
-import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledRichTextEditor";
 import { Topic } from "@/models/Topic";
 import { EnforcementAction } from "@/models/EnforcementAction";
 import { ComplianceFinding } from "@/models/ComplianceFinding";
@@ -20,6 +19,7 @@ import {
 import ControlledToggleButtonGroup from "@/components/Shared/Controlled/ControlledToggleButtonGroup";
 import { EditOutlined } from "@mui/icons-material";
 import GridLabelValuePair from "./GridLabelValuePair";
+import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 
 type RequirementFormLeftProps = {
   inspectionRequirementTypesList: InspectionRequirementType[];
@@ -264,11 +264,11 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
         }}
       >
         {isReadOnly ? <ReadOnlySection /> : <EditSection />}
-        <ControlledRichTextEditor
+        <ControlledLexicalEditor
           label="Findings"
           name="findings"
+          placeholder="Enter Findings..."
           height={`calc(100vh - ${appHeaderHeight + 363}px)`}
-          marginBottom="0"
         />
       </Box>
     );
