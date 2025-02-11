@@ -68,6 +68,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const [selectedRequirementType, setSelectedRequirementType] = useState<
     InspectionRequirementType | undefined
   >(undefined);
+  const [isRequirementSourceListDirty, setIsRequirementSourceListDirty] = useState(false);
 
   const { data: inspectionRequirementTypesList } =
     useInspectionRequirementTypesData();
@@ -105,6 +106,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
 
   const onUpdateSuccess = useCallback(() => {
     onSubmit("Changes saved successfully!", false);
+    setIsRequirementSourceListDirty(false);
   }, [onSubmit]);
 
   const onDeleteSuccess = useCallback(() => {
@@ -182,8 +184,11 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const onRequirementSourceListDataChange = (
     data: RequirementSourceFormData[]
   ) => {
-    setRequirementSourceList(data);
-    return data;
+    const isDifferent = JSON.stringify(data) !== JSON.stringify(requirementSourceList);
+    if (isDifferent) {
+      setIsRequirementSourceListDirty(true);
+      setRequirementSourceList(data);
+    }
   };
 
   const getDrawerTitle = () => {
@@ -200,7 +205,11 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <DrawerTitleBar title={getDrawerTitle()} isFormDirtyCheck />
+        <DrawerTitleBar
+          title={getDrawerTitle()}
+          isFormDirtyCheck
+          isDirtyManual={isRequirementSourceListDirty}
+        />
         <DrawerActionBarTop isShowActionBar={!inspectionRequirementData} />
         <Stack
           key={JSON.stringify(inspectionRequirementData)}
@@ -234,7 +243,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           onDeleteAction={onDeleteRequirement}
           onDeleteTitle="Delete Requirement"
           onDeleteDescription="You are about to delete this Requirement. Are you sure?"
-          dirtyCheck={false}
+          isDirtyManual={isRequirementSourceListDirty}
         />
       </form>
     </FormProvider>
