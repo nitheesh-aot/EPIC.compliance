@@ -186,11 +186,11 @@ const RequirementRelatedDocumentCard: FC<
                 <ParagraphWithReadMore
                   key={section.description?.html}
                   maxHeight={84}
+                  isFormatted={true}
                   renderTypography={
                     <Typography
                       variant="subtitle2"
                       component={"div"}
-                      className="quill-render"
                       dangerouslySetInnerHTML={{
                         __html: section.description?.html ?? "",
                       }}

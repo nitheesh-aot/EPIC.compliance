@@ -222,11 +222,11 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                       <ParagraphWithReadMore
                         key={item.description?.html}
                         maxHeight={84}
+                        isFormatted={true}
                         renderTypography={
                           <Typography
                             variant="subtitle2"
                             component={"div"}
-                            className="quill-render"
                             dangerouslySetInnerHTML={{
                               __html: item.description?.html ?? "",
                             }}

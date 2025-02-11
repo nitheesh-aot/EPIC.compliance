@@ -91,6 +91,7 @@ export default function ContinuationReportTimelineEntry({
       <ParagraphWithReadMore
         maxHeight={150}
         expand={!!searchText}
+        isFormatted={true}
         renderTypography={
           <>
             <Typography
