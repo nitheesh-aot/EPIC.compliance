@@ -31,13 +31,44 @@ import {
   INSERT_UNORDERED_LIST_COMMAND,
 } from "@lexical/list";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Box, IconButton } from "@mui/material";
+import { Box, IconButton, Tooltip } from "@mui/material";
 import LexicalToolbarAlign from "./LexicalToolbarAlign";
 
 const LowPriority = 1;
 
 function Divider() {
   return <div className="divider" />;
+}
+
+interface ToolbarIconButtonProps {
+  disabled?: boolean;
+  onClick: () => void;
+  isActive?: boolean;
+  ariaLabel: string;
+  icon: React.ComponentType;
+}
+
+function ToolbarIconButton({
+  disabled = false,
+  onClick,
+  isActive = false,
+  ariaLabel,
+  icon: Icon,
+}: ToolbarIconButtonProps) {
+  return (
+    <Tooltip title={ariaLabel}>
+      <span>
+        <IconButton
+          disabled={disabled}
+          onClick={onClick}
+          className={`toolbar-item ${isActive ? "active" : ""}`}
+          aria-label={ariaLabel}
+        >
+          <Icon />
+        </IconButton>
+      </span>
+    </Tooltip>
+  );
 }
 
 export default function ToolbarPlugin({ isAdvanced }: { isAdvanced: boolean }) {
@@ -101,101 +132,75 @@ export default function ToolbarPlugin({ isAdvanced }: { isAdvanced: boolean }) {
 
   return (
     <Box className="toolbar" ref={toolbarRef}>
-      <IconButton
+      <ToolbarIconButton
         disabled={!canUndo}
-        onClick={() => {
-          editor.dispatchCommand(UNDO_COMMAND, undefined);
-        }}
-        className="toolbar-item"
-        aria-label="Undo"
-      >
-        <UndoRounded fontSize="inherit" />
-      </IconButton>
-      <IconButton
+        onClick={() => editor.dispatchCommand(UNDO_COMMAND, undefined)}
+        ariaLabel="Undo"
+        icon={UndoRounded}
+      />
+      <ToolbarIconButton
         disabled={!canRedo}
-        onClick={() => {
-          editor.dispatchCommand(REDO_COMMAND, undefined);
-        }}
-        className="toolbar-item"
-        aria-label="Redo"
-      >
-        <RedoRounded fontSize="inherit" />
-      </IconButton>
+        onClick={() => editor.dispatchCommand(REDO_COMMAND, undefined)}
+        ariaLabel="Redo"
+        icon={RedoRounded}
+      />
       <Divider />
-      <IconButton
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
-        }}
-        className={"toolbar-item " + (isBold ? "active" : "")}
-        aria-label="Format Bold"
-      >
-        <FormatBoldRounded fontSize="inherit" />
-      </IconButton>
-      <IconButton
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
-        }}
-        className={"toolbar-item " + (isItalic ? "active" : "")}
-        aria-label="Format Italics"
-      >
-        <FormatItalicRounded fontSize="inherit" />
-      </IconButton>
-      <IconButton
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
-        }}
-        className={"toolbar-item " + (isUnderline ? "active" : "")}
-        aria-label="Format Underline"
-      >
-        <FormatUnderlinedRounded fontSize="inherit" />
-      </IconButton>
-      <IconButton
-        onClick={() => {
-          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
-        }}
-        className={"toolbar-item " + (isStrikethrough ? "active" : "")}
-        aria-label="Format Strikethrough"
-      >
-        <FormatStrikethroughRounded fontSize="inherit" />
-      </IconButton>
+      <ToolbarIconButton
+        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold")}
+        isActive={isBold}
+        ariaLabel="Bold"
+        icon={FormatBoldRounded}
+      />
+      <ToolbarIconButton
+        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic")}
+        isActive={isItalic}
+        ariaLabel="Italic"
+        icon={FormatItalicRounded}
+      />
+      <ToolbarIconButton
+        onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline")}
+        isActive={isUnderline}
+        ariaLabel="Underline"
+        icon={FormatUnderlinedRounded}
+      />
+      <ToolbarIconButton
+        onClick={() =>
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough")
+        }
+        isActive={isStrikethrough}
+        ariaLabel="Strikethrough"
+        icon={FormatStrikethroughRounded}
+      />
       <Divider />
-      <IconButton
-        onClick={() => {
-          editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
-        }}
-        className="toolbar-item"
-        aria-label="Decrease Indent"
-      >
-        <FormatIndentDecreaseRounded fontSize="inherit" />
-      </IconButton>
-      <IconButton
-        onClick={() => {
-          editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined);
-        }}
-        className="toolbar-item"
-        aria-label="Increase Indent"
-      >
-        <FormatIndentIncreaseRounded fontSize="inherit" />
-      </IconButton>
+      <ToolbarIconButton
+        onClick={() =>
+          editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined)
+        }
+        ariaLabel="Decrease Indent"
+        icon={FormatIndentDecreaseRounded}
+      />
+      <ToolbarIconButton
+        onClick={() =>
+          editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined)
+        }
+        ariaLabel="Increase Indent"
+        icon={FormatIndentIncreaseRounded}
+      />
       <Divider />
-      <IconButton
-        onClick={() => {
-          editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
-        }}
-        className="toolbar-item"
-        aria-label="Bulleted List"
-      >
-        <FormatListBulletedRounded fontSize="inherit" />
-      </IconButton>
-      <IconButton
-        onClick={() => {
-          editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
-        }}
-        className="toolbar-item"
-        aria-label="Numbered List"
-      >
-        <FormatListNumberedRounded fontSize="inherit" />
-      </IconButton>
+      <ToolbarIconButton
+        onClick={() =>
+          editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined)
+        }
+        ariaLabel="Bulleted List"
+        icon={FormatListBulletedRounded}
+      />
+      <ToolbarIconButton
+        onClick={() =>
+          editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined)
+        }
+        ariaLabel="Numbered List"
+        icon={FormatListNumberedRounded}
+      />
       {isAdvanced && (
         <>
           <Divider />

@@ -13,7 +13,7 @@ export default function ParagraphWithReadMore({
   maxHeight = 150,
   renderTypography,
   expand = false,
-  isFormatted = true,
+  isFormatted = false,
 }: ParagraphWithReadMoreProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);

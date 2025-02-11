@@ -23,11 +23,13 @@ export default function ControlledLexicalEditor({
   label,
   placeholder = "Enter text...",
   isAdvanced = false,
+  height,
 }: {
   name: string;
   label: string;
   placeholder?: string;
   isAdvanced?: boolean;
+  height?: string;
 }) {
   const {
     control,
@@ -53,6 +55,7 @@ export default function ControlledLexicalEditor({
               errorMsg={errorMessage}
               placeholder={placeholder}
               defaultHtml={field.value?.html}
+              height={height}
               onChange={(editorState, editor) => {
                 editorState.read(() => {
                   const editorStateHtmlString = $generateHtmlFromNodes(editor);

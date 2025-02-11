@@ -60,7 +60,8 @@ type LexicalEditorProps = {
   placeholder: string;
   defaultHtml?: string;
   label?: string;
-  name: string;
+  name?: string;
+  height?: string;
   isAdvanced?: boolean;
   onChange: (editorState: EditorState, editor: Editor) => void;
 };
@@ -71,6 +72,7 @@ const LexicalEditor = ({
   defaultHtml = "",
   label = "",
   name,
+  height,
   onChange,
   isAdvanced = false,
 }: LexicalEditorProps) => {
@@ -138,6 +140,8 @@ const LexicalEditor = ({
           border: errorMsg
             ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
             : `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+          height: height ? height : "auto",
+          overflowY: "auto",
         }}
       >
         <Box className="editor-inner editor-content">

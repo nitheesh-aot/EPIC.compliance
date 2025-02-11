@@ -7,13 +7,13 @@
 }
 
 .editor-container {
-  max-width: 600px;
   position: relative;
   border-radius: 4px;
+  background-color: #fff;
 
   .editor-inner {
     position: relative;
-    padding: 0.5rem 0.75rem;
+    padding: 1rem 0.75rem;
     border-radius: 4px;
   }
 }
@@ -289,7 +289,6 @@ pre {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 1px;
-  background: #fff;
   padding: 4px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -303,7 +302,11 @@ pre {
     padding: 4px;
     cursor: pointer;
     vertical-align: middle;
-    font-size: 1.25rem;
+    margin-left: 2px;
+
+    .MuiSvgIcon-root {
+      font-size: 1.25rem;
+    }
 
     &:disabled {
       cursor: not-allowed;
@@ -329,7 +332,7 @@ pre {
     }
 
     &.active {
-      background-color: rgba(223, 232, 250, 0.3);
+      background-color: rgba(223, 232, 250, 0.5);
 
       i {
         opacity: 1;
