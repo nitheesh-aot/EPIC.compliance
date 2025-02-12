@@ -14,7 +14,7 @@
 """Complaint Model."""
 import enum
 
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Index, Integer, String, func
 from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
@@ -44,7 +44,7 @@ class Complaint(BaseModelVersioned):
     complaint_number = Column(
         String(50),
         comment="The unique complaint number",
-        unique=True,
+        unique=False,
         index=True,
         nullable=False,
     )
@@ -124,6 +124,16 @@ class Complaint(BaseModelVersioned):
         uselist=False,
         cascade="all, delete-orphan",
     )
+    is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
+
+    __table_args__ = (
+        Index(
+            "unique_non_deleted_complaint_file_number",  # Index name
+            "complaint_number",
+            unique=True,
+            postgresql_where=(is_deleted is False),  # Condition for uniqueness
+        ),
+    )
 
     @classmethod
     def get_count_by_project_nd_case_file_id(cls, project_id: int, case_file_id: int):
@@ -135,12 +145,13 @@ class Complaint(BaseModelVersioned):
                 func.count(Complaint.id).label(  # pylint: disable=not-callable
                     "complaint_count"
                 ),
-            ).join(CaseFileModel, CaseFileModel.id == Complaint.case_file_id)
+            )
+            .join(CaseFileModel, CaseFileModel.id == Complaint.case_file_id)
             .filter(
                 CaseFileModel.project_id == project_id,
                 Complaint.case_file_id == case_file_id,
                 Complaint.is_active.is_(True),
-                Complaint.is_deleted.is_(False)
+                Complaint.is_deleted.is_(False),
             )
             .group_by(Complaint.case_file_id, CaseFileModel.project_id)
             .first()

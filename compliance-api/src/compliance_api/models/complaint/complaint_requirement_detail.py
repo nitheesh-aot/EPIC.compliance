@@ -77,6 +77,17 @@ class ComplaintRequirementDetail(BaseModelVersioned):
 
     @classmethod
     @with_session
+    def delete_by_id(cls, req_id, session=None):
+        """Delete requirement detail by id."""
+        requirement = cls.find_by_id(req_id)
+        if not requirement:
+            return None
+        requirement.update(DELETE_DIC_PARAMS, commit=False)
+        session.flush()
+        return requirement
+
+    @classmethod
+    @with_session
     def delete_by_case_file(cls, case_file_id, session=None):
         """Delete requirement details by case file."""
         detail_query = cls.query.join(ComplaintModel).filter(

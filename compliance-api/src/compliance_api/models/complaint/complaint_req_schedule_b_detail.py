@@ -53,7 +53,17 @@ class ComplaintReqScheduleBDetail(BaseModelVersioned):
 
     @classmethod
     @with_session
-    def delete_schedule_b_details(cls, requirement_id, session=None):
+    def update_details(cls, req_id, requirement_obj, session=None):
+        """Update schedule b details."""
+        query = cls.query.filter_by(req_id=req_id, is_deleted=False)
+        requirement = query.first()
+        requirement.update(requirement_obj, commit=False)
+        session.flush()
+        return requirement
+
+    @classmethod
+    @with_session
+    def delete_details(cls, requirement_id, session=None):
         """Mark the details as deleted."""
         requirement = cls.query.filter_by(
             req_id=requirement_id, is_deleted=False

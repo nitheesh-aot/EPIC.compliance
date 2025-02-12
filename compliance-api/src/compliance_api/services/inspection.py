@@ -67,9 +67,7 @@ class InspectionService:
         """Return inspection by id."""
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
-            raise ResourceNotFoundError(
-                f"No inspection found for the given ID : {inspection_id}"
-            )
+            return None
         return _set_project_status(inspection)
 
     @classmethod
@@ -234,6 +232,7 @@ class InspectionService:
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
             raise ResourceNotFoundError(f"Inspection with ID {inspection_id} not found")
+        _inspection_close_check(inspection)
         _access_check_update(inspection)
         inspection_obj = _create_inspection_update_obj(inspection_data)
         with session_scope() as session:
@@ -315,7 +314,7 @@ class InspectionService:
                 inspection.id,
                 inspection.ir_number,
                 inspection.case_file_id,
-                status.get("alt_status_text", status_enum.value).lower()
+                status.get("alt_status_text", status_enum.value).lower(),
             )
             ContinuationReportService.create(
                 cr_entry, sys_generated=True, ho_session=session
@@ -370,6 +369,17 @@ class InspectionService:
                 context_type=ContextEnum.INSPECTION,
                 ho_session=session,
             )
+
+
+def _inspection_close_check(inspection):
+    """Check and raise error if inspection is either closed or canceled."""
+    if inspection.inspection_status in [
+        InspectionStatusEnum.CANCELED,
+        InspectionStatusEnum.CLOSED,
+    ]:
+        raise UnprocessableEntityError(
+            f"No changes can be made to the {inspection.inspection_status.name} inspection"
+        )
 
 
 def _access_check_create(inspection_data: dict):

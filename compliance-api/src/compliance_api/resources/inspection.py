@@ -19,6 +19,7 @@ from flask import current_app, request
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
+from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
     InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
     InspectionStatusSchema, InspectionUpdateSchema, KeyValueSchema, StaffUserSchema)
@@ -196,16 +197,23 @@ class Inspection(Resource):
 
     @staticmethod
     @API.response(code=200, description="Success", model=[inspection_list_model])
+    @API.response(404, "Not Found")
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch inspection by id")
     @auth.require
     def get(inspection_id):
         """Fetch all inspections."""
         inspection = InspectionService.get_by_id(inspection_id)
+        if not inspection:
+            raise ResourceNotFoundError(
+                f"No inspection found for the given ID : {inspection_id}"
+            )
         inspection_list_schema = InspectionSchema()
         return inspection_list_schema.dump(inspection), HTTPStatus.OK
 
     @staticmethod
     @API.response(code=200, description="Sucess", model=[inspection_list_model])
+    @API.response(404, "Not Found")
+    @API.response(400, "Bad Request")
     @API.expect(inspection_update_model)
     @ApiHelper.swagger_decorators(API, endpoint_description="Update inspection")
     @auth.require
