@@ -68,7 +68,8 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const [selectedRequirementType, setSelectedRequirementType] = useState<
     InspectionRequirementType | undefined
   >(undefined);
-  const [isRequirementSourceListDirty, setIsRequirementSourceListDirty] = useState(false);
+  const [isRequirementSourceListDirty, setIsRequirementSourceListDirty] =
+    useState(false);
 
   const { data: inspectionRequirementTypesList } =
     useInspectionRequirementTypesData();
@@ -122,10 +123,8 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     data: inspectionRequirementUpdateData,
   } = useUpdateInspectionRequirement(onUpdateSuccess);
 
-  useEffect(() => {
-    const inspectionRequirement: InspectionRequirement =
-      inspectionRequirementUpdateData ?? requirement;
-    if (inspectionRequirement) {
+  const formatAndSetFormData = useCallback(
+    (inspectionRequirement: InspectionRequirement) => {
       const inspectionRequirementFormData = formatRequirementFormData(
         inspectionRequirement
       );
@@ -133,8 +132,21 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       setRequirementSourceList(
         inspectionRequirementFormData.requirementSourceDetails ?? []
       );
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (requirement) {
+      formatAndSetFormData(requirement);
     }
-  }, [inspectionRequirementUpdateData, requirement]);
+  }, [requirement, formatAndSetFormData]);
+
+  useEffect(() => {
+    if (inspectionRequirementUpdateData) {
+      formatAndSetFormData(inspectionRequirementUpdateData);
+    }
+  }, [inspectionRequirementUpdateData, formatAndSetFormData]);
 
   const isRequirement = selectedRequirementType?.id === REQUIREMENT_TYPE_ID;
 
@@ -184,7 +196,8 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const onRequirementSourceListDataChange = (
     data: RequirementSourceFormData[]
   ) => {
-    const isDifferent = JSON.stringify(data) !== JSON.stringify(requirementSourceList);
+    const isDifferent =
+      JSON.stringify(data) !== JSON.stringify(requirementSourceList);
     if (isDifferent) {
       setIsRequirementSourceListDirty(true);
       setRequirementSourceList(data);
