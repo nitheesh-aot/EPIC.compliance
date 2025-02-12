@@ -9,21 +9,21 @@ const MultiValue = ({ selectProps, index, ...props }: MultiValueProps) => {
   return (
     <components.MultiValueContainer {...props} selectProps={selectProps}>
       {index === 0 && (
-        <Typography
+          <Typography
           key={index}
-          variant="body2"
-          align="left"
-          sx={{
-            overflow: "hidden",
-            textOverflow: "ellipsis",
+            variant="body2"
+            align="left"
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
             fontWeight: hasSelectedValue
               ? BCDesignTokens.typographyFontWeightsBold
               : undefined,
             color: hasSelectedValue
               ? BCDesignTokens.themeBlue80
               : BCDesignTokens.typographyColorPlaceholder,
-          }}
-        >
+            }}
+          >
           {hasSelectedValue
             ? filterProps?.variant === "inline"
               ? "Filtered"
