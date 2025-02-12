@@ -1,4 +1,4 @@
-import { ComponentType, FC, useCallback, useEffect, useMemo, memo } from "react";
+import { ComponentType, FC, useCallback, useEffect, useMemo } from "react";
 
 import FilterSelect from "./FilterSelect";
 import { TableFilterProps } from "./type";
@@ -30,7 +30,6 @@ const makeTableFilter =
       }
       return { label: option, value: option };
     };
-
     const options = useMemo(() => {
       let filterOptions = column.columnDef.filterSelectOptions;
       filterOptions = filterOptions.map(
@@ -42,9 +41,6 @@ const makeTableFilter =
                 value: unknown;
               }
         ) => toOptionType(option)
-      );
-      filterOptions.sort((a: { label: string }, b: { label: string }) =>
-        a.label.localeCompare(b.label)
       );
       return filterOptions;
     }, [column]);
@@ -74,5 +70,5 @@ const makeTableFilter =
     );
   };
 
-const TableFilter = memo(makeTableFilter(FilterSelect));
+const TableFilter = makeTableFilter(FilterSelect);
 export default TableFilter;

@@ -37,6 +37,8 @@ export type SelectProps = {
   variant: "inline" | "bar" | "inline-standalone";
   info?: boolean;
   maxWidth?: string;
+  filterAppliedCallback?: (selectedOptions: string[] | string) => void;
+  filterClearedCallback?: (value: [] | string) => void;
 } & Props<OptionType>;
 
 export type TableFilterProps = {
