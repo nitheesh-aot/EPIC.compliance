@@ -232,6 +232,178 @@
       text-decoration: underline;
     }
   }
+
+  .editor-tableScrollableWrapper {
+    overflow-x: auto;
+    margin: 0 25px 30px 0;
+
+    > .editor-table {
+      /* Remove the table's vertical margin and put it on the wrapper */
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+
+  .editor-tableAlignmentCenter {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .editor-tableAlignmentRight {
+    margin-left: auto;
+  }
+
+  .editor-table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    overflow-y: scroll;
+    overflow-x: scroll;
+    table-layout: fixed;
+    width: fit-content;
+    margin-top: 25px;
+    margin-bottom: 30px;
+  }
+
+  .editor-tableRowStriping {
+    tr:nth-child(even) {
+      background-color: #f2f5fb;
+    }
+  }
+
+  .editor-tableSelection {
+    *::selection {
+      background-color: transparent;
+    }
+  }
+
+  .editor-tableSelected {
+    outline: 2px solid rgb(60, 132, 244);
+  }
+
+  .editor-tableCell {
+    border: 1px solid #bbb;
+    width: 75px;
+    vertical-align: top;
+    text-align: start;
+    padding: 6px 8px;
+    position: relative;
+    outline: none;
+    overflow: auto;
+
+    > * {
+      overflow: inherit;
+    }
+  }
+
+  .editor-tableCellResizer {
+    position: absolute;
+    right: -4px;
+    height: 100%;
+    width: 8px;
+    cursor: ew-resize;
+    z-index: 10;
+    top: 0;
+  }
+
+  .editor-tableCellHeader {
+    background-color: #f2f3f5;
+    text-align: start;
+  }
+
+  .editor-tableCellSelected {
+    caret-color: transparent;
+
+    &::after {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: 0;
+      background-color: highlight;
+      mix-blend-mode: multiply;
+      content: "";
+      pointer-events: none;
+    }
+  }
+
+  .editor-tableAddColumns,
+  .editor-tableAddRows {
+    position: absolute;
+    background-color: #eee;
+    animation: table-controls 0.2s ease;
+    border: 0;
+    cursor: pointer;
+
+    &:after {
+      background-image: url(../images/icons/plus.svg);
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: block;
+      content: " ";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.4;
+    }
+
+    &:hover {
+      background-color: #c9dbf0;
+    }
+  }
+
+  .editor-tableAddRows {
+    width: calc(100% - 25px);
+  }
+
+  @keyframes table-controls {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .editor-tableCellResizeRuler {
+    display: block;
+    position: absolute;
+    width: 1px;
+    background-color: rgb(60, 132, 244);
+    height: 100%;
+    top: 0;
+  }
+
+  .editor-tableCellActionButtonContainer {
+    display: block;
+    right: 5px;
+    top: 6px;
+    position: absolute;
+    z-index: 4;
+    width: 20px;
+    height: 20px;
+  }
+
+  .editor-tableCellActionButton {
+    background-color: #eee;
+    display: block;
+    border: 0;
+    border-radius: 20px;
+    width: 20px;
+    height: 20px;
+    color: #222;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #ddd;
+    }
+  }
+
+  .editor-tableCellResizer {
+    position: absolute;
+  }
 }
 
 pre {

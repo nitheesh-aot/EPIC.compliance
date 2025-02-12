@@ -11,6 +11,7 @@ import {
   FormatIndentIncreaseRounded,
   FormatListBulletedRounded,
   FormatListNumberedRounded,
+  TableChartOutlined,
 } from "@mui/icons-material";
 import {
   $getSelection,
@@ -30,6 +31,7 @@ import {
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
 } from "@lexical/list";
+import { INSERT_TABLE_COMMAND } from "@lexical/table";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Box, IconButton, Tooltip } from "@mui/material";
 import LexicalToolbarAlign from "./LexicalToolbarAlign";
@@ -205,6 +207,16 @@ export default function ToolbarPlugin({ isAdvanced }: { isAdvanced: boolean }) {
         <>
           <Divider />
           <LexicalToolbarAlign onAlignmentChange={handleAlignmentChange} />
+          <ToolbarIconButton
+            onClick={() =>
+              editor.dispatchCommand(INSERT_TABLE_COMMAND, {
+                rows: "3",
+                columns: "3",
+              })
+            }
+            ariaLabel="Table"
+            icon={TableChartOutlined}
+          />
         </>
       )}
     </Box>

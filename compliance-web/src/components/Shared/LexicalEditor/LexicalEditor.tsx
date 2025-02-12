@@ -13,6 +13,10 @@ import { $generateNodesFromDOM } from "@lexical/html";
 import { BCDesignTokens } from "epic.theme";
 import { ListNode, ListItemNode } from "@lexical/list";
 import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
+import { TablePlugin } from "@lexical/react/LexicalTablePlugin";
+import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
+// import TableCellResizerPlugin from "./TablePlugins/TableCellResizer";
+
 
 export type TextEditorValue = {
   html: string;
@@ -53,6 +57,21 @@ const theme = {
     underline: "editor-text-underline",
     underlineStrikethrough: "editor-text-underlineStrikethrough",
   },
+  table: "editor-table",
+  tableAlignment: {
+    center: "editor-tableAlignmentCenter",
+    right: "editor-tableAlignmentRight",
+  },
+  tableCell: "editor-tableCell",
+  tableCellActionButton: "editor-tableCellActionButton",
+  tableCellActionButtonContainer: "editor-tableCellActionButtonContainer",
+  tableCellHeader: "editor-tableCellHeader",
+  tableCellResizer: "editor-tableCellResizer",
+  tableCellSelected: "editor-tableCellSelected",
+  tableRowStriping: "editor-tableRowStriping",
+  tableScrollableWrapper: "editor-tableScrollableWrapper",
+  tableSelected: "editor-tableSelected",
+  tableSelection: "editor-tableSelection",
 };
 
 type LexicalEditorProps = {
@@ -80,7 +99,7 @@ const LexicalEditor = ({
   const editorConfig = {
     namespace: "EAOComplianceEditor",
     theme,
-    nodes: [ListNode, ListItemNode],
+    nodes: [ListNode, ListItemNode, TableNode, TableRowNode, TableCellNode],
     onError(error: unknown) {
       // eslint-disable-next-line no-console
       console.error(error);
@@ -160,6 +179,12 @@ const LexicalEditor = ({
           <OnChangePlugin onChange={onChange} />
           <ListPlugin />
           <TabIndentationPlugin maxIndent={7} />
+          <TablePlugin
+            hasCellMerge
+            hasCellBackgroundColor
+            hasHorizontalScroll
+          />
+          {/* <TableCellResizerPlugin /> */}
           <HistoryPlugin />
         </Box>
       </Box>
