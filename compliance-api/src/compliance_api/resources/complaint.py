@@ -125,6 +125,8 @@ class Complaint(Resource):
 
     @staticmethod
     @API.response(code=200, description="Sucess", model=[complaint_list_model])
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
     @API.expect(complaint_update_model)
     @ApiHelper.swagger_decorators(API, endpoint_description="Update complaint")
     @auth.require
@@ -139,11 +141,12 @@ class Complaint(Resource):
     @auth.has_one_of_roles([PermissionEnum.SUPERUSER])
     @ApiHelper.swagger_decorators(API, endpoint_description="Delete a Complaint by id")
     @API.response(code=204, description="Success")
-    @API.response(400, "Bad Request")
     @API.response(404, "Not Found")
     def delete(complaint_id):
         """Delete complaint."""
-        ComplaintService.delete_complaint(complaint_id)
+        deleted_complaint = ComplaintService.delete_complaint(complaint_id)
+        if not deleted_complaint:
+            raise ResourceNotFoundError(f"Complaint with ID {complaint_id} not found")
         return {}, HTTPStatus.NO_CONTENT
 
 
@@ -162,6 +165,8 @@ class ComplaintRequirementDetails(Resource):
     def get(complaint_id):
         """Fetch a complaint requirement details."""
         requirements = ComplaintService.get_requirement_details(complaint_id)
+        if not requirements:
+            raise ResourceNotFoundError(f"Compalint with id: {complaint_id} not found")
         return RequirementSourceDetailSchema().dump(requirements), HTTPStatus.OK
 
 

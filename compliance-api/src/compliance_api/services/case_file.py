@@ -83,7 +83,11 @@ class CaseFileService:
     @classmethod
     def update(cls, case_file_id: int, case_file_data: dict, ho_session=None):
         """Update case file."""
-        _access_check_for_update(case_file_id)
+        case_file = CaseFileModel.find_by_id(case_file_id)
+        if not case_file:
+            return None
+        _case_file_close_check(case_file)
+        _access_check_for_update(case_file)
         case_file_obj = {
             "primary_officer_id": case_file_data.get("primary_officer_id", None),
             "project_description": case_file_data.get("project_description", None),
@@ -160,11 +164,11 @@ class CaseFileService:
     def change_case_file_status(cls, case_file_id, status_data):
         """Change the status of the case file."""
         from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
-
-        _access_check_for_update(case_file_id)
         case_file = CaseFileModel.find_by_id(case_file_id)
         if not case_file:
             raise ResourceNotFoundError("Case file not found.")
+        _access_check_for_update(case_file)
+        case_file = CaseFileModel.find_by_id(case_file_id)
         status_enum = CaseFileStatusEnum(status_data.get("status"))
         if status_enum == case_file.case_file_status:
             raise UnprocessableEntityError(
@@ -185,10 +189,16 @@ class CaseFileService:
     @classmethod
     def link(cls, case_file_id, link):
         """Link the case file to another one of the same project."""
+        case_file = CaseFileModel.find_by_id(case_file_id)
+        if not case_file:
+            raise ResourceNotFoundError(f"CaseFile with {case_file_id} not found")
+        _case_file_close_check(case_file)
         _access_check_for_update(case_file_id)
         case_file = CaseFileModel.find_by_id(case_file_id)
         link_case_file_id = link.get("link_case_file_id")
         link_to_case_file = CaseFileModel.find_by_id(link_case_file_id)
+        if not link_to_case_file:
+            raise ResourceNotFoundError(f"CaseFile with {link_case_file_id} not found")
         _link_case_file_checks(case_file, case_file_id)
         _link_case_file_checks(link_to_case_file, link_case_file_id)
         source_link = CaseFileLinkModel.get_links_by_source_and_target(
@@ -212,10 +222,16 @@ class CaseFileService:
     @classmethod
     def unlink(cls, case_file_id, unlink):
         """Unlink the case file from another case file."""
+        case_file = CaseFileModel.find_by_id(case_file_id)
+        if not case_file:
+            raise ResourceNotFoundError(f"CaseFile with {case_file_id} not found")
+        _case_file_close_check(case_file)
         _access_check_for_update(case_file_id)
         unlink_case_file_id = unlink.get("case_file_to_unlink")
         case_file = CaseFileModel.find_by_id(case_file_id)
         unlink_case_file = CaseFileModel.find_by_id(unlink_case_file_id)
+        if not unlink_case_file:
+            raise ResourceNotFoundError(f"CaseFile with {unlink_case_file_id} not found")
         existing_link = CaseFileLinkModel.get_links_by_source_and_target(
             source_id=case_file_id, target_id=unlink_case_file_id
         )
@@ -312,10 +328,9 @@ def _create_unapproved_project_object(case_file_data: dict, case_file_id: int):
     }
 
 
-def _access_check_for_update(case_file_id):
+def _access_check_for_update(case_file):
     """Access check for update."""
     auth_user_guid = g.token_info["preferred_username"]
-    case_file = CaseFileModel.find_by_id(case_file_id)
     if (
         not auth.has_permission([PermissionEnum.SUPERUSER])
         and not case_file.primary_officer.auth_user_guid == auth_user_guid
@@ -375,3 +390,11 @@ def _create_cr_entry(case_file_id, case_file_number, action, keys):
             for case_file_number in keys
         ],
     }
+
+
+def _case_file_close_check(case_file):
+    """Check and raise error if the case file is in closed status."""
+    if case_file.case_file_status == CaseFileStatusEnum.CLOSED:
+        raise UnprocessableEntityError(
+            "No change is possible as the case file is in CLOSED status"
+        )

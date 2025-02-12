@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inspection Model."""
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Index, Integer, String, func
 from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
@@ -36,7 +36,7 @@ class Inspection(BaseModelVersioned):
     ir_number = Column(
         String(50),
         comment="The unique inspection record number",
-        unique=True,
+        unique=False,
         index=True,
         nullable=False,
     )
@@ -131,6 +131,15 @@ class Inspection(BaseModelVersioned):
     project = relationship("Project", foreign_keys=[project_id], lazy="joined")
     primary_officer = relationship(
         "StaffUser", foreign_keys=[primary_officer_id], lazy="joined"
+    )
+    is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
+    __table_args__ = (
+        Index(
+            "unique_non_deleted_ir_number",  # Index name
+            "ir_number",
+            unique=True,
+            postgresql_where=(is_deleted is False),  # Condition for uniqueness
+        ),
     )
 
     @classmethod

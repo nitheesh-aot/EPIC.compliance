@@ -57,15 +57,25 @@ class ComplaintReqEACDetail(BaseModelVersioned):
 
     @classmethod
     @with_session
-    def delete_eac_details(cls, requirement_id, session=None):
-        """Mark the details as deleted."""
-        requirement = cls.query.filter_by(
+    def update_details(cls, req_id, requirement_obj, session=None):
+        """Update eac details."""
+        query = cls.query.filter_by(req_id=req_id, is_deleted=False)
+        eac_requirement = query.first()
+        eac_requirement.update(requirement_obj, commit=False)
+        session.flush()
+        return eac_requirement
+
+    @classmethod
+    @with_session
+    def delete_details(cls, requirement_id, session=None):
+        """Mark the eac details as deleted."""
+        eac_requirement = cls.query.filter_by(
             req_id=requirement_id, is_deleted=False
         ).first()
-        requirement.update(DELETE_DIC_PARAMS, commit=False)
+        eac_requirement.update(DELETE_DIC_PARAMS, commit=False)
         session.flush()
 
     @classmethod
     def get_by_requirement(cls, req_id):
-        """Get additional requirement source details."""
+        """Get additional requirement source eac details."""
         return cls.query.filter_by(req_id=req_id, is_deleted=False).first()

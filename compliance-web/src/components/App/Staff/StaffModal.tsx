@@ -44,7 +44,7 @@ const initFormData: StaffFormData = {
   deputyDirector: undefined,
   supervisor: undefined,
   permission: undefined,
-  isActive: false,
+  isActive: true,
 };
 
 const StaffModal: React.FC<StaffModalProps> = ({ onSubmit, staff }) => {

@@ -252,7 +252,7 @@ def test_complaint_delete_by_super_user(
     complaint_data["case_file_id"] = created_case_file.id
     created_complaint = ComplaintService.create(complaint_data)
     mocker.stop(contains_role)
-
+    print(created_complaint.is_deleted)
     result = client.delete(
         urljoin(API_BASE_URL, f"complaints/{created_complaint.id}"),
         headers=auth_header_super_user,
