@@ -1,10 +1,3 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
 import type {TableCellNode, TableDOMCell, TableMapType} from '@lexical/table';
 import type {LexicalEditor} from 'lexical';
 import type {JSX} from 'react';
@@ -47,7 +40,7 @@ const MIN_COLUMN_WIDTH = 92;
 function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
   const targetRef = useRef<HTMLElement | null>(null);
   const resizerRef = useRef<HTMLDivElement | null>(null);
-  const tableRectRef = useRef<ClientRect | null>(null);
+  const tableRectRef = useRef<DOMRect | null>(null);
 
   const mouseStartPosRef = useRef<MousePosition | null>(null);
   const [mouseCurrentPos, updateMouseCurrentPos] =
@@ -351,16 +344,16 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
           backgroundColor: 'none',
           cursor: 'row-resize',
           height: `${zoneWidth}px`,
-          left: `${window.pageXOffset + left}px`,
-          top: `${window.pageYOffset + top + height - zoneWidth / 2}px`,
+          left: `${window.scrollX + left}px`,
+          top: `${window.scrollY + top + height - zoneWidth / 2}px`,
           width: `${width}px`,
         },
         right: {
           backgroundColor: 'none',
           cursor: 'col-resize',
           height: `${height}px`,
-          left: `${window.pageXOffset + left + width - zoneWidth / 2}px`,
-          top: `${window.pageYOffset + top}px`,
+          left: `${window.scrollX + left + width - zoneWidth / 2}px`,
+          top: `${window.scrollY + top}px`,
           width: `${zoneWidth}px`,
         },
       };
@@ -370,19 +363,19 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
       if (draggingDirection && mouseCurrentPos && tableRect) {
         if (isHeightChanging(draggingDirection)) {
           styles[draggingDirection].left = `${
-            window.pageXOffset + tableRect.left
+            window.scrollX + tableRect.left
           }px`;
           styles[draggingDirection].top = `${
-            window.pageYOffset + mouseCurrentPos.y / zoom
+            window.scrollY + mouseCurrentPos.y / zoom
           }px`;
           styles[draggingDirection].height = '3px';
           styles[draggingDirection].width = `${tableRect.width}px`;
         } else {
           styles[draggingDirection].top = `${
-            window.pageYOffset + tableRect.top
+            window.scrollY + tableRect.top
           }px`;
           styles[draggingDirection].left = `${
-            window.pageXOffset + mouseCurrentPos.x / zoom
+            window.scrollX + mouseCurrentPos.x / zoom
           }px`;
           styles[draggingDirection].width = '3px';
           styles[draggingDirection].height = `${tableRect.height}px`;
@@ -409,12 +402,12 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
       {activeCell != null && !isMouseDown && (
         <>
           <div
-            className="editor-tableCellResizer editor-tableCellResizer__ui"
+            className="TableCellResizer__resizer TableCellResizer__ui"
             style={resizerStyles.right || undefined}
             onMouseDown={toggleResize('right')}
           />
           <div
-            className="editor-tableCellResizer editor-tableCellResizer__ui"
+            className="TableCellResizer__resizer TableCellResizer__ui"
             style={resizerStyles.bottom || undefined}
             onMouseDown={toggleResize('bottom')}
           />

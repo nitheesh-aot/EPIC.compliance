@@ -308,7 +308,7 @@ function getMouseInfo(event: MouseEvent): {
       tableDOMNode ||
       target.closest<HTMLElement>(".editor-tableAddRows") ||
       target.closest<HTMLElement>(".editor-tableAddColumns") ||
-      target.closest<HTMLElement>(".editor-tableCellResizer")
+      target.closest<HTMLElement>("div.TableCellResizer__resizer")
     );
 
     return { isOutside, tableDOMNode };

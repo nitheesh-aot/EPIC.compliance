@@ -390,10 +390,11 @@
       background-color: #ddd;
     }
   }
+}
 
-  .editor-tableCellResizer {
-    position: absolute;
-  }
+.TableCellResizer__resizer {
+  position: absolute;
+  z-index: 9999;
 }
 
 .table-cell-action-button-container {
