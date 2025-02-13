@@ -138,7 +138,11 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
                 fullWidth
               />
             </Stack>
-            <ControlledLexicalEditor label="Description" name="description" />
+            <ControlledLexicalEditor
+              label="Description"
+              name="description"
+              isAdvanced
+            />
           </DialogContent>
           <ModalActions
             primaryActionButtonText={requirementSourceFormData ? "Save" : "Add"}
