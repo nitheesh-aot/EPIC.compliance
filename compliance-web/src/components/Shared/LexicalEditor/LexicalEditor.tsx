@@ -15,8 +15,10 @@ import { ListNode, ListItemNode } from "@lexical/list";
 import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
 import { TablePlugin } from "@lexical/react/LexicalTablePlugin";
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
-// import TableCellResizerPlugin from "./TablePlugins/TableCellResizer";
-
+import { useState } from "react";
+import TableCellResizerPlugin from "./TablePlugins/TableCellResizer";
+import TableCellActionMenuPlugin from "./TablePlugins/TableActionMenu";
+import TableHoverActionsPlugin from "./TablePlugins/TableHoverActions";
 
 export type TextEditorValue = {
   html: string;
@@ -127,6 +129,15 @@ const LexicalEditor = ({
     },
   };
 
+  const [floatingAnchorElem, setFloatingAnchorElem] =
+    useState<HTMLDivElement | null>(null);
+
+  const onRef = (_floatingAnchorElem: HTMLDivElement) => {
+    if (_floatingAnchorElem !== null) {
+      setFloatingAnchorElem(_floatingAnchorElem);
+    }
+  };
+
   return (
     <LexicalComposer initialConfig={editorConfig}>
       <Box
@@ -166,13 +177,15 @@ const LexicalEditor = ({
         <Box className="editor-inner editor-content">
           <RichTextPlugin
             contentEditable={
-              <ContentEditable
-                className="editor-input"
-                aria-placeholder={placeholder}
-                placeholder={
-                  <div className="editor-placeholder">{placeholder}</div>
-                }
-              />
+              <div ref={onRef}>
+                <ContentEditable
+                  className="editor-input"
+                  aria-placeholder={placeholder}
+                  placeholder={
+                    <div className="editor-placeholder">{placeholder}</div>
+                  }
+                />
+              </div>
             }
             ErrorBoundary={LexicalErrorBoundary}
           />
@@ -184,7 +197,16 @@ const LexicalEditor = ({
             hasCellBackgroundColor
             hasHorizontalScroll
           />
-          {/* <TableCellResizerPlugin /> */}
+          <TableCellResizerPlugin />
+          {floatingAnchorElem && (
+            <>
+              <TableCellActionMenuPlugin
+                anchorElem={floatingAnchorElem}
+                cellMerge={true}
+              />
+              <TableHoverActionsPlugin anchorElem={floatingAnchorElem} />
+            </>
+          )}
           <HistoryPlugin />
         </Box>
       </Box>

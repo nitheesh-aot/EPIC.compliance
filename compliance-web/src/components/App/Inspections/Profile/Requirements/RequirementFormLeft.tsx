@@ -269,6 +269,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
           name="findings"
           placeholder="Enter Findings..."
           height={`calc(100vh - ${appHeaderHeight + 363}px)`}
+          isAdvanced
         />
       </Box>
     );

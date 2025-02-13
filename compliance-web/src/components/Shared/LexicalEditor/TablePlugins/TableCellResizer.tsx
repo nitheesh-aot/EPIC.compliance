@@ -138,13 +138,11 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
       }
     };
 
-    const onMouseDown = (event: MouseEvent) => {
-      event.preventDefault();
+    const onMouseDown = () => {
       updateIsMouseDown(true);
     };
 
-    const onMouseUp = (event: MouseEvent) => {
-      event.preventDefault();
+    const onMouseUp = () => {
       updateIsMouseDown(false);
     };
 
