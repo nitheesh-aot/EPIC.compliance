@@ -11,6 +11,7 @@ import {
 import RequirementSourceCard from "./RequirementSourceCard";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import RequirementRelatedDocumentModal from "./RequirementRelatedDocumentModal";
+import { isRequirementSourceCondition } from "./RequirementUtils";
 
 interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
@@ -130,15 +131,25 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   };
 
   const handleDeleteRequirementSource = (data: RequirementSourceFormData) => {
-    const isLastItem =
+    const isLastSectionItem =
       groupedData[data.requirementSource?.id ?? ""].length === 1;
-    const description = isLastItem
+    const sourceType = isRequirementSourceCondition(
+      data.requirementSource?.id ?? ""
+    )
+      ? "condition"
+      : "section";
+    const description = isLastSectionItem
       ? `You are about to delete ${data.requirementSource?.name}.
       This is the primary requirement source. 
       Deleting it will also permanently remove all associated documents. 
       Are you sure you want to proceed?`
-      : `You are about to delete ${data.requirementSource?.name}.
-      Are you sure you want to proceed?`;
+      : data.relatedDocuments?.length
+        ? `You are about to delete ${data.sourceNumber} - ${data.sourceTitle}.
+        This ${sourceType} has associated documents.
+        Deleting this ${sourceType} will also remove all associated documents from the system.
+        Are you sure you want to proceed?`
+        : `You are about to delete ${data.sourceNumber} - ${data.sourceTitle}.
+        Are you sure you want to proceed?`;
     setOpen({
       content: (
         <ConfirmationModal
