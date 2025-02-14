@@ -19,61 +19,13 @@ import { useState } from "react";
 import TableCellResizerPlugin from "./TablePlugins/TableCellResizer";
 import TableCellActionMenuPlugin from "./TablePlugins/TableActionMenu";
 import TableHoverActionsPlugin from "./TablePlugins/TableHoverActions";
+import { MentionNode } from "./MentionPlugins/MentionNode";
+import MentionsPlugin from "./MentionPlugins/Mentions";
+import { LexicalTheme, MentionData } from "./LexicalUtils";
 
 export type TextEditorValue = {
   html: string;
   text: string;
-};
-
-const theme = {
-  code: "editor-code",
-  heading: {
-    h1: "editor-heading-h1",
-    h2: "editor-heading-h2",
-    h3: "editor-heading-h3",
-    h4: "editor-heading-h4",
-    h5: "editor-heading-h5",
-  },
-  image: "editor-image",
-  link: "editor-link",
-  list: {
-    listitem: "editor-listitem",
-    nested: {
-      listitem: "editor-nested-listitem",
-    },
-    ol: "editor-list-ol",
-    ul: "editor-list-ul",
-  },
-  ltr: "ltr",
-  paragraph: "editor-paragraph",
-  placeholder: "editor-placeholder",
-  quote: "editor-quote",
-  rtl: "rtl",
-  text: {
-    bold: "editor-text-bold",
-    code: "editor-text-code",
-    hashtag: "editor-text-hashtag",
-    italic: "editor-text-italic",
-    overflowed: "editor-text-overflowed",
-    strikethrough: "editor-text-strikethrough",
-    underline: "editor-text-underline",
-    underlineStrikethrough: "editor-text-underlineStrikethrough",
-  },
-  table: "editor-table",
-  tableAlignment: {
-    center: "editor-tableAlignmentCenter",
-    right: "editor-tableAlignmentRight",
-  },
-  tableCell: "editor-tableCell",
-  tableCellActionButton: "editor-tableCellActionButton",
-  tableCellActionButtonContainer: "editor-tableCellActionButtonContainer",
-  tableCellHeader: "editor-tableCellHeader",
-  tableCellResizer: "editor-tableCellResizer",
-  tableCellSelected: "editor-tableCellSelected",
-  tableRowStriping: "editor-tableRowStriping",
-  tableScrollableWrapper: "editor-tableScrollableWrapper",
-  tableSelected: "editor-tableSelected",
-  tableSelection: "editor-tableSelection",
 };
 
 type LexicalEditorProps = {
@@ -84,6 +36,7 @@ type LexicalEditorProps = {
   name?: string;
   height?: string;
   isAdvanced?: boolean;
+  mentionsList?: MentionData[];
   onChange: (editorState: EditorState, editor: Editor) => void;
 };
 
@@ -94,14 +47,22 @@ const LexicalEditor = ({
   label = "",
   name,
   height,
+  mentionsList,
   onChange,
   isAdvanced = false,
 }: LexicalEditorProps) => {
   // Lexical Editor Configuration
   const editorConfig = {
     namespace: "EAOComplianceEditor",
-    theme,
-    nodes: [ListNode, ListItemNode, TableNode, TableRowNode, TableCellNode],
+    theme: LexicalTheme,
+    nodes: [
+      ListNode,
+      ListItemNode,
+      TableNode,
+      TableRowNode,
+      TableCellNode,
+      MentionNode,
+    ],
     onError(error: unknown) {
       // eslint-disable-next-line no-console
       console.error(error);
@@ -206,6 +167,9 @@ const LexicalEditor = ({
               />
               <TableHoverActionsPlugin anchorElem={floatingAnchorElem} />
             </>
+          )}
+          {mentionsList && (
+            <MentionsPlugin mentionsList={mentionsList} />
           )}
           <HistoryPlugin />
         </Box>

@@ -1,5 +1,6 @@
 import { useFormContext, Controller } from "react-hook-form";
 import LexicalEditor from "@/components/Shared/LexicalEditor/LexicalEditor";
+import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { $getRoot } from "lexical";
 import { useMemo } from "react";
@@ -24,12 +25,14 @@ export default function ControlledLexicalEditor({
   placeholder = "Enter text...",
   isAdvanced = false,
   height,
+  mentionsList,
 }: {
   name: string;
   label: string;
   placeholder?: string;
   isAdvanced?: boolean;
   height?: string;
+  mentionsList?: MentionData[];
 }) {
   const {
     control,
@@ -56,6 +59,7 @@ export default function ControlledLexicalEditor({
               placeholder={placeholder}
               defaultHtml={field.value?.html}
               height={height}
+              mentionsList={mentionsList}
               onChange={(editorState, editor) => {
                 editorState.read(() => {
                   const editorStateHtmlString = $generateHtmlFromNodes(editor);
