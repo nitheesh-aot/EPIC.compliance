@@ -22,3 +22,10 @@ class InspectionStatusEnum(enum.Enum):
     OPEN = "Open"
     CLOSED = "Closed"
     CANCELED = "Canceled"
+
+
+class ImageType(enum.Enum):
+    """Type of images."""
+
+    PHOTO = "Photo"
+    FIGURE = "Figure"

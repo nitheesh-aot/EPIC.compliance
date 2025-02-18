@@ -29,7 +29,8 @@ from .inspection import (
     Inspection, InspectionAgency, InspectionAttendance, InspectionAttendanceOption, InspectionAttendanceOptionEnum,
     InspectionFirstnation, InspectionInitiationOption, InspectionOfficer, InspectionOtherAttendance,
     InspectionReqDetailDocument, InspectionReqEnforcementMap, InspectionReqSourceDetail, InspectionRequirement,
-    InspectionRequirementTypeEnum, InspectionStatusEnum, InspectionType, InspectionTypeOption, IRStatusOption)
+    InspectionRequirementImage, InspectionRequirementTypeEnum, InspectionStatusEnum, InspectionType,
+    InspectionTypeOption, IRStatusOption)
 from .position import Position
 from .project import Project
 from .req_source_document_map import RequirementSourceDocumentMap
