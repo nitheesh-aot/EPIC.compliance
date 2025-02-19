@@ -185,3 +185,39 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
     requirementSourceDetails: requirementSourceDetails,
   };
 };
+
+
+export const mentionDataListDummy = [
+  {
+    id: "1",
+    name: "Photo 1",
+    imageUrl:
+      "https://cdn-adventures-live.azureedge.net/adventurescache/2/3/c/0/8/0/23c0806cb9a350fbc5a345420251cfe6ed201c99.jpg",
+  },
+  {
+    id: "2",
+    name: "Photo 2",
+    imageUrl:
+      "https://cdn.discoverholidays.io/media/general/c/canadarailvacations-banner-mobile-canadian-rockies-winter-train-tours.jpg",
+  },
+  {
+    id: "3",
+    name: "Figure 1",
+    imageUrl: "figure_1.png",
+  },
+  {
+    id: "4",
+    name: "Figure 2",
+    imageUrl: "figure_2.png",
+  },
+  {
+    id: "5",
+    name: "Photo 3",
+    imageUrl: "photo_3.jpg",
+  },
+  {
+    id: "6",
+    name: "Photo 4",
+    imageUrl: "photo_4.jpg",
+  },
+]

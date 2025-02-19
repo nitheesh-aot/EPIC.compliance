@@ -13,6 +13,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 import {
   ComplianceFindingEnum,
   EnforcementActionEnum,
+  mentionDataListDummy,
   REGULATORY_CONSIDERATION_TYPE_ID,
   REQUIREMENT_TYPE_ID,
 } from "./RequirementUtils";
@@ -269,6 +270,8 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
           name="findings"
           placeholder="Enter Findings..."
           height={`calc(100vh - ${appHeaderHeight + 363}px)`}
+          isAdvanced
+          mentionsList={mentionDataListDummy}
         />
       </Box>
     );

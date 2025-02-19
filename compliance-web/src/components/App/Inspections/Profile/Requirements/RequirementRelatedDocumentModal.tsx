@@ -216,7 +216,11 @@ const RequirementRelatedDocumentModal: React.FC<
               />
             </Grid>
           </Grid>
-          <ControlledLexicalEditor label="Description" name="description" />
+          <ControlledLexicalEditor
+            label="Description"
+            name="description"
+            isAdvanced
+          />
         </DialogContent>
         <ModalActions
           primaryActionButtonText={
