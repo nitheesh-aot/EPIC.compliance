@@ -4,11 +4,13 @@ from flask import g
 
 from compliance_api.auth import auth
 from compliance_api.exceptions import BadRequestError, PermissionDeniedError, ResourceNotFoundError
+from compliance_api.models import ImageTypeEnum
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionReqDetailDocument as InspectionReqDetailDocumentModel
 from compliance_api.models import InspectionReqEnforcementMap as InspectionReqEnforcementMapModel
 from compliance_api.models import InspectionReqSourceDetail as InspectionReqSourceDetailModel
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
+from compliance_api.models import InspectionRequirementImage as InspectionRequirementImageModel
 from compliance_api.models.db import session_scope
 from compliance_api.utils.enum import PermissionEnum
 
@@ -46,6 +48,19 @@ class InspectionRequirementService:
                 requirement_data.get("enforcement_action_ids", []),
                 session,
             )
+            #  inserting photos
+            _insert_images(
+                requirement_id=created_requirement.id,
+                images=requirement_data.get("photos", []),
+                image_type=ImageTypeEnum.PHOTO,
+                session=session,
+            )
+            _insert_images(
+                requirement_id=created_requirement.id,
+                images=requirement_data.get("figures", []),
+                image_type=ImageTypeEnum.FIGURE,
+                session=session,
+            )
         return created_requirement
 
     @classmethod
@@ -69,6 +84,18 @@ class InspectionRequirementService:
                 requirement_id,
                 requirement_data.get("enforcement_action_ids", []),
                 session,
+            )
+            _update_images(
+                requirement_id=requirement_id,
+                images=requirement_data.get("photos", []),
+                image_type=ImageTypeEnum.PHOTO,
+                session=session,
+            )
+            _update_images(
+                requirement_id=requirement_id,
+                images=requirement_data.get("figures", []),
+                image_type=ImageTypeEnum.FIGURE,
+                session=session,
             )
         return updated_requirement
 
@@ -138,6 +165,63 @@ class InspectionRequirementService:
                 InspectionReqEnforcementMapModel.bulk_insert(
                     requirement_id, list(enf_ids_to_be_added), session
                 )
+
+    @classmethod
+    def get_all_images(cls, requirement_id, image_type: ImageTypeEnum):
+        """Get all photos."""
+        return InspectionRequirementImageModel.find_all_images(
+            requirement_id=requirement_id, image_type=image_type
+        )
+
+
+def _create_image_obj(requirement_id, index, img: dict, image_type):
+    """Prepare the image object."""
+    return {
+        "requirement_id": requirement_id,
+        "image_type": image_type,
+        "sort_order": index + 1,
+        "original_file_name": img.get("original_file_name"),
+        "date_taken": img.get("date_taken"),
+        "taken_by_id": img.get("taken_by_id"),
+        "caption": img.get("caption", None),
+        "relative_url": img.get("relative_url"),
+    }
+
+
+def _insert_images(
+    requirement_id, images: list[dict], image_type: ImageTypeEnum, session=None
+):
+    """Insert the images."""
+    if images and len(images) > 0:
+        images = [
+            InspectionRequirementImageModel(
+                **_create_image_obj(requirement_id, index, img, image_type)
+            )
+            for index, img in enumerate(images)
+        ]
+        InspectionRequirementImageModel.bulk_insert(images, session=session)
+
+
+def _update_images(
+    requirement_id, images: list[dict], image_type: ImageTypeEnum, session=None
+):
+    """Update the images."""
+    for index, img in enumerate(images):
+        if not img.get("id", None):
+            image_obj = _create_image_obj(
+                requirement_id=requirement_id,
+                index=index,
+                img=img,
+                image_type=image_type,
+            )
+            InspectionRequirementImageModel.create_image(
+                image_obj=image_obj, session=session
+            )
+        if img.get("id", None):
+            img["sort_order"] = index + 1
+            InspectionRequirementImageModel.update_image(
+                img.get("id"), img, session=session
+            )
 
 
 def _update_sort_order_subsequent(requirements, commit=False):
