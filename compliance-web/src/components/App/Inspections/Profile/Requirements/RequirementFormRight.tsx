@@ -12,6 +12,8 @@ import RequirementSourceCard from "./RequirementSourceCard";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import RequirementRelatedDocumentModal from "./RequirementRelatedDocumentModal";
 import { isRequirementSourceCondition } from "./RequirementUtils";
+import ImagesContainer from "./Images/ImagesContainer";
+import { ImageTypeEnum } from "./RequirementUtils";
 
 interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
@@ -286,6 +288,8 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       >
         Requirement Source
       </Button>
+      <ImagesContainer imageType={ImageTypeEnum.PHOTO} />
+      <ImagesContainer imageType={ImageTypeEnum.FIGURE} />
       {Object.entries(groupedData).map(([sourceId, items], index) => (
         <RequirementSourceCard
           key={sourceId}
