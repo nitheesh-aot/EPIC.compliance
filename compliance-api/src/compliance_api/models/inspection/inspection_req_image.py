@@ -4,7 +4,8 @@ from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from ..base_model import BaseModelVersioned
-from .inspection_enum import ImageType
+from ..utils import with_session
+from .inspection_enum import ImageTypeEnum
 
 
 class InspectionRequirementImage(BaseModelVersioned):
@@ -29,7 +30,7 @@ class InspectionRequirementImage(BaseModelVersioned):
     sort_order = Column(
         Integer, nullable=False, comment="The order of images. grouped by the type."
     )
-    image_type = Column(Enum(ImageType), nullable=False)
+    image_type = Column(Enum(ImageTypeEnum), nullable=False)
     original_file_name = Column(
         String, nullable=False, comment="The original filename of the uploaded image"
     )
@@ -45,10 +46,48 @@ class InspectionRequirementImage(BaseModelVersioned):
         comment="The unique identifier of the staff who captured the image",
     )
     caption = Column(String, nullable=True, comment="The caption of the image")
-    url = Column(
+    relative_url = Column(
         String, nullable=False, comment="The actual url of the final uploaded image"
     )
     taken_by = relationship("StaffUser", foreign_keys=[taken_by_id], lazy="joined")
     inspection_requirement = relationship(
         "InspectionRequirement", foreign_keys=[requirement_id], lazy="select"
     )
+
+    @classmethod
+    @with_session
+    def bulk_insert(cls, images, session=None):
+        """Insert images."""
+        session.add_all(images)
+        session.flush()
+
+    @classmethod
+    @with_session
+    def create_image(cls, image_obj, session=None):
+        """Persist the image object."""
+        img_obj = InspectionRequirementImage(**image_obj)
+        session.add(img_obj)
+        session.flush()
+        return img_obj
+
+    @classmethod
+    @with_session
+    def update_image(cls, image_id, image_data, session=None):
+        """Update image details."""
+        query = cls.query.filter_by(id=image_id)
+        image_detail: InspectionRequirementImage = query.first()
+        if not image_detail or image_detail.is_deleted:
+            return None
+        image_detail.update(image_data, commit=False)
+        session.flush()
+        return image_detail
+
+    @classmethod
+    def find_all_images(cls, requirement_id, image_type: ImageTypeEnum):
+        """Get all images by requirement_id."""
+        return cls.query.filter_by(
+            requirement_id=requirement_id,
+            image_type=image_type,
+            is_active=True,
+            is_deleted=False,
+        ).all()

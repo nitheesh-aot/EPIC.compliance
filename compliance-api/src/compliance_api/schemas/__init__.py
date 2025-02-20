@@ -27,8 +27,8 @@ from .inspection import (
     InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
     InspectionStatusSchema, InspectionUpdateSchema)
 from .inspection_requirement import (
-    InspectionRequirementCreateSchema, InspectionRequirementSchema, InspectionRequirementUpdateSchema,
-    InspectionSortOrderSchema)
+    InspectionReqImageCreateSchema, InspectionReqImageSchema, InspectionRequirementCreateSchema,
+    InspectionRequirementSchema, InspectionRequirementUpdateSchema, InspectionSortOrderSchema)
 from .paginate import PaginationParameterSchema
 from .project import ProjectSchema
 from .staff_user import StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateSchema

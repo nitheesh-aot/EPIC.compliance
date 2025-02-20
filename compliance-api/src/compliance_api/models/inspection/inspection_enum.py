@@ -24,7 +24,7 @@ class InspectionStatusEnum(enum.Enum):
     CANCELED = "Canceled"
 
 
-class ImageType(enum.Enum):
+class ImageTypeEnum(enum.Enum):
     """Type of images."""
 
     PHOTO = "Photo"

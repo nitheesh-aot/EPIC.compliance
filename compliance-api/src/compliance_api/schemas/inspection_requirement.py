@@ -16,12 +16,59 @@ from marshmallow import EXCLUDE, ValidationError, fields, post_dump, pre_dump, v
 from marshmallow_enum import EnumField
 
 from compliance_api.models import (
-    EnforcementActionOptionEnum, InspectionReqDetailDocument, InspectionReqSourceDetail, InspectionRequirement,
-    InspectionRequirementTypeEnum)
+    EnforcementActionOptionEnum, ImageTypeEnum, InspectionReqDetailDocument, InspectionReqSourceDetail,
+    InspectionRequirement, InspectionRequirementImage, InspectionRequirementTypeEnum)
 from compliance_api.models.requirement_source import RequirementSourceEnum
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .common import KeyValueSchema
+from .staff_user import StaffUserSchema
+
+
+class InspectionReqImageCreateSchema(BaseSchema):
+    """InspectionReqImageCreateSchema."""
+
+    original_file_name = fields.Str(
+        metadata={
+            "description": "The original file name given while the image is being taken"
+        },
+        required=True,
+    )
+    date_taken = fields.DateTime(
+        format=INPUT_DATE_TIME_FORMAT,
+        metadata={
+            "description": "The timestamp of when the image is captured in ISO 8601 format."
+        },
+        required=True,
+        error_messages={
+            "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
+        },
+    )
+    taken_by_id = fields.Int(
+        metadata={
+            "description": "The unique identifier of the staff who took the image"
+        },
+        required=True,
+    )
+    caption = fields.Str(
+        metadata={"description": "The caption given to the image"}, allow_none=True
+    )
+    relative_url = fields.Str(
+        metadata={"description": "The relative url of the final uploaded image"},
+        required=True,
+    )
+
+
+class InspectionReqImageUpdateSchema(InspectionReqImageCreateSchema):
+    """InspectionReqImageUpdateSchema."""
+
+    id = fields.Int(
+        metadata={
+            "description": "The unique identifier of the requirement image entity"
+        },
+        allow_none=True,
+    )
 
 
 class InspectionReqDetailDocCreateSchema(BaseSchema):
@@ -192,6 +239,8 @@ class InspectionRequirementCreateSchema(BaseSchema):
     requirement_source_details = fields.List(
         fields.Nested(InspectionReqSourceDetailCreateSchema)
     )
+    photos = fields.List(fields.Nested(InspectionReqImageCreateSchema))
+    figures = fields.List(fields.Nested(InspectionReqImageCreateSchema))
 
     @validates_schema
     def validate_agency_id(
@@ -221,6 +270,8 @@ class InspectionRequirementUpdateSchema(InspectionRequirementCreateSchema):
     requirement_source_details = fields.List(
         fields.Nested(InspectionReqSourceDetailUpdateSchema)
     )
+    photos = fields.List(fields.Nested(InspectionReqImageUpdateSchema))
+    figures = fields.List(fields.Nested(InspectionReqImageUpdateSchema))
 
 
 class InspectionSortOrderSchema(BaseSchema):
@@ -310,4 +361,25 @@ class InspectionRequirementSchema(AutoSchemaBase):  # pylint: disable=too-many-a
             "id": data.get("req_type").name,
             "name": data.get("req_type").value,
         }
+        return data
+
+
+class InspectionReqImageSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
+    """InspectionReqSourceSchema."""
+
+    class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
+        """Meta."""
+
+        unknown = EXCLUDE
+        model = InspectionRequirementImage
+        include_fk = True
+
+    taken_by = fields.Nested(StaffUserSchema)
+
+    @post_dump
+    def post_dump_image_type(
+        self, data, many, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Extract the value of the image type enum."""
+        data["image_type"] = ImageTypeEnum(data["image_type"]).value
         return data
