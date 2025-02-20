@@ -21,6 +21,11 @@ export enum ComplianceFindingEnum {
   IN = "1",
 }
 
+export enum ImageTypeEnum {
+  PHOTO,
+  FIGURE,
+}
+
 export const RequirementFormSchema = yup.object().shape({
   requirementType: yup.object<InspectionRequirementType>().nullable().required("Requirement Type is required"),
   requirementSummary: yup.string().required("Summary is required"),
