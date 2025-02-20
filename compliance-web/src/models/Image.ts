@@ -7,6 +7,8 @@ export interface Image {
   takenBy?: StaffUser;
   sortOrder?: number;
   imageUrl?: string;
+  imageFileName?: string;
+  imageFileDate?: string;
 }
 
 export interface ImageFormData {

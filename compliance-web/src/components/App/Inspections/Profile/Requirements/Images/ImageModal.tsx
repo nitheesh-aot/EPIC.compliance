@@ -82,7 +82,9 @@ const ImageModal: React.FC<ImageModalProps> = ({
               }}
             >
               <img
-                src={file ? URL.createObjectURL(file) : ""}
+                src={
+                  file ? URL.createObjectURL(file) : imageData?.imageUrl || ""
+                }
                 alt="Preview"
                 style={{ maxHeight: "100%", maxWidth: "100%" }}
               />
@@ -108,7 +110,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
               />
               <GridLabelValuePair
                 label="File Name"
-                value={file ? file.name : "No file selected"}
+                value={file ? file.name : imageData?.imageFileName || "No file selected"}
                 gridProps={{ xs: 6 }}
                 isBold
               />
@@ -117,7 +119,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 value={
                   file
                     ? new Date(file.lastModified).toLocaleDateString()
-                    : "No file selected"
+                    : imageData?.imageFileDate || "No file selected"
                 }
                 gridProps={{ xs: 4 }}
                 isBold
@@ -130,13 +132,10 @@ const ImageModal: React.FC<ImageModalProps> = ({
               getOptionLabel={(option) => option.name}
               getOptionKey={(option) => option.id}
               isOptionEqualToValue={(option, value) => option.id === value.id}
-              disabled={!!imageData}
             />
             <ControlledTextField name="caption" label="Caption" fullWidth />
           </DialogContent>
-          <ModalActions
-            primaryActionButtonText={imageData ? "Save" : "Add"}
-          />
+          <ModalActions primaryActionButtonText={imageData ? "Save" : "Add"} />
         </form>
       </FormProvider>
     </>

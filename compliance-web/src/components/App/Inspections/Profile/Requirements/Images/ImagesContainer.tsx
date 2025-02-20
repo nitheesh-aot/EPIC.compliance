@@ -48,6 +48,8 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(({ imageType }) => {
       caption: "A photo of a family walking to the ice explorer",
       imageUrl:
         "https://www.banffjaspercollection.com/getmedia/b6290bdd-b11c-4bcf-9166-a5f4642f9276/PX-Family-Walking-to-Ice-Explorer.jpg?width=1400&height=850&ext=.jpg",
+      imageFileName: "Family Walking to Ice Explorer.jpg",
+      imageFileDate: "2024-01-01",
     },
     {
       id: 2,
@@ -67,9 +69,11 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(({ imageType }) => {
       caption: "A photo of a skywalk",
       imageUrl:
         "https://www.banffjaspercollection.com/Brewster/media/Images/Attractions/Columbia-Icefield/Skywalk/PX-Columbia-Icefields-Skywalk.jpg?ext=.jpg",
+      imageFileName: "Columbia Icefields Skywalk.jpg",
+      imageFileDate: "2024-01-01",
     },
     {
-      id: 2,
+      id: 3,
       takenBy: {
         position: {
           id: "3",
@@ -86,6 +90,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(({ imageType }) => {
       caption: "A photo of a skywalk",
       imageUrl:
         "https://www.banffjaspercollection.com/getmedia/c81f4c67-8c96-4bbd-a125-06172c142306/PX-Sherp-Driving-on-Rocky-Road.jpg?width=1400&height=850&ext=.jpg",
+      imageFileName: "Sherp Driving on Rocky Road.jpg",
     },
   ];
 
@@ -110,6 +115,20 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(({ imageType }) => {
       }
     };
     input.click();
+  };
+
+  const handleImageClick = (image: Image) => {
+    setOpen({
+      content: (
+        <ImageModal
+          onSubmit={() => {
+            setClose();
+          }}
+          imageData={image}
+        />
+      ),
+      width: "640px",
+    });
   };
 
   return (
@@ -190,7 +209,16 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(({ imageType }) => {
         {images.length > 0 && (
           <Grid container spacing={2}>
             {images.map((image, index) => (
-              <Grid item xs={6} key={image.id} mb={1}>
+              <Grid
+                item
+                xs={6}
+                key={image.id}
+                sx={{
+                  cursor: "pointer",
+                  mb: 1,
+                }}
+                onClick={() => handleImageClick(image)}
+              >
                 <Box
                   sx={{
                     height: "150px",
