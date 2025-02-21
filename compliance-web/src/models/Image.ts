@@ -17,3 +17,12 @@ export interface ImageFormData {
   takenBy?: StaffUser;
 }
 
+export interface ImageUploadAPIData {
+  inspectionId: number;
+  fileName: string;
+  file: File;
+}
+export interface PresignedUrlRequestPayload {
+  relative_url: string;
+  action?: string;
+} 

@@ -12,11 +12,13 @@ import { BCDesignTokens } from "epic.theme";
 import GridLabelValuePair from "../GridLabelValuePair";
 import { ImageFormData, Image } from "@/models/Image";
 import { useEffect, useMemo } from "react";
+import { useImageUpload } from "@/hooks/useImageUpload";
 
 type ImageModalProps = {
   file?: File;
   onSubmit: (data: ImageFormData) => void;
   imageData?: Image;
+  inspectionId: number;
 };
 
 const imageFormSchema = yup.object().shape({
@@ -35,6 +37,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
   file,
   onSubmit,
   imageData,
+  inspectionId,
 }) => {
   const { data: staffUserList } = useStaffUsersData();
 
@@ -55,12 +58,24 @@ const ImageModal: React.FC<ImageModalProps> = ({
 
   const { handleSubmit, reset } = methods;
 
+  const onSuccess = () => {
+    // eslint-disable-next-line no-console
+    console.log("Image uploaded successfully");
+  };
+
+  const { mutate: uploadImage } = useImageUpload(onSuccess);
+
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
 
   const onSubmitHandler = (data: ImageSchemaType) => {
     const formData = data as ImageFormData;
+    uploadImage({
+      inspectionId,
+      fileName: file?.name ?? "",
+      file: file ?? new File([], ""),
+    });
     onSubmit(formData);
   };
 
@@ -110,7 +125,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
               />
               <GridLabelValuePair
                 label="File Name"
-                value={file ? file.name : imageData?.imageFileName || "No file selected"}
+                value={
+                  file
+                    ? file.name
+                    : imageData?.imageFileName || "No file selected"
+                }
                 gridProps={{ xs: 6 }}
                 isBold
               />
@@ -135,7 +154,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
             />
             <ControlledTextField name="caption" label="Caption" fullWidth />
           </DialogContent>
-          <ModalActions primaryActionButtonText={imageData ? "Save" : "Add"} />
+          <ModalActions
+            primaryActionButtonText={imageData ? "Save" : "Add"}
+            onDeleteAction={() => {}}
+            onDeleteConfirmationText="Are you sure you want to delete this Photo?"
+          />
         </form>
       </FormProvider>
     </>

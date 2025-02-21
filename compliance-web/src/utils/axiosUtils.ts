@@ -67,3 +67,14 @@ export const requestTrackAPI = ({ ...options }) => {
   setAuthToken(client);
   return client(options).then(onSuccess).catch(onError);
 };
+
+export const requestDocumentAPI = ({ ...options }) => {
+  const client = axios.create({ baseURL: AppConfig.documentAPIUrl });
+  setAuthToken(client);
+  return client(options).then(onSuccess).catch(onError);
+};
+
+export const requestAxios = ({ ...options }) => {
+  const client = axios.create(options);
+  return client(options).then(onSuccess).catch(onError);
+};

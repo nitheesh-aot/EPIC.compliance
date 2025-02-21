@@ -18,11 +18,13 @@ import { ImageTypeEnum } from "./RequirementUtils";
 interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
   requirementSourceFormDataList: RequirementSourceFormData[];
+  inspectionId: number;
 }
 
 const RequirementFormRight: FC<RequirementFormRightProps> = ({
   onDataChange,
   requirementSourceFormDataList,
+  inspectionId,
 }) => {
   const { setOpen, setClose } = useModal();
   const [requirementSourceFormData, setRequirementSourceFormData] = useState<
@@ -288,8 +290,14 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       >
         Requirement Source
       </Button>
-      <ImagesContainer imageType={ImageTypeEnum.PHOTO} />
-      <ImagesContainer imageType={ImageTypeEnum.FIGURE} />
+      <ImagesContainer
+        imageType={ImageTypeEnum.PHOTO}
+        inspectionId={inspectionId}
+      />
+      <ImagesContainer
+        imageType={ImageTypeEnum.FIGURE}
+        inspectionId={inspectionId}
+      />
       {Object.entries(groupedData).map(([sourceId, items], index) => (
         <RequirementSourceCard
           key={sourceId}

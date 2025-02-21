@@ -12,6 +12,7 @@ type ModalActionsProps = {
   onSecondaryAction?: () => void;
   isButtonValidation?: boolean;
   onDeleteAction?: () => void;
+  onDeleteConfirmationText?: string;
 };
 
 const ModalActions: FC<ModalActionsProps> = ({
@@ -21,6 +22,7 @@ const ModalActions: FC<ModalActionsProps> = ({
   onSecondaryAction,
   isButtonValidation,
   onDeleteAction,
+  onDeleteConfirmationText = "Are you sure you want to delete this?",
 }) => {
   const { setClose } = useModal();
   const formContext = useFormContext();
@@ -88,9 +90,7 @@ const ModalActions: FC<ModalActionsProps> = ({
             <Typography variant="body1" fontWeight={"bold"}>
               Delete Confirmation
             </Typography>
-            <Typography variant="body1">
-              Are you sure you want to delete this entry?
-            </Typography>
+            <Typography variant="body1">{onDeleteConfirmationText}</Typography>
           </Box>
           <Button
             sx={{ minWidth: 100, height: 40 }}
@@ -101,7 +101,11 @@ const ModalActions: FC<ModalActionsProps> = ({
           >
             No, Cancel
           </Button>
-          <Button sx={{ minWidth: 100, height: 40 }} onClick={onDeleteAction} color="error">
+          <Button
+            sx={{ minWidth: 100, height: 40 }}
+            onClick={onDeleteAction}
+            color="error"
+          >
             Yes, Delete
           </Button>
         </Box>
