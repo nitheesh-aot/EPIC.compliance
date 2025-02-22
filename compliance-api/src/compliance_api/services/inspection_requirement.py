@@ -1,9 +1,11 @@
 """InspectionRequirementService."""
 
+import requests
 from flask import g
 
 from compliance_api.auth import auth
-from compliance_api.exceptions import BadRequestError, PermissionDeniedError, ResourceNotFoundError
+from compliance_api.exceptions import (
+    BadRequestError, PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError)
 from compliance_api.models import ImageTypeEnum
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionReqDetailDocument as InspectionReqDetailDocumentModel
@@ -12,6 +14,8 @@ from compliance_api.models import InspectionReqSourceDetail as InspectionReqSour
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models import InspectionRequirementImage as InspectionRequirementImageModel
 from compliance_api.models.db import session_scope
+from compliance_api.services.document_service.doc_service import DocService
+from compliance_api.services.document_service.doc_service_enum import ActionOnFileEnum
 from compliance_api.utils.enum import PermissionEnum
 
 
@@ -167,11 +171,39 @@ class InspectionRequirementService:
                 )
 
     @classmethod
-    def get_all_images(cls, requirement_id, image_type: ImageTypeEnum):
+    def get_all_images(cls, inspection_id, requirement_id, image_type: ImageTypeEnum):
         """Get all photos."""
+        _inspection_check(inspection_id)
+        _requirement_check(requirement_id)
         return InspectionRequirementImageModel.find_all_images(
             requirement_id=requirement_id, image_type=image_type
         )
+
+    @classmethod
+    def delete_image(cls, inspection_id, requirement_id, relative_url, image_type):
+        """Delete image."""
+        _inspection_check(inspection_id)
+        _requirement_check(requirement_id)
+        image = InspectionRequirementImageModel.find_image_by_url(
+            requirement_id, relative_url, image_type
+        )
+        if not image:
+            raise UnprocessableEntityError(
+                f"No {image_type.value} found for the given relative url"
+            )
+        #  Get the presigned delete url for the file
+        presigned_url_response = DocService.get_presigned_url(
+            {
+                "relative_url": image.relative_url,
+                "action": ActionOnFileEnum.DELETE.value,
+            }
+        )
+        presigned_delete_url = presigned_url_response.get("presigned_url")
+        #  Delete the actual file from cloud storage
+        delete_response = requests.delete(presigned_delete_url, timeout=120)
+        #  Mark the deletion in the inspection_req_images table
+        InspectionRequirementImageModel.delete_image(image.id)
+        return delete_response
 
 
 def _create_image_obj(requirement_id, index, img: dict, image_type):
