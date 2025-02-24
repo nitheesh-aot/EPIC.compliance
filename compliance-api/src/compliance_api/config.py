@@ -83,6 +83,7 @@ class _Config:  # pylint: disable=too-few-public-methods
     KEYCLOAK_ADMIN_SECRET = os.getenv("MET_ADMIN_CLIENT_SECRET")
     AUTH_BASE_URL = os.getenv("AUTH_BASE_URL")
     EPIC_TRACK_URL = os.getenv("EPIC_TRACK_URL")
+    DOC_SERVICE_URL = os.getenv("DOC_SERVICE_URL")
 
     JWT_OIDC_WELL_KNOWN_CONFIG = os.getenv("JWT_OIDC_WELL_KNOWN_CONFIG")
     JWT_OIDC_ALGORITHMS = os.getenv("JWT_OIDC_ALGORITHMS", "RS256")
