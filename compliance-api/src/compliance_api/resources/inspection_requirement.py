@@ -2,9 +2,11 @@
 
 from http import HTTPStatus
 
+from flask import request
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
+from compliance_api.exceptions import BadRequestError
 from compliance_api.models.inspection import ImageTypeEnum
 from compliance_api.schemas.inspection_requirement import (
     InspectionReqImageSchema, InspectionRequirementCreateSchema, InspectionRequirementSchema,
@@ -164,12 +166,31 @@ class InspectionReqPhotos(Resource):
     )
     @auth.require
     @API.response(code=200, description="Success", model=[inspesction_req_image_schema])
-    def get(requirement_id):
+    def get(inspection_id, requirement_id):
         """Get all photos by requirement_id."""
         photos = InspectionRequirementService.get_all_images(
-            requirement_id, ImageTypeEnum.PHOTO
+            inspection_id, requirement_id, ImageTypeEnum.PHOTO
         )
         return InspectionReqImageSchema(many=True).dump(photos), HTTPStatus.OK
+
+    @staticmethod
+    @auth.require
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER])
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Delete an inspection requirement photo"
+    )
+    @API.response(code=204, description="Success")
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
+    def delete(inspection_id, requirement_id):
+        """Delete complaint."""
+        relative_url = request.args.get("relative_url", None)
+        if not relative_url:
+            raise BadRequestError("No 'relative_url' is passed as query parameter")
+        InspectionRequirementService.delete_image(
+            inspection_id, requirement_id, relative_url, ImageTypeEnum.PHOTO
+        )
+        return {}, HTTPStatus.NO_CONTENT
 
 
 @cors_preflight("GET, OPTIONS, DELETE")
@@ -183,9 +204,28 @@ class InspectionReqFigures(Resource):
     )
     @auth.require
     @API.response(code=200, description="Success", model=[inspesction_req_image_schema])
-    def get(requirement_id):
+    def get(inspection_id, requirement_id):
         """Get all figures by requirement_id."""
         figures = InspectionRequirementService.get_all_images(
-            requirement_id, ImageTypeEnum.FIGURE
+            inspection_id, requirement_id, ImageTypeEnum.FIGURE
         )
         return InspectionReqImageSchema(many=True).dump(figures), HTTPStatus.OK
+
+    @staticmethod
+    @auth.require
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER])
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Delete an inspection requirement figure"
+    )
+    @API.response(code=204, description="Success")
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
+    def delete(inspection_id, requirement_id):
+        """Delete complaint."""
+        relative_url = request.args.get("relative_url", None)
+        if not relative_url:
+            raise BadRequestError("No 'relative_url' is passed as query parameter")
+        InspectionRequirementService.delete_image(
+            inspection_id, requirement_id, relative_url, ImageTypeEnum.FIGURE
+        )
+        return {}, HTTPStatus.NO_CONTENT
