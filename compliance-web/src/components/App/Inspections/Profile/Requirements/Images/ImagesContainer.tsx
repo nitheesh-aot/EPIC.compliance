@@ -6,7 +6,6 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Link,
   Grid,
 } from "@mui/material";
 import {
@@ -19,6 +18,85 @@ import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements
 import { useModal } from "@/store/modalStore";
 import ImageModal from "./ImageModal";
 import { Image } from "@/models/Image";
+import ImageCard from "./ImageCard";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+
+const imagesDummyData: Image[] = [
+  {
+    id: 1,
+    takenBy: {
+      position: {
+        id: "3",
+        name: "Deputy Director, Compliance & Enforcement Operations",
+      },
+      name: "Maggie Chard",
+      id: 1,
+      first_name: "Maggie",
+      last_name: "Chard",
+      position_id: 3,
+      auth_user_guid: "0b98f18a9179454aafbc9cf87060b169@idir",
+      is_active: true,
+    },
+    caption: "A photo of a family walking to the ice explorer",
+    imageUrl:
+      "https://www.banffjaspercollection.com/getmedia/b6290bdd-b11c-4bcf-9166-a5f4642f9276/PX-Family-Walking-to-Ice-Explorer.jpg?width=1400&height=850&ext=.jpg",
+    imageFileName: "Family Walking to Ice Explorer.jpg",
+    imageFileDate: "2024-01-01",
+  },
+  {
+    id: 2,
+    takenBy: {
+      position: {
+        id: "3",
+        name: "Deputy Director, Compliance & Enforcement Operations",
+      },
+      name: "Maggie Chard",
+      id: 1,
+      first_name: "Maggie",
+      last_name: "Chard",
+      position_id: 3,
+      auth_user_guid: "0b98f18a9179454aafbc9cf87060b169@idir",
+      is_active: true,
+    },
+    caption: "A photo of a skywalk",
+    imageUrl:
+      "https://www.banffjaspercollection.com/Brewster/media/Images/Attractions/Columbia-Icefield/Skywalk/PX-Columbia-Icefields-Skywalk.jpg?ext=.jpg",
+    imageFileName: "Columbia Icefields Skywalk.jpg",
+    imageFileDate: "2024-01-01",
+  },
+  {
+    id: 3,
+    takenBy: {
+      position: {
+        id: "3",
+        name: "Deputy Director, Compliance & Enforcement Operations",
+      },
+      name: "Maggie Chard",
+      id: 1,
+      first_name: "Maggie",
+      last_name: "Chard",
+      position_id: 3,
+      auth_user_guid: "0b98f18a9179454aafbc9cf87060b169@idir",
+      is_active: true,
+    },
+    caption: "A photo of a skywalk",
+    imageUrl:
+      "https://www.banffjaspercollection.com/getmedia/c81f4c67-8c96-4bbd-a125-06172c142306/PX-Sherp-Driving-on-Rocky-Road.jpg?width=1400&height=850&ext=.jpg",
+    imageFileName: "Sherp Driving on Rocky Road.jpg",
+  },
+];
 
 type ImagesContainerProps = {
   imageType: ImageTypeEnum;
@@ -29,73 +107,28 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
   ({ imageType, inspectionId }) => {
     const { setOpen, setClose } = useModal();
     const [isExpanded, setIsExpanded] = useState(false);
+    const [images, setImages] = useState(imagesDummyData);
 
     const isPhoto = imageType === ImageTypeEnum.PHOTO;
 
-    const images: Image[] = [
-      {
-        id: 1,
-        takenBy: {
-          position: {
-            id: "3",
-            name: "Deputy Director, Compliance & Enforcement Operations",
-          },
-          name: "Maggie Chard",
-          id: 1,
-          first_name: "Maggie",
-          last_name: "Chard",
-          position_id: 3,
-          auth_user_guid: "0b98f18a9179454aafbc9cf87060b169@idir",
-          is_active: true,
-        },
-        caption: "A photo of a family walking to the ice explorer",
-        imageUrl:
-          "https://www.banffjaspercollection.com/getmedia/b6290bdd-b11c-4bcf-9166-a5f4642f9276/PX-Family-Walking-to-Ice-Explorer.jpg?width=1400&height=850&ext=.jpg",
-        imageFileName: "Family Walking to Ice Explorer.jpg",
-        imageFileDate: "2024-01-01",
-      },
-      {
-        id: 2,
-        takenBy: {
-          position: {
-            id: "3",
-            name: "Deputy Director, Compliance & Enforcement Operations",
-          },
-          name: "Maggie Chard",
-          id: 1,
-          first_name: "Maggie",
-          last_name: "Chard",
-          position_id: 3,
-          auth_user_guid: "0b98f18a9179454aafbc9cf87060b169@idir",
-          is_active: true,
-        },
-        caption: "A photo of a skywalk",
-        imageUrl:
-          "https://www.banffjaspercollection.com/Brewster/media/Images/Attractions/Columbia-Icefield/Skywalk/PX-Columbia-Icefields-Skywalk.jpg?ext=.jpg",
-        imageFileName: "Columbia Icefields Skywalk.jpg",
-        imageFileDate: "2024-01-01",
-      },
-      {
-        id: 3,
-        takenBy: {
-          position: {
-            id: "3",
-            name: "Deputy Director, Compliance & Enforcement Operations",
-          },
-          name: "Maggie Chard",
-          id: 1,
-          first_name: "Maggie",
-          last_name: "Chard",
-          position_id: 3,
-          auth_user_guid: "0b98f18a9179454aafbc9cf87060b169@idir",
-          is_active: true,
-        },
-        caption: "A photo of a skywalk",
-        imageUrl:
-          "https://www.banffjaspercollection.com/getmedia/c81f4c67-8c96-4bbd-a125-06172c142306/PX-Sherp-Driving-on-Rocky-Road.jpg?width=1400&height=850&ext=.jpg",
-        imageFileName: "Sherp Driving on Rocky Road.jpg",
-      },
-    ];
+    const sensors = useSensors(useSensor(PointerSensor));
+
+    function handleDragEnd(event: DragEndEvent) {
+      const { active, over } = event;
+
+      if (active.id !== over?.id) {
+        setImages((items) => {
+          const oldIndex = items
+            .map((item) => item.id)
+            .indexOf(active.id as number);
+          const newIndex = items
+            .map((item) => item.id)
+            .indexOf(over?.id as number);
+
+          return arrayMove(items, oldIndex, newIndex);
+        });
+      }
+    }
 
     const selectImage = () => {
       const input = document.createElement("input");
@@ -213,33 +246,26 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
           )}
           {images.length > 0 && (
             <Grid container spacing={2}>
-              {images.map((image, index) => (
-                <Grid
-                  item
-                  xs={6}
-                  key={image.id}
-                  sx={{
-                    cursor: "pointer",
-                    mb: 1,
-                  }}
-                  onClick={() => handleImageClick(image)}
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={images.map((image) => image.id ?? 0)}
+                  strategy={rectSortingStrategy}
                 >
-                  <Box
-                    sx={{
-                      height: "150px",
-                    }}
-                  >
-                    <img
-                      src={image.imageUrl}
-                      alt={image.caption}
-                      width={"100%"}
+                  {images.map((image, index) => (
+                    <ImageCard
+                      key={image.id}
+                      image={image}
+                      handleImageClick={handleImageClick}
+                      isPhoto={isPhoto}
+                      index={index}
                     />
-                  </Box>
-                  <Link>
-                    {isPhoto ? "Photo" : "Figure"} {index + 1}: {image.caption}
-                  </Link>
-                </Grid>
-              ))}
+                  ))}
+                </SortableContext>
+              </DndContext>
             </Grid>
           )}
         </AccordionDetails>

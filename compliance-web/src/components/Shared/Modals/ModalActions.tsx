@@ -1,6 +1,12 @@
 import { useModal } from "@/store/modalStore";
 import { DeleteOutlineRounded } from "@mui/icons-material";
-import { Box, Button, DialogActions, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  DialogActions,
+  Typography,
+} from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { FC, useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -13,6 +19,7 @@ type ModalActionsProps = {
   isButtonValidation?: boolean;
   onDeleteAction?: () => void;
   onDeleteConfirmationText?: string;
+  isLoading?: boolean;
 };
 
 const ModalActions: FC<ModalActionsProps> = ({
@@ -23,6 +30,7 @@ const ModalActions: FC<ModalActionsProps> = ({
   isButtonValidation,
   onDeleteAction,
   onDeleteConfirmationText = "Are you sure you want to delete this?",
+  isLoading = false,
 }) => {
   const { setClose } = useModal();
   const formContext = useFormContext();
@@ -70,7 +78,11 @@ const ModalActions: FC<ModalActionsProps> = ({
                 (!!isButtonValidation && !isValid) || showDeleteConfirmation
               }
             >
-              {primaryActionButtonText ?? "Ok"}
+              {isLoading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                (primaryActionButtonText ?? "Ok")
+              )}
             </Button>
           </Box>
         </DialogActions>

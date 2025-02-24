@@ -58,12 +58,13 @@ const ImageModal: React.FC<ImageModalProps> = ({
 
   const { handleSubmit, reset } = methods;
 
-  const onSuccess = () => {
+  const onSuccess = (data: ImageFormData) => {
     // eslint-disable-next-line no-console
     console.log("Image uploaded successfully");
+    onSubmit(data);
   };
 
-  const { mutate: uploadImage } = useImageUpload(onSuccess);
+  const { mutate: uploadImage, isPending } = useImageUpload(onSuccess);
 
   useEffect(() => {
     reset(defaultValues);
@@ -71,12 +72,13 @@ const ImageModal: React.FC<ImageModalProps> = ({
 
   const onSubmitHandler = (data: ImageSchemaType) => {
     const formData = data as ImageFormData;
+    // eslint-disable-next-line no-console
+    console.log("formData", formData);
     uploadImage({
       inspectionId,
       fileName: file?.name ?? "",
       file: file ?? new File([], ""),
     });
-    onSubmit(formData);
   };
 
   return (
@@ -158,6 +160,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
             primaryActionButtonText={imageData ? "Save" : "Add"}
             onDeleteAction={() => {}}
             onDeleteConfirmationText="Are you sure you want to delete this Photo?"
+            isLoading={isPending}
           />
         </form>
       </FormProvider>
