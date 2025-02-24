@@ -15,6 +15,7 @@
 """This exports all of the models and schemas used by the application."""
 
 from .agency import Agency
+from .appendix import Appendix
 from .case_file import (
     CaseFile, CaseFileInitiationEnum, CaseFileInitiationOption, CaseFileLink, CaseFileOfficer, CaseFileStatusEnum)
 from .complaint import (
