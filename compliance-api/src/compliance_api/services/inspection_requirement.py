@@ -53,13 +53,13 @@ class InspectionRequirementService:
                 session,
             )
             #  inserting photos
-            _insert_images(
+            _insert_or_update_images(
                 requirement_id=created_requirement.id,
                 images=requirement_data.get("photos", []),
                 image_type=ImageTypeEnum.PHOTO,
                 session=session,
             )
-            _insert_images(
+            _insert_or_update_images(
                 requirement_id=created_requirement.id,
                 images=requirement_data.get("figures", []),
                 image_type=ImageTypeEnum.FIGURE,
@@ -89,13 +89,13 @@ class InspectionRequirementService:
                 requirement_data.get("enforcement_action_ids", []),
                 session,
             )
-            _update_images(
+            _insert_or_update_images(
                 requirement_id=requirement_id,
                 images=requirement_data.get("photos", []),
                 image_type=ImageTypeEnum.PHOTO,
                 session=session,
             )
-            _update_images(
+            _insert_or_update_images(
                 requirement_id=requirement_id,
                 images=requirement_data.get("figures", []),
                 image_type=ImageTypeEnum.FIGURE,
@@ -220,26 +220,33 @@ def _create_image_obj(requirement_id, index, img: dict, image_type):
     }
 
 
-def _insert_images(
-    requirement_id, images: list[dict], image_type: ImageTypeEnum, session=None
-):
-    """Insert the images."""
-    if images and len(images) > 0:
-        images = [
-            InspectionRequirementImageModel(
-                **_create_image_obj(requirement_id, index, img, image_type)
-            )
-            for index, img in enumerate(images)
-        ]
-        InspectionRequirementImageModel.bulk_insert(images, session=session)
-
-
-def _update_images(
+def _insert_or_update_images(
     requirement_id, images: list[dict], image_type: ImageTypeEnum, session=None
 ):
     """Update the images."""
+    # Fetch existing images from the database
+    existing_images = InspectionRequirementImageModel.find_all_images(
+        requirement_id=requirement_id, image_type=image_type
+    )
+    existing_image_ids = {img.id for img in existing_images}
+
+    # Track incoming image IDs (existing ones)
+    incoming_image_ids = {img["id"] for img in images if "id" in img}
+
+    # DELETE: Remove images that exist in DB but are not in the new list
+    images_to_delete = existing_image_ids - incoming_image_ids
+    for image_id in images_to_delete:
+        InspectionRequirementImageModel.delete_image(image_id, session=session)
+
+    # INSERT or UPDATE images while maintaining order
     for index, img in enumerate(images):
-        if not img.get("id", None):
+        img["sort_order"] = index + 1  # Maintain order
+
+        if "id" in img:  # Update existing image
+            InspectionRequirementImageModel.update_image(
+                img["id"], img, session=session
+            )
+        else:  # Insert new image
             image_obj = _create_image_obj(
                 requirement_id=requirement_id,
                 index=index,
@@ -248,11 +255,6 @@ def _update_images(
             )
             InspectionRequirementImageModel.create_image(
                 image_obj=image_obj, session=session
-            )
-        if img.get("id", None):
-            img["sort_order"] = index + 1
-            InspectionRequirementImageModel.update_image(
-                img.get("id"), img, session=session
             )
 
 
