@@ -175,9 +175,23 @@ class InspectionRequirementService:
         """Get all photos."""
         _inspection_check(inspection_id)
         _requirement_check(requirement_id)
-        return InspectionRequirementImageModel.find_all_images(
+        images = InspectionRequirementImageModel.find_all_images(
             requirement_id=requirement_id, image_type=image_type
         )
+
+        for image in images:
+            presigned_url_reponse = DocService.get_presigned_url(
+                {
+                    "relative_url": image.relative_url,
+                    "action": ActionOnFileEnum.GET.value,
+                }
+            )
+            setattr(
+                image,
+                "url",
+                presigned_url_reponse["presigned_url"],
+            )
+        return images
 
     @classmethod
     def delete_image(cls, inspection_id, requirement_id, relative_url, image_type):

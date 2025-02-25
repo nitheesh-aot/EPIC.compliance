@@ -210,22 +210,3 @@ class InspectionReqFigures(Resource):
             inspection_id, requirement_id, ImageTypeEnum.FIGURE
         )
         return InspectionReqImageSchema(many=True).dump(figures), HTTPStatus.OK
-
-    @staticmethod
-    @auth.require
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER])
-    @ApiHelper.swagger_decorators(
-        API, endpoint_description="Delete an inspection requirement figure"
-    )
-    @API.response(code=204, description="Success")
-    @API.response(400, "Bad Request")
-    @API.response(404, "Not Found")
-    def delete(inspection_id, requirement_id):
-        """Delete complaint."""
-        relative_url = request.args.get("relative_url", None)
-        if not relative_url:
-            raise BadRequestError("No 'relative_url' is passed as query parameter")
-        InspectionRequirementService.delete_image(
-            inspection_id, requirement_id, relative_url, ImageTypeEnum.FIGURE
-        )
-        return {}, HTTPStatus.NO_CONTENT

@@ -8,3 +8,4 @@ class ActionOnFileEnum(Enum):
 
     PUT = "PUT"
     DELETE = "DELETE"
+    GET = "GET"
