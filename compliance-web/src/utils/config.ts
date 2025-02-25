@@ -12,6 +12,8 @@ declare global {
       VITE_OIDC_AUTHORITY: string;
       VITE_CLIENT_ID: string;
       VITE_INPROGRESS_FEATURES: string[];
+      VITE_AWS_S3_URL: string;
+      VITE_AWS_S3_BUCKET_NAME: string;
     };
   }
 }
@@ -33,6 +35,8 @@ const APP_URL = window._env_?.VITE_APP_URL || import.meta.env.VITE_APP_URL;
 const OIDC_AUTHORITY = window._env_?.VITE_OIDC_AUTHORITY || import.meta.env.VITE_OIDC_AUTHORITY;
 const CLIENT_ID = window._env_?.VITE_CLIENT_ID || import.meta.env.VITE_CLIENT_ID;
 const INPROGRESS_FEATURES = window._env_?.VITE_INPROGRESS_FEATURES || import.meta.env.VITE_INPROGRESS_FEATURES;
+const AWS_S3_URL = window._env_?.VITE_AWS_S3_URL || import.meta.env.VITE_AWS_S3_URL;
+const AWS_S3_BUCKET_NAME = window._env_?.VITE_AWS_S3_BUCKET_NAME || import.meta.env.VITE_AWS_S3_BUCKET_NAME;
 
 export const AppConfig = {
   apiUrl: `${API_URL}/api`,
@@ -43,6 +47,10 @@ export const AppConfig = {
   version: APP_VERSION,
   appTitle: APP_TITLE,
   inprogressFeatures: INPROGRESS_FEATURES,
+  awsS3: {
+    url: AWS_S3_URL,
+    bucketName: AWS_S3_BUCKET_NAME,
+  },
 };
 
 export const OidcConfig = {

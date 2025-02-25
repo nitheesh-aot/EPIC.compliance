@@ -36,7 +36,7 @@ import {
 const imagesDummyData: Image[] = [
   {
     id: 1,
-    takenBy: {
+    taken_by: {
       position: {
         id: "3",
         name: "Deputy Director, Compliance & Enforcement Operations",
@@ -50,14 +50,14 @@ const imagesDummyData: Image[] = [
       is_active: true,
     },
     caption: "A photo of a family walking to the ice explorer",
-    imageUrl:
-      "https://www.banffjaspercollection.com/getmedia/b6290bdd-b11c-4bcf-9166-a5f4642f9276/PX-Family-Walking-to-Ice-Explorer.jpg?width=1400&height=850&ext=.jpg",
-    imageFileName: "Family Walking to Ice Explorer.jpg",
-    imageFileDate: "2024-01-01",
+    relative_url:
+      "compliance/inspections/1/requirements-images/f4ccf063-5065-41a7-9b8f-157db731f59a.jpg",
+    original_file_name: "Family Walking to Ice Explorer.jpg",
+    date_taken: "2024-01-01",
   },
   {
     id: 2,
-    takenBy: {
+    taken_by: {
       position: {
         id: "3",
         name: "Deputy Director, Compliance & Enforcement Operations",
@@ -71,14 +71,14 @@ const imagesDummyData: Image[] = [
       is_active: true,
     },
     caption: "A photo of a skywalk",
-    imageUrl:
-      "https://www.banffjaspercollection.com/Brewster/media/Images/Attractions/Columbia-Icefield/Skywalk/PX-Columbia-Icefields-Skywalk.jpg?ext=.jpg",
-    imageFileName: "Columbia Icefields Skywalk.jpg",
-    imageFileDate: "2024-01-01",
+    relative_url:
+      "compliance/inspections/1/requirements-images/4b10c4c3-74c7-4d84-b139-56f3515e4fbd.jpg",
+    original_file_name: "Columbia Icefields Skywalk.jpg",
+    date_taken: "2024-01-01",
   },
   {
     id: 3,
-    takenBy: {
+    taken_by: {
       position: {
         id: "3",
         name: "Deputy Director, Compliance & Enforcement Operations",
@@ -92,9 +92,10 @@ const imagesDummyData: Image[] = [
       is_active: true,
     },
     caption: "A photo of a skywalk",
-    imageUrl:
-      "https://www.banffjaspercollection.com/getmedia/c81f4c67-8c96-4bbd-a125-06172c142306/PX-Sherp-Driving-on-Rocky-Road.jpg?width=1400&height=850&ext=.jpg",
-    imageFileName: "Sherp Driving on Rocky Road.jpg",
+    relative_url:
+      "compliance/inspections/1/requirements-images/a34c8a96-0eb1-4380-9f4c-c8fc8f5f0bab.jpg",
+    original_file_name: "Sherp Driving on Rocky Road.jpg",
+    date_taken: "2024-01-01",
   },
 ];
 
@@ -140,8 +141,9 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
           setOpen({
             content: (
               <ImageModal
-                onSubmit={() => {
+                onSubmit={(image) => {
                   setClose();
+                  setImages([...images, image]);
                 }}
                 file={file}
                 inspectionId={inspectionId}
@@ -259,7 +261,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                     <ImageCard
                       key={image.id}
                       image={image}
-                      handleImageClick={handleImageClick}
+                      handleImageClick={() => handleImageClick(image)}
                       isPhoto={isPhoto}
                       index={index}
                     />

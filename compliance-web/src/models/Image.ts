@@ -2,17 +2,20 @@ import { StaffUser } from "./Staff";
 
 export interface Image {
   id?: number;
-  file?: File;
+  requirement_id?: number;
   caption?: string;
-  takenBy?: StaffUser;
-  sortOrder?: number;
-  imageUrl?: string;
-  imageFileName?: string;
-  imageFileDate?: string;
+  taken_by_id?: number;
+  taken_by?: StaffUser;
+  sort_order?: number;
+  original_file_name?: string;
+  date_taken?: string;
+  relative_url?: string;
+  is_active?: boolean;
 }
 
 export interface ImageFormData {
   file?: File;
+  fileUrl?: string;
   caption?: string;
   takenBy?: StaffUser;
 }

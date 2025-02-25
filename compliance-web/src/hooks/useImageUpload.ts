@@ -12,7 +12,7 @@ const uploadFile = (presignedUrl: string, file: File) => {
     method: "put",
     data: file,
     headers: {
-      "Content-Type": file.type,
+      "Content-Type": "application/octet-stream",
     }
   });
 };
@@ -23,10 +23,8 @@ export const useImageUpload = (onSuccess: OnSuccessType) => {
       const presignedUrlData = await getPresignedUrl({
         relative_url: `compliance/inspections/${imageData.inspectionId}/requirements-images/${imageData.fileName}`,
       });
-      console.log("presignedUrlData", presignedUrlData, imageData.file, imageData.file.bytes);
-      const { data: uploadData } = await uploadFile(presignedUrlData.presigned_url, imageData.file);
-      console.log("uploadData", uploadData);
-      return uploadData;
+      await uploadFile(presignedUrlData.presigned_url, imageData.file);
+      return presignedUrlData.relative_url;
     },
     onSuccess,
   });

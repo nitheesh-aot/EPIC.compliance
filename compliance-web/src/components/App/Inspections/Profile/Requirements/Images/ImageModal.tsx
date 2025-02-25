@@ -13,10 +13,11 @@ import GridLabelValuePair from "../GridLabelValuePair";
 import { ImageFormData, Image } from "@/models/Image";
 import { useEffect, useMemo } from "react";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { formatS3Url } from "@/utils/appUtils";
 
 type ImageModalProps = {
   file?: File;
-  onSubmit: (data: ImageFormData) => void;
+  onSubmit: (data: Image) => void;
   imageData?: Image;
   inspectionId: number;
 };
@@ -44,7 +45,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
   const defaultValues = useMemo<ImageFormData>(() => {
     return imageData
       ? {
-          takenBy: imageData.takenBy,
+          takenBy: imageData.taken_by,
           caption: imageData.caption,
         }
       : initFormData;
@@ -56,12 +57,24 @@ const ImageModal: React.FC<ImageModalProps> = ({
     defaultValues,
   });
 
-  const { handleSubmit, reset } = methods;
+  const { handleSubmit, reset, getValues } = methods;
 
-  const onSuccess = (data: ImageFormData) => {
+  const onSuccess = (uploadedFileUrl: string) => {
+    const takenBy = getValues("takenBy") as StaffUser;
+    const imageFormData: Image = {
+      id: Date.now(),
+      relative_url: uploadedFileUrl,
+      caption: getValues("caption"),
+      taken_by: takenBy,
+      taken_by_id: takenBy?.id,
+      original_file_name: file?.name ?? "",
+      date_taken: file?.lastModified
+        ? new Date(file.lastModified).toLocaleDateString()
+        : "",
+    };
     // eslint-disable-next-line no-console
-    console.log("Image uploaded successfully");
-    onSubmit(data);
+    console.log("Image uploaded successfully", imageFormData);
+    onSubmit(imageFormData);
   };
 
   const { mutate: uploadImage, isPending } = useImageUpload(onSuccess);
@@ -100,7 +113,9 @@ const ImageModal: React.FC<ImageModalProps> = ({
             >
               <img
                 src={
-                  file ? URL.createObjectURL(file) : imageData?.imageUrl || ""
+                  file
+                    ? URL.createObjectURL(file)
+                    : formatS3Url(imageData?.relative_url || "")
                 }
                 alt="Preview"
                 style={{ maxHeight: "100%", maxWidth: "100%" }}
@@ -130,7 +145,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 value={
                   file
                     ? file.name
-                    : imageData?.imageFileName || "No file selected"
+                    : imageData?.original_file_name || "No file selected"
                 }
                 gridProps={{ xs: 6 }}
                 isBold
@@ -140,7 +155,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 value={
                   file
                     ? new Date(file.lastModified).toLocaleDateString()
-                    : imageData?.imageFileDate || "No file selected"
+                    : imageData?.date_taken || "No file selected"
                 }
                 gridProps={{ xs: 4 }}
                 isBold
