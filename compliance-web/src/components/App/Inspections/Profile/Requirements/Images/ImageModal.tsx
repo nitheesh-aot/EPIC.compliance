@@ -20,6 +20,7 @@ import dateUtils from "@/utils/dateUtils";
 type ImageModalProps = {
   file?: File;
   onSubmit: (data: Image) => void;
+  onDelete?: (imageId: number) => void;
   imageData?: Image;
   inspectionId: number;
 };
@@ -39,6 +40,7 @@ const initFormData: ImageFormData = {
 const ImageModal: React.FC<ImageModalProps> = ({
   file,
   onSubmit,
+  onDelete,
   imageData,
   inspectionId,
 }) => {
@@ -104,13 +106,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
   };
 
   const onDeleteHandler = () => {
-    console.log("onDeleteHandler", imageData);
-    // onSubmit({
-    //   ...imageData,
-    //   caption: "",
-    //   taken_by_id: undefined,
-    //   taken_by: undefined,
-    // });
+    onDelete?.(imageData?.id ?? 0);
   };
 
   return (

@@ -106,11 +106,16 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
         content: (
           <ImageModal
             onSubmit={(updatedImage) => {
-              setClose();
               const updatedImages = images.map((img) =>
                 img.id === updatedImage.id ? updatedImage : img
               );
               setImageLists(updatedImages);
+              setClose();
+            }}
+            onDelete={(imageId) => {
+              const updatedImages = images.filter((img) => img.id !== imageId);
+              setImageLists(updatedImages);
+              setClose();
             }}
             imageData={image}
             inspectionId={inspectionId}
