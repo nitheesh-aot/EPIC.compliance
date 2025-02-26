@@ -8,8 +8,11 @@ import {
   InspectionRequirementAPIData,
 } from "@/models/InspectionRequirement";
 import { InspectionRequirementType } from "@/models/InspectionRequirementType";
+import { Image } from "@/models/Image";
 
-const fetchInspectionRequirementTypes = (): Promise<InspectionRequirementType[]> => {
+const fetchInspectionRequirementTypes = (): Promise<
+  InspectionRequirementType[]
+> => {
   return request({ url: "/inspection-requirement-types" });
 };
 
@@ -29,6 +32,16 @@ const fetchInspectionRequirements = (
   inspectionId: number
 ): Promise<InspectionRequirement[]> => {
   return request({ url: `/inspections/${inspectionId}/requirements` });
+};
+
+const fetchInspectionRequirementImages = (
+  inspectionId: number,
+  requirementId: number,
+  imageType: "photos" | "figures"
+): Promise<Image[]> => {
+  return request({
+    url: `/inspections/${inspectionId}/requirements/${requirementId}/${imageType}`,
+  });
 };
 
 const createInspectionRequirement = ({
@@ -127,6 +140,30 @@ export const useInspectionRequirementsData = (inspectionId: number) => {
   });
 };
 
+export const useInspectionRequirementImagesData = (
+  inspectionId: number,
+  requirementId: number,
+  imageType: "photos" | "figures"
+) => {
+  return useQuery({
+    queryKey: [
+      "inspection-requirement-images",
+      inspectionId,
+      requirementId,
+      imageType,
+    ],
+    queryFn: () =>
+      fetchInspectionRequirementImages(inspectionId, requirementId, imageType),
+    select: (data: Image[]) => {
+      return data.map((image) => ({
+        ...image,
+        dbId: image.id,
+      }));
+    },
+    enabled: !!inspectionId && !!requirementId,
+  });
+};
+
 export const useCreateInspectionRequirement = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: createInspectionRequirement, onSuccess });
 };
@@ -135,7 +172,9 @@ export const useUpdateInspectionRequirement = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateInspectionRequirement, onSuccess });
 };
 
-export const useUpdateInspectionRequirementOrder = (onSuccess: OnSuccessType) => {
+export const useUpdateInspectionRequirementOrder = (
+  onSuccess: OnSuccessType
+) => {
   return useMutation({
     mutationFn: updateInspectionRequirementOrder,
     onSuccess,
