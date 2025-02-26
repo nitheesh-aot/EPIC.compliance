@@ -204,6 +204,11 @@ spec:
                 configMapKeyRef:
                   name: {{ .Chart.Name }}
                   key: CONNECT_TIMEOUT
+            - name: DOC_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: DOC_SERVICE_URL
           ports:
             - containerPort: 8080
               protocol: TCP

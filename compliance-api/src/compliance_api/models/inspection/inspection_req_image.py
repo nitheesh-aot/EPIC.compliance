@@ -1,7 +1,9 @@
 """Model to handle the image uploads in inspection requirements."""
 
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
+
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
 from ..base_model import BaseModelVersioned
 from ..utils import with_session
@@ -91,3 +93,25 @@ class InspectionRequirementImage(BaseModelVersioned):
             is_active=True,
             is_deleted=False,
         ).all()
+
+    @classmethod
+    def find_image_by_url(cls, requirement_id, relative_url, image_type):
+        """Get image object by url."""
+        return cls.query.filter(
+            cls.requirement_id == requirement_id,
+            func.lower(cls.relative_url) == relative_url.lower(),
+            cls.image_type == image_type,
+            cls.is_active.is_(True),
+            cls.is_deleted.is_(False),
+        ).first()
+
+    @classmethod
+    @with_session
+    def delete_image(cls, image_id, session=None):
+        """Delete the image."""
+        image = cls.find_by_id(image_id)
+        if not image:
+            return None
+        image.update(DELETE_DIC_PARAMS, commit=False)
+        session.flush()
+        return image
