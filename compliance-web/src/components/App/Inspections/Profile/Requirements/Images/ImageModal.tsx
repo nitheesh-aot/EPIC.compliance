@@ -86,14 +86,31 @@ const ImageModal: React.FC<ImageModalProps> = ({
   }, [defaultValues, reset]);
 
   const onSubmitHandler = (data: ImageSchemaType) => {
-    const formData = data as ImageFormData;
-    // eslint-disable-next-line no-console
-    console.log("formData", formData);
-    uploadImage({
-      inspectionId,
-      fileName: file?.name ?? "",
-      file: file ?? new File([], ""),
-    });
+    if (imageData) {
+      const formData = data as ImageFormData;
+      onSubmit({
+        ...imageData,
+        caption: formData.caption,
+        taken_by_id: formData.takenBy?.id,
+        taken_by: formData.takenBy,
+      });
+    } else {
+      uploadImage({
+        inspectionId,
+        fileName: file?.name ?? "",
+        file: file ?? new File([], ""),
+      });
+    }
+  };
+
+  const onDeleteHandler = () => {
+    console.log("onDeleteHandler", imageData);
+    // onSubmit({
+    //   ...imageData,
+    //   caption: "",
+    //   taken_by_id: undefined,
+    //   taken_by: undefined,
+    // });
   };
 
   return (
@@ -176,7 +193,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
           </DialogContent>
           <ModalActions
             primaryActionButtonText={imageData ? "Save" : "Add"}
-            onDeleteAction={() => {}}
+            onDeleteAction={onDeleteHandler}
             onDeleteConfirmationText="Are you sure you want to delete this Photo?"
             isLoading={isPending}
           />

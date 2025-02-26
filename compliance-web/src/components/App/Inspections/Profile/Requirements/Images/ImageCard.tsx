@@ -1,11 +1,11 @@
-import { Link } from "@mui/material";
+import { Link, Tooltip } from "@mui/material";
 import { Box } from "@mui/material";
-import { Grid } from "@mui/material";
 import { Image } from "@/models/Image";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { formatS3Url } from "@/utils/appUtils";
 import imageNotFound from "@/assets/images/image-not-found.svg";
+import { BCDesignTokens } from "epic.theme";
 
 type ImageCardProps = {
   image: Image;
@@ -29,23 +29,33 @@ export default function ImageCard({
   };
 
   return (
-    <Grid
-      item
-      xs={6}
+    <Box
       id={index.toString()}
       sx={{
+        display: "flex",
+        flexDirection: "column",
+        width: "calc(50% - 4px)",
+        borderRadius: "4px",
+        padding: "8px",
+        pb: "12px",
+        boxSizing: "border-box",
+        backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
         cursor: "pointer",
-        mb: 1,
+        "&:hover": {
+          backgroundColor: BCDesignTokens.surfaceColorBackgroundLightBlue,
+        },
       }}
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
+      // {...listeners}
       onClick={handleImageClick}
     >
       <Box
         sx={{
-          height: "150px",
+          maxHeight: "150px",
+          mb: 0.5,
+          textAlign: "center",
         }}
       >
         <img
@@ -57,12 +67,26 @@ export default function ImageCard({
             e.currentTarget.src = imageNotFound;
             e.currentTarget.style.opacity = "0.5";
             e.currentTarget.style.width = "45%";
+            e.currentTarget.style.height = "150px";
           }}
         />
       </Box>
-      <Link>
-        {isPhoto ? "Photo" : "Figure"} {index + 1}: {image.caption}
-      </Link>
-    </Grid>
+      <Tooltip title={image.caption}>
+        <Link
+          sx={{
+            display: "-webkit-box",
+            WebkitBoxOrient: "vertical",
+            WebkitLineClamp: 2,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          <strong>
+            {isPhoto ? "Photo" : "Figure"} {index + 1}:
+          </strong>{" "}
+          {image.caption}
+        </Link>
+      </Tooltip>
+    </Box>
   );
 }

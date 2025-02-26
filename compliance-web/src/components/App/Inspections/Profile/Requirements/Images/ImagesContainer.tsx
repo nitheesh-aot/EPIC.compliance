@@ -6,7 +6,6 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Grid,
 } from "@mui/material";
 import {
   AddRounded,
@@ -53,7 +52,6 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       setImages(isPhoto ? photos : figures);
     }, [isPhoto, photos, figures]);
 
-
     const sensors = useSensors(
       useSensor(PointerSensor),
       useSensor(TouchSensor, {
@@ -67,8 +65,12 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
     function handleDragEnd(event: DragEndEvent) {
       const { active, over } = event;
       if (active.id !== over?.id) {
-        const oldIndex = images.map((item) => item.id).indexOf(active.id as number);
-        const newIndex = images.map((item) => item.id).indexOf(over?.id as number);
+        const oldIndex = images
+          .map((item) => item.id)
+          .indexOf(active.id as number);
+        const newIndex = images
+          .map((item) => item.id)
+          .indexOf(over?.id as number);
         setImages(arrayMove(images, oldIndex, newIndex));
       }
     }
@@ -86,12 +88,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                 onSubmit={(image) => {
                   setClose();
                   const newImages = [...images, image];
-                  setImages(newImages);
-                  if (isPhoto) {
-                    setPhotos(newImages);
-                  } else {
-                    setFigures(newImages);
-                  }
+                  setImageLists(newImages);
                 }}
                 file={file}
                 inspectionId={inspectionId}
@@ -108,8 +105,12 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       setOpen({
         content: (
           <ImageModal
-            onSubmit={() => {
+            onSubmit={(updatedImage) => {
               setClose();
+              const updatedImages = images.map((img) =>
+                img.id === updatedImage.id ? updatedImage : img
+              );
+              setImageLists(updatedImages);
             }}
             imageData={image}
             inspectionId={inspectionId}
@@ -117,6 +118,15 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
         ),
         width: "640px",
       });
+    };
+
+    const setImageLists = (imagesList: Image[]) => {
+      setImages(imagesList);
+      if (isPhoto) {
+        setPhotos(imagesList);
+      } else {
+        setFigures(imagesList);
+      }
     };
 
     return (
@@ -183,7 +193,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
             </Button>
           )}
         </AccordionSummary>
-        <AccordionDetails sx={{ padding: 2 }}>
+        <AccordionDetails>
           {images.length === 0 && (
             <Typography
               variant="body2"
@@ -195,7 +205,14 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
             </Typography>
           )}
           {images.length > 0 && (
-            <Grid container spacing={2}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+                gap: 1,
+              }}
+            >
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -218,7 +235,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                   ))}
                 </SortableContext>
               </DndContext>
-            </Grid>
+            </Box>
           )}
         </AccordionDetails>
       </Accordion>
