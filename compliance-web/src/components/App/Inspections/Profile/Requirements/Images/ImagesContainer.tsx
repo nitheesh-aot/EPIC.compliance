@@ -71,7 +71,8 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
         const newIndex = images
           .map((item) => item.id)
           .indexOf(over?.id as number);
-        setImages(arrayMove(images, oldIndex, newIndex));
+        const reorderedImages = arrayMove(images, oldIndex, newIndex);
+        setImageLists(reorderedImages);
       }
     }
 

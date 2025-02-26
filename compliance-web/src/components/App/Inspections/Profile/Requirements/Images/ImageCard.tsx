@@ -48,21 +48,24 @@ export default function ImageCard({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      // {...listeners}
+      {...listeners}
       onClick={handleImageClick}
     >
       <Box
         sx={{
-          maxHeight: "150px",
-          mb: 0.5,
-          textAlign: "center",
+          height: 150,
+          marginBottom: 0.5,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          overflow: "hidden",
         }}
       >
         <img
           src={formatS3Url(image.relative_url ?? "")}
           alt={image.caption}
           width={"100%"}
-          height={"100%"}
+          // height={"100%"}
           onError={(e) => {
             e.currentTarget.src = imageNotFound;
             e.currentTarget.style.opacity = "0.5";

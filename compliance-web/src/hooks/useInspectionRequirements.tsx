@@ -161,6 +161,7 @@ export const useInspectionRequirementImagesData = (
       }));
     },
     enabled: !!inspectionId && !!requirementId,
+    refetchOnWindowFocus: false,
   });
 };
 

@@ -3,7 +3,14 @@ import { useMutation } from "@tanstack/react-query";
 import { ImageUploadAPIData, PresignedUrlRequestPayload } from "@/models/Image";
 
 const getPresignedUrl = (requestPayload: PresignedUrlRequestPayload) => {
-  return requestDocumentAPI({ url: "/storage-operations/presigned-urls", method: "post", data: requestPayload });
+  return requestDocumentAPI({
+    url: "/storage-operations/presigned-urls",
+    params: {
+      "public-read": true,
+    },
+    method: "post",
+    data: requestPayload,
+  });
 };
 
 const uploadFile = (presignedUrl: string, file: File) => {
@@ -13,7 +20,8 @@ const uploadFile = (presignedUrl: string, file: File) => {
     data: file,
     headers: {
       "Content-Type": "application/octet-stream",
-    }
+      "x-amz-acl": "public-read",
+    },
   });
 };
 

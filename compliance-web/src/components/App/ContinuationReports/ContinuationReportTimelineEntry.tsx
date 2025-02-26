@@ -97,6 +97,11 @@ export default function ContinuationReportTimelineEntry({
             <Typography
               variant="subtitle2"
               component={"div"}
+              sx={{
+                "& p": {
+                  my: 0,
+                },
+              }}
               dangerouslySetInnerHTML={{ __html: getFormattedText() }}
             />
             {!isSystemGenerated && createdByUser && (
