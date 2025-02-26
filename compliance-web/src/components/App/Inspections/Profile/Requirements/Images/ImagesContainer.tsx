@@ -1,4 +1,4 @@
-import { FC, memo, useState } from "react";
+import { FC, memo, useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -26,78 +26,14 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  TouchSensor,
 } from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
-
-const imagesDummyData: Image[] = [
-  {
-    id: 1,
-    taken_by: {
-      position: {
-        id: "3",
-        name: "Deputy Director, Compliance & Enforcement Operations",
-      },
-      name: "Maggie Chard",
-      id: 1,
-      first_name: "Maggie",
-      last_name: "Chard",
-      position_id: 3,
-      auth_user_guid: "0b98f18a9179454aafbc9cf87060b169@idir",
-      is_active: true,
-    },
-    caption: "A photo of a family walking to the ice explorer",
-    relative_url:
-      "compliance/inspections/1/requirements-images/f4ccf063-5065-41a7-9b8f-157db731f59a.jpg",
-    original_file_name: "Family Walking to Ice Explorer.jpg",
-    date_taken: "2024-01-01",
-  },
-  {
-    id: 2,
-    taken_by: {
-      position: {
-        id: "3",
-        name: "Deputy Director, Compliance & Enforcement Operations",
-      },
-      name: "Maggie Chard",
-      id: 1,
-      first_name: "Maggie",
-      last_name: "Chard",
-      position_id: 3,
-      auth_user_guid: "0b98f18a9179454aafbc9cf87060b169@idir",
-      is_active: true,
-    },
-    caption: "A photo of a skywalk",
-    relative_url:
-      "compliance/inspections/1/requirements-images/4b10c4c3-74c7-4d84-b139-56f3515e4fbd.jpg",
-    original_file_name: "Columbia Icefields Skywalk.jpg",
-    date_taken: "2024-01-01",
-  },
-  {
-    id: 3,
-    taken_by: {
-      position: {
-        id: "3",
-        name: "Deputy Director, Compliance & Enforcement Operations",
-      },
-      name: "Maggie Chard",
-      id: 1,
-      first_name: "Maggie",
-      last_name: "Chard",
-      position_id: 3,
-      auth_user_guid: "0b98f18a9179454aafbc9cf87060b169@idir",
-      is_active: true,
-    },
-    caption: "A photo of a skywalk",
-    relative_url:
-      "compliance/inspections/1/requirements-images/a34c8a96-0eb1-4380-9f4c-c8fc8f5f0bab.jpg",
-    original_file_name: "Sherp Driving on Rocky Road.jpg",
-    date_taken: "2024-01-01",
-  },
-];
+import { useRequirementStore } from "@/components/App/Inspections/Profile/Requirements/requirementStore";
 
 type ImagesContainerProps = {
   imageType: ImageTypeEnum;
@@ -106,28 +42,34 @@ type ImagesContainerProps = {
 
 const ImagesContainer: FC<ImagesContainerProps> = memo(
   ({ imageType, inspectionId }) => {
+    const isPhoto = imageType === ImageTypeEnum.PHOTO;
     const { setOpen, setClose } = useModal();
     const [isExpanded, setIsExpanded] = useState(false);
-    const [images, setImages] = useState(imagesDummyData);
+    const { photos, figures, setPhotos, setFigures } = useRequirementStore();
 
-    const isPhoto = imageType === ImageTypeEnum.PHOTO;
+    const [images, setImages] = useState<Image[]>([]);
 
-    const sensors = useSensors(useSensor(PointerSensor));
+    useEffect(() => {
+      setImages(isPhoto ? photos : figures);
+    }, [isPhoto, photos, figures]);
+
+
+    const sensors = useSensors(
+      useSensor(PointerSensor),
+      useSensor(TouchSensor, {
+        activationConstraint: {
+          delay: 250,
+          tolerance: 5,
+        },
+      })
+    );
 
     function handleDragEnd(event: DragEndEvent) {
       const { active, over } = event;
-
       if (active.id !== over?.id) {
-        setImages((items) => {
-          const oldIndex = items
-            .map((item) => item.id)
-            .indexOf(active.id as number);
-          const newIndex = items
-            .map((item) => item.id)
-            .indexOf(over?.id as number);
-
-          return arrayMove(items, oldIndex, newIndex);
-        });
+        const oldIndex = images.map((item) => item.id).indexOf(active.id as number);
+        const newIndex = images.map((item) => item.id).indexOf(over?.id as number);
+        setImages(arrayMove(images, oldIndex, newIndex));
       }
     }
 
@@ -143,7 +85,13 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
               <ImageModal
                 onSubmit={(image) => {
                   setClose();
-                  setImages([...images, image]);
+                  const newImages = [...images, image];
+                  setImages(newImages);
+                  if (isPhoto) {
+                    setPhotos(newImages);
+                  } else {
+                    setFigures(newImages);
+                  }
                 }}
                 file={file}
                 inspectionId={inspectionId}
@@ -261,7 +209,9 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                     <ImageCard
                       key={image.id}
                       image={image}
-                      handleImageClick={() => handleImageClick(image)}
+                      handleImageClick={() => {
+                        handleImageClick(image);
+                      }}
                       isPhoto={isPhoto}
                       index={index}
                     />

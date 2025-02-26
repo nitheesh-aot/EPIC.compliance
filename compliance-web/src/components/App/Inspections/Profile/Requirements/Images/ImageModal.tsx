@@ -14,6 +14,8 @@ import { ImageFormData, Image } from "@/models/Image";
 import { useEffect, useMemo } from "react";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { formatS3Url } from "@/utils/appUtils";
+import dayjs from "dayjs";
+import dateUtils from "@/utils/dateUtils";
 
 type ImageModalProps = {
   file?: File;
@@ -69,8 +71,8 @@ const ImageModal: React.FC<ImageModalProps> = ({
       taken_by_id: takenBy?.id,
       original_file_name: file?.name ?? "",
       date_taken: file?.lastModified
-        ? new Date(file.lastModified).toLocaleDateString()
-        : "",
+        ? dateUtils.dateToISO(dayjs(file.lastModified))
+        : undefined,
     };
     // eslint-disable-next-line no-console
     console.log("Image uploaded successfully", imageFormData);
@@ -154,8 +156,9 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 label="File Date"
                 value={
                   file
-                    ? new Date(file.lastModified).toLocaleDateString()
-                    : imageData?.date_taken || "No file selected"
+                    ? dateUtils.formatDate(dayjs(file.lastModified).toISOString())
+                    : dateUtils.formatDate(imageData?.date_taken ?? "") ||
+                      "No file selected"
                 }
                 gridProps={{ xs: 4 }}
                 isBold
