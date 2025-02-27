@@ -5,8 +5,10 @@ import { Image } from "@/models/Image";
 interface RequirementStore {
   photos: Image[];
   figures: Image[];
+  isDataChanged: boolean;
   setPhotos: (photos: Image[]) => void;
   setFigures: (figures: Image[]) => void;
+  setIsDataChanged: (isDataChanged: boolean) => void;
   reset: () => void;
 }
 
@@ -14,7 +16,9 @@ interface RequirementStore {
 export const useRequirementStore = create<RequirementStore>((set) => ({
   photos: [],
   figures: [],
+  isDataChanged: false,
   setPhotos: (photos: Image[]) => set({ photos }),
   setFigures: (figures: Image[]) => set({ figures }),
-  reset: () => set({ photos: [], figures: [] }),
+  setIsDataChanged: (isDataChanged: boolean) => set({ isDataChanged }),
+  reset: () => set({ photos: [], figures: [], isDataChanged: false }),
 }));
