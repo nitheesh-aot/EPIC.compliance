@@ -1,7 +1,7 @@
 import { Link, Tooltip } from "@mui/material";
 import { Box } from "@mui/material";
 import { Image } from "@/models/Image";
-import { useSortable } from "@dnd-kit/sortable";
+import { arraySwap, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { formatS3Url } from "@/utils/appUtils";
 import imageNotFound from "@/assets/images/image-not-found.svg";
@@ -21,7 +21,11 @@ export default function ImageCard({
   index,
 }: ImageCardProps) {
   const { attributes, listeners, setNodeRef, transition, transform } =
-    useSortable({ id: image.id ?? 0 });
+    useSortable({
+      id: image.id ?? 0,
+      getNewIndex: ({ id, items, activeIndex, overIndex }) =>
+        arraySwap(items, activeIndex, overIndex).indexOf(id),
+    });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -59,13 +63,13 @@ export default function ImageCard({
           justifyContent: "center",
           alignItems: "center",
           overflow: "hidden",
+          pointerEvents: "none", // Disable drag on this image
         }}
       >
         <img
           src={formatS3Url(image.relative_url ?? "")}
           alt={image.caption}
           width={"100%"}
-          // height={"100%"}
           onError={(e) => {
             e.currentTarget.src = imageNotFound;
             e.currentTarget.style.opacity = "0.5";

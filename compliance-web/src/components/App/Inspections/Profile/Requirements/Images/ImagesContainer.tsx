@@ -26,11 +26,12 @@ import {
   useSensors,
   DragEndEvent,
   TouchSensor,
+  MouseSensor,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
-  rectSortingStrategy,
+  arraySwap,
+  rectSwappingStrategy,
 } from "@dnd-kit/sortable";
 import { useRequirementStore } from "@/components/App/Inspections/Profile/Requirements/requirementStore";
 
@@ -44,7 +45,8 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
     const isPhoto = imageType === ImageTypeEnum.PHOTO;
     const { setOpen, setClose } = useModal();
     const [isExpanded, setIsExpanded] = useState(false);
-    const { photos, figures, setPhotos, setFigures } = useRequirementStore();
+    const { photos, figures, setPhotos, setFigures, setIsDataChanged } =
+      useRequirementStore();
 
     const [images, setImages] = useState<Image[]>([]);
 
@@ -52,14 +54,15 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       setImages(isPhoto ? photos : figures);
     }, [isPhoto, photos, figures]);
 
+    const activationConstraint = {
+      delay: 100,
+      tolerance: 0,
+    };
+
     const sensors = useSensors(
-      useSensor(PointerSensor),
-      useSensor(TouchSensor, {
-        activationConstraint: {
-          delay: 250,
-          tolerance: 5,
-        },
-      })
+      useSensor(PointerSensor, { activationConstraint }),
+      useSensor(TouchSensor, { activationConstraint }),
+      useSensor(MouseSensor, { activationConstraint })
     );
 
     function handleDragEnd(event: DragEndEvent) {
@@ -71,7 +74,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
         const newIndex = images
           .map((item) => item.id)
           .indexOf(over?.id as number);
-        const reorderedImages = arrayMove(images, oldIndex, newIndex);
+        const reorderedImages = arraySwap(images, oldIndex, newIndex);
         setImageLists(reorderedImages);
       }
     }
@@ -133,6 +136,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       } else {
         setFigures(imagesList);
       }
+      setIsDataChanged(true);
     };
 
     return (
@@ -226,7 +230,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
               >
                 <SortableContext
                   items={images.map((image) => image.id ?? 0)}
-                  strategy={rectSortingStrategy}
+                  strategy={rectSwappingStrategy}
                 >
                   {images.map((image, index) => (
                     <ImageCard
