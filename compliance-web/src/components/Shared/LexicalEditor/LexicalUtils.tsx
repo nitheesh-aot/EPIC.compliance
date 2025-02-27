@@ -1,5 +1,5 @@
 export type MentionData = {
-  id: string;
+  id: number;
   name: string;
   imageUrl?: string;
 };

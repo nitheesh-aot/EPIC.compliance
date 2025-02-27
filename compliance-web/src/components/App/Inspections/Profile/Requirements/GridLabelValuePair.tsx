@@ -6,11 +6,13 @@ const GridLabelValuePair: FC<{
   label: string;
   value: ReactNode;
   gridProps?: { xs: number };
-}> = memo(({ label, value, gridProps = { xs: 12 } }) => (
+  isBold?: boolean;
+}> = memo(({ label, value, gridProps = { xs: 12 }, isBold = false }) => (
   <Grid item {...gridProps}>
     <Typography
       variant="body2"
-      color={BCDesignTokens.typographyColorPlaceholder}
+      color={isBold ? "inherit" : BCDesignTokens.typographyColorPlaceholder}
+      fontWeight={isBold ? 700 : 400}
     >
       {label}
     </Typography>

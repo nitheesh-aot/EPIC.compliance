@@ -13,7 +13,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 import {
   ComplianceFindingEnum,
   EnforcementActionEnum,
-  mentionDataListDummy,
+  formatImagesToMentionList,
   REGULATORY_CONSIDERATION_TYPE_ID,
   REQUIREMENT_TYPE_ID,
 } from "./RequirementUtils";
@@ -21,6 +21,9 @@ import ControlledToggleButtonGroup from "@/components/Shared/Controlled/Controll
 import { EditOutlined } from "@mui/icons-material";
 import GridLabelValuePair from "./GridLabelValuePair";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
+import { useRequirementStore } from "./requirementStore";
+import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
+
 
 type RequirementFormLeftProps = {
   inspectionRequirementTypesList: InspectionRequirementType[];
@@ -49,6 +52,15 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
     isEditMode,
   }) => {
     const { control, setValue, getValues } = useFormContext();
+    const { photos, figures } = useRequirementStore();
+    const [mentionDataList, setMentionDataList] = useState<MentionData[]>([]);
+
+    useEffect(() => {
+      setMentionDataList([
+        ...formatImagesToMentionList(photos),
+        ...formatImagesToMentionList(figures),
+      ]);
+    }, [photos, figures]);
 
     const isReferredToAnotherAgency = useWatch({
       control,
@@ -271,7 +283,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
           placeholder="Enter Findings..."
           height={`calc(100vh - ${appHeaderHeight + 363}px)`}
           isAdvanced
-          mentionsList={mentionDataListDummy}
+          mentionsList={mentionDataList}
         />
       </Box>
     );
