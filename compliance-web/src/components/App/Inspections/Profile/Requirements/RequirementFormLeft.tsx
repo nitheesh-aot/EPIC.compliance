@@ -153,7 +153,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
                 />
                 <GridLabelValuePair
                   label="Enforcement Action"
-                  value={`${getValues("enforcementAction")?.name}${
+                  value={`${getValues("enforcementAction")?.name ?? ""}${
                     getValues("isReferralToAdministrativePenalty")
                       ? ", Referral to Administrative Penalty"
                       : ""
