@@ -8,6 +8,8 @@ import { RequirementSourceEnum } from "@/utils/constants";
 import * as yup from "yup";
 import { Image, ImageAPIData } from "@/models/Image";
 import dateUtils from "@/utils/dateUtils";
+import { formatS3Url } from "@/utils/appUtils";
+import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
 export const REQUIREMENT_TYPE_ID = "REQ";
 export const REGULATORY_CONSIDERATION_TYPE_ID = "REG";
 
@@ -209,38 +211,10 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
   };
 };
 
-
-export const mentionDataListDummy = [
-  {
-    id: "1",
-    name: "Photo 1",
-    imageUrl:
-      "https://cdn-adventures-live.azureedge.net/adventurescache/2/3/c/0/8/0/23c0806cb9a350fbc5a345420251cfe6ed201c99.jpg",
-  },
-  {
-    id: "2",
-    name: "Photo 2",
-    imageUrl:
-      "https://cdn.discoverholidays.io/media/general/c/canadarailvacations-banner-mobile-canadian-rockies-winter-train-tours.jpg",
-  },
-  {
-    id: "3",
-    name: "Figure 1",
-    imageUrl: "figure_1.png",
-  },
-  {
-    id: "4",
-    name: "Figure 2",
-    imageUrl: "figure_2.png",
-  },
-  {
-    id: "5",
-    name: "Photo 3",
-    imageUrl: "photo_3.jpg",
-  },
-  {
-    id: "6",
-    name: "Photo 4",
-    imageUrl: "photo_4.jpg",
-  },
-]
+export const formatImagesToMentionList = (images: Image[]): MentionData[] => {
+  return images.map((image, index) => ({
+    id: image.id ?? 0,
+    name: `${image.image_type ?? ""} ${index + 1}`,
+    imageUrl: formatS3Url(image.relative_url ?? ""),
+  }));
+}

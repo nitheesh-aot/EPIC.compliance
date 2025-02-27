@@ -8,6 +8,7 @@ export interface Image {
   taken_by_id?: number;
   taken_by?: StaffUser;
   sort_order?: number;
+  image_type?: string;
   original_file_name?: string;
   date_taken?: string;
   relative_url?: string;

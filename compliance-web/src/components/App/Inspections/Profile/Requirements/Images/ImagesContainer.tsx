@@ -96,6 +96,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                 }}
                 file={file}
                 inspectionId={inspectionId}
+                imageType={imageType}
               />
             ),
             width: "640px",
@@ -123,6 +124,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
             }}
             imageData={image}
             inspectionId={inspectionId}
+            imageType={imageType}
           />
         ),
         width: "640px",

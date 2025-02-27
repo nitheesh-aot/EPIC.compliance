@@ -16,6 +16,7 @@ import { useImageUpload } from "@/hooks/useImageUpload";
 import { formatS3Url } from "@/utils/appUtils";
 import dayjs from "dayjs";
 import dateUtils from "@/utils/dateUtils";
+import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 
 type ImageModalProps = {
   file?: File;
@@ -23,6 +24,7 @@ type ImageModalProps = {
   onDelete?: (imageId: number) => void;
   imageData?: Image;
   inspectionId: number;
+  imageType: ImageTypeEnum;
 };
 
 const imageFormSchema = yup.object().shape({
@@ -43,9 +45,10 @@ const ImageModal: React.FC<ImageModalProps> = ({
   onDelete,
   imageData,
   inspectionId,
+  imageType,
 }) => {
   const { data: staffUserList } = useStaffUsersData();
-
+  const isPhoto = imageType === ImageTypeEnum.PHOTO;
   const defaultValues = useMemo<ImageFormData>(() => {
     return imageData
       ? {
@@ -75,6 +78,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
       date_taken: file?.lastModified
         ? dateUtils.dateToISO(dayjs(file.lastModified))
         : undefined,
+      image_type: isPhoto ? "Photo" : "Figure",
     };
     // eslint-disable-next-line no-console
     console.log("Image uploaded successfully", imageFormData);
@@ -130,7 +134,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 src={
                   file
                     ? URL.createObjectURL(file)
-                    : formatS3Url(imageData?.relative_url || "")
+                    : formatS3Url(imageData?.relative_url ?? "")
                 }
                 alt="Preview"
                 style={{ maxHeight: "100%", maxWidth: "100%" }}
