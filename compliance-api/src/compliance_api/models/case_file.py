@@ -180,7 +180,7 @@ class CaseFile(BaseModelVersioned):
                     f"^{year}[0-9]{{4}}$"
                 ),
                 cls.is_active.is_(True),
-                cls.is_deleted.is_(False)
+                cls.is_deleted.is_(False),
             )
             .scalar()
         )

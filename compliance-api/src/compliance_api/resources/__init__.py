@@ -25,6 +25,7 @@ from flask import Blueprint
 
 from .agency import API as AGENCY_API
 from .apihelper import Api
+from .appendix import API as APPENDIX_API
 from .case_file import API as CASE_FILE_API
 from .complaint import API as COMPLAINT_API
 from .compliance_finding import API as COMPLIANCE_FINDING_API
@@ -93,3 +94,4 @@ API.add_namespace(
 )
 API.add_namespace(DOCUMENT_TYPE_API)
 API.add_namespace(REQUIREMENT_TYPE_API)
+API.add_namespace(APPENDIX_API)
