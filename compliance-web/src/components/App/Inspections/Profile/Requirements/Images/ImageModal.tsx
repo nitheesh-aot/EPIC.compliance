@@ -193,7 +193,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
           </DialogContent>
           <ModalActions
             primaryActionButtonText={imageData ? "Save" : "Add"}
-            onDeleteAction={onDeleteHandler}
+            onDeleteAction={imageData ? onDeleteHandler : undefined}
             onDeleteConfirmationText="Are you sure you want to delete this Photo?"
             isLoading={isPending}
           />

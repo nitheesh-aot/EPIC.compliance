@@ -16,6 +16,8 @@ import {
 import { BCDesignTokens } from "epic.theme";
 import { useRequirementStore } from "@/components/App/Inspections/Profile/Requirements/requirementStore";
 import { Appendix } from "@/models/Appendix";
+import { usePopover } from "@/store/popoverStore";
+import AppendixPopover from "./AppendixPopover";
 
 type AppendicesContainerProps = {
   inspectionId: number;
@@ -24,14 +26,28 @@ type AppendicesContainerProps = {
 const AppendicesContainer: FC<AppendicesContainerProps> = memo(
   ({ inspectionId }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    const { setOpen } = usePopover();
 
     const { appendices, setAppendices, setIsDataChanged } =
       useRequirementStore();
 
-    const addNewAppendix = () => {
+    const addNewAppendix = (event: React.MouseEvent<HTMLButtonElement>) => {
       // eslint-disable-next-line no-console
       console.log("addNewAppendix popover", inspectionId);
       setAppendicesLists([]);
+      setOpen({
+        anchorEl: event.currentTarget,
+        content: (
+          <AppendixPopover
+            onSubmit={(message) => {
+              console.log("message", message);
+              setIsDataChanged(true);
+            }}
+            inspectionId={inspectionId}
+          />
+        ),
+        width: "440px",
+      });
     };
 
     const setAppendicesLists = (appendicesList: Appendix[]) => {
@@ -118,8 +134,7 @@ const AppendicesContainer: FC<AppendicesContainerProps> = memo(
             color="secondary"
             size="small"
             onClick={(e) => {
-              e.stopPropagation();
-              addNewAppendix();
+              addNewAppendix(e);
             }}
             startIcon={<AddRounded />}
             sx={{
