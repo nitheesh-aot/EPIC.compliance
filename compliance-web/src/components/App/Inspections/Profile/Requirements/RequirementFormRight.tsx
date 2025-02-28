@@ -2,18 +2,19 @@ import { FC, useState, useEffect } from "react";
 import { Box, Button } from "@mui/material";
 import { AddRounded } from "@mui/icons-material";
 import { useModal } from "@/store/modalStore";
-import RequirementSourceModal from "./RequirementSourceModal";
+import RequirementSourceModal from "@/components/App/Inspections/Profile/Requirements/RequirementSourceModal";
 import {
   RequirementRelatedDocumentData,
   RequirementRelatedDocumentSectionData,
   RequirementSourceFormData,
 } from "@/models/InspectionRequirement";
-import RequirementSourceCard from "./RequirementSourceCard";
+import RequirementSourceCard from "@/components/App/Inspections/Profile/Requirements/RequirementSourceCard";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
-import RequirementRelatedDocumentModal from "./RequirementRelatedDocumentModal";
-import { isRequirementSourceCondition } from "./RequirementUtils";
-import ImagesContainer from "./Images/ImagesContainer";
-import { ImageTypeEnum } from "./RequirementUtils";
+import RequirementRelatedDocumentModal from "@/components/App/Inspections/Profile/Requirements/RequirementRelatedDocumentModal";
+import { isRequirementSourceCondition } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
+import ImagesContainer from "@/components/App/Inspections/Profile/Requirements/Images/ImagesContainer";
+import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
+import AppendicesContainer from "@/components/App/Inspections/Profile/Requirements/Appendices/AppendicesContainer";
 
 interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
@@ -298,6 +299,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         imageType={ImageTypeEnum.FIGURE}
         inspectionId={inspectionId}
       />
+      <AppendicesContainer inspectionId={inspectionId} />
       {Object.entries(groupedData).map(([sourceId, items], index) => (
         <RequirementSourceCard
           key={sourceId}

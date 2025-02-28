@@ -1,4 +1,4 @@
-import { useModal } from "@/store/modalStore";
+import { usePopover } from "@/store/popoverStore";
 import { DeleteOutlineRounded } from "@mui/icons-material";
 import {
   Box,
@@ -11,7 +11,7 @@ import { BCDesignTokens } from "epic.theme";
 import { FC, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
-type ModalActionsProps = {
+type PopoverActionsProps = {
   primaryActionButtonText?: string;
   secondaryActionButtonText?: string;
   onPrimaryAction?: () => void;
@@ -22,7 +22,7 @@ type ModalActionsProps = {
   isLoading?: boolean;
 };
 
-const ModalActions: FC<ModalActionsProps> = ({
+const PopoverActions: FC<PopoverActionsProps> = ({
   primaryActionButtonText,
   secondaryActionButtonText,
   onPrimaryAction,
@@ -32,7 +32,7 @@ const ModalActions: FC<ModalActionsProps> = ({
   onDeleteConfirmationText = "Are you sure you want to delete this?",
   isLoading = false,
 }) => {
-  const { setClose } = useModal();
+  const { setClose } = usePopover();
   const formContext = useFormContext();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
@@ -43,19 +43,20 @@ const ModalActions: FC<ModalActionsProps> = ({
       {!showDeleteConfirmation && (
         <DialogActions
           sx={{
-            padding: "1rem 1.5rem",
+            padding: 2,
             justifyContent: onDeleteAction ? "space-between" : "flex-end",
           }}
         >
           {onDeleteAction && (
             <Button
               variant="text"
+              sx={{ height: 32 }}
               startIcon={<DeleteOutlineRounded />}
               onClick={() => {
                 setShowDeleteConfirmation(true);
               }}
               disabled={showDeleteConfirmation}
-              data-testid="delete-action-modal-button"
+              data-testid="delete-button"
             >
               Delete
             </Button>
@@ -63,23 +64,24 @@ const ModalActions: FC<ModalActionsProps> = ({
           <Box sx={{ display: "flex", gap: "0.75rem" }}>
             <Button
               variant="text"
+              sx={{ height: 32 }}
               onClick={() => {
                 onSecondaryAction?.();
                 setClose();
               }}
               disabled={showDeleteConfirmation}
-              data-testid="cancel-action-modal-button"
+              data-testid="cancel-popover-button"
             >
               {secondaryActionButtonText ?? "Cancel"}
             </Button>
             <Button
-              sx={{ minWidth: 100 }}
+              sx={{ minWidth: 100, height: 32 }}
               type={onPrimaryAction ? "button" : "submit"}
               onClick={onPrimaryAction}
               disabled={
                 (!!isButtonValidation && !isValid) || showDeleteConfirmation
               }
-              data-testid="primary-action-modal-button"
+              data-testid="primary-action-popover-button"
             >
               {isLoading ? (
                 <CircularProgress size={20} color="inherit" />
@@ -95,7 +97,7 @@ const ModalActions: FC<ModalActionsProps> = ({
           sx={{
             background: BCDesignTokens.supportSurfaceColorDanger,
             borderTop: `${BCDesignTokens.layoutBorderWidthSmall} solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-            padding: ".5rem 1.5rem",
+            padding: 2,
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -103,22 +105,21 @@ const ModalActions: FC<ModalActionsProps> = ({
         >
           <Box>
             <Typography variant="body1" fontWeight={"bold"}>
-              Delete Confirmation
+              {onDeleteConfirmationText ?? "Delete?"}
             </Typography>
-            <Typography variant="body1">{onDeleteConfirmationText}</Typography>
           </Box>
           <Button
-            sx={{ minWidth: 100, height: 40 }}
+            sx={{ minWidth: 100, height: 32 }}
             color="secondary"
             onClick={() => {
               setShowDeleteConfirmation(false);
             }}
-            data-testid="delete-confirmation-cancel-button"
+            data-testid="cancel-delete-button"
           >
             No, Cancel
           </Button>
           <Button
-            sx={{ minWidth: 100, height: 40 }}
+            sx={{ minWidth: 100, height: 32 }}
             onClick={onDeleteAction}
             color="error"
             data-testid="delete-confirmation-button"
@@ -131,4 +132,4 @@ const ModalActions: FC<ModalActionsProps> = ({
   );
 };
 
-export default ModalActions;
+export default PopoverActions;
