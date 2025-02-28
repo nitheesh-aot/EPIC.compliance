@@ -50,6 +50,7 @@ const PopoverActions: FC<PopoverActionsProps> = ({
           {onDeleteAction && (
             <Button
               variant="text"
+              sx={{ height: 32 }}
               startIcon={<DeleteOutlineRounded />}
               onClick={() => {
                 setShowDeleteConfirmation(true);
@@ -62,6 +63,7 @@ const PopoverActions: FC<PopoverActionsProps> = ({
           <Box sx={{ display: "flex", gap: "0.75rem" }}>
             <Button
               variant="text"
+              sx={{ height: 32 }}
               onClick={() => {
                 onSecondaryAction?.();
                 setClose();
@@ -71,7 +73,7 @@ const PopoverActions: FC<PopoverActionsProps> = ({
               {secondaryActionButtonText ?? "Cancel"}
             </Button>
             <Button
-              sx={{ minWidth: 100 }}
+              sx={{ minWidth: 100, height: 32 }}
               type={onPrimaryAction ? "button" : "submit"}
               onClick={onPrimaryAction}
               disabled={

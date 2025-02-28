@@ -6,7 +6,7 @@ import ControlledTextField from "@/components/Shared/Controlled/ControlledTextFi
 import { useEffect, useMemo } from "react";
 import { Appendix, AppendixFormData } from "@/models/Appendix";
 import PopoverActions from "@/components/Shared/Popover/PopoverActions";
-import { useAddAppendix, useUpdateAppendix } from "@/hooks/useAppendices";
+import { useAddAppendix, useDeleteAppendix, useUpdateAppendix } from "@/hooks/useAppendices";
 
 type AppendixPopoverProps = {
   onSubmit: (message: string) => void;
@@ -61,6 +61,7 @@ const AppendixPopover: React.FC<AppendixPopoverProps> = ({
 
   const { mutate: addAppendix } = useAddAppendix(onSuccess);
   const { mutate: updateAppendix } = useUpdateAppendix(onSuccess);
+  const { mutate: deleteAppendix } = useDeleteAppendix(onSuccess);
 
   useEffect(() => {
     reset(defaultValues);
@@ -87,7 +88,7 @@ const AppendixPopover: React.FC<AppendixPopoverProps> = ({
   };
 
   const onDeleteHandler = () => {
-    // onDelete?.(appendixData?.id ?? 0);
+    deleteAppendix(appendixData?.id ?? 0);
   };
 
   return (

@@ -66,6 +66,7 @@ const AppendicesContainer: FC<AppendicesContainerProps> = memo(
             appendixData={appendix}
           />
         ),
+        width: "440px",
       });
     };
 
