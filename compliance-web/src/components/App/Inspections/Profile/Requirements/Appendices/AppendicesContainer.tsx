@@ -1,4 +1,4 @@
-import { FC, memo, useState } from "react";
+import { FC, memo, useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -15,9 +15,9 @@ import {
 } from "@mui/icons-material";
 import { BCDesignTokens } from "epic.theme";
 import { useRequirementStore } from "@/components/App/Inspections/Profile/Requirements/requirementStore";
-import { Appendix } from "@/models/Appendix";
 import { usePopover } from "@/store/popoverStore";
 import AppendixPopover from "./AppendixPopover";
+import { useAppendicesData } from "@/hooks/useAppendices";
 
 type AppendicesContainerProps = {
   inspectionId: number;
@@ -26,23 +26,25 @@ type AppendicesContainerProps = {
 const AppendicesContainer: FC<AppendicesContainerProps> = memo(
   ({ inspectionId }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const { setOpen } = usePopover();
+    const { setOpen, setClose } = usePopover();
 
     const { appendices, setAppendices, setIsDataChanged } =
       useRequirementStore();
 
+    const { data: appendicesData, refetch } = useAppendicesData(inspectionId);
+
+    useEffect(() => {
+      if (appendicesData) {
+        setAppendices(appendicesData);
+      }
+    }, [appendicesData, setAppendices]);
+
     const addNewAppendix = (event: React.MouseEvent<HTMLButtonElement>) => {
-      // eslint-disable-next-line no-console
-      console.log("addNewAppendix popover", inspectionId);
-      setAppendicesLists([]);
       setOpen({
         anchorEl: event.currentTarget,
         content: (
           <AppendixPopover
-            onSubmit={(message) => {
-              console.log("message", message);
-              setIsDataChanged(true);
-            }}
+            onSubmit={refreshAppendicesLists}
             inspectionId={inspectionId}
           />
         ),
@@ -50,9 +52,10 @@ const AppendicesContainer: FC<AppendicesContainerProps> = memo(
       });
     };
 
-    const setAppendicesLists = (appendicesList: Appendix[]) => {
-      setAppendices(appendicesList);
+    const refreshAppendicesLists = () => {
+      refetch();
       setIsDataChanged(true);
+      setClose();
     };
 
     return (
@@ -97,7 +100,7 @@ const AppendicesContainer: FC<AppendicesContainerProps> = memo(
             </Typography>
           </Box>
         </AccordionSummary>
-        <AccordionDetails>
+        <AccordionDetails sx={{ p: 2 }}>
           {appendices.length === 0 && (
             <Typography
               variant="body2"
@@ -110,21 +113,31 @@ const AppendicesContainer: FC<AppendicesContainerProps> = memo(
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "row",
-                flexWrap: "wrap",
-                gap: 1,
+                flexDirection: "column",
+                gap: 2,
               }}
             >
+              <Typography
+                variant="body2"
+                color={BCDesignTokens.typographyColorPlaceholder}
+              >
+                List of Appendices:
+              </Typography>
               {appendices.map((appendix) => (
                 <Link
                   key={appendix.id}
                   sx={{
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
+                    display: "flex",
+                    gap: 0.75,
+                    cursor: "pointer",
+                    "&:hover": {
+                      textDecoration: "underline",
+                    },
                   }}
+                  underline="none"
                 >
-                  {appendix.appendix_no}. {appendix.document_title}
+                  <span>{appendix.appendix_no}.</span>
+                  <span>{appendix.document_title}</span>
                 </Link>
               ))}
             </Box>
@@ -140,7 +153,7 @@ const AppendicesContainer: FC<AppendicesContainerProps> = memo(
             sx={{
               backgroundColor: "transparent",
               px: 0.5,
-              mt: 1.25,
+              mt: 2,
               height: "auto",
               "& .MuiButton-startIcon": {
                 mr: 0,
