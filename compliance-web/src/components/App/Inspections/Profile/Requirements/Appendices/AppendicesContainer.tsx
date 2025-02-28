@@ -18,6 +18,7 @@ import { useRequirementStore } from "@/components/App/Inspections/Profile/Requir
 import { usePopover } from "@/store/popoverStore";
 import AppendixPopover from "./AppendixPopover";
 import { useAppendicesData } from "@/hooks/useAppendices";
+import { Appendix } from "@/models/Appendix";
 
 type AppendicesContainerProps = {
   inspectionId: number;
@@ -49,6 +50,22 @@ const AppendicesContainer: FC<AppendicesContainerProps> = memo(
           />
         ),
         width: "440px",
+      });
+    };
+
+    const editAppendix = (
+      event: React.MouseEvent<HTMLAnchorElement>,
+      appendix: Appendix
+    ) => {
+      setOpen({
+        anchorEl: event.currentTarget,
+        content: (
+          <AppendixPopover
+            onSubmit={refreshAppendicesLists}
+            inspectionId={inspectionId}
+            appendixData={appendix}
+          />
+        ),
       });
     };
 
@@ -135,6 +152,7 @@ const AppendicesContainer: FC<AppendicesContainerProps> = memo(
                     },
                   }}
                   underline="none"
+                  onClick={(e) => editAppendix(e, appendix)}
                 >
                   <span>{appendix.appendix_no}.</span>
                   <span>{appendix.document_title}</span>
