@@ -55,6 +55,7 @@ const ModalActions: FC<ModalActionsProps> = ({
                 setShowDeleteConfirmation(true);
               }}
               disabled={showDeleteConfirmation}
+              data-testid="delete-action-modal-button"
             >
               Delete
             </Button>
@@ -67,6 +68,7 @@ const ModalActions: FC<ModalActionsProps> = ({
                 setClose();
               }}
               disabled={showDeleteConfirmation}
+              data-testid="cancel-action-modal-button"
             >
               {secondaryActionButtonText ?? "Cancel"}
             </Button>
@@ -77,6 +79,7 @@ const ModalActions: FC<ModalActionsProps> = ({
               disabled={
                 (!!isButtonValidation && !isValid) || showDeleteConfirmation
               }
+              data-testid="primary-action-modal-button"
             >
               {isLoading ? (
                 <CircularProgress size={20} color="inherit" />
@@ -110,6 +113,7 @@ const ModalActions: FC<ModalActionsProps> = ({
             onClick={() => {
               setShowDeleteConfirmation(false);
             }}
+            data-testid="delete-confirmation-cancel-button"
           >
             No, Cancel
           </Button>
@@ -117,6 +121,7 @@ const ModalActions: FC<ModalActionsProps> = ({
             sx={{ minWidth: 100, height: 40 }}
             onClick={onDeleteAction}
             color="error"
+            data-testid="delete-confirmation-button"
           >
             Yes, Delete
           </Button>

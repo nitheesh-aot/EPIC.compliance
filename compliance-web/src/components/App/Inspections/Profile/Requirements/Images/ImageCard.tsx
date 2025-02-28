@@ -54,6 +54,7 @@ export default function ImageCard({
       {...attributes}
       {...listeners}
       onClick={handleImageClick}
+      data-testid={`image-card-${image.id}`}
     >
       <Box
         sx={{

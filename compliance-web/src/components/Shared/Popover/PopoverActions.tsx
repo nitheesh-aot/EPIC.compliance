@@ -56,6 +56,7 @@ const PopoverActions: FC<PopoverActionsProps> = ({
                 setShowDeleteConfirmation(true);
               }}
               disabled={showDeleteConfirmation}
+              data-testid="delete-button"
             >
               Delete
             </Button>
@@ -69,6 +70,7 @@ const PopoverActions: FC<PopoverActionsProps> = ({
                 setClose();
               }}
               disabled={showDeleteConfirmation}
+              data-testid="cancel-popover-button"
             >
               {secondaryActionButtonText ?? "Cancel"}
             </Button>
@@ -79,6 +81,7 @@ const PopoverActions: FC<PopoverActionsProps> = ({
               disabled={
                 (!!isButtonValidation && !isValid) || showDeleteConfirmation
               }
+              data-testid="primary-action-popover-button"
             >
               {isLoading ? (
                 <CircularProgress size={20} color="inherit" />
@@ -111,6 +114,7 @@ const PopoverActions: FC<PopoverActionsProps> = ({
             onClick={() => {
               setShowDeleteConfirmation(false);
             }}
+            data-testid="cancel-delete-button"
           >
             No, Cancel
           </Button>
@@ -118,6 +122,7 @@ const PopoverActions: FC<PopoverActionsProps> = ({
             sx={{ minWidth: 100, height: 32 }}
             onClick={onDeleteAction}
             color="error"
+            data-testid="delete-confirmation-button"
           >
             Yes, Delete
           </Button>

@@ -97,6 +97,7 @@ const ControlledTextField: FC<IFormInputProps> = ({
             helperText={String(errors[name]?.message ?? "")}
             InputLabelProps={{
               shrink: true,
+              htmlFor: name,
             }}
             InputProps={inputProps}
             {...otherProps}
