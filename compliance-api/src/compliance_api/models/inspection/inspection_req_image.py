@@ -92,7 +92,7 @@ class InspectionRequirementImage(BaseModelVersioned):
             image_type=image_type,
             is_active=True,
             is_deleted=False,
-        ).all()
+        ).order_by(cls.sort_order).all()
 
     @classmethod
     def find_image_by_url(cls, requirement_id, relative_url, image_type):
