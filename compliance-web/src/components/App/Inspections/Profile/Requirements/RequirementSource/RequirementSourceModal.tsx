@@ -11,7 +11,7 @@ import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAut
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import { useRequirementSourcesData } from "@/hooks/useComplaints";
 import { RequirementSourceEnum } from "@/utils/constants";
-import { isRequirementSourceCondition } from "./RequirementUtils";
+import { isRequirementSourceCondition } from "../RequirementUtils";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 
 type RequirementSourceModalProps = {
