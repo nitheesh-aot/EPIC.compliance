@@ -2,15 +2,15 @@ import { FC, useState, useEffect } from "react";
 import { Box, Button } from "@mui/material";
 import { AddRounded } from "@mui/icons-material";
 import { useModal } from "@/store/modalStore";
-import RequirementSourceModal from "@/components/App/Inspections/Profile/Requirements/RequirementSourceModal";
+import RequirementSourceModal from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementSourceModal";
 import {
   RequirementRelatedDocumentData,
   RequirementRelatedDocumentSectionData,
   RequirementSourceFormData,
 } from "@/models/InspectionRequirement";
-import RequirementSourceCard from "@/components/App/Inspections/Profile/Requirements/RequirementSourceCard";
+import RequirementSourceCard from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementSourceCard";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
-import RequirementRelatedDocumentModal from "@/components/App/Inspections/Profile/Requirements/RequirementRelatedDocumentModal";
+import RequirementRelatedDocumentModal from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementRelatedDocumentModal";
 import { isRequirementSourceCondition } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import ImagesContainer from "@/components/App/Inspections/Profile/Requirements/Images/ImagesContainer";
 import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
