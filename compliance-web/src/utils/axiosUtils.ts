@@ -25,7 +25,7 @@ export function getUser() {
 
 const onSuccess = (response: any) => response?.data ?? response.data;
 
-const onError = (error: AxiosError) => {
+export const onError = (error: AxiosError) => {
   // optionaly catch errors and add additional logging here
   if (!error.response) {
     // CORS error or network error
