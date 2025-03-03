@@ -471,7 +471,10 @@ function TableActionMenu({
     >
       {mergeCellButton && (
         <>
-          <MenuItem onClick={() => mergeCellButton.props.onClick()}>
+          <MenuItem
+            onClick={() => mergeCellButton.props.onClick()}
+            data-test-id="table-merge-cells"
+          >
             {mergeCellButton.props.children}
           </MenuItem>
           <Divider />
@@ -541,7 +544,10 @@ function TableActionMenu({
         Delete table
       </MenuItem>
       <Divider />
-      <MenuItem onClick={() => toggleTableRowIsHeader()}>
+      <MenuItem
+        onClick={() => toggleTableRowIsHeader()}
+        data-test-id="table-row-header"
+      >
         {(tableCellNode.__headerState & TableCellHeaderStates.ROW) ===
         TableCellHeaderStates.ROW
           ? "Remove"
@@ -676,14 +682,8 @@ function TableCellActionMenuContainer({
       return disable();
     }
     const enabled = !tableObserver || !tableObserver.isSelecting;
-    menu.classList.toggle(
-      "--active",
-      enabled
-    );
-    menu.classList.toggle(
-      "--inactive",
-      !enabled
-    );
+    menu.classList.toggle("--active", enabled);
+    menu.classList.toggle("--inactive", !enabled);
     if (enabled) {
       const tableCellRect = tableCellParentNodeDOM.getBoundingClientRect();
       const anchorRect = anchorElem.getBoundingClientRect();
