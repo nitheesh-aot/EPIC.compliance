@@ -15,6 +15,7 @@
 """This exports all of the models and schemas used by the application."""
 
 from .agency import Agency
+from .appendix import Appendix
 from .case_file import (
     CaseFile, CaseFileInitiationEnum, CaseFileInitiationOption, CaseFileLink, CaseFileOfficer, CaseFileStatusEnum)
 from .complaint import (
@@ -26,10 +27,11 @@ from .db import db, ma, migrate
 from .document_type import DocumentType
 from .enforcement_action import EnforcementActionOption, EnforcementActionOptionEnum
 from .inspection import (
-    Inspection, InspectionAgency, InspectionAttendance, InspectionAttendanceOption, InspectionAttendanceOptionEnum,
-    InspectionFirstnation, InspectionInitiationOption, InspectionOfficer, InspectionOtherAttendance,
-    InspectionReqDetailDocument, InspectionReqEnforcementMap, InspectionReqSourceDetail, InspectionRequirement,
-    InspectionRequirementTypeEnum, InspectionStatusEnum, InspectionType, InspectionTypeOption, IRStatusOption)
+    ImageTypeEnum, Inspection, InspectionAgency, InspectionAttendance, InspectionAttendanceOption,
+    InspectionAttendanceOptionEnum, InspectionFirstnation, InspectionInitiationOption, InspectionOfficer,
+    InspectionOtherAttendance, InspectionReqDetailDocument, InspectionReqEnforcementMap, InspectionReqSourceDetail,
+    InspectionRequirement, InspectionRequirementImage, InspectionRequirementTypeEnum, InspectionStatusEnum,
+    InspectionType, InspectionTypeOption, IRStatusOption)
 from .position import Position
 from .project import Project
 from .req_source_document_map import RequirementSourceDocumentMap

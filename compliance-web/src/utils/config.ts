@@ -4,6 +4,7 @@ declare global {
       VITE_API_URL: string;
       VITE_AUTH_API_URL: string;
       VITE_TRACK_API_URL: string;
+      VITE_DOCUMENT_API_URL: string;
       VITE_ENV: string;
       VITE_VERSION: string;
       VITE_APP_TITLE: string;
@@ -11,6 +12,8 @@ declare global {
       VITE_OIDC_AUTHORITY: string;
       VITE_CLIENT_ID: string;
       VITE_INPROGRESS_FEATURES: string[];
+      VITE_AWS_S3_URL: string;
+      VITE_AWS_S3_BUCKET_NAME: string;
     };
   }
 }
@@ -20,6 +23,8 @@ const AUTH_API_URL =
   window._env_?.VITE_AUTH_API_URL || import.meta.env.VITE_AUTH_API_URL || "";
 const TRACK_API_URL =
   window._env_?.VITE_TRACK_API_URL || import.meta.env.VITE_TRACK_API_URL || "";
+const DOCUMENT_API_URL =
+  window._env_?.VITE_DOCUMENT_API_URL || import.meta.env.VITE_DOCUMENT_API_URL || "";
 const APP_ENVIRONMENT =
   window._env_?.VITE_ENV || import.meta.env.VITE_ENV || "";
 const APP_VERSION =
@@ -30,15 +35,22 @@ const APP_URL = window._env_?.VITE_APP_URL || import.meta.env.VITE_APP_URL;
 const OIDC_AUTHORITY = window._env_?.VITE_OIDC_AUTHORITY || import.meta.env.VITE_OIDC_AUTHORITY;
 const CLIENT_ID = window._env_?.VITE_CLIENT_ID || import.meta.env.VITE_CLIENT_ID;
 const INPROGRESS_FEATURES = window._env_?.VITE_INPROGRESS_FEATURES || import.meta.env.VITE_INPROGRESS_FEATURES;
+const AWS_S3_URL = window._env_?.VITE_AWS_S3_URL || import.meta.env.VITE_AWS_S3_URL;
+const AWS_S3_BUCKET_NAME = window._env_?.VITE_AWS_S3_BUCKET_NAME || import.meta.env.VITE_AWS_S3_BUCKET_NAME;
 
 export const AppConfig = {
   apiUrl: `${API_URL}/api`,
   authAPIUrl: `${AUTH_API_URL}/api`,
   trackAPIUrl: `${TRACK_API_URL}/api/v1`,
+  documentAPIUrl: `${DOCUMENT_API_URL}/api`,
   environment: APP_ENVIRONMENT,
   version: APP_VERSION,
   appTitle: APP_TITLE,
   inprogressFeatures: INPROGRESS_FEATURES,
+  awsS3: {
+    url: AWS_S3_URL,
+    bucketName: AWS_S3_BUCKET_NAME,
+  },
 };
 
 export const OidcConfig = {

@@ -13,6 +13,7 @@
 # limitations under the License.
 """Exposes all of the schemas in the compliance_api."""
 from .agency import AgencyCreateSchema, AgencySchema
+from .appendix import AppendixCreateSchema, AppendixSchema
 from .case_file import (
     CaseFileCreateSchema, CaseFileLinkCreateSchema, CaseFileLinkSchema, CaseFileOfficerSchema, CaseFileOptionSchema,
     CaseFileSchema, CaseFileStatusSchema, CaseFileUnlinkSchema, CaseFileUpdateSchema)
@@ -27,8 +28,8 @@ from .inspection import (
     InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
     InspectionStatusSchema, InspectionUpdateSchema)
 from .inspection_requirement import (
-    InspectionRequirementCreateSchema, InspectionRequirementSchema, InspectionRequirementUpdateSchema,
-    InspectionSortOrderSchema)
+    InspectionReqImageCreateSchema, InspectionReqImageSchema, InspectionRequirementCreateSchema,
+    InspectionRequirementSchema, InspectionRequirementUpdateSchema, InspectionSortOrderSchema)
 from .paginate import PaginationParameterSchema
 from .project import ProjectSchema
 from .staff_user import StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateSchema

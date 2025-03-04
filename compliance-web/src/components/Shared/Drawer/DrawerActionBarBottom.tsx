@@ -12,7 +12,7 @@ type DrawerActionBarBottomProps = {
   onDeleteAction?: () => void;
   onDeleteTitle?: string;
   onDeleteDescription?: string;
-  dirtyCheck?: boolean;
+  isDirtyManual?: boolean;
 };
 
 const DrawerActionBarBottom: React.FC<DrawerActionBarBottomProps> = React.memo(
@@ -21,7 +21,7 @@ const DrawerActionBarBottom: React.FC<DrawerActionBarBottomProps> = React.memo(
     onDeleteAction,
     onDeleteTitle,
     onDeleteDescription,
-    dirtyCheck = true,
+    isDirtyManual,
   }) => {
     const { setClose } = useDrawer();
     const { setOpen, setClose: setModalClose } = useModal();
@@ -72,13 +72,13 @@ const DrawerActionBarBottom: React.FC<DrawerActionBarBottomProps> = React.memo(
             <Button
               onClick={setClose}
               color="secondary"
-              disabled={dirtyCheck && !isDirty}
+              disabled={!isDirtyManual && !isDirty}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={!isValid || (dirtyCheck && !isDirty)}
+              disabled={!isValid || (!isDirtyManual && !isDirty)}
             >
               Save
             </Button>

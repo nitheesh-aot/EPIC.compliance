@@ -1,0 +1,206 @@
+import { Box, DialogContent, Grid } from "@mui/material";
+import * as yup from "yup";
+import { FormProvider, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
+import ModalActions from "@/components/Shared/Modals/ModalActions";
+import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
+import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
+import { StaffUser } from "@/models/Staff";
+import { useStaffUsersData } from "@/hooks/useStaff";
+import { BCDesignTokens } from "epic.theme";
+import GridLabelValuePair from "../GridLabelValuePair";
+import { ImageFormData, Image } from "@/models/Image";
+import { useEffect, useMemo } from "react";
+import { useImageUpload } from "@/hooks/useImageUpload";
+import { formatS3Url } from "@/utils/appUtils";
+import dayjs from "dayjs";
+import dateUtils from "@/utils/dateUtils";
+import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
+
+type ImageModalProps = {
+  file?: File;
+  onSubmit: (data: Image) => void;
+  onDelete?: (imageId: number) => void;
+  imageData?: Image;
+  inspectionId: number;
+  imageType: ImageTypeEnum;
+};
+
+const imageFormSchema = yup.object().shape({
+  takenBy: yup.object<StaffUser>().nullable().required("Taken By is required"),
+  caption: yup.string().nullable().required("Caption is required"),
+});
+
+type ImageSchemaType = yup.InferType<typeof imageFormSchema>;
+
+const initFormData: ImageFormData = {
+  takenBy: undefined,
+  caption: "",
+};
+
+const ImageModal: React.FC<ImageModalProps> = ({
+  file,
+  onSubmit,
+  onDelete,
+  imageData,
+  inspectionId,
+  imageType,
+}) => {
+  const { data: staffUserList } = useStaffUsersData();
+  const isPhoto = imageType === ImageTypeEnum.PHOTO;
+  const defaultValues = useMemo<ImageFormData>(() => {
+    return imageData
+      ? {
+          takenBy: imageData.taken_by,
+          caption: imageData.caption,
+        }
+      : initFormData;
+  }, [imageData]);
+
+  const methods = useForm<ImageSchemaType>({
+    resolver: yupResolver(imageFormSchema),
+    mode: "onBlur",
+    defaultValues,
+  });
+
+  const { handleSubmit, reset, getValues } = methods;
+
+  const onSuccess = (uploadedFileUrl: string) => {
+    const takenBy = getValues("takenBy") as StaffUser;
+    const imageFormData: Image = {
+      id: Date.now(),
+      relative_url: uploadedFileUrl,
+      caption: getValues("caption"),
+      taken_by: takenBy,
+      taken_by_id: takenBy?.id,
+      original_file_name: file?.name ?? "",
+      date_taken: file?.lastModified
+        ? dateUtils.dateToISO(dayjs(file.lastModified))
+        : undefined,
+      image_type: isPhoto ? "Photo" : "Figure",
+    };
+    // eslint-disable-next-line no-console
+    console.log("Image uploaded successfully", imageFormData);
+    onSubmit(imageFormData);
+  };
+
+  const { mutate: uploadImage, isPending } = useImageUpload(onSuccess);
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
+
+  const onSubmitHandler = (data: ImageSchemaType) => {
+    if (imageData) {
+      const formData = data as ImageFormData;
+      onSubmit({
+        ...imageData,
+        caption: formData.caption,
+        taken_by_id: formData.takenBy?.id,
+        taken_by: formData.takenBy,
+      });
+    } else {
+      uploadImage({
+        inspectionId,
+        fileName: file?.name ?? "",
+        file: file ?? new File([], ""),
+      });
+    }
+  };
+
+  const onDeleteHandler = () => {
+    onDelete?.(imageData?.id ?? 0);
+  };
+
+  return (
+    <>
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmitHandler)}>
+          <ModalTitleBar title={imageData ? "Edit Photo" : "Add Photo"} />
+          <DialogContent dividers>
+            <Box
+              sx={{
+                width: "100%",
+                height: "300px",
+                borderRadius: "4px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                marginBottom: "1rem",
+              }}
+            >
+              <img
+                src={
+                  file
+                    ? URL.createObjectURL(file)
+                    : formatS3Url(imageData?.relative_url ?? "")
+                }
+                alt="Preview"
+                style={{ maxHeight: "100%", maxWidth: "100%" }}
+              />
+            </Box>
+            <Grid
+              container
+              spacing={1}
+              wrap="nowrap"
+              sx={{
+                padding: 1.5,
+                borderRadius: 0.5,
+                background: BCDesignTokens.surfaceColorBackgroundLightBlue,
+                marginLeft: 0,
+                width: "100%",
+                my: 2,
+              }}
+            >
+              <GridLabelValuePair
+                label="Photo #"
+                value={1}
+                gridProps={{ xs: 2 }}
+                isBold
+              />
+              <GridLabelValuePair
+                label="File Name"
+                value={
+                  file
+                    ? file.name
+                    : imageData?.original_file_name || "No file selected"
+                }
+                gridProps={{ xs: 6 }}
+                isBold
+              />
+              <GridLabelValuePair
+                label="File Date"
+                value={
+                  file
+                    ? dateUtils.formatDate(dayjs(file.lastModified).toISOString())
+                    : dateUtils.formatDate(imageData?.date_taken ?? "") ||
+                      "No file selected"
+                }
+                gridProps={{ xs: 4 }}
+                isBold
+              />
+            </Grid>
+            <ControlledAutoComplete
+              name="takenBy"
+              label="Taken By"
+              options={staffUserList ?? []}
+              getOptionLabel={(option) => option.name}
+              getOptionKey={(option) => option.id}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+            />
+            <ControlledTextField name="caption" label="Caption" fullWidth />
+          </DialogContent>
+          <ModalActions
+            primaryActionButtonText={imageData ? "Save" : "Add"}
+            onDeleteAction={imageData ? onDeleteHandler : undefined}
+            onDeleteConfirmationText="Are you sure you want to delete this Photo?"
+            isLoading={isPending}
+          />
+        </form>
+      </FormProvider>
+    </>
+  );
+};
+
+export default ImageModal;

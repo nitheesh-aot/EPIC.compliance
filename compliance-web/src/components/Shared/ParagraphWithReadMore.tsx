@@ -6,12 +6,14 @@ interface ParagraphWithReadMoreProps {
   maxHeight?: number;
   renderTypography?: React.ReactNode;
   expand?: boolean;
+  isFormatted?: boolean;
 }
 
 export default function ParagraphWithReadMore({
   maxHeight = 150,
   renderTypography,
   expand = false,
+  isFormatted = false,
 }: ParagraphWithReadMoreProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -38,7 +40,7 @@ export default function ParagraphWithReadMore({
     <Stack flex={1}>
       <Stack
         ref={contentRef}
-        className="ql-editor"
+        className={isFormatted ? "editor-content" : ""}
         sx={{
           maxHeight: isExpanded ? "none" : `${maxHeight}px`,
           overflow: "hidden",

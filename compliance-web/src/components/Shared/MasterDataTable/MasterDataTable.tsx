@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   MaterialReactTable,
   MRT_ColumnDef,
@@ -49,6 +49,11 @@ const MasterDataTable = <TData extends MRT_RowData>({
   ...rest
 }: MaterialReactTableProps<TData>) => {
   const { initialState, state, ...otherProps } = rest;
+  const [otherPropsData, setOtherPropsData] = useState(otherProps);
+
+  useEffect(() => {
+    setOtherPropsData(otherProps);
+  }, [columns, data, otherProps]);
 
   const checkBoxStyle = {
     width: "2.75rem !important",
@@ -195,18 +200,18 @@ const MasterDataTable = <TData extends MRT_RowData>({
         },
       },
     },
-    // sortingFns: {
-    //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    //   sortFn: (rowA: any, rowB: any, columnId: string) => {
-    //     return rowA
-    //       ?.getValue(columnId)
-    //       ?.localeCompare(rowB?.getValue(columnId), "en", {
-    //         numeric: true,
-    //         ignorePunctuation: false,
-    //         sensitivity: "base",
-    //       });
-    //   },
-    // },
+    sortingFns: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      sortFn: (rowA: any, rowB: any, columnId: string) => {
+        return rowA
+          ?.getValue(columnId)
+          ?.localeCompare(rowB?.getValue(columnId), "en", {
+            numeric: true,
+            ignorePunctuation: false,
+            sensitivity: "base",
+          });
+      },
+    },
     renderEmptyRowsFallback: ({ table }) => <DataTableNoData table={table} />,
     renderTopToolbarCustomActions: ({ table }) => {
       return (
@@ -276,7 +281,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
         return filterValue.includes(row.getValue(id));
       },
     },
-    ...otherProps,
+    ...otherPropsData,
   });
 
   useEffect(() => {

@@ -3,7 +3,7 @@
 from .inspection import Inspection
 from .inspection_agency import InspectionAgency
 from .inspection_attendance import InspectionAttendance
-from .inspection_enum import InspectionAttendanceOptionEnum, InspectionStatusEnum
+from .inspection_enum import ImageTypeEnum, InspectionAttendanceOptionEnum, InspectionStatusEnum
 from .inspection_firstnation import InspectionFirstnation
 from .inspection_officer import InspectionOfficer
 from .inspection_option import (
@@ -11,6 +11,7 @@ from .inspection_option import (
 from .inspection_other_attendance import InspectionOtherAttendance
 from .inspection_req_detail_doc import InspectionReqDetailDocument
 from .inspection_req_enforcement_map import InspectionReqEnforcementMap
+from .inspection_req_image import InspectionRequirementImage
 from .inspection_req_source_detail import InspectionReqSourceDetail
 from .inspection_requirement import InspectionRequirement, InspectionRequirementTypeEnum
 from .inspection_type import InspectionType

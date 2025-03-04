@@ -1,5 +1,4 @@
 import ControlledDateTimeField from "@/components/Shared/Controlled/ControlledDateTimeField";
-import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledRichTextEditor";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import {
@@ -20,6 +19,7 @@ import { useEffect, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { ContinuationReportContextType } from "./ContinuationReport";
+import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 
 type ContinuationReportEntryModal = {
   onSubmit: (submitMsg: string) => void;
@@ -134,7 +134,8 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
               sx={{ width: "50%" }}
               maxDateTime={maxSelectableDate}
             />
-            <ControlledRichTextEditor label="Entry" name="entry" />
+            {/* <ControlledRichTextEditor label="Entry" name="entry" /> */}
+            <ControlledLexicalEditor label="Entry" name="entry" />
           </DialogContent>
           <ModalActions
             primaryActionButtonText={

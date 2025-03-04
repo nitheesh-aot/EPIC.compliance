@@ -7,7 +7,6 @@ import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
-import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledRichTextEditor";
 import { useDocumentTypesData } from "@/hooks/useInspectionRequirements";
 import {
   RequirementRelatedDocumentSectionFormData,
@@ -21,6 +20,7 @@ import {
   RequirementDocumentTypeEnum,
   RequirementSourceEnum,
 } from "@/utils/constants";
+import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 
 type RequirementRelatedDocumentModalProps = {
   onSubmit: (data: RequirementRelatedDocumentData) => void;
@@ -50,7 +50,6 @@ const relatedDocumentFormSchema = yup.object().shape({
 type RequirementRelatedDocumentSchemaType = yup.InferType<
   typeof relatedDocumentFormSchema
 >;
-
 
 const RequirementRelatedDocumentModal: React.FC<
   RequirementRelatedDocumentModalProps
@@ -217,7 +216,11 @@ const RequirementRelatedDocumentModal: React.FC<
               />
             </Grid>
           </Grid>
-          <ControlledRichTextEditor label="Description" name="description" />
+          <ControlledLexicalEditor
+            label="Description"
+            name="description"
+            isAdvanced
+          />
         </DialogContent>
         <ModalActions
           primaryActionButtonText={

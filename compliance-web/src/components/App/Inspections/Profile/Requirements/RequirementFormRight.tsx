@@ -2,24 +2,30 @@ import { FC, useState, useEffect } from "react";
 import { Box, Button } from "@mui/material";
 import { AddRounded } from "@mui/icons-material";
 import { useModal } from "@/store/modalStore";
-import RequirementSourceModal from "./RequirementSourceModal";
+import RequirementSourceModal from "@/components/App/Inspections/Profile/Requirements/RequirementSourceModal";
 import {
   RequirementRelatedDocumentData,
   RequirementRelatedDocumentSectionData,
   RequirementSourceFormData,
 } from "@/models/InspectionRequirement";
-import RequirementSourceCard from "./RequirementSourceCard";
+import RequirementSourceCard from "@/components/App/Inspections/Profile/Requirements/RequirementSourceCard";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
-import RequirementRelatedDocumentModal from "./RequirementRelatedDocumentModal";
+import RequirementRelatedDocumentModal from "@/components/App/Inspections/Profile/Requirements/RequirementRelatedDocumentModal";
+import { isRequirementSourceCondition } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
+import ImagesContainer from "@/components/App/Inspections/Profile/Requirements/Images/ImagesContainer";
+import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
+import AppendicesContainer from "@/components/App/Inspections/Profile/Requirements/Appendices/AppendicesContainer";
 
 interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
   requirementSourceFormDataList: RequirementSourceFormData[];
+  inspectionId: number;
 }
 
 const RequirementFormRight: FC<RequirementFormRightProps> = ({
   onDataChange,
   requirementSourceFormDataList,
+  inspectionId,
 }) => {
   const { setOpen, setClose } = useModal();
   const [requirementSourceFormData, setRequirementSourceFormData] = useState<
@@ -130,15 +136,25 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   };
 
   const handleDeleteRequirementSource = (data: RequirementSourceFormData) => {
-    const isLastItem =
+    const isLastSectionItem =
       groupedData[data.requirementSource?.id ?? ""].length === 1;
-    const description = isLastItem
+    const sourceType = isRequirementSourceCondition(
+      data.requirementSource?.id ?? ""
+    )
+      ? "condition"
+      : "section";
+    const description = isLastSectionItem
       ? `You are about to delete ${data.requirementSource?.name}.
       This is the primary requirement source. 
       Deleting it will also permanently remove all associated documents. 
       Are you sure you want to proceed?`
-      : `You are about to delete ${data.requirementSource?.name}.
-      Are you sure you want to proceed?`;
+      : data.relatedDocuments?.length
+        ? `You are about to delete ${data.sourceNumber} - ${data.sourceTitle}.
+        This ${sourceType} has associated documents.
+        Deleting this ${sourceType} will also remove all associated documents from the system.
+        Are you sure you want to proceed?`
+        : `You are about to delete ${data.sourceNumber} - ${data.sourceTitle}.
+        Are you sure you want to proceed?`;
     setOpen({
       content: (
         <ConfirmationModal
@@ -275,6 +291,15 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       >
         Requirement Source
       </Button>
+      <ImagesContainer
+        imageType={ImageTypeEnum.PHOTO}
+        inspectionId={inspectionId}
+      />
+      <ImagesContainer
+        imageType={ImageTypeEnum.FIGURE}
+        inspectionId={inspectionId}
+      />
+      <AppendicesContainer inspectionId={inspectionId} />
       {Object.entries(groupedData).map(([sourceId, items], index) => (
         <RequirementSourceCard
           key={sourceId}

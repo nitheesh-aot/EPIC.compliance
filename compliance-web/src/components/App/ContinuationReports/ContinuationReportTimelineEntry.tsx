@@ -91,12 +91,17 @@ export default function ContinuationReportTimelineEntry({
       <ParagraphWithReadMore
         maxHeight={150}
         expand={!!searchText}
+        isFormatted={true}
         renderTypography={
           <>
             <Typography
               variant="subtitle2"
               component={"div"}
-              className="quill-render"
+              sx={{
+                "& p": {
+                  my: 0,
+                },
+              }}
               dangerouslySetInnerHTML={{ __html: getFormattedText() }}
             />
             {!isSystemGenerated && createdByUser && (

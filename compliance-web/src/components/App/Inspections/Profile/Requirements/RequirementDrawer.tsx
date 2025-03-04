@@ -6,6 +6,7 @@ import {
   useCreateInspectionRequirement,
   useDeleteInspectionRequirement,
   useEnforcementActionsData,
+  useInspectionRequirementImagesData,
   useInspectionRequirementTypesData,
   useUpdateInspectionRequirement,
 } from "@/hooks/useInspectionRequirements";
@@ -33,10 +34,11 @@ import {
 } from "./RequirementUtils";
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { InspectionRequirementType } from "@/models/InspectionRequirementType";
+import { useRequirementStore } from "./requirementStore";
 
 type RequirementDrawerProps = {
   inspectionData: Inspection;
-  onSubmit: (submitMsg: string) => void;
+  onSubmit: (submitMsg: string, isClose: boolean) => void;
   requirement?: InspectionRequirement;
   index?: number;
   isRegulatoryConsiderationExists?: boolean;
@@ -68,6 +70,17 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const [selectedRequirementType, setSelectedRequirementType] = useState<
     InspectionRequirementType | undefined
   >(undefined);
+  const [isRequirementSourceListDirty, setIsRequirementSourceListDirty] =
+    useState(false);
+
+  const {
+    photos,
+    figures,
+    setPhotos,
+    setFigures,
+    isDataChanged,
+    setIsDataChanged,
+  } = useRequirementStore();
 
   const { data: inspectionRequirementTypesList } =
     useInspectionRequirementTypesData();
@@ -76,9 +89,27 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const { data: topicsList } = useTopicsData();
   const { data: agenciesList } = useAgenciesData();
 
+  const { data: photosData } = useInspectionRequirementImagesData(
+    inspectionData.id,
+    requirement?.id ?? 0,
+    "photos"
+  );
+
+  const { data: figuresData } = useInspectionRequirementImagesData(
+    inspectionData.id,
+    requirement?.id ?? 0,
+    "figures"
+  );
+
   const methods = useForm<RequirementSchemaType>({
     resolver: yupResolver(RequirementFormSchema),
     mode: "onBlur",
+    defaultValues: requirement
+      ? formatRequirementFormData(requirement)
+      : {
+          ...initFormData,
+          requirementType: inspectionRequirementTypesList?.[0],
+        },
   });
 
   const { handleSubmit, reset } = methods;
@@ -92,30 +123,31 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     );
   }, [inspectionRequirementData, reset, inspectionRequirementTypesList]);
 
-  const onSuccess = useCallback(() => {
-    onSubmit("Changes saved successfully!");
-  }, [onSubmit]);
-
-  const onDeleteSuccess = useCallback(() => {
-    onSubmit("Requirement deleted successfully!");
+  const onCreateSuccess = useCallback(() => {
+    onSubmit("Requirement created successfully!", true);
     reset();
   }, [onSubmit, reset]);
 
-  const {
-    mutate: createInspectionRequirement,
-    data: inspectionRequirementCreateData,
-  } = useCreateInspectionRequirement(onSuccess);
+  const onUpdateSuccess = useCallback(() => {
+    onSubmit("Changes saved successfully!", false);
+    setIsRequirementSourceListDirty(false);
+  }, [onSubmit]);
+
+  const onDeleteSuccess = useCallback(() => {
+    onSubmit("Requirement deleted successfully!", true);
+    reset();
+  }, [onSubmit, reset]);
+
+  const { mutate: createInspectionRequirement } =
+    useCreateInspectionRequirement(onCreateSuccess);
+
   const {
     mutate: updateInspectionRequirement,
     data: inspectionRequirementUpdateData,
-  } = useUpdateInspectionRequirement(onSuccess);
+  } = useUpdateInspectionRequirement(onUpdateSuccess);
 
-  useEffect(() => {
-    const inspectionRequirement: InspectionRequirement =
-      inspectionRequirementUpdateData ??
-      inspectionRequirementCreateData ??
-      requirement;
-    if (inspectionRequirement) {
+  const formatAndSetFormData = useCallback(
+    (inspectionRequirement: InspectionRequirement) => {
       const inspectionRequirementFormData = formatRequirementFormData(
         inspectionRequirement
       );
@@ -123,12 +155,41 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       setRequirementSourceList(
         inspectionRequirementFormData.requirementSourceDetails ?? []
       );
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (requirement) {
+      formatAndSetFormData(requirement);
+      setIsDataChanged(false);
+      setPhotos(photosData ?? []);
+      setFigures(figuresData ?? []);
+    } else {
+      useRequirementStore.getState().reset();
     }
   }, [
-    inspectionRequirementUpdateData,
-    inspectionRequirementCreateData,
     requirement,
+    formatAndSetFormData,
+    photosData,
+    figuresData,
+    setPhotos,
+    setFigures,
+    setIsDataChanged,
   ]);
+
+  useEffect(() => {
+    if (isDataChanged) {
+      setIsRequirementSourceListDirty(true);
+    }
+  }, [isDataChanged]);
+
+  useEffect(() => {
+    if (inspectionRequirementUpdateData) {
+      formatAndSetFormData(inspectionRequirementUpdateData);
+      setIsDataChanged(false);
+    }
+  }, [inspectionRequirementUpdateData, formatAndSetFormData, setIsDataChanged]);
 
   const isRequirement = selectedRequirementType?.id === REQUIREMENT_TYPE_ID;
 
@@ -149,7 +210,12 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       const formLeftData = formData as InspectionRequirementFormData;
 
       const inspectionRequirementPayload = isRequirement
-        ? formatRequirementAPIData(formLeftData, requirementSourceList)
+        ? formatRequirementAPIData(
+            formLeftData,
+            requirementSourceList,
+            photos,
+            figures
+          )
         : formatRegulatoryConsiderationAPIData(formLeftData);
 
       if (inspectionRequirementData) {
@@ -172,14 +238,20 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       updateInspectionRequirement,
       inspectionData.id,
       createInspectionRequirement,
+      photos,
+      figures,
     ]
   );
 
   const onRequirementSourceListDataChange = (
     data: RequirementSourceFormData[]
   ) => {
-    setRequirementSourceList(data);
-    return data;
+    const isDifferent =
+      JSON.stringify(data) !== JSON.stringify(requirementSourceList);
+    if (isDifferent) {
+      setIsRequirementSourceListDirty(true);
+      setRequirementSourceList(data);
+    }
   };
 
   const getDrawerTitle = () => {
@@ -196,7 +268,11 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <DrawerTitleBar title={getDrawerTitle()} isFormDirtyCheck />
+        <DrawerTitleBar
+          title={getDrawerTitle()}
+          isFormDirtyCheck
+          isDirtyManual={isRequirementSourceListDirty}
+        />
         <DrawerActionBarTop isShowActionBar={!inspectionRequirementData} />
         <Stack
           key={JSON.stringify(inspectionRequirementData)}
@@ -222,6 +298,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
             <RequirementFormRight
               onDataChange={onRequirementSourceListDataChange}
               requirementSourceFormDataList={requirementSourceList}
+              inspectionId={inspectionData.id}
             />
           )}
         </Stack>
@@ -230,7 +307,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           onDeleteAction={onDeleteRequirement}
           onDeleteTitle="Delete Requirement"
           onDeleteDescription="You are about to delete this Requirement. Are you sure?"
-          dirtyCheck={false}
+          isDirtyManual={isRequirementSourceListDirty}
         />
       </form>
     </FormProvider>

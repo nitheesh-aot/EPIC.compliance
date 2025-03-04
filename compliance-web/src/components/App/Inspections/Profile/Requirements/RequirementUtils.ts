@@ -6,7 +6,10 @@ import { InspectionRequirementType } from "@/models/InspectionRequirementType";
 import { Topic } from "@/models/Topic";
 import { RequirementSourceEnum } from "@/utils/constants";
 import * as yup from "yup";
-
+import { Image, ImageAPIData } from "@/models/Image";
+import dateUtils from "@/utils/dateUtils";
+import { formatS3Url } from "@/utils/appUtils";
+import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
 export const REQUIREMENT_TYPE_ID = "REQ";
 export const REGULATORY_CONSIDERATION_TYPE_ID = "REG";
 
@@ -19,6 +22,11 @@ export enum EnforcementActionEnum {
 
 export enum ComplianceFindingEnum {
   IN = "1",
+}
+
+export enum ImageTypeEnum {
+  PHOTO,
+  FIGURE,
 }
 
 export const RequirementFormSchema = yup.object().shape({
@@ -61,7 +69,9 @@ export const isRequirementSourceCondition = (id: string): boolean =>
 
 export const formatRequirementAPIData = (
   formData: InspectionRequirementFormData,
-  requirementSourceList: RequirementSourceFormData[]
+  requirementSourceList: RequirementSourceFormData[],
+  photos?: Image[],
+  figures?: Image[],
 ): InspectionRequirementAPIData => {
 
   const requirementSourceDetails: InspectionRequirementSourceAPIData[] =
@@ -108,6 +118,8 @@ export const formatRequirementAPIData = (
     agency_id: formData.agency?.id ?? undefined,
     findings: formData.findings?.html ?? "",
     requirement_source_details: requirementSourceDetails,
+    photos: formatImages(photos ?? []),
+    figures: formatImages(figures ?? []),
   };
 
   if (formData.enforcementAction?.id === EnforcementActionEnum.ORDER && formData.isReferralToAdministrativePenalty) {
@@ -116,6 +128,19 @@ export const formatRequirementAPIData = (
 
   return inspectionRequirementPayload;
 };
+
+const formatImages = (images: Image[]): ImageAPIData[] => {
+  return images.map((image) => {
+    return {
+      id: image.dbId ?? undefined,
+      original_file_name: image.original_file_name,
+      date_taken: image.date_taken ? dateUtils.dateToISO(new Date(image.date_taken)) : undefined,
+      taken_by_id: image.taken_by_id,
+      caption: image.caption,
+      relative_url: image.relative_url,
+    };
+  });
+}
 
 export const formatRegulatoryConsiderationAPIData = (
   formData: InspectionRequirementFormData,
@@ -185,3 +210,11 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
     requirementSourceDetails: requirementSourceDetails,
   };
 };
+
+export const formatImagesToMentionList = (images: Image[]): MentionData[] => {
+  return images.map((image, index) => ({
+    id: image.id ?? 0,
+    name: `${image.image_type ?? ""} ${index + 1}`,
+    imageUrl: formatS3Url(image.relative_url ?? ""),
+  }));
+}

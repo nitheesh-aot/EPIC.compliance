@@ -3,7 +3,7 @@ import { BCDesignTokens } from "epic.theme";
 import { components, MenuProps } from "react-select";
 
 const Menu = (props: MenuProps) => {
-  const { filterProps } = props.selectProps;
+  const { filterProps  } = props.selectProps;
   return (
     <>
       <Box
@@ -17,7 +17,7 @@ const Menu = (props: MenuProps) => {
         }}
       >
         <components.Menu {...props}>
-          {props.isMulti && props.options.length >= 7 && (
+          {props.isMulti && props.options.length > 5 && (
             <Box
               sx={{
                 display: "flex",
@@ -43,6 +43,32 @@ const Menu = (props: MenuProps) => {
           )}
           <Box sx={{ maxHeight: "300px", overflowY: "auto" }}>
             {props.children}
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              padding: "1rem",
+              alignItems: "flex-start",
+              gap: "1rem",
+              justifyContent: "space-between",
+              borderBottomLeftRadius: "4px",
+              borderBottomRightRadius: "4px",
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={filterProps?.onCancel}
+              fullWidth
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={filterProps?.applyFilters}
+              fullWidth
+            >
+              Apply
+            </Button>
           </Box>
         </components.Menu>
       </Box>

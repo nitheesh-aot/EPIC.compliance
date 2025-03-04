@@ -3,7 +3,6 @@ import { Box, Grid, IconButton, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { BCDesignTokens } from "epic.theme";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
-import ControlledRichTextEditor from "@/components/Shared/Controlled/ControlledRichTextEditor";
 import { Topic } from "@/models/Topic";
 import { EnforcementAction } from "@/models/EnforcementAction";
 import { ComplianceFinding } from "@/models/ComplianceFinding";
@@ -14,12 +13,17 @@ import { useFormContext, useWatch } from "react-hook-form";
 import {
   ComplianceFindingEnum,
   EnforcementActionEnum,
+  formatImagesToMentionList,
   REGULATORY_CONSIDERATION_TYPE_ID,
   REQUIREMENT_TYPE_ID,
 } from "./RequirementUtils";
 import ControlledToggleButtonGroup from "@/components/Shared/Controlled/ControlledToggleButtonGroup";
 import { EditOutlined } from "@mui/icons-material";
 import GridLabelValuePair from "./GridLabelValuePair";
+import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
+import { useRequirementStore } from "./requirementStore";
+import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
+
 
 type RequirementFormLeftProps = {
   inspectionRequirementTypesList: InspectionRequirementType[];
@@ -48,6 +52,15 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
     isEditMode,
   }) => {
     const { control, setValue, getValues } = useFormContext();
+    const { photos, figures } = useRequirementStore();
+    const [mentionDataList, setMentionDataList] = useState<MentionData[]>([]);
+
+    useEffect(() => {
+      setMentionDataList([
+        ...formatImagesToMentionList(photos),
+        ...formatImagesToMentionList(figures),
+      ]);
+    }, [photos, figures]);
 
     const isReferredToAnotherAgency = useWatch({
       control,
@@ -140,7 +153,11 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
                 />
                 <GridLabelValuePair
                   label="Enforcement Action"
-                  value={getValues("enforcementAction")?.name}
+                  value={`${getValues("enforcementAction")?.name ?? ""}${
+                    getValues("isReferralToAdministrativePenalty")
+                      ? ", Referral to Administrative Penalty"
+                      : ""
+                  }`}
                   gridProps={{ xs: agencyName ? 4 : 8 }}
                 />
               </>
@@ -260,11 +277,13 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
         }}
       >
         {isReadOnly ? <ReadOnlySection /> : <EditSection />}
-        <ControlledRichTextEditor
+        <ControlledLexicalEditor
           label="Findings"
           name="findings"
+          placeholder="Enter Findings..."
           height={`calc(100vh - ${appHeaderHeight + 363}px)`}
-          marginBottom="0"
+          isAdvanced
+          mentionsList={mentionDataList}
         />
       </Box>
     );

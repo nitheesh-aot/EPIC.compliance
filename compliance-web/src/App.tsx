@@ -9,8 +9,9 @@ import RouterProviderWithAuthContext from "@/router/RouterProviderWithAuthContex
 import ModalProvider from "@/components/Shared/Modals/ModalProvider";
 import SnackBarProvider from "@/components/Shared/Popups/SnackBarProvider";
 import DrawerProvider from "@/components/Shared/Drawer/DrawerProvider";
+import PopoverProvider from "@/components/Shared/Popover/PopoverProvider";
 import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ function App() {
               <DrawerProvider />
               <ModalProvider />
               <SnackBarProvider />
+              <PopoverProvider />
               <RouterProviderWithAuthContext />
             </LocalizationProvider>
           </AuthProvider>

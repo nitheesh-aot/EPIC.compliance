@@ -1,15 +1,21 @@
 """InspectionRequirementService."""
 
+import requests
 from flask import g
 
 from compliance_api.auth import auth
-from compliance_api.exceptions import BadRequestError, PermissionDeniedError, ResourceNotFoundError
+from compliance_api.exceptions import (
+    BadRequestError, PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError)
+from compliance_api.models import ImageTypeEnum
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionReqDetailDocument as InspectionReqDetailDocumentModel
 from compliance_api.models import InspectionReqEnforcementMap as InspectionReqEnforcementMapModel
 from compliance_api.models import InspectionReqSourceDetail as InspectionReqSourceDetailModel
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
+from compliance_api.models import InspectionRequirementImage as InspectionRequirementImageModel
 from compliance_api.models.db import session_scope
+from compliance_api.services.document_service.doc_service import DocService
+from compliance_api.services.document_service.doc_service_enum import ActionOnFileEnum
 from compliance_api.utils.enum import PermissionEnum
 
 
@@ -46,6 +52,19 @@ class InspectionRequirementService:
                 requirement_data.get("enforcement_action_ids", []),
                 session,
             )
+            #  inserting photos
+            _insert_or_update_images(
+                requirement_id=created_requirement.id,
+                images=requirement_data.get("photos", []),
+                image_type=ImageTypeEnum.PHOTO,
+                session=session,
+            )
+            _insert_or_update_images(
+                requirement_id=created_requirement.id,
+                images=requirement_data.get("figures", []),
+                image_type=ImageTypeEnum.FIGURE,
+                session=session,
+            )
         return created_requirement
 
     @classmethod
@@ -69,6 +88,18 @@ class InspectionRequirementService:
                 requirement_id,
                 requirement_data.get("enforcement_action_ids", []),
                 session,
+            )
+            _insert_or_update_images(
+                requirement_id=requirement_id,
+                images=requirement_data.get("photos", []),
+                image_type=ImageTypeEnum.PHOTO,
+                session=session,
+            )
+            _insert_or_update_images(
+                requirement_id=requirement_id,
+                images=requirement_data.get("figures", []),
+                image_type=ImageTypeEnum.FIGURE,
+                session=session,
             )
         return updated_requirement
 
@@ -138,6 +169,107 @@ class InspectionRequirementService:
                 InspectionReqEnforcementMapModel.bulk_insert(
                     requirement_id, list(enf_ids_to_be_added), session
                 )
+
+    @classmethod
+    def get_all_images(cls, inspection_id, requirement_id, image_type: ImageTypeEnum):
+        """Get all photos."""
+        _inspection_check(inspection_id)
+        _requirement_check(requirement_id)
+        images = InspectionRequirementImageModel.find_all_images(
+            requirement_id=requirement_id, image_type=image_type
+        )
+
+        for image in images:
+            presigned_url_reponse = DocService.get_presigned_url(
+                {
+                    "relative_url": image.relative_url,
+                    "action": ActionOnFileEnum.GET.value,
+                }
+            )
+            setattr(
+                image,
+                "url",
+                presigned_url_reponse["presigned_url"],
+            )
+        return images
+
+    @classmethod
+    def delete_image(cls, inspection_id, requirement_id, relative_url, image_type):
+        """Delete image."""
+        _inspection_check(inspection_id)
+        _requirement_check(requirement_id)
+        image = InspectionRequirementImageModel.find_image_by_url(
+            requirement_id, relative_url, image_type
+        )
+        if not image:
+            raise UnprocessableEntityError(
+                f"No {image_type.value} found for the given relative url"
+            )
+        #  Get the presigned delete url for the file
+        presigned_url_response = DocService.get_presigned_url(
+            {
+                "relative_url": image.relative_url,
+                "action": ActionOnFileEnum.DELETE.value,
+            }
+        )
+        presigned_delete_url = presigned_url_response.get("presigned_url")
+        #  Delete the actual file from cloud storage
+        delete_response = requests.delete(presigned_delete_url, timeout=120)
+        #  Mark the deletion in the inspection_req_images table
+        InspectionRequirementImageModel.delete_image(image.id)
+        return delete_response
+
+
+def _create_image_obj(requirement_id, index, img: dict, image_type):
+    """Prepare the image object."""
+    return {
+        "requirement_id": requirement_id,
+        "image_type": image_type,
+        "sort_order": index + 1,
+        "original_file_name": img.get("original_file_name"),
+        "date_taken": img.get("date_taken"),
+        "taken_by_id": img.get("taken_by_id"),
+        "caption": img.get("caption", None),
+        "relative_url": img.get("relative_url"),
+    }
+
+
+def _insert_or_update_images(
+    requirement_id, images: list[dict], image_type: ImageTypeEnum, session=None
+):
+    """Update the images."""
+    # Fetch existing images from the database
+    existing_images = InspectionRequirementImageModel.find_all_images(
+        requirement_id=requirement_id, image_type=image_type
+    )
+    existing_image_ids = {img.id for img in existing_images}
+
+    # Track incoming image IDs (existing ones)
+    incoming_image_ids = {img["id"] for img in images if "id" in img}
+
+    # DELETE: Remove images that exist in DB but are not in the new list
+    images_to_delete = existing_image_ids - incoming_image_ids
+    for image_id in images_to_delete:
+        InspectionRequirementImageModel.delete_image(image_id, session=session)
+
+    # INSERT or UPDATE images while maintaining order
+    for index, img in enumerate(images):
+        img["sort_order"] = index + 1  # Maintain order
+
+        if "id" in img:  # Update existing image
+            InspectionRequirementImageModel.update_image(
+                img["id"], img, session=session
+            )
+        else:  # Insert new image
+            image_obj = _create_image_obj(
+                requirement_id=requirement_id,
+                index=index,
+                img=img,
+                image_type=image_type,
+            )
+            InspectionRequirementImageModel.create_image(
+                image_obj=image_obj, session=session
+            )
 
 
 def _update_sort_order_subsequent(requirements, commit=False):
