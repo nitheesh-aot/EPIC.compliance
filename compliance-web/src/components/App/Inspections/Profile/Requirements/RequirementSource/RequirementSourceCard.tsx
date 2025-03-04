@@ -27,7 +27,7 @@ import { BCDesignTokens } from "epic.theme";
 import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 import { RequirementSourceEnum } from "@/utils/constants";
 import RequirementRelatedDocumentCard from "./RequirementRelatedDocumentCard";
-import { isRequirementSourceCondition } from "./RequirementUtils";
+import { isRequirementSourceCondition } from "../RequirementUtils";
 
 type RequirementSourceCardProps = {
   data: RequirementSourceFormData[];
@@ -158,6 +158,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                           size="small"
                           color="secondary"
                           onClick={() => onAddRelatedDocument(item)}
+                          data-testid={`requirement-source-add-related-document-${index}`}
                         >
                           <PostAddOutlined />
                         </IconButton>
@@ -167,6 +168,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                           size="small"
                           color="secondary"
                           onClick={() => onEdit(item)}
+                          data-testid={`requirement-source-edit-${index}`}
                         >
                           <EditOutlined />
                         </IconButton>
@@ -176,6 +178,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                           size="small"
                           color="secondary"
                           onClick={() => onDelete(item)}
+                          data-testid={`requirement-source-delete-${index}`}
                         >
                           <DeleteOutlineRounded />
                         </IconButton>

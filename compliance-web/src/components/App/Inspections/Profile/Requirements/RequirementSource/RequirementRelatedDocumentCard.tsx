@@ -107,6 +107,7 @@ const RequirementRelatedDocumentCard: FC<
                 mr: 0,
               },
             }}
+            data-testid={`requirement-related-document-add-section-${index}`}
           >
             Section
           </Button>
@@ -131,6 +132,7 @@ const RequirementRelatedDocumentCard: FC<
                     size="small"
                     color="secondary"
                     onClick={() => onEditRelatedDocumentSection(section)}
+                    data-testid={`requirement-related-document-edit-${index}-${idx}`}
                   >
                     <EditOutlined />
                   </IconButton>
@@ -140,6 +142,7 @@ const RequirementRelatedDocumentCard: FC<
                     size="small"
                     color="secondary"
                     onClick={() => onDeleteRelatedDocumentSection(section)}
+                    data-testid={`requirement-related-document-delete-${index}-${idx}`}
                   >
                     <DeleteOutlineRounded />
                   </IconButton>

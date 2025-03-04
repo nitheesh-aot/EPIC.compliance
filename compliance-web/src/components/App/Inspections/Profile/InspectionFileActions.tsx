@@ -108,7 +108,7 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
         setOpen({
           content: (
             <ConfirmationModal
-              title="Close Inspectio?"
+              title="Close Inspection?"
               description="Are you sure you want to close inspection?"
               confirmButtonText="Close Inspection"
               onConfirm={() => {

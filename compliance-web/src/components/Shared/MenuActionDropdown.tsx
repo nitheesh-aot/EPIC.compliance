@@ -63,6 +63,7 @@ const MenuActionDropdown: React.FC<MenuActionDropdownProps> = ({
           .map((item) => (
             <MenuItem
               key={item.text}
+              id={item.text}
               sx={{
                 color: BCDesignTokens.typographyColorPrimary,
                 padding: "0.5rem 1rem",
