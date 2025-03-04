@@ -118,6 +118,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
           size="small"
           onClick={handleOpenAddRequirementModal}
           startIcon={<AddRounded />}
+          data-cy="new-requirement-button"
         >
           New Requirement
         </Button>

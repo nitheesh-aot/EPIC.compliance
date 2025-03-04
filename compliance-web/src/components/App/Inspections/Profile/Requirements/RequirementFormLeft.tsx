@@ -130,6 +130,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
             onClick={() => setIsReadOnly(false)}
             size="small"
             sx={{ marginBottom: "-1rem", marginTop: "-0.5rem" }}
+            data-cy="editable-requirement-button"
           >
             <EditOutlined sx={{ fontSize: "1.25rem" }} />
           </IconButton>

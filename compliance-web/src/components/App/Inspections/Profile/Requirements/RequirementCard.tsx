@@ -158,7 +158,7 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
               }}
               color="action"
             />
-            <Typography variant="body1">
+            <Typography variant="body1" data-cy="requirement-card-title">
               {isRegulatoryConsideration
                 ? "Regulatory Consideration"
                 : `#${index + 1}. ${requirement.summary}`}
