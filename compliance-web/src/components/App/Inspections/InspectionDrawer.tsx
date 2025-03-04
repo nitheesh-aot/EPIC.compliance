@@ -8,10 +8,9 @@ import {
   useAttendanceOptionsData,
   useCreateInspection,
   useInitiationsData,
-  useIRStatusesData,
   useIRTypesData,
   useProjectStatusesData,
-  useUpdateInspection,
+  useUpdateInspection
 } from "@/hooks/useInspections";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { CaseFile } from "@/models/CaseFile";
@@ -59,7 +58,6 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
 
   const { data: initiationList } = useInitiationsData();
   const { data: irTypeList } = useIRTypesData();
-  const { data: irStatusList } = useIRStatusesData();
   const { data: projectStatusList } = useProjectStatusesData();
   const { data: attendanceList } = useAttendanceOptionsData();
   const { data: agenciesList } = useAgenciesData();
@@ -77,7 +75,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
         projectDescription: inspection.project_description ?? "",
         locationDescription: inspection.location_description,
         primaryOfficer: inspection.primary_officer,
-        irStatus: inspection.ir_status,
+        debriefDate: dayjs(inspection.debrief_date),
         projectStatus: inspection.project_status,
         irTypes: inspection.types,
         startDate: dayjs(inspection.start_date),
@@ -176,7 +174,6 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
             initiationList={initiationList ?? []}
             staffUsersList={staffUserList ?? []}
             irTypeList={irTypeList ?? []}
-            irStatusList={irStatusList ?? []}
             projectStatusList={projectStatusList ?? []}
           />
           <InspectionFormRight

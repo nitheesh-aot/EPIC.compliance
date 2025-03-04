@@ -1,19 +1,20 @@
-import { Box, Stack } from "@mui/material";
-import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
-import { FC, useEffect } from "react";
-import { Attendance } from "@/models/Attendance";
-import { BCDesignTokens } from "epic.theme";
-import { Agency } from "@/models/Agency";
-import { FirstNation } from "@/models/FirstNation";
-import { useFormContext, useWatch } from "react-hook-form";
-import { useModal } from "@/store/modalStore";
-import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
-import { AttendanceEnum } from "./InspectionFormUtils";
-import { useDrawer } from "@/store/drawerStore";
 import DynamicInputField, {
   DynamicInputFieldConfig,
 } from "@/components/App/DynamicInputField";
+import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
+import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import { Agency } from "@/models/Agency";
+import { Attendance } from "@/models/Attendance";
+import { FirstNation } from "@/models/FirstNation";
 import { StaffUser } from "@/models/Staff";
+import { useDrawer } from "@/store/drawerStore";
+import { useModal } from "@/store/modalStore";
+import { Box, Stack } from "@mui/material";
+import { BCDesignTokens } from "epic.theme";
+import { FC, useEffect } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
+import { AttendanceEnum } from "./InspectionFormUtils";
 
 type InspectionFormRightProps = {
   attendanceList: Attendance[];
@@ -129,6 +130,13 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
         }}
       >
         <Stack>
+          <Box p={sectionPadding}>
+            <ControlledDateField
+              className="cy-debrief-date"
+              name="debriefDate"
+              label="Regulated Party Debrief Date"
+            />
+          </Box>
           <Box p={sectionPadding}>
             <ControlledAutoComplete
               name="inAttendance"
