@@ -155,6 +155,7 @@ class ComplaintService:
         complaint = ComplaintModel.find_by_id(complaint_id)
         if not complaint:
             return None
+        _complaint_close_check(complaint)
         with session_scope() as session:
             ComplaintModel.delete_complaint(complaint_id, session)
             ComplaintSourceContactModel.delete_by_complaint(complaint_id, session)
@@ -167,7 +168,7 @@ class ComplaintService:
         return complaint
 
     @classmethod
-    def change_case_file_status(cls, complaint_id, status_data):
+    def change_complaint_status(cls, complaint_id, status_data):
         """Change the status of the complaint."""
         complaint = ComplaintModel.find_by_id(complaint_id)
         _access_check_update(complaint)

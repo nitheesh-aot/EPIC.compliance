@@ -161,12 +161,9 @@ class ComplaintRequirementDetails(Resource):
         API, endpoint_description="Fetch a complaint requirement details"
     )
     @API.response(code=200, model=complaint_requirement_details, description="Success")
-    @API.response(404, "Not Found")
     def get(complaint_id):
         """Fetch a complaint requirement details."""
         requirements = ComplaintService.get_requirement_details(complaint_id)
-        if not requirements:
-            raise ResourceNotFoundError(f"Compalint with id: {complaint_id} not found")
         return RequirementSourceDetailSchema().dump(requirements), HTTPStatus.OK
 
 
@@ -224,5 +221,5 @@ class ComplaintStatus(Resource):
     def patch(complaint_id):
         """Close complaint."""
         status = ComplaintStatusSchema().load(API.payload)
-        ComplaintService.change_case_file_status(complaint_id, status)
+        ComplaintService.change_complaint_status(complaint_id, status)
         return {}, HTTPStatus.NO_CONTENT

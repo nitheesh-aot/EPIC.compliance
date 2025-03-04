@@ -13,6 +13,7 @@ from compliance_api.models import InspectionReqEnforcementMap as InspectionReqEn
 from compliance_api.models import InspectionReqSourceDetail as InspectionReqSourceDetailModel
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models import InspectionRequirementImage as InspectionRequirementImageModel
+from compliance_api.models import InspectionStatusEnum
 from compliance_api.models.db import session_scope
 from compliance_api.services.document_service.doc_service import DocService
 from compliance_api.services.document_service.doc_service_enum import ActionOnFileEnum
@@ -35,7 +36,8 @@ class InspectionRequirementService:
     @classmethod
     def create(cls, inspection_id, requirement_data):
         """Create inspection requirement."""
-        _inspection_check(inspection_id)
+        inspection = _inspection_check(inspection_id)
+        _inspection_status_check(inspection)
         _access_check(inspection_id)
         requirements = InspectionRequirementModel.get_by_inspection_id(inspection_id)
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
@@ -70,7 +72,8 @@ class InspectionRequirementService:
     @classmethod
     def update(cls, inspection_id, requirement_id, requirement_data):
         """Update inspection requirement."""
-        _inspection_check(inspection_id)
+        inspection = _inspection_check(inspection_id)
+        _inspection_status_check(inspection)
         _requirement_check(requirement_id)
         _access_check(inspection_id)
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
@@ -106,7 +109,8 @@ class InspectionRequirementService:
     @classmethod
     def delete(cls, inspection_id, requirement_id):
         """Delete the requirement."""
-        _inspection_check(inspection_id)
+        inspection = _inspection_check(inspection_id)
+        _inspection_status_check(inspection)
         _requirement_check(requirement_id)
         _access_check(inspection_id)
         with session_scope() as session:
@@ -129,7 +133,8 @@ class InspectionRequirementService:
     @classmethod
     def update_sort_order(cls, inspection_id, requirement_id, sort_order_data):
         """Update the sort order of the inspection requirement."""
-        _inspection_check(inspection_id)
+        inspection = _inspection_check(inspection_id)
+        _inspection_status_check(inspection)
         requirement = _requirement_check(requirement_id)
         # _access_check(inspection_id)
 
@@ -196,7 +201,8 @@ class InspectionRequirementService:
     @classmethod
     def delete_image(cls, inspection_id, requirement_id, relative_url, image_type):
         """Delete image."""
-        _inspection_check(inspection_id)
+        inspection = _inspection_check(inspection_id)
+        _inspection_status_check(inspection)
         _requirement_check(requirement_id)
         image = InspectionRequirementImageModel.find_image_by_url(
             requirement_id, relative_url, image_type
@@ -284,6 +290,16 @@ def _inspection_check(inspection_id):
     if not inspection:
         raise ResourceNotFoundError(
             f"Inspection with given ID {inspection_id} not found"
+        )
+    return inspection
+
+
+def _inspection_status_check(inspection: InspectionModel):
+    """Check the inspection status."""
+    invalid_statuses = {InspectionStatusEnum.CANCELED, InspectionStatusEnum.CLOSED}
+    if inspection.inspection_status in invalid_statuses:
+        raise UnprocessableEntityError(
+            f"No changes to the requirements can be made to  {inspection.inspection_status.name} inspection"
         )
     return inspection
 
