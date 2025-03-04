@@ -80,7 +80,7 @@ describe("CaseFileActions", () => {
     cy.contains("Are you sure you want to close this case file?").should(
       "exist"
     );
-    cy.contains("button", "Close Case File").should("exist");
+    cy.contains("button", "Close Case File").should("exist").click();
     cy.contains("button", "Cancel").should("exist").click();
   });
 
@@ -94,7 +94,7 @@ describe("CaseFileActions", () => {
     cy.contains("You are about to delete this case file. Are you sure?").should(
       "exist"
     );
-    cy.contains("button", "Delete").should("exist");
+    cy.contains("button", "Delete").should("exist").click();
     cy.contains("button", "Cancel").should("exist").click();
   });
 
@@ -108,7 +108,7 @@ describe("CaseFileActions", () => {
     cy.contains("You are about to reopen this case file. Are you sure?").should(
       "exist"
     );
-    cy.contains("button", "Reopen Case File").should("exist");
+    cy.contains("button", "Reopen Case File").should("exist").click();
     cy.contains("button", "Cancel").should("exist").click();
   });
 });
