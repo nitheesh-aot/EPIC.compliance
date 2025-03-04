@@ -232,7 +232,7 @@ class InspectionService:
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
             raise ResourceNotFoundError(f"Inspection with ID {inspection_id} not found")
-        _inspection_close_check(inspection)
+        _inspection_status_check(inspection)
         _access_check_update(inspection)
         inspection_obj = _create_inspection_update_obj(inspection_data)
         with session_scope() as session:
@@ -350,6 +350,7 @@ class InspectionService:
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
             raise ResourceNotFoundError(f"Inspection with ID {inspection_id} not found")
+        _inspection_status_check(inspection)
         with session_scope() as session:
             InspectionModel.delete_inspection(inspection_id, session)
             InspectionTypeModel.delete_inspection_type(inspection_id, session)
@@ -371,15 +372,14 @@ class InspectionService:
             )
 
 
-def _inspection_close_check(inspection):
-    """Check and raise error if inspection is either closed or canceled."""
-    if inspection.inspection_status in [
-        InspectionStatusEnum.CANCELED,
-        InspectionStatusEnum.CLOSED,
-    ]:
+def _inspection_status_check(inspection: InspectionModel):
+    """Check the inspection status."""
+    invalid_statuses = {InspectionStatusEnum.CANCELED, InspectionStatusEnum.CLOSED}
+    if inspection.inspection_status in invalid_statuses:
         raise UnprocessableEntityError(
-            f"No changes can be made to the {inspection.inspection_status.name} inspection"
+            f"You cannot make changes to  {inspection.inspection_status.name} inspection"
         )
+    return inspection
 
 
 def _access_check_create(inspection_data: dict):
