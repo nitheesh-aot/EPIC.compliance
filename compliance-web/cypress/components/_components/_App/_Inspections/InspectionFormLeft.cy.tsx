@@ -7,11 +7,6 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs"; // Use your chosen date adapter
 
 // Mock data for the form inputs
-const mockIRStatusList = [
-  { id: "1", name: "IR Status Alpha" },
-  { id: "2", name: "IR Status Beta" },
-];
-
 const mockProjectStatusList = [
   { id: "1", name: "Project Status Alpha" },
   { id: "2", name: "Project Status Beta" },
@@ -68,7 +63,6 @@ describe("InspectionFormLeft Component", () => {
           initiationList={mockInitiations}
           staffUsersList={mockStaffUsers}
           irTypeList={mockIRTypes}
-          irStatusList={mockIRStatusList}
           projectStatusList={mockProjectStatusList}
         />
       </Wrapper>
@@ -144,12 +138,6 @@ describe("InspectionFormLeft Component", () => {
     cy.get('input[name="initiation"]').click();
     cy.get("li").contains("Initiation Beta").click();
     cy.get('input[name="initiation"]').should("have.value", "Initiation Beta");
-  });
-
-  it("allows selecting IR Status", () => {
-    cy.get('input[name="irStatus"]').click();
-    cy.get("li").contains("IR Status Alpha").click();
-    cy.get('input[name="irStatus"]').should("have.value", "IR Status Alpha");
   });
 
   it("allows selecting Project Status", () => {
