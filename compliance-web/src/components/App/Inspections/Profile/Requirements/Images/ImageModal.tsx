@@ -25,6 +25,7 @@ type ImageModalProps = {
   imageData?: Image;
   inspectionId: number;
   imageType: ImageTypeEnum;
+  index?: number;
 };
 
 const imageFormSchema = yup.object().shape({
@@ -46,6 +47,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
   imageData,
   inspectionId,
   imageType,
+  index,
 }) => {
   const { data: staffUserList } = useStaffUsersData();
   const isPhoto = imageType === ImageTypeEnum.PHOTO;
@@ -155,7 +157,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
             >
               <GridLabelValuePair
                 label="Photo #"
-                value={1}
+                value={index ? index + 1 : 0}
                 gridProps={{ xs: 2 }}
                 isBold
               />
