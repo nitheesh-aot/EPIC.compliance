@@ -294,13 +294,12 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
             isRegulatoryConsiderationExists={isRegulatoryConsiderationExists}
             isEditMode={!!inspectionRequirementData}
           />
-          {isRequirement && (
-            <RequirementFormRight
-              onDataChange={onRequirementSourceListDataChange}
-              requirementSourceFormDataList={requirementSourceList}
-              inspectionId={inspectionData.id}
-            />
-          )}
+          <RequirementFormRight
+            onDataChange={onRequirementSourceListDataChange}
+            requirementSourceFormDataList={requirementSourceList}
+            inspectionId={inspectionData.id}
+            isRequirement={isRequirement}
+          />
         </Stack>
         <DrawerActionBarBottom
           isShowActionBar={!!inspectionRequirementData}

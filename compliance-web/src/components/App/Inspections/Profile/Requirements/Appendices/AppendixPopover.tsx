@@ -99,6 +99,7 @@ const AppendixPopover: React.FC<AppendixPopoverProps> = ({
             <ControlledTextField
               name="appendixNumber"
               label="Appendix #"
+              mask="000"
               fullWidth
             />
             <ControlledTextField

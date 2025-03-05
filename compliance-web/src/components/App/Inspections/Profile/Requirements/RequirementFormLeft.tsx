@@ -1,4 +1,4 @@
-import { FC, useEffect, useCallback, memo, useState } from "react";
+import { FC, useEffect, useCallback, memo, useState, useRef } from "react";
 import { Box, Grid, IconButton, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { BCDesignTokens } from "epic.theme";
@@ -54,6 +54,16 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
     const { control, setValue, getValues } = useFormContext();
     const { photos, figures } = useRequirementStore();
     const [mentionDataList, setMentionDataList] = useState<MentionData[]>([]);
+    const summaryInputRef = useRef<HTMLInputElement>(null);
+    const [isReadOnly, setIsReadOnly] = useState(isEditMode);
+
+    useEffect(() => {
+      if (!isReadOnly) {
+        setTimeout(() => {
+          summaryInputRef.current?.focus();
+        }, 0);
+      }
+    }, [isReadOnly]);
 
     useEffect(() => {
       setMentionDataList([
@@ -88,8 +98,6 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
       },
       [onRequirementTypeChange]
     );
-
-    const [isReadOnly, setIsReadOnly] = useState(isEditMode);
 
     useEffect(() => {
       handleRequirementTypeChange(selectedRequirementType);
@@ -176,6 +184,12 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
     };
 
     const EditSection = () => {
+      useEffect(() => {
+        if (document.activeElement === null || document.activeElement === document.body) {
+          summaryInputRef.current?.focus();
+        }
+      });
+
       return (
         <>
           {!isEditMode && (
@@ -195,6 +209,8 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
             }
             placeholder=""
             fullWidth
+            inputRef={summaryInputRef}
+            inputProps={{ 'data-cy': 'requirement-summary-input' }}
           />
           <ControlledAutoComplete
             name="topic"
