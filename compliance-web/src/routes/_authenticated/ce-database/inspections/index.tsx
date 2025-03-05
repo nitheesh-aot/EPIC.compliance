@@ -5,7 +5,7 @@ import { Inspection } from "@/models/Inspection";
 import { Chip } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
-import { useMemo, useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/"
@@ -53,10 +53,6 @@ export function Inspections() {
     () => createUniqueFilterList("primary_officer", "name"),
     [createUniqueFilterList]
   );
-  const irStatusList = useMemo(
-    () => createUniqueFilterList("ir_status", "name"),
-    [createUniqueFilterList]
-  );
   const irTypeList = useMemo(
     () => createUniqueFilterList("types_text"),
     [createUniqueFilterList]
@@ -84,13 +80,6 @@ export function Inspections() {
         header: "Project",
         filterVariant: "multi-select",
         filterSelectOptions: projectList,
-      },
-      {
-        accessorKey: "ir_status.name",
-        header: "Stage",
-        filterVariant: "multi-select",
-        filterSelectOptions: irStatusList,
-        size: 120,
       },
       {
         accessorKey: "types_text",
@@ -153,7 +142,6 @@ export function Inspections() {
       projectList,
       initiationList,
       staffUserList,
-      irStatusList,
       irTypeList,
       inspectionStatusList,
     ]

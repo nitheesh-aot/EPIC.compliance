@@ -155,6 +155,8 @@ class InspectionService:
 
         case_file_id = inspection_data.get("case_file_id")
         case_file = CaseFileModel.find_by_id(case_file_id)
+        if not case_file:
+            raise UnprocessableEntityError("Case file doesn't exist")
         if case_file.case_file_status == CaseFileStatusEnum.CLOSED:
             raise UnprocessableEntityError(
                 "Inspection cannot be created with closed case file."
@@ -486,7 +488,7 @@ def _create_inspection_update_obj(inspection_data: dict):
         "start_date": inspection_data.get("start_date"),
         "end_date": inspection_data.get("end_date"),
         "initiation_id": inspection_data.get("initiation_id"),
-        "ir_status_id": inspection_data.get("ir_status_id", None),
+        "debrief_date": inspection_data.get("debrief_date", None),
         "project_status_id": inspection_data.get("project_status_id", None),
     }
 
@@ -506,7 +508,7 @@ def _create_inspection_object(inspection_data: dict, case_file):
         "start_date": inspection_data.get("start_date"),
         "end_date": inspection_data.get("end_date"),
         "initiation_id": inspection_data.get("initiation_id"),
-        "ir_status_id": inspection_data.get("ir_status_id", None),
+        "debrief_date": inspection_data.get("debrief_date", None),
         "project_status_id": inspection_data.get("project_status_id", None),
         "inspection_status": InspectionStatusEnum.OPEN,
     }
