@@ -110,11 +110,13 @@ class InspectionUpdateSchema(BaseSchema):
             "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
         },
     )
-    ir_status_id = fields.Int(
-        metadata={
-            "description": "The unique identifier of the inspection record status."
-        },
+    debrief_date = fields.DateTime(
+        format=INPUT_DATE_TIME_FORMAT,
+        metadata={"description": "The inspection debrief_date in ISO 8601 format."},
         allow_none=True,
+        error_messages={
+            "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
+        },
     )
     project_status_id = fields.Int(
         metadata={"description": "The unique identifier of the project status."},
@@ -325,7 +327,6 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         StaffUserSchema,
         only=("id", "first_name", "last_name", "name", "auth_user_guid"),
     )
-    ir_status = fields.Nested(KeyValueSchema)
     initiation = fields.Nested(KeyValueSchema)
     types = fields.Method("get_inspection_types")
     types_text = fields.Method("get_inspection_type_names")

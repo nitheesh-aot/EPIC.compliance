@@ -77,6 +77,11 @@ class Inspection(BaseModelVersioned):
     end_date = Column(
         DateTime(timezone=True), nullable=False, comment="The inspection end date"
     )
+    debrief_date = Column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="The debrief date of the inspection"
+    )
     initiation_id = Column(
         Integer,
         ForeignKey(
@@ -84,14 +89,6 @@ class Inspection(BaseModelVersioned):
             name="inspection_initiation_id_inspection_initiation_options_id_fkey",
         ),
         nullable=False,
-    )
-    ir_status_id = Column(
-        Integer,
-        ForeignKey(
-            "ir_status_options.id",
-            name="inspection_ir_status_id_ir_status_options_id_fkey",
-        ),
-        nullable=True,
     )
     inspection_status = Column(Enum(InspectionStatusEnum), nullable=True)
     project_status_id = Column(
@@ -124,9 +121,6 @@ class Inspection(BaseModelVersioned):
         primaryjoin="and_(InspectionType.inspection_id == Inspection.id, "
         "InspectionType.is_active == True, "
         "InspectionType.is_deleted == False)",
-    )
-    ir_status = relationship(
-        "IRStatusOption", foreign_keys=[ir_status_id], lazy="joined"
     )
     project = relationship("Project", foreign_keys=[project_id], lazy="joined")
     primary_officer = relationship(
