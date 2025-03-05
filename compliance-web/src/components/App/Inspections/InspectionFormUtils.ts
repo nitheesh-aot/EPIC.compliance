@@ -3,7 +3,6 @@ import { Attendance } from "@/models/Attendance";
 import { FirstNation } from "@/models/FirstNation";
 import { Initiation } from "@/models/Initiation";
 import { InspectionAPIData } from "@/models/Inspection";
-import { IRStatus } from "@/models/IRStatus";
 import { IRType } from "@/models/IRType";
 import { ProjectStatus } from "@/models/ProjectStatus";
 import { StaffUser } from "@/models/Staff";
@@ -40,11 +39,14 @@ export const InspectionFormSchema = yup.object().shape({
     .mixed<Dayjs>()
     .nullable()
     .typeError("Invalid date"),
+  debriefDate: yup
+    .mixed<Dayjs>()
+    .nullable()
+    .typeError("Invalid date"),
   initiation: yup
     .object<Initiation>()
     .nullable()
     .required("Initiation is required"),
-  irStatus: yup.object<IRStatus>().nullable(),
   projectStatus: yup.object<ProjectStatus>().nullable(),
 
   inAttendance: yup.array().of(yup.object<Attendance>()).nullable(),
@@ -133,10 +135,12 @@ export const formatInspectionData = (
     end_date: formData.endDate
       ? dateUtils.dateToISO(formData.endDate)
       : undefined,
+    debrief_date: formData.debriefDate
+      ? dateUtils.dateToISO(formData.debriefDate)
+      : undefined,
     primary_officer_id: (formData.primaryOfficer as StaffUser)?.id,
     location_description: formData.locationDescription ?? "",
     utm: formData.utm ?? "",
-    ir_status_id: (formData.irStatus as IRStatus)?.id,
     project_status_id: (formData.projectStatus as ProjectStatus)?.id,
     attendance_option_ids: inAttendanceOptions,
   };

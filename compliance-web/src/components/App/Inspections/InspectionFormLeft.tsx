@@ -1,21 +1,19 @@
-import { FC } from "react";
-import { Box, Stack } from "@mui/material";
-import { StaffUser } from "@/models/Staff";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
-import { BCDesignTokens } from "epic.theme";
-import { Initiation } from "@/models/Initiation";
-import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
-import { IRType } from "@/models/IRType";
-import { IRStatus } from "@/models/IRStatus";
-import { ProjectStatus } from "@/models/ProjectStatus";
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
+import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
+import { Initiation } from "@/models/Initiation";
+import { IRType } from "@/models/IRType";
+import { ProjectStatus } from "@/models/ProjectStatus";
+import { StaffUser } from "@/models/Staff";
+import { Box, Stack } from "@mui/material";
+import { BCDesignTokens } from "epic.theme";
+import { FC } from "react";
 import { useFormContext } from "react-hook-form";
 
 type InspectionFormLeftProps = {
   initiationList: Initiation[];
   staffUsersList: StaffUser[];
   irTypeList: IRType[];
-  irStatusList: IRStatus[];
   projectStatusList: ProjectStatus[];
 };
 
@@ -23,7 +21,6 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
   initiationList,
   staffUsersList,
   irTypeList,
-  irStatusList,
   projectStatusList,
 }) => {
   const { watch } = useFormContext();
@@ -113,15 +110,6 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
           </Stack>
         </Stack>
         <Stack direction={"row"} gap={2}>
-          <ControlledAutoComplete
-            name="irStatus"
-            label="IR Status (optional)"
-            options={irStatusList}
-            getOptionLabel={(option) => option.name}
-            getOptionKey={(option) => option.id}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            fullWidth
-          />
           <ControlledAutoComplete
             name="projectStatus"
             label="Project Status (optional)"

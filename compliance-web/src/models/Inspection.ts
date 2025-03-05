@@ -21,6 +21,7 @@ export interface Inspection {
   primary_officer_id: number;
   start_date: string;
   end_date: string;
+  debrief_date: string;
   types: IRType[];
   types_text: string; // TODO: Remove this once the table filter is updated
   inspection_status: string;
@@ -47,6 +48,7 @@ export interface InspectionFormData {
   project?: Project;
   startDate?: Dayjs;
   endDate?: Dayjs;
+  debriefDate?: Dayjs;
   primaryOfficer?: StaffUser;
   initiation?: Initiation;
   irTypes?: IRType[];
@@ -64,6 +66,7 @@ export interface InspectionAPIData {
   inspection_type_ids: string[];
   start_date: string;
   end_date?: string;
+  debrief_date?: string;
   initiation_id: string;
   ir_status_id?: string;
   project_status_id?: string;
