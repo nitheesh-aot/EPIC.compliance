@@ -40,6 +40,7 @@ type IFormInputProps = {
   ) => string;
   maxLength?: number;
   mask?: string;
+  inputRef?: React.Ref<HTMLInputElement>;
 } & TextFieldProps;
 
 const ControlledTextField: FC<IFormInputProps> = ({
@@ -48,6 +49,7 @@ const ControlledTextField: FC<IFormInputProps> = ({
   maxLength,
   onChange: onInputChange,
   mask,
+  inputRef,
   ...otherProps
 }) => {
   const {
@@ -87,7 +89,18 @@ const ControlledTextField: FC<IFormInputProps> = ({
         return (
           <TextField
             {...field}
-            inputRef={field.ref} // Use field ref directly
+            inputRef={(el) => {
+              // Handle both the form's ref and the custom ref
+              field.ref(el);
+              if (inputRef) {
+                // Handle both function and object refs
+                if (typeof inputRef === 'function') {
+                  inputRef(el);
+                } else {
+                  (inputRef as React.MutableRefObject<HTMLInputElement | null>).current = el;
+                }
+              }
+            }}
             inputProps={{
               maxLength,
               ...otherProps.inputProps,
