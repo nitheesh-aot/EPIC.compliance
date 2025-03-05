@@ -20,12 +20,14 @@ interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
   requirementSourceFormDataList: RequirementSourceFormData[];
   inspectionId: number;
+  isRequirement: boolean;
 }
 
 const RequirementFormRight: FC<RequirementFormRightProps> = ({
   onDataChange,
   requirementSourceFormDataList,
   inspectionId,
+  isRequirement,
 }) => {
   const { setOpen, setClose } = useModal();
   const [requirementSourceFormData, setRequirementSourceFormData] = useState<
@@ -284,13 +286,15 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         boxSizing: "border-box",
       }}
     >
-      <Button
-        color="secondary"
-        onClick={handleAddRequirementSource}
-        startIcon={<AddRounded />}
-      >
-        Requirement Source
-      </Button>
+      {isRequirement && (
+        <Button
+          color="secondary"
+          onClick={handleAddRequirementSource}
+          startIcon={<AddRounded />}
+        >
+          Requirement Source
+        </Button>
+      )}
       <ImagesContainer
         imageType={ImageTypeEnum.PHOTO}
         inspectionId={inspectionId}
@@ -300,22 +304,26 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         inspectionId={inspectionId}
       />
       <AppendicesContainer inspectionId={inspectionId} />
-      {Object.entries(groupedData).map(([sourceId, items], index) => (
-        <RequirementSourceCard
-          key={sourceId}
-          data={items}
-          index={index}
-          onEdit={handleEditRequirementSource}
-          onDelete={handleDeleteRequirementSource}
-          onAddSection={handleAddRequirementSourceSection}
-          onAddRelatedDocument={handleAddRequirementRelatedDocument}
-          onAddRelatedDocumentSection={handleAddRelatedDocumentSection}
-          onEditRelatedDocumentSection={handleEditRelatedDocumentSection}
-          onDeleteRelatedDocumentSection={
-            handleDeleteRequirementRelatedDocumentSection
-          }
-        />
-      ))}
+      {isRequirement && (
+        <>
+          {Object.entries(groupedData).map(([sourceId, items], index) => (
+            <RequirementSourceCard
+              key={sourceId}
+              data={items}
+              index={index}
+              onEdit={handleEditRequirementSource}
+              onDelete={handleDeleteRequirementSource}
+              onAddSection={handleAddRequirementSourceSection}
+              onAddRelatedDocument={handleAddRequirementRelatedDocument}
+              onAddRelatedDocumentSection={handleAddRelatedDocumentSection}
+              onEditRelatedDocumentSection={handleEditRelatedDocumentSection}
+              onDeleteRelatedDocumentSection={
+                handleDeleteRequirementRelatedDocumentSection
+              }
+            />
+          ))}
+        </>
+      )}
     </Box>
   );
 };
