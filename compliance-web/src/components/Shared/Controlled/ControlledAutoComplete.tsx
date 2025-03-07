@@ -24,6 +24,7 @@ interface FormAutocompleteProps<T>
   placeholder?: string;
   onDeleteOption?: (option: T) => void;
   isSortOptions?: boolean;
+  isRequired?: boolean;
 }
 
 const ControlledAutoComplete = <T,>({
@@ -36,6 +37,7 @@ const ControlledAutoComplete = <T,>({
   placeholder = "Select an option...",
   onDeleteOption,
   isSortOptions = false,
+  isRequired = false,
   ...props
 }: FormAutocompleteProps<T>) => {
   const {
@@ -101,6 +103,9 @@ const ControlledAutoComplete = <T,>({
               helperText={String(errors[name]?.message ?? "")}
               InputLabelProps={{
                 shrink: true, // for always display the placeholder
+                sx: {
+                  fontWeight: isRequired ? "bold" : "normal",
+                },
               }}
             />
           )}

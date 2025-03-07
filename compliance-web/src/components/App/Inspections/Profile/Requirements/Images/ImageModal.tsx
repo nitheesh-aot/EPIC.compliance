@@ -195,8 +195,14 @@ const ImageModal: React.FC<ImageModalProps> = ({
               getOptionLabel={(option) => option.name}
               getOptionKey={(option) => option.id}
               isOptionEqualToValue={(option, value) => option.id === value.id}
+              isRequired={true}
             />
-            <ControlledTextField name="caption" label="Caption" fullWidth />
+            <ControlledTextField
+              name="caption"
+              label="Caption"
+              fullWidth
+              isRequired={true}
+            />
           </DialogContent>
           <ModalActions
             primaryActionButtonText={imageData ? "Save" : "Add"}

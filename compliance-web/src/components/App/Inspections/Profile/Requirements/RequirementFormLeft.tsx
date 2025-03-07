@@ -210,7 +210,8 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
             placeholder=""
             fullWidth
             inputRef={summaryInputRef}
-            inputProps={{ 'data-cy': 'requirement-summary-input' }}
+            inputProps={{ "data-cy": "requirement-summary-input" }}
+            isRequired={true}
           />
           <ControlledAutoComplete
             name="topic"
@@ -222,6 +223,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
               option.id.toString() === value.id.toString()
             }
             fullWidth
+            isRequired={true}
           />
           {selectedRequirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID && (
             <ControlledCheckbox
@@ -240,6 +242,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
                 getOptionKey={(option) => option.id}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 fullWidth
+                isRequired={true}
               />
               <Stack direction="column" sx={{ width: "50%" }}>
                 <ControlledAutoComplete
@@ -253,6 +256,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
                   }
                   fullWidth
                   sx={{ marginBottom: "-0.5rem" }}
+                  isRequired={true}
                 />
                 {enforcementAction?.id === EnforcementActionEnum.ORDER && (
                   <ControlledCheckbox

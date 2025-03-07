@@ -112,6 +112,7 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
               getOptionKey={(option) => option.id}
               isOptionEqualToValue={(option, value) => option.id === value.id}
               disabled={!!requirementSourceFormData || !!requirementSource}
+              isRequired={true}
             />
             {selectedRequirementSource?.id === RequirementSourceEnum.EACA && (
               <ControlledTextField
@@ -127,21 +128,18 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
                   isRequirementSourceCondition(
                     selectedRequirementSource?.id ?? ""
                   )
-                    ? "Condition # (optional)"
-                    : "Section # (optional)"
+                    ? "Condition #"
+                    : "Section #"
                 }
                 fullWidth
               />
-              <ControlledTextField
-                name="sourceTitle"
-                label="Title (optional)"
-                fullWidth
-              />
+              <ControlledTextField name="sourceTitle" label="Title" fullWidth />
             </Stack>
             <ControlledLexicalEditor
               label="Description"
               name="description"
               isAdvanced
+              isRequired={true}
             />
           </DialogContent>
           <ModalActions

@@ -41,6 +41,7 @@ type IFormInputProps = {
   maxLength?: number;
   mask?: string;
   inputRef?: React.Ref<HTMLInputElement>;
+  isRequired?: boolean;
 } & TextFieldProps;
 
 const ControlledTextField: FC<IFormInputProps> = ({
@@ -50,6 +51,7 @@ const ControlledTextField: FC<IFormInputProps> = ({
   onChange: onInputChange,
   mask,
   inputRef,
+  isRequired = false,
   ...otherProps
 }) => {
   const {
@@ -111,6 +113,9 @@ const ControlledTextField: FC<IFormInputProps> = ({
             InputLabelProps={{
               shrink: true,
               htmlFor: name,
+              sx: {
+                fontWeight: isRequired ? "bold" : "normal",
+              },
             }}
             InputProps={inputProps}
             {...otherProps}

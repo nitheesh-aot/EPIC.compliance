@@ -29,10 +29,11 @@ const ComplaintFormLeft: FC<ComplaintFormLeftProps> = ({ staffUsersList }) => {
           multiline
           fullWidth
           minRows={2}
+          isRequired={true}
         />
         <ControlledTextField
           name="locationDescription"
-          label="Location Description (optional)"
+          label="Location Description"
           placeholder="Specify inspected location"
           multiline
           fullWidth
@@ -48,11 +49,13 @@ const ComplaintFormLeft: FC<ComplaintFormLeftProps> = ({ staffUsersList }) => {
             isOptionEqualToValue={(option, value) => option.id === value.id}
             fullWidth
             isSortOptions
+            isRequired={true}
           />
           <ControlledDateField
             name="dateReceived"
             label="Date Received"
             sx={{ width: "100%" }}
+            isRequired={true}
           />
         </Stack>
       </Box>

@@ -73,6 +73,7 @@ const ProjectDetailsForm: FC<ProjectDetailsFormProps> = ({
           }
         }}
         disabled={isEditMode}
+        isRequired={true}
       />
       <ControlledTextField
         name="authorization"

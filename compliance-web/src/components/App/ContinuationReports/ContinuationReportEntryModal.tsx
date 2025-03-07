@@ -133,9 +133,13 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
               label="Date and Time"
               sx={{ width: "50%" }}
               maxDateTime={maxSelectableDate}
+              isRequired={true}
             />
-            {/* <ControlledRichTextEditor label="Entry" name="entry" /> */}
-            <ControlledLexicalEditor label="Entry" name="entry" />
+            <ControlledLexicalEditor
+              label="Entry"
+              name="entry"
+              isRequired={true}
+            />
           </DialogContent>
           <ModalActions
             primaryActionButtonText={

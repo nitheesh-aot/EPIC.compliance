@@ -28,6 +28,7 @@ const DynamicInputField: FC<DynamicInputFieldProps> = ({ config }) => {
       label={config.label}
       fullWidth
       multiline
+      isRequired={config.required}
     />
   ) : (
     <ControlledAutoComplete
@@ -40,6 +41,7 @@ const DynamicInputField: FC<DynamicInputFieldProps> = ({ config }) => {
       isOptionEqualToValue={(option, value) => option.id === value.id}
       multiple={config.multiple}
       fullWidth
+      isRequired={config.required}
     />
   );
 };

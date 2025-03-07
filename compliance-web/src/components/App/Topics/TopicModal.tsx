@@ -64,6 +64,7 @@ const TopicModal: React.FC<TopicModalProps> = ({ onSubmit, topic }) => {
             name="name"
             placeholder="eg. Fish and fish habitat"
             fullWidth
+            isRequired={true}
           />
         </DialogContent>
         <ModalActions primaryActionButtonText={topic ? "Save" : "Add"} />

@@ -39,6 +39,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
         getOptionKey={(option) => option.id}
         isOptionEqualToValue={(option, value) => option.id === value.id}
         disabled={!!existingStaff}
+        isRequired={true}
       />
       <ControlledAutoComplete
         name="position"
@@ -47,6 +48,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
         getOptionLabel={(option) => option.name}
         getOptionKey={(option) => option.id}
         isOptionEqualToValue={(option, value) => option.id === value.id}
+        isRequired={true}
       />
       <Stack direction="row" spacing={1}>
         <ControlledAutoComplete
@@ -77,6 +79,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
         getOptionLabel={(option) => option.name}
         getOptionKey={(option) => option.id}
         isOptionEqualToValue={(option, value) => option.id === value.id}
+        isRequired={true}
       />
       <ControlledSwitch name="isActive" label="Active" />
     </>
