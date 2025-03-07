@@ -75,8 +75,8 @@ describe("InspectionFormLeft Component", () => {
 
   it("renders the form with all fields", () => {
     // Check that all the labels exist
-    cy.contains("Location Description (optional)").should("exist");
-    cy.contains("UTM (optional)").should("exist");
+    cy.contains("Location Description").should("exist");
+    cy.contains("UTM").should("exist");
     cy.contains("Primary").should("exist");
     cy.contains("Type").should("exist");
     cy.contains("Start Date").should("exist");
