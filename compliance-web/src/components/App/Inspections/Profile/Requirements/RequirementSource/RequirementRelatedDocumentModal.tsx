@@ -194,24 +194,25 @@ const RequirementRelatedDocumentModal: React.FC<
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             disabled={!isScheduleB || isEditSection}
+            isRequired={true}
           />
           <ControlledTextField
             name="documentTitle"
-            label="Document Title (optional)"
+            label="Document Title"
             fullWidth
           />
           <Grid container spacing={2}>
             <Grid item xs={3}>
               <ControlledTextField
                 name="sectionNumber"
-                label="Section # (optional)"
+                label="Section #"
                 fullWidth
               />
             </Grid>
             <Grid item xs={9}>
               <ControlledTextField
                 name="sectionTitle"
-                label="Section Title (optional)"
+                label="Section Title"
                 fullWidth
               />
             </Grid>
@@ -220,6 +221,7 @@ const RequirementRelatedDocumentModal: React.FC<
             label="Description"
             name="description"
             isAdvanced
+            isRequired={true}
           />
         </DialogContent>
         <ModalActions

@@ -84,6 +84,7 @@ const LinkCaseFileModal: FC<LinkCaseFileModalProps> = ({
             fullWidth
             sx={{ mb: "-0.5rem" }}
             disabled={!caseFilesList?.length}
+            isRequired={true}
           />
         </DialogContent>
         {caseFilesList && caseFilesList.length > 0 && (

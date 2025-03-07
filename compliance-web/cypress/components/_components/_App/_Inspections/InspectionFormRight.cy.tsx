@@ -82,7 +82,7 @@ describe("InspectionFormRight Component", () => {
   });
 
   it("renders the form with all fields", () => {
-    cy.contains("In Attendance (optional)").should("exist");
+    cy.contains("In Attendance").should("exist");
   });
 
   it("allows selecting multiple attendees in the 'In Attendance' field", () => {

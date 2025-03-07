@@ -12,12 +12,14 @@ type IFormDateInputProps = {
   name: string;
   label: string;
   placeHolder?: string;
+  isRequired?: boolean;
 } & DateTimePickerProps<Dayjs>;
 
 const ControlledDateTimeField: FC<IFormDateInputProps> = ({
   name,
   label,
   placeHolder = DATE_TIME_FORMAT,
+  isRequired = false,
   ...otherProps
 }) => {
   const {
@@ -44,6 +46,9 @@ const ControlledDateTimeField: FC<IFormDateInputProps> = ({
               placeholder: placeHolder,
               InputLabelProps: {
                 shrink: true, // for always display the placeholder
+                sx: {
+                  fontWeight: isRequired ? "bold" : "normal",
+                },
               },
             } as TextFieldProps,
           }}

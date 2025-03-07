@@ -38,6 +38,7 @@ type LexicalEditorProps = {
   isAdvanced?: boolean;
   mentionsList?: MentionData[];
   onChange: (editorState: EditorState, editor: Editor) => void;
+  isRequired?: boolean;
 };
 
 const LexicalEditor = ({
@@ -50,6 +51,7 @@ const LexicalEditor = ({
   mentionsList,
   onChange,
   isAdvanced = false,
+  isRequired = false,
 }: LexicalEditorProps) => {
   // Lexical Editor Configuration
   const editorConfig = {
@@ -117,6 +119,7 @@ const LexicalEditor = ({
             color: errorMsg
               ? BCDesignTokens.typographyColorDanger
               : BCDesignTokens.typographyColorPrimary,
+            fontWeight: isRequired ? "bold" : "normal",
           }}
           htmlFor={name}
           size="small"

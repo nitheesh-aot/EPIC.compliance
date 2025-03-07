@@ -101,12 +101,14 @@ const AppendixPopover: React.FC<AppendixPopoverProps> = ({
               label="Appendix #"
               mask="000"
               fullWidth
+              isRequired={true}
             />
             <ControlledTextField
               name="documentTitle"
               label="Document Title"
               multiline
               fullWidth
+              isRequired={true}
             />
           </Box>
           <PopoverActions

@@ -86,9 +86,9 @@ describe("RequirementRelatedDocumentModal", () => {
 
     cy.contains("Add Related Document").should("be.visible");
     cy.contains("Related Document").should("exist");
-    cy.contains("Document Title (optional)").should("exist");
-    cy.contains("Section # (optional)").should("exist");
-    cy.contains("Section Title (optional)").should("exist");
+    cy.contains("Document Title").should("exist");
+    cy.contains("Section #").should("exist");
+    cy.contains("Section Title").should("exist");
     cy.contains("Description").should("be.visible");
     cy.contains("button", "Add").should("be.visible");
   });

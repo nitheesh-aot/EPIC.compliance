@@ -66,9 +66,10 @@ const AgencyModal: React.FC<AgencyModalProps> = ({ onSubmit, agency }) => {
             name="name"
             placeholder="eg. Canada Energy Regulator"
             fullWidth
+            isRequired={true}
           />
           <ControlledTextField
-            label="Abbreviation (optional)"
+            label="Abbreviation"
             name="abbreviation"
             placeholder="CER"
             fullWidth

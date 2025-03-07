@@ -63,7 +63,7 @@ describe("RequirementSourceForm Component", () => {
 
   it("renders the requirement source dropdown", () => {
     setup();
-    cy.contains("Requirement Source (optional)").should("exist");
+    cy.contains("Requirement Source").should("exist");
   });
 
   it("shows condition number field when Schedule B source is selected", () => {
@@ -86,9 +86,9 @@ describe("RequirementSourceForm Component", () => {
     cy.get("li").contains("EAC").click();
 
     // Check if amendment fields appear
-    cy.contains("Amendment # (optional)").should("exist");
-    cy.contains("Amendment Condition # (optional)").should("exist");
-    cy.contains("Condition Description (optional)").should("exist");
+    cy.contains("Amendment #").should("exist");
+    cy.contains("Amendment Condition #").should("exist");
+    cy.contains("Condition Description").should("exist");
 
     cy.get('textarea[name="amendmentNumber"]').should("exist");
     cy.get('textarea[name="amendmentConditionNumber"]').should("exist");
@@ -103,7 +103,7 @@ describe("RequirementSourceForm Component", () => {
     cy.get("li").contains("Other").click();
 
     // Check if Description field appears
-    cy.contains("Description (optional)").should("exist");
+    cy.contains("Description").should("exist");
     cy.get('textarea[name="description"]').should("exist");
   });
 

@@ -53,8 +53,8 @@ describe("RequirementSourceModal", () => {
 
     cy.contains("Add Requirement Source").should("be.visible");
     cy.contains("Requirement Source").should("exist");
-    cy.contains("Section # (optional)").should("exist");
-    cy.contains("Title (optional)").should("exist");
+    cy.contains("Section #").should("exist");
+    cy.contains("Title").should("exist");
     cy.contains("Description").should("be.visible");
     cy.contains("button", "Add").should("be.visible");
   });
@@ -81,8 +81,8 @@ describe("RequirementSourceModal", () => {
   it("shows Condition # instead of Section # when condition source is selected", () => {
     cy.mount(mountRequirementSourceModal({ requirementSource: mockRequirementSourceList[1] }));
 
-    cy.contains("Condition # (optional)").should("exist");
-    cy.contains("Section # (optional)").should("not.exist");
+    cy.contains("Condition #").should("exist");
+    cy.contains("Section #").should("not.exist");
   });
 
     it("validates required fields", () => {

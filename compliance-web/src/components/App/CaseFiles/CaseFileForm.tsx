@@ -52,6 +52,7 @@ const CaseFileForm: React.FC<CaseFileFormProps> = ({
               isOptionEqualToValue={(option, value) => option.id === value.id}
               fullWidth
               disabled={isEditMode}
+              isRequired={true}
             />
             <ControlledAutoComplete
               name="primaryOfficer"
@@ -61,10 +62,11 @@ const CaseFileForm: React.FC<CaseFileFormProps> = ({
               getOptionKey={(option) => option.id}
               isOptionEqualToValue={(option, value) => option.id === value.id}
               fullWidth
+              isRequired={true}
             />
             <ControlledAutoComplete
               name="officers"
-              label="Other Assigned Officers (optional)"
+              label="Other Assigned Officers"
               options={staffUsersList}
               getOptionLabel={(option) => option.name}
               getOptionKey={(option) => option.id}
@@ -76,12 +78,12 @@ const CaseFileForm: React.FC<CaseFileFormProps> = ({
               <>
                 <ControlledDateField
                   name="dateCreated"
-                  label="Date Created (optional)"
+                  label="Date Created"
                   sx={{ width: "100%" }}
                   disabled={isEditMode}
                 />
                 <ControlledTextField
-                  label="Manual Case File Number (optional)"
+                  label="Manual Case File Number"
                   name="caseFileNumber"
                   placeholder="Enter Case File Number"
                   fullWidth

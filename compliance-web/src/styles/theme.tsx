@@ -1,5 +1,4 @@
 import "@/styles/App.scss";
-import "@/styles/quill.scss";
 import "@/styles/lexical.scss";
 import { createAppTheme } from "epic.theme";
 

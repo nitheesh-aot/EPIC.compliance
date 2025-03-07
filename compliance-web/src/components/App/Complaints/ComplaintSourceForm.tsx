@@ -122,18 +122,21 @@ const ComplaintSourceForm: FC<ComplaintSourceProps> = ({
       name: "agency",
       label: "Agency",
       options: agenciesList,
+      required: true,
     },
     [ComplaintSourceEnum.FIRST_NATION]: {
       type: "autocomplete",
       name: "firstNation",
       label: "First Nation",
       options: firstNationsList,
+      required: true,
     },
     [ComplaintSourceEnum.OTHER]: {
       type: "text",
       name: "otherDescription",
       label: "Description",
       options: undefined,
+      required: true,
     },
   };
 
@@ -151,6 +154,7 @@ const ComplaintSourceForm: FC<ComplaintSourceProps> = ({
           isOptionEqualToValue={(option, value) => option.id === value.id}
           onChange={handleComplaintSourceChange}
           fullWidth
+          isRequired={true}
         />
       </Box>
       {isComplaintSourceSelected && (

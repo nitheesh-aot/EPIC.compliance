@@ -45,10 +45,11 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
           multiline
           fullWidth
           minRows={4}
+          isRequired={true}
         />
         <ControlledTextField
           name="locationDescription"
-          label="Location Description (optional)"
+          label="Location Description"
           placeholder="Specify inspected location"
           multiline
           fullWidth
@@ -56,7 +57,7 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
         />
         <ControlledTextField
           name="utm"
-          label="UTM (optional)"
+          label="UTM"
           placeholder="eg. 9U 454135 6399452"
           fullWidth
         />
@@ -70,6 +71,7 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
             isOptionEqualToValue={(option, value) => option.id === value.id}
             fullWidth
             isSortOptions
+            isRequired={true}
           />
           <ControlledAutoComplete
             name="initiation"
@@ -79,6 +81,7 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             fullWidth
+            isRequired={true}
           />
         </Stack>
         <Stack direction={"row"} gap={2}>
@@ -93,6 +96,7 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
             }
             multiple
             fullWidth
+            isRequired={true}
           />
           <Stack direction={"row"} gap={2} sx={{ width: "100%" }}>
             <ControlledDateField
@@ -100,11 +104,12 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
               name="startDate"
               label="Start Date"
               maxDate={endDate}
+              isRequired={true}
             />
             <ControlledDateField
               className="cy-end-date"
               name="endDate"
-              label="End Date (optional)"
+              label="End Date"
               minDate={startDate}
             />
           </Stack>
@@ -112,7 +117,7 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
         <Stack direction={"row"} gap={2}>
           <ControlledAutoComplete
             name="projectStatus"
-            label="Project Status (optional)"
+            label="Project Status"
             options={projectStatusList}
             getOptionLabel={(option) => option.name}
             getOptionKey={(option) => option.id}
