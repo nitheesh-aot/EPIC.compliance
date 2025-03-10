@@ -20,6 +20,7 @@ import TabPanel from "@/components/Shared/TabPanel";
 import { useTab } from "@/store/tabStore";
 import InspectionRequirements from "@/components/App/Inspections/Profile/InspectionRequirements";
 import ComingSoon from "@/components/Shared/ComingSoon";
+import InspectionReports from "@/components/App/Inspections/Profile/InspectionReports";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/$inspectionNumber"
@@ -115,7 +116,7 @@ function InspectionProfilePage() {
           <ComingSoon />
         </TabPanel>
         <TabPanel value={currentTab} index={3} id="inspection-report">
-          <ComingSoon />
+          <InspectionReports inspectionData={inspectionData} />
         </TabPanel>
         <ContinuationReport
           caseFileId={inspectionData.case_file_id}
