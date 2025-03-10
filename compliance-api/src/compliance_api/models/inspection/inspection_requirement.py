@@ -79,6 +79,7 @@ class InspectionRequirement(BaseModelVersioned):
         primaryjoin="and_(InspectionReqSourceDetail.requirement_id == InspectionRequirement.id, "
         "InspectionReqSourceDetail.is_active == True, "
         "InspectionReqSourceDetail.is_deleted == False)",
+        order_by="InspectionReqSourceDetail.id.asc()"
     )
     enforcement_actions = relationship(
         "InspectionReqEnforcementMap",
