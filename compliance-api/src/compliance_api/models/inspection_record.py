@@ -21,9 +21,14 @@ class IRStatusEnum(Enum):
 class IRProgressEnum(Enum):
     """Enum for IR Progress."""
 
-    DRAFTING = "Drafting"
-    DECISION_PENDING = "Decision Pending"
-    APPROVED = "Approved"
+    PRELIMINARY_DRAFTING = "Preliminary Drafting"
+    PRELIMINARY_DEPUTY_REVIEW = "Preliminary Deputy Review"
+    PRELIMINARY_APPROVED = "Preliminary Approved"
+    HOLDER_PRELIMINARY_REVIEW = "Holder Preliminary Review"
+    FINALIZING_RECORD = "Finalizing Record"
+    FINAL_DEPUTY_REVIEW = "Final Deputy Review"
+    FINAL_APPROVED = "Final Approved"
+    ISSUED = "Issued"
 
 
 class InspectionRecord(BaseModelVersioned):
@@ -40,7 +45,8 @@ class InspectionRecord(BaseModelVersioned):
         comment="The unique identifier of the inspection",
     )
     ir_status_id = Column(
-        ForeignKey("ir_status_options.id", name="ir_status_id_status_options_fkey"),
+        ForeignKey("ir_status_options.id",
+                   name="ir_status_id_status_options_fkey"),
         nullable=False,
         comment="Status of the inspection record",
     )
@@ -49,7 +55,8 @@ class InspectionRecord(BaseModelVersioned):
         nullable=True,
         comment="Mailing address of the associated proponent",
     )
-    inspection_scope = Column(String, nullable=True, comment="Scope of the inspection")
+    inspection_scope = Column(String, nullable=True,
+                              comment="Scope of the inspection")
     preliminary_review_details = Column(
         String, nullable=True, comment="Details of the preliminary review"
     )
@@ -71,9 +78,12 @@ class InspectionRecord(BaseModelVersioned):
         SqlEnum(IRProgressEnum),
         nullable=True,
         comment="State of the inspection record",
-        default=IRProgressEnum.DRAFTING,
+        default=IRProgressEnum.PRELIMINARY_DRAFTING,
     )
-    inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="joined")
+    inspection = relationship("Inspection", foreign_keys=[
+                              inspection_id], lazy="joined")
+    ir_status = relationship("IRStatusOption", foreign_keys=[
+                             ir_status_id], lazy="joined")
 
     @classmethod
     @with_session
@@ -98,12 +108,11 @@ class InspectionRecord(BaseModelVersioned):
         return inspection_record
 
     @classmethod
-    def get_all_by_inspection_id(cls, inspection_id):
+    def get_by_inspection_id(cls, inspection_id):
         """Find all inspection records by inspection id."""
         return (
             cls.query.filter_by(
                 inspection_id=inspection_id, is_deleted=False, is_active=True
             )
-            .order_by(cls.sort_order)
-            .all()
+            .first()
         )

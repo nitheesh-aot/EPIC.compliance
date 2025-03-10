@@ -107,7 +107,7 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
     return {
       type: "text",
       name: name ?? "conditionDescription",
-      label: `${label ?? "Condition Description"} (optional)`,
+      label: `${label ?? "Condition Description"}`,
       required: false,
     };
   };
@@ -128,13 +128,13 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
       {
         type: "text",
         name: "amendmentNumber",
-        label: "Amendment # (optional)",
+        label: "Amendment #",
         required: false,
       },
       {
         type: "text",
         name: "amendmentConditionNumber",
-        label: "Amendment Condition # (optional)",
+        label: "Amendment Condition #",
         required: false,
       },
       sharedRequirementSourceField(),
@@ -163,7 +163,7 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
       <Box p={sectionPadding} pt={0}>
         <ControlledAutoComplete
           name="requirementSource"
-          label="Requirement Source (optional)"
+          label="Requirement Source"
           options={requirementSourceList}
           getOptionLabel={(option) => option.name}
           getOptionKey={(option) => option.id}
@@ -194,6 +194,7 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
               option.id.toString() === value.id.toString()
             }
             fullWidth
+            isRequired={true}
           />
         </Box>
       )}

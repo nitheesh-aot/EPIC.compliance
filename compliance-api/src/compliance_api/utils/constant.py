@@ -1,4 +1,5 @@
 """Constants."""
+
 from .enum import PermissionEnum
 
 
@@ -10,9 +11,6 @@ GROUP_MAP = {
     PermissionEnum.SUPERUSER: "/COMPLIANCE/SUPERUSER",
     PermissionEnum.VIEWER: "/COMPLIANCE/VIEWER",
     PermissionEnum.USER: "/COMPLIANCE/USER",
-    PermissionEnum.ADMIN: "/COMPLIANCE/ADMIN"
+    PermissionEnum.ADMIN: "/COMPLIANCE/ADMIN",
 }
-DELETE_DIC_PARAMS = {
-    "is_active": False,
-    "is_deleted": True
-}
+DELETE_DIC_PARAMS = {"is_active": False, "is_deleted": True}

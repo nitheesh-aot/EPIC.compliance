@@ -70,7 +70,10 @@ class InspectionReqEnforcementMap(BaseModelVersioned):
         """Insert enforcement per requirement."""
         requirement_enforcement_map = [
             InspectionReqEnforcementMap(
-                **{"requirement_id": requirement_id, "enforcement_action_id": enforcement_id}
+                **{
+                    "requirement_id": requirement_id,
+                    "enforcement_action_id": enforcement_id,
+                }
             )
             for enforcement_id in enforcement_ids
         ]

@@ -96,7 +96,4 @@ API.add_namespace(
 API.add_namespace(DOCUMENT_TYPE_API)
 API.add_namespace(REQUIREMENT_TYPE_API)
 API.add_namespace(APPENDIX_API)
-API.add_namespace(IR_API)
-API.add_namespace(
-    IR_API, path="inspections/<int:inspection_id>/inspection-records"
-)
+API.add_namespace(IR_API, path="inspections/<int:inspection_id>/inspection-records")

@@ -16,6 +16,7 @@ const mountComponent = (reqSrcList: RequirementSourceFormData[]) => {
         onDataChange={mockOnDataChange}
         requirementSourceFormDataList={reqSrcList}
         inspectionId={1}
+        isRequirement={true}
       />
     </QueryClientProvider>
   );

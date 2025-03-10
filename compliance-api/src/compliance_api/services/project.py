@@ -1,4 +1,5 @@
 """Service for project resource management."""
+
 from compliance_api.models import Project as ProjectModel
 
 

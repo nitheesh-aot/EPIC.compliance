@@ -85,7 +85,9 @@ class InspectionAgency(BaseModelVersioned):
     @with_session
     def delete_inspection_agency(cls, inspection_id, session=None):
         """Delete inspection Agency."""
-        agencies = cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
+        agencies = cls.query.filter_by(
+            inspection_id=inspection_id, is_deleted=False
+        ).all()
         for agency in agencies:
             agency.update(DELETE_DIC_PARAMS, commit=False)
         session.flush()

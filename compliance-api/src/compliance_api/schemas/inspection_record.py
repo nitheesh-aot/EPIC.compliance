@@ -4,10 +4,11 @@ from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load, 
 from marshmallow_enum import EnumField
 
 from compliance_api.models.inspection_record import InspectionRecord as InspectionRecordModel
-from compliance_api.models.inspection_record import IRStatusEnum
+from compliance_api.models.inspection_record import IRProgressEnum, IRStatusEnum
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from .base_schema import AutoSchemaBase, BaseSchema
+from .common import KeyValueSchema
 from .inspection import InspectionSchema
 
 
@@ -33,17 +34,17 @@ class InspectionRecordSchema(AutoSchemaBase):  # pylint: disable=too-many-ancest
         include_fk = True
 
     inspection = fields.Nested(InspectionSchema)
-    ir_status = EnumField(IRStatusEnum, by_value=False)
+    ir_status = fields.Nested(KeyValueSchema)
 
     @post_dump
     def post_dump_actions(
         self, data, many, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of the inspection record status enum."""
-        if "ir_status" in data and data["ir_status"] is not None:
-            data["ir_status"] = IRStatusEnum(data["ir_status"]).value
+        if "ir_progress" in data and data["ir_progress"] is not None:
+            data["ir_progress"] = IRProgressEnum(data["ir_progress"]).value
         else:
-            data["ir_status"] = ""
+            data["ir_progress"] = ""
         return data
 
 

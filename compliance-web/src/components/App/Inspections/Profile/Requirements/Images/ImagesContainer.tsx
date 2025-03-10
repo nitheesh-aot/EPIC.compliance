@@ -97,6 +97,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                 file={file}
                 inspectionId={inspectionId}
                 imageType={imageType}
+                index={images.length}
               />
             ),
             width: "640px",
@@ -106,7 +107,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       input.click();
     };
 
-    const handleImageClick = (image: Image) => {
+    const handleImageClick = (image: Image, index: number) => {
       setOpen({
         content: (
           <ImageModal
@@ -125,6 +126,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
             imageData={image}
             inspectionId={inspectionId}
             imageType={imageType}
+            index={index}
           />
         ),
         width: "640px",
@@ -239,7 +241,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                       key={image.id}
                       image={image}
                       handleImageClick={() => {
-                        handleImageClick(image);
+                        handleImageClick(image, index);
                       }}
                       isPhoto={isPhoto}
                       index={index}

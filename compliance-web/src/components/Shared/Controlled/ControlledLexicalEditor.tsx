@@ -26,6 +26,7 @@ export default function ControlledLexicalEditor({
   isAdvanced = false,
   height,
   mentionsList,
+  isRequired = false,
 }: {
   name: string;
   label: string;
@@ -33,6 +34,7 @@ export default function ControlledLexicalEditor({
   isAdvanced?: boolean;
   height?: string;
   mentionsList?: MentionData[];
+  isRequired?: boolean;
 }) {
   const {
     control,
@@ -72,6 +74,7 @@ export default function ControlledLexicalEditor({
                   });
                 });
               }}
+              isRequired={isRequired}
             />
             {errorMessage && (
               <FormHelperText

@@ -92,6 +92,7 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
       label: "Agencies",
       options: agenciesList,
       multiple: true,
+      required: true,
     },
     [AttendanceEnum.FIRST_NATIONS]: {
       type: "autocomplete",
@@ -99,6 +100,7 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
       label: "First Nations",
       options: firstNationsList,
       multiple: true,
+      required: true,
     },
     [AttendanceEnum.OFFICERS]: {
       type: "autocomplete",
@@ -106,13 +108,20 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
       label: "Attending Officers",
       options: staffList,
       multiple: true,
+      required: true,
     },
     [AttendanceEnum.MUNICIPAL]: {
       type: "text",
       name: "municipal",
       label: "Municipal",
+      required: true,
     },
-    [AttendanceEnum.OTHER]: { type: "text", name: "other", label: "Other" },
+    [AttendanceEnum.OTHER]: {
+      type: "text",
+      name: "other",
+      label: "Other",
+      required: true,
+    },
   };
 
   const isRelevantAttendanceSelected = selectedAttendance.some(
@@ -140,7 +149,7 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
           <Box p={sectionPadding}>
             <ControlledAutoComplete
               name="inAttendance"
-              label="In Attendance (optional)"
+              label="In Attendance"
               placeholder="Select groups that attended inspection"
               options={attendanceList}
               getOptionLabel={(option) => option.name}

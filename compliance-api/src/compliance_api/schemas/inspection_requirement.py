@@ -375,9 +375,7 @@ class InspectionReqImageSchema(AutoSchemaBase):  # pylint: disable=too-many-ance
         include_fk = True
 
     taken_by = fields.Nested(StaffUserSchema)
-    url = fields.Str(metadata={
-        "description": "The signed GET url of the file"
-    })
+    url = fields.Str(metadata={"description": "The signed GET url of the file"})
 
     @post_dump
     def post_dump_image_type(

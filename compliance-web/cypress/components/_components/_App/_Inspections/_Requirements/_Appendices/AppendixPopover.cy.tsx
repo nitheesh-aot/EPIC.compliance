@@ -28,7 +28,7 @@ describe("AppendixPopover", () => {
   it("renders edit appendix form correctly", () => {
     const appendixData = {
       id: 1,
-      appendix_no: "A1",
+      appendix_no: "1",
       document_title: "Test Document",
       inspection_id: inspectionId,
     };
@@ -43,7 +43,7 @@ describe("AppendixPopover", () => {
       </QueryClientProvider>
     );
 
-    cy.get('input[name="appendixNumber"]').should("have.value", "A1");
+    cy.get('input[name="appendixNumber"]').should("have.value", "1");
     cy.get('textarea[name="documentTitle"]').should(
       "have.value",
       "Test Document"

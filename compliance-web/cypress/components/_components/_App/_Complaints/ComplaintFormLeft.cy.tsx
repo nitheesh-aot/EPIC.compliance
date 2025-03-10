@@ -52,7 +52,7 @@ describe("ComplaintFormLeft Component", () => {
   it("renders the form with all fields", () => {
     // Verify that all labels exist
     cy.contains("Concern Description").should("exist");
-    cy.contains("Location Description (optional)").should("exist");
+    cy.contains("Location Description").should("exist");
     cy.contains("Primary").should("exist");
     cy.contains("Date Received").should("exist");
   });

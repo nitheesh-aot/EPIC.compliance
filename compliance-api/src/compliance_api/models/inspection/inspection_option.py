@@ -1,4 +1,5 @@
 """Option kind model related to inspection."""
+
 from ..option_base_model import OptionModel
 
 

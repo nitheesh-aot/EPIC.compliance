@@ -14,7 +14,8 @@ from compliance_api.utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
 
-API = Namespace("inspection-records", description="Endpoints for Inspection Record")
+API = Namespace("inspection-records",
+                description="Endpoints for Inspection Record")
 
 ir_create_request_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, InspectionRecordCreateSchema(), "IRCreateRequest"
@@ -34,12 +35,14 @@ class InspectionRecords(Resource):
 
     @staticmethod
     @API.response(code=200, description="Success", model=[ir_list_model])
-    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all inspection records")
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Fetch all inspection records"
+    )
     @auth.require
     def get(inspection_id):
         """Fetch all inspection records."""
-        irs = InspectionRecordService.get_all_by_inspection_id()
-        inspection_record_schema = InspectionRecordSchema(many=True)
+        irs = InspectionRecordService.get_by_inspection_id(inspection_id)
+        inspection_record_schema = InspectionRecordSchema(many=False)
         return inspection_record_schema.dump(irs), HTTPStatus.OK
 
     @staticmethod
@@ -48,13 +51,14 @@ class InspectionRecords(Resource):
         API, endpoint_description="Create an inspection record"
     )
     @API.expect(ir_create_request_model)
-    # @API.response(code=201, model=agency_list_model, description="IRCreated")
+    @API.response(code=201, model=ir_list_model, description="IRCreated")
     @API.response(400, "Bad Request")
     @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def post(inspection_id):
         """Create a agency."""
         ir_create_request = InspectionRecordCreateSchema().load(API.payload)
-        created_ir = InspectionRecordService.create(ir_create_request, inspection_id)
+        created_ir = InspectionRecordService.create(
+            ir_create_request, inspection_id)
         return InspectionRecordSchema().dump(created_ir), HTTPStatus.CREATED
 
 
@@ -72,12 +76,13 @@ class InspectionRecord(Resource):
     @auth.require
     def get(inspection_record_id):
         """Fetch inspection record by id."""
-        inspection_record = InspectionRecordService.get_by_id(inspection_record_id)
+        inspection_record = InspectionRecordService.get_by_id(
+            inspection_record_id)
         if not inspection_record:
             raise ResourceNotFoundError(
                 f"No inspection found for the given ID : {inspection_record_id}"
             )
-        return InspectionRecordSchema.dump(inspection_record), HTTPStatus.OK
+        return InspectionRecordSchema().dump(inspection_record), HTTPStatus.OK
 
     @staticmethod
     @API.response(code=200, description="Sucess", model=ir_list_model)
@@ -86,11 +91,11 @@ class InspectionRecord(Resource):
     @API.response(404, "Not Found")
     @API.response(400, "Bad Request")
     @auth.require
-    def patch(inspection_record_id):
+    def patch(inspection_id, inspection_record_id):
         """Update inspection record."""
         ir_update_data = UpdateInspectionRecordSchema().load(API.payload)
         updated_ir = InspectionRecordService.update(
-            inspection_record_id, ir_update_data
+            inspection_id, inspection_record_id, ir_update_data
         )
         if not updated_ir:
             raise ResourceNotFoundError("Inspection record not found")

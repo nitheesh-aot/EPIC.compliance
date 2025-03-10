@@ -26,7 +26,8 @@ from .apihelper import Api as ApiHelper
 
 
 API = Namespace(
-    "project-status-options", description="Endpoints for Project Status Option Management"
+    "project-status-options",
+    description="Endpoints for Project Status Option Management",
 )
 
 keyvalue_list_schema = ApiHelper.convert_ma_schema_to_restx_model(

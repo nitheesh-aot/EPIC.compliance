@@ -1,4 +1,5 @@
 """Service for position."""
+
 from compliance_api.models import Position as PositionModel
 
 

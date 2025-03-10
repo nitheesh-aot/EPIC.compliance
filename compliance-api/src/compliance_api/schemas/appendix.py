@@ -38,10 +38,8 @@ class AppendixCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
         required=True,
     )
     inspection_id = fields.Integer(
-        metadata={"description": "The inspection id"},
-        required=True
+        metadata={"description": "The inspection id"}, required=True
     )
     document_title = fields.Str(
-        metadata={"description": "The title of the document"},
-        required=True
+        metadata={"description": "The title of the document"}, required=True
     )

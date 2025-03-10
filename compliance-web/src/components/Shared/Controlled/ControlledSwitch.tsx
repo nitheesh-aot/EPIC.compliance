@@ -6,6 +6,7 @@ import { Controller, useFormContext } from "react-hook-form";
 type IFormSwitchProps = {
     name: string;
     label: string;
+    isRequired?: boolean;
 }
 const CustomSwitch = styled(Switch)(({ theme }) => ({
   width: 42,
@@ -56,7 +57,8 @@ const CustomSwitch = styled(Switch)(({ theme }) => ({
 }));
 const ControlledSwitch: FC<IFormSwitchProps> = ({
     name,
-    label
+    label,
+    isRequired = false,
 }) => {
 
   const { control } = useFormContext();
@@ -68,6 +70,7 @@ const ControlledSwitch: FC<IFormSwitchProps> = ({
         <FormControlLabel
           style={{
             marginLeft: 0,
+            fontWeight: isRequired ? "bold" : "normal",
           }}
           control={
             <CustomSwitch

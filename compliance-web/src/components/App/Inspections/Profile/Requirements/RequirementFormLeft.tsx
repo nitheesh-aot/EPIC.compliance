@@ -1,4 +1,4 @@
-import { FC, useEffect, useCallback, memo, useState } from "react";
+import { FC, useEffect, useCallback, memo, useState, useRef } from "react";
 import { Box, Grid, IconButton, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { BCDesignTokens } from "epic.theme";
@@ -54,6 +54,16 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
     const { control, setValue, getValues } = useFormContext();
     const { photos, figures } = useRequirementStore();
     const [mentionDataList, setMentionDataList] = useState<MentionData[]>([]);
+    const summaryInputRef = useRef<HTMLInputElement>(null);
+    const [isReadOnly, setIsReadOnly] = useState(isEditMode);
+
+    useEffect(() => {
+      if (!isReadOnly) {
+        setTimeout(() => {
+          summaryInputRef.current?.focus();
+        }, 0);
+      }
+    }, [isReadOnly]);
 
     useEffect(() => {
       setMentionDataList([
@@ -88,8 +98,6 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
       },
       [onRequirementTypeChange]
     );
-
-    const [isReadOnly, setIsReadOnly] = useState(isEditMode);
 
     useEffect(() => {
       handleRequirementTypeChange(selectedRequirementType);
@@ -176,6 +184,12 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
     };
 
     const EditSection = () => {
+      useEffect(() => {
+        if (document.activeElement === null || document.activeElement === document.body) {
+          summaryInputRef.current?.focus();
+        }
+      });
+
       return (
         <>
           {!isEditMode && (
@@ -195,6 +209,9 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
             }
             placeholder=""
             fullWidth
+            inputRef={summaryInputRef}
+            inputProps={{ "data-cy": "requirement-summary-input" }}
+            isRequired={true}
           />
           <ControlledAutoComplete
             name="topic"
@@ -206,6 +223,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
               option.id.toString() === value.id.toString()
             }
             fullWidth
+            isRequired={true}
           />
           {selectedRequirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID && (
             <ControlledCheckbox
@@ -224,6 +242,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
                 getOptionKey={(option) => option.id}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 fullWidth
+                isRequired={true}
               />
               <Stack direction="column" sx={{ width: "50%" }}>
                 <ControlledAutoComplete
@@ -237,6 +256,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
                   }
                   fullWidth
                   sx={{ marginBottom: "-0.5rem" }}
+                  isRequired={true}
                 />
                 {enforcementAction?.id === EnforcementActionEnum.ORDER && (
                   <ControlledCheckbox

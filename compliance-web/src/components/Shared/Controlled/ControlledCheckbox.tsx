@@ -6,12 +6,14 @@ import { Controller, useFormContext } from "react-hook-form";
 type IFormCheckboxProps = {
   name: string;
   label: string;
-  fontSize?: "small" | "medium";
+  fontSize?: "small" | "medium";  
+  isRequired?: boolean;
 };
 const ControlledCheckbox: FC<IFormCheckboxProps> = ({
   name,
   label,
   fontSize = "medium",
+  isRequired = false,
 }) => {
   const { control } = useFormContext();
   return (
@@ -39,6 +41,7 @@ const ControlledCheckbox: FC<IFormCheckboxProps> = ({
                 fontSize === "small"
                   ? BCDesignTokens.typographyFontSizeSmallBody
                   : BCDesignTokens.typographyFontSizeBody,
+              fontWeight: isRequired ? "bold" : "normal",
             },
           }}
         />

@@ -2,11 +2,13 @@
 
 from enum import Enum
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer
+from sqlalchemy import Boolean, Column, DateTime
+from sqlalchemy import Enum as SqlEnum
+from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from ..utils.database import with_session
 from .base_model import BaseModelVersioned
+from .utils import with_session
 
 
 class IRApprovalStatusEnum(Enum):
@@ -14,7 +16,7 @@ class IRApprovalStatusEnum(Enum):
 
     DECISION_PENDING = "Decision Pending"
     APPROVED = "Approved"
-    REJECTED = "Rejected"
+    NOT_APPROVED = "Not Approved"
 
 
 class InspectionRecordApproval(BaseModelVersioned):
@@ -44,13 +46,27 @@ class InspectionRecordApproval(BaseModelVersioned):
         nullable=True,
         comment="Date when the response was received",
     )
+    response_provided = Column(
+        Boolean, default=False, comment="Indicate if the proponent has responded or not"
+    )
     approved_by_id = Column(
-        Integer, nullable=True, comment="Person who approved the inspection record"
+        Integer,
+        ForeignKey(
+            "staff_users.id", name="ir_approval_approved_by_id_staff_user_id_fkey"
+        ),
+        nullable=True,
+        comment="Person who approved the inspection record",
     )
     ir_status_id = Column(
         ForeignKey("ir_status_options.id", name="ir_status_id_status_options_fkey"),
         nullable=False,
         comment="Status of the inspection record",
+    )
+    approval_status = Column(
+        SqlEnum(IRApprovalStatusEnum),
+        nullable=True,
+        comment="State of the inspection record",
+        default=IRApprovalStatusEnum.DECISION_PENDING,
     )
     approved_by = relationship(
         "StaffUser", foreign_keys=[approved_by_id], lazy="joined"
@@ -61,9 +77,13 @@ class InspectionRecordApproval(BaseModelVersioned):
 
     @classmethod
     @with_session
-    def create_inspection_record_approval(cls, inspection_record_approval_data, session=None):
+    def create_inspection_record_approval(
+        cls, inspection_record_approval_data, session=None
+    ):
         """Persist inspection record approval data in database."""
-        inspection_record_approval = InspectionRecordApproval(**inspection_record_approval_data)
+        inspection_record_approval = InspectionRecordApproval(
+            **inspection_record_approval_data
+        )
         session.add(inspection_record_approval)
         session.flush()
         return inspection_record_approval

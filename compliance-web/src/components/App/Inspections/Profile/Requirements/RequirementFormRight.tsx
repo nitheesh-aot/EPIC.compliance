@@ -19,12 +19,14 @@ interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
   requirementSourceFormDataList: RequirementSourceFormData[];
   inspectionId: number;
+  isRequirement: boolean;
 }
 
 const RequirementFormRight: FC<RequirementFormRightProps> = ({
   onDataChange,
   requirementSourceFormDataList,
   inspectionId,
+  isRequirement,
 }) => {
   const { setOpen, setClose } = useModal();
   const [requirementSourceFormData, setRequirementSourceFormData] = useState<
@@ -135,8 +137,9 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   };
 
   const handleDeleteRequirementSource = (data: RequirementSourceFormData) => {
+    const requirementSourceDetails = groupedData.get(data.requirementSource?.id ?? "")
     const isLastSectionItem =
-      groupedData[data.requirementSource?.id ?? ""].length === 1;
+    requirementSourceDetails && requirementSourceDetails.length === 1;
     const sourceType = isRequirementSourceCondition(
       data.requirementSource?.id ?? ""
     )
@@ -273,7 +276,6 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
     },
     new Map<string, RequirementSourceFormData[]>()
   ), [requirementSourceFormData]);
-  console.log(groupedData)
   return (
     <Box
       sx={{
@@ -283,13 +285,15 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         boxSizing: "border-box",
       }}
     >
-      <Button
-        color="secondary"
-        onClick={handleAddRequirementSource}
-        startIcon={<AddRounded />}
-      >
-        Requirement Source
-      </Button>
+      {isRequirement && (
+        <Button
+          color="secondary"
+          onClick={handleAddRequirementSource}
+          startIcon={<AddRounded />}
+        >
+          Requirement Source
+        </Button>
+      )}
       <ImagesContainer
         imageType={ImageTypeEnum.PHOTO}
         inspectionId={inspectionId}

@@ -26,7 +26,10 @@ class BaseSchema(Schema):  # pylint: disable=too-many-ancestors, too-few-public-
         """Excludes versions. Otherwise database will query <name>_versions table."""
         meta = getattr(self, "Meta", None)
         if (
-            meta and hasattr(meta, "model") and hasattr(meta["model"], "versions") and not self.fields
+            meta
+            and hasattr(meta, "model")
+            and hasattr(meta["model"], "versions")
+            and not self.fields
         ):
             self.exclude = getattr(self.Meta, "exclude", ()) + ("versions",)
         super().__init__(*args, **kwargs)

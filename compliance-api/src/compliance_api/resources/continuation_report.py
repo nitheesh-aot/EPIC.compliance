@@ -115,12 +115,16 @@ class ContinuationReport(Resource):
 
     @staticmethod
     @auth.require
-    @ApiHelper.swagger_decorators(API, endpoint_description="Delete a continuation report by id")
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Delete a continuation report by id"
+    )
     @API.response(code=200, model=cr_list_model, description="Deleted")
     @API.response(404, "Not Found")
     def delete(entry_id):
         """Delete a continuation report entry by id."""
         deleted_cr = ContinuationReportService.delete(entry_id)
         if not deleted_cr:
-            raise ResourceNotFoundError(f"Continuation report entry with {entry_id} not found")
+            raise ResourceNotFoundError(
+                f"Continuation report entry with {entry_id} not found"
+            )
         return ContinuationReportSchema().dump(deleted_cr), HTTPStatus.OK

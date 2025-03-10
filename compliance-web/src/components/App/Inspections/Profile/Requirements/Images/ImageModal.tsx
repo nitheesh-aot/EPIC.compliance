@@ -25,6 +25,7 @@ type ImageModalProps = {
   imageData?: Image;
   inspectionId: number;
   imageType: ImageTypeEnum;
+  index?: number;
 };
 
 const imageFormSchema = yup.object().shape({
@@ -46,9 +47,11 @@ const ImageModal: React.FC<ImageModalProps> = ({
   imageData,
   inspectionId,
   imageType,
+  index,
 }) => {
   const { data: staffUserList } = useStaffUsersData();
   const isPhoto = imageType === ImageTypeEnum.PHOTO;
+  const ImageTypeLabel = isPhoto ? "Photo" : "Figure";
   const defaultValues = useMemo<ImageFormData>(() => {
     return imageData
       ? {
@@ -78,7 +81,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
       date_taken: file?.lastModified
         ? dateUtils.dateToISO(dayjs(file.lastModified))
         : undefined,
-      image_type: isPhoto ? "Photo" : "Figure",
+      image_type: ImageTypeLabel,
     };
     // eslint-disable-next-line no-console
     console.log("Image uploaded successfully", imageFormData);
@@ -117,7 +120,9 @@ const ImageModal: React.FC<ImageModalProps> = ({
     <>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmitHandler)}>
-          <ModalTitleBar title={imageData ? "Edit Photo" : "Add Photo"} />
+          <ModalTitleBar
+            title={`${imageData ? "Edit" : "Add"} ${ImageTypeLabel}`}
+          />
           <DialogContent dividers>
             <Box
               sx={{
@@ -154,8 +159,8 @@ const ImageModal: React.FC<ImageModalProps> = ({
               }}
             >
               <GridLabelValuePair
-                label="Photo #"
-                value={1}
+                label={`${ImageTypeLabel} #`}
+                value={index !== undefined ? index + 1 : 0}
                 gridProps={{ xs: 2 }}
                 isBold
               />
@@ -173,7 +178,9 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 label="File Date"
                 value={
                   file
-                    ? dateUtils.formatDate(dayjs(file.lastModified).toISOString())
+                    ? dateUtils.formatDate(
+                        dayjs(file.lastModified).toISOString()
+                      )
                     : dateUtils.formatDate(imageData?.date_taken ?? "") ||
                       "No file selected"
                 }
@@ -188,13 +195,19 @@ const ImageModal: React.FC<ImageModalProps> = ({
               getOptionLabel={(option) => option.name}
               getOptionKey={(option) => option.id}
               isOptionEqualToValue={(option, value) => option.id === value.id}
+              isRequired={true}
             />
-            <ControlledTextField name="caption" label="Caption" fullWidth />
+            <ControlledTextField
+              name="caption"
+              label="Caption"
+              fullWidth
+              isRequired={true}
+            />
           </DialogContent>
           <ModalActions
             primaryActionButtonText={imageData ? "Save" : "Add"}
             onDeleteAction={imageData ? onDeleteHandler : undefined}
-            onDeleteConfirmationText="Are you sure you want to delete this Photo?"
+            onDeleteConfirmationText={`Are you sure you want to delete this ${ImageTypeLabel}?`}
             isLoading={isPending}
           />
         </form>
