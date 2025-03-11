@@ -1,15 +1,13 @@
-import { Box, IconButton, Typography } from "@mui/material";
 import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 import { Grid } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
 import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
-import { EditOutlined } from "@mui/icons-material";
 import { AttendanceEnum } from "@/components/App/Inspections/InspectionFormUtils";
 import dateUtils from "@/utils/dateUtils";
 import { useMemo } from "react";
 import { StaffUser } from "@/models/Staff";
 import { InspectionAttendance } from "@/models/Attendance";
 import ProjectOverview from "./ProjectOverview";
+import IRBoxContainer from "../IRBoxContainer";
 
 const Overview = () => {
   const { inspectionData } = useReportStore();
@@ -61,34 +59,8 @@ const Overview = () => {
   return (
     <>
       <ProjectOverview />
-      <Box
-        aria-label="IR Overview"
-        sx={{
-          border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-          borderRadius: 1,
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            px: 3,
-            height: 40,
-            borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-          }}
-        >
-          <Typography variant="body1">IR Overview</Typography>
-          <IconButton
-            size="small"
-            color="secondary"
-            onClick={() => {}}
-            data-testid={`ir-overview-edit`}
-          >
-            <EditOutlined />
-          </IconButton>
-        </Box>
-        <Grid container spacing={1} sx={{ px: 3, py: 2 }}>
+      <IRBoxContainer title="IR Overview" onEdit={() => {}}>
+        <Grid container spacing={1}>
           <GridLabelValuePair
             label="Project Status"
             value={inspectionData?.project_status?.name}
@@ -145,7 +117,7 @@ const Overview = () => {
             hideTooltip
           />
         </Grid>
-      </Box>
+      </IRBoxContainer>
     </>
   );
 };

@@ -8,6 +8,7 @@ import { useReportStore } from "./reportStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { Inspection } from "@/models/Inspection";
 import { useParams } from "@tanstack/react-router";
+import InspectionSummary from "./ReportTabContents/InspectionSummary";
 
 
 function a11yProps(index: number) {
@@ -40,7 +41,7 @@ export default function ReportTabs() {
 
   const tabItems = [
     { title: "IR Overview", component: <Overview /> },
-    { title: "Inspection Summary", component: <Overview /> },
+    { title: "Inspection Summary", component: <InspectionSummary /> },
     { title: "#1. providing a non-complia...", component: <Overview /> },
     { title: "#2. hazardous materials and...", component: <Overview /> },
     { title: "#3. storage of suspect PAG...", component: <Overview /> },
