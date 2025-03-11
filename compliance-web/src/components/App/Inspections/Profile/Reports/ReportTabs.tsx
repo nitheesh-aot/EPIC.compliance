@@ -50,7 +50,7 @@ export default function ReportTabs() {
   ];
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", py: 3 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", pt: 3 }}>
       <Box
         sx={{
           mb: 1,

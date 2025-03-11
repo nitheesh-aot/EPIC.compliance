@@ -8,22 +8,21 @@ import { AttendanceEnum } from "@/components/App/Inspections/InspectionFormUtils
 import dateUtils from "@/utils/dateUtils";
 import MailingAddressPopover from "./MailingAddressPopover";
 import { usePopover } from "@/store/popoverStore";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { StaffUser } from "@/models/Staff";
+import { InspectionAttendance } from "@/models/Attendance";
 
 const Overview = () => {
   const { inspectionData } = useReportStore();
   const { setOpen, setClose } = usePopover();
   const [mailingAddress, setMailingAddress] = useState("");
 
-  const getInAttendance = (onlyOfficers: boolean = false) => {
+  const inAttendance = useMemo(() => {
     return inspectionData?.inspectionAttendances
-      ?.filter((attendance) => {
-        // If onlyOfficers is true, only include officers
-        return (
-          !onlyOfficers ||
-          attendance.attendance_option.id === AttendanceEnum.OFFICERS
-        );
-      })
+      ?.filter(
+        (attendance) =>
+          attendance.attendance_option.id !== AttendanceEnum.OFFICERS
+      )
       ?.map((attendance) => {
         if (attendance.data) {
           if (Array.isArray(attendance.data)) {
@@ -36,7 +35,31 @@ const Overview = () => {
         }
       })
       .join(", ");
-  };
+  }, [inspectionData]);
+
+  const inspectingOfficers: StaffUser[] = useMemo(() => {
+    const primaryOfficer = inspectionData?.primary_officer
+      ? [inspectionData.primary_officer]
+      : [];
+
+    const attendingOfficers =
+      inspectionData?.inspectionAttendances
+        ?.filter(
+          (attendance) =>
+            attendance.attendance_option.id === AttendanceEnum.OFFICERS
+        )
+        .flatMap((attendance: InspectionAttendance) => {
+          // Handle array of officers
+          if (attendance.data && Array.isArray(attendance.data)) {
+            return attendance.data;
+          }
+          return [];
+        }) ?? [];
+
+    return [...primaryOfficer, ...attendingOfficers].filter(
+      (officer): officer is StaffUser => officer !== null
+    );
+  }, [inspectionData]);
 
   const updateMailingAddress = (mailingAddress: string) => {
     setMailingAddress(mailingAddress);
@@ -149,6 +172,7 @@ const Overview = () => {
         </Grid>
       </Box>
       <Box
+        aria-label="IR Overview"
         sx={{
           border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
           borderRadius: 1,
@@ -213,16 +237,15 @@ const Overview = () => {
           />
           <GridLabelValuePair
             label="In Attendance"
-            value={getInAttendance()}
+            value={inAttendance}
             hideTooltip
             multiline
           />
           <GridLabelValuePair
             label="Inspecting Officer"
-            value={[
-              inspectionData?.primary_officer?.name,
-              getInAttendance(true),
-            ].join(", ")}
+            value={inspectingOfficers.map((value) => (
+              <span key={value.id}>{value.name}</span>
+            ))}
             hideTooltip
             multiline
           />

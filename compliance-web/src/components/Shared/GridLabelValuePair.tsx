@@ -36,6 +36,9 @@ const GridLabelValuePair: FC<{
             ...(multiline && {
               whiteSpace: "normal",
               wordWrap: "break-word",
+              display: "flex",
+              flexDirection: "column",
+              flexWrap: "wrap",
             }),
           }}
         >
