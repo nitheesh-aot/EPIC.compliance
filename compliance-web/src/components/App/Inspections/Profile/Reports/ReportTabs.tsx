@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import ReportPanel from "./ReportPanel";
 import { BCDesignTokens } from "epic.theme";
 import { PictureAsPdfOutlined, SendRounded } from "@mui/icons-material";
-import Overview from "./ReportTabContents/Overview";
+import Overview from "./ReportTabContents/IROverview/Overview";
 import { useReportStore } from "./reportStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { Inspection } from "@/models/Inspection";
 import { useParams } from "@tanstack/react-router";
+
+
 function a11yProps(index: number) {
   return {
     id: `ir-tab-${index}`,
