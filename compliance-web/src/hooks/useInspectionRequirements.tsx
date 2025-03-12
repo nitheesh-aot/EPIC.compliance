@@ -138,6 +138,7 @@ export const useInspectionRequirementsData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-requirements", inspectionId],
     queryFn: () => fetchInspectionRequirements(inspectionId),
+    enabled: !!inspectionId,
     staleTime: Infinity,
   });
 };

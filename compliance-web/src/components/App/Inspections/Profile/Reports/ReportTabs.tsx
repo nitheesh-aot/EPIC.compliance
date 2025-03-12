@@ -1,5 +1,5 @@
 import { Box, Tabs, Tab, Typography, Button } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import ReportPanel from "./ReportPanel";
 import { BCDesignTokens } from "epic.theme";
 import { PictureAsPdfOutlined, SendRounded } from "@mui/icons-material";
@@ -13,6 +13,12 @@ import EnforcementSummary from "./ReportTabContents/EnforcementSummary";
 import InspectionDates from "./ReportTabContents/InspectionDates";
 import { useInspectionByNumber } from "@/hooks/useInspections";
 import Appendices from "./ReportTabContents/Appendices";
+import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
+import {
+  REQUIREMENT_TYPE_ID,
+  REGULATORY_CONSIDERATION_TYPE_ID,
+} from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
+import { InspectionRequirement } from "@/models/InspectionRequirement";
 
 function a11yProps(index: number) {
   return {
@@ -24,14 +30,36 @@ function a11yProps(index: number) {
 export default function ReportTabs() {
   const { inspectionNumber } = useParams({ strict: false });
   const [value, setValue] = useState(0);
-  const { setInspectionData, setInspectionSummary, setActionsRequired } =
-    useReportStore();
+  const {
+    setInspectionData,
+    setInspectionSummary,
+    setActionsRequired,
+    setInspectionRequirements,
+    setInspectionRegulatoryConsideration,
+    inspectionRequirements,
+  } = useReportStore();
 
   const { data: inspectionData } = useInspectionByNumber(inspectionNumber);
+  const { data: inspectionRequirementsData } = useInspectionRequirementsData(
+    inspectionData?.id || 0
+  );
 
   useEffect(() => {
     if (inspectionData) {
       setInspectionData(inspectionData);
+      if (inspectionRequirementsData?.length) {
+        setInspectionRequirements(
+          inspectionRequirementsData.filter(
+            (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
+          ) ?? []
+        );
+        setInspectionRegulatoryConsideration(
+          inspectionRequirementsData.find(
+            (req) => req.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID
+          ) ?? undefined
+        );
+      }
+
       setInspectionSummary(
         `<p class="editor-paragraph" dir="ltr"><span style="white-space: pre-wrap;">The Officer inspected </span><i><em class="editor-text-italic" style="white-space: pre-wrap;">[BRIEF DESCRIPTION OF PROJECT COMPONENTS/AREAS INSPECTED] </em></i></p><p class="editor-paragraph"><br></p><p class="editor-paragraph" dir="ltr"><span style="white-space: pre-wrap;">The inspection included a debrief of observations with Project staff on </span><b><strong class="editor-text-bold" style="white-space: pre-wrap;">January 17, 2025.</strong></b><span style="white-space: pre-wrap;"> The following requirements were inspected against: </span></p><p class="editor-paragraph"><br></p><ol class="editor-list-ol"><li value="1" class="editor-listitem"><span style="white-space: pre-wrap;">Condition 7 of Schedule B with respect to providing a non-compliance notification to the EAO. </span></li><li value="2" class="editor-listitem"><span style="white-space: pre-wrap;">Condition 14 of Schedule B with respect to hazardous materials and fuel storage. </span></li><li value="3" class="editor-listitem"><span style="white-space: pre-wrap;">Condition 5 of Schedule B with respect to storage of suspect PAG materials.</span></li></ol>`
       );
@@ -41,27 +69,42 @@ export default function ReportTabs() {
     }
   }, [
     inspectionData,
+    inspectionRequirementsData,
     setInspectionData,
     setInspectionSummary,
     setActionsRequired,
+    setInspectionRequirements,
+    setInspectionRegulatoryConsideration,
   ]);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
-  const tabItems = [
-    { title: "IR Overview", component: <Overview /> },
-    { title: "Inspection Summary", component: <InspectionSummary /> },
-    { title: "#1. providing a non-complia...", component: <ComingSoon /> },
-    { title: "#2. hazardous materials and...", component: <ComingSoon /> },
-    { title: "#3. storage of suspect PAG...", component: <ComingSoon /> },
-    { title: "Actions Required by RP and...", component: <ActionsRequired /> },
-    { title: "Enforcement Summary", component: <EnforcementSummary /> },
-    { title: "Regulatory Consideration", component: <ComingSoon /> },
-    { title: "Inspection Version Dates", component: <InspectionDates /> },
-    { title: "Appendices", component: <Appendices /> },
-  ];
+  const tabItems = useMemo(() => {
+    // Base tabs that are always present
+    const baseTabs = [
+      { title: "IR Overview", component: <Overview /> },
+      { title: "Inspection Summary", component: <InspectionSummary /> },
+    ];
+
+    // Dynamic requirement tabs based on inspectionRequirements
+    const requirementTabs = inspectionRequirements?.map((req: InspectionRequirement, index) => ({
+      title: `#${index + 1}. ${req.summary}`,
+      component: <ComingSoon />,
+    })) ?? [];
+    
+    // Remaining static tabs
+    const remainingTabs = [
+      { title: "Actions Required by RP and...", component: <ActionsRequired /> },
+      { title: "Enforcement Summary", component: <EnforcementSummary /> },
+      { title: "Regulatory Consideration", component: <ComingSoon /> },
+      { title: "Inspection Version Dates", component: <InspectionDates /> },
+      { title: "Appendices", component: <Appendices /> },
+    ];
+    
+    return [...baseTabs, ...requirementTabs, ...remainingTabs];
+  }, [inspectionRequirements]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", pt: 3 }}>
