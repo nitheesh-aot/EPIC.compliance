@@ -1,20 +1,19 @@
-import { FC, useState, useEffect } from "react";
-import { Box, Button } from "@mui/material";
-import { AddRounded } from "@mui/icons-material";
-import { useModal } from "@/store/modalStore";
+import AppendicesContainer from "@/components/App/Inspections/Profile/Requirements/Appendices/AppendicesContainer";
+import ImagesContainer from "@/components/App/Inspections/Profile/Requirements/Images/ImagesContainer";
+import RequirementRelatedDocumentModal from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementRelatedDocumentModal";
+import RequirementSourceCard from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementSourceCard";
 import RequirementSourceModal from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementSourceModal";
+import { ImageTypeEnum, isRequirementSourceCondition } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import {
   RequirementRelatedDocumentData,
   RequirementRelatedDocumentSectionData,
   RequirementSourceFormData,
 } from "@/models/InspectionRequirement";
-import RequirementSourceCard from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementSourceCard";
-import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
-import RequirementRelatedDocumentModal from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementRelatedDocumentModal";
-import { isRequirementSourceCondition } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
-import ImagesContainer from "@/components/App/Inspections/Profile/Requirements/Images/ImagesContainer";
-import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
-import AppendicesContainer from "@/components/App/Inspections/Profile/Requirements/Appendices/AppendicesContainer";
+import { useModal } from "@/store/modalStore";
+import { AddRounded } from "@mui/icons-material";
+import { Box, Button } from "@mui/material";
+import { FC, useEffect, useMemo, useState } from "react";
 
 interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
@@ -138,8 +137,9 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   };
 
   const handleDeleteRequirementSource = (data: RequirementSourceFormData) => {
+    const requirementSourceDetails = groupedData.get(data.requirementSource?.id ?? "")
     const isLastSectionItem =
-      groupedData[data.requirementSource?.id ?? ""].length === 1;
+    requirementSourceDetails && requirementSourceDetails.length === 1;
     const sourceType = isRequirementSourceCondition(
       data.requirementSource?.id ?? ""
     )
@@ -262,21 +262,20 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   };
 
   // Grouping the requirementSourceFormData by requirementSource
-  const groupedData = requirementSourceFormData.reduce(
+  const groupedData = useMemo(()=> requirementSourceFormData.reduce(
     (acc, item) => {
       const sourceId = item.requirementSource?.id;
       if (sourceId === undefined) {
         return acc;
       }
-      if (!acc[sourceId]) {
-        acc[sourceId] = [];
+      if (!acc.has(sourceId)) {
+        acc.set(sourceId, []);
       }
-      acc[sourceId].push(item);
+      acc.get(sourceId)!.push(item);
       return acc;
     },
-    {} as { [key: string]: RequirementSourceFormData[] }
-  );
-
+    new Map<string, RequirementSourceFormData[]>()
+  ), [requirementSourceFormData]);
   return (
     <Box
       sx={{
@@ -304,26 +303,22 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         inspectionId={inspectionId}
       />
       <AppendicesContainer inspectionId={inspectionId} />
-      {isRequirement && (
-        <>
-          {Object.entries(groupedData).map(([sourceId, items], index) => (
-            <RequirementSourceCard
-              key={sourceId}
-              data={items}
-              index={index}
-              onEdit={handleEditRequirementSource}
-              onDelete={handleDeleteRequirementSource}
-              onAddSection={handleAddRequirementSourceSection}
-              onAddRelatedDocument={handleAddRequirementRelatedDocument}
-              onAddRelatedDocumentSection={handleAddRelatedDocumentSection}
-              onEditRelatedDocumentSection={handleEditRelatedDocumentSection}
-              onDeleteRelatedDocumentSection={
-                handleDeleteRequirementRelatedDocumentSection
-              }
-            />
-          ))}
-        </>
-      )}
+        {[...groupedData].map(([sourceId, items], index) => (
+        <RequirementSourceCard
+          key={sourceId}
+          data={items}
+          index={index}
+          onEdit={handleEditRequirementSource}
+          onDelete={handleDeleteRequirementSource}
+          onAddSection={handleAddRequirementSourceSection}
+          onAddRelatedDocument={handleAddRequirementRelatedDocument}
+          onAddRelatedDocumentSection={handleAddRelatedDocumentSection}
+          onEditRelatedDocumentSection={handleEditRelatedDocumentSection}
+          onDeleteRelatedDocumentSection={
+            handleDeleteRequirementRelatedDocumentSection
+          }
+        />
+      ))}
     </Box>
   );
 };

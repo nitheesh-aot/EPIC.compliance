@@ -33,6 +33,7 @@ from .continuation_report import API as CONTINUATION_REPORT_API
 from .document_type import API as DOCUMENT_TYPE_API
 from .enforcement_action import API as ENFORCEMENT_ACTION_API
 from .inspection import API as INSPECTION_API
+from .inspection_record import API as IR_API
 from .inspection_requirement import API as INSPECTION_REQUIREMENT_API
 from .inspection_requirement_type import API as REQUIREMENT_TYPE_API
 from .ops import API as OPS_API
@@ -95,3 +96,4 @@ API.add_namespace(
 API.add_namespace(DOCUMENT_TYPE_API)
 API.add_namespace(REQUIREMENT_TYPE_API)
 API.add_namespace(APPENDIX_API)
+API.add_namespace(IR_API, path="inspections/<int:inspection_id>/inspection-records")

@@ -87,7 +87,9 @@ class ComplaintSourceContact(BaseModelVersioned):
         )
         contact_ids = [contact.id for contact in contacts]
         if contact_ids:
-            contact_details = cls.query.filter(ComplaintSourceContact.id.in_(contact_ids)).all()
+            contact_details = cls.query.filter(
+                ComplaintSourceContact.id.in_(contact_ids)
+            ).all()
             for contact in contact_details:
                 contact.update(DELETE_DIC_PARAMS, commit=False)
         session.flush()
@@ -96,6 +98,8 @@ class ComplaintSourceContact(BaseModelVersioned):
     @with_session
     def delete_by_complaint(cls, complaint_id, session=None):
         """Delete by complaint id."""
-        contact = cls.query.filter(ComplaintSourceContact.complaint_id == complaint_id).first()
+        contact = cls.query.filter(
+            ComplaintSourceContact.complaint_id == complaint_id
+        ).first()
         contact.update(DELETE_DIC_PARAMS, commit=False)
         session.flush()

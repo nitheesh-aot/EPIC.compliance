@@ -80,7 +80,7 @@ class Inspection(BaseModelVersioned):
     debrief_date = Column(
         DateTime(timezone=True),
         nullable=True,
-        comment="The debrief date of the inspection"
+        comment="The debrief date of the inspection",
     )
     initiation_id = Column(
         Integer,

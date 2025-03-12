@@ -2,6 +2,7 @@
 
 This module is for the initiation of the flask app.
 """
+
 import os
 # import ssl
 from http import HTTPStatus

@@ -325,7 +325,7 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     )
     primary_officer = fields.Nested(
         StaffUserSchema,
-        only=("id", "first_name", "last_name", "name", "auth_user_guid"),
+        only=("id", "first_name", "last_name", "name", "auth_user_guid", "position"),
     )
     initiation = fields.Nested(KeyValueSchema)
     types = fields.Method("get_inspection_types")
@@ -377,7 +377,7 @@ class InspectionStatusSchema(BaseSchema):
         metadata={
             "description": "Alternate text for the status to be written to continuation report"
         },
-        allow_none=True
+        allow_none=True,
     )
 
     @post_load

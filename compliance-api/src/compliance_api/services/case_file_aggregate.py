@@ -1,4 +1,5 @@
 """Case file aggregate service."""
+
 from compliance_api.models import UnapprovedProject
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import session_scope
@@ -18,7 +19,7 @@ class CaseFileAggregateService:
             CaseFileService.update(
                 case_file_id,
                 {"is_deleted": True, "is_active": False, "officer_ids": []},
-                session
+                session,
             )
             UnapprovedProject.delete_by_case_file(case_file_id, session)
             ContinuationReportService.delete_by_case_file(case_file_id, session)

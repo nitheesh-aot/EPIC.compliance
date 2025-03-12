@@ -1,4 +1,5 @@
 """EnforcementActionModel."""
+
 from enum import Enum
 
 from .option_base_model import OptionModel

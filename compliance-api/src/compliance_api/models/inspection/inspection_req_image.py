@@ -87,12 +87,16 @@ class InspectionRequirementImage(BaseModelVersioned):
     @classmethod
     def find_all_images(cls, requirement_id, image_type: ImageTypeEnum):
         """Get all images by requirement_id."""
-        return cls.query.filter_by(
-            requirement_id=requirement_id,
-            image_type=image_type,
-            is_active=True,
-            is_deleted=False,
-        ).order_by(cls.sort_order).all()
+        return (
+            cls.query.filter_by(
+                requirement_id=requirement_id,
+                image_type=image_type,
+                is_active=True,
+                is_deleted=False,
+            )
+            .order_by(cls.sort_order)
+            .all()
+        )
 
     @classmethod
     def find_image_by_url(cls, requirement_id, relative_url, image_type):

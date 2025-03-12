@@ -212,9 +212,7 @@ class CaseFileLinkSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
 class CaseFileOptionSchema(Schema):  # pylint: disable=too-many-ancestors
     """CaseFileOptionSchema."""
 
-    id = fields.Int(
-        metadata={"description": "The unique identifier of the case file."}
-    )
+    id = fields.Int(metadata={"description": "The unique identifier of the case file."})
     case_file_number = fields.Str(
         metadata={"description": "The unique case file number of the case file."}
     )

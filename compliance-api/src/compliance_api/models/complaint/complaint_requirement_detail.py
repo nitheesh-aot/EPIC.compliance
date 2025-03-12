@@ -116,6 +116,7 @@ def _delete_details(detail_query: Query, cls, session=None):
         cls: Model class to perform additional queries.
         session: Optional SQLAlchemy session. If not provided, `db.session` will be used.
     """
+
     def process_related_records(query, model, foreign_key, commit=False):
         """
         Process related records for a given model.
@@ -143,13 +144,25 @@ def _delete_details(detail_query: Query, cls, session=None):
 
     if requirement_ids:
         # Update ComplaintRequirementDetail records
-        details = cls.query.filter(ComplaintRequirementDetail.id.in_(requirement_ids)).all()
+        details = cls.query.filter(
+            ComplaintRequirementDetail.id.in_(requirement_ids)
+        ).all()
         for detail in details:
             detail.update(DELETE_DIC_PARAMS, commit=False)
 
         # Process related models
-        process_related_records(detail_query, ComplaintReqEACDetailModel, ComplaintReqEACDetailModel.req_id)
-        process_related_records(detail_query, ComplaintReqOrderDetailModel, ComplaintReqOrderDetailModel.req_id)
-        process_related_records(detail_query, ComplaintReqScheduleBDetailModel, ComplaintReqScheduleBDetailModel.req_id)
+        process_related_records(
+            detail_query, ComplaintReqEACDetailModel, ComplaintReqEACDetailModel.req_id
+        )
+        process_related_records(
+            detail_query,
+            ComplaintReqOrderDetailModel,
+            ComplaintReqOrderDetailModel.req_id,
+        )
+        process_related_records(
+            detail_query,
+            ComplaintReqScheduleBDetailModel,
+            ComplaintReqScheduleBDetailModel.req_id,
+        )
 
     session.flush()

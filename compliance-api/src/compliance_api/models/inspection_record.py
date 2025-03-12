@@ -1,0 +1,118 @@
+"""Model for inspection record."""
+
+from enum import Enum
+
+from sqlalchemy import Column, DateTime
+from sqlalchemy import Enum as SqlEnum
+from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
+
+from .base_model import BaseModelVersioned
+from .utils import with_session
+
+
+class IRStatusEnum(Enum):
+    """Enum for IR Status."""
+
+    PRELIMINARY = 1
+    FINAL = 2
+
+
+class IRProgressEnum(Enum):
+    """Enum for IR Progress."""
+
+    PRELIMINARY_DRAFTING = "Preliminary Drafting"
+    PRELIMINARY_DEPUTY_REVIEW = "Preliminary Deputy Review"
+    PRELIMINARY_APPROVED = "Preliminary Approved"
+    HOLDER_PRELIMINARY_REVIEW = "Holder Preliminary Review"
+    FINALIZING_RECORD = "Finalizing Record"
+    FINAL_DEPUTY_REVIEW = "Final Deputy Review"
+    FINAL_APPROVED = "Final Approved"
+    ISSUED = "Issued"
+
+
+class InspectionRecord(BaseModelVersioned):
+    """Definition of the InspectionRecord."""
+
+    __tablename__ = "inspection_records"
+
+    id = Column(
+        Integer, primary_key=True, autoincrement=True, comment="The unique identifier"
+    )
+    inspection_id = Column(
+        ForeignKey("inspections.id", name="ir_inspection_id_fkey"),
+        nullable=False,
+        comment="The unique identifier of the inspection",
+    )
+    ir_status_id = Column(
+        ForeignKey("ir_status_options.id",
+                   name="ir_status_id_status_options_fkey"),
+        nullable=False,
+        comment="Status of the inspection record",
+    )
+    mailing_address = Column(
+        String(255),
+        nullable=True,
+        comment="Mailing address of the associated proponent",
+    )
+    inspection_scope = Column(String, nullable=True,
+                              comment="Scope of the inspection")
+    preliminary_review_details = Column(
+        String, nullable=True, comment="Details of the preliminary review"
+    )
+    finding_statement = Column(
+        String, nullable=True, comment="Finding statement from the inspection"
+    )
+    enforcement_summary = Column(
+        String, nullable=True, comment="Summary of enforcement action"
+    )
+    action_required_by_rp = Column(
+        String, nullable=True, comment="Action required by Regulated Party"
+    )
+    date_issued = Column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="Date when the inspection report was issued",
+    )
+    ir_progress = Column(
+        SqlEnum(IRProgressEnum),
+        nullable=True,
+        comment="State of the inspection record",
+        default=IRProgressEnum.PRELIMINARY_DRAFTING,
+    )
+    inspection = relationship("Inspection", foreign_keys=[
+                              inspection_id], lazy="joined")
+    ir_status = relationship("IRStatusOption", foreign_keys=[
+                             ir_status_id], lazy="joined")
+
+    @classmethod
+    @with_session
+    def create_inspection_record(cls, ir_data, session=None):
+        """Create the inspection record."""
+        inspection_record = InspectionRecord(**ir_data)
+        session.add(inspection_record)
+        session.flush()
+        return inspection_record
+
+    @classmethod
+    @with_session
+    def update_inspection_record(
+        cls, inspection_record_id, ir_update_data, session=None
+    ):
+        """Update the inspection record."""
+        inspection_record = cls.find_by_id(inspection_record_id)
+        if not inspection_record:
+            return None
+        inspection_record.update(ir_update_data, commit=False)
+        session.flush()
+        return inspection_record
+
+    @classmethod
+    def get_by_inspection_id(cls, inspection_id):
+        """Find all inspection records by inspection id."""
+        return (
+            cls.query.filter_by(
+                inspection_id=inspection_id, is_deleted=False, is_active=True
+            )
+            .first()
+        )

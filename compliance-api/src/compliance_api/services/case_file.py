@@ -164,6 +164,7 @@ class CaseFileService:
     def change_case_file_status(cls, case_file_id, status_data):
         """Change the status of the case file."""
         from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
+
         case_file = CaseFileModel.find_by_id(case_file_id)
         if not case_file:
             raise ResourceNotFoundError("Case file not found.")
@@ -231,7 +232,9 @@ class CaseFileService:
         case_file = CaseFileModel.find_by_id(case_file_id)
         unlink_case_file = CaseFileModel.find_by_id(unlink_case_file_id)
         if not unlink_case_file:
-            raise ResourceNotFoundError(f"CaseFile with {unlink_case_file_id} not found")
+            raise ResourceNotFoundError(
+                f"CaseFile with {unlink_case_file_id} not found"
+            )
         existing_link = CaseFileLinkModel.get_links_by_source_and_target(
             source_id=case_file_id, target_id=unlink_case_file_id
         )

@@ -21,6 +21,7 @@ from .continuation_report import ContinuationReportService
 from .document_type import DocumentTypeService
 from .enforcement_action import EnforcementActionService
 from .inspection import InspectionService
+from .inspection_record.inspection_record import InspectionRecordService
 from .inspection_requirement import InspectionRequirementService
 from .inspection_requirement_type import InspectionRequirementTypeService
 from .position import PositionService
