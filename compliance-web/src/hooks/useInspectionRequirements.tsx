@@ -9,6 +9,7 @@ import {
 } from "@/models/InspectionRequirement";
 import { InspectionRequirementType } from "@/models/InspectionRequirementType";
 import { Image } from "@/models/Image";
+import { useStaticQuery } from "./useCustomQueries";
 
 const fetchInspectionRequirementTypes = (): Promise<
   InspectionRequirementType[]
@@ -106,28 +107,28 @@ const deleteInspectionRequirement = ({
 };
 
 export const useInspectionRequirementTypesData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["inspection-requirement-types"],
     queryFn: fetchInspectionRequirementTypes,
   });
 };
 
 export const useEnforcementActionsData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["enforcement-actions"],
     queryFn: fetchEnforcementActions,
   });
 };
 
 export const useComplianceFindingsData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["compliance-findings"],
     queryFn: fetchComplianceFindings,
   });
 };
 
 export const useDocumentTypesData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["document-types"],
     queryFn: fetchDocumentTypes,
   });
@@ -137,6 +138,7 @@ export const useInspectionRequirementsData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-requirements", inspectionId],
     queryFn: () => fetchInspectionRequirements(inspectionId),
+    staleTime: Infinity,
   });
 };
 

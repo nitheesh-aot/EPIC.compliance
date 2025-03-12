@@ -11,6 +11,7 @@ import {
 } from "@/models/RequirementSource";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useStaticQuery } from "@/hooks/useCustomQueries";
 
 const fetchRequirementSources = (): Promise<RequirementSource[]> => {
   return request({ url: "/requirement-sources" });
@@ -75,14 +76,14 @@ const deleteComplaint = (id: number) => {
 };
 
 export const useRequirementSourcesData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["requirement-sources"],
     queryFn: fetchRequirementSources,
   });
 };
 
 export const useComplaintSourcesData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["complaint-sources"],
     queryFn: fetchComplaintSources,
   });

@@ -4,6 +4,7 @@ import { Position } from "@/models/Position";
 import { StaffAPIData, StaffUser } from "@/models/Staff";
 import { OnSuccessType, request, requestAuthAPI } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useStaticQuery } from "@/hooks/useCustomQueries";
 
 const fetchStaffUsers = (): Promise<StaffUser[]> => {
   return request({ url: "/staff-users" });
@@ -51,21 +52,21 @@ export const useStaffUsersData = (
 };
 
 export const useAuthUsersData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["auth-users"],
     queryFn: fetchAuthUsers,
   });
 };
 
 export const usePositionsData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["positions"],
     queryFn: fetchPositions,
   });
 };
 
 export const usePermissionsData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["permissions"],
     queryFn: fetchPermissions,
   });

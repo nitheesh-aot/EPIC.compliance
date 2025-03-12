@@ -75,6 +75,7 @@ export default function ContinuationReport({
     (submitMsg: string) => {
       queryClient.invalidateQueries({
         queryKey: ["continuation-reports", caseFileId],
+        exact: false,
       });
       setClose();
       notify.success(submitMsg);
@@ -105,12 +106,6 @@ export default function ContinuationReport({
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(1); // Reset to the first page when rows per page changes
   };
-
-  useEffect(() => {
-    queryClient.invalidateQueries({
-      queryKey: ["continuation-reports", caseFileId],
-    });
-  }, [queryClient, caseFileId, page, rowsPerPage, debouncedSearchText]);
 
   return (
     <Box

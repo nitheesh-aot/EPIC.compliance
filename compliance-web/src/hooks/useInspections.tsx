@@ -10,6 +10,7 @@ import { IRType } from "@/models/IRType";
 import { ProjectStatus } from "@/models/ProjectStatus";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useStaticQuery } from "@/hooks/useCustomQueries";
 
 const fetchIRTypes = (): Promise<IRType[]> => {
   return request({ url: "/inspections/type-options" });
@@ -82,35 +83,35 @@ const deleteInspection = (id: number) => {
 };
 
 export const useIRTypesData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["ir-types"],
     queryFn: fetchIRTypes,
   });
 };
 
 export const useInitiationsData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["inspections-initiations"],
     queryFn: fetchInitiations,
   });
 };
 
 export const useIRStatusesData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["ir-statuses"],
     queryFn: fetchIRStatuses,
   });
 };
 
 export const useAttendanceOptionsData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["attendance-options"],
     queryFn: fetchAttendanceOptions,
   });
 };
 
 export const useProjectStatusesData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["project-statuses"],
     queryFn: fetchProjectStatuses,
   });
@@ -134,6 +135,7 @@ export const useInspectionByNumber = (inspectionNumber: string) => {
       return { ...inspection, inspectionAttendances };
     },
     enabled: !!inspectionNumber,
+    staleTime: Infinity,
   });
 };
 
