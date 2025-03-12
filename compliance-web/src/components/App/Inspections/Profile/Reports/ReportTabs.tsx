@@ -11,6 +11,7 @@ import { useParams } from "@tanstack/react-router";
 import InspectionSummary from "./ReportTabContents/InspectionSummary";
 import ComingSoon from "@/components/Shared/ComingSoon";
 import ActionsRequired from "./ReportTabContents/ActionsRequired";
+import EnforcementSummary from "./ReportTabContents/EnforcementSummary";
 
 function a11yProps(index: number) {
   return {
@@ -59,7 +60,7 @@ export default function ReportTabs() {
     { title: "#2. hazardous materials and...", component: <ComingSoon /> },
     { title: "#3. storage of suspect PAG...", component: <ComingSoon /> },
     { title: "Actions Required by RP and...", component: <ActionsRequired /> },
-    { title: "Enforcement Summary", component: <ComingSoon /> },
+    { title: "Enforcement Summary", component: <EnforcementSummary /> },
     { title: "Regulatory Consideration", component: <ComingSoon /> },
     { title: "Inspection Version Dates", component: <ComingSoon /> },
     { title: "Appendices", component: <ComingSoon /> },
