@@ -6,11 +6,17 @@ import MailingAddressPopover from "./MailingAddressPopover";
 import { usePopover } from "@/store/popoverStore";
 import { useState } from "react";
 import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
+import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
+import { formatAuthorization } from "@/utils/appUtils";
 
 const ProjectOverview = () => {
   const { inspectionData } = useReportStore();
   const { setOpen, setClose } = usePopover();
   const [mailingAddress, setMailingAddress] = useState("");
+
+  const { data: caseFileData } = useCaseFileByNumber(
+    inspectionData?.case_file.case_file_number || ""
+  );
 
   const updateMailingAddress = (mailingAddress: string) => {
     setMailingAddress(mailingAddress);
@@ -54,7 +60,7 @@ const ProjectOverview = () => {
       <Grid container spacing={1}>
         <GridLabelValuePair
           label="Project"
-          value={inspectionData?.case_file?.project?.name}
+          value={caseFileData?.project?.name}
         />
         <GridLabelValuePair
           label="Inspection No."
@@ -68,12 +74,12 @@ const ProjectOverview = () => {
         />
         <GridLabelValuePair
           label="Regulated Party"
-          value="track_api"
+          value={caseFileData?.regulated_party}
           gridProps={{ xs: 6 }}
         />
         <GridLabelValuePair
           label="EA Certificate #"
-          value="track_api"
+          value={formatAuthorization(caseFileData?.authorization)}
           gridProps={{ xs: 6 }}
         />
         <Grid item xs={12}>
