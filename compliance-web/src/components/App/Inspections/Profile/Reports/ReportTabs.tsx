@@ -9,6 +9,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Inspection } from "@/models/Inspection";
 import { useParams } from "@tanstack/react-router";
 import InspectionSummary from "./ReportTabContents/InspectionSummary";
+import ComingSoon from "@/components/Shared/ComingSoon";
+import ActionsRequired from "./ReportTabContents/ActionsRequired";
 
 function a11yProps(index: number) {
   return {
@@ -21,7 +23,8 @@ export default function ReportTabs() {
   const queryClient = useQueryClient();
   const { inspectionNumber } = useParams({ strict: false });
   const [value, setValue] = useState(0);
-  const { setInspectionData, setInspectionSummary } = useReportStore();
+  const { setInspectionData, setInspectionSummary, setActionsRequired } =
+    useReportStore();
 
   const inspectionData = queryClient.getQueryData<Inspection>([
     "inspection",
@@ -34,8 +37,16 @@ export default function ReportTabs() {
       setInspectionSummary(
         `<p class="editor-paragraph" dir="ltr"><span style="white-space: pre-wrap;">The Officer inspected </span><i><em class="editor-text-italic" style="white-space: pre-wrap;">[BRIEF DESCRIPTION OF PROJECT COMPONENTS/AREAS INSPECTED] </em></i></p><p class="editor-paragraph"><br></p><p class="editor-paragraph" dir="ltr"><span style="white-space: pre-wrap;">The inspection included a debrief of observations with Project staff on </span><b><strong class="editor-text-bold" style="white-space: pre-wrap;">January 17, 2025.</strong></b><span style="white-space: pre-wrap;"> The following requirements were inspected against: </span></p><p class="editor-paragraph"><br></p><ol class="editor-list-ol"><li value="1" class="editor-listitem"><span style="white-space: pre-wrap;">Condition 7 of Schedule B with respect to providing a non-compliance notification to the EAO. </span></li><li value="2" class="editor-listitem"><span style="white-space: pre-wrap;">Condition 14 of Schedule B with respect to hazardous materials and fuel storage. </span></li><li value="3" class="editor-listitem"><span style="white-space: pre-wrap;">Condition 5 of Schedule B with respect to storage of suspect PAG materials.</span></li></ol>`
       );
+      setActionsRequired(
+        `<p class="editor-paragraph" dir="ltr"><b><strong class="editor-text-bold" style="white-space: pre-wrap;">Please review this inspection record for errors or omissions and provide a response to Officer Lombardi by</strong></b><span style="white-space: pre-wrap;"> </span><i><em class="editor-text-italic" style="white-space: pre-wrap;">date will appear once due date is set.</em></i></p>`
+      );
     }
-  }, [inspectionData, setInspectionData, setInspectionSummary]);
+  }, [
+    inspectionData,
+    setInspectionData,
+    setInspectionSummary,
+    setActionsRequired,
+  ]);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
@@ -44,14 +55,14 @@ export default function ReportTabs() {
   const tabItems = [
     { title: "IR Overview", component: <Overview /> },
     { title: "Inspection Summary", component: <InspectionSummary /> },
-    { title: "#1. providing a non-complia...", component: <Overview /> },
-    { title: "#2. hazardous materials and...", component: <Overview /> },
-    { title: "#3. storage of suspect PAG...", component: <Overview /> },
-    { title: "Actions Required by RP and...", component: <Overview /> },
-    { title: "Enforcement Summary", component: <Overview /> },
-    { title: "Regulatory Consideration", component: <Overview /> },
-    { title: "Inspection Version Dates", component: <Overview /> },
-    { title: "Appendices", component: <Overview /> },
+    { title: "#1. providing a non-complia...", component: <ComingSoon /> },
+    { title: "#2. hazardous materials and...", component: <ComingSoon /> },
+    { title: "#3. storage of suspect PAG...", component: <ComingSoon /> },
+    { title: "Actions Required by RP and...", component: <ActionsRequired /> },
+    { title: "Enforcement Summary", component: <ComingSoon /> },
+    { title: "Regulatory Consideration", component: <ComingSoon /> },
+    { title: "Inspection Version Dates", component: <ComingSoon /> },
+    { title: "Appendices", component: <ComingSoon /> },
   ];
 
   return (

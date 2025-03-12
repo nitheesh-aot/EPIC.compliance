@@ -46,7 +46,7 @@ const Overview = () => {
         .flatMap((attendance: InspectionAttendance) => {
           // Handle array of officers
           if (attendance.data && Array.isArray(attendance.data)) {
-            return attendance.data;
+            return attendance.data as StaffUser[];
           }
           return [];
         }) ?? [];
