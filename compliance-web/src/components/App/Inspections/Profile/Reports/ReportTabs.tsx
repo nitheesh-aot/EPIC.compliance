@@ -10,7 +10,6 @@ import { Inspection } from "@/models/Inspection";
 import { useParams } from "@tanstack/react-router";
 import InspectionSummary from "./ReportTabContents/InspectionSummary";
 
-
 function a11yProps(index: number) {
   return {
     id: `ir-tab-${index}`,
@@ -22,7 +21,7 @@ export default function ReportTabs() {
   const queryClient = useQueryClient();
   const { inspectionNumber } = useParams({ strict: false });
   const [value, setValue] = useState(0);
-  const { setInspectionData } = useReportStore();
+  const { setInspectionData, setInspectionSummary } = useReportStore();
 
   const inspectionData = queryClient.getQueryData<Inspection>([
     "inspection",
@@ -32,8 +31,11 @@ export default function ReportTabs() {
   useEffect(() => {
     if (inspectionData) {
       setInspectionData(inspectionData);
+      setInspectionSummary(
+        `<p class="editor-paragraph" dir="ltr"><span style="white-space: pre-wrap;">The Officer inspected </span><i><em class="editor-text-italic" style="white-space: pre-wrap;">[BRIEF DESCRIPTION OF PROJECT COMPONENTS/AREAS INSPECTED] </em></i></p><p class="editor-paragraph"><br></p><p class="editor-paragraph" dir="ltr"><span style="white-space: pre-wrap;">The inspection included a debrief of observations with Project staff on </span><b><strong class="editor-text-bold" style="white-space: pre-wrap;">January 17, 2025.</strong></b><span style="white-space: pre-wrap;"> The following requirements were inspected against: </span></p><p class="editor-paragraph"><br></p><ol class="editor-list-ol"><li value="1" class="editor-listitem"><span style="white-space: pre-wrap;">Condition 7 of Schedule B with respect to providing a non-compliance notification to the EAO. </span></li><li value="2" class="editor-listitem"><span style="white-space: pre-wrap;">Condition 14 of Schedule B with respect to hazardous materials and fuel storage. </span></li><li value="3" class="editor-listitem"><span style="white-space: pre-wrap;">Condition 5 of Schedule B with respect to storage of suspect PAG materials.</span></li></ol>`
+      );
     }
-  }, [inspectionData, setInspectionData]);
+  }, [inspectionData, setInspectionData, setInspectionSummary]);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);

@@ -1,15 +1,46 @@
+import LexicalEditor from "@/components/Shared/LexicalEditor/LexicalEditor";
 import { EditOutlined } from "@mui/icons-material";
-import { Box, Typography, IconButton, SxProps } from "@mui/material";
+import { Box, Typography, IconButton, SxProps, Button } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
+import { useState } from "react";
+import { $generateHtmlFromNodes } from "@lexical/html";
 
 type IRBoxContainerProps = {
   title: string;
-  onEdit: () => void;
   children?: React.ReactNode;
   sx?: SxProps;
+  onEdit?: () => void;
+  defaultValue?: string;
+  onEditSubmit?: (editorValue: string) => void;
 };
 
-const IRBoxContainer = ({ title, children, onEdit, sx }: IRBoxContainerProps) => {
+const IRBoxContainer = ({
+  title,
+  children,
+  sx,
+  onEdit,
+  defaultValue,
+  onEditSubmit,
+}: IRBoxContainerProps) => {
+  const [isEdit, setIsEdit] = useState<boolean>(false);
+  const [editorValue, setEditorValue] = useState<string>(defaultValue || "");
+
+
+  const handleEdit = () => {
+    setIsEdit(true);
+    setEditorValue(defaultValue || "");
+  };
+
+  const handleSave = () => {
+    setIsEdit(false);
+    onEditSubmit?.(editorValue);
+  };
+
+  const handleCancel = () => {
+    setIsEdit(false);
+    setEditorValue("");
+  };
+
   return (
     <Box
       aria-label={title}
@@ -33,14 +64,52 @@ const IRBoxContainer = ({ title, children, onEdit, sx }: IRBoxContainerProps) =>
         <IconButton
           size="small"
           color="secondary"
-          onClick={onEdit}
+          onClick={onEdit || handleEdit}
           data-testid={`irbox-container-edit`}
         >
           <EditOutlined />
         </IconButton>
       </Box>
       <Box px={3} py={2}>
-        {children}
+        {isEdit ? (
+          <>
+            <LexicalEditor
+              name={"inspection-scope"}
+              label={"Text"}
+              errorMsg={""}
+              placeholder={"Enter text..."}
+              defaultHtml={editorValue}
+              height={"400px"}
+              onChange={(editorState, editor) => {
+                editorState.read(() => {
+                  const editorStateHtmlString = $generateHtmlFromNodes(editor);
+                  setEditorValue(editorStateHtmlString);
+                });
+              }}
+            />
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 1,
+                mt: 1.5,
+              }}
+            >
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleCancel}
+              >
+                Cancel
+              </Button>
+              <Button variant="contained" color="primary" onClick={handleSave}>
+                Save
+              </Button>
+            </Box>
+          </>
+        ) : (
+          children
+        )}
       </Box>
     </Box>
   );
