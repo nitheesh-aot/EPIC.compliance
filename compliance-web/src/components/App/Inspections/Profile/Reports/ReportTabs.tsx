@@ -12,6 +12,7 @@ import InspectionSummary from "./ReportTabContents/InspectionSummary";
 import ComingSoon from "@/components/Shared/ComingSoon";
 import ActionsRequired from "./ReportTabContents/ActionsRequired";
 import EnforcementSummary from "./ReportTabContents/EnforcementSummary";
+import InspectionDates from "./ReportTabContents/InspectionDates";
 
 function a11yProps(index: number) {
   return {
@@ -62,7 +63,7 @@ export default function ReportTabs() {
     { title: "Actions Required by RP and...", component: <ActionsRequired /> },
     { title: "Enforcement Summary", component: <EnforcementSummary /> },
     { title: "Regulatory Consideration", component: <ComingSoon /> },
-    { title: "Inspection Version Dates", component: <ComingSoon /> },
+    { title: "Inspection Version Dates", component: <InspectionDates /> },
     { title: "Appendices", component: <ComingSoon /> },
   ];
 

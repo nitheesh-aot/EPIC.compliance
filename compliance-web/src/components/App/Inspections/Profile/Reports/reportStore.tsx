@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { Inspection } from "@/models/Inspection";
-
-const DEFAULT_ENFORCEMENT_SUMMARY = `<p class="editor-paragraph">None at this time.</p>`;
+import { DEFAULT_REPORT_TAB_CONTENT } from "@/utils/constants";
 
 // Define the store state and actions
 interface ReportStore {
@@ -10,11 +9,15 @@ interface ReportStore {
   findingsStatement?: string;
   actionsRequired?: string;
   enforcementSummary?: string;
+  inspectionVersionDatePreliminary?: string;
+  inspectionVersionDateIssued?: string;
   setInspectionData: (inspectionData: Inspection) => void;
   setInspectionSummary: (inspectionSummary: string) => void;
   setFindingsStatement: (findingsStatement: string) => void;
   setActionsRequired: (actionsRequired: string) => void;
   setEnforcementSummary: (enforcementSummary: string) => void;
+  setInspectionVersionDatePreliminary: (inspectionVersionDatePreliminary: string) => void;
+  setInspectionVersionDateIssued: (inspectionVersionDateIssued: string) => void;
   reset: () => void;
 }
 
@@ -24,7 +27,7 @@ export const useReportStore = create<ReportStore>((set) => ({
   inspectionSummary: undefined,
   findingsStatement: undefined,
   actionsRequired: undefined,
-  enforcementSummary: DEFAULT_ENFORCEMENT_SUMMARY,
+  enforcementSummary: DEFAULT_REPORT_TAB_CONTENT,
   setInspectionData: (inspectionData: Inspection) => set({ inspectionData }),
   setInspectionSummary: (inspectionSummary: string) =>
     set({ inspectionSummary }),
@@ -33,12 +36,16 @@ export const useReportStore = create<ReportStore>((set) => ({
   setActionsRequired: (actionsRequired: string) => set({ actionsRequired }),
   setEnforcementSummary: (enforcementSummary: string) =>
     set({ enforcementSummary }),
+  setInspectionVersionDatePreliminary: (inspectionVersionDatePreliminary: string) => set({ inspectionVersionDatePreliminary }),
+  setInspectionVersionDateIssued: (inspectionVersionDateIssued: string) => set({ inspectionVersionDateIssued }),
   reset: () =>
     set({
       inspectionData: undefined,
       inspectionSummary: undefined,
       findingsStatement: undefined,
       actionsRequired: undefined,
-      enforcementSummary: DEFAULT_ENFORCEMENT_SUMMARY,
+      enforcementSummary: DEFAULT_REPORT_TAB_CONTENT,
+      inspectionVersionDatePreliminary: undefined,
+      inspectionVersionDateIssued: undefined,
     }),
 }));

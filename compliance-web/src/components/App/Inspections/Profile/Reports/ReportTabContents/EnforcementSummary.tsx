@@ -1,6 +1,6 @@
 import { Typography } from "@mui/material";
 import IRBoxContainer from "./IRBoxContainer";
-import { useReportStore } from "../reportStore";
+import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
 
 const EnforcementSummary = () => {
   const { enforcementSummary, setEnforcementSummary } = useReportStore();

@@ -51,3 +51,5 @@ export const CR_CONTEXT_LINK: Record<string, string> = {
 }
 
 export const FILE_PROFILE_CONTEXT = CR_CONTEXT_TYPE;
+
+export const DEFAULT_REPORT_TAB_CONTENT = `<p class="editor-paragraph">None at this time.</p>`;

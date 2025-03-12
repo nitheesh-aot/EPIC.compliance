@@ -25,7 +25,6 @@ const IRBoxContainer = ({
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [editorValue, setEditorValue] = useState<string>(defaultValue || "");
 
-
   const handleEdit = () => {
     setIsEdit(true);
     setEditorValue(defaultValue || "");
@@ -61,14 +60,16 @@ const IRBoxContainer = ({
         }}
       >
         <Typography variant="body1">{title}</Typography>
-        <IconButton
-          size="small"
-          color="secondary"
-          onClick={onEdit || handleEdit}
-          data-testid={`irbox-container-edit`}
-        >
-          <EditOutlined />
-        </IconButton>
+        {(onEdit || onEditSubmit) && (
+          <IconButton
+            size="small"
+            color="secondary"
+            onClick={onEdit || handleEdit}
+            data-testid={`irbox-container-edit`}
+          >
+            <EditOutlined />
+          </IconButton>
+        )}
       </Box>
       <Box px={3} py={2}>
         {isEdit ? (
