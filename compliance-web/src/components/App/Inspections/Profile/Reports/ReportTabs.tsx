@@ -5,14 +5,14 @@ import { BCDesignTokens } from "epic.theme";
 import { PictureAsPdfOutlined, SendRounded } from "@mui/icons-material";
 import Overview from "./ReportTabContents/IROverview/Overview";
 import { useReportStore } from "./reportStore";
-import { useQueryClient } from "@tanstack/react-query";
-import { Inspection } from "@/models/Inspection";
 import { useParams } from "@tanstack/react-router";
 import InspectionSummary from "./ReportTabContents/InspectionSummary";
 import ComingSoon from "@/components/Shared/ComingSoon";
 import ActionsRequired from "./ReportTabContents/ActionsRequired";
 import EnforcementSummary from "./ReportTabContents/EnforcementSummary";
 import InspectionDates from "./ReportTabContents/InspectionDates";
+import { useInspectionByNumber } from "@/hooks/useInspections";
+import Appendices from "./ReportTabContents/Appendices";
 
 function a11yProps(index: number) {
   return {
@@ -22,16 +22,12 @@ function a11yProps(index: number) {
 }
 
 export default function ReportTabs() {
-  const queryClient = useQueryClient();
   const { inspectionNumber } = useParams({ strict: false });
   const [value, setValue] = useState(0);
   const { setInspectionData, setInspectionSummary, setActionsRequired } =
     useReportStore();
 
-  const inspectionData = queryClient.getQueryData<Inspection>([
-    "inspection",
-    inspectionNumber,
-  ]);
+  const { data: inspectionData } = useInspectionByNumber(inspectionNumber);
 
   useEffect(() => {
     if (inspectionData) {
@@ -64,7 +60,7 @@ export default function ReportTabs() {
     { title: "Enforcement Summary", component: <EnforcementSummary /> },
     { title: "Regulatory Consideration", component: <ComingSoon /> },
     { title: "Inspection Version Dates", component: <InspectionDates /> },
-    { title: "Appendices", component: <ComingSoon /> },
+    { title: "Appendices", component: <Appendices /> },
   ];
 
   return (
@@ -128,6 +124,7 @@ export default function ReportTabs() {
             "& .Mui-selected": {
               borderColor: BCDesignTokens.surfaceColorBorderActive,
               color: BCDesignTokens.themePrimaryBlue,
+              backgroundColor: BCDesignTokens.surfaceColorBackgroundLightBlue,
             },
           }}
         >
