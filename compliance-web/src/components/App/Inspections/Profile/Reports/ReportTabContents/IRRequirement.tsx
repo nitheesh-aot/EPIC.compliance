@@ -86,7 +86,7 @@ const IRRequirement = ({
   );
 
   return (
-    <IRBoxContainer title={requirement.summary}>
+    <IRBoxContainer title={requirement.summary} onEdit={() => {}}>
       {requirement.requirement_source_details.map((reqSourceDetail, index) => (
         <Box key={index}>
           <DetailSection

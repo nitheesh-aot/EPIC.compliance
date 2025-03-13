@@ -1,4 +1,4 @@
-import { Box, Tabs, Tab, Typography, Button } from "@mui/material";
+import { Box, Tabs, Tab, Typography, Button, Tooltip } from "@mui/material";
 import { useEffect, useState, useMemo } from "react";
 import ReportPanel from "./ReportPanel";
 import { BCDesignTokens } from "epic.theme";
@@ -7,7 +7,6 @@ import Overview from "./ReportTabContents/IROverview/Overview";
 import { useReportStore } from "./reportStore";
 import { useParams } from "@tanstack/react-router";
 import InspectionSummary from "./ReportTabContents/InspectionSummary";
-import ComingSoon from "@/components/Shared/ComingSoon";
 import ActionsRequired from "./ReportTabContents/ActionsRequired";
 import EnforcementSummary from "./ReportTabContents/EnforcementSummary";
 import InspectionDates from "./ReportTabContents/InspectionDates";
@@ -20,13 +19,7 @@ import {
 } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import IRRequirement from "./ReportTabContents/IRRequirement";
-
-function a11yProps(index: number) {
-  return {
-    id: `ir-tab-${index}`,
-    "aria-controls": `ir-tabpanel-${index}`,
-  };
-}
+import IRRegulatoryConsideration from "./ReportTabContents/IRRegulatoryConsideration";
 
 export default function ReportTabs() {
   const { inspectionNumber } = useParams({ strict: false });
@@ -99,11 +92,11 @@ export default function ReportTabs() {
     // Remaining static tabs
     const remainingTabs = [
       {
-        title: "Actions Required by RP and...",
+        title: "Actions Required by Regulated Party and Additional Comments",
         component: <ActionsRequired />,
       },
       { title: "Enforcement Summary", component: <EnforcementSummary /> },
-      { title: "Regulatory Consideration", component: <ComingSoon /> },
+      { title: "Regulatory Consideration", component: <IRRegulatoryConsideration /> },
       { title: "Inspection Version Dates", component: <InspectionDates /> },
       { title: "Appendices", component: <Appendices /> },
     ];
@@ -159,14 +152,10 @@ export default function ReportTabs() {
               gap: 2,
             },
             "& .MuiTab-root": {
-              alignItems: "flex-start",
               borderRadius: 1,
               border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
               height: "40px",
               py: 0,
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
               minHeight: "unset",
             },
             "& .Mui-selected": {
@@ -177,7 +166,28 @@ export default function ReportTabs() {
           }}
         >
           {tabItems.map((item, index) => (
-            <Tab key={index} label={item.title} {...a11yProps(index)} />
+            <Tab
+              key={index}
+              label={
+                <Tooltip title={item.title}>
+                  <Box
+                    sx={{
+                      width: "100%",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      display: "inline-block",
+                      textAlign: "start",
+                    }}
+                  >
+                    {item.title}
+                  </Box>
+                </Tooltip>
+              }
+              id={`ir-tab-${index}`}
+              aria-controls={`ir-tabpanel-${index}`}
+              sx={{ width: "100%" }}
+            />
           ))}
         </Tabs>
         {tabItems.map((item, index) => (
