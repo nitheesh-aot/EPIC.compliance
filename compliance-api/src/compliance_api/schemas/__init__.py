@@ -27,6 +27,8 @@ from .continuation_report import (
 from .inspection import (
     InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
     InspectionStatusSchema, InspectionUpdateSchema)
+from .inspection_approval import (
+    CreateInspectionRecordApprovalSchema, InspectionRecordApprovalSchema, UpdateInspectionRecordApprovalSchema)
 from .inspection_record import InspectionRecordCreateSchema, InspectionRecordSchema, UpdateInspectionRecordSchema
 from .inspection_requirement import (
     InspectionReqImageCreateSchema, InspectionReqImageSchema, InspectionRequirementCreateSchema,

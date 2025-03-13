@@ -2,8 +2,6 @@
 
 from datetime import datetime
 
-from flask import g
-
 from compliance_api.auth import auth
 from compliance_api.exceptions import (
     BusinessError, PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError)
@@ -13,16 +11,18 @@ from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionAgency as InspectionAgencyModel
 from compliance_api.models import InspectionAttendance as InspectionAttendanceModel
 from compliance_api.models import InspectionAttendanceOption as InspectionAttendanceOptionModel
+from compliance_api.models import InspectionAttendanceOptionEnum
 from compliance_api.models import InspectionFirstnation as InspectionFirstnationModel
 from compliance_api.models import InspectionInitiationOption as InspectionInitiationOptionModel
 from compliance_api.models import InspectionOfficer as InspectionOfficerModel
 from compliance_api.models import InspectionOtherAttendance as InspectionOtherAttendanceModel
+from compliance_api.models import InspectionStatusEnum
 from compliance_api.models import InspectionType as InspectionTypeModel
 from compliance_api.models import InspectionTypeOption as InspectionTypeOptionModel
 from compliance_api.models import IRStatusOption as IRStatusOptionModel
 from compliance_api.models.db import session_scope
-from compliance_api.models.inspection.inspection_enum import InspectionAttendanceOptionEnum, InspectionStatusEnum
 from compliance_api.services.case_file import CaseFileService
+from compliance_api.services.service_utils import ServiceUtils
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE
 from compliance_api.utils.enum import ContextEnum, PermissionEnum
 
@@ -235,7 +235,7 @@ class InspectionService:
         if not inspection:
             raise ResourceNotFoundError(f"Inspection with ID {inspection_id} not found")
         _inspection_status_check(inspection)
-        _access_check_update(inspection)
+        ServiceUtils.access_check_update_for_inspection(inspection)
         inspection_obj = _create_inspection_update_obj(inspection_data)
         with session_scope() as session:
             updated_case_file = InspectionModel.update_inspection(
@@ -297,14 +297,14 @@ class InspectionService:
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
             raise ResourceNotFoundError(f"Inspection with ID {inspection_id} not found")
-        _access_check_update(inspection)
+        ServiceUtils.access_check_update_for_inspection(inspection)
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
             raise ResourceNotFoundError("Inspection not found.")
         status_enum = InspectionStatusEnum(status.get("status"))
-        if inspection.inspection_status != InspectionStatusEnum.OPEN:
+        if inspection.inspection_status == InspectionStatusEnum.CANCELED:
             raise UnprocessableEntityError(
-                "Inspection has to be in open state to perform the requested action"
+                "No status change can be perforemed on CANCELED inspection"
             )
         with session_scope() as session:
             InspectionModel.update_inspection(
@@ -390,18 +390,6 @@ def _access_check_create(inspection_data: dict):
         [PermissionEnum.SUPERUSER]
     ) and not CaseFileService.is_logged_user_primary_or_officer(
         inspection_data.get("case_file_id")
-    ):
-        raise PermissionDeniedError(
-            "You don't have the correct permission to perform this operation."
-        )
-
-
-def _access_check_update(inspection: dict):
-    """Access check for update."""
-    auth_user_guid = g.token_info["preferred_username"]
-    if (
-        not auth.has_permission([PermissionEnum.SUPERUSER])
-        and not inspection.primary_officer.auth_user_guid == auth_user_guid
     ):
         raise PermissionDeniedError(
             "You don't have the correct permission to perform this operation."

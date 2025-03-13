@@ -87,3 +87,40 @@ class InspectionRecordApproval(BaseModelVersioned):
         session.add(inspection_record_approval)
         session.flush()
         return inspection_record_approval
+
+    @classmethod
+    def get_approvals_by_ir(cls, inspection_record_id: int):
+        """Return all the approval entries by inspection record id."""
+        return (
+            cls.query.filter(
+                cls.inspection_record_id == inspection_record_id,
+                cls.is_active.is_(True),
+                cls.is_deleted.is_(False),
+            )
+            .order_by(cls.created_date.desc())
+            .all()
+        )
+
+    @classmethod
+    def get_latest_approval_by_ir(cls, inspection_record_id: int):
+        """Return all the approval entries by inspection record id."""
+        return (
+            cls.query.filter(
+                cls.inspection_record_id == inspection_record_id,
+                cls.is_active.is_(True),
+                cls.is_deleted.is_(False),
+            )
+            .order_by(cls.created_date.desc())
+            .first()
+        )
+
+    @classmethod
+    @with_session
+    def update_approval(cls, approval_id, approval_update_data, session=None):
+        """Update the inspection record approval."""
+        approval = cls.find_by_id(approval_id)
+        if not approval:
+            return None
+        approval.update(approval_update_data, commit=False)
+        session.flush()
+        return approval

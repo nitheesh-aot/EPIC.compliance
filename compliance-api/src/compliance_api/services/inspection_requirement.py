@@ -19,6 +19,8 @@ from compliance_api.services.document_service.doc_service import DocService
 from compliance_api.services.document_service.doc_service_enum import ActionOnFileEnum
 from compliance_api.utils.enum import PermissionEnum
 
+from .service_utils import ServiceUtils
+
 
 class InspectionRequirementService:
     """InspectionRequirementService."""
@@ -38,7 +40,7 @@ class InspectionRequirementService:
         """Create inspection requirement."""
         inspection = _inspection_check(inspection_id)
         _inspection_status_check(inspection)
-        _access_check(inspection_id)
+        ServiceUtils.access_check_update_for_inspection(inspection)
         requirements = InspectionRequirementModel.get_by_inspection_id(inspection_id)
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
         requirement_obj["sort_order"] = len(requirements) + 1
@@ -75,7 +77,7 @@ class InspectionRequirementService:
         inspection = _inspection_check(inspection_id)
         _inspection_status_check(inspection)
         _requirement_check(requirement_id)
-        _access_check(inspection_id)
+        ServiceUtils.access_check_update_for_inspection(inspection)
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
         with session_scope() as session:
             updated_requirement = InspectionRequirementModel.update_requirement(
@@ -112,7 +114,7 @@ class InspectionRequirementService:
         inspection = _inspection_check(inspection_id)
         _inspection_status_check(inspection)
         _requirement_check(requirement_id)
-        _access_check(inspection_id)
+        ServiceUtils.access_check_update_for_inspection(inspection)
         with session_scope() as session:
             InspectionRequirementModel.delete_requirement(requirement_id, session)
             InspectionReqSourceDetailModel.delete_by_requirement_id(
@@ -136,7 +138,7 @@ class InspectionRequirementService:
         inspection = _inspection_check(inspection_id)
         _inspection_status_check(inspection)
         requirement = _requirement_check(requirement_id)
-        # _access_check(inspection_id)
+        ServiceUtils.access_check_update_for_inspection(inspection)
 
         new_sort_order = sort_order_data.get("order")
         requirements = InspectionRequirementModel.get_by_inspection_id(inspection_id)
