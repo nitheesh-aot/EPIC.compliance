@@ -1,4 +1,4 @@
-import { Box, Tabs, Tab, Typography, Button, Tooltip } from "@mui/material";
+import { Box, Tabs, Tab, Typography, Button } from "@mui/material";
 import { useEffect, useState, useMemo, useRef } from "react";
 import ReportPanel from "./ReportPanel";
 import { BCDesignTokens } from "epic.theme";
@@ -8,10 +8,10 @@ import { useReportStore } from "./reportStore";
 import { useParams } from "@tanstack/react-router";
 import InspectionSummary from "./ReportTabContents/InspectionSummary";
 import ActionsRequired from "./ReportTabContents/ActionsRequired";
-import EnforcementSummary from "./ReportTabContents/EnforcementSummary";
 import InspectionDates from "./ReportTabContents/InspectionDates";
+import IREnforcementSummary from "./ReportTabContents/IREnforcementSummary";
+import IRAppendices from "./ReportTabContents/IRAppendices";
 import { useInspectionByNumber } from "@/hooks/useInspections";
-import Appendices from "./ReportTabContents/Appendices";
 import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
 import {
   REQUIREMENT_TYPE_ID,
@@ -102,13 +102,13 @@ export default function ReportTabs() {
         title: "Actions Required by Regulated Party and Additional Comments",
         component: <ActionsRequired />,
       },
-      { title: "Enforcement Summary", component: <EnforcementSummary /> },
+      { title: "Enforcement Summary", component: <IREnforcementSummary /> },
       {
         title: "Regulatory Consideration",
         component: <IRRegulatoryConsideration />,
       },
       { title: "Inspection Version Dates", component: <InspectionDates /> },
-      { title: "Appendices", component: <Appendices /> },
+      { title: "Appendices", component: <IRAppendices /> },
     ];
 
     return [...baseTabs, ...requirementTabs, ...remainingTabs];
@@ -206,20 +206,18 @@ export default function ReportTabs() {
             <Tab
               key={index}
               label={
-                <Tooltip title={item.title}>
-                  <Box
-                    sx={{
-                      width: "100%",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      display: "inline-block",
-                      textAlign: "start",
-                    }}
-                  >
-                    {item.title}
-                  </Box>
-                </Tooltip>
+                <Box
+                  sx={{
+                    width: "100%",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    display: "inline-block",
+                    textAlign: "start",
+                  }}
+                >
+                  {item.title}
+                </Box>
               }
               id={`ir-tab-${index}`}
               aria-controls={`ir-tabpanel-${index}`}

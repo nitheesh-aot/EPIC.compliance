@@ -3,7 +3,7 @@ import { useAppendicesData } from "@/hooks/useAppendices";
 import IRBoxContainer from "./IRBoxContainer";
 import { Typography } from "@mui/material";
 
-const Appendices = () => {
+const IRAppendices = () => {
   const { inspectionData } = useReportStore();
 
   const { data: appendices } = useAppendicesData(inspectionData?.id ?? 0);
@@ -19,4 +19,4 @@ const Appendices = () => {
   );
 };
 
-export default Appendices;
+export default IRAppendices;

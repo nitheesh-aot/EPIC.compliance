@@ -2,7 +2,7 @@ import { Typography } from "@mui/material";
 import IRBoxContainer from "./IRBoxContainer";
 import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
 
-const EnforcementSummary = () => {
+const IREnforcementSummary = () => {
   const { enforcementSummary, setEnforcementSummary } = useReportStore();
 
   const handleSaveEnforcementSummary = (editorValue: string) => {
@@ -25,4 +25,4 @@ const EnforcementSummary = () => {
   );
 };
 
-export default EnforcementSummary;
+export default IREnforcementSummary;
