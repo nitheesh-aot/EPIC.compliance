@@ -19,6 +19,7 @@ import {
   REGULATORY_CONSIDERATION_TYPE_ID,
 } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
+import IRRequirement from "./ReportTabContents/IRRequirement";
 
 function a11yProps(index: number) {
   return {
@@ -89,20 +90,24 @@ export default function ReportTabs() {
     ];
 
     // Dynamic requirement tabs based on inspectionRequirements
-    const requirementTabs = inspectionRequirements?.map((req: InspectionRequirement, index) => ({
-      title: `#${index + 1}. ${req.summary}`,
-      component: <ComingSoon />,
-    })) ?? [];
-    
+    const requirementTabs =
+      inspectionRequirements?.map((req: InspectionRequirement, index) => ({
+        title: `#${index + 1}. ${req.summary}`,
+        component: <IRRequirement requirement={req} />,
+      })) ?? [];
+
     // Remaining static tabs
     const remainingTabs = [
-      { title: "Actions Required by RP and...", component: <ActionsRequired /> },
+      {
+        title: "Actions Required by RP and...",
+        component: <ActionsRequired />,
+      },
       { title: "Enforcement Summary", component: <EnforcementSummary /> },
       { title: "Regulatory Consideration", component: <ComingSoon /> },
       { title: "Inspection Version Dates", component: <InspectionDates /> },
       { title: "Appendices", component: <Appendices /> },
     ];
-    
+
     return [...baseTabs, ...requirementTabs, ...remainingTabs];
   }, [inspectionRequirements]);
 
