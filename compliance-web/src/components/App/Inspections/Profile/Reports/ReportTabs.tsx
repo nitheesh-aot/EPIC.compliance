@@ -93,7 +93,7 @@ export default function ReportTabs() {
     const requirementTabs =
       inspectionRequirements?.map((req: InspectionRequirement, index) => ({
         title: `#${index + 1}. ${req.summary}`,
-        component: <IRRequirement requirement={req} />,
+        component: <IRRequirement requirement={req} requirementIndex={index} />,
       })) ?? [];
 
     // Remaining static tabs

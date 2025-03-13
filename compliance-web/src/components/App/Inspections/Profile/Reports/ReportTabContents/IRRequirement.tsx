@@ -6,6 +6,13 @@ import { useReportStore } from "@/components/App/Inspections/Profile/Reports/rep
 import { useInspectionRequirementImagesData } from "@/hooks/useInspectionRequirements";
 import { formatS3Url } from "@/utils/appUtils";
 import imageNotFound from "@/assets/images/image-not-found.svg";
+import { DRAWER_WIDTHS } from "@/utils/constants";
+import RequirementDrawer from "../../Requirements/RequirementDrawer";
+import { useCallback } from "react";
+import { useDrawer } from "@/store/drawerStore";
+import { notify } from "@/store/snackbarStore";
+import { Inspection } from "@/models/Inspection";
+import { useQueryClient } from "@tanstack/react-query";
 
 const DetailSection = ({
   title,
@@ -68,10 +75,14 @@ const ImageSection = ({ image, index }: { image: Image; index: number }) => {
 
 const IRRequirement = ({
   requirement,
+  requirementIndex,
 }: {
   requirement: InspectionRequirement;
+  requirementIndex: number;
 }) => {
   const { inspectionData } = useReportStore();
+  const { setOpen, setClose } = useDrawer();
+  const queryClient = useQueryClient();
 
   const { data: photosData } = useInspectionRequirementImagesData(
     inspectionData?.id ?? 0,
@@ -85,8 +96,36 @@ const IRRequirement = ({
     "figures"
   );
 
+  const handleOnSubmit = useCallback(
+    (submitMsg: string) => {
+      queryClient.invalidateQueries({
+        queryKey: ["inspection-requirements", inspectionData?.id],
+      });
+      notify.success(submitMsg);
+      setClose();
+    },
+    [setClose, inspectionData, queryClient]
+  );
+
+  const handleOpenEditRequirementModal = useCallback(() => {
+    setOpen({
+      content: (
+        <RequirementDrawer
+          onSubmit={handleOnSubmit}
+          inspectionData={inspectionData as Inspection}
+          requirement={requirement}
+          index={requirementIndex}
+        />
+      ),
+      width: DRAWER_WIDTHS.REQUIREMENT_DRAWER,
+    });
+  }, [setOpen, handleOnSubmit, inspectionData, requirement, requirementIndex]);
+
   return (
-    <IRBoxContainer title={requirement.summary} onEdit={() => {}}>
+    <IRBoxContainer
+      title={`#${requirementIndex + 1}. ${requirement.summary}`}
+      onEdit={handleOpenEditRequirementModal}
+    >
       {requirement.requirement_source_details.map((reqSourceDetail, index) => (
         <Box key={index}>
           <DetailSection
