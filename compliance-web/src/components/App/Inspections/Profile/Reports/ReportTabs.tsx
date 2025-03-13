@@ -1,5 +1,5 @@
 import { Box, Tabs, Tab, Typography, Button, Tooltip } from "@mui/material";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import ReportPanel from "./ReportPanel";
 import { BCDesignTokens } from "epic.theme";
 import { PictureAsPdfOutlined, SendRounded } from "@mui/icons-material";
@@ -32,6 +32,7 @@ export default function ReportTabs() {
     setInspectionRegulatoryConsideration,
     inspectionRequirements,
   } = useReportStore();
+  const tabsContainerRef = useRef<HTMLDivElement>(null);
 
   const { data: inspectionData } = useInspectionByNumber(inspectionNumber);
   const { data: inspectionRequirementsData } = useInspectionRequirementsData(
@@ -41,18 +42,16 @@ export default function ReportTabs() {
   useEffect(() => {
     if (inspectionData) {
       setInspectionData(inspectionData);
-      if (inspectionRequirementsData?.length) {
-        setInspectionRequirements(
-          inspectionRequirementsData.filter(
-            (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
-          ) ?? []
-        );
-        setInspectionRegulatoryConsideration(
-          inspectionRequirementsData.find(
-            (req) => req.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID
-          ) ?? undefined
-        );
-      }
+      setInspectionRequirements(
+        inspectionRequirementsData?.filter(
+          (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
+        ) ?? []
+      );
+      setInspectionRegulatoryConsideration(
+        inspectionRequirementsData?.find(
+          (req) => req.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID
+        ) ?? undefined
+      );
 
       setInspectionSummary(
         `<p class="editor-paragraph" dir="ltr"><span style="white-space: pre-wrap;">The Officer inspected </span><i><em class="editor-text-italic" style="white-space: pre-wrap;">[BRIEF DESCRIPTION OF PROJECT COMPONENTS/AREAS INSPECTED] </em></i></p><p class="editor-paragraph"><br></p><p class="editor-paragraph" dir="ltr"><span style="white-space: pre-wrap;">The inspection included a debrief of observations with Project staff on </span><b><strong class="editor-text-bold" style="white-space: pre-wrap;">January 17, 2025.</strong></b><span style="white-space: pre-wrap;"> The following requirements were inspected against: </span></p><p class="editor-paragraph"><br></p><ol class="editor-list-ol"><li value="1" class="editor-listitem"><span style="white-space: pre-wrap;">Condition 7 of Schedule B with respect to providing a non-compliance notification to the EAO. </span></li><li value="2" class="editor-listitem"><span style="white-space: pre-wrap;">Condition 14 of Schedule B with respect to hazardous materials and fuel storage. </span></li><li value="3" class="editor-listitem"><span style="white-space: pre-wrap;">Condition 5 of Schedule B with respect to storage of suspect PAG materials.</span></li></ol>`
@@ -96,13 +95,38 @@ export default function ReportTabs() {
         component: <ActionsRequired />,
       },
       { title: "Enforcement Summary", component: <EnforcementSummary /> },
-      { title: "Regulatory Consideration", component: <IRRegulatoryConsideration /> },
+      {
+        title: "Regulatory Consideration",
+        component: <IRRegulatoryConsideration />,
+      },
       { title: "Inspection Version Dates", component: <InspectionDates /> },
       { title: "Appendices", component: <Appendices /> },
     ];
 
     return [...baseTabs, ...requirementTabs, ...remainingTabs];
   }, [inspectionRequirements]);
+
+  useEffect(() => {
+    // Calculate and set the top position of tabs as a CSS variable
+    const calculateTabsPosition = () => {
+      const tabsContainer = tabsContainerRef.current;
+      if (tabsContainer) {
+        const rect = tabsContainer.getBoundingClientRect();
+        document.documentElement.style.setProperty(
+          "--ir-tabs-container-top-position",
+          `${rect.top + 22}px` // 22px is the bottom misc padding
+        );
+      }
+    };
+
+    // Calculate on initial render and window resize
+    calculateTabsPosition();
+    window.addEventListener("resize", calculateTabsPosition);
+
+    return () => {
+      window.removeEventListener("resize", calculateTabsPosition);
+    };
+  }, []);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", pt: 3 }}>
@@ -127,17 +151,21 @@ export default function ReportTabs() {
         </Box>
       </Box>
       <Box
+        ref={tabsContainerRef}
         sx={{
           flexGrow: 1,
           display: "flex",
           flexDirection: "row",
           width: "100%",
           gap: 2,
+          height: "calc(100vh - var(--ir-tabs-container-top-position))",
+          position: "relative",
         }}
       >
         <Tabs
           orientation="vertical"
           variant="scrollable"
+          scrollButtons={false}
           value={value}
           onChange={handleChange}
           TabIndicatorProps={{
@@ -148,6 +176,7 @@ export default function ReportTabs() {
           aria-label="preliminary ir tabs"
           sx={{
             width: "30%",
+            height: "100%",
             "& .MuiTabs-flexContainer": {
               gap: 2,
             },
