@@ -14,6 +14,7 @@ import {
   REGULATORY_CONSIDERATION_TYPE_ID,
   REQUIREMENT_TYPE_ID,
 } from "./Requirements/RequirementUtils";
+import { DRAWER_WIDTHS } from "@/utils/constants";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
@@ -74,7 +75,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
           isRegulatoryConsiderationExists={!!regulatoryConsideration}
         />
       ),
-      width: "1228px",
+      width: DRAWER_WIDTHS.REQUIREMENT_DRAWER,
     });
   }, [setOpen, handleOnSubmit, inspectionData, regulatoryConsideration]);
 
@@ -91,7 +92,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
             isRegulatoryConsiderationExists={!!regulatoryConsideration}
           />
         ),
-        width: "1228px",
+        width: DRAWER_WIDTHS.REQUIREMENT_DRAWER,
       });
     },
     [setOpen, handleOnSubmit, inspectionData, regulatoryConsideration]

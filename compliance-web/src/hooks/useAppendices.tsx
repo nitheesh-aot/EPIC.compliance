@@ -28,6 +28,7 @@ export const useAppendicesData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["appendices", inspectionId],
     queryFn: () => fetchAppendices(inspectionId),
+    staleTime: Infinity,
   });
 };
 

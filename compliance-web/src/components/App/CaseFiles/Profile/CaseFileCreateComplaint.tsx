@@ -2,6 +2,7 @@ import ComplaintDrawer from "@/components/App/Complaints/ComplaintDrawer";
 import { CaseFile } from "@/models/CaseFile";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
+import { DRAWER_WIDTHS } from "@/utils/constants";
 import { AddRounded } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
@@ -44,7 +45,7 @@ const CaseFileCreateComplaint = ({
           caseFile={caseFileData as CaseFile}
         />
       ),
-      width: "1118px",
+      width: DRAWER_WIDTHS.COMPLAINT_DRAWER,
     });
   }, [setOpen, handleOnSubmit, caseFileData]);
 

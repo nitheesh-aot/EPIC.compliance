@@ -61,8 +61,10 @@ export const useContinuationReportEntries = (
   searchText?: string
 ) => {
   return useQuery({
-    queryKey: ["continuation-reports", caseFileId],
+    queryKey: ["continuation-reports", caseFileId, page, pageSize, searchText],
     queryFn: () => fetchContinuationReportEntries(caseFileId, page, pageSize, searchText),
     placeholderData: keepPreviousData,
+    staleTime: Infinity,
+    enabled: !!caseFileId,
   });
 };

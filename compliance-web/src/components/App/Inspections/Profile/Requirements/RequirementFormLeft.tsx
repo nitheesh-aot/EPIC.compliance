@@ -19,7 +19,7 @@ import {
 } from "./RequirementUtils";
 import ControlledToggleButtonGroup from "@/components/Shared/Controlled/ControlledToggleButtonGroup";
 import { EditOutlined } from "@mui/icons-material";
-import GridLabelValuePair from "./GridLabelValuePair";
+import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 import { useRequirementStore } from "./requirementStore";
 import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";

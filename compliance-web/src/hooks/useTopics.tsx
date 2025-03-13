@@ -1,6 +1,7 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { Topic } from "@/models/Topic";
+import { useStaticQuery } from "@/hooks/useCustomQueries";
 
 const fetchTopics = (): Promise<Topic[]> => {
   return request({ url: "/topics" });
@@ -25,7 +26,7 @@ const deleteTopic = (id: number) => {
 };
 
 export const useTopicsData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["topics"],
     queryFn: async () => {
       const topics = await fetchTopics();

@@ -6,6 +6,7 @@ import { useCaseFilesData } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
+import { DRAWER_WIDTHS } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import { Chip } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
@@ -82,7 +83,7 @@ export function CaseFiles() {
   const handleOpenModal = useCallback(() => {
     setOpen({
       content: <CaseFileDrawer onSubmit={handleOnSubmit} />,
-      width: "718px",
+      width: DRAWER_WIDTHS.CASEFILE_DRAWER,
     });
   }, [setOpen, handleOnSubmit]);
 

@@ -1,6 +1,7 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { Agency } from "@/models/Agency";
+import { useStaticQuery } from "@/hooks/useCustomQueries";
 
 const fetchAgencies = (): Promise<Agency[]> => {
   return request({ url: "/agencies" });
@@ -25,7 +26,7 @@ const deleteAgency = (id: number) => {
 };
 
 export const useAgenciesData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["agencies"],
     queryFn: fetchAgencies,
   });
