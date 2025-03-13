@@ -13,7 +13,7 @@ import ContinuationReport from "@/components/App/ContinuationReports/Continuatio
 import InspectionGeneralInformation from "@/components/App/Inspections/Profile/InspectionGeneralInformation";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
-import { CR_CONTEXT_TYPE, FILE_PROFILE_CONTEXT } from "@/utils/constants";
+import { CR_CONTEXT_TYPE, DRAWER_WIDTHS, FILE_PROFILE_CONTEXT } from "@/utils/constants";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
 import TabPanel from "@/components/Shared/TabPanel";
@@ -77,7 +77,7 @@ function InspectionProfilePage() {
           caseFile={caseFileData as CaseFile}
         />
       ),
-      width: "1118px",
+      width: DRAWER_WIDTHS.INSPECTION_DRAWER,
     });
   }, [setOpen, handleOnSubmit, inspectionData, caseFileData]);
 

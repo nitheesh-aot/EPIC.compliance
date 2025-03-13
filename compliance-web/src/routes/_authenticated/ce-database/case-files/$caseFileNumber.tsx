@@ -11,7 +11,7 @@ import { notify } from "@/store/snackbarStore";
 import { useQueryClient } from "@tanstack/react-query";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
-import { CR_CONTEXT_TYPE, FILE_PROFILE_CONTEXT } from "@/utils/constants";
+import { CR_CONTEXT_TYPE, DRAWER_WIDTHS, FILE_PROFILE_CONTEXT } from "@/utils/constants";
 import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
 
 export const Route = createFileRoute(
@@ -62,7 +62,7 @@ function CaseFileProfilePage() {
       content: (
         <CaseFileDrawer onSubmit={handleOnSubmit} caseFile={caseFileData} />
       ),
-      width: "718px",
+      width: DRAWER_WIDTHS.CASEFILE_DRAWER,
     });
   }, [caseFileData, handleOnSubmit, setOpen]);
 

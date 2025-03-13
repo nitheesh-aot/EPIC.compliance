@@ -3,14 +3,21 @@ import { Grid } from "@mui/material";
 import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
 import { AttendanceEnum } from "@/components/App/Inspections/InspectionFormUtils";
 import dateUtils from "@/utils/dateUtils";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { StaffUser } from "@/models/Staff";
 import { InspectionAttendance } from "@/models/Attendance";
 import ProjectOverview from "./ProjectOverview";
 import IRBoxContainer from "../IRBoxContainer";
-
+import { useDrawer } from "@/store/drawerStore";
+import { DRAWER_WIDTHS } from "@/utils/constants";
+import { CaseFile } from "@/models/CaseFile";
+import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
+import { notify } from "@/store/snackbarStore";
+import { useQueryClient } from "@tanstack/react-query";
 const Overview = () => {
-  const { inspectionData } = useReportStore();
+  const { inspectionData, caseFileData } = useReportStore();
+  const { setOpen, setClose } = useDrawer();
+  const queryClient = useQueryClient();
 
   const inAttendance = useMemo(() => {
     return inspectionData?.inspectionAttendances
@@ -56,10 +63,34 @@ const Overview = () => {
     );
   }, [inspectionData]);
 
+  const handleOnSubmit = useCallback(
+    (submitMsg: string) => {
+      queryClient.invalidateQueries({
+        queryKey: ["inspection", inspectionData?.ir_number],
+      });
+      setClose();
+      notify.success(submitMsg);
+    },
+    [queryClient, inspectionData, setClose]
+  );
+
+  const handleOpenEditModal = useCallback(() => {
+    setOpen({
+      content: (
+        <InspectionDrawer
+          onSubmit={handleOnSubmit}
+          inspection={inspectionData}
+          caseFile={caseFileData as CaseFile}
+        />
+      ),
+      width: DRAWER_WIDTHS.INSPECTION_DRAWER,
+    });
+  }, [setOpen, handleOnSubmit, inspectionData, caseFileData]);
+
   return (
     <>
       <ProjectOverview />
-      <IRBoxContainer title="IR Overview" onEdit={() => {}}>
+      <IRBoxContainer title="IR Overview" onEdit={handleOpenEditModal}>
         <Grid container spacing={1}>
           <GridLabelValuePair
             label="Project Status"

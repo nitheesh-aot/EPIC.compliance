@@ -6,17 +6,12 @@ import MailingAddressPopover from "./MailingAddressPopover";
 import { usePopover } from "@/store/popoverStore";
 import { useState } from "react";
 import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
-import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import { formatAuthorization } from "@/utils/appUtils";
 
 const ProjectOverview = () => {
-  const { inspectionData } = useReportStore();
+  const { inspectionData, caseFileData } = useReportStore();
   const { setOpen, setClose } = usePopover();
   const [mailingAddress, setMailingAddress] = useState("");
-
-  const { data: caseFileData } = useCaseFileByNumber(
-    inspectionData?.case_file.case_file_number || ""
-  );
 
   const updateMailingAddress = (mailingAddress: string) => {
     setMailingAddress(mailingAddress);

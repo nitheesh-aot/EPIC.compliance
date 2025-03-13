@@ -2,10 +2,12 @@ import { create } from "zustand";
 import { Inspection } from "@/models/Inspection";
 import { DEFAULT_REPORT_TAB_CONTENT } from "@/utils/constants";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
+import { CaseFile } from "@/models/CaseFile";
 
 // Define the store state and actions
 interface ReportStore {
   inspectionData: Inspection | undefined;
+  caseFileData: CaseFile | undefined;
   inspectionSummary?: string;
   findingsStatement?: string;
   actionsRequired?: string;
@@ -15,6 +17,7 @@ interface ReportStore {
   inspectionRequirements?: InspectionRequirement[];
   inspectionRegulatoryConsideration?: InspectionRequirement;
   setInspectionData: (inspectionData: Inspection) => void;
+  setCaseFileData: (caseFileData: CaseFile) => void;
   setInspectionSummary: (inspectionSummary: string) => void;
   setFindingsStatement: (findingsStatement: string) => void;
   setActionsRequired: (actionsRequired: string) => void;
@@ -35,6 +38,7 @@ interface ReportStore {
 // Create the Zustand store
 export const useReportStore = create<ReportStore>((set) => ({
   inspectionData: undefined,
+  caseFileData: undefined,
   inspectionSummary: undefined,
   findingsStatement: undefined,
   actionsRequired: undefined,
@@ -42,6 +46,7 @@ export const useReportStore = create<ReportStore>((set) => ({
   inspectionRequirements: [],
   inspectionRegulatoryConsideration: undefined,
   setInspectionData: (inspectionData: Inspection) => set({ inspectionData }),
+  setCaseFileData: (caseFileData: CaseFile) => set({ caseFileData }),
   setInspectionSummary: (inspectionSummary: string) =>
     set({ inspectionSummary }),
   setFindingsStatement: (findingsStatement: string) =>
@@ -63,6 +68,7 @@ export const useReportStore = create<ReportStore>((set) => ({
   reset: () =>
     set({
       inspectionData: undefined,
+      caseFileData: undefined,
       inspectionSummary: undefined,
       findingsStatement: undefined,
       actionsRequired: undefined,

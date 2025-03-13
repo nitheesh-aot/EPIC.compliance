@@ -53,3 +53,10 @@ export const CR_CONTEXT_LINK: Record<string, string> = {
 export const FILE_PROFILE_CONTEXT = CR_CONTEXT_TYPE;
 
 export const DEFAULT_REPORT_TAB_CONTENT = `<p class="editor-paragraph">None at this time.</p>`;
+
+export const DRAWER_WIDTHS = {
+  INSPECTION_DRAWER: "1118px",
+  COMPLAINT_DRAWER: "1118px",
+  CASEFILE_DRAWER: "718px",
+  REQUIREMENT_DRAWER: "1228px",
+};

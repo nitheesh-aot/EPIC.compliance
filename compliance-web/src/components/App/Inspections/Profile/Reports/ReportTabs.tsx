@@ -20,6 +20,7 @@ import {
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import IRRequirement from "./ReportTabContents/IRRequirement";
 import IRRegulatoryConsideration from "./ReportTabContents/IRRegulatoryConsideration";
+import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 
 export default function ReportTabs() {
   const { inspectionNumber } = useParams({ strict: false });
@@ -30,18 +31,23 @@ export default function ReportTabs() {
     setActionsRequired,
     setInspectionRequirements,
     setInspectionRegulatoryConsideration,
+    setCaseFileData,
     inspectionRequirements,
   } = useReportStore();
   const tabsContainerRef = useRef<HTMLDivElement>(null);
 
   const { data: inspectionData } = useInspectionByNumber(inspectionNumber);
+  const { data: caseFileData } = useCaseFileByNumber(
+    inspectionData?.case_file.case_file_number || ""
+  );
   const { data: inspectionRequirementsData } = useInspectionRequirementsData(
     inspectionData?.id || 0
   );
 
   useEffect(() => {
-    if (inspectionData) {
+    if (inspectionData && caseFileData) {
       setInspectionData(inspectionData);
+      setCaseFileData(caseFileData);
       setInspectionRequirements(
         inspectionRequirementsData?.filter(
           (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
@@ -62,12 +68,14 @@ export default function ReportTabs() {
     }
   }, [
     inspectionData,
+    caseFileData,
     inspectionRequirementsData,
     setInspectionData,
     setInspectionSummary,
     setActionsRequired,
     setInspectionRequirements,
     setInspectionRegulatoryConsideration,
+    setCaseFileData,
   ]);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
