@@ -17,6 +17,8 @@ import {
 import { useReportStore } from "./Reports/reportStore";
 import { notify } from "@/store/snackbarStore";
 import { useQueryClient } from "@tanstack/react-query";
+import { useIRStatusesData } from "@/hooks/useInspections";
+
 interface InspectionReportsProps {
   inspectionData: Inspection;
 }
@@ -27,6 +29,8 @@ const InspectionReports: React.FC<InspectionReportsProps> = ({
   const queryClient = useQueryClient();
   const { setInspectionReportsData } = useReportStore();
   const [reportVersion, setReportVersion] = useState<string>("");
+
+  const { data: irStatusesData } = useIRStatusesData();
   const { data: inspectionReportsData, isLoading } = useInspectionReportsData(
     inspectionData.id
   );
@@ -97,17 +101,15 @@ const InspectionReports: React.FC<InspectionReportsProps> = ({
         onChange={handleReportVersionChange}
         sx={{ mb: 3 }}
       >
-        <FormControlLabel
-          value="1"
-          control={<Radio />}
-          label="Preliminary Inspection Record"
-          sx={{ mb: 0.5 }}
-        />
-        <FormControlLabel
-          value="2"
-          control={<Radio />}
-          label="Final Inspection Record"
-        />
+        {irStatusesData?.map((irStatus) => (
+          <FormControlLabel
+            key={irStatus.id}
+            value={irStatus.id}
+            control={<Radio />}
+            label={`${irStatus.name} Inspection Record`}
+            sx={{ mb: 0.5 }}
+          />
+        ))}
       </RadioGroup>
 
       <Button
