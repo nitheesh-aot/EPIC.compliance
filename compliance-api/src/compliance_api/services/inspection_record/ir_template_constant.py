@@ -1,8 +1,7 @@
 """IR template related constants."""
 
-INSPECTION_SCOPE = """<p class="editor-paragraph" dir="ltr"></p>
-<span>
-    The Officer inspected [Brief description of Project Components / Area inspected]</span>
+INSPECTION_SCOPE = """<p class="editor-paragraph" dir="ltr">
+    <span>The Officer inspected [Brief description of Project Components / Area inspected]</span>
 </p>
 <p class="editor-paragraph" dir="ltr">
     <span style="white-space: pre-wrap;">The inspection included a </span>
