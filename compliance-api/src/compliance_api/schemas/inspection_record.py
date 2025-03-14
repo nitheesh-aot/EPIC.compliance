@@ -55,7 +55,7 @@ class UpdateInspectionRecordSchema(BaseSchema):
     value = fields.Raw(required=True)  # Allows various types of input
 
     @post_load
-    def validate_fields(self, data, **kwargs): # pylint: disable=no-self-use, unused-argument
+    def validate_fields(self, data, **kwargs):  # pylint: disable=no-self-use, unused-argument
         """Perform custom validation for allowed fields."""
         allowed_fields = {
             "mailing_address": fields.Str(validate=validate.Length(max=255)),
