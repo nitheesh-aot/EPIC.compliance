@@ -218,3 +218,27 @@ export const formatImagesToMentionList = (images: Image[]): MentionData[] => {
     imageUrl: formatS3Url(image.relative_url ?? ""),
   }));
 }
+
+/**
+ * Groups requirement source form data by requirement source ID
+ * @param requirementSourceFormData Array of requirement source form data
+ * @returns A Map with requirement source IDs as keys and arrays of related form data as values
+ */
+export const groupRequirementSourcesByType = (
+  requirementSourceFormData: RequirementSourceFormData[]
+): Map<string, RequirementSourceFormData[]> => {
+  return requirementSourceFormData.reduce(
+    (acc, item) => {
+      const sourceId = item.requirementSource?.id;
+      if (sourceId === undefined) {
+        return acc;
+      }
+      if (!acc.has(sourceId)) {
+        acc.set(sourceId, []);
+      }
+      acc.get(sourceId)!.push(item);
+      return acc;
+    },
+    new Map<string, RequirementSourceFormData[]>()
+  );
+};
