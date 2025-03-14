@@ -11,6 +11,7 @@ import {
   UNAPPROVED_PROJECT_ID,
 } from "@/utils/constants";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useStaticQuery } from "@/hooks/useCustomQueries";
 
 const fetchCaseFiles = (projectId?: number): Promise<CaseFile[]> => {
   return request({ url: "/case-files", params: { project_id: projectId } });
@@ -101,6 +102,7 @@ export const useCaseFileByNumber = (caseFileNumber: string) => {
       return { ...caseFile, officers, caseFileLinks };
     },
     enabled: !!caseFileNumber,
+    staleTime: Infinity,
   });
 };
 
@@ -121,7 +123,7 @@ export const useCaseFilesByProjectId = (projectId: number) => {
 };
 
 export const useInitiationsData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["case-files-initiations"],
     queryFn: fetchInitiations,
   });

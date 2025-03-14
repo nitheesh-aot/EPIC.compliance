@@ -1,6 +1,6 @@
 import { FirstNation } from "@/models/FirstNation";
 import { requestTrackAPI } from "@/utils/axiosUtils";
-import { useQuery } from "@tanstack/react-query";
+import { useStaticQuery } from "@/hooks/useCustomQueries";
 
 /** FETCH First Nations from TRACK API */
 const fetchFirstNations = (): Promise<FirstNation[]> => {
@@ -9,7 +9,7 @@ const fetchFirstNations = (): Promise<FirstNation[]> => {
 
 
 export const useFirstNationsData = () => {
-  return useQuery({
+  return useStaticQuery({
     queryKey: ["first-nations"],
     queryFn: fetchFirstNations,
   });

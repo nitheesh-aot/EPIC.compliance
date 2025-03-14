@@ -32,6 +32,7 @@ const AppBar = styled(MuiAppBar, {
 }));
 
 const EAOAppBar = forwardRef<HTMLDivElement, EAOAppBarProps>((_props, ref) => {
+  const env = AppConfig.environment;
   const theme = useTheme();
   const auth = useAuth();
 
@@ -39,7 +40,9 @@ const EAOAppBar = forwardRef<HTMLDivElement, EAOAppBarProps>((_props, ref) => {
     useState<null | HTMLElement>(null);
 
   const handleOpenProfileMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setProfileMenuAnchorEl(event.currentTarget);
+    if (env !== "local") {
+      setProfileMenuAnchorEl(event.currentTarget);
+    }
   };
 
   const handleCloseProfileMenu = () => {

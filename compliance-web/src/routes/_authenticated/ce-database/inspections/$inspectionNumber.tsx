@@ -13,13 +13,14 @@ import ContinuationReport from "@/components/App/ContinuationReports/Continuatio
 import InspectionGeneralInformation from "@/components/App/Inspections/Profile/InspectionGeneralInformation";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
-import { CR_CONTEXT_TYPE, FILE_PROFILE_CONTEXT } from "@/utils/constants";
+import { CR_CONTEXT_TYPE, DRAWER_WIDTHS, FILE_PROFILE_CONTEXT } from "@/utils/constants";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
 import TabPanel from "@/components/Shared/TabPanel";
 import { useTab } from "@/store/tabStore";
 import InspectionRequirements from "@/components/App/Inspections/Profile/InspectionRequirements";
 import ComingSoon from "@/components/Shared/ComingSoon";
+import InspectionReports from "@/components/App/Inspections/Profile/InspectionReports";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/$inspectionNumber"
@@ -76,7 +77,7 @@ function InspectionProfilePage() {
           caseFile={caseFileData as CaseFile}
         />
       ),
-      width: "1118px",
+      width: DRAWER_WIDTHS.INSPECTION_DRAWER,
     });
   }, [setOpen, handleOnSubmit, inspectionData, caseFileData]);
 
@@ -115,7 +116,7 @@ function InspectionProfilePage() {
           <ComingSoon />
         </TabPanel>
         <TabPanel value={currentTab} index={3} id="inspection-report">
-          <ComingSoon />
+          <InspectionReports inspectionData={inspectionData} />
         </TabPanel>
         <ContinuationReport
           caseFileId={inspectionData.case_file_id}

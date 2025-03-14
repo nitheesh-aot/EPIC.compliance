@@ -9,7 +9,7 @@ import ControlledTextField from "@/components/Shared/Controlled/ControlledTextFi
 import { StaffUser } from "@/models/Staff";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { BCDesignTokens } from "epic.theme";
-import GridLabelValuePair from "../GridLabelValuePair";
+import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 import { ImageFormData, Image } from "@/models/Image";
 import { useEffect, useMemo } from "react";
 import { useImageUpload } from "@/hooks/useImageUpload";

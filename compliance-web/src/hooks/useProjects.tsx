@@ -28,6 +28,7 @@ export const useProjectsData = (args?: { includeUnapproved?: boolean }) => {
       }
       return projects;
     },
+    staleTime: Infinity,
   });
 };
 

@@ -40,12 +40,34 @@ class InspectionRecordDataBuilder:
         self.data["ir_status_id"] = self.ir_status
         self.data["inspection_no"] = self.inspection.ir_number
         self.data["project_name"] = self.inspection.case_file.project.name
-        self.data["ir_progress"] = (
-            IRProgressEnum.PRELIMINARY_APPROVED
-            if self.ir_status == IRStatusEnum.PRELIMINARY.value
-            else IRProgressEnum.FINALIZING_RECORD
-        )
-        self._set_project_details()
+
+        self.data["officer_details"] = {
+            "primary_officer": {
+                "name": f"{self.inspection.primary_officer.first_name} {self.inspection.primary_officer.last_name}",
+                "position": self.inspection.primary_officer.position.name
+            }
+        }
+
+        if self.existing_ir:
+            self.data["ir_progress"] = self.existing_ir.ir_progress
+        else:
+            self.data["ir_progress"] = (
+                IRProgressEnum.PRELIMINARY_APPROVED
+                if self.ir_status == IRStatusEnum.PRELIMINARY.value
+                else IRProgressEnum.FINALIZING_RECORD
+            )
+
+    def build_project_details(self):
+        """Populate project specific details."""
+        project_id = self.inspection.case_file.project_id
+        if not project_id:
+            project = UnapprovedProjectModel.get_by_case_file_id(
+                self.inspection.case_file.id
+            )
+        else:
+            project = TrackService.get_project_by_id(project_id)
+        self.data["project_details"] = {}
+        return self
 
     def build_inspection_scope(self):
         """Populate the inspection scope data."""
@@ -68,7 +90,8 @@ class InspectionRecordDataBuilder:
                 if requirement.requirement_source_details:
                     #  Identify the first requirement source detail
                     first_rq_detail = requirement.requirement_source_details[0]
-                    number = self._get_requirement_source_number_field(first_rq_detail)
+                    number = self._get_requirement_source_number_field(
+                        first_rq_detail)
 
                     requirement_lines.append(
                         f"{number} of {first_rq_detail.requirement_source.name} with respect to {requirement.summary}"
@@ -95,11 +118,11 @@ class InspectionRecordDataBuilder:
                 data = {
                     "date_report_sent": ", ".join(
                         approval.date_report_sent.strftime("%B %d, %Y")
-                        for approval in approvals
+                        for approval in approvals if not approval.date_report_sent
                     ),
                     "date_response": ", ".join(
                         approval.date_response.strftime("%B %d, %Y")
-                        for approval in approvals
+                        for approval in approvals if not approval.date_response
                     ),
                 }
                 preliminary_review_details = render_template_with_data(
@@ -142,7 +165,8 @@ class InspectionRecordDataBuilder:
         self, detail_obj: InspectionReqSourceDetailModel
     ):
         """Identify the number field based on the requirement source id."""
-        requirement_source = RequirementSourceEnum(detail_obj.requirement_source_id)
+        requirement_source = RequirementSourceEnum(
+            detail_obj.requirement_source_id)
         section_sources = {
             RequirementSourceEnum.ACT_2002,
             RequirementSourceEnum.ACT_2018,
@@ -161,13 +185,3 @@ class InspectionRecordDataBuilder:
             return f"Condition {getattr(detail_obj, 'condition_number')}"
         if requirement_source == RequirementSourceEnum.ORDER:
             return f"Order {getattr(detail_obj, 'order_number')}"
-
-    def _set_project_details(self):
-        """Return the project details."""
-        project_id = self.inspection.case_file.project_id
-        if not project_id:
-            project = UnapprovedProjectModel.get_by_case_file_id(
-                self.inspection.case_file.id
-            )
-        else:
-            project = TrackService.get_project_by_id(project_id)

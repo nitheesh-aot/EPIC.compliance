@@ -10,7 +10,7 @@ import { useComplaintByNumber } from "@/hooks/useComplaints";
 import { CaseFile } from "@/models/CaseFile";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
-import { CR_CONTEXT_TYPE, FILE_PROFILE_CONTEXT } from "@/utils/constants";
+import { CR_CONTEXT_TYPE, DRAWER_WIDTHS, FILE_PROFILE_CONTEXT } from "@/utils/constants";
 import { Box } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
@@ -58,7 +58,7 @@ function ComplaintProfilePage() {
           caseFile={caseFileData as CaseFile}
         />
       ),
-      width: "1118px",
+      width: DRAWER_WIDTHS.COMPLAINT_DRAWER,
     });
   };
 

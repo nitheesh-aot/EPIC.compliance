@@ -10,7 +10,7 @@ import {
   isRequirementSourceCondition,
   REGULATORY_CONSIDERATION_TYPE_ID,
 } from "./RequirementUtils";
-import GridLabelValuePair from "./GridLabelValuePair";
+import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 
 interface RequirementCardProps {
   requirement: InspectionRequirement;
