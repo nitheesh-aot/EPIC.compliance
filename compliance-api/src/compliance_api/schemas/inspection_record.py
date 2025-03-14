@@ -19,7 +19,7 @@ class InspectionRecordCreateSchema(BaseSchema):
         IRStatusEnum,
         metadata={"description": "The status of the IR to be generated"},
         required=True,
-        by_value=False,
+        by_value=True,
     )
 
 

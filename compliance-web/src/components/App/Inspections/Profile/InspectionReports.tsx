@@ -1,27 +1,41 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Inspection } from "@/models/Inspection";
 import {
   Box,
   Button,
+  CircularProgress,
   FormControlLabel,
   Radio,
   RadioGroup,
   Typography,
 } from "@mui/material";
 import ReportTabs from "./Reports/ReportTabs";
-
+import {
+  useCreateInspectionRecord,
+  useInspectionReportsData,
+} from "@/hooks/useInspectionReports";
+import { useReportStore } from "./Reports/reportStore";
+import { notify } from "@/store/snackbarStore";
+import { useQueryClient } from "@tanstack/react-query";
 interface InspectionReportsProps {
   inspectionData: Inspection;
 }
 
-/**
- * Component for selecting the inspection report version (Preliminary or Final)
- */
-const InspectionReports: React.FC<InspectionReportsProps> = () => {
-  // Use empty string as initial value to keep it controlled but without selection
+const InspectionReports: React.FC<InspectionReportsProps> = ({
+  inspectionData,
+}) => {
+  const queryClient = useQueryClient();
+  const { setInspectionReportsData } = useReportStore();
   const [reportVersion, setReportVersion] = useState<string>("");
+  const { data: inspectionReportsData, isLoading } = useInspectionReportsData(
+    inspectionData.id
+  );
 
-  const reportSelect = true;
+  useEffect(() => {
+    if (inspectionReportsData) {
+      setInspectionReportsData(inspectionReportsData);
+    }
+  }, [inspectionReportsData, setInspectionReportsData]);
 
   const handleReportVersionChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -29,12 +43,37 @@ const InspectionReports: React.FC<InspectionReportsProps> = () => {
     setReportVersion(event.target.value);
   };
 
-  const handleProceedToReport = () => {
-    // Handle proceeding to the selected report version
-    // Additional logic to navigate or load the selected report version
+  const handleOnSuccess = () => {
+    notify.success("Inspection record created");
+    queryClient.invalidateQueries({
+      queryKey: ["inspection-reports", inspectionData.id],
+    });
   };
 
-  return reportSelect ? (
+  const { mutate: createInspectionRecord } =
+    useCreateInspectionRecord(handleOnSuccess);
+
+  const handleProceedToReport = () => {
+    createInspectionRecord({
+      inspectionId: inspectionData.id,
+      inspectionRecordType: {
+        ir_status: parseInt(reportVersion),
+      },
+    });
+  };
+
+  return isLoading ? (
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
+      }}
+    >
+      <CircularProgress />
+    </Box>
+  ) : inspectionReportsData?.id ? (
     <ReportTabs />
   ) : (
     <Box
@@ -59,13 +98,13 @@ const InspectionReports: React.FC<InspectionReportsProps> = () => {
         sx={{ mb: 3 }}
       >
         <FormControlLabel
-          value="preliminary"
+          value="1"
           control={<Radio />}
           label="Preliminary Inspection Record"
           sx={{ mb: 0.5 }}
         />
         <FormControlLabel
-          value="final"
+          value="2"
           control={<Radio />}
           label="Final Inspection Record"
         />
