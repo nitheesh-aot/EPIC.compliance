@@ -19,7 +19,7 @@ class InspectionRecordCreateSchema(BaseSchema):
         IRStatusEnum,
         metadata={"description": "The status of the IR to be generated"},
         required=True,
-        by_value=False,
+        by_value=True,
     )
 
 
@@ -55,7 +55,7 @@ class UpdateInspectionRecordSchema(BaseSchema):
     value = fields.Raw(required=True)  # Allows various types of input
 
     @post_load
-    def validate_fields(self, data, **kwargs):
+    def validate_fields(self, data, **kwargs):  # pylint: disable=no-self-use, unused-argument
         """Perform custom validation for allowed fields."""
         allowed_fields = {
             "mailing_address": fields.Str(validate=validate.Length(max=255)),

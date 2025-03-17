@@ -3,7 +3,7 @@ import ImagesContainer from "@/components/App/Inspections/Profile/Requirements/I
 import RequirementRelatedDocumentModal from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementRelatedDocumentModal";
 import RequirementSourceCard from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementSourceCard";
 import RequirementSourceModal from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementSourceModal";
-import { ImageTypeEnum, isRequirementSourceCondition } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
+import { ImageTypeEnum, isRequirementSourceCondition, groupRequirementSourcesByType } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import {
   RequirementRelatedDocumentData,
@@ -261,21 +261,12 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
     });
   };
 
-  // Grouping the requirementSourceFormData by requirementSource
-  const groupedData = useMemo(()=> requirementSourceFormData.reduce(
-    (acc, item) => {
-      const sourceId = item.requirementSource?.id;
-      if (sourceId === undefined) {
-        return acc;
-      }
-      if (!acc.has(sourceId)) {
-        acc.set(sourceId, []);
-      }
-      acc.get(sourceId)!.push(item);
-      return acc;
-    },
-    new Map<string, RequirementSourceFormData[]>()
-  ), [requirementSourceFormData]);
+  // Using the utility function instead of local implementation
+  const groupedData = useMemo(
+    () => groupRequirementSourcesByType(requirementSourceFormData),
+    [requirementSourceFormData]
+  );
+
   return (
     <Box
       sx={{
