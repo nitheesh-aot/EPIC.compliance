@@ -109,7 +109,6 @@ class InspectionRecordDataBuilder:
         #  No preliminary_review_details for ir when it is PRELIMINARY
         if self.ir_status == IRStatusEnum.PRELIMINARY:
             preliminary_review_details = None
-        #  Bulid details from reading data from approvals
         elif self.ir_status == IRStatusEnum.FINAL and self.existing_ir:
             approvals = InspectionRecordApprovalModel.get_approvals_by_ir(
                 self.existing_ir.id

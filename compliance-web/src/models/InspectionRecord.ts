@@ -1,0 +1,19 @@
+import { Inspection } from "./Inspection";
+import { IRStatus } from "./IRStatus";
+
+export interface InspectionRecord {
+  id?: number;
+  inspection_id?: number;
+  inspection?: Inspection;
+  action_required_by_rp?: string;
+  date_issued?: string;
+  enforcement_summary?: string;
+  finding_statement?: string;
+  inspection_scope?: string;
+  ir_progress?: string;
+  ir_status_id?: number;
+  ir_status?: IRStatus;
+  is_active?: boolean;
+  mailing_address?: string;
+  preliminary_review_details?: string;
+}

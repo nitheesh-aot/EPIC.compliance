@@ -8,7 +8,7 @@ import { formatS3Url } from "@/utils/appUtils";
 import imageNotFound from "@/assets/images/image-not-found.svg";
 import { DRAWER_WIDTHS } from "@/utils/constants";
 import RequirementDrawer from "../../Requirements/RequirementDrawer";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import { Inspection } from "@/models/Inspection";
@@ -73,6 +73,23 @@ const ImageSection = ({ image, index }: { image: Image; index: number }) => {
   );
 };
 
+const BottomSection = ({
+  title,
+  content,
+}: {
+  title: string;
+  content: string;
+}) => {
+  return (
+    <Box sx={{ display: "flex", gap: 0.5 }}>
+      <Typography variant="body1" fontWeight={"bold"}>
+        {title}
+      </Typography>
+      <Typography variant="body1">{content}</Typography>
+    </Box>
+  );
+};
+
 const IRRequirement = ({
   requirement,
   requirementIndex,
@@ -121,37 +138,76 @@ const IRRequirement = ({
     });
   }, [setOpen, handleOnSubmit, inspectionData, requirement, requirementIndex]);
 
+  // Group requirement_source_details by requirement_source_id
+  const groupedRequirementSources = useMemo(() => {
+    return requirement.requirement_source_details.reduce((acc, item) => {
+      const sourceId = item.requirement_source?.id;
+      if (sourceId === undefined) {
+        return acc;
+      }
+      if (!acc.has(String(sourceId))) {
+        acc.set(String(sourceId), []);
+      }
+      acc.get(String(sourceId))!.push(item);
+      return acc;
+    }, new Map<string, (typeof requirement.requirement_source_details)[0][]>());
+  }, [requirement]);
+
   return (
     <IRBoxContainer
       title={`#${requirementIndex + 1}. ${requirement.summary}`}
       onEdit={handleOpenEditRequirementModal}
     >
-      {requirement.requirement_source_details.map((reqSourceDetail, index) => (
-        <Box key={index}>
-          <DetailSection
-            title={`Requirement ${index + 1}: Condition ${reqSourceDetail.condition_number} of ${reqSourceDetail.requirement_source?.name || ""}`}
-            content={reqSourceDetail.description || ""}
-          />
-          {reqSourceDetail.documents.map((document) => (
-            <Box key={document.id}>
-              <DetailSection
-                title={`${document.document_title} ${document.document_type?.name ?? ""} Section ${document.section_number ?? ""} ${document.section_title ?? ""}`}
-                content={document.description || ""}
-              />
-            </Box>
-          ))}
-        </Box>
-      ))}
+      {Array.from(groupedRequirementSources.entries()).map(
+        ([sourceId, reqSourceDetails], groupIndex) => (
+          <Box key={sourceId} sx={{ mb: 3 }}>
+            {reqSourceDetails.map((reqSourceDetail, detailIndex) => (
+              <Box key={reqSourceDetail.id} sx={{ mb: 2 }}>
+                <DetailSection
+                  title={`${detailIndex === 0 ? `Requirement ${groupIndex + 1}:` : ""} 
+                  ${reqSourceDetail.condition_number ? `Condition ${reqSourceDetail.condition_number}` : `Section ${reqSourceDetail.section_number}`}
+                  of ${reqSourceDetail.requirement_source?.name || ""}.
+                  ${reqSourceDetail.title ?? ""}`}
+                  content={reqSourceDetail.description || ""}
+                />
+                {reqSourceDetail.documents.map((document) => (
+                  <DetailSection
+                    key={document.id}
+                    title={`${document.document_title} ${document.document_type?.name ?? ""} Section ${document.section_number ?? ""} ${document.section_title ?? ""}`}
+                    content={document.description || ""}
+                  />
+                ))}
+              </Box>
+            ))}
+          </Box>
+        )
+      )}
+
       <DetailSection
         title="Inspection Details:"
         content={requirement.findings || ""}
       />
+
       {photosData?.map((photo, index) => (
         <ImageSection key={index} image={photo} index={index} />
       ))}
+
       {figuresData?.map((figure, index) => (
         <ImageSection key={index} image={figure} index={index} />
       ))}
+
+      <BottomSection
+        title="Compliance Finding:"
+        content={requirement.compliance_finding?.name || ""}
+      />
+      <BottomSection
+        title="Enforcement Action:"
+        content={
+          requirement.enforcement_action_data
+            ?.map((action) => action.name)
+            .join(", ") || ""
+        }
+      />
     </IRBoxContainer>
   );
 };
