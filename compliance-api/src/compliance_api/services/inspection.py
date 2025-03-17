@@ -124,8 +124,8 @@ class InspectionService:
                             "auth_user_guid": officer.officer.auth_user_guid,
                             "position": {
                                 "id": officer.officer.position.id,
-                                "name": officer.officer.position.name
-                            }
+                                "name": officer.officer.position.name,
+                            },
                         }
                         for officer in officers
                     ]

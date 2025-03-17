@@ -6,7 +6,9 @@ from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
-from compliance_api.schemas import InspectionRecordCreateSchema, InspectionRecordSchema, UpdateInspectionRecordSchema
+from compliance_api.schemas import (
+    InspectionRecordCreateSchema, InspectionRecordSchema, ResetInspectionRecordFieldSchema,
+    UpdateInspectionRecordSchema)
 from compliance_api.services import InspectionRecordService
 from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
@@ -14,8 +16,7 @@ from compliance_api.utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
 
-API = Namespace("inspection-records",
-                description="Endpoints for Inspection Record")
+API = Namespace("inspection-records", description="Endpoints for Inspection Record")
 
 ir_create_request_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, InspectionRecordCreateSchema(), "IRCreateRequest"
@@ -25,6 +26,9 @@ ir_list_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 ir_update_request_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, UpdateInspectionRecordSchema(), "UpdateInspection"
+)
+ir_reset_field_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, ResetInspectionRecordFieldSchema(), "ResetInspectionField"
 )
 
 
@@ -57,8 +61,7 @@ class InspectionRecords(Resource):
     def post(inspection_id):
         """Create a agency."""
         ir_create_request = InspectionRecordCreateSchema().load(API.payload)
-        created_ir = InspectionRecordService.create(
-            ir_create_request, inspection_id)
+        created_ir = InspectionRecordService.create(ir_create_request, inspection_id)
         return InspectionRecordSchema().dump(created_ir), HTTPStatus.CREATED
 
 
@@ -76,8 +79,7 @@ class InspectionRecord(Resource):
     @auth.require
     def get(inspection_record_id):
         """Fetch inspection record by id."""
-        inspection_record = InspectionRecordService.get_by_id(
-            inspection_record_id)
+        inspection_record = InspectionRecordService.get_by_id(inspection_record_id)
         if not inspection_record:
             raise ResourceNotFoundError(
                 f"No inspection found for the given ID : {inspection_record_id}"
@@ -96,6 +98,31 @@ class InspectionRecord(Resource):
         ir_update_data = UpdateInspectionRecordSchema().load(API.payload)
         updated_ir = InspectionRecordService.update(
             inspection_id, inspection_record_id, ir_update_data
+        )
+        if not updated_ir:
+            raise ResourceNotFoundError("Inspection record not found")
+        return InspectionRecordSchema().dump(updated_ir), HTTPStatus.OK
+
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/<int:inspection_record_id>/reset", methods=["PATCH", "OPTIONS"])
+class InspectionRecordReset(Resource):
+    """Resource for resetting inspection record fields."""
+
+    @staticmethod
+    @API.response(code=200, description="Success", model=ir_list_model)
+    @API.expect(ir_reset_field_model)
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Reset inspection record field"
+    )
+    @API.response(404, "Not Found")
+    @API.response(400, "Bad Request")
+    @auth.require
+    def patch(inspection_id, inspection_record_id):
+        """Reset a specific field in the inspection record."""
+        reset_data = ResetInspectionRecordFieldSchema().load(API.payload)
+        updated_ir = InspectionRecordService.reset_field(
+            inspection_id, inspection_record_id, reset_data["field_name"]
         )
         if not updated_ir:
             raise ResourceNotFoundError("Inspection record not found")
