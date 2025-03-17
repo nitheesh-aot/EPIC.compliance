@@ -78,7 +78,7 @@ class InspectionRecordDataBuilder:
         """Build the preliminary review details."""
         preliminary_review_details = {}
         if self.ir_status == IRStatusEnum.PRELIMINARY:
-            returnpreliminary_review_details = None
+            preliminary_review_details = None
         elif self.ir_status == IRStatusEnum.FINAL and self.existing_ir:
             raise ValueError("Yet to be implemented")
         self.data["preliminary_review_details"] = preliminary_review_details

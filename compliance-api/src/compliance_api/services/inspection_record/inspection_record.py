@@ -7,7 +7,6 @@ from compliance_api.exceptions import (
     PermissionDeniedError, ResourceExistsError, ResourceNotFoundError, UnprocessableEntityError)
 from compliance_api.models.inspection import Inspection as InspectionModel
 from compliance_api.models.inspection_record import InspectionRecord as InspectionRecordModel
-from compliance_api.models.inspection_record import IRProgressEnum, IRStatusEnum
 from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.template_renderer import render_template_with_data
 

@@ -14,6 +14,7 @@ import { CaseFile } from "@/models/CaseFile";
 import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
 import { notify } from "@/store/snackbarStore";
 import { useQueryClient } from "@tanstack/react-query";
+
 const Overview = () => {
   const { inspectionData, caseFileData } = useReportStore();
   const { setOpen, setClose } = useDrawer();
@@ -87,6 +88,11 @@ const Overview = () => {
     });
   }, [setOpen, handleOnSubmit, inspectionData, caseFileData]);
 
+  const renderOfficerName = (officer: StaffUser | undefined) => {
+    if (!officer) return "";
+    return `${officer.name}${officer.position?.name ? ", " + officer.position?.name : ""}`;
+  };
+
   return (
     <>
       <ProjectOverview />
@@ -137,14 +143,19 @@ const Overview = () => {
           <GridLabelValuePair
             label="Inspecting Officer"
             value={inspectingOfficers.map((value) => (
-              <span key={value.id}>{value.name}</span>
+              <span
+                style={{ lineHeight: "normal", marginBottom: "4px" }}
+                key={value.id}
+              >
+                {renderOfficerName(value)}
+              </span>
             ))}
             hideTooltip
             multiline
           />
           <GridLabelValuePair
             label="Record Prepared By"
-            value={inspectionData?.primary_officer?.name}
+            value={renderOfficerName(inspectionData?.primary_officer)}
             hideTooltip
           />
         </Grid>

@@ -4,18 +4,41 @@ import { Box, Grid, Typography, Link, Button } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import MailingAddressPopover from "./MailingAddressPopover";
 import { usePopover } from "@/store/popoverStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
 import { formatAuthorization } from "@/utils/appUtils";
+import { useUpdateInspectionRecord } from "@/hooks/useInspectionReports";
+import { notify } from "@/store/snackbarStore";
+import { InspectionRecord } from "@/models/InspectionRecord";
 
 const ProjectOverview = () => {
-  const { inspectionData, caseFileData } = useReportStore();
+  const { inspectionData, caseFileData, inspectionReportsData } =
+    useReportStore();
   const { setOpen, setClose } = usePopover();
   const [mailingAddress, setMailingAddress] = useState("");
 
-  const updateMailingAddress = (mailingAddress: string) => {
-    setMailingAddress(mailingAddress);
+  useEffect(() => {
+    setMailingAddress(inspectionReportsData?.mailing_address ?? "");
+  }, [inspectionReportsData]);
+
+  const handleOnSuccess = (data: InspectionRecord) => {
+    notify.success("Mailing address updated");
+    setMailingAddress(data.mailing_address ?? "");
     setClose();
+  };
+
+  const { mutate: updateInspectionRecord } =
+    useUpdateInspectionRecord(handleOnSuccess);
+
+  const updateMailingAddress = (mailingAddress: string) => {
+    updateInspectionRecord({
+      inspectionId: inspectionData?.id ?? 0,
+      inspectionRecordId: inspectionReportsData?.id ?? 0,
+      updateRecord: {
+        field_name: "mailing_address",
+        value: mailingAddress,
+      },
+    });
   };
 
   const addMailingAddress = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -64,7 +87,7 @@ const ProjectOverview = () => {
         />
         <GridLabelValuePair
           label="IR Status"
-          value={inspectionData?.ir_status?.name}
+          value={inspectionReportsData?.ir_status?.name}
           gridProps={{ xs: 6 }}
         />
         <GridLabelValuePair
