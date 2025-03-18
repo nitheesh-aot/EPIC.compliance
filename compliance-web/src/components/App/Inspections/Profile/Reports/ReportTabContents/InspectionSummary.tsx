@@ -2,7 +2,10 @@ import { Typography } from "@mui/material";
 import IRBoxContainer from "./IRBoxContainer";
 import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
 import { useEffect } from "react";
-import { useUpdateInspectionRecord } from "@/hooks/useInspectionReports";
+import {
+  useResetInspectionRecord,
+  useUpdateInspectionRecord,
+} from "@/hooks/useInspectionReports";
 import { InspectionRecord } from "@/models/InspectionRecord";
 import { notify } from "@/store/snackbarStore";
 
@@ -30,6 +33,9 @@ const InspectionSummary = () => {
   const { mutate: updateInspectionRecord } =
     useUpdateInspectionRecord(handleOnSuccess);
 
+  const { mutate: resetInspectionRecord } =
+    useResetInspectionRecord(handleOnSuccess);
+
   const handleSaveInspectionSummary = (editorValue: string, field: string) => {
     updateInspectionRecord({
       inspectionId: inspectionData?.id ?? 0,
@@ -37,6 +43,16 @@ const InspectionSummary = () => {
       updateRecord: {
         field_name: field,
         value: editorValue,
+      },
+    });
+  };
+
+  const handleResetInspectionSummary = (fieldName: string) => {
+    resetInspectionRecord({
+      inspectionId: inspectionData?.id ?? 0,
+      inspectionRecordId: inspectionReportsData?.id ?? 0,
+      resetPayload: {
+        field_name: fieldName,
       },
     });
   };
@@ -50,6 +66,7 @@ const InspectionSummary = () => {
         onEditSubmit={(editorValue) =>
           handleSaveInspectionSummary(editorValue, "inspection_scope")
         }
+        onReset={() => handleResetInspectionSummary("inspection_scope")}
       >
         <Typography
           variant="body1"
@@ -64,6 +81,7 @@ const InspectionSummary = () => {
         onEditSubmit={(editorValue) =>
           handleSaveInspectionSummary(editorValue, "finding_statement")
         }
+        onReset={() => handleResetInspectionSummary("finding_statement")}
       >
         <Typography
           variant="body1"

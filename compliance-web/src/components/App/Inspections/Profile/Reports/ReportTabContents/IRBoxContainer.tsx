@@ -1,9 +1,18 @@
 import LexicalEditor from "@/components/Shared/LexicalEditor/LexicalEditor";
-import { EditOutlined } from "@mui/icons-material";
-import { Box, Typography, IconButton, SxProps, Button } from "@mui/material";
+import { EditOutlined, RestartAltRounded } from "@mui/icons-material";
+import {
+  Box,
+  Typography,
+  IconButton,
+  SxProps,
+  Button,
+  Tooltip,
+} from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useState } from "react";
 import { $generateHtmlFromNodes } from "@lexical/html";
+import { useModal } from "@/store/modalStore";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 type IRBoxContainerProps = {
   title: string;
@@ -12,6 +21,7 @@ type IRBoxContainerProps = {
   onEdit?: () => void;
   defaultValue?: string;
   onEditSubmit?: (editorValue: string) => void;
+  onReset?: () => void;
 };
 
 const IRBoxContainer = ({
@@ -21,10 +31,11 @@ const IRBoxContainer = ({
   onEdit,
   defaultValue,
   onEditSubmit,
+  onReset,
 }: IRBoxContainerProps) => {
+  const { setOpen, setClose } = useModal();
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [editorValue, setEditorValue] = useState<string>(defaultValue || "");
-
   const handleEdit = () => {
     setIsEdit(true);
     setEditorValue(defaultValue || "");
@@ -38,6 +49,25 @@ const IRBoxContainer = ({
   const handleCancel = () => {
     setIsEdit(false);
     setEditorValue("");
+  };
+
+  const handleReset = () => {
+    setOpen({
+      content: (
+        <ConfirmationModal
+          title={"Reset Template"}
+          description={`This will reset the template to its default version. 
+            All your changes will be permanently removed and cannot be undone. 
+            Do you want to proceed?`}
+          confirmButtonText="Yes, Reset"
+          cancelButtonText="No, Keep Changes"
+          onConfirm={() => {
+            onReset?.();
+            setClose();
+          }}
+        />
+      ),
+    });
   };
 
   return (
@@ -60,16 +90,25 @@ const IRBoxContainer = ({
         }}
       >
         <Typography variant="body1">{title}</Typography>
-        {(onEdit || onEditSubmit) && (
-          <IconButton
-            size="small"
-            color="secondary"
-            onClick={onEdit || handleEdit}
-            data-testid={`irbox-container-edit`}
-          >
-            <EditOutlined />
-          </IconButton>
-        )}
+        <Box display="flex" gap={1}>
+          {onReset && (
+            <Tooltip title="Reset Template">
+              <IconButton size="small" color="secondary" onClick={handleReset}>
+                <RestartAltRounded />
+              </IconButton>
+            </Tooltip>
+          )}
+          {(onEdit || onEditSubmit) && (
+            <IconButton
+              size="small"
+              color="secondary"
+              onClick={onEdit || handleEdit}
+              data-testid={`irbox-container-edit`}
+            >
+              <EditOutlined />
+            </IconButton>
+          )}
+        </Box>
       </Box>
       <Box px={3} py={2}>
         {isEdit ? (
