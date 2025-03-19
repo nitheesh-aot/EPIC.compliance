@@ -22,6 +22,7 @@ import { $createMentionNode } from "./MentionNode";
 import ReactDOM from "react-dom";
 import { Box, Typography } from "@mui/material";
 import { MentionData } from "../LexicalUtils";
+import { formatS3Url } from "@/utils/appUtils";
 
 const PUNCTUATION =
   "\\.,\\+\\*\\?\\$\\@\\|#{}\\(\\)\\^\\-\\[\\]\\\\/!%'\"~=<>_:;";
@@ -215,7 +216,7 @@ function MentionsTypeaheadMenuItem({
         </Typography>
         <Box
           component="img"
-          src={option.mentionData.imageUrl}
+          src={formatS3Url(option.mentionData.imageRelativeUrl ?? "")}
           alt={option.mentionData.name}
           sx={{ width: 100 }}
         />
@@ -257,7 +258,11 @@ export default function MentionsPlugin({
       closeMenu: () => void
     ) => {
       editor.update(() => {
-        const mentionNode = $createMentionNode(selectedOption.mentionData.name);
+        const mentionNode = $createMentionNode(
+          selectedOption.mentionData.name,
+          undefined,
+          selectedOption.mentionData.imageRelativeUrl
+        );
         if (nodeToReplace) {
           nodeToReplace.replace(mentionNode);
         }
