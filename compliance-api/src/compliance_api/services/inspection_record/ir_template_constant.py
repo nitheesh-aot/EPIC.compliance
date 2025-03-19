@@ -4,9 +4,7 @@ INSPECTION_SCOPE = """<p class="editor-paragraph" dir="ltr">
     <span>The Officer inspected [Brief description of Project Components / Area inspected]</span>
 </p>
 <p class="editor-paragraph" dir="ltr">
-    <span style="white-space: pre-wrap;">The inspection included a </span>
-    <u><b><strong class="editor-text-bold editor-text-underline">
-        debrief</strong></b></u>
+    <span style="white-space: pre-wrap;">The inspection included a debrief</span>
     <span style="white-space: pre-wrap;"> of observations with Project staff on {{ debrief_date }}.</span>
 </p>
 <p class="editor-paragraph" dir="ltr">
@@ -38,3 +36,52 @@ FINDING_STATEMENT = """<p class="editor-paragraph" dir="ltr">
     </span>
 </p>
 """
+
+PRELIMINARY_REVIEW_DETAILS = """<div>
+    <p class="editor-paragraph" dir="ltr">
+        <span>
+            On {{ date_report_sent}} ., Officer [Lombardi] provided the preliminary
+            inspection record to the {{ proponent_label }}.
+        AND</span><br><span>On {{ date_repsonse }} ., the {{ proponent_label }}
+            provided comments pertaining to the preliminary inspection record. These comments were reviewed, and edits
+            were made to the record by the EAO Compliance and Enforcement Branch (CEB) to correct identified errors of
+            fact or omission prior to finalizing. </span>
+    </p>
+    <p class="editor-paragraph" dir="ltr"><span>OR</span></p>
+    <p class="editor-paragraph" dir="ltr"><span>On {{ date_response }} ., the {{ proponent_label }} provided comments
+            pertaining to the preliminary inspection record. These comments were reviewed by the EAO Compliance and
+            Enforcement Branch (CEB). No errors of fact or omission were identified.</span></p>
+    <p class="editor-paragraph" dir="ltr"><span>OR</span></p>
+    <p class="editor-paragraph" dir="ltr"><span>No comments were received from the {{ proponent_label }} prior to
+            finalizing the record.</span></p>
+</div>
+"""
+
+ACTION_REQUIRED_BY_RP = """<p class="editor-paragraph" dir="ltr"><b><strong class="editor-text-bold">Please review
+this inspection record for errors or omissions and provide a response to Officer {{ primary_officer }}
+by</strong></b>
+{% if date_expected_return %}
+    {{ date_expected_return }}
+{% else %}
+    <span style="color: gray;">date will appear once due date is set.</span>
+{% endif %}
+</p>"""
+
+ENFORCEMENT_SUMMARY = {
+    "NOTICE_OF_NON_COMPLIANCE": """<p>{{ regulated_party }} is not compliant with {{ number }} of
+     {{ req_source_name }} of {{ eac }}. {{ regulated_party }} has been issued a Notice of Non-Compliance. See
+     Requirement {{ req_sort_order }} for further information.</p>""",
+    "WARNING_LETTER": """<p>{{ regulated_party }} is not compliant with {{ number }} of
+     {{ req_source_name }} of {{ eac }}. See Appendix X for a Letter of Warning for the non-compliances
+      {{ warning_letter_no }}. See Requirement {{ req_sort_order }} for further information.</p>""",
+    "ORDER": """<p>In Addition, {{ regulated_party }} is not compliant with {{ number }} of {{ req_source_name }}
+     of {{ eac }}. See Appendix X for an Order {{ order_no }} issued under {{ section_no }} of the {{ act }}.
+     See Requirement {{ req_sort_order }} for further information</p>""",
+    "ADMINISTRATIVE_PENALTY": """<p>In Addition, the findings for Requirement {{ req_sort_order }}
+    may be referred to a decision maker for consideration of an Administrative Penalty.</p>""",
+    "AGENCY": """<p>{{ number }} of {{ req_source_name }} of {{ eac }} was refered to {{ agency_name }}.
+     See Requirement {{ req_sort_order }} for further information</p></br>
+    <p>The EAO CED may inspect to determine if {{ project_name }} has been brought into compliance with these
+     requirements. Continued non-compliance with these requirements may result in additional enforcement
+     under the {{ act }} </p>""",
+}

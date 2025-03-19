@@ -1,0 +1,83 @@
+"""Schema for Inspection Record Approval."""
+
+from marshmallow import EXCLUDE, ValidationError, fields, post_load, validate
+from marshmallow_enum import EnumField
+
+from compliance_api.models.inspection_record_approval import InspectionRecordApproval as InspectionRecordApprovalModel
+from compliance_api.models.inspection_record_approval import IRApprovalStatusEnum
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
+
+from .base_schema import AutoSchemaBase, BaseSchema
+from .staff_user import StaffUserSchema
+
+
+class InspectionRecordApprovalSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
+    """InspectionRecordApprovalSchema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Meta."""
+
+        unknown = EXCLUDE
+        model = InspectionRecordApprovalModel
+        include_fk = True
+
+    approved_by = fields.Nested(StaffUserSchema)
+    approval_status = EnumField(IRApprovalStatusEnum, by_value=True)
+
+
+class CreateInspectionRecordApprovalSchema(BaseSchema):
+    """Schema for updating an InspectionRecordApproval."""
+
+    approved_by_id = fields.Integer(
+        metadata={"description": "The unique id of the staff who needs to approve"},
+        required=True,
+    )
+
+
+class UpdateInspectionRecordApprovalSchema(BaseSchema):
+    """Schema for updating selected fields of an InspectionRecordApproval."""
+
+    field_name = fields.Str(required=True, validate=validate.Length(min=1))
+    value = fields.Raw(required=True)  # Allows various types of input
+
+    @post_load
+    def validate_fields(self, data, **kwargs):  # pylint: disable=no-self-use, unused-argument
+        """Perform custom validation for allowed fields."""
+        allowed_fields = {
+            "date_report_sent": fields.DateTime(
+                format=INPUT_DATE_TIME_FORMAT,
+                metadata={
+                    "description": "The date report sent to proponent in ISO 8601 format."
+                },
+                required=True,
+                error_messages={
+                    "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
+                },
+            ),
+            "date_expected_return": fields.DateTime(
+                format=INPUT_DATE_TIME_FORMAT,
+                metadata={
+                    "description": "The date proponent is expected to get back in ISO 8601 format."
+                },
+                required=True,
+                error_messages={
+                    "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
+                },
+            ),
+            "date_respose": fields.DateTime(
+                format=INPUT_DATE_TIME_FORMAT,
+                metadata={
+                    "description": "The date when the actual response received from proponent in ISO 8601 format."
+                },
+                required=True,
+                error_messages={
+                    "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
+                },
+            ),
+        }
+
+        field_name = data["field_name"]
+        if field_name not in allowed_fields:
+            raise ValidationError(f"Invalid field: {field_name}")
+
+        return data

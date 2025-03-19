@@ -1,17 +1,13 @@
 """Service for inspection record."""
 
-from flask import g
+from compliance_api.exceptions import ResourceExistsError, UnprocessableEntityError
+from compliance_api.models import InspectionRecord as InspectionRecordModel
+from compliance_api.models import InspectionRecordApproval as InspectionRecordApprovalModel
+from compliance_api.models import IRApprovalStatusEnum
+from compliance_api.models.inspection_record import IRStatusEnum
 
-from compliance_api.auth import auth
-from compliance_api.exceptions import (
-    PermissionDeniedError, ResourceExistsError, ResourceNotFoundError, UnprocessableEntityError)
-from compliance_api.models.inspection import Inspection as InspectionModel
-from compliance_api.models.inspection_record import InspectionRecord as InspectionRecordModel
-from compliance_api.utils.enum import PermissionEnum
-from compliance_api.utils.template_renderer import render_template_with_data
-
+from ..service_utils import ServiceUtils
 from .inspection_record_builder import InspectionRecordDataBuilder
-from .ir_template_constant import INSPECTION_SCOPE
 
 
 class InspectionRecordService:
@@ -30,9 +26,7 @@ class InspectionRecordService:
     @classmethod
     def create(cls, ir_request_data: dict, inspection_id):
         """Create inspection record."""
-        inspection = InspectionModel.find_by_id(inspection_id)
-        if not inspection:
-            raise UnprocessableEntityError("Invalid inspection details provided")
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
 
         existing_ir = InspectionRecordModel.get_by_inspection_id(inspection_id)
         #  Raise error, if ir exists and the request is to create another ir of the same status
@@ -47,6 +41,7 @@ class InspectionRecordService:
             .build_preliminary_review_details()
             .build_finding_statement()
             .build_enforcement_summary()
+            .build_action_required_by_rp()
             .build()
         )
         ir_obj = _create_ir_object(ir_data)
@@ -59,17 +54,51 @@ class InspectionRecordService:
         field_name = ir_update_data.get("field_name")
         value = ir_update_data.get("value", None)
         ir_update_data = {field_name: value}
-        inspection = InspectionModel.find_by_id(inspection_id)
-        if not inspection:
-            raise ResourceNotFoundError("Inspection not found")
-        _access_check_update(inspection)
-        inspection_record = InspectionRecordModel.find_by_id(inspection_record_id)
-        if not inspection_record:
-            raise ResourceNotFoundError("Inspection record not found")
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
+        ServiceUtils.inspection_record_exist_check(inspection_record_id)
+        ServiceUtils.access_check_update_for_inspection(inspection)
         updated_inspection_record = InspectionRecordModel.update_inspection_record(
             inspection_record_id=inspection_record_id, ir_update_data=ir_update_data
         )
         return updated_inspection_record
+
+    @classmethod
+    def switch_to_final(cls, inspection_id, inspection_record_id):
+        """Update the IR status to FINAL."""
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
+        inspection_record = ServiceUtils.inspection_record_exist_check(
+            inspection_record_id
+        )
+        ServiceUtils.access_check_update_for_inspection(inspection)
+        approvals = InspectionRecordApprovalModel.get_approvals_by_ir(
+            inspection_record_id=inspection_record_id
+        )
+        if not approvals:
+            raise UnprocessableEntityError("IR cannot be FINAL without approval")
+        latest_approval = approvals[0]
+        if latest_approval.approval_status != IRApprovalStatusEnum.APPROVED:
+            raise UnprocessableEntityError("Pending review for this IR")
+        ir_builder = InspectionRecordDataBuilder(
+            inspection=inspection,
+            ir_status=IRStatusEnum.FINAL.value,
+            existing_ir=inspection_record,
+        )
+        ir_data = (
+            ir_builder.build_preliminary_review_details()
+            .build_enforcement_summary()
+            .build()
+        )
+        update_data = {
+            "preliminary_review_details": ir_data.get(
+                "preliminary_review_details", None
+            ),
+            "enforcement_summary": ir_data.get("enforcement_summary", None),
+            "ir_status_id": IRStatusEnum.FINAL.value,
+        }
+        updated_ir = InspectionRecordModel.update_inspection_record(
+            inspection_record_id, update_data
+        )
+        return updated_ir
 
     @classmethod
     def reset_field(
@@ -90,18 +119,12 @@ class InspectionRecordService:
             PermissionDeniedError: If user doesn't have permission
         """
         # Check if inspection exists
-        inspection = InspectionModel.find_by_id(inspection_id)
-        if not inspection:
-            raise ResourceNotFoundError("Inspection not found")
-
+        inspection = ServiceUtils.inspection_exist_check()
         # Check user permissions
-        _access_check_update(inspection)
-
-        # Check if inspection record exists
-        inspection_record = InspectionRecordModel.find_by_id(inspection_record_id)
-        if not inspection_record:
-            raise ResourceNotFoundError("Inspection record not found")
-
+        ServiceUtils.access_check_update_for_inspection(inspection)
+        inspection_record = ServiceUtils.inspection_record_exist_check(
+            inspection_record_id
+        )
         # Create builder with existing inspection and status
         ir_builder = InspectionRecordDataBuilder(
             inspection=inspection, ir_status=inspection_record.ir_status
@@ -110,13 +133,7 @@ class InspectionRecordService:
         # Build only the requested field
         if field_name == "inspection_scope":
             ir_data = ir_builder.build_inspection_scope().build()
-            update_data = {
-                "inspection_scope": render_template_with_data(
-                    "INSPECTION_SCOPE",
-                    INSPECTION_SCOPE,
-                    ir_data.get("inspection_scope"),
-                )
-            }
+            update_data = {"inspection_scope": ir_data.get("inspection_scope")}
         elif field_name == "preliminary_review_details":
             ir_data = ir_builder.build_preliminary_review_details().build()
             update_data = {
@@ -124,11 +141,7 @@ class InspectionRecordService:
             }
         elif field_name == "finding_statement":
             ir_data = ir_builder.build_finding_statement().build()
-            update_data = {"finding_statement": ir_data.get("finding_statement")}
-        elif field_name == "enforcement_summary":
-            ir_data = ir_builder.build_enforcement_summary().build()
-            update_data = {"enforcement_summary": ir_data.get("enforcement_summary")}
-
+        update_data = {"finding_statement": ir_data.get("finding_statement")}
         # Update the inspection record with the reset field
         updated_inspection_record = InspectionRecordModel.update_inspection_record(
             inspection_record_id=inspection_record_id, ir_update_data=update_data
@@ -147,22 +160,9 @@ def _create_ir_object(ir_data):
     return {
         "inspection_id": ir_data.get("inspection_id"),
         "ir_status_id": ir_data.get("ir_status_id").value,
-        "inspection_scope": render_template_with_data(
-            "INSPECTION_SCOPE", INSPECTION_SCOPE, ir_data.get("inspection_scope")
-        ),
+        "inspection_scope": ir_data.get("inspection_scope"),
         "finding_statement": ir_data.get("finding_statement"),
-        "enforcement_summary": ir_data.get("enforcement_summary"),
+        "enforcement_summary": ir_data.get("enforcement_summary", None),
         "ir_progress": ir_data.get("ir_progress"),
+        "action_required_by_rp": ir_data.get("action_required_by_rp", None),
     }
-
-
-def _access_check_update(inspection: dict):
-    """Access check for update."""
-    auth_user_guid = g.token_info["preferred_username"]
-    if (
-        not auth.has_permission([PermissionEnum.SUPERUSER])
-        and not inspection.primary_officer.auth_user_guid == auth_user_guid
-    ):
-        raise PermissionDeniedError(
-            "You don't have the correct permission to perform this operation."
-        )
