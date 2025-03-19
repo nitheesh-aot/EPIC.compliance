@@ -113,8 +113,7 @@ class InspectionRecordDataBuilder:
                 if requirement.requirement_source_details:
                     #  Identify the first requirement source detail
                     first_rq_detail = requirement.requirement_source_details[0]
-                    number = self._get_requirement_source_number_field(
-                        first_rq_detail)
+                    number = self._get_requirement_source_number_field(first_rq_detail)
 
                     requirement_lines.append(
                         f"{number} of {first_rq_detail.requirement_source.name} with respect to {requirement.summary}"
@@ -201,7 +200,11 @@ class InspectionRecordDataBuilder:
         action_required_by_rp = render_template_with_data(
             "ACTION_REQUIRED_BY_RP",
             ACTION_REQUIRED_BY_RP,
-            {"primary_officer": self.inspection.case_file.primary_officer.name},
+            {
+                "primary_officer": self.data["officer_details"]
+                .get("primary_officer")
+                .get("name")
+            },
         )
         self.data["action_required_by_rp"] = (
             self.existing_ir.action_required_by_rp
@@ -282,8 +285,7 @@ class InspectionRecordDataBuilder:
         self, detail_obj: InspectionReqSourceDetailModel
     ):
         """Identify the number field based on the requirement source id."""
-        requirement_source = RequirementSourceEnum(
-            detail_obj.requirement_source_id)
+        requirement_source = RequirementSourceEnum(detail_obj.requirement_source_id)
         section_sources = {
             RequirementSourceEnum.ACT_2002,
             RequirementSourceEnum.ACT_2018,

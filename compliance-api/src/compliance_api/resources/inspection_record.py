@@ -17,8 +17,7 @@ from compliance_api.utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
 
-API = Namespace("inspection-records",
-                description="Endpoints for Inspection Record")
+API = Namespace("inspection-records", description="Endpoints for Inspection Record")
 
 ir_create_request_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, InspectionRecordCreateSchema(), "IRCreateRequest"
@@ -72,8 +71,7 @@ class InspectionRecords(Resource):
     def post(inspection_id):
         """Create a agency."""
         ir_create_request = InspectionRecordCreateSchema().load(API.payload)
-        created_ir = InspectionRecordService.create(
-            ir_create_request, inspection_id)
+        created_ir = InspectionRecordService.create(ir_create_request, inspection_id)
         return InspectionRecordSchema().dump(created_ir), HTTPStatus.CREATED
 
 
@@ -91,8 +89,7 @@ class InspectionRecord(Resource):
     @auth.require
     def get(inspection_record_id):
         """Fetch inspection record by id."""
-        inspection_record = InspectionRecordService.get_by_id(
-            inspection_record_id)
+        inspection_record = InspectionRecordService.get_by_id(inspection_record_id)
         if not inspection_record:
             raise ResourceNotFoundError(
                 f"No inspection found for the given ID : {inspection_record_id}"
@@ -145,7 +142,9 @@ class InspectionRecordApprovals(Resource):
         API, endpoint_description="Fetch all inspection record approvals"
     )
     @auth.require
-    def get(inspection_id, inspection_record_id):  # pylint: disable=no-self-use, unused-argument
+    def get(
+        inspection_id, inspection_record_id
+    ):  # pylint: disable=no-self-use, unused-argument
         """Fetch all inspection record approvals."""
         approvals = InspectionRecordApprovalService.get_all_approvals(
             inspection_record_id

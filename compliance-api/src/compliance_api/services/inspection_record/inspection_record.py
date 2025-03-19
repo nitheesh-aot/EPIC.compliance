@@ -55,8 +55,21 @@ class InspectionRecordService:
         value = ir_update_data.get("value", None)
         ir_update_data = {field_name: value}
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        ServiceUtils.inspection_record_exist_check(inspection_record_id)
+        inspection_record = ServiceUtils.inspection_record_exist_check(
+            inspection_record_id
+        )
         ServiceUtils.access_check_update_for_inspection(inspection)
+        change_track_required_fields = {
+            "inspection_scope",
+            "preliminary_review_details",
+            "finding_statement",
+        }
+        if field_name in change_track_required_fields:
+            #  This check is to make sure the value has actually changed
+            if getattr(inspection_record, field_name) != value:
+                change_info = dict(inspection_record.field_change_info)
+                change_info[f"{field_name}_changed"] = True
+                ir_update_data["field_change_info"] = change_info
         updated_inspection_record = InspectionRecordModel.update_inspection_record(
             inspection_record_id=inspection_record_id, ir_update_data=ir_update_data
         )
@@ -119,7 +132,7 @@ class InspectionRecordService:
             PermissionDeniedError: If user doesn't have permission
         """
         # Check if inspection exists
-        inspection = ServiceUtils.inspection_exist_check()
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
         # Check user permissions
         ServiceUtils.access_check_update_for_inspection(inspection)
         inspection_record = ServiceUtils.inspection_record_exist_check(
@@ -129,19 +142,20 @@ class InspectionRecordService:
         ir_builder = InspectionRecordDataBuilder(
             inspection=inspection, ir_status=inspection_record.ir_status
         )
-
+        ir_data = None
+        change_info = dict(inspection_record.field_change_info)
         # Build only the requested field
         if field_name == "inspection_scope":
             ir_data = ir_builder.build_inspection_scope().build()
-            update_data = {"inspection_scope": ir_data.get("inspection_scope")}
         elif field_name == "preliminary_review_details":
             ir_data = ir_builder.build_preliminary_review_details().build()
-            update_data = {
-                "preliminary_review_details": ir_data.get("preliminary_review_details")
-            }
         elif field_name == "finding_statement":
             ir_data = ir_builder.build_finding_statement().build()
-        update_data = {"finding_statement": ir_data.get("finding_statement")}
+        change_info[f"{field_name}_changed"] = False
+        update_data = {
+            field_name: ir_data.get(field_name),
+            "field_change_info": change_info,
+        }
         # Update the inspection record with the reset field
         updated_inspection_record = InspectionRecordModel.update_inspection_record(
             inspection_record_id=inspection_record_id, ir_update_data=update_data
@@ -165,4 +179,9 @@ def _create_ir_object(ir_data):
         "enforcement_summary": ir_data.get("enforcement_summary", None),
         "ir_progress": ir_data.get("ir_progress"),
         "action_required_by_rp": ir_data.get("action_required_by_rp", None),
+        "field_change_info": {
+            "inspection_scope_changed": False,
+            "preliminary_review_details_changed": False,
+            "finding_statement_changed": False,
+        },
     }
