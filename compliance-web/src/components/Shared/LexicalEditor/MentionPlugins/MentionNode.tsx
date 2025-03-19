@@ -7,6 +7,7 @@
  */
 
 import { formatS3Url } from "@/utils/appUtils";
+import { Popover } from "@mui/material";
 import {
   $applyNodeReplacement,
   type DOMConversionMap,
@@ -19,6 +20,13 @@ import {
   type Spread,
   TextNode,
 } from "lexical";
+import React from "react";
+import { Root, createRoot } from "react-dom/client";
+
+// Add custom interface for div element with _reactRoot property
+interface PopoverRootElement extends HTMLDivElement {
+  _reactRoot?: Root;
+}
 
 export type SerializedMentionNode = Spread<
   {
@@ -101,178 +109,143 @@ export class MentionNode extends TextNode {
 
     // Add image preview on hover functionality
     if (this.__imageRelativeUrl) {
-      // Create wrapper for positioning (needed for reference point)
+      // Create wrapper for positioning
       const wrapper = document.createElement("span");
       wrapper.style.position = "relative";
       wrapper.style.cursor = "help";
       wrapper.appendChild(dom);
 
-      // Create the image preview element - will be moved to body
-      const preview = document.createElement("img");
-      preview.src = formatS3Url(this.__imageRelativeUrl);
-      preview.alt = this.__mention;
-      preview.style.cssText = `
-        position: fixed;
-        display: none;
-        max-width: 300px;
-        max-height: 240px;
-        border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        background-color: white;
-        object-fit: contain;
-        z-index: 99999;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        pointer-events: none;
-      `;
+      // Create a unique ID for this mention element
+      const mentionId = `mention-${Math.random().toString(36).substring(2, 11)}`;
+      dom.id = mentionId;
 
-      // Show preview on hover with absolute positioning to body
-      dom.addEventListener("mouseenter", () => {
-        // Ensure the preview is in the document body
-        if (!document.body.contains(preview)) {
-          document.body.appendChild(preview);
-        }
+      // Create React root for Popover
+      const popoverRoot = document.createElement("div") as PopoverRootElement;
+      popoverRoot.className = "mention-popover-root";
+      document.body.appendChild(popoverRoot);
 
-        // Get viewport dimensions
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
+      // Create React component with Popover
+      const renderPopover = () => {
+        const MentionPopover = () => {
+          const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(
+            null
+          );
+          const open = Boolean(anchorEl);
 
-        // Get element position in viewport
-        const rect = dom.getBoundingClientRect();
+          React.useEffect(() => {
+            const mentionElement = document.getElementById(mentionId);
 
-        // Calculate available space in each direction
-        const spaceTop = rect.top;
-        const spaceBottom = viewportHeight - rect.bottom;
-        const spaceLeft = rect.left;
-        const spaceRight = viewportWidth - rect.right;
+            const handleMouseEnter = (event: MouseEvent) => {
+              setAnchorEl(event.currentTarget as HTMLElement);
+            };
 
-        // Reset all position properties
-        preview.style.top = "";
-        preview.style.bottom = "";
-        preview.style.left = "";
-        preview.style.right = "";
-        preview.style.transform = "";
+            const handleMouseLeave = () => {
+              setAnchorEl(null);
+            };
 
-        // Make the preview temporarily visible but with opacity 0 to get its dimensions
-        preview.style.display = "block";
-        preview.style.opacity = "0";
-
-        // Wait for the browser to calculate dimensions
-        setTimeout(() => {
-          const previewRect = preview.getBoundingClientRect();
-          const previewWidth = previewRect.width || 300; // Fallback if not yet rendered
-          const previewHeight = previewRect.height || 240; // Fallback if not yet rendered
-
-          // Determine best position (prioritize: top > bottom > right > left)
-          if (
-            spaceTop >= previewHeight ||
-            spaceTop >= Math.max(spaceBottom, spaceRight, spaceLeft)
-          ) {
-            // Position on top
-            preview.style.top = `${rect.top - previewHeight - 5}px`;
-            preview.style.left = `${rect.left + rect.width / 2 - previewWidth / 2}px`;
-
-            // Prevent left edge clipping
-            if (rect.left + rect.width / 2 - previewWidth / 2 < 5) {
-              preview.style.left = "5px";
+            if (mentionElement) {
+              mentionElement.addEventListener("mouseenter", handleMouseEnter);
+              mentionElement.addEventListener("mouseleave", handleMouseLeave);
             }
 
-            // Prevent right edge clipping
-            if (
-              rect.left + rect.width / 2 + previewWidth / 2 >
-              viewportWidth - 5
-            ) {
-              preview.style.left = `${viewportWidth - previewWidth - 5}px`;
-            }
-          } else if (
-            spaceBottom >= previewHeight ||
-            spaceBottom >= Math.max(spaceRight, spaceLeft)
-          ) {
-            // Position on bottom
-            preview.style.top = `${rect.bottom + 5}px`;
-            preview.style.left = `${rect.left + rect.width / 2 - previewWidth / 2}px`;
+            // Cleanup function
+            return () => {
+              if (mentionElement) {
+                mentionElement.removeEventListener(
+                  "mouseenter",
+                  handleMouseEnter
+                );
+                mentionElement.removeEventListener(
+                  "mouseleave",
+                  handleMouseLeave
+                );
+              }
+            };
+          }, []);
 
-            // Prevent left edge clipping
-            if (rect.left + rect.width / 2 - previewWidth / 2 < 5) {
-              preview.style.left = "5px";
-            }
+          // Cleanup the root when unmounted
+          React.useEffect(() => {
+            return () => {
+              if (document.body.contains(popoverRoot)) {
+                document.body.removeChild(popoverRoot);
+              }
+            };
+          }, []);
 
-            // Prevent right edge clipping
-            if (
-              rect.left + rect.width / 2 + previewWidth / 2 >
-              viewportWidth - 5
-            ) {
-              preview.style.left = `${viewportWidth - previewWidth - 5}px`;
-            }
-          } else if (spaceRight >= previewWidth || spaceRight >= spaceLeft) {
-            // Position on right
-            preview.style.left = `${rect.right + 5}px`;
-            preview.style.top = `${rect.top + rect.height / 2 - previewHeight / 2}px`;
+          return (
+            <Popover
+              open={open}
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "center",
+              }}
+              transformOrigin={{
+                vertical: "bottom",
+                horizontal: "center",
+              }}
+              onClose={() => setAnchorEl(null)}
+              disableRestoreFocus
+              disablePortal={false}
+              disableAutoFocus
+              disableEnforceFocus
+              sx={{
+                pointerEvents: "none",
+              }}
+              slotProps={{
+                paper: {
+                  elevation: 2,
+                  sx: {
+                    pointerEvents: "none",
+                    outline: "none",
+                    tabIndex: -1,
+                  },
+                },
+              }}
+              container={document.body}
+            >
+              <img
+                src={formatS3Url(this.__imageRelativeUrl)}
+                alt={this.__mention}
+                style={{
+                  maxWidth: "300px",
+                  maxHeight: "240px",
+                  objectFit: "contain",
+                  borderRadius: "4px",
+                  padding: "4px",
+                  paddingBottom: "0px",
+                }}
+                tabIndex={-1}
+              />
+            </Popover>
+          );
+        };
 
-            // Prevent bottom edge clipping
-            if (
-              rect.top + rect.height / 2 + previewHeight / 2 >
-              viewportHeight - 5
-            ) {
-              preview.style.top = `${viewportHeight - previewHeight - 5}px`;
-            }
+        const root = createRoot(popoverRoot);
+        root.render(<MentionPopover />);
 
-            // Prevent top edge clipping
-            if (rect.top + rect.height / 2 - previewHeight / 2 < 5) {
-              preview.style.top = "5px";
-            }
-          } else {
-            // Position on left
-            preview.style.left = `${rect.left - previewWidth - 5}px`;
-            preview.style.top = `${rect.top + rect.height / 2 - previewHeight / 2}px`;
+        // Store root for cleanup
+        popoverRoot._reactRoot = root;
+      };
 
-            // Prevent bottom edge clipping
-            if (
-              rect.top + rect.height / 2 + previewHeight / 2 >
-              viewportHeight - 5
-            ) {
-              preview.style.top = `${viewportHeight - previewHeight - 5}px`;
-            }
+      // We need to wait for React to be available
+      if (typeof window !== "undefined") {
+        setTimeout(renderPopover, 0);
+      }
 
-            // Prevent top edge clipping
-            if (rect.top + rect.height / 2 - previewHeight / 2 < 5) {
-              preview.style.top = "5px";
-            }
-
-            // If not enough space on left, try right instead
-            if (spaceLeft < previewWidth * 0.6) {
-              preview.style.left = "5px";
-            }
-          }
-
-          // Make visible after correct positioning
-          preview.style.opacity = "1";
-        }, 10);
-      });
-
-      // Hide preview when mouse leaves
-      dom.addEventListener("mouseleave", () => {
-        preview.style.opacity = "0";
-        setTimeout(() => {
-          if (preview.style.opacity === "0") {
-            preview.style.display = "none";
-            // Optionally remove from DOM when not in use
-            if (document.body.contains(preview)) {
-              document.body.removeChild(preview);
-            }
-          }
-        }, 200);
-      });
-
-      // Clean up preview when element is removed from DOM
+      // Clean up when the element is removed
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (
             mutation.type === "childList" &&
             Array.from(mutation.removedNodes).includes(wrapper)
           ) {
-            if (document.body.contains(preview)) {
-              document.body.removeChild(preview);
+            if (document.body.contains(popoverRoot)) {
+              // Unmount React component if exists
+              if (popoverRoot._reactRoot) {
+                popoverRoot._reactRoot.unmount();
+              }
+              document.body.removeChild(popoverRoot);
             }
             observer.disconnect();
           }
