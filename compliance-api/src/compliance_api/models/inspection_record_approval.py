@@ -68,6 +68,11 @@ class InspectionRecordApproval(BaseModelVersioned):
         comment="State of the inspection record",
         default=IRApprovalStatusEnum.DECISION_PENDING,
     )
+    approved_date = Column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="The approved date",
+    )
     approved_by = relationship(
         "StaffUser", foreign_keys=[approved_by_id], lazy="joined"
     )

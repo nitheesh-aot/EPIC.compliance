@@ -11,10 +11,10 @@ from .base_schema import AutoSchemaBase, BaseSchema
 from .staff_user import StaffUserSchema
 
 
-class InspectionRecordApprovalSchema(AutoSchemaBase):
+class InspectionRecordApprovalSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     """InspectionRecordApprovalSchema."""
 
-    class Meta:
+    class Meta:  # pylint: disable=too-few-public-methods
         """Meta."""
 
         unknown = EXCLUDE
@@ -41,7 +41,7 @@ class UpdateInspectionRecordApprovalSchema(BaseSchema):
     value = fields.Raw(required=True)  # Allows various types of input
 
     @post_load
-    def validate_fields(self, data, **kwargs):
+    def validate_fields(self, data, **kwargs):  # pylint: disable=no-self-use, unused-argument
         """Perform custom validation for allowed fields."""
         allowed_fields = {
             "date_report_sent": fields.DateTime(

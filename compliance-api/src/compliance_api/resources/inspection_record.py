@@ -8,7 +8,8 @@ from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
     CreateInspectionRecordApprovalSchema, InspectionRecordApprovalSchema, InspectionRecordCreateSchema,
-    InspectionRecordSchema, UpdateInspectionRecordApprovalSchema, UpdateInspectionRecordSchema, ResetInspectionRecordFieldSchema)
+    InspectionRecordSchema, ResetInspectionRecordFieldSchema, UpdateInspectionRecordApprovalSchema,
+    UpdateInspectionRecordSchema)
 from compliance_api.services import InspectionRecordApprovalService, InspectionRecordService
 from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
@@ -36,60 +37,61 @@ ir_approval_schema = ApiHelper.convert_ma_schema_to_restx_model(
 )
 ir_approval_update_request = ApiHelper.convert_ma_schema_to_restx_model(
     API, UpdateInspectionRecordApprovalSchema(), "IRApprovalUpdate"
-ir_reset_field_model=ApiHelper.convert_ma_schema_to_restx_model(
+)
+ir_reset_field_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, ResetInspectionRecordFieldSchema(), "ResetInspectionField"
 )
 
 
-@ cors_preflight("GET, OPTIONS, POST, PATCH")
-@ API.route("", methods=["POST", "GET", "OPTIONS"])
+@cors_preflight("GET, OPTIONS, POST, PATCH")
+@API.route("", methods=["POST", "GET", "OPTIONS"])
 class InspectionRecords(Resource):
     """Resource for managing inspection records."""
 
-    @ staticmethod
-    @ API.response(code=200, description="Success", model=[ir_list_model])
-    @ ApiHelper.swagger_decorators(
+    @staticmethod
+    @API.response(code=200, description="Success", model=[ir_list_model])
+    @ApiHelper.swagger_decorators(
         API, endpoint_description="Fetch all inspection records"
     )
-    @ auth.require
+    @auth.require
     def get(inspection_id):
         """Fetch all inspection records."""
-        irs=InspectionRecordService.get_by_inspection_id(inspection_id)
-        inspection_record_schema=InspectionRecordSchema(many=False)
+        irs = InspectionRecordService.get_by_inspection_id(inspection_id)
+        inspection_record_schema = InspectionRecordSchema(many=False)
         return inspection_record_schema.dump(irs), HTTPStatus.OK
 
-    @ staticmethod
-    @ auth.require
-    @ ApiHelper.swagger_decorators(
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(
         API, endpoint_description="Create an inspection record"
     )
-    @ API.expect(ir_create_request_model)
-    @ API.response(code=201, model=ir_list_model, description="IRCreated")
-    @ API.response(400, "Bad Request")
-    @ auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
+    @API.expect(ir_create_request_model)
+    @API.response(code=201, model=ir_list_model, description="IRCreated")
+    @API.response(400, "Bad Request")
+    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def post(inspection_id):
         """Create a agency."""
-        ir_create_request=InspectionRecordCreateSchema().load(API.payload)
-        created_ir=InspectionRecordService.create(
+        ir_create_request = InspectionRecordCreateSchema().load(API.payload)
+        created_ir = InspectionRecordService.create(
             ir_create_request, inspection_id)
         return InspectionRecordSchema().dump(created_ir), HTTPStatus.CREATED
 
 
-@ cors_preflight("PATCH, OPTIONS")
-@ API.route("/<int:inspection_record_id>", methods=["PATCH", "OPTIONS"])
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/<int:inspection_record_id>", methods=["PATCH", "OPTIONS"])
 class InspectionRecord(Resource):
     """InspectionRecord resource."""
 
-    @ staticmethod
-    @ API.response(code=200, description="Success", model=ir_list_model)
-    @ API.response(404, "Not Found")
-    @ ApiHelper.swagger_decorators(
+    @staticmethod
+    @API.response(code=200, description="Success", model=ir_list_model)
+    @API.response(404, "Not Found")
+    @ApiHelper.swagger_decorators(
         API, endpoint_description="Fetch inspection record by id"
     )
-    @ auth.require
+    @auth.require
     def get(inspection_record_id):
         """Fetch inspection record by id."""
-        inspection_record=InspectionRecordService.get_by_id(
+        inspection_record = InspectionRecordService.get_by_id(
             inspection_record_id)
         if not inspection_record:
             raise ResourceNotFoundError(
@@ -97,74 +99,74 @@ class InspectionRecord(Resource):
             )
         return InspectionRecordSchema().dump(inspection_record), HTTPStatus.OK
 
-    @ staticmethod
-    @ API.response(code=200, description="Sucess", model=ir_list_model)
-    @ API.expect(ir_update_request_model)
-    @ ApiHelper.swagger_decorators(API, endpoint_description="Update inspection record")
-    @ API.response(404, "Not Found")
-    @ API.response(400, "Bad Request")
-    @ auth.require
+    @staticmethod
+    @API.response(code=200, description="Sucess", model=ir_list_model)
+    @API.expect(ir_update_request_model)
+    @ApiHelper.swagger_decorators(API, endpoint_description="Update inspection record")
+    @API.response(404, "Not Found")
+    @API.response(400, "Bad Request")
+    @auth.require
     def patch(inspection_id, inspection_record_id):
         """Update inspection record."""
-        ir_update_data=UpdateInspectionRecordSchema().load(API.payload)
-        updated_ir=InspectionRecordService.update(
+        ir_update_data = UpdateInspectionRecordSchema().load(API.payload)
+        updated_ir = InspectionRecordService.update(
             inspection_id, inspection_record_id, ir_update_data
         )
         return InspectionRecordSchema().dump(updated_ir), HTTPStatus.OK
 
 
-@ cors_preflight("PATCH, OPTIONS")
-@ API.route("/<int:inspection_record_id>/switch-to-final", methods=["PATCH", "OPTIONS"])
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/<int:inspection_record_id>/switch-to-final", methods=["PATCH", "OPTIONS"])
 class InspectionRecordFinal(Resource):
     """Resource to handle InspectionRecord."""
 
-    @ staticmethod
-    @ API.response(code=200, description="Sucess", model=ir_list_model)
-    @ API.expect(ir_update_request_model)
-    @ ApiHelper.swagger_decorators(API, endpoint_description="Switch to FINAL IR")
-    @ API.response(404, "Not Found")
-    @ auth.require
+    @staticmethod
+    @API.response(code=200, description="Sucess", model=ir_list_model)
+    @API.expect(ir_update_request_model)
+    @ApiHelper.swagger_decorators(API, endpoint_description="Switch to FINAL IR")
+    @API.response(404, "Not Found")
+    @auth.require
     def patch(inspection_id, inspection_record_id):
         """Swith IR to FINAL."""
-        final_ir=InspectionRecordService.switch_to_final(
+        final_ir = InspectionRecordService.switch_to_final(
             inspection_id, inspection_record_id
         )
         return InspectionRecordSchema().dump(final_ir), HTTPStatus.OK
 
 
-@ cors_preflight("GET, OPTIONS, POST, PATCH")
-@ API.route("/<int:inspection_record_id>/approvals", methods=["POST", "GET", "OPTIONS"])
+@cors_preflight("GET, OPTIONS, POST, PATCH")
+@API.route("/<int:inspection_record_id>/approvals", methods=["POST", "GET", "OPTIONS"])
 class InspectionRecordApprovals(Resource):
     """Resource for managing inspection records."""
 
-    @ staticmethod
-    @ API.response(code=200, description="Success", model=[ir_approval_schema])
-    @ ApiHelper.swagger_decorators(
+    @staticmethod
+    @API.response(code=200, description="Success", model=[ir_approval_schema])
+    @ApiHelper.swagger_decorators(
         API, endpoint_description="Fetch all inspection record approvals"
     )
-    @ auth.require
-    def get(inspection_id, inspection_record_id):
+    @auth.require
+    def get(inspection_id, inspection_record_id):  # pylint: disable=no-self-use, unused-argument
         """Fetch all inspection record approvals."""
-        approvals=InspectionRecordApprovalService.get_all_approvals(
+        approvals = InspectionRecordApprovalService.get_all_approvals(
             inspection_record_id
         )
-        approval_schema=InspectionRecordApprovalSchema(many=True)
+        approval_schema = InspectionRecordApprovalSchema(many=True)
         return approval_schema.dump(approvals), HTTPStatus.OK
 
-    @ staticmethod
-    @ auth.require
-    @ ApiHelper.swagger_decorators(
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(
         API, endpoint_description="Create an inspection record approval"
     )
-    @ API.expect(ir_approval_create_request)
-    @ API.response(
+    @API.expect(ir_approval_create_request)
+    @API.response(
         code=201, model=ir_approval_schema, description="IRApprovalRequestCreated"
     )
-    @ API.response(400, "Bad Request")
+    @API.response(400, "Bad Request")
     def post(inspection_id, inspection_record_id):
         """Create a agency."""
-        ir_approval_request=CreateInspectionRecordApprovalSchema().load(API.payload)
-        created_aproval=InspectionRecordApprovalService.create_approval(
+        ir_approval_request = CreateInspectionRecordApprovalSchema().load(API.payload)
+        created_aproval = InspectionRecordApprovalService.create_approval(
             ir_approval_request, inspection_id, inspection_record_id
         )
         return (
@@ -173,47 +175,49 @@ class InspectionRecordApprovals(Resource):
         )
 
 
-@ cors_preflight("OPTIONS, PATCH, GET")
-@ API.route(
+@cors_preflight("OPTIONS, PATCH, GET")
+@API.route(
     "/<int:inspection_record_id>/approvals/<int:approval_id>",
     methods=["PATCH", "GET", "OPTIONS"],
 )
 class InspectionRecordApproval(Resource):
     """Resource for managing inspection record approval."""
 
-    @ staticmethod
-    @ API.response(code=200, description="Sucess", model=ir_approval_schema)
-    @ API.expect(ir_approval_update_request)
-    @ ApiHelper.swagger_decorators(
+    @staticmethod
+    @API.response(code=200, description="Sucess", model=ir_approval_schema)
+    @API.expect(ir_approval_update_request)
+    @ApiHelper.swagger_decorators(
         API, endpoint_description="Update inspection record approval"
     )
-    @ API.response(404, "Not Found")
-    @ API.response(400, "Bad Request")
-    @ auth.require
+    @API.response(404, "Not Found")
+    @API.response(400, "Bad Request")
+    @auth.require
     def patch(inspection_id, inspection_record_id, approval_id):
         """Update inspection record approval."""
-        approval_update_data=UpdateInspectionRecordApprovalSchema().load(API.payload)
-        updated_approval=InspectionRecordApprovalService.update_approval(
+        approval_update_data = UpdateInspectionRecordApprovalSchema().load(API.payload)
+        updated_approval = InspectionRecordApprovalService.update_approval(
             inspection_id, inspection_record_id, approval_id, approval_update_data
         )
         return InspectionRecordApprovalSchema().dump(updated_approval), HTTPStatus.OK
-@ API.route("/<int:inspection_record_id>/reset", methods=["PATCH", "OPTIONS"])
+
+
+@API.route("/<int:inspection_record_id>/reset", methods=["PATCH", "OPTIONS"])
 class InspectionRecordReset(Resource):
     """Resource for resetting inspection record fields."""
 
-    @ staticmethod
-    @ API.response(code=200, description="Success", model=ir_list_model)
-    @ API.expect(ir_reset_field_model)
-    @ ApiHelper.swagger_decorators(
+    @staticmethod
+    @API.response(code=200, description="Success", model=ir_list_model)
+    @API.expect(ir_reset_field_model)
+    @ApiHelper.swagger_decorators(
         API, endpoint_description="Reset inspection record field"
     )
-    @ API.response(404, "Not Found")
-    @ API.response(400, "Bad Request")
-    @ auth.require
+    @API.response(404, "Not Found")
+    @API.response(400, "Bad Request")
+    @auth.require
     def patch(inspection_id, inspection_record_id):
         """Reset a specific field in the inspection record."""
-        reset_data=ResetInspectionRecordFieldSchema().load(API.payload)
-        updated_ir=InspectionRecordService.reset_field(
+        reset_data = ResetInspectionRecordFieldSchema().load(API.payload)
+        updated_ir = InspectionRecordService.reset_field(
             inspection_id, inspection_record_id, reset_data["field_name"]
         )
         if not updated_ir:

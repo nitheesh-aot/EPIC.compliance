@@ -2,7 +2,7 @@
 
 from enum import Enum
 
-from sqlalchemy import Column, DateTime
+from sqlalchemy import JSON, Column, DateTime
 from sqlalchemy import Enum as SqlEnum
 from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
@@ -60,6 +60,11 @@ class InspectionRecord(BaseModelVersioned):
     )
     finding_statement = Column(
         String, nullable=True, comment="Finding statement from the inspection"
+    )
+    field_change_info = Column(
+        JSON,
+        nullable=True,
+        comment="To indicate if selected fields have changed or not",
     )
     enforcement_summary = Column(
         String, nullable=True, comment="Summary of enforcement action"

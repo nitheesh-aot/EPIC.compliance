@@ -29,7 +29,9 @@ from .inspection import (
     InspectionStatusSchema, InspectionUpdateSchema)
 from .inspection_approval import (
     CreateInspectionRecordApprovalSchema, InspectionRecordApprovalSchema, UpdateInspectionRecordApprovalSchema)
-from .inspection_record import InspectionRecordCreateSchema, InspectionRecordSchema, UpdateInspectionRecordSchema, ResetInspectionRecordFieldSchema
+from .inspection_record import (
+    InspectionRecordCreateSchema, InspectionRecordSchema, ResetInspectionRecordFieldSchema,
+    UpdateInspectionRecordSchema)
 from .inspection_requirement import (
     InspectionReqImageCreateSchema, InspectionReqImageSchema, InspectionRequirementCreateSchema,
     InspectionRequirementSchema, InspectionRequirementUpdateSchema, InspectionSortOrderSchema)
