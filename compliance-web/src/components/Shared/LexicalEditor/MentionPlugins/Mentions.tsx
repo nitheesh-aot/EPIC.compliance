@@ -15,9 +15,15 @@ import {
   MenuTextMatch,
   useBasicTypeaheadTriggerMatch,
 } from "@lexical/react/LexicalTypeaheadMenuPlugin";
-import { TextNode } from "lexical";
+import {
+  TextNode,
+  COMMAND_PRIORITY_LOW,
+  createCommand,
+  LexicalCommand,
+  NodeKey,
+  $getNodeByKey,
+} from "lexical";
 import { useCallback, useEffect, useMemo, useState } from "react";
-
 import { $createMentionNode } from "./MentionNode";
 import ReactDOM from "react-dom";
 import { Box, Typography } from "@mui/material";
@@ -225,6 +231,11 @@ function MentionsTypeaheadMenuItem({
   );
 }
 
+// Define a command for removing mention nodes
+const REMOVE_MENTION_COMMAND: LexicalCommand<{ key: NodeKey }> = createCommand(
+  "REMOVE_MENTION_COMMAND"
+);
+
 export default function MentionsPlugin({
   mentionsList,
 }: {
@@ -283,6 +294,54 @@ export default function MentionsPlugin({
     },
     [checkForSlashTriggerMatch, editor]
   );
+
+  // Register a listener for the custom DOM event
+  useEffect(() => {
+    // Function to handle the custom event from DOM
+    const handleCustomEvent = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail?.type === "remove-mention") {
+        editor.dispatchCommand(REMOVE_MENTION_COMMAND, {
+          key: customEvent.detail.key,
+        });
+      }
+    };
+
+    // Get the editor element to attach the event listener
+    const editorElement = editor.getRootElement();
+    if (editorElement) {
+      editorElement.addEventListener("lexical-command", handleCustomEvent);
+    }
+
+    // Clean up when the component unmounts
+    return () => {
+      if (editorElement) {
+        editorElement.removeEventListener("lexical-command", handleCustomEvent);
+      }
+    };
+  }, [editor]);
+
+  // Register a command listener for removing mention nodes
+  useEffect(() => {
+    return editor.registerCommand(
+      REMOVE_MENTION_COMMAND,
+      (payload) => {
+        editor.update(() => {
+          const nodeKey = payload.key;
+          const node = editor.getElementByKey(nodeKey);
+          if (node) {
+            // Find the node and remove it
+            const lexicalNode = $getNodeByKey(nodeKey);
+            if (lexicalNode) {
+              lexicalNode.remove();
+            }
+          }
+        });
+        return true;
+      },
+      COMMAND_PRIORITY_LOW
+    );
+  }, [editor]);
 
   return (
     <LexicalTypeaheadMenuPlugin<MentionTypeaheadOption>

@@ -21,12 +21,6 @@ import {
   TextNode,
 } from "lexical";
 import React from "react";
-import { Root, createRoot } from "react-dom/client";
-
-// Add custom interface for div element with _reactRoot property
-interface PopoverRootElement extends HTMLDivElement {
-  _reactRoot?: Root;
-}
 
 export type SerializedMentionNode = Spread<
   {
@@ -57,7 +51,6 @@ function $convertMentionElement(
   return null;
 }
 
-const mentionStyle = "background-color: rgba(24, 119, 232, 0.2)";
 export class MentionNode extends TextNode {
   __mention: string;
   __imageRelativeUrl: string;
@@ -101,136 +94,214 @@ export class MentionNode extends TextNode {
 
   createDOM(config: EditorConfig): HTMLElement {
     const dom = super.createDOM(config);
-    dom.style.cssText = mentionStyle;
-    dom.className = "mention";
+
+    // Style as a chip instead of just text with background
+    dom.style.cssText = `
+      display: inline-flex;
+      align-items: center;
+      background-color: rgba(24, 119, 232, 0.2);
+      border-radius: 8px;
+      padding: 0 8px 0 8px;
+      margin: 0 2px;
+      height: 24px;
+      font-size: 0.875rem;
+      font-weight: bold;
+      line-height: 1.2;
+      cursor: default;
+      user-select: none;
+      -webkit-user-select: none;
+      white-space: nowrap;
+      pointer-events: all;
+      caret-color: transparent;
+    `;
+    dom.className = "mention-chip";
     dom.spellcheck = false;
+    dom.contentEditable = "false";
     dom.dataset.imageurl = this.__imageRelativeUrl;
     dom.dataset.mention = this.__mention;
 
+    // Create wrapper for positioning
+    const wrapper = document.createElement("span");
+    wrapper.style.position = "relative";
+    wrapper.style.display = "inline-flex";
+    wrapper.style.alignItems = "center";
+    wrapper.style.userSelect = "none";
+    wrapper.appendChild(dom);
+
+    // Create a close button that appears on hover
+    const closeButton = document.createElement("span");
+    closeButton.innerHTML = "✕";
+    closeButton.style.cssText = `
+      cursor: pointer;
+      padding-left: 4px;
+      font-size: inherit;
+      color: #666;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      user-select: none;
+      pointer-events: all;
+      display: inline;
+      position: absolute;
+      right: -12px;
+      background: rgb(213, 229, 251);
+      padding: 4px 6px;
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+    `;
+    closeButton.className = "mention-close-btn";
+
+    // Show/hide close button on hover
+    dom.addEventListener("mouseenter", () => {
+      closeButton.style.visibility = "visible";
+      setTimeout(() => {
+        closeButton.style.opacity = "1";
+      }, 10);
+    });
+
+    dom.addEventListener("mouseleave", () => {
+      closeButton.style.opacity = "0";
+      setTimeout(() => {
+        if (closeButton.style.opacity === "0") {
+          closeButton.style.visibility = "hidden";
+        }
+      }, 200);
+    });
+
+    // Handle close button click - remove the mention node
+    closeButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      
+      // Store a reference to this node
+      const nodeKey = this.__key;
+      
+      // Find the editor - all nodes are connected to their editor via DOM
+      const editorElement = dom.closest(".editor-input");
+      if (editorElement) {
+        // Dispatch a custom command to remove this node
+        const event = new CustomEvent("lexical-command", {
+          bubbles: true,
+          cancelable: true,
+          detail: { type: "remove-mention", key: nodeKey },
+        });
+        editorElement.dispatchEvent(event);
+      }
+    });
+
+    // Append close button to chip
+    dom.appendChild(closeButton);
+
     // Add image preview on hover functionality
     if (this.__imageRelativeUrl) {
-      // Create wrapper for positioning
-      const wrapper = document.createElement("span");
-      wrapper.style.position = "relative";
-      wrapper.style.cursor = "help";
-      wrapper.appendChild(dom);
-
       // Create a unique ID for this mention element
       const mentionId = `mention-${Math.random().toString(36).substring(2, 11)}`;
       dom.id = mentionId;
 
-      // Create React root for Popover
-      const popoverRoot = document.createElement("div") as PopoverRootElement;
-      popoverRoot.className = "mention-popover-root";
-      document.body.appendChild(popoverRoot);
+      // Create React component with Popover - using global React reference
+      const PopoverComponent = React.lazy(() => Promise.resolve({
+        default: () => {
+          const MentionPopover = () => {
+            const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+            const open = Boolean(anchorEl);
 
-      // Create React component with Popover
-      const renderPopover = () => {
-        const MentionPopover = () => {
-          const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(
-            null
-          );
-          const open = Boolean(anchorEl);
+            React.useEffect(() => {
+              const mentionElement = document.getElementById(mentionId);
 
-          React.useEffect(() => {
-            const mentionElement = document.getElementById(mentionId);
+              const handleMouseEnter = (event: MouseEvent) => {
+                setAnchorEl(event.currentTarget as HTMLElement);
+              };
 
-            const handleMouseEnter = (event: MouseEvent) => {
-              setAnchorEl(event.currentTarget as HTMLElement);
-            };
+              const handleMouseLeave = () => {
+                setAnchorEl(null);
+              };
 
-            const handleMouseLeave = () => {
-              setAnchorEl(null);
-            };
-
-            if (mentionElement) {
-              mentionElement.addEventListener("mouseenter", handleMouseEnter);
-              mentionElement.addEventListener("mouseleave", handleMouseLeave);
-            }
-
-            // Cleanup function
-            return () => {
               if (mentionElement) {
-                mentionElement.removeEventListener(
-                  "mouseenter",
-                  handleMouseEnter
-                );
-                mentionElement.removeEventListener(
-                  "mouseleave",
-                  handleMouseLeave
-                );
+                mentionElement.addEventListener("mouseenter", handleMouseEnter);
+                mentionElement.addEventListener("mouseleave", handleMouseLeave);
               }
-            };
-          }, []);
 
-          // Cleanup the root when unmounted
-          React.useEffect(() => {
-            return () => {
-              if (document.body.contains(popoverRoot)) {
-                document.body.removeChild(popoverRoot);
-              }
-            };
-          }, []);
+              return () => {
+                if (mentionElement) {
+                  mentionElement.removeEventListener("mouseenter", handleMouseEnter);
+                  mentionElement.removeEventListener("mouseleave", handleMouseLeave);
+                }
+              };
+            }, []);
 
-          return (
-            <Popover
-              open={open}
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "center",
-              }}
-              transformOrigin={{
-                vertical: "bottom",
-                horizontal: "center",
-              }}
-              onClose={() => setAnchorEl(null)}
-              disableRestoreFocus
-              disablePortal={false}
-              disableAutoFocus
-              disableEnforceFocus
-              sx={{
-                pointerEvents: "none",
-              }}
-              slotProps={{
-                paper: {
-                  elevation: 2,
-                  sx: {
-                    pointerEvents: "none",
-                    outline: "none",
-                    tabIndex: -1,
-                  },
-                },
-              }}
-              container={document.body}
-            >
-              <img
-                src={formatS3Url(this.__imageRelativeUrl)}
-                alt={this.__mention}
-                style={{
-                  maxWidth: "300px",
-                  maxHeight: "240px",
-                  objectFit: "contain",
-                  borderRadius: "4px",
-                  padding: "4px",
-                  paddingBottom: "0px",
+            return (
+              <Popover
+                open={open}
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "center",
                 }}
-                tabIndex={-1}
-              />
-            </Popover>
-          );
-        };
+                transformOrigin={{
+                  vertical: "bottom",
+                  horizontal: "center",
+                }}
+                onClose={() => setAnchorEl(null)}
+                disableRestoreFocus
+                disablePortal={false}
+                disableAutoFocus
+                disableEnforceFocus
+                sx={{
+                  pointerEvents: "none",
+                }}
+                slotProps={{
+                  paper: {
+                    elevation: 2,
+                    sx: {
+                      pointerEvents: "none",
+                      outline: "none",
+                      tabIndex: -1,
+                    },
+                  },
+                }}
+                container={document.body}
+              >
+                <img
+                  src={formatS3Url(this.__imageRelativeUrl)}
+                  alt={this.__mention}
+                  style={{
+                    maxWidth: "300px",
+                    maxHeight: "240px",
+                    objectFit: "contain",
+                    borderRadius: "4px",
+                    padding: "4px",
+                    paddingBottom: "0px",
+                  }}
+                  tabIndex={-1}
+                />
+              </Popover>
+            );
+          };
+          
+          return <MentionPopover />;
+        }
+      }));
 
-        const root = createRoot(popoverRoot);
-        root.render(<MentionPopover />);
-
-        // Store root for cleanup
-        popoverRoot._reactRoot = root;
-      };
-
-      // We need to wait for React to be available
+      // Use MUI's global PopoverService
+      // This leverages the existing portal support in MUI
       if (typeof window !== "undefined") {
-        setTimeout(renderPopover, 0);
+        // Add a data attribute to track this popover instance
+        dom.dataset.hasPopover = "true";
+        
+        // Use a simple registry to track popover components
+        if (!window.__mentionPopovers) {
+          window.__mentionPopovers = new Map();
+        }
+        
+        // Store the component reference
+        window.__mentionPopovers.set(mentionId, {
+          Component: PopoverComponent,
+          remove: () => {
+            // Cleanup function
+            if (window.__mentionPopovers) {
+              window.__mentionPopovers.delete(mentionId);
+            }
+          }
+        });
       }
 
       // Clean up when the element is removed
@@ -240,12 +311,12 @@ export class MentionNode extends TextNode {
             mutation.type === "childList" &&
             Array.from(mutation.removedNodes).includes(wrapper)
           ) {
-            if (document.body.contains(popoverRoot)) {
-              // Unmount React component if exists
-              if (popoverRoot._reactRoot) {
-                popoverRoot._reactRoot.unmount();
+            // Clean up the popover reference
+            if (window.__mentionPopovers) {
+              const popover = window.__mentionPopovers.get(mentionId);
+              if (popover && popover.remove) {
+                popover.remove();
               }
-              document.body.removeChild(popoverRoot);
             }
             observer.disconnect();
           }
@@ -260,7 +331,7 @@ export class MentionNode extends TextNode {
       return wrapper;
     }
 
-    return dom;
+    return wrapper; // Return wrapper even without image
   }
 
   exportDOM(): DOMExportOutput {
