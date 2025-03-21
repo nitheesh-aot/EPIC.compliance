@@ -19,6 +19,10 @@ import {
   type SerializedTextNode,
   type Spread,
   TextNode,
+  $createRangeSelection,
+  $setSelection,
+  type RangeSelection,
+  $getSelection,
 } from "lexical";
 import React from "react";
 
@@ -112,7 +116,6 @@ export class MentionNode extends TextNode {
       -webkit-user-select: none;
       white-space: nowrap;
       pointer-events: all;
-      caret-color: transparent;
     `;
     dom.className = "mention-chip";
     dom.spellcheck = false;
@@ -126,7 +129,57 @@ export class MentionNode extends TextNode {
     wrapper.style.display = "inline-flex";
     wrapper.style.alignItems = "center";
     wrapper.style.userSelect = "none";
+    wrapper.contentEditable = "false";
     wrapper.appendChild(dom);
+
+    // Add click handler to move cursor to end of mention node
+    dom.addEventListener("click", (e) => {
+      e.stopPropagation();
+      
+      // Reference to this node
+      const nodeKey = this.__key;
+      
+      // Find the editor
+      const editorElement = dom.closest(".editor-input");
+      if (editorElement) {
+        // Dispatch a custom event to handle the selection correctly
+        const event = new CustomEvent("lexical-command", {
+          bubbles: true,
+          cancelable: true,
+          detail: { 
+            type: "move-selection-after-mention", 
+            key: nodeKey 
+          },
+        });
+        editorElement.dispatchEvent(event);
+      }
+    });
+
+    // Handle keyboard navigation
+    dom.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        e.stopPropagation();
+        
+        // Reference to this node
+        const nodeKey = this.__key;
+        
+        // Find the editor
+        const editorElement = dom.closest(".editor-input");
+        if (editorElement) {
+          // Dispatch a custom event to handle the navigation correctly
+          const event = new CustomEvent("lexical-command", {
+            bubbles: true,
+            cancelable: true,
+            detail: { 
+              type: "navigate-from-mention", 
+              key: nodeKey,
+              direction: e.key === "ArrowLeft" ? "left" : "right"
+            },
+          });
+          editorElement.dispatchEvent(event);
+        }
+      }
+    });
 
     // Create a close button that appears on hover
     const closeButton = document.createElement("span");
@@ -370,6 +423,85 @@ export class MentionNode extends TextNode {
 
   canInsertTextAfter(): boolean {
     return false;
+  }
+
+  // Override the select method to always put the cursor at the end of the mention
+  select(/* anchorOffset?: number, focusOffset?: number */): RangeSelection {
+    // Check if there's a space after the mention node
+    const parent = this.getParent();
+    if (parent) {
+      const siblings = parent.getChildren();
+      const nodeIndex = siblings.indexOf(this);
+      const nextNode = nodeIndex < siblings.length - 1 ? siblings[nodeIndex + 1] : null;
+      
+      if (nextNode && nextNode instanceof TextNode && nextNode.getTextContent().startsWith(' ')) {
+        // If there's a space after, put cursor after the space
+        nextNode.select(1, 1);
+        return $getSelection() as RangeSelection;
+      }
+    }
+    
+    // Otherwise put cursor right after the mention node
+    const selection = $createRangeSelection();
+    const textContentSize = this.getTextContentSize();
+    selection.anchor.set(this.getKey(), textContentSize, 'text');
+    selection.focus.set(this.getKey(), textContentSize, 'text');
+    $setSelection(selection);
+    return selection;
+  }
+
+  // Override the selectPrevious method to ensure proper selection behavior
+  selectPrevious(anchorOffset?: number, focusOffset?: number): RangeSelection {
+    // Check if there's a space before the mention node
+    const parent = this.getParent();
+    if (parent) {
+      const siblings = parent.getChildren();
+      const nodeIndex = siblings.indexOf(this);
+      const prevNode = nodeIndex > 0 ? siblings[nodeIndex - 1] : null;
+      
+      if (prevNode && prevNode instanceof TextNode && prevNode.getTextContent().endsWith(' ')) {
+        // If there's a space before, put cursor before the space
+        const prevContentSize = prevNode.getTextContentSize();
+        prevNode.select(prevContentSize - 1, prevContentSize - 1);
+        return $getSelection() as RangeSelection;
+      }
+    }
+    
+    // Place cursor at the start of the node or at the specified offset
+    const selection = $createRangeSelection();
+    const startOffset = anchorOffset !== undefined ? anchorOffset : 0;
+    const endOffset = focusOffset !== undefined ? focusOffset : startOffset;
+    selection.anchor.set(this.getKey(), startOffset, 'text');
+    selection.focus.set(this.getKey(), endOffset, 'text');
+    $setSelection(selection);
+    return selection;
+  }
+
+  // Override the selectNext method to ensure proper selection behavior
+  selectNext(anchorOffset?: number, focusOffset?: number): RangeSelection {
+    // Check if there's a space after the mention node
+    const parent = this.getParent();
+    if (parent) {
+      const siblings = parent.getChildren();
+      const nodeIndex = siblings.indexOf(this);
+      const nextNode = nodeIndex < siblings.length - 1 ? siblings[nodeIndex + 1] : null;
+      
+      if (nextNode && nextNode instanceof TextNode && nextNode.getTextContent().startsWith(' ')) {
+        // If there's a space after, put cursor after the space
+        nextNode.select(1, 1);
+        return $getSelection() as RangeSelection;
+      }
+    }
+    
+    // Place cursor at the end of the node or at the specified offset
+    const selection = $createRangeSelection();
+    const textContentSize = this.getTextContentSize();
+    const startOffset = anchorOffset !== undefined ? anchorOffset : textContentSize;
+    const endOffset = focusOffset !== undefined ? focusOffset : startOffset;
+    selection.anchor.set(this.getKey(), startOffset, 'text');
+    selection.focus.set(this.getKey(), endOffset, 'text');
+    $setSelection(selection);
+    return selection;
   }
 }
 

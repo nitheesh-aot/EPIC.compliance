@@ -22,6 +22,11 @@ import {
   LexicalCommand,
   NodeKey,
   $getNodeByKey,
+  $createRangeSelection,
+  $setSelection,
+  SELECTION_CHANGE_COMMAND,
+  $getSelection,
+  $createTextNode,
 } from "lexical";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { $createMentionNode } from "./MentionNode";
@@ -231,9 +236,17 @@ function MentionsTypeaheadMenuItem({
   );
 }
 
-// Define a command for removing mention nodes
+// Define commands for mention node interactions
 const REMOVE_MENTION_COMMAND: LexicalCommand<{ key: NodeKey }> = createCommand(
   "REMOVE_MENTION_COMMAND"
+);
+
+const MOVE_SELECTION_AFTER_MENTION_COMMAND: LexicalCommand<{ key: NodeKey }> = createCommand(
+  "MOVE_SELECTION_AFTER_MENTION_COMMAND"
+);
+
+const NAVIGATE_FROM_MENTION_COMMAND: LexicalCommand<{ key: NodeKey, direction: 'left' | 'right' }> = createCommand(
+  "NAVIGATE_FROM_MENTION_COMMAND"
 );
 
 export default function MentionsPlugin({
@@ -274,10 +287,74 @@ export default function MentionsPlugin({
           undefined,
           selectedOption.mentionData.imageRelativeUrl
         );
+        
+        // Check if there's a node to replace (from @ typing)
         if (nodeToReplace) {
-          nodeToReplace.replace(mentionNode);
+          // Get the parent of the node to replace
+          const parentNode = nodeToReplace.getParent();
+          
+          if (parentNode) {
+            // Check if there's already a space before the node
+            const siblings = parentNode.getChildren();
+            const nodeIndex = siblings.indexOf(nodeToReplace);
+            const prevNode = nodeIndex > 0 ? siblings[nodeIndex - 1] : null;
+            
+            // Add a space before if needed and if not at the beginning of the parent
+            const needsSpaceBefore = 
+              nodeIndex > 0 && 
+              prevNode && 
+              prevNode instanceof TextNode && 
+              !prevNode.getTextContent().endsWith(' ');
+              
+            if (needsSpaceBefore) {
+              const spaceNodeBefore = $createTextNode(' ');
+              nodeToReplace.insertBefore(spaceNodeBefore);
+            }
+            
+            // Replace the @ text with the mention node
+            nodeToReplace.replace(mentionNode);
+            
+            // Add a space after the mention node
+            const spaceNodeAfter = $createTextNode(' ');
+            mentionNode.insertAfter(spaceNodeAfter);
+            
+            // Set selection after the space
+            spaceNodeAfter.select();
+          } else {
+            // Fallback if no parent
+            nodeToReplace.replace(mentionNode);
+            
+            // Add a space after the mention node
+            const spaceNode = $createTextNode(' ');
+            mentionNode.insertAfter(spaceNode);
+            
+            // Set selection after the space
+            spaceNode.select();
+          }
+        } else {
+          // If no node to replace, just insert the mention node at current selection
+          const selection = $getSelection();
+          if (selection) {
+            // Insert a space before if needed
+            const textContent = selection.getTextContent();
+            const needsSpaceBefore = textContent.length > 0 && !textContent.endsWith(' ');
+            
+            if (needsSpaceBefore) {
+              const spaceNodeBefore = $createTextNode(' ');
+              selection.insertNodes([spaceNodeBefore, mentionNode]);
+            } else {
+              selection.insertNodes([mentionNode]);
+            }
+            
+            // Add a space after
+            const spaceNodeAfter = $createTextNode(' ');
+            mentionNode.insertAfter(spaceNodeAfter);
+            
+            // Put cursor after the space
+            spaceNodeAfter.select();
+          }
         }
-        mentionNode.select();
+        
         closeMenu();
       });
     },
@@ -295,7 +372,7 @@ export default function MentionsPlugin({
     [checkForSlashTriggerMatch, editor]
   );
 
-  // Register a listener for the custom DOM event
+  // Register a listener for the custom DOM events
   useEffect(() => {
     // Function to handle the custom event from DOM
     const handleCustomEvent = (e: Event) => {
@@ -303,6 +380,15 @@ export default function MentionsPlugin({
       if (customEvent.detail?.type === "remove-mention") {
         editor.dispatchCommand(REMOVE_MENTION_COMMAND, {
           key: customEvent.detail.key,
+        });
+      } else if (customEvent.detail?.type === "move-selection-after-mention") {
+        editor.dispatchCommand(MOVE_SELECTION_AFTER_MENTION_COMMAND, {
+          key: customEvent.detail.key,
+        });
+      } else if (customEvent.detail?.type === "navigate-from-mention") {
+        editor.dispatchCommand(NAVIGATE_FROM_MENTION_COMMAND, {
+          key: customEvent.detail.key,
+          direction: customEvent.detail.direction,
         });
       }
     };
@@ -321,19 +407,50 @@ export default function MentionsPlugin({
     };
   }, [editor]);
 
-  // Register a command listener for removing mention nodes
+  // Register command listeners for mention node interactions
   useEffect(() => {
-    return editor.registerCommand(
+    // Command to remove a mention node
+    const removeListener = editor.registerCommand(
       REMOVE_MENTION_COMMAND,
       (payload) => {
         editor.update(() => {
           const nodeKey = payload.key;
-          const node = editor.getElementByKey(nodeKey);
-          if (node) {
-            // Find the node and remove it
-            const lexicalNode = $getNodeByKey(nodeKey);
-            if (lexicalNode) {
-              lexicalNode.remove();
+          const mentionNode = $getNodeByKey(nodeKey);
+          
+          if (mentionNode) {
+            // Get parent and check surrounding nodes for spaces
+            const parent = mentionNode.getParent();
+            if (parent) {
+              const siblings = parent.getChildren();
+              const nodeIndex = siblings.indexOf(mentionNode);
+              
+              // Check for space nodes before and after
+              const prevNode = nodeIndex > 0 ? siblings[nodeIndex - 1] : null;
+              const nextNode = nodeIndex < siblings.length - 1 ? siblings[nodeIndex + 1] : null;
+              
+              // Check if we have spaces on both sides
+              const hasPrevSpace = prevNode instanceof TextNode && prevNode.getTextContent() === ' ';
+              const hasNextSpace = nextNode instanceof TextNode && nextNode.getTextContent() === ' ';
+              
+              // Remove the mention node
+              mentionNode.remove();
+              
+              // If there were spaces on both sides, remove one to avoid double spaces
+              if (hasPrevSpace && hasNextSpace && prevNode && nextNode) {
+                prevNode.remove();
+                
+                // Set selection after the remaining space
+                nextNode.select(0, 0);
+              } else if (hasPrevSpace && prevNode) {
+                // Just set selection after the space before
+                prevNode.select(prevNode.getTextContentSize(), prevNode.getTextContentSize());
+              } else if (hasNextSpace && nextNode) {
+                // Set selection before the space after
+                nextNode.select(0, 0);
+              }
+            } else {
+              // Fallback - just remove the node
+              mentionNode.remove();
             }
           }
         });
@@ -341,6 +458,122 @@ export default function MentionsPlugin({
       },
       COMMAND_PRIORITY_LOW
     );
+
+    // Command to move selection after a mention node
+    const moveSelectionListener = editor.registerCommand(
+      MOVE_SELECTION_AFTER_MENTION_COMMAND,
+      (payload) => {
+        editor.update(() => {
+          const nodeKey = payload.key;
+          const mentionNode = $getNodeByKey(nodeKey);
+          
+          if (mentionNode) {
+            // Check if there's a space after the mention node
+            const parent = mentionNode.getParent();
+            if (parent) {
+              const siblings = parent.getChildren();
+              const nodeIndex = siblings.indexOf(mentionNode);
+              const nextNode = nodeIndex < siblings.length - 1 ? siblings[nodeIndex + 1] : null;
+              
+              if (nextNode && nextNode instanceof TextNode && nextNode.getTextContent().startsWith(' ')) {
+                // If there's a space after, put cursor after the space
+                nextNode.select(1, 1);
+              } else {
+                // If no space after, put cursor right after the mention
+                const selection = $createRangeSelection();
+                selection.anchor.set(mentionNode.getKey(), mentionNode.getTextContentSize(), 'text');
+                selection.focus.set(mentionNode.getKey(), mentionNode.getTextContentSize(), 'text');
+                $setSelection(selection);
+              }
+            } else {
+              // Fallback to putting cursor right after the mention
+              const selection = $createRangeSelection();
+              selection.anchor.set(mentionNode.getKey(), mentionNode.getTextContentSize(), 'text');
+              selection.focus.set(mentionNode.getKey(), mentionNode.getTextContentSize(), 'text');
+              $setSelection(selection);
+            }
+          }
+        });
+        return true;
+      },
+      COMMAND_PRIORITY_LOW
+    );
+
+    // Command to navigate from a mention node using arrow keys
+    const navigateListener = editor.registerCommand(
+      NAVIGATE_FROM_MENTION_COMMAND,
+      (payload) => {
+        const { key, direction } = payload;
+        
+        editor.update(() => {
+          const mentionNode = $getNodeByKey(key);
+          if (!mentionNode) return;
+          
+          const parent = mentionNode.getParent();
+          if (parent) {
+            const siblings = parent.getChildren();
+            const nodeIndex = siblings.indexOf(mentionNode);
+            
+            if (direction === 'left') {
+              // Check for space before the mention
+              const prevNode = nodeIndex > 0 ? siblings[nodeIndex - 1] : null;
+              
+              if (prevNode && prevNode instanceof TextNode && prevNode.getTextContent().endsWith(' ')) {
+                // If there's a space before, put cursor before the space
+                prevNode.select(prevNode.getTextContentSize() - 1, prevNode.getTextContentSize() - 1);
+              } else {
+                // Otherwise position cursor before the mention node
+                const selection = $createRangeSelection();
+                selection.anchor.set(mentionNode.getKey(), 0, 'text');
+                selection.focus.set(mentionNode.getKey(), 0, 'text');
+                $setSelection(selection);
+              }
+            } else {
+              // Right direction - check for space after the mention
+              const nextNode = nodeIndex < siblings.length - 1 ? siblings[nodeIndex + 1] : null;
+              
+              if (nextNode && nextNode instanceof TextNode && nextNode.getTextContent().startsWith(' ')) {
+                // If there's a space after, put cursor after the space
+                nextNode.select(1, 1);
+              } else {
+                // Otherwise position cursor after the mention node
+                const selection = $createRangeSelection();
+                selection.anchor.set(mentionNode.getKey(), mentionNode.getTextContentSize(), 'text');
+                selection.focus.set(mentionNode.getKey(), mentionNode.getTextContentSize(), 'text');
+                $setSelection(selection);
+              }
+            }
+          } else {
+            // Fallback to default behavior
+            const selection = $createRangeSelection();
+            
+            if (direction === 'left') {
+              selection.anchor.set(mentionNode.getKey(), 0, 'text');
+              selection.focus.set(mentionNode.getKey(), 0, 'text');
+            } else {
+              selection.anchor.set(mentionNode.getKey(), mentionNode.getTextContentSize(), 'text');
+              selection.focus.set(mentionNode.getKey(), mentionNode.getTextContentSize(), 'text');
+            }
+            
+            $setSelection(selection);
+          }
+        });
+        
+        // Dispatch selection change to update UI
+        setTimeout(() => {
+          editor.dispatchCommand(SELECTION_CHANGE_COMMAND, undefined);
+        }, 0);
+        
+        return true;
+      },
+      COMMAND_PRIORITY_LOW
+    );
+
+    return () => {
+      removeListener();
+      moveSelectionListener();
+      navigateListener();
+    };
   }, [editor]);
 
   return (
