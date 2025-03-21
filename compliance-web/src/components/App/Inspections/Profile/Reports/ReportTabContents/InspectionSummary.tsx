@@ -1,7 +1,7 @@
 import { Typography } from "@mui/material";
 import IRBoxContainer from "./IRBoxContainer";
 import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   useResetInspectionRecord,
   useUpdateInspectionRecord,
@@ -18,16 +18,31 @@ const InspectionSummary = () => {
     setInspectionScope,
     setFindingsStatement,
   } = useReportStore();
+  const [isInspectionScopeChanged, setIsInspectionScopeChanged] =
+    useState(false);
+  const [isFindingsStatementChanged, setIsFindingsStatementChanged] =
+    useState(false);
 
   useEffect(() => {
     setInspectionScope(inspectionReportsData?.inspection_scope ?? "");
     setFindingsStatement(inspectionReportsData?.finding_statement ?? "");
+    setChanges(inspectionReportsData);
   }, [inspectionReportsData, setFindingsStatement, setInspectionScope]);
 
   const handleOnSuccess = (data: InspectionRecord) => {
     setInspectionScope(data.inspection_scope ?? "");
     setFindingsStatement(data.finding_statement ?? "");
+    setChanges(data);
     notify.success("Inspection summary updated");
+  };
+
+  const setChanges = (data?: InspectionRecord) => {
+    setIsInspectionScopeChanged(
+      data?.field_change_info?.inspection_scope_changed ?? false
+    );
+    setIsFindingsStatementChanged(
+      data?.field_change_info?.finding_statement_changed ?? false
+    );
   };
 
   const { mutate: updateInspectionRecord } =
@@ -66,7 +81,11 @@ const InspectionSummary = () => {
         onEditSubmit={(editorValue) =>
           handleSaveInspectionSummary(editorValue, "inspection_scope")
         }
-        onReset={() => handleResetInspectionSummary("inspection_scope")}
+        onReset={
+          isInspectionScopeChanged
+            ? () => handleResetInspectionSummary("inspection_scope")
+            : undefined
+        }
       >
         <Typography
           variant="body1"
@@ -81,7 +100,11 @@ const InspectionSummary = () => {
         onEditSubmit={(editorValue) =>
           handleSaveInspectionSummary(editorValue, "finding_statement")
         }
-        onReset={() => handleResetInspectionSummary("finding_statement")}
+        onReset={
+          isFindingsStatementChanged
+            ? () => handleResetInspectionSummary("finding_statement")
+            : undefined
+        }
       >
         <Typography
           variant="body1"

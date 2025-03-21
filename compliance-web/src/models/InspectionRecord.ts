@@ -16,4 +16,9 @@ export interface InspectionRecord {
   is_active?: boolean;
   mailing_address?: string;
   preliminary_review_details?: string;
+  field_change_info?: {
+    inspection_scope_changed?: boolean;
+    finding_statement_changed?: boolean;
+    preliminary_review_details_changed?: boolean;
+  };
 }

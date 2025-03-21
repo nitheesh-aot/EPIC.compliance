@@ -67,7 +67,7 @@ class InspectionRecordService:
         if field_name in change_track_required_fields:
             #  This check is to make sure the value has actually changed
             if getattr(inspection_record, field_name) != value:
-                change_info = dict(inspection_record.field_change_info)
+                change_info = dict(inspection_record.field_change_info or {})
                 change_info[f"{field_name}_changed"] = True
                 ir_update_data["field_change_info"] = change_info
         updated_inspection_record = InspectionRecordModel.update_inspection_record(
