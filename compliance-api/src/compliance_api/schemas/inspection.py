@@ -390,15 +390,15 @@ class InspectionStatusSchema(BaseSchema):
             data["status"] = status_enum.value
         return data
 
-    @validates_schema
-    def validate_status(
-        self, data, **kwargs
-    ):  # pylint: disable=no-self-use, unused-argument
-        """Ensure only Closed and Canceled status are passed."""
-        # Retrieve the context to access other fields
-        status = data.get("status")
-        if status not in [InspectionStatusEnum.CANCELED, InspectionStatusEnum.CLOSED]:
-            raise ValidationError(
-                "Invalid status value passed",
-                field_name="status",
-            )
+    # @validates_schema
+    # def validate_status(
+    #     self, data, **kwargs
+    # ):  # pylint: disable=no-self-use, unused-argument
+    #     """Ensure only Closed and Canceled status are passed."""
+    #     # Retrieve the context to access other fields
+    #     status = data.get("status")
+    #     if status not in [InspectionStatusEnum.CANCELED, InspectionStatusEnum.CLOSED]:
+    #         raise ValidationError(
+    #             "Invalid status value passed",
+    #             field_name="status",
+    #         )
