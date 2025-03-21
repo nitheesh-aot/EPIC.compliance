@@ -1,7 +1,7 @@
 export type MentionData = {
   id: number;
   name: string;
-  imageUrl?: string;
+  imageRelativeUrl?: string;
 };
 
 export const LexicalTheme = {
