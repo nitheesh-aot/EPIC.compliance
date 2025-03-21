@@ -96,6 +96,11 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
         response.headers["Cross-Origin-Embedder-Policy"] = "unsafe-none"
         return response
 
+    @app.teardown_request
+    def cleanup(exception=None):
+        """Execute teardown actions."""
+        db.session.remove()
+
     @app.errorhandler(Exception)
     def handle_error(err):
         if run_mode != "production":
