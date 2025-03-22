@@ -8,7 +8,6 @@ import { RequirementSourceEnum } from "@/utils/constants";
 import * as yup from "yup";
 import { Image, ImageAPIData } from "@/models/Image";
 import dateUtils from "@/utils/dateUtils";
-import { formatS3Url } from "@/utils/appUtils";
 import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
 export const REQUIREMENT_TYPE_ID = "REQ";
 export const REGULATORY_CONSIDERATION_TYPE_ID = "REG";
@@ -215,7 +214,7 @@ export const formatImagesToMentionList = (images: Image[]): MentionData[] => {
   return images.map((image, index) => ({
     id: image.id ?? 0,
     name: `${image.image_type ?? ""} ${index + 1}`,
-    imageUrl: formatS3Url(image.relative_url ?? ""),
+    imageRelativeUrl: image.relative_url ?? "",
   }));
 }
 

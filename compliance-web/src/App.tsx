@@ -33,7 +33,7 @@ function App() {
           </AuthProvider>
         </ThemeProvider>
         {environment === "local" && (
-          <ReactQueryDevtools initialIsOpen={false} />
+          <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
         )}
       </QueryClientProvider>
     </>

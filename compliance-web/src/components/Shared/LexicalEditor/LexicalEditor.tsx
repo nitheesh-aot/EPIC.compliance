@@ -22,6 +22,7 @@ import TableHoverActionsPlugin from "./TablePlugins/TableHoverActions";
 import { MentionNode } from "./MentionPlugins/MentionNode";
 import MentionsPlugin from "./MentionPlugins/Mentions";
 import { LexicalTheme, MentionData } from "./LexicalUtils";
+import { PopoverManager } from "./MentionPlugins/PopoverManager";
 
 export type TextEditorValue = {
   html: string;
@@ -177,6 +178,7 @@ const LexicalEditor = ({
           <HistoryPlugin />
         </Box>
       </Box>
+      <PopoverManager />
     </LexicalComposer>
   );
 };
