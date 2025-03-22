@@ -2,7 +2,7 @@ replicaCount: 1
 cors_origin: https://compliance-web-c8b80a-dev.apps.gold.devops.gov.bc.ca,http://localhost:5173,https://dev.compliance.eao.gov.bc.ca
 
 image:
-  repository: compliance-api
+  repository: image-registry.openshift-image-registry.svc:5000/c8b80a-tools/compliance-api
   pullPolicy: Always
   namespace: c8b80a-tools
   # Overrides the image tag whose default is the chart appVersion.
@@ -13,7 +13,7 @@ resources:
     limit: 250m
     request: 150m
   memory:
-    limit: 384Mi
+    limit: 300Mi
     request: 256Mi
 
 database:
@@ -22,9 +22,13 @@ database:
     name: compliance-patroni
     port: 5432
 
-authorize:
-  base_url: https://auth-api-c72cba-dev.apps.gold.devops.gov.bc.ca
-
+auth_service:
+  url: https://auth-api-c72cba-dev.apps.gold.devops.gov.bc.ca
+track_service:
+  url: https://epictrack-api-c72cba-dev.apps.gold.devops.gov.bc.ca
+storage_service:
+  url: https://nrs.objectstore.gov.bc.ca
+  s3_bucket: dev-epic-submit
 doc_service:
   url: https://epic-document-api-c8b80a-dev.apps.gold.devops.gov.bc.ca
 
