@@ -29,4 +29,4 @@ else
 fi
 
 echo 'starting application'
-gunicorn --bind 0.0.0.0:8080 --timeout 60 --workers 1 --worker-class=gevent --worker-connections=1000  wsgi:application
+gunicorn --bind 0.0.0.0:8080 --timeout 60 --workers 2 --worker-class=gevent --worker-connections=250  wsgi:application
