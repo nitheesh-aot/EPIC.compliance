@@ -84,9 +84,15 @@ class BaseModel(db.Model):
 
     def save(self):
         """Save and commit."""
-        db.session.add(self)
-        db.session.flush()
-        db.session.commit()
+        try:
+            db.session.add(self)
+            db.session.flush()
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
+        finally:
+            db.session.close()
 
     def update(self, payload: dict, commit=True):
         """Update and commit."""
@@ -98,9 +104,15 @@ class BaseModel(db.Model):
 
     def delete(self):
         """Delete and commit."""
-        db.session.delete(self)
-        db.session.flush()
-        db.session.commit()
+        try:
+            db.session.delete(self)
+            db.session.flush()
+            db.session.commit()
+        except:
+            db.session.rollback()
+            raise
+        finally:
+            db.session.close()
 
     @staticmethod
     def rollback():
