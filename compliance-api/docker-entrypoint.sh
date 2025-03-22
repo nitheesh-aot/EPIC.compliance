@@ -28,5 +28,19 @@ else
   echo "[entrypoint] Vault secrets directory (${VAULT_SECRETS_DIR}) does not exist. Proceeding without Vault secrets."
 fi
 
-echo 'starting application'
-gunicorn --bind 0.0.0.0:8080 --timeout 60 --workers 2 --worker-class=gevent --worker-connections=250  wsgi:application
+# Get worker configuration from environment variables with defaults
+GUNICORN_WORKERS=${GUNICORN_WORKERS:-2}
+GUNICORN_WORKER_CONNECTIONS=${GUNICORN_WORKER_CONNECTIONS:-250}
+GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-60}
+
+echo "[entrypoint] Starting application with:"
+echo "  - Workers: $GUNICORN_WORKERS"
+echo "  - Worker Connections: $GUNICORN_WORKER_CONNECTIONS"
+echo "  - Timeout: $GUNICORN_TIMEOUT"
+
+gunicorn --bind 0.0.0.0:8080 \
+  --timeout $GUNICORN_TIMEOUT \
+  --workers $GUNICORN_WORKERS \
+  --worker-class=gevent \
+  --worker-connections=$GUNICORN_WORKER_CONNECTIONS \
+  wsgi:application
