@@ -18,3 +18,7 @@ data:
   KEYCLOAK_REALM_NAME: {{ .Values.auth.keycloak.realm }}
   CONNECT_TIMEOUT: "{{ .Values.python.connectTimeout }}"
   DOC_SERVICE_URL: {{ .Values.doc_service.url }}
+  EPIC_TRACK_URL: {{ .Values.track_service.url }}
+  AUTH_BASE_URL: {{ .Values.auth_service.url }}
+  STORAGE_HOST_URL: {{ .Values.storage_service.url }}
+  S3_BUCKET: {{ .Values.storage_service.s3_bucket }}

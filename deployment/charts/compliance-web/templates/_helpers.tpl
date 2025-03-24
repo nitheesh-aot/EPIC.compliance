@@ -60,3 +60,19 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Calculate image hash
+*/}}
+{{- define "compliance-web.imageHash" -}}
+{{- $imageString := printf "%s%s:%s" .Values.image.repository (tpl .Values.image.name .) .Values.image.tag -}}
+{{- $imageString | sha256sum -}}
+{{- end -}}
+
+{{/*
+Calculate config hash
+*/}}
+{{- define "compliance-web.configHash" -}}
+{{- $configMap := include (print .Template.BasePath "/configmap.yaml") . -}}
+{{- $configMap | sha256sum -}}
+{{- end -}}

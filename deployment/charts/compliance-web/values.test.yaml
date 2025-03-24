@@ -1,16 +1,16 @@
 app:
   name: compliance
-  url: "https://dev.compliance.eao.gov.bc.ca"
-  api: https://compliance-api-c8b80a-dev.apps.gold.devops.gov.bc.ca
-  env: dev
-  auth_url: https://auth-api-c72cba-dev.apps.gold.devops.gov.bc.ca
-  track_api_url: https://epictrack-api-c72cba-dev.apps.gold.devops.gov.bc.ca
-  doc_service_url: https://epic-document-api-c8b80a-dev.apps.gold.devops.gov.bc.ca
+  url: "https://test.compliance.eao.gov.bc.ca"
+  api: https://compliance-api-c8b80a-test.apps.gold.devops.gov.bc.ca
+  env: test
+  auth_url: https://auth-api-c72cba-test.apps.gold.devops.gov.bc.ca
+  track_api_url: https://epictrack-api-c72cba-test.apps.gold.devops.gov.bc.ca
+  doc_service_url: https://epic-document-api-c8b80a-test.apps.gold.devops.gov.bc.ca
   version: 1.0.0
   in_progress_features: []
   client_id: "epic-compliance"
 aws:
-  s3_bucket: "dev-epic-submit"
+  s3_bucket: "test-epic-submit"
   s3_url: "https://nrs.objectstore.gov.bc.ca"
 resources:
   cpu:
@@ -21,11 +21,11 @@ resources:
     request: 100Mi
 image:
   name: compliance-web
-  tag: dev
+  tag: test
   namespace: c8b80a-tools
   repository: image-registry.openshift-image-registry.svc:5000/c8b80a-tools
 keycloak:
-  url: "https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic"
+  url: "https://test.loginproxy.gov.bc.ca/auth/realms/eao-epic"
   client: epic-compliance
 service:
   port: 8080
