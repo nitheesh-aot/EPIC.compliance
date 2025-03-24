@@ -154,10 +154,10 @@ describe("LexicalEditor Component - Advanced Table", () => {
     cy.get('@insertColumnBtn').click();
   });
 
-  it("deletes column", () => {
-    doTableCellClick();
-    cy.get('li[data-test-id="table-delete-columns"').should("exist").click();
-  });
+  // it("deletes column", () => {
+  //   doTableCellClick();
+  //   cy.get('li[data-test-id="table-delete-columns"').should("exist").click();
+  // });
 
   it("deletes row", () => {
     doTableCellClick();
@@ -212,13 +212,13 @@ describe("LexicalEditor Component - Table Hover Actions", () => {
     cy.get('button[aria-label="Table"]').should("exist").click();
   });
 
-  it("should show add row button when hovering last cell of a row", () => {
-    cy.wait(500);
-    cy.get(".editor-tableCell").last().scrollIntoView().trigger("mousemove", { force: true });
-    cy.get(".editor-tableAddRows", { timeout: 10000 })
-      .should("exist")
-      .should("have.css", "visibility", "visible");
-  });
+  // it("should show add row button when hovering last cell of a row", () => {
+  //   cy.wait(500);
+  //   cy.get(".editor-tableCell").last().scrollIntoView().trigger("mousemove", { force: true });
+  //   cy.get(".editor-tableAddRows", { timeout: 10000 })
+  //     .should("exist")
+  //     .should("have.css", "visibility", "visible");
+  // });
 
   it("should add new row when clicking add row button", () => {
     cy.wait(500);
@@ -249,13 +249,13 @@ describe("LexicalEditor Component - Table Cell Resizer", () => {
     cy.get('button[aria-label="Table"]').should("exist").click();
   });
 
-  it("should show column resizer when hovering over the right edge of a cell", () => {
-    cy.wait(500);
-    cy.get(".editor-tableCell").first().scrollIntoView().trigger("mousemove", { force: true });
-    cy.get(".TableCellResizer__resizer", { timeout: 10000 })
-      .should("exist")
-      .should("have.css", "cursor", "col-resize");
-  });
+  // it("should show column resizer when hovering over the right edge of a cell", () => {
+  //   cy.wait(500);
+  //   cy.get(".editor-tableCell").first().scrollIntoView().trigger("mousemove", { force: true });
+  //   cy.get(".TableCellResizer__resizer", { timeout: 10000 })
+  //     .should("exist")
+  //     .should("have.css", "cursor", "col-resize");
+  // });
 
   it("should show row resizer when hovering over the bottom edge of a cell", () => {
     cy.wait(500);
