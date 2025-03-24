@@ -65,8 +65,8 @@ Create the name of the service account to use
 Calculate image hash
 */}}
 {{- define "compliance-api.imageHash" -}}
-{{- $imageStream := include (print .Template.BasePath "/imagestream.yaml") . -}}
-{{- $imageStream | sha256sum -}}
+{{- $imageString := printf "%s:%s" .Values.image.repository .Values.image.tag -}}
+{{- $imageString | sha256sum -}}
 {{- end -}}
 
 {{/*

@@ -60,8 +60,8 @@ cdogs:
   clientSecret:
 
 vault:
-  secretName: compliance.dev.env
-  path: c8b80a-nonprod/compliance.dev.env
+  secretName: compliance.test.env
+  path: c8b80a-nonprod/compliance.test.env
   authPath: auth/k8s-gold
   namespace: platform-services
   role: c8b80a-nonprod

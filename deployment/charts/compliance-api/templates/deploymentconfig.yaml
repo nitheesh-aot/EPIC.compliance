@@ -19,7 +19,7 @@ spec:
       labels:
         app: {{ .Chart.Name }}
       annotations:
-        hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/agent-inject-secret-{{ .Values.vault.secretName }}: {{ .Values.vault.path }}
         vault.hashicorp.com/agent-inject-template-{{ .Values.vault.secretName }}: |
           {{`{{`}} with secret "{{ .Values.vault.path }}" {{`}}`}}
@@ -37,6 +37,13 @@ spec:
       - name: pre-hook
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         command: ["/opt/app-root/pre-hook-update-db.sh"]
+        resources:
+          limits:
+            cpu: {{ .Values.resources.cpu.limit }}
+            memory: {{ .Values.resources.memory.limit }}
+          requests:
+            cpu: {{ .Values.resources.cpu.request }}
+            memory: {{ .Values.resources.memory.request }}
         env:
           - name: DATABASE_USERNAME
             valueFrom:
@@ -57,6 +64,7 @@ spec:
             value: {{ .Values.database.service.name }}
           - name: DATABASE_PORT
             value: "{{ .Values.database.service.port }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
