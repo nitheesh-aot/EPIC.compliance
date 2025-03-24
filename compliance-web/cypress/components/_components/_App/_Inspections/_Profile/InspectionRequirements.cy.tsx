@@ -175,6 +175,7 @@ const mockInspection: Inspection = {
     primary_officer: undefined,
   },
   project_status: { id: "1", name: "Active" },
+  debrief_date: "2023-01-03",
 };
 
 describe("InspectionRequirements Component", () => {

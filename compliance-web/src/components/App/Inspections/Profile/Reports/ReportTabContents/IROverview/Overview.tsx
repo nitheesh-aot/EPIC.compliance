@@ -142,10 +142,10 @@ const Overview = () => {
           />
           <GridLabelValuePair
             label="Inspecting Officer"
-            value={inspectingOfficers.map((value) => (
+            value={inspectingOfficers.map((value, index) => (
               <span
                 style={{ lineHeight: "normal", marginBottom: "4px" }}
-                key={value.id}
+                key={`${value.id}-${index}`}
               >
                 {renderOfficerName(value)}
               </span>
