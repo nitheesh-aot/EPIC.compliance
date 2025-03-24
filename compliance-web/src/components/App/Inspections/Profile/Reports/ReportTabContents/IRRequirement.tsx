@@ -118,10 +118,16 @@ const IRRequirement = ({
       queryClient.invalidateQueries({
         queryKey: ["inspection-requirements", inspectionData?.id],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["inspection-requirement-images", inspectionData?.id, requirement?.id, "photos"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["inspection-requirement-images", inspectionData?.id, requirement?.id, "figures"],
+      });
       notify.success(submitMsg);
       setClose();
     },
-    [setClose, inspectionData, queryClient]
+    [setClose, inspectionData, requirement, queryClient]
   );
 
   const handleOpenEditRequirementModal = useCallback(() => {

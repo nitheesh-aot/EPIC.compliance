@@ -85,7 +85,7 @@ const IRBoxContainer = ({
           justifyContent: "space-between",
           alignItems: "center",
           px: 3,
-          height: 40,
+          minHeight: 40,
           borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
         }}
       >

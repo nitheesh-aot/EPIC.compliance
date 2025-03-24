@@ -12,6 +12,7 @@ const ActionsRequired = () => {
     inspectionReportsData,
     actionsRequired,
     setActionsRequired,
+    setInspectionReportsData,
   } = useReportStore();
 
   useEffect(() => {
@@ -19,7 +20,7 @@ const ActionsRequired = () => {
   }, [inspectionReportsData, setActionsRequired]);
 
   const handleOnSuccess = (data: InspectionRecord) => {
-    setActionsRequired(data.action_required_by_rp ?? "");
+    setInspectionReportsData(data);
     notify.success("Actions required updated");
   };
 
