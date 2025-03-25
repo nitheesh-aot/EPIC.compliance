@@ -12,7 +12,7 @@ import { notify } from "@/store/snackbarStore";
 import { InspectionRecord } from "@/models/InspectionRecord";
 
 const ProjectOverview = () => {
-  const { inspectionData, caseFileData, inspectionReportsData } =
+  const { inspectionData, caseFileData, inspectionReportsData, setInspectionReportsData } =
     useReportStore();
   const { setOpen, setClose } = usePopover();
   const [mailingAddress, setMailingAddress] = useState("");
@@ -23,7 +23,7 @@ const ProjectOverview = () => {
 
   const handleOnSuccess = (data: InspectionRecord) => {
     notify.success("Mailing address updated");
-    setMailingAddress(data.mailing_address ?? "");
+    setInspectionReportsData(data);
     setClose();
   };
 

@@ -175,6 +175,7 @@ const mockInspection: Inspection = {
     primary_officer: undefined,
   },
   project_status: { id: "1", name: "Active" },
+  debrief_date: "2023-01-03",
 };
 
 describe("InspectionRequirements Component", () => {
@@ -276,10 +277,14 @@ describe("InspectionRequirements Component", () => {
 
     // Click on the first requirement
     cy.get("[data-cy=requirement-card-title]").eq(0).click();
-
+    
+    // Wait for the drawer to be fully visible before clicking the edit button
+    cy.get("div[role=presentation]").should("be.visible");
+    
+    // Use { force: true } to ensure we click even if there's a transition happening
     cy.get("[data-cy=editable-requirement-button]")
       .should("be.visible")
-      .click();
+      .click({ force: true });
 
     cy.get("button[aria-label=close]").should("be.visible").click();
   });
@@ -312,9 +317,12 @@ describe("InspectionRequirements Component", () => {
   });
 
   it("handles adding a new requirement", () => {
-    // Click on add requirement button
-    cy.get("[data-cy=new-requirement-button]").click();
+    // Click on add requirement button with force option
+    cy.get("[data-cy=new-requirement-button]").click({ force: true });
 
+    // Wait for the form to be visible before interacting with it
+    cy.get("input[name=requirementSummary]").should("be.visible");
+    
     // Fill in the form fields
     cy.get("input[name=requirementSummary]").type("New Requirement");
     cy.get("input[name=topic]").click();

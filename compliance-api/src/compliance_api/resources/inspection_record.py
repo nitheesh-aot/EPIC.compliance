@@ -200,6 +200,7 @@ class InspectionRecordApproval(Resource):
         return InspectionRecordApprovalSchema().dump(updated_approval), HTTPStatus.OK
 
 
+@cors_preflight("OPTIONS, PATCH")
 @API.route("/<int:inspection_record_id>/reset", methods=["PATCH", "OPTIONS"])
 class InspectionRecordReset(Resource):
     """Resource for resetting inspection record fields."""

@@ -98,6 +98,11 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     [setOpen, handleOnSubmit, inspectionData, regulatoryConsideration]
   );
 
+  const handleSortOrderChange = useCallback((newOrder: InspectionRequirement[]) => {
+    setInspectionRequirements(newOrder);
+    queryClient.setQueryData(['inspection-requirements', inspectionData.id], newOrder);
+  }, [inspectionData, queryClient]);
+
   React.useEffect(() => {
     if (!isOpen) {
       setActiveRequirementId(null);
@@ -126,7 +131,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
       </Box>
       <Reorder.Group
         axis="y"
-        onReorder={setInspectionRequirements}
+        onReorder={handleSortOrderChange}
         values={inspectionRequirements}
         className="reorder-list"
       >

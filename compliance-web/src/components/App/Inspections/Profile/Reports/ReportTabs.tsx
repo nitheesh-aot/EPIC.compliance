@@ -193,7 +193,7 @@ export default function ReportTabs() {
         >
           {tabItems.map((item, index) => (
             <Tab
-              key={index}
+              key={`tab-${index}`}
               label={
                 <Box
                   sx={{
@@ -215,7 +215,7 @@ export default function ReportTabs() {
           ))}
         </Tabs>
         {tabItems.map((item, index) => (
-          <ReportPanel key={index} value={value} index={index}>
+          <ReportPanel key={`panel-${index}`} value={value} index={index}>
             {item.component}
           </ReportPanel>
         ))}
