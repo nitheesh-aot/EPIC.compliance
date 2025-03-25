@@ -3,7 +3,9 @@
 This module is for the initiation of the flask app.
 """
 
+# import gc
 import os
+# import random
 # import ssl
 from http import HTTPStatus
 
@@ -90,11 +92,19 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
     @app.after_request
     def set_secure_headers(response):
         """Set CORS headers for security."""
+        # if random.random() < 0.1:  # Only run GC 10% of the time
+        #     gc.collect()
         secure_headers.framework.flask(response)
         response.headers.add("Cross-Origin-Resource-Policy", "*")
         response.headers["Cross-Origin-Opener-Policy"] = "*"
         response.headers["Cross-Origin-Embedder-Policy"] = "unsafe-none"
         return response
+
+    @app.teardown_appcontext
+    def shutdown_session(exception=None):  # pylint: disable=unused-argument
+        """Execute teardown actions."""
+        db.session.remove()
+        db.engine.dispose()
 
     @app.errorhandler(Exception)
     def handle_error(err):

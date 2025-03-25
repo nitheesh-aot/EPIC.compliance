@@ -35,6 +35,14 @@ def session_scope():
         print(str(e))
         session.rollback()
         raise
+    finally:
+        session.close
+
+
+def close_all_sessions():
+    """Close all database sessions."""
+    db.session.remove()
+    db.engine.dispose()
 
 
 @event.listens_for(db.session, "before_flush")
@@ -52,3 +60,9 @@ def before_commit(session, *args):  # pylint: disable=unused-argument
         setattr(new_object, "created_by", username)
     for updated_object in updated_objects:
         setattr(updated_object, "updated_by", username)
+
+
+@event.listens_for(db.session, "after_commit")
+def after_commit(session):
+    """Cleanup after commit."""
+    session.expire_all()
