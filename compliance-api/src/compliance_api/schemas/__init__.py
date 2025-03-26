@@ -33,8 +33,9 @@ from .inspection_record import (
     InspectionRecordCreateSchema, InspectionRecordSchema, ResetInspectionRecordFieldSchema,
     UpdateInspectionRecordSchema)
 from .inspection_requirement import (
-    InspectionReqImageCreateSchema, InspectionReqImageSchema, InspectionRequirementCreateSchema,
-    InspectionRequirementSchema, InspectionRequirementUpdateSchema, InspectionSortOrderSchema)
+    InspectionReqImageCreateSchema, InspectionReqImageSchema, InspectionReqImageSortOrderSchema,
+    InspectionRequirementBulkUpdateSchema, InspectionRequirementCreateSchema, InspectionRequirementSchema,
+    InspectionRequirementUpdateSchema, InspectionSortOrderSchema)
 from .paginate import PaginationParameterSchema
 from .project import ProjectSchema
 from .staff_user import StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateSchema

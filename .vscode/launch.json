@@ -11,7 +11,11 @@
             "request": "launch",
             "program": "${workspaceFolder}/compliance-api/wsgi.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/compliance-api/src"
+            },
+            "gevent": true
         }
     ]
 }

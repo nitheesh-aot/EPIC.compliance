@@ -22,7 +22,8 @@ from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
     InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionReqImageSchema,
-    InspectionSchema, InspectionStatusSchema, InspectionUpdateSchema, KeyValueSchema, StaffUserSchema)
+    InspectionRequirementBulkUpdateSchema, InspectionSchema, InspectionStatusSchema, InspectionUpdateSchema,
+    KeyValueSchema, StaffUserSchema)
 from compliance_api.services import InspectionRequirementService, InspectionService
 from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
@@ -30,7 +31,8 @@ from compliance_api.utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
 
-API = Namespace("inspections", description="Endpoints for Inspection Management")
+API = Namespace(
+    "inspections", description="Endpoints for Inspection Management")
 
 keyvalue_list_schema = ApiHelper.convert_ma_schema_to_restx_model(
     API, KeyValueSchema(), "List"
@@ -56,6 +58,9 @@ inspection_status_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 inspesction_req_image_schema = ApiHelper.convert_ma_schema_to_restx_model(
     API, InspectionReqImageSchema(), "InspectionReqImageSchema"
+)
+inspection_requirement_bulk_update_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, InspectionRequirementBulkUpdateSchema(), "InspectionRequirementBulkUpdate"
 )
 
 
@@ -169,7 +174,8 @@ class Inspections(Resource):
     @auth.require
     def post():
         """Create an inspection."""
-        current_app.logger.info(f"Creating Inspection with payload: {API.payload}")
+        current_app.logger.info(
+            f"Creating Inspection with payload: {API.payload}")
         inspection_data = InspectionCreateSchema().load(API.payload)
         created_inspection = InspectionService.create(inspection_data)
         return InspectionSchema().dump(created_inspection), HTTPStatus.CREATED
@@ -223,7 +229,8 @@ class Inspection(Resource):
     def patch(inspection_id):
         """Update inspection."""
         inspection_data = InspectionUpdateSchema().load(API.payload)
-        updated_inspection = InspectionService.update(inspection_id, inspection_data)
+        updated_inspection = InspectionService.update(
+            inspection_id, inspection_data)
         return InspectionSchema().dump(updated_inspection), HTTPStatus.OK
 
     @staticmethod
@@ -293,3 +300,26 @@ class InspectionImages(Resource):
         )
         image_schema = InspectionReqImageSchema(many=True)
         return image_schema.dump(images), HTTPStatus.OK
+
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/<int:inspection_id>/requirements", methods=["PATCH", "OPTIONS"])
+class InspectionRequirements(Resource):
+    """Resource for updating inspection requirements."""
+
+    @staticmethod
+    @auth.require
+    @API.response(400, "Bad Request")
+    @API.expect(inspection_requirement_bulk_update_model)
+    @API.response(404, "Not Found")
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Update inspection requirements"
+    )
+    @API.response(code=204, description="Requirements updated successfully")
+    def patch(inspection_id):
+        """Update inspection requirements and their images."""
+        data = InspectionRequirementBulkUpdateSchema().load(API.payload)
+        InspectionRequirementService.update_requirements(
+            inspection_id, data["requirements"]
+        )
+        return {}, HTTPStatus.NO_CONTENT

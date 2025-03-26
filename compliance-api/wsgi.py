@@ -1,9 +1,8 @@
-from gevent import monkey
-monkey.patch_all()
-
-
 def create_wsgi_app():
     """Create and configure the WSGI application after monkey patching."""
+    from gevent import monkey
+    monkey.patch_all()
+
     from compliance_api import create_app
     return create_app()
 
