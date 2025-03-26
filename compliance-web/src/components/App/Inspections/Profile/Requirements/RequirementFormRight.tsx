@@ -3,7 +3,11 @@ import ImagesContainer from "@/components/App/Inspections/Profile/Requirements/I
 import RequirementRelatedDocumentModal from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementRelatedDocumentModal";
 import RequirementSourceCard from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementSourceCard";
 import RequirementSourceModal from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementSourceModal";
-import { ImageTypeEnum, isRequirementSourceCondition, groupRequirementSourcesByType } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
+import {
+  ImageTypeEnum,
+  isRequirementSourceCondition,
+  groupRequirementSourcesByType,
+} from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import {
   RequirementRelatedDocumentData,
@@ -19,14 +23,14 @@ interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
   requirementSourceFormDataList: RequirementSourceFormData[];
   inspectionId: number;
-  isRequirement: boolean;
+  isRegulatoryConsideration: boolean;
 }
 
 const RequirementFormRight: FC<RequirementFormRightProps> = ({
   onDataChange,
   requirementSourceFormDataList,
   inspectionId,
-  isRequirement,
+  isRegulatoryConsideration,
 }) => {
   const { setOpen, setClose } = useModal();
   const [requirementSourceFormData, setRequirementSourceFormData] = useState<
@@ -137,9 +141,11 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   };
 
   const handleDeleteRequirementSource = (data: RequirementSourceFormData) => {
-    const requirementSourceDetails = groupedData.get(data.requirementSource?.id ?? "")
+    const requirementSourceDetails = groupedData.get(
+      data.requirementSource?.id ?? ""
+    );
     const isLastSectionItem =
-    requirementSourceDetails && requirementSourceDetails.length === 1;
+      requirementSourceDetails && requirementSourceDetails.length === 1;
     const sourceType = isRequirementSourceCondition(
       data.requirementSource?.id ?? ""
     )
@@ -276,7 +282,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         boxSizing: "border-box",
       }}
     >
-      {isRequirement && (
+      {!isRegulatoryConsideration && (
         <Button
           color="secondary"
           onClick={handleAddRequirementSource}
@@ -285,16 +291,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
           Requirement Source
         </Button>
       )}
-      <ImagesContainer
-        imageType={ImageTypeEnum.PHOTO}
-        inspectionId={inspectionId}
-      />
-      <ImagesContainer
-        imageType={ImageTypeEnum.FIGURE}
-        inspectionId={inspectionId}
-      />
-      <AppendicesContainer inspectionId={inspectionId} />
-        {[...groupedData].map(([sourceId, items], index) => (
+      {[...groupedData].map(([sourceId, items], index) => (
         <RequirementSourceCard
           key={sourceId}
           data={items}
@@ -310,6 +307,15 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
           }
         />
       ))}
+      <ImagesContainer
+        imageType={ImageTypeEnum.PHOTO}
+        inspectionId={inspectionId}
+      />
+      <ImagesContainer
+        imageType={ImageTypeEnum.FIGURE}
+        inspectionId={inspectionId}
+      />
+      <AppendicesContainer inspectionId={inspectionId} />
     </Box>
   );
 };

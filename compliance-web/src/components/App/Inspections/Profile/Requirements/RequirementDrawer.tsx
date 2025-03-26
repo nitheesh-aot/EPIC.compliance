@@ -28,12 +28,10 @@ import {
   formatRegulatoryConsiderationAPIData,
   formatRequirementAPIData,
   formatRequirementFormData,
-  REQUIREMENT_TYPE_ID,
   RequirementFormSchema,
-  RequirementSchemaType,
 } from "./RequirementUtils";
+import * as yup from "yup";
 import { useAgenciesData } from "@/hooks/useAgencies";
-import { InspectionRequirementType } from "@/models/InspectionRequirementType";
 import { useRequirementStore } from "./requirementStore";
 
 type RequirementDrawerProps = {
@@ -41,7 +39,7 @@ type RequirementDrawerProps = {
   onSubmit: (submitMsg: string, isClose: boolean) => void;
   requirement?: InspectionRequirement;
   index?: number;
-  isRegulatoryConsiderationExists?: boolean;
+  isRegulatoryConsideration?: boolean;
 };
 
 const initFormData: InspectionRequirementFormData = {
@@ -58,7 +56,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   onSubmit,
   requirement,
   index,
-  isRegulatoryConsiderationExists,
+  isRegulatoryConsideration = false,
 }) => {
   const { appHeaderHeight } = useMenuStore();
   const [inspectionRequirementData, setInspectionRequirementData] = useState<
@@ -67,9 +65,6 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const [requirementSourceList, setRequirementSourceList] = useState<
     RequirementSourceFormData[]
   >([]);
-  const [selectedRequirementType, setSelectedRequirementType] = useState<
-    InspectionRequirementType | undefined
-  >(undefined);
   const [isRequirementSourceListDirty, setIsRequirementSourceListDirty] =
     useState(false);
 
@@ -101,8 +96,14 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     "figures"
   );
 
+  const GeneratedFormSchema = RequirementFormSchema(
+    isRegulatoryConsideration
+  );
+
+  type RequirementSchemaType = yup.InferType<typeof GeneratedFormSchema>;
+
   const methods = useForm<RequirementSchemaType>({
-    resolver: yupResolver(RequirementFormSchema),
+    resolver: yupResolver(GeneratedFormSchema),
     mode: "onBlur",
     defaultValues: requirement
       ? formatRequirementFormData(requirement)
@@ -191,8 +192,6 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     }
   }, [inspectionRequirementUpdateData, formatAndSetFormData, setIsDataChanged]);
 
-  const isRequirement = selectedRequirementType?.id === REQUIREMENT_TYPE_ID;
-
   const { mutate: deleteInspectionRequirement } =
     useDeleteInspectionRequirement(onDeleteSuccess);
 
@@ -209,14 +208,14 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     (formData: RequirementSchemaType) => {
       const formLeftData = formData as InspectionRequirementFormData;
 
-      const inspectionRequirementPayload = isRequirement
-        ? formatRequirementAPIData(
+      const inspectionRequirementPayload = isRegulatoryConsideration
+        ? formatRegulatoryConsiderationAPIData(formLeftData)
+        : formatRequirementAPIData(
             formLeftData,
             requirementSourceList,
             photos,
             figures
-          )
-        : formatRegulatoryConsiderationAPIData(formLeftData);
+          );
 
       if (inspectionRequirementData) {
         updateInspectionRequirement({
@@ -232,14 +231,14 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       }
     },
     [
-      isRequirement,
+      isRegulatoryConsideration,
       requirementSourceList,
+      photos,
+      figures,
       inspectionRequirementData,
       updateInspectionRequirement,
       inspectionData.id,
       createInspectionRequirement,
-      photos,
-      figures,
     ]
   );
 
@@ -256,13 +255,13 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
 
   const getDrawerTitle = () => {
     if (inspectionRequirementData) {
-      return isRequirement
-        ? `Edit Requirement ${index !== undefined ? `#${index + 1}` : ""}`
-        : `Edit Regulatory Consideration`;
+      return isRegulatoryConsideration
+        ? `Edit Regulatory Consideration`
+        : `Edit Requirement ${index !== undefined ? `#${index + 1}` : ""}`;
     }
-    return isRequirement
-      ? "Create Requirement"
-      : "Create Regulatory Consideration";
+    return isRegulatoryConsideration
+      ? "Create Regulatory Consideration"
+      : "Create Requirement";
   };
 
   return (
@@ -280,25 +279,19 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           direction={"row"}
         >
           <RequirementFormLeft
-            inspectionRequirementTypesList={
-              inspectionRequirementTypesList ?? []
-            }
             complianceFindingsList={complianceFindingsList ?? []}
             enforcementActionsList={enforcementActionsList ?? []}
             topicList={topicsList ?? []}
             agencyList={agenciesList ?? []}
             appHeaderHeight={appHeaderHeight}
-            onRequirementTypeChange={(requirementType) => {
-              setSelectedRequirementType(requirementType ?? undefined);
-            }}
-            isRegulatoryConsiderationExists={isRegulatoryConsiderationExists}
+            isRegulatoryConsideration={isRegulatoryConsideration}
             isEditMode={!!inspectionRequirementData}
           />
           <RequirementFormRight
             onDataChange={onRequirementSourceListDataChange}
             requirementSourceFormDataList={requirementSourceList}
             inspectionId={inspectionData.id}
-            isRequirement={isRequirement}
+            isRegulatoryConsideration={isRegulatoryConsideration}
           />
         </Stack>
         <DrawerActionBarBottom

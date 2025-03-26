@@ -1,4 +1,4 @@
-import { FC, useEffect, useCallback, memo, useState, useRef } from "react";
+import { FC, useEffect, memo, useState, useRef } from "react";
 import { Box, Grid, IconButton, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { BCDesignTokens } from "epic.theme";
@@ -6,7 +6,6 @@ import ControlledTextField from "@/components/Shared/Controlled/ControlledTextFi
 import { Topic } from "@/models/Topic";
 import { EnforcementAction } from "@/models/EnforcementAction";
 import { ComplianceFinding } from "@/models/ComplianceFinding";
-import { InspectionRequirementType } from "@/models/InspectionRequirementType";
 import { Agency } from "@/models/Agency";
 import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbox";
 import { useFormContext, useWatch } from "react-hook-form";
@@ -14,42 +13,32 @@ import {
   ComplianceFindingEnum,
   EnforcementActionEnum,
   formatImagesToMentionList,
-  REGULATORY_CONSIDERATION_TYPE_ID,
-  REQUIREMENT_TYPE_ID,
 } from "./RequirementUtils";
-import ControlledToggleButtonGroup from "@/components/Shared/Controlled/ControlledToggleButtonGroup";
 import { EditOutlined } from "@mui/icons-material";
 import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 import { useRequirementStore } from "./requirementStore";
 import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
 
-
 type RequirementFormLeftProps = {
-  inspectionRequirementTypesList: InspectionRequirementType[];
   enforcementActionsList: EnforcementAction[];
   complianceFindingsList: ComplianceFinding[];
   topicList: Topic[];
   agencyList: Agency[];
   appHeaderHeight: number;
-  onRequirementTypeChange?: (
-    requirementType: InspectionRequirementType | null
-  ) => void;
-  isRegulatoryConsiderationExists?: boolean;
   isEditMode?: boolean;
+  isRegulatoryConsideration?: boolean;
 };
 
 const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
   ({
-    inspectionRequirementTypesList,
     enforcementActionsList,
     complianceFindingsList,
     topicList,
     agencyList,
     appHeaderHeight,
-    onRequirementTypeChange,
-    isRegulatoryConsiderationExists,
     isEditMode,
+    isRegulatoryConsideration,
   }) => {
     const { control, setValue, getValues } = useFormContext();
     const { photos, figures } = useRequirementStore();
@@ -77,11 +66,6 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
       name: "isReferredToAnotherAgency",
     });
 
-    const selectedRequirementType = useWatch({
-      control,
-      name: "requirementType",
-    });
-
     const enforcementAction = useWatch({
       control,
       name: "enforcementAction",
@@ -91,17 +75,6 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
       control,
       name: "complianceFinding",
     });
-
-    const handleRequirementTypeChange = useCallback(
-      (requirementType: InspectionRequirementType | null) => {
-        onRequirementTypeChange?.(requirementType);
-      },
-      [onRequirementTypeChange]
-    );
-
-    useEffect(() => {
-      handleRequirementTypeChange(selectedRequirementType);
-    }, [selectedRequirementType, handleRequirementTypeChange]);
 
     useEffect(() => {
       if (
@@ -153,7 +126,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
               value={getValues("topic")?.name}
               gridProps={{ xs: 8 }}
             />
-            {selectedRequirementType?.id === REQUIREMENT_TYPE_ID && (
+            {!isRegulatoryConsideration && (
               <>
                 <GridLabelValuePair
                   label="Compliance Finding"
@@ -185,27 +158,20 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
 
     const EditSection = () => {
       useEffect(() => {
-        if (document.activeElement === null || document.activeElement === document.body) {
+        if (
+          document.activeElement === null ||
+          document.activeElement === document.body
+        ) {
           summaryInputRef.current?.focus();
         }
       });
 
       return (
         <>
-          {!isEditMode && (
-            <ControlledToggleButtonGroup
-              name="requirementType"
-              options={inspectionRequirementTypesList}
-              aria-label="requirement type"
-              disabled={isRegulatoryConsiderationExists}
-            />
-          )}
           <ControlledTextField
             name="requirementSummary"
             label={
-              selectedRequirementType?.id === REQUIREMENT_TYPE_ID
-                ? "Requirement Summary"
-                : "Summary"
+              isRegulatoryConsideration ? "Summary" : "Requirement Summary"
             }
             placeholder=""
             fullWidth
@@ -225,13 +191,13 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
             fullWidth
             isRequired={true}
           />
-          {selectedRequirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID && (
+          {isRegulatoryConsideration && (
             <ControlledCheckbox
               name="isReferredToAnotherAgency"
               label="Mark if issue was referred to another Agency"
             />
           )}
-          {selectedRequirementType?.id === REQUIREMENT_TYPE_ID && (
+          {!isRegulatoryConsideration && (
             <Stack direction="row" gap={2}>
               <ControlledAutoComplete
                 sx={{ width: "50%" }}
@@ -291,7 +257,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = memo(
       <Box
         sx={{
           background: BCDesignTokens.surfaceColorBackgroundLightGray,
-          padding: "1rem 1rem 1rem 2rem",
+          padding: "0.5rem 1rem 1rem 2rem",
           width: "718px",
           overflow: "auto",
           boxSizing: "border-box",
