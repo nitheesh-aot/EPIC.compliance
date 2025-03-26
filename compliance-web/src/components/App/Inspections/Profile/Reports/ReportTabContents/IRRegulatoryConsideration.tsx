@@ -33,7 +33,7 @@ const IRRegulatoryConsideration = () => {
           onSubmit={handleOnSubmit}
           inspectionData={inspectionData as Inspection}
           requirement={inspectionRegulatoryConsideration}
-          isRegulatoryConsiderationExists={!!inspectionRegulatoryConsideration}
+          isRegulatoryConsideration={true}
         />
       ),
       width: DRAWER_WIDTHS.REQUIREMENT_DRAWER,

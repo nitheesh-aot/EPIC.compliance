@@ -2,13 +2,13 @@ import { Agency } from "@/models/Agency";
 import { ComplianceFinding } from "@/models/ComplianceFinding";
 import { EnforcementAction } from "@/models/EnforcementAction";
 import { InspectionRequirement, InspectionRequirementAPIData, InspectionRequirementFormData, InspectionRequirementSourceAPIData, InspectionRequirementSourceDocumentAPIData, RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData, RequirementSourceFormData } from "@/models/InspectionRequirement";
-import { InspectionRequirementType } from "@/models/InspectionRequirementType";
 import { Topic } from "@/models/Topic";
 import { RequirementSourceEnum } from "@/utils/constants";
 import * as yup from "yup";
 import { Image, ImageAPIData } from "@/models/Image";
 import dateUtils from "@/utils/dateUtils";
 import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
+
 export const REQUIREMENT_TYPE_ID = "REQ";
 export const REGULATORY_CONSIDERATION_TYPE_ID = "REG";
 
@@ -28,22 +28,17 @@ export enum ImageTypeEnum {
   FIGURE,
 }
 
-export const RequirementFormSchema = yup.object().shape({
-  requirementType: yup.object<InspectionRequirementType>().nullable().required("Requirement Type is required"),
+export const RequirementFormSchema = (isRegulatoryConsideration: boolean) => yup.object().shape({
   requirementSummary: yup.string().required("Summary is required"),
   topic: yup.object<Topic>().nullable().required("Topic is required"),
   complianceFinding: yup.object<ComplianceFinding>().nullable(),
   enforcementAction: yup.object<EnforcementAction>().nullable(),
   isReferralToAdministrativePenalty: yup.boolean().nullable(),
-  isReferredToAnotherAgency: yup.boolean().nullable().when('requirementType', {
-    is: (requirementType: InspectionRequirementType) => requirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID,
-    then: (schema) => schema,
-    otherwise: (schema) => schema.strip(),
-  }),
-  agency: yup.object<Agency>().nullable().when(['requirementType', 'isReferredToAnotherAgency', 'enforcementAction'], {
-    is: (requirementType: InspectionRequirementType, isReferred: boolean, enforcementAction: EnforcementAction) =>
-      (requirementType?.id === REGULATORY_CONSIDERATION_TYPE_ID && isReferred) ||
-      (requirementType?.id === REQUIREMENT_TYPE_ID && enforcementAction?.id === EnforcementActionEnum.REFER_TO_ANOTHER_AGENCY),
+  isReferredToAnotherAgency: isRegulatoryConsideration ? yup.boolean().nullable() : yup.boolean().strip(),
+  agency: yup.object<Agency>().nullable().when(['isReferredToAnotherAgency', 'enforcementAction'], {
+    is: (isReferred: boolean, enforcementAction: EnforcementAction) =>
+      (isRegulatoryConsideration && isReferred) ||
+      (!isRegulatoryConsideration && enforcementAction?.id === EnforcementActionEnum.REFER_TO_ANOTHER_AGENCY),
     then: (schema) => schema.required("Agency is required"),
     otherwise: (schema) => schema.strip(),
   }),
@@ -54,8 +49,6 @@ export const RequirementFormSchema = yup.object().shape({
     })
     .nullable(),
 });
-
-export type RequirementSchemaType = yup.InferType<typeof RequirementFormSchema>;
 
 // Check if the RequirementSource got condition
 export const isRequirementSourceCondition = (id: string): boolean =>
@@ -109,7 +102,7 @@ export const formatRequirementAPIData = (
     });
 
   const inspectionRequirementPayload: InspectionRequirementAPIData = {
-    req_type: formData.requirementType?.id ?? "",
+    req_type: REQUIREMENT_TYPE_ID,
     summary: formData.requirementSummary ?? "",
     topic_id: formData.topic?.id ?? 0,
     enforcement_action_ids: formData.enforcementAction?.id ? [formData.enforcementAction.id] : [],
@@ -145,7 +138,7 @@ export const formatRegulatoryConsiderationAPIData = (
   formData: InspectionRequirementFormData,
 ): InspectionRequirementAPIData => {
   const inspectionRequirementPayload: InspectionRequirementAPIData = {
-    req_type: formData.requirementType?.id ?? "",
+    req_type: REGULATORY_CONSIDERATION_TYPE_ID,
     summary: formData.requirementSummary ?? "",
     topic_id: formData.topic?.id ?? 0,
     findings: formData.findings?.html ?? "",

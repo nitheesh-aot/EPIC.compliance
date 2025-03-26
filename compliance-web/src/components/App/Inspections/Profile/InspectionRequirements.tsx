@@ -72,15 +72,31 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
         <RequirementDrawer
           onSubmit={handleOnSubmit}
           inspectionData={inspectionData}
-          isRegulatoryConsiderationExists={!!regulatoryConsideration}
         />
       ),
       width: DRAWER_WIDTHS.REQUIREMENT_DRAWER,
     });
-  }, [setOpen, handleOnSubmit, inspectionData, regulatoryConsideration]);
+  }, [setOpen, handleOnSubmit, inspectionData]);
+
+  const handleOpenAddRegulatoryConsiderationModal = useCallback(() => {
+    setOpen({
+      content: (
+        <RequirementDrawer
+          onSubmit={handleOnSubmit}
+          inspectionData={inspectionData}
+          isRegulatoryConsideration={true}
+        />
+      ),
+      width: DRAWER_WIDTHS.REQUIREMENT_DRAWER,
+    });
+  }, [setOpen, handleOnSubmit, inspectionData]);
 
   const handleOpenEditRequirementModal = useCallback(
-    (requirement: InspectionRequirement, index: number) => {
+    (
+      requirement: InspectionRequirement,
+      index: number,
+      isRegulatoryConsideration?: boolean
+    ) => {
       setActiveRequirementId(requirement.id);
       setOpen({
         content: (
@@ -89,19 +105,25 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
             inspectionData={inspectionData}
             requirement={requirement}
             index={index}
-            isRegulatoryConsiderationExists={!!regulatoryConsideration}
+            isRegulatoryConsideration={isRegulatoryConsideration}
           />
         ),
         width: DRAWER_WIDTHS.REQUIREMENT_DRAWER,
       });
     },
-    [setOpen, handleOnSubmit, inspectionData, regulatoryConsideration]
+    [setOpen, handleOnSubmit, inspectionData]
   );
 
-  const handleSortOrderChange = useCallback((newOrder: InspectionRequirement[]) => {
-    setInspectionRequirements(newOrder);
-    queryClient.setQueryData(['inspection-requirements', inspectionData.id], newOrder);
-  }, [inspectionData, queryClient]);
+  const handleSortOrderChange = useCallback(
+    (newOrder: InspectionRequirement[]) => {
+      setInspectionRequirements(newOrder);
+      queryClient.setQueryData(
+        ["inspection-requirements", inspectionData.id],
+        newOrder
+      );
+    },
+    [inspectionData, queryClient]
+  );
 
   React.useEffect(() => {
     if (!isOpen) {
@@ -118,16 +140,28 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     >
       <Box display={"flex"} justifyContent={"space-between"} mt={3} mb={2}>
         <Typography variant="h6">Requirements</Typography>
-        <Button
-          variant="text"
-          color="primary"
-          size="small"
-          onClick={handleOpenAddRequirementModal}
-          startIcon={<AddRounded />}
-          data-cy="new-requirement-button"
-        >
-          New Requirement
-        </Button>
+        <Box display={"flex"} gap={2}>
+          <Button
+            variant="text"
+            color="primary"
+            size="small"
+            onClick={handleOpenAddRegulatoryConsiderationModal}
+            startIcon={<AddRounded />}
+            data-cy="new-regulatory-consideration-button"
+            disabled={!!regulatoryConsideration}
+          >
+            Regulatory Consideration
+          </Button>
+          <Button
+            color="secondary"
+            size="small"
+            onClick={handleOpenAddRequirementModal}
+            startIcon={<AddRounded />}
+            data-cy="new-requirement-button"
+          >
+            New Requirement
+          </Button>
+        </Box>
       </Box>
       <Reorder.Group
         axis="y"
@@ -153,7 +187,8 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
           onEdit={() =>
             handleOpenEditRequirementModal(
               regulatoryConsideration,
-              inspectionRequirements.length
+              inspectionRequirements.length,
+              true
             )
           }
           isActive={regulatoryConsideration.id === activeRequirementId}
