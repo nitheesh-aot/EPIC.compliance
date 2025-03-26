@@ -54,6 +54,9 @@ class InspectionReqImageCreateSchema(BaseSchema):
     caption = fields.Str(
         metadata={"description": "The caption given to the image"}, allow_none=True
     )
+    sort_order = fields.Int(
+        metadata={"description": "The sort order of the image"}, required=True
+    )
     relative_url = fields.Str(
         metadata={"description": "The relative url of the final uploaded image"},
         required=True,
@@ -384,3 +387,41 @@ class InspectionReqImageSchema(AutoSchemaBase):  # pylint: disable=too-many-ance
         """Extract the value of the image type enum."""
         data["image_type"] = ImageTypeEnum(data["image_type"]).value
         return data
+
+
+class InspectionReqImageSortOrderSchema(BaseSchema):
+    """Schema for updating image sort order."""
+
+    image_id = fields.Int(
+        metadata={"description": "The unique identifier of the image"}, required=True
+    )
+    sort_order = fields.Int(
+        metadata={"description": "The new sort order for the image"}, required=True
+    )
+
+
+class InspectionReqUpdateSchema(BaseSchema):
+    """Schema for updating a single inspection requirement."""
+
+    requirement_id = fields.Int(
+        metadata={"description": "The unique identifier of the requirement"},
+        required=True,
+    )
+    findings = fields.Str(
+        metadata={"description": "The findings for the requirement"}, allow_none=True
+    )
+    images = fields.List(
+        fields.Nested(InspectionReqImageSortOrderSchema),
+        metadata={"description": "List of images to update with new sort orders"},
+        required=False,
+    )
+
+
+class InspectionRequirementBulkUpdateSchema(BaseSchema):
+    """Schema for bulk updating inspection requirements."""
+
+    requirements = fields.List(
+        fields.Nested(InspectionReqUpdateSchema),
+        metadata={"description": "List of requirements to update"},
+        required=True,
+    )

@@ -8,6 +8,7 @@ from compliance_api.utils.constant import DELETE_DIC_PARAMS
 from ..base_model import BaseModelVersioned
 from ..utils import with_session
 from .inspection_enum import ImageTypeEnum
+from .inspection_requirement import InspectionRequirement
 
 
 class InspectionRequirementImage(BaseModelVersioned):
@@ -131,25 +132,17 @@ class InspectionRequirementImage(BaseModelVersioned):
         Returns:
             list: List of InspectionRequirementImage objects
         """
-        from .inspection_requirement import InspectionRequirement
-
         return (
-            cls.query
-            .join(
-                InspectionRequirement,
-                cls.requirement_id == InspectionRequirement.id
+            cls.query.join(
+                InspectionRequirement, cls.requirement_id == InspectionRequirement.id
             )
             .filter(
                 cls.is_active.is_(True),
                 cls.is_deleted.is_(False),
                 InspectionRequirement.inspection_id == inspection_id,
                 InspectionRequirement.is_deleted.is_(False),
-                InspectionRequirement.is_active.is_(True)
+                InspectionRequirement.is_active.is_(True),
             )
-            .order_by(
-                InspectionRequirement.id,
-                cls.image_type,
-                cls.sort_order
-            )
+            .order_by(InspectionRequirement.id, cls.image_type, cls.sort_order)
             .all()
         )

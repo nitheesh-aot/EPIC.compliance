@@ -1,11 +1,10 @@
 """InspectionRequirementService."""
 
-import requests
-from flask import g
+from typing import List
 
-from compliance_api.auth import auth
-from compliance_api.exceptions import (
-    BadRequestError, PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError)
+import requests
+
+from compliance_api.exceptions import BadRequestError, ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import ImageTypeEnum
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionReqDetailDocument as InspectionReqDetailDocumentModel
@@ -14,10 +13,9 @@ from compliance_api.models import InspectionReqSourceDetail as InspectionReqSour
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models import InspectionRequirementImage as InspectionRequirementImageModel
 from compliance_api.models import InspectionStatusEnum
-from compliance_api.models.db import session_scope
+from compliance_api.models.db import db, session_scope
 from compliance_api.services.document_service.doc_service import DocService
 from compliance_api.services.document_service.doc_service_enum import ActionOnFileEnum
-from compliance_api.utils.enum import PermissionEnum
 
 from .service_utils import ServiceUtils
 
@@ -38,11 +36,13 @@ class InspectionRequirementService:
     @classmethod
     def create(cls, inspection_id, requirement_data):
         """Create inspection requirement."""
-        inspection = _inspection_check(inspection_id)
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
         _inspection_status_check(inspection)
         ServiceUtils.access_check_update_for_inspection(inspection)
-        requirements = InspectionRequirementModel.get_by_inspection_id(inspection_id)
-        requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
+        requirements = InspectionRequirementModel.get_by_inspection_id(
+            inspection_id)
+        requirement_obj = _create_requirement_obj(
+            inspection_id, requirement_data)
         requirement_obj["sort_order"] = len(requirements) + 1
         with session_scope() as session:
             created_requirement = InspectionRequirementModel.create_requirement(
@@ -74,11 +74,12 @@ class InspectionRequirementService:
     @classmethod
     def update(cls, inspection_id, requirement_id, requirement_data):
         """Update inspection requirement."""
-        inspection = _inspection_check(inspection_id)
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
         _inspection_status_check(inspection)
         _requirement_check(requirement_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
-        requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
+        requirement_obj = _create_requirement_obj(
+            inspection_id, requirement_data)
         with session_scope() as session:
             updated_requirement = InspectionRequirementModel.update_requirement(
                 requirement_id, requirement_obj, session
@@ -111,12 +112,13 @@ class InspectionRequirementService:
     @classmethod
     def delete(cls, inspection_id, requirement_id):
         """Delete the requirement."""
-        inspection = _inspection_check(inspection_id)
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
         _inspection_status_check(inspection)
         _requirement_check(requirement_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         with session_scope() as session:
-            InspectionRequirementModel.delete_requirement(requirement_id, session)
+            InspectionRequirementModel.delete_requirement(
+                requirement_id, session)
             InspectionReqSourceDetailModel.delete_by_requirement_id(
                 requirement_id, session
             )
@@ -135,13 +137,14 @@ class InspectionRequirementService:
     @classmethod
     def update_sort_order(cls, inspection_id, requirement_id, sort_order_data):
         """Update the sort order of the inspection requirement."""
-        inspection = _inspection_check(inspection_id)
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
         _inspection_status_check(inspection)
         requirement = _requirement_check(requirement_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
 
         new_sort_order = sort_order_data.get("order")
-        requirements = InspectionRequirementModel.get_by_inspection_id(inspection_id)
+        requirements = InspectionRequirementModel.get_by_inspection_id(
+            inspection_id)
         if new_sort_order > len(requirements):
             raise BadRequestError(
                 f"Invaid order. The order should be less than or equal to {len(requirements)}"
@@ -180,7 +183,7 @@ class InspectionRequirementService:
     @classmethod
     def get_all_images(cls, inspection_id, requirement_id, image_type: ImageTypeEnum):
         """Get all photos."""
-        _inspection_check(inspection_id)
+        ServiceUtils.inspection_exist_check(inspection_id)
         _requirement_check(requirement_id)
         images = InspectionRequirementImageModel.find_all_images(
             requirement_id=requirement_id, image_type=image_type
@@ -190,7 +193,7 @@ class InspectionRequirementService:
     @classmethod
     def get_all_images_by_inspection(cls, inspection_id):
         """Get all images per inspection."""
-        _inspection_check(inspection_id)
+        ServiceUtils.inspection_exist_check(inspection_id)
         images = InspectionRequirementImageModel.get_all_images_by_inspection(
             inspection_id
         )
@@ -200,7 +203,7 @@ class InspectionRequirementService:
     @classmethod
     def delete_image(cls, inspection_id, requirement_id, relative_url, image_type):
         """Delete image."""
-        inspection = _inspection_check(inspection_id)
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
         _inspection_status_check(inspection)
         _requirement_check(requirement_id)
         image = InspectionRequirementImageModel.find_image_by_url(
@@ -224,6 +227,60 @@ class InspectionRequirementService:
         InspectionRequirementImageModel.delete_image(image.id)
         return delete_response
 
+    @classmethod
+    def update_requirements(cls, inspection_id: int, requirements_data: List[dict]):
+        """Update multiple inspection requirements and their images.
+
+        Args:
+            inspection_id (int): The ID of the inspection
+            requirements_data (List[dict]): List of requirement updates
+
+        Raises:
+            ResourceNotFoundError: If inspection or requirement not found
+        """
+        # Verify inspection exists and check access
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
+        ServiceUtils.access_check_update_for_inspection(inspection)
+
+        with session_scope() as session:
+            for req_data in requirements_data:
+                requirement_id = req_data["requirement_id"]
+                findings = req_data.get("findings")
+                images = req_data.get("images", [])
+
+                # Update requirement findings
+                requirement = _requirement_check(requirement_id)
+                if requirement.inspection_id != inspection_id:
+                    raise ResourceNotFoundError(
+                        f"Requirement with id {requirement_id} not found for inspection {inspection_id}"
+                    )
+
+                # Update requirement findings using model method
+                InspectionRequirementModel.update_requirement(
+                    requirement_id, {"findings": findings}, session
+                )
+
+                # Update image sort orders using model method
+                for image_data in images:
+                    image = InspectionRequirementImageModel.query.filter_by(
+                        id=image_data["image_id"],
+                        requirement_id=requirement_id,
+                        is_deleted=False,
+                    ).first()
+
+                    if not image:
+                        raise ResourceNotFoundError(
+                            f"Image with id {image_data['image_id']} not found for requirement {requirement_id}"
+                        )
+
+                    InspectionRequirementImageModel.update_image(
+                        image_data["image_id"],
+                        {"sort_order": image_data["sort_order"]},
+                        session,
+                    )
+
+        db.session.flush()
+
 
 def _set_signed_url(images):
     """Set the signed url in the image list."""
@@ -242,12 +299,12 @@ def _set_signed_url(images):
     return images
 
 
-def _create_image_obj(requirement_id, index, img: dict, image_type):
+def _create_image_obj(requirement_id, img: dict, image_type):
     """Prepare the image object."""
     return {
         "requirement_id": requirement_id,
         "image_type": image_type,
-        "sort_order": index + 1,
+        "sort_order": img.get("sort_order"),
         "original_file_name": img.get("original_file_name"),
         "date_taken": img.get("date_taken"),
         "taken_by_id": img.get("taken_by_id"),
@@ -275,8 +332,7 @@ def _insert_or_update_images(
         InspectionRequirementImageModel.delete_image(image_id, session=session)
 
     # INSERT or UPDATE images while maintaining order
-    for index, img in enumerate(images):
-        img["sort_order"] = index + 1  # Maintain order
+    for img in enumerate(images):
 
         if "id" in img:  # Update existing image
             InspectionRequirementImageModel.update_image(
@@ -285,7 +341,6 @@ def _insert_or_update_images(
         else:  # Insert new image
             image_obj = _create_image_obj(
                 requirement_id=requirement_id,
-                index=index,
                 img=img,
                 image_type=image_type,
             )
@@ -300,19 +355,10 @@ def _update_sort_order_subsequent(requirements, commit=False):
         req.update({"sort_order": index + 1}, commit=commit)
 
 
-def _inspection_check(inspection_id):
-    """Check if the inspection and requirement exists."""
-    inspection = InspectionModel.find_by_id(inspection_id)
-    if not inspection:
-        raise ResourceNotFoundError(
-            f"Inspection with given ID {inspection_id} not found"
-        )
-    return inspection
-
-
 def _inspection_status_check(inspection: InspectionModel):
     """Check the inspection status."""
-    invalid_statuses = {InspectionStatusEnum.CANCELED, InspectionStatusEnum.CLOSED}
+    invalid_statuses = {InspectionStatusEnum.CANCELED,
+                        InspectionStatusEnum.CLOSED}
     if inspection.inspection_status in invalid_statuses:
         raise UnprocessableEntityError(
             f"No changes to the requirements can be made to  {inspection.inspection_status.name} inspection"
@@ -328,19 +374,6 @@ def _requirement_check(requirement_id):
             f"Inspection requirement with given ID {requirement_id} not found"
         )
     return requirement
-
-
-def _access_check(inspection_id: dict):
-    """Access check for update."""
-    auth_user_guid = g.token_info["preferred_username"]
-    inspection = InspectionModel.find_by_id(inspection_id)
-    if (
-        not auth.has_permission([PermissionEnum.SUPERUSER])
-        and not inspection.primary_officer.auth_user_guid == auth_user_guid
-    ):
-        raise PermissionDeniedError(
-            "You don't have the correct permission to perform this operation."
-        )
 
 
 def _create_update_source_details_nd_docs(
@@ -407,7 +440,8 @@ def _handle_deletion_req_detail_nd_doc(
     existing_doc_detail_ids = {
         doc.id for detail in existing_details for doc in detail.documents
     }
-    details_to_be_deleted = existing_detail_ids.difference(incoming_details_ids)
+    details_to_be_deleted = existing_detail_ids.difference(
+        incoming_details_ids)
     doc_details_to_be_deleted = existing_doc_detail_ids.difference(
         incoming_doc_detail_ids
     )
