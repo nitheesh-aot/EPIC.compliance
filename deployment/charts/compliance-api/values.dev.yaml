@@ -28,7 +28,7 @@ track_service:
   url: https://epictrack-api-c72cba-dev.apps.gold.devops.gov.bc.ca
 storage_service:
   url: https://nrs.objectstore.gov.bc.ca
-  s3_bucket: dev-epic-submit
+  s3_bucket: dev-epic
 doc_service:
   url: https://epic-document-api-c8b80a-dev.apps.gold.devops.gov.bc.ca
 

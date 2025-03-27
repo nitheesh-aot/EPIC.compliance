@@ -1,4 +1,4 @@
-replicaCount: 1
+replicaCount: 2
 cors_origin: https://compliance-web-c8b80a-test.apps.gold.devops.gov.bc.ca,http://localhost:5173,https://test.compliance.eao.gov.bc.ca
 
 image:
@@ -10,7 +10,7 @@ image:
 
 resources:
   cpu:
-    limit: 250m
+    limit: 200m
     request: 150m
   memory:
     limit: 300Mi
@@ -28,7 +28,7 @@ track_service:
   url: https://epictrack-api-c72cba-test.apps.gold.devops.gov.bc.ca
 storage_service:
   url: https://nrs.objectstore.gov.bc.ca
-  s3_bucket: test-epic-submit
+  s3_bucket: test-epic
 doc_service:
   url: https://epic-document-api-c8b80a-test.apps.gold.devops.gov.bc.ca
 

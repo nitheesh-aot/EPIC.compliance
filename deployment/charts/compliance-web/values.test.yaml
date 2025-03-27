@@ -10,12 +10,12 @@ app:
   in_progress_features: []
   client_id: "epic-compliance"
 aws:
-  s3_bucket: "test-epic-submit"
+  s3_bucket: "test-epic"
   s3_url: "https://nrs.objectstore.gov.bc.ca"
 resources:
   cpu:
-    limit: 200m
-    request: 150m
+    limit: 150m
+    request: 100m
   memory: 
     limit: 200Mi
     request: 100Mi
@@ -30,6 +30,6 @@ keycloak:
 service:
   port: 8080
 replicas:
-  count: 1
+  count: 2
 mountPath: /usr/share/nginx/html/config/
 
