@@ -11,6 +11,7 @@ from flask import json
 from compliance_api.models.complaint import ComplaintSourceEnum, ComplaintStatusEnum
 from compliance_api.services import CaseFileService, ComplaintService
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
+from tests.utilities.factory_scenario
 from tests.utilities.factory_scenario import CasefileScenario, ComplaintScenario, StaffScenario
 
 
@@ -86,7 +87,8 @@ def test_get_case_files_without_case_file_id_passed(
     complaint_data["case_file_id"] = second_case_file.id
     ComplaintService.create(complaint_data)
 
-    result = client.get(urljoin(API_BASE_URL, "complaints"), headers=auth_header)
+    result = client.get(urljoin(API_BASE_URL, "complaints"),
+                        headers=auth_header)
 
     assert result.status_code == HTTPStatus.OK
     assert len(result.json) == 2
@@ -113,7 +115,8 @@ def test_get_case_files_with_case_file_id_passed(
     ComplaintService.create(complaint_data)
 
     result = client.get(
-        urljoin(API_BASE_URL, f"complaints?case_file_id={second_case_file.id}"),
+        urljoin(API_BASE_URL,
+                f"complaints?case_file_id={second_case_file.id}"),
         headers=auth_header,
     )
 
@@ -161,7 +164,8 @@ def test_get_complaint_by_not_found(
     client, auth_header, created_staff, created_case_file
 ):
     """Get complaint which doesn't exist."""
-    result = client.get(urljoin(API_BASE_URL, "complaints/9999"), headers=auth_header)
+    result = client.get(
+        urljoin(API_BASE_URL, "complaints/9999"), headers=auth_header)
     print(result.json)
     assert result.status_code == HTTPStatus.NOT_FOUND
 
@@ -196,7 +200,8 @@ def test_update_complaint_by_super_user(
     created_complaint = ComplaintService.create(complaint_data)
     complaint_data["concern_description"] = fake.word()
     complaint_data["location_description"] = fake.word()
-    complaint_data["date_received"] = datetime.now().strftime(INPUT_DATE_TIME_FORMAT)
+    complaint_data["date_received"] = datetime.now().strftime(
+        INPUT_DATE_TIME_FORMAT)
     complaint_data["source_type_id"] = ComplaintSourceEnum.FIRSTNATION.value
     complaint_data["source_first_nation_id"] = fake.random_number()
     del complaint_data["case_file_id"]
@@ -214,13 +219,15 @@ def test_update_complaint_by_super_user(
     )
     assert result.status_code == HTTPStatus.OK
     assert (
-        result.json.get("concern_description") == complaint_data["concern_description"]
+        result.json.get(
+            "concern_description") == complaint_data["concern_description"]
     )
     assert (
         result.json.get("location_description")
         == complaint_data["location_description"]
     )
-    assert result.json.get("source_type_id") == complaint_data["source_type_id"]
+    assert result.json.get(
+        "source_type_id") == complaint_data["source_type_id"]
 
 
 def test_complaint_delete_by_non_super_user(
@@ -278,13 +285,15 @@ def test_complaint_get_requirement_details(
     created_complaint = ComplaintService.create(complaint_data)
 
     get_result = client.get(
-        urljoin(API_BASE_URL, f"complaints/{created_complaint.id}/requirement-details"),
+        urljoin(API_BASE_URL,
+                f"complaints/{created_complaint.id}/requirement-details"),
         headers=auth_header,
     )
 
     assert get_result.status_code == HTTPStatus.OK
     input_source_details = complaint_data.get("requirement_source_details")
-    assert get_result.json.get("topic_id") == input_source_details.get("topic_id")
+    assert get_result.json.get(
+        "topic_id") == input_source_details.get("topic_id")
     assert get_result.json.get("additional_details").get(
         "condition_number"
     ) == input_source_details.get("condition_number")
@@ -302,13 +311,16 @@ def test_complaint_get_source_contact_details(
     created_complaint = ComplaintService.create(complaint_data)
 
     get_result = client.get(
-        urljoin(API_BASE_URL, f"complaints/{created_complaint.id}/source-contacts"),
+        urljoin(API_BASE_URL,
+                f"complaints/{created_complaint.id}/source-contacts"),
         headers=auth_header,
     )
 
     assert get_result.status_code == HTTPStatus.OK
     input_source_details = complaint_data.get("complaint_source_contact")
-    assert get_result.json.get("full_name") == input_source_details.get("full_name")
+    assert get_result.json.get(
+        "full_name") == input_source_details.get("full_name")
     assert get_result.json.get("email") == input_source_details.get("email")
     assert get_result.json.get("phone") == input_source_details.get("phone")
-    assert get_result.json.get("comment") == input_source_details.get("comment")
+    assert get_result.json.get(
+        "comment") == input_source_details.get("comment")

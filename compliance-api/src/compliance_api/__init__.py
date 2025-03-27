@@ -33,7 +33,8 @@ csp = (
     .connect_src("'self'")
 )
 
-hsts = secure.StrictTransportSecurity().include_subdomains().preload().max_age(31536000)
+hsts = secure.StrictTransportSecurity(
+).include_subdomains().preload().max_age(31536000)
 referrer = secure.ReferrerPolicy().no_referrer()
 cache_value = secure.CacheControl().no_store().max_age(0)
 xfo_value = secure.XFrameOptions().deny()
