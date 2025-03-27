@@ -35,8 +35,6 @@ def session_scope():
         print(str(e))
         session.rollback()
         raise
-    finally:
-        session.remove()
 
 
 def close_all_sessions():
