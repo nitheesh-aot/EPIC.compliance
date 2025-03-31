@@ -1,5 +1,5 @@
 import { InspectionRequirement } from "@/models/InspectionRequirement";
-import { Image } from "@/models/Image";
+import { RequirementImage } from "@/models/Image";
 import IRBoxContainer from "./IRBoxContainer";
 import { Box, Typography } from "@mui/material";
 import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
@@ -35,7 +35,7 @@ const DetailSection = ({
   </>
 );
 
-const ImageSection = ({ image, index }: { image: Image; index: number }) => {
+const ImageSection = ({ image, index }: { image: RequirementImage; index: number }) => {
   return (
     <Box key={index} sx={{ marginBottom: 2 }}>
       <Box

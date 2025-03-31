@@ -16,7 +16,7 @@ import { BCDesignTokens } from "epic.theme";
 import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import { useModal } from "@/store/modalStore";
 import ImageModal from "./ImageModal";
-import { Image } from "@/models/Image";
+import { RequirementImage } from "@/models/Image";
 import ImageCard from "./ImageCard";
 import {
   DndContext,
@@ -38,21 +38,38 @@ import { useRequirementStore } from "@/components/App/Inspections/Profile/Requir
 type ImagesContainerProps = {
   imageType: ImageTypeEnum;
   inspectionId: number;
+  requirementId: number;
 };
 
 const ImagesContainer: FC<ImagesContainerProps> = memo(
-  ({ imageType, inspectionId }) => {
+  ({ imageType, inspectionId, requirementId }) => {
     const isPhoto = imageType === ImageTypeEnum.PHOTO;
     const { setOpen, setClose } = useModal();
     const [isExpanded, setIsExpanded] = useState(false);
-    const { photos, figures, setPhotos, setFigures, setIsDataChanged } =
-      useRequirementStore();
+    const {
+      requirementPhotos,
+      requirementFigures,
+      setRequirementPhotos,
+      setIsDataChanged,
+    } = useRequirementStore();
 
-    const [images, setImages] = useState<Image[]>([]);
+    const [images, setImages] = useState<RequirementImage[]>([]);
 
     useEffect(() => {
-      setImages(isPhoto ? photos : figures);
-    }, [isPhoto, photos, figures]);
+      if (isPhoto) {
+        setImages(
+          requirementPhotos.filter(
+            (photo) => photo.requirement_id === requirementId
+          ) ?? []
+        );
+      } else {
+        setImages(
+          requirementFigures.filter(
+            (figure) => figure.requirement_id === requirementId
+          ) ?? []
+        );
+      }
+    }, [isPhoto, requirementPhotos, requirementFigures, requirementId]);
 
     const activationConstraint = {
       delay: 100,
@@ -86,6 +103,10 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       input.onchange = (event) => {
         const file = (event.target as HTMLInputElement).files?.[0];
         if (file) {
+          const newImageIndex =
+            images.length > 0
+              ? (images[images.length - 1].sort_order || 0) + 1
+              : 1;
           setOpen({
             content: (
               <ImageModal
@@ -97,7 +118,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                 file={file}
                 inspectionId={inspectionId}
                 imageType={imageType}
-                index={images.length}
+                imageIndex={newImageIndex}
               />
             ),
             width: "640px",
@@ -107,7 +128,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       input.click();
     };
 
-    const handleImageClick = (image: Image, index: number) => {
+    const handleImageClick = (image: RequirementImage) => {
       setOpen({
         content: (
           <ImageModal
@@ -123,23 +144,47 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
               setImageLists(updatedImages);
               setClose();
             }}
-            imageData={image}
+            requirementImage={image}
             inspectionId={inspectionId}
             imageType={imageType}
-            index={index}
           />
         ),
         width: "640px",
       });
     };
 
-    const setImageLists = (imagesList: Image[]) => {
-      setImages(imagesList);
-      if (isPhoto) {
-        setPhotos(imagesList);
-      } else {
-        setFigures(imagesList);
+    const setImageLists = (imagesList: RequirementImage[]) => {
+      // Find the index of the first and last photo with this requirement ID
+      const firstIndex = requirementPhotos.findIndex(
+        (photo) => photo.requirement_id === requirementId
+      );
+      const lastIndex = requirementPhotos
+        .map((photo) => photo.requirement_id)
+        .lastIndexOf(requirementId);
+
+      let updatedImagesList: RequirementImage[] = [];
+
+      if (firstIndex !== -1 && lastIndex !== -1) {
+        const firstSection = requirementPhotos.slice(0, firstIndex);
+        const lastSection = requirementPhotos.slice(lastIndex + 1);
+        updatedImagesList = [
+          ...firstSection,
+          ...imagesList,
+          ...lastSection,
+        ].map((photo, index) => ({
+          ...photo,
+          sort_order: index + 1,
+        }));
+
+        setRequirementPhotos(updatedImagesList);
       }
+
+      // Set local component state directly with the updated list
+      setImages(
+        updatedImagesList.filter(
+          (image) => image.requirement_id === requirementId
+        )
+      );
       setIsDataChanged(true);
     };
 
@@ -238,13 +283,12 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                 >
                   {images.map((image, index) => (
                     <ImageCard
-                      key={image.id}
+                      key={`${image.id}-${index}`}
                       image={image}
                       handleImageClick={() => {
-                        handleImageClick(image, index);
+                        handleImageClick(image);
                       }}
                       isPhoto={isPhoto}
-                      index={index}
                     />
                   ))}
                 </SortableContext>

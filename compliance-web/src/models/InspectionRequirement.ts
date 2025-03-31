@@ -5,7 +5,7 @@ import { InspectionRequirementType } from "./InspectionRequirementType";
 import { RequirementDocumentType } from "./RequirementDocumentType";
 import { RequirementSource } from "./RequirementSource";
 import { Topic } from "./Topic";
-import { Image } from "./Image";
+import { RequirementImage } from "./Image";
 
 export interface InspectionRequirement {
   id: number;
@@ -126,8 +126,8 @@ export interface InspectionRequirementAPIData {
   compliance_finding_id?: string,
   findings: string,
   requirement_source_details?: InspectionRequirementSourceAPIData[],
-  photos?: Image[],
-  figures?: Image[],
+  photos?: RequirementImage[],
+  figures?: RequirementImage[],
 }
 
 export interface InspectionRequirementSourceAPIData {

@@ -23,6 +23,7 @@ interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
   requirementSourceFormDataList: RequirementSourceFormData[];
   inspectionId: number;
+  requirementId: number;
   isRegulatoryConsideration: boolean;
 }
 
@@ -30,12 +31,14 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   onDataChange,
   requirementSourceFormDataList,
   inspectionId,
+  requirementId,
   isRegulatoryConsideration,
 }) => {
   const { setOpen, setClose } = useModal();
   const [requirementSourceFormData, setRequirementSourceFormData] = useState<
     RequirementSourceFormData[]
   >(requirementSourceFormDataList);
+  
 
   useEffect(() => {
     onDataChange(requirementSourceFormData);
@@ -310,10 +313,12 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       <ImagesContainer
         imageType={ImageTypeEnum.PHOTO}
         inspectionId={inspectionId}
+        requirementId={requirementId}
       />
       <ImagesContainer
         imageType={ImageTypeEnum.FIGURE}
         inspectionId={inspectionId}
+        requirementId={requirementId}
       />
       <AppendicesContainer inspectionId={inspectionId} />
     </Box>

@@ -6,7 +6,6 @@ import {
   useCreateInspectionRequirement,
   useDeleteInspectionRequirement,
   useEnforcementActionsData,
-  useInspectionRequirementImagesData,
   useInspectionRequirementTypesData,
   useUpdateInspectionRequirement,
 } from "@/hooks/useInspectionRequirements";
@@ -33,6 +32,7 @@ import {
 import * as yup from "yup";
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { useRequirementStore } from "./requirementStore";
+import { RequirementImages } from "@/models/Image";
 
 type RequirementDrawerProps = {
   inspectionData: Inspection;
@@ -40,6 +40,7 @@ type RequirementDrawerProps = {
   requirement?: InspectionRequirement;
   index?: number;
   isRegulatoryConsideration?: boolean;
+  requirementImages?: RequirementImages;
 };
 
 const initFormData: InspectionRequirementFormData = {
@@ -57,6 +58,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   requirement,
   index,
   isRegulatoryConsideration = false,
+  requirementImages,
 }) => {
   const { appHeaderHeight } = useMenuStore();
   const [inspectionRequirementData, setInspectionRequirementData] = useState<
@@ -84,21 +86,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const { data: topicsList } = useTopicsData();
   const { data: agenciesList } = useAgenciesData();
 
-  const { data: photosData } = useInspectionRequirementImagesData(
-    inspectionData.id,
-    requirement?.id ?? 0,
-    "photos"
-  );
-
-  const { data: figuresData } = useInspectionRequirementImagesData(
-    inspectionData.id,
-    requirement?.id ?? 0,
-    "figures"
-  );
-
-  const GeneratedFormSchema = RequirementFormSchema(
-    isRegulatoryConsideration
-  );
+  const GeneratedFormSchema = RequirementFormSchema(isRegulatoryConsideration);
 
   type RequirementSchemaType = yup.InferType<typeof GeneratedFormSchema>;
 
@@ -164,16 +152,23 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     if (requirement) {
       formatAndSetFormData(requirement);
       setIsDataChanged(false);
-      setPhotos(photosData ?? []);
-      setFigures(figuresData ?? []);
+      setPhotos(
+        requirementImages?.photos.filter(
+          (photo) => photo.requirement_id === requirement.id
+        ) ?? []
+      );
+      setFigures(
+        requirementImages?.figures.filter(
+          (figure) => figure.requirement_id === requirement.id
+        ) ?? []
+      );
     } else {
       useRequirementStore.getState().reset();
     }
   }, [
     requirement,
     formatAndSetFormData,
-    photosData,
-    figuresData,
+    requirementImages,
     setPhotos,
     setFigures,
     setIsDataChanged,
@@ -292,6 +287,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
             requirementSourceFormDataList={requirementSourceList}
             inspectionId={inspectionData.id}
             isRegulatoryConsideration={isRegulatoryConsideration}
+            requirementId={requirement?.id ?? 0}
           />
         </Stack>
         <DrawerActionBarBottom

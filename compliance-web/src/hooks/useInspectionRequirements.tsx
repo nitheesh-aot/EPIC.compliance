@@ -8,7 +8,7 @@ import {
   InspectionRequirementAPIData,
 } from "@/models/InspectionRequirement";
 import { InspectionRequirementType } from "@/models/InspectionRequirementType";
-import { Image } from "@/models/Image";
+import { RequirementImage } from "@/models/Image";
 import { useStaticQuery } from "./useCustomQueries";
 
 const fetchInspectionRequirementTypes = (): Promise<
@@ -35,13 +35,21 @@ const fetchInspectionRequirements = (
   return request({ url: `/inspections/${inspectionId}/requirements` });
 };
 
-const fetchInspectionRequirementImages = (
+const fetchInspectionRequirementImages2 = (
   inspectionId: number,
   requirementId: number,
   imageType: "photos" | "figures"
-): Promise<Image[]> => {
+): Promise<RequirementImage[]> => {
   return request({
     url: `/inspections/${inspectionId}/requirements/${requirementId}/${imageType}`,
+  });
+};
+
+const fetchInspectionRequirementImages = (
+  inspectionId: number
+): Promise<RequirementImage[]> => {
+  return request({
+    url: `/inspections/${inspectionId}/images`,
   });
 };
 
@@ -156,14 +164,44 @@ export const useInspectionRequirementImagesData = (
       imageType,
     ],
     queryFn: () =>
-      fetchInspectionRequirementImages(inspectionId, requirementId, imageType),
-    select: (data: Image[]) => {
+      fetchInspectionRequirementImages2(inspectionId, requirementId, imageType),
+    select: (data: RequirementImage[]) => {
       return data.map((image) => ({
         ...image,
         dbId: image.id,
       }));
     },
     enabled: !!inspectionId && !!requirementId,
+    refetchOnWindowFocus: false,
+    staleTime: Infinity,
+  });
+};
+
+export const useInspectionRequirementImages = (inspectionId: number) => {
+  return useQuery({
+    queryKey: ["inspection-requirement-images", inspectionId],
+    queryFn: () => fetchInspectionRequirementImages(inspectionId),
+    select: (data: RequirementImage[]) => {
+      const reqPhotos = data.filter(
+        (image) => image.image_type?.toLowerCase() === "photo"
+      ).map((image, index) => ({
+        ...image,
+        dbId: image.id,
+        sort_order: index + 1,
+      }));
+      const reqFigures = data.filter(
+        (image) => image.image_type?.toLowerCase() === "figure"
+      ).map((image, index) => ({
+        ...image,
+        dbId: image.id,
+        sort_order: index + 1,
+      }));
+      return {
+        photos: reqPhotos,
+        figures: reqFigures,
+      };
+    },
+    enabled: !!inspectionId,
     refetchOnWindowFocus: false,
     staleTime: Infinity,
   });

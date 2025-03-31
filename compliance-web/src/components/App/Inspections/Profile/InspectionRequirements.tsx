@@ -1,5 +1,5 @@
 import RequirementDrawer from "@/components/App/Inspections/Profile/Requirements/RequirementDrawer";
-import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
+import { useInspectionRequirementImages, useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
 import { Inspection } from "@/models/Inspection";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { useDrawer } from "@/store/drawerStore";
@@ -15,6 +15,7 @@ import {
   REQUIREMENT_TYPE_ID,
 } from "./Requirements/RequirementUtils";
 import { DRAWER_WIDTHS } from "@/utils/constants";
+import { useRequirementStore } from "./Requirements/requirementStore";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
@@ -25,6 +26,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const { setOpen, isOpen, setClose } = useDrawer();
+  const { setRequirementPhotos, setRequirementFigures } = useRequirementStore();
   const [activeRequirementId, setActiveRequirementId] = React.useState<
     number | null
   >(null);
@@ -35,6 +37,10 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     React.useState<InspectionRequirement | null>(null);
 
   const { data: inspectionRequirementsData } = useInspectionRequirementsData(
+    inspectionData.id
+  );
+
+  const { data: inspectionRequirementImages } = useInspectionRequirementImages(
     inspectionData.id
   );
 
@@ -52,6 +58,13 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
       );
     }
   }, [inspectionRequirementsData]);
+
+  useEffect(() => {
+    if (inspectionRequirementImages) {
+      setRequirementPhotos(inspectionRequirementImages.photos);
+      setRequirementFigures(inspectionRequirementImages.figures);
+    }
+  }, [inspectionRequirementImages, setRequirementPhotos, setRequirementFigures]);
 
   const handleOnSubmit = useCallback(
     (submitMsg: string, isClose: boolean = true) => {
@@ -106,12 +119,13 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
             requirement={requirement}
             index={index}
             isRegulatoryConsideration={isRegulatoryConsideration}
+            requirementImages={inspectionRequirementImages}
           />
         ),
         width: DRAWER_WIDTHS.REQUIREMENT_DRAWER,
       });
     },
-    [setOpen, handleOnSubmit, inspectionData]
+    [setOpen, handleOnSubmit, inspectionData, inspectionRequirementImages]
   );
 
   const handleSortOrderChange = useCallback(

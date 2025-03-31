@@ -5,7 +5,7 @@ import { InspectionRequirement, InspectionRequirementAPIData, InspectionRequirem
 import { Topic } from "@/models/Topic";
 import { RequirementSourceEnum } from "@/utils/constants";
 import * as yup from "yup";
-import { Image, ImageAPIData } from "@/models/Image";
+import { RequirementImage, ImageAPIData } from "@/models/Image";
 import dateUtils from "@/utils/dateUtils";
 import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
 
@@ -62,8 +62,8 @@ export const isRequirementSourceCondition = (id: string): boolean =>
 export const formatRequirementAPIData = (
   formData: InspectionRequirementFormData,
   requirementSourceList: RequirementSourceFormData[],
-  photos?: Image[],
-  figures?: Image[],
+  photos?: RequirementImage[],
+  figures?: RequirementImage[],
 ): InspectionRequirementAPIData => {
 
   const requirementSourceDetails: InspectionRequirementSourceAPIData[] =
@@ -121,7 +121,7 @@ export const formatRequirementAPIData = (
   return inspectionRequirementPayload;
 };
 
-const formatImages = (images: Image[]): ImageAPIData[] => {
+const formatImages = (images: RequirementImage[]): ImageAPIData[] => {
   return images.map((image) => {
     return {
       id: image.dbId ?? undefined,
@@ -130,6 +130,7 @@ const formatImages = (images: Image[]): ImageAPIData[] => {
       taken_by_id: image.taken_by_id,
       caption: image.caption,
       relative_url: image.relative_url,
+      sort_order: image.sort_order,
     };
   });
 }
@@ -203,7 +204,7 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
   };
 };
 
-export const formatImagesToMentionList = (images: Image[]): MentionData[] => {
+export const formatImagesToMentionList = (images: RequirementImage[]): MentionData[] => {
   return images.map((image, index) => ({
     id: image.id ?? 0,
     name: `${image.image_type ?? ""} ${index + 1}`,
