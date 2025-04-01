@@ -71,10 +71,8 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     useState(false);
 
   const {
-    photos,
-    figures,
-    setPhotos,
-    setFigures,
+    requirementPhotos,
+    requirementFigures,
     isDataChanged,
     setIsDataChanged,
   } = useRequirementStore();
@@ -152,27 +150,10 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     if (requirement) {
       formatAndSetFormData(requirement);
       setIsDataChanged(false);
-      setPhotos(
-        requirementImages?.photos.filter(
-          (photo) => photo.requirement_id === requirement.id
-        ) ?? []
-      );
-      setFigures(
-        requirementImages?.figures.filter(
-          (figure) => figure.requirement_id === requirement.id
-        ) ?? []
-      );
     } else {
       useRequirementStore.getState().reset();
     }
-  }, [
-    requirement,
-    formatAndSetFormData,
-    requirementImages,
-    setPhotos,
-    setFigures,
-    setIsDataChanged,
-  ]);
+  }, [requirement, formatAndSetFormData, requirementImages, setIsDataChanged]);
 
   useEffect(() => {
     if (isDataChanged) {
@@ -208,8 +189,8 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
         : formatRequirementAPIData(
             formLeftData,
             requirementSourceList,
-            photos,
-            figures
+            requirementPhotos[requirement?.id ?? 0],
+            requirementFigures[requirement?.id ?? 0]
           );
 
       if (inspectionRequirementData) {
@@ -228,9 +209,10 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     [
       isRegulatoryConsideration,
       requirementSourceList,
-      photos,
-      figures,
+      requirementPhotos,
+      requirementFigures,
       inspectionRequirementData,
+      requirement?.id,
       updateInspectionRequirement,
       inspectionData.id,
       createInspectionRequirement,
@@ -281,6 +263,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
             appHeaderHeight={appHeaderHeight}
             isRegulatoryConsideration={isRegulatoryConsideration}
             isEditMode={!!inspectionRequirementData}
+            requirementId={requirement?.id ?? 0}
           />
           <RequirementFormRight
             onDataChange={onRequirementSourceListDataChange}

@@ -1,19 +1,18 @@
 import { create } from "zustand";
 import { RequirementImage } from "@/models/Image";
 import { Appendix } from "@/models/Appendix";
+import { InspectionRequirement } from "@/models/InspectionRequirement";
 
 // Define the store state and actions
 interface RequirementStore {
-  photos: RequirementImage[];
-  figures: RequirementImage[];
-  requirementPhotos: RequirementImage[];
-  requirementFigures: RequirementImage[];
+  requirementsList: InspectionRequirement[];
+  requirementPhotos: Record<number, RequirementImage[]>;
+  requirementFigures: Record<number, RequirementImage[]>;
   appendices: Appendix[];
   isDataChanged: boolean;
-  setPhotos: (photos: RequirementImage[]) => void;
-  setFigures: (figures: RequirementImage[]) => void;
-  setRequirementPhotos: (requirementPhotos: RequirementImage[]) => void;
-  setRequirementFigures: (requirementFigures: RequirementImage[]) => void;
+  setRequirementsList: (requirementsList: InspectionRequirement[]) => void;
+  setRequirementPhotos: (requirementPhotos: Record<number, RequirementImage[]>) => void;
+  setRequirementFigures: (requirementFigures: Record<number, RequirementImage[]>) => void;
   setAppendices: (appendices: Appendix[]) => void;
   setIsDataChanged: (isDataChanged: boolean) => void;
   reset: () => void;
@@ -21,17 +20,15 @@ interface RequirementStore {
 
 // Create the Zustand store
 export const useRequirementStore = create<RequirementStore>((set) => ({
-  photos: [],
-  figures: [],
-  requirementPhotos: [],
-  requirementFigures: [],
+  requirementsList: [],
+  requirementPhotos: {},
+  requirementFigures: {},
   appendices: [],
   isDataChanged: false,
-  setPhotos: (photos: RequirementImage[]) => set({ photos }),
-  setFigures: (figures: RequirementImage[]) => set({ figures }),
-  setRequirementPhotos: (requirementPhotos: RequirementImage[]) => set({ requirementPhotos }),
-  setRequirementFigures: (requirementFigures: RequirementImage[]) => set({ requirementFigures }),
+  setRequirementsList: (requirementsList: InspectionRequirement[]) => set({ requirementsList }),
+  setRequirementPhotos: (requirementPhotos: Record<number, RequirementImage[]>) => set({ requirementPhotos }),
+  setRequirementFigures: (requirementFigures: Record<number, RequirementImage[]>) => set({ requirementFigures }),
   setAppendices: (appendices: Appendix[]) => set({ appendices }),
   setIsDataChanged: (isDataChanged: boolean) => set({ isDataChanged }),
-  reset: () => set({ photos: [], figures: [], requirementPhotos: [], requirementFigures: [], appendices: [], isDataChanged: false }),
+  reset: () => set({ requirementsList: [], requirementPhotos: {}, requirementFigures: {}, appendices: [], isDataChanged: false }),
 }));

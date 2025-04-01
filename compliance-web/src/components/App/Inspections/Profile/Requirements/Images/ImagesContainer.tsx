@@ -50,6 +50,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       requirementPhotos,
       requirementFigures,
       setRequirementPhotos,
+      setRequirementFigures,
       setIsDataChanged,
     } = useRequirementStore();
 
@@ -57,17 +58,9 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
 
     useEffect(() => {
       if (isPhoto) {
-        setImages(
-          requirementPhotos.filter(
-            (photo) => photo.requirement_id === requirementId
-          ) ?? []
-        );
+        setImages(requirementPhotos[requirementId] ?? []);
       } else {
-        setImages(
-          requirementFigures.filter(
-            (figure) => figure.requirement_id === requirementId
-          ) ?? []
-        );
+        setImages(requirementFigures[requirementId] ?? []);
       }
     }, [isPhoto, requirementPhotos, requirementFigures, requirementId]);
 
@@ -154,37 +147,36 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
     };
 
     const setImageLists = (imagesList: RequirementImage[]) => {
-      // Find the index of the first and last photo with this requirement ID
-      const firstIndex = requirementPhotos.findIndex(
-        (photo) => photo.requirement_id === requirementId
+      const updatedRequirementImages: Record<number, RequirementImage[]> =
+        isPhoto ? requirementPhotos : requirementFigures;
+
+      updatedRequirementImages[requirementId] = imagesList;
+
+      const updatedImagesWithSortOrder = Object.entries(
+        updatedRequirementImages
+      ).reduce(
+        (acc, [reqId, images]) => {
+          acc[Number(reqId)] = images.map((image) => ({ ...image }));
+          return acc;
+        },
+        {} as Record<number, RequirementImage[]>
       );
-      const lastIndex = requirementPhotos
-        .map((photo) => photo.requirement_id)
-        .lastIndexOf(requirementId);
 
-      let updatedImagesList: RequirementImage[] = [];
+      let initialIndex = 1;
+      Object.values(updatedImagesWithSortOrder).forEach((images) => {
+        images.forEach((image) => {
+          image.sort_order = initialIndex;
+          initialIndex++;
+        });
+      });
 
-      if (firstIndex !== -1 && lastIndex !== -1) {
-        const firstSection = requirementPhotos.slice(0, firstIndex);
-        const lastSection = requirementPhotos.slice(lastIndex + 1);
-        updatedImagesList = [
-          ...firstSection,
-          ...imagesList,
-          ...lastSection,
-        ].map((photo, index) => ({
-          ...photo,
-          sort_order: index + 1,
-        }));
-
-        setRequirementPhotos(updatedImagesList);
+      if (isPhoto) {
+        setRequirementPhotos(updatedImagesWithSortOrder);
+      } else {
+        setRequirementFigures(updatedImagesWithSortOrder);
       }
 
-      // Set local component state directly with the updated list
-      setImages(
-        updatedImagesList.filter(
-          (image) => image.requirement_id === requirementId
-        )
-      );
+      setImages(updatedImagesWithSortOrder[requirementId] ?? []);
       setIsDataChanged(true);
     };
 

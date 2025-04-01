@@ -16,6 +16,7 @@ import {
 } from "./Requirements/RequirementUtils";
 import { DRAWER_WIDTHS } from "@/utils/constants";
 import { useRequirementStore } from "./Requirements/requirementStore";
+import { RequirementImage } from "@/models/Image";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
@@ -26,7 +27,11 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const { setOpen, isOpen, setClose } = useDrawer();
-  const { setRequirementPhotos, setRequirementFigures } = useRequirementStore();
+  const {
+    setRequirementPhotos,
+    setRequirementFigures,
+    setRequirementsList,
+  } = useRequirementStore();
   const [activeRequirementId, setActiveRequirementId] = React.useState<
     number | null
   >(null);
@@ -46,23 +51,30 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 
   useEffect(() => {
     if (inspectionRequirementsData) {
-      setInspectionRequirements(
-        inspectionRequirementsData.filter(
-          (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
-        )
+      const inspectionRequirements = inspectionRequirementsData.filter(
+        (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
       );
+      setRequirementsList(inspectionRequirements);
+      setInspectionRequirements(inspectionRequirements);
+      
       setRegulatoryConsideration(
         inspectionRequirementsData.find(
           (req) => req.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID
         ) ?? null
       );
     }
-  }, [inspectionRequirementsData]);
+  }, [inspectionRequirementsData, setRequirementsList]);
 
   useEffect(() => {
     if (inspectionRequirementImages) {
-      setRequirementPhotos(inspectionRequirementImages.photos);
-      setRequirementFigures(inspectionRequirementImages.figures);
+      setRequirementPhotos(inspectionRequirementImages.photos.reduce((acc, photo) => {
+        acc[photo.requirement_id ?? 0] = [...(acc[photo.requirement_id ?? 0] || []), photo];
+        return acc;
+      }, {} as Record<number, RequirementImage[]>));
+      setRequirementFigures(inspectionRequirementImages.figures.reduce((acc, figure) => {
+        acc[figure.requirement_id ?? 0] = [...(acc[figure.requirement_id ?? 0] || []), figure];
+        return acc;
+      }, {} as Record<number, RequirementImage[]>));
     }
   }, [inspectionRequirementImages, setRequirementPhotos, setRequirementFigures]);
 
