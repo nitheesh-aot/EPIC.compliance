@@ -47,8 +47,6 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
   const summaryInputRef = useRef<HTMLInputElement>(null);
   const [isReadOnly, setIsReadOnly] = useState(isEditMode);
 
-  console.log("--- from RequirementFormLeft requirementPhotos", requirementPhotos);
-
   useEffect(() => {
     if (!isReadOnly) {
       setTimeout(() => {
@@ -65,6 +63,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
       ],
       requirementId
     );
+    console.log("--- from RequirementFormLeft mentionList", mentionList);
     setMentionDataList(mentionList);
   }, [requirementPhotos, requirementFigures, requirementId]);
 
