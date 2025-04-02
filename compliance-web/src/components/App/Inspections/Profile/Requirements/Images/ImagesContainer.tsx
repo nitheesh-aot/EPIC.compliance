@@ -47,8 +47,10 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
     const { setOpen, setClose } = useModal();
     const [isExpanded, setIsExpanded] = useState(false);
     const {
+      requirementsList,
       requirementPhotos,
       requirementFigures,
+      setRequirementsList,
       setRequirementPhotos,
       setRequirementFigures,
       setIsDataChanged,
@@ -176,8 +178,56 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
         setRequirementFigures(updatedImagesWithSortOrder);
       }
 
+      updateRequirementFindings(updatedImagesWithSortOrder);
+
       setImages(updatedImagesWithSortOrder[requirementId] ?? []);
       setIsDataChanged(true);
+    };
+
+    const updateRequirementFindings = (
+      updateImages: Record<number, RequirementImage[]>
+    ) => {
+      const updatedRequirementsList = requirementsList.map((requirement) => {
+        const { findings } = requirement;
+        if (!findings || !findings.includes("data-lexical-mention="))
+          return requirement;
+
+        // Create a temporary DOM element to parse the HTML
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = findings;
+
+        // Find all spans with data-lexical-mention attribute
+        const mentionSpans = tempDiv.querySelectorAll(
+          'span[data-lexical-mention="true"]'
+        );
+
+        const imagesList = updateImages[requirement.id];
+
+        // Replace the content of each mention span with Updated Photo
+        mentionSpans.forEach((span) => {
+          const spanImageId = span.getAttribute("data-imageid");
+          const image = imagesList?.find(
+            (image) => image.id?.toString() === spanImageId
+          );
+          if (image) {
+            const imageLabel = `${image.image_type} ${image.sort_order}`;
+            span.textContent = imageLabel;
+            span.setAttribute("data-mention", imageLabel);
+            span.setAttribute("data-imageurl", image.relative_url ?? "");
+          } else {
+            span.parentNode?.removeChild(span);
+          }
+        });
+
+        // Get the updated HTML
+        const updatedFindings = tempDiv.innerHTML;
+
+        return {
+          ...requirement,
+          findings: updatedFindings,
+        };
+      });
+      setRequirementsList(updatedRequirementsList);
     };
 
     return (
