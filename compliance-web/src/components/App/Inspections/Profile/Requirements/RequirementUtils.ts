@@ -1,7 +1,7 @@
 import { Agency } from "@/models/Agency";
 import { ComplianceFinding } from "@/models/ComplianceFinding";
 import { EnforcementAction } from "@/models/EnforcementAction";
-import { InspectionRequirement, InspectionRequirementAPIData, InspectionRequirementFormData, InspectionRequirementSourceAPIData, InspectionRequirementSourceDocumentAPIData, RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData, RequirementSourceFormData } from "@/models/InspectionRequirement";
+import { InspectionRequirement, InspectionRequirementAPIData, InspectionRequirementBatchAPIData, InspectionRequirementBatchImageAPIData, InspectionRequirementFormData, InspectionRequirementSourceAPIData, InspectionRequirementSourceDocumentAPIData, RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData, RequirementSourceFormData } from "@/models/InspectionRequirement";
 import { Topic } from "@/models/Topic";
 import { RequirementSourceEnum } from "@/utils/constants";
 import * as yup from "yup";
@@ -234,4 +234,32 @@ export const groupRequirementSourcesByType = (
     },
     new Map<string, RequirementSourceFormData[]>()
   );
+};
+
+
+export const formatRequirementBatchAPIData = (
+  requirements: InspectionRequirement[],
+  requirementPhotos: Record<number, RequirementImage[]>,
+  requirementFigures: Record<number, RequirementImage[]>,
+  currentRequirementId: number
+): InspectionRequirementBatchAPIData[] => {
+  // prepare batch update data for all requirements except the current one
+  // current requirement should be updated separately
+  return requirements
+    .filter((requirement) => requirement.id !== currentRequirementId)
+    .map((requirement) => {
+      const photos = requirementPhotos[requirement.id] ?? [];
+      const figures = requirementFigures[requirement.id] ?? [];
+      const images: InspectionRequirementBatchImageAPIData[] = [...photos, ...figures].map((image) => {
+        return {
+          image_id: image.id ?? 0,
+          sort_order: image.sort_order ?? 0,
+        };
+      });
+      return {
+        requirement_id: requirement.id,
+        findings: requirement.findings,
+        images: images,
+      };
+    });
 };

@@ -149,3 +149,14 @@ export interface InspectionRequirementSourceDocumentAPIData {
   section_title: string,
   description: string,
 }
+
+export interface InspectionRequirementBatchAPIData {
+  requirement_id: number,
+  findings: string,
+  images: InspectionRequirementBatchImageAPIData[]
+}
+
+export interface InspectionRequirementBatchImageAPIData {
+  image_id: number,
+  sort_order: number
+}

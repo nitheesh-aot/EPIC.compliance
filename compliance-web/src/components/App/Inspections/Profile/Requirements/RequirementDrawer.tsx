@@ -8,6 +8,7 @@ import {
   useEnforcementActionsData,
   useInspectionRequirementTypesData,
   useUpdateInspectionRequirement,
+  useUpdateInspectionRequirementBatch,
 } from "@/hooks/useInspectionRequirements";
 import { useTopicsData } from "@/hooks/useTopics";
 import { Inspection } from "@/models/Inspection";
@@ -26,6 +27,7 @@ import RequirementFormRight from "./RequirementFormRight";
 import {
   formatRegulatoryConsiderationAPIData,
   formatRequirementAPIData,
+  formatRequirementBatchAPIData,
   formatRequirementFormData,
   RequirementFormSchema,
 } from "./RequirementUtils";
@@ -71,6 +73,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     useState(false);
 
   const {
+    requirementsList,
     requirementPhotos,
     requirementFigures,
     isDataChanged,
@@ -110,12 +113,42 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     );
   }, [inspectionRequirementData, reset, inspectionRequirementTypesList]);
 
+  const onBatchUpdateSuccess = useCallback(() => {
+    onSubmit("Batch update saved successfully!", false);
+    setIsRequirementSourceListDirty(false);
+  }, [onSubmit, setIsRequirementSourceListDirty]);
+
+  const { mutate: updateInspectionRequirementBatch } =
+    useUpdateInspectionRequirementBatch(onBatchUpdateSuccess);
+
+  // const doRequirementBatchUpdate = useCallback(() => {
+  //   const requirementBatchAPIData = formatRequirementBatchAPIData(
+  //     requirementsList,
+  //     requirementPhotos,
+  //     requirementFigures,
+  //     requirement?.id ?? 0
+  //   );
+  //   console.log(requirementBatchAPIData);
+  //   updateInspectionRequirementBatch({
+  //     inspectionId: inspectionData.id,
+  //     requirementBatch: requirementBatchAPIData,
+  //   });
+  // }, [
+  //   requirementsList,
+  //   requirementPhotos,
+  //   requirementFigures,
+  //   inspectionData,
+  //   updateInspectionRequirementBatch,
+  //   requirement,
+  // ]);
+
   const onCreateSuccess = useCallback(() => {
     onSubmit("Requirement created successfully!", true);
     reset();
   }, [onSubmit, reset]);
 
   const onUpdateSuccess = useCallback(() => {
+    // doRequirementBatchUpdate();
     onSubmit("Changes saved successfully!", false);
     setIsRequirementSourceListDirty(false);
   }, [onSubmit]);
@@ -184,6 +217,13 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     (formData: RequirementSchemaType) => {
       const formLeftData = formData as InspectionRequirementFormData;
 
+      const requirementBatchAPIData = formatRequirementBatchAPIData(
+        requirementsList,
+        requirementPhotos,
+        requirementFigures,
+        requirement?.id ?? 0
+      );
+
       const inspectionRequirementPayload = isRegulatoryConsideration
         ? formatRegulatoryConsiderationAPIData(formLeftData)
         : formatRequirementAPIData(
@@ -198,6 +238,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           inspectionId: inspectionData.id,
           requirementId: inspectionRequirementData.id ?? 0,
           inspectionRequirement: inspectionRequirementPayload,
+          requirementBatch: requirementBatchAPIData,
         });
       } else {
         createInspectionRequirement({
@@ -207,14 +248,15 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       }
     },
     [
-      isRegulatoryConsideration,
-      requirementSourceList,
+      requirementsList,
       requirementPhotos,
       requirementFigures,
+      requirement,
+      isRegulatoryConsideration,
+      requirementSourceList,
       inspectionRequirementData,
-      requirement?.id,
       updateInspectionRequirement,
-      inspectionData.id,
+      inspectionData,
       createInspectionRequirement,
     ]
   );

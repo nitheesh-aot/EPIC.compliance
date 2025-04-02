@@ -637,6 +637,35 @@ export default function MentionsPlugin({
 
                 // Replace the old node with the new one
                 node.replace(newMentionNode);
+              } else {
+                // If no matching image is found, delete the mention node
+                // First, check if the node has a parent
+                const parent = node.getParent();
+                
+                if (parent) {
+                  // Check if there are spaces around the mention node that should be handled
+                  const siblings = parent.getChildren();
+                  const nodeIndex = siblings.indexOf(node);
+                  
+                  // Check for space nodes before and after
+                  const prevNode = nodeIndex > 0 ? siblings[nodeIndex - 1] : null;
+                  const nextNode = nodeIndex < siblings.length - 1 ? siblings[nodeIndex + 1] : null;
+                  
+                  // Check if we have spaces on both sides
+                  const hasPrevSpace = prevNode instanceof TextNode && prevNode.getTextContent() === " ";
+                  const hasNextSpace = nextNode instanceof TextNode && nextNode.getTextContent() === " ";
+                  
+                  // Remove the mention node
+                  node.remove();
+                  
+                  // If there were spaces on both sides, remove one to avoid double spaces
+                  if (hasPrevSpace && hasNextSpace && prevNode) {
+                    prevNode.remove();
+                  }
+                } else {
+                  // Just remove the node if it has no parent
+                  node.remove();
+                }
               }
             }
           }

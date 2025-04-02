@@ -178,21 +178,26 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
         setRequirementFigures(updatedImagesWithSortOrder);
       }
 
-      updateRequirementFindings(updatedImagesWithSortOrder);
-
       // Update any active Lexical editor that might contain mentions related to these images
-      updateActiveLexicalEditor(updatedImagesWithSortOrder[requirementId]);
+      updateActiveLexicalEditor(updatedImagesWithSortOrder);
+      updateRequirementFindings(updatedImagesWithSortOrder); //TODO: Check if all images are needed here
 
       setImages(updatedImagesWithSortOrder[requirementId] ?? []);
       setIsDataChanged(true);
     };
 
-    // Function to update Lexical editor mentions when images are updated
-    const updateActiveLexicalEditor = (updatedImages: RequirementImage[]) => {
+    const updateActiveLexicalEditor = (
+      updatedImages: Record<number, RequirementImage[]>
+    ) => {
       // Find all active Lexical editor instances on the page
       const editorElements = document.querySelectorAll(".editor-input");
 
-      if (!editorElements.length || !updatedImages) return;
+      if (!editorElements.length) return;
+
+      // Flatten all images from all requirements into a single array
+      const allImages = Object.values(updatedImages).flat();
+
+      if (!allImages.length) return;
 
       // For each editor instance, we need to update the mentions
       editorElements.forEach((editorElement) => {
@@ -205,7 +210,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
           cancelable: true,
           detail: {
             type: "update-mentions",
-            images: updatedImages,
+            images: allImages,
           },
         });
 
