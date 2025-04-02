@@ -63,7 +63,6 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
       ],
       requirementId
     );
-    console.log("--- from RequirementFormLeft mentionList", mentionList);
     setMentionDataList(mentionList);
   }, [requirementPhotos, requirementFigures, requirementId]);
 

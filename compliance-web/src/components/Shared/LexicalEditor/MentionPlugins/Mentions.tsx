@@ -27,13 +27,17 @@ import {
   SELECTION_CHANGE_COMMAND,
   $getSelection,
   $createTextNode,
+  $getRoot,
+  LexicalNode,
+  ElementNode,
 } from "lexical";
 import { useCallback, useEffect, useState } from "react";
-import { $createMentionNode } from "./MentionNode";
+import { $createMentionNode, MentionNode } from "./MentionNode";
 import ReactDOM from "react-dom";
 import { Box, Typography } from "@mui/material";
 import { MentionData } from "../LexicalUtils";
 import { formatS3Url } from "@/utils/appUtils";
+import { RequirementImage } from "@/models/Image";
 
 const PUNCTUATION =
   "\\.,\\+\\*\\?\\$\\@\\|#{}\\(\\)\\^\\-\\[\\]\\\\/!%'\"~=<>_:;";
@@ -249,6 +253,11 @@ const NAVIGATE_FROM_MENTION_COMMAND: LexicalCommand<{
   direction: "left" | "right";
 }> = createCommand("NAVIGATE_FROM_MENTION_COMMAND");
 
+// Define a command for updating mentions when images are updated
+const UPDATE_MENTIONS_COMMAND: LexicalCommand<{
+  images: Array<RequirementImage>;
+}> = createCommand("UPDATE_MENTIONS_COMMAND");
+
 export default function MentionsPlugin({
   mentionsList,
 }: {
@@ -369,41 +378,6 @@ export default function MentionsPlugin({
     },
     [checkForSlashTriggerMatch, editor]
   );
-
-  // Register a listener for the custom DOM events
-  useEffect(() => {
-    // Function to handle the custom event from DOM
-    const handleCustomEvent = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail?.type === "remove-mention") {
-        editor.dispatchCommand(REMOVE_MENTION_COMMAND, {
-          key: customEvent.detail.key,
-        });
-      } else if (customEvent.detail?.type === "move-selection-after-mention") {
-        editor.dispatchCommand(MOVE_SELECTION_AFTER_MENTION_COMMAND, {
-          key: customEvent.detail.key,
-        });
-      } else if (customEvent.detail?.type === "navigate-from-mention") {
-        editor.dispatchCommand(NAVIGATE_FROM_MENTION_COMMAND, {
-          key: customEvent.detail.key,
-          direction: customEvent.detail.direction,
-        });
-      }
-    };
-
-    // Get the editor element to attach the event listener
-    const editorElement = editor.getRootElement();
-    if (editorElement) {
-      editorElement.addEventListener("lexical-command", handleCustomEvent);
-    }
-
-    // Clean up when the component unmounts
-    return () => {
-      if (editorElement) {
-        editorElement.removeEventListener("lexical-command", handleCustomEvent);
-      }
-    };
-  }, [editor]);
 
   // Register command listeners for mention node interactions
   useEffect(() => {
@@ -566,8 +540,8 @@ export default function MentionsPlugin({
                 selection.focus.set(mentionNode.getKey(), 0, "text");
                 $setSelection(selection);
               }
-            } else {
-              // Right direction - check for space after the mention
+            } else if (direction === "right") {
+              // Check for space after the mention
               const nextNode =
                 nodeIndex < siblings.length - 1
                   ? siblings[nodeIndex + 1]
@@ -583,14 +557,15 @@ export default function MentionsPlugin({
               } else {
                 // Otherwise position cursor after the mention node
                 const selection = $createRangeSelection();
+                const textContentSize = mentionNode.getTextContentSize();
                 selection.anchor.set(
                   mentionNode.getKey(),
-                  mentionNode.getTextContentSize(),
+                  textContentSize,
                   "text"
                 );
                 selection.focus.set(
                   mentionNode.getKey(),
-                  mentionNode.getTextContentSize(),
+                  textContentSize,
                   "text"
                 );
                 $setSelection(selection);
@@ -630,10 +605,103 @@ export default function MentionsPlugin({
       COMMAND_PRIORITY_LOW
     );
 
+    // Command to update mentions when images are updated
+    const updateMentionsListener = editor.registerCommand(
+      UPDATE_MENTIONS_COMMAND,
+      (payload) => {
+        const { images } = payload;
+
+        editor.update(() => {
+          // Get the root node of the editor
+          const root = $getRoot();
+
+          // Function to update a mention node if it matches
+          function updateMentionIfNeeded(node: LexicalNode) {
+            if (node instanceof MentionNode) {
+              const imageId = node.__imageId;
+
+              // Find the corresponding image in the updated images list
+              const updatedImage = images.find((img) => img.id === imageId);
+
+              if (updatedImage) {
+                // Update the mention node with new values
+                const newName = `${updatedImage.image_type} ${updatedImage.sort_order}`;
+
+                // Instead of directly modifying properties, create a new node and replace the old one
+                const newMentionNode = $createMentionNode(
+                  newName,
+                  newName,
+                  updatedImage.relative_url || "",
+                  updatedImage.id
+                );
+
+                // Replace the old node with the new one
+                node.replace(newMentionNode);
+              }
+            }
+          }
+
+          // Traverse all nodes in the editor recursively using a safer approach
+          const nodes: LexicalNode[] = [];
+          root.getChildren().forEach((child) => nodes.push(child));
+
+          while (nodes.length > 0) {
+            const node = nodes.shift();
+            if (!node) continue;
+
+            // Process the current node
+            updateMentionIfNeeded(node);
+
+            // Add children if this is an element node
+            if (node instanceof ElementNode) {
+              node.getChildren().forEach((child) => nodes.push(child));
+            }
+          }
+        });
+
+        return true;
+      },
+      COMMAND_PRIORITY_LOW
+    );
+
+    // Register a listener for the custom DOM events
+    const handleCustomEvent = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail?.type === "remove-mention") {
+        editor.dispatchCommand(REMOVE_MENTION_COMMAND, {
+          key: customEvent.detail.key,
+        });
+      } else if (customEvent.detail?.type === "move-selection-after-mention") {
+        editor.dispatchCommand(MOVE_SELECTION_AFTER_MENTION_COMMAND, {
+          key: customEvent.detail.key,
+        });
+      } else if (customEvent.detail?.type === "navigate-from-mention") {
+        editor.dispatchCommand(NAVIGATE_FROM_MENTION_COMMAND, {
+          key: customEvent.detail.key,
+          direction: customEvent.detail.direction,
+        });
+      } else if (customEvent.detail?.type === "update-mentions") {
+        editor.dispatchCommand(UPDATE_MENTIONS_COMMAND, {
+          images: customEvent.detail.images,
+        });
+      }
+    };
+
+    // Get the editor element to attach the event listener
+    const editorElement = editor.getRootElement();
+    if (editorElement) {
+      editorElement.addEventListener("lexical-command", handleCustomEvent);
+    }
+
+    // Clean up when the component unmounts
     return () => {
+      if (editorElement) {
+        editorElement.removeEventListener("lexical-command", handleCustomEvent);
+      }
       removeListener();
       moveSelectionListener();
       navigateListener();
+      updateMentionsListener(); // Clean up the new listener
     };
   }, [editor]);
 

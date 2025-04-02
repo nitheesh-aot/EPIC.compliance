@@ -180,8 +180,37 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
 
       updateRequirementFindings(updatedImagesWithSortOrder);
 
+      // Update any active Lexical editor that might contain mentions related to these images
+      updateActiveLexicalEditor(updatedImagesWithSortOrder[requirementId]);
+
       setImages(updatedImagesWithSortOrder[requirementId] ?? []);
       setIsDataChanged(true);
+    };
+
+    // Function to update Lexical editor mentions when images are updated
+    const updateActiveLexicalEditor = (updatedImages: RequirementImage[]) => {
+      // Find all active Lexical editor instances on the page
+      const editorElements = document.querySelectorAll(".editor-input");
+
+      if (!editorElements.length || !updatedImages) return;
+
+      // For each editor instance, we need to update the mentions
+      editorElements.forEach((editorElement) => {
+        // Check if the editor is initialized and is accessible
+        if (!editorElement || !(editorElement instanceof HTMLElement)) return;
+
+        // Dispatch a custom event to update mentions in the Lexical editor
+        const event = new CustomEvent("lexical-command", {
+          bubbles: true,
+          cancelable: true,
+          detail: {
+            type: "update-mentions",
+            images: updatedImages,
+          },
+        });
+
+        editorElement.dispatchEvent(event);
+      });
     };
 
     const updateRequirementFindings = (
