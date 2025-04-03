@@ -46,6 +46,8 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
     const isPhoto = imageType === ImageTypeEnum.PHOTO;
     const { setOpen, setClose } = useModal();
     const [isExpanded, setIsExpanded] = useState(false);
+    const [currentRequirementId, setCurrentRequirementId] =
+      useState<number>(0);
     const {
       requirementsList,
       requirementPhotos,
@@ -59,12 +61,18 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
     const [images, setImages] = useState<RequirementImage[]>([]);
 
     useEffect(() => {
+      const currentRequirementImages: Record<number, RequirementImage[]> =
+        isPhoto ? requirementPhotos : requirementFigures;
+
+      const currentReqId = !requirementId ? NaN : requirementId;
+      setCurrentRequirementId(currentReqId);
+
       if (isPhoto) {
-        setImages(requirementPhotos[requirementId] ?? []);
+        setImages(currentRequirementImages[currentReqId] ?? []);
       } else {
-        setImages(requirementFigures[requirementId] ?? []);
+        setImages(currentRequirementImages[currentReqId] ?? []);
       }
-    }, [isPhoto, requirementPhotos, requirementFigures, requirementId]);
+    }, [requirementId, requirementPhotos, requirementFigures, isPhoto]);
 
     const activationConstraint = {
       delay: 100,
@@ -91,6 +99,17 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       }
     }
 
+    const getImageIndex = () => {
+      if (!requirementId) {
+        return isPhoto
+          ? (Object.values(requirementPhotos).flat().length || 0) + 1
+          : (Object.values(requirementFigures).flat().length || 0) + 1;
+      }
+      return images.length > 0
+        ? (images[images.length - 1].sort_order || 0) + 1
+        : 1;
+    };
+
     const selectImage = () => {
       const input = document.createElement("input");
       input.type = "file";
@@ -98,10 +117,6 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       input.onchange = (event) => {
         const file = (event.target as HTMLInputElement).files?.[0];
         if (file) {
-          const newImageIndex =
-            images.length > 0
-              ? (images[images.length - 1].sort_order || 0) + 1
-              : 1;
           setOpen({
             content: (
               <ImageModal
@@ -113,7 +128,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                 file={file}
                 inspectionId={inspectionId}
                 imageType={imageType}
-                imageIndex={newImageIndex}
+                imageIndex={getImageIndex()}
               />
             ),
             width: "640px",
@@ -149,10 +164,10 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
     };
 
     const setImageLists = (imagesList: RequirementImage[]) => {
-      const updatedRequirementImages: Record<number, RequirementImage[]> =
+      const updatedRequirementImages: Record<number , RequirementImage[]> =
         isPhoto ? requirementPhotos : requirementFigures;
 
-      updatedRequirementImages[requirementId] = imagesList;
+      updatedRequirementImages[currentRequirementId] = imagesList;
 
       const updatedImagesWithSortOrder = Object.entries(
         updatedRequirementImages
@@ -178,11 +193,12 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
         setRequirementFigures(updatedImagesWithSortOrder);
       }
 
-      // Update any active Lexical editor that might contain mentions related to these images
-      updateActiveLexicalEditor(updatedImagesWithSortOrder);
-      updateRequirementFindings(updatedImagesWithSortOrder); //TODO: Check if all images are needed here
 
-      setImages(updatedImagesWithSortOrder[requirementId] ?? []);
+      // Update any active Lexical editor that might contain mentions related to these images
+      updateActiveLexicalEditor(updatedImagesWithSortOrder); //TODO: Check if all images are needed here
+      updateRequirementFindings(updatedImagesWithSortOrder); 
+
+      setImages(updatedImagesWithSortOrder[currentRequirementId] ?? []);
       setIsDataChanged(true);
     };
 

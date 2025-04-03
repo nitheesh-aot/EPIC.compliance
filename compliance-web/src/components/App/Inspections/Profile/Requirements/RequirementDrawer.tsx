@@ -181,23 +181,23 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     (formData: RequirementSchemaType) => {
       const formLeftData = formData as InspectionRequirementFormData;
 
-      const requirementBatchAPIData = formatRequirementBatchAPIData(
-        requirementsList,
-        requirementPhotos,
-        requirementFigures,
-        requirement?.id ?? 0
-      );
-
       const inspectionRequirementPayload = isRegulatoryConsideration
         ? formatRegulatoryConsiderationAPIData(formLeftData)
         : formatRequirementAPIData(
             formLeftData,
             requirementSourceList,
-            requirementPhotos[requirement?.id ?? 0],
-            requirementFigures[requirement?.id ?? 0]
+            requirementPhotos[requirement?.id ?? NaN],
+            requirementFigures[requirement?.id ?? NaN]
           );
 
       if (inspectionRequirementData) {
+        // prepare for batch update
+        const requirementBatchAPIData = formatRequirementBatchAPIData(
+          requirementsList,
+          requirementPhotos,
+          requirementFigures,
+          requirement?.id ?? 0
+        );
         updateInspectionRequirement({
           inspectionId: inspectionData.id,
           requirementId: inspectionRequirementData.id ?? 0,
