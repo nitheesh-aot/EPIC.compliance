@@ -13,7 +13,11 @@ import {
   ExpandMoreRounded,
 } from "@mui/icons-material";
 import { BCDesignTokens } from "epic.theme";
-import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
+import {
+  formatRequirementImagesInFindings,
+  ImageTypeEnum,
+  updateImagesWithContinuousSortOrder,
+} from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import { useModal } from "@/store/modalStore";
 import ImageModal from "./ImageModal";
 import { RequirementImage } from "@/models/Image";
@@ -46,8 +50,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
     const isPhoto = imageType === ImageTypeEnum.PHOTO;
     const { setOpen, setClose } = useModal();
     const [isExpanded, setIsExpanded] = useState(false);
-    const [currentRequirementId, setCurrentRequirementId] =
-      useState<number>(0);
+    const [currentRequirementId, setCurrentRequirementId] = useState<number>(0);
     const {
       requirementsList,
       requirementPhotos,
@@ -164,28 +167,14 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
     };
 
     const setImageLists = (imagesList: RequirementImage[]) => {
-      const updatedRequirementImages: Record<number , RequirementImage[]> =
+      const updatedRequirementImages: Record<number, RequirementImage[]> =
         isPhoto ? requirementPhotos : requirementFigures;
 
       updatedRequirementImages[currentRequirementId] = imagesList;
 
-      const updatedImagesWithSortOrder = Object.entries(
+      const updatedImagesWithSortOrder = updateImagesWithContinuousSortOrder(
         updatedRequirementImages
-      ).reduce(
-        (acc, [reqId, images]) => {
-          acc[Number(reqId)] = images.map((image) => ({ ...image }));
-          return acc;
-        },
-        {} as Record<number, RequirementImage[]>
       );
-
-      let initialIndex = 1;
-      Object.values(updatedImagesWithSortOrder).forEach((images) => {
-        images.forEach((image) => {
-          image.sort_order = initialIndex;
-          initialIndex++;
-        });
-      });
 
       if (isPhoto) {
         setRequirementPhotos(updatedImagesWithSortOrder);
@@ -193,10 +182,14 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
         setRequirementFigures(updatedImagesWithSortOrder);
       }
 
-
       // Update any active Lexical editor that might contain mentions related to these images
       updateActiveLexicalEditor(updatedImagesWithSortOrder); //TODO: Check if all images are needed here
-      updateRequirementFindings(updatedImagesWithSortOrder); 
+
+      const updatedRequirementsList = formatRequirementImagesInFindings(
+        requirementsList,
+        updatedImagesWithSortOrder
+      );
+      setRequirementsList(updatedRequirementsList);
 
       setImages(updatedImagesWithSortOrder[currentRequirementId] ?? []);
       setIsDataChanged(true);
@@ -232,52 +225,6 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
 
         editorElement.dispatchEvent(event);
       });
-    };
-
-    const updateRequirementFindings = (
-      updateImages: Record<number, RequirementImage[]>
-    ) => {
-      const updatedRequirementsList = requirementsList.map((requirement) => {
-        const { findings } = requirement;
-        if (!findings || !findings.includes("data-lexical-mention="))
-          return requirement;
-
-        // Create a temporary DOM element to parse the HTML
-        const tempDiv = document.createElement("div");
-        tempDiv.innerHTML = findings;
-
-        // Find all spans with data-lexical-mention attribute
-        const mentionSpans = tempDiv.querySelectorAll(
-          'span[data-lexical-mention="true"]'
-        );
-
-        const imagesList = updateImages[requirement.id];
-
-        // Replace the content of each mention span with Updated Photo
-        mentionSpans.forEach((span) => {
-          const spanImageId = span.getAttribute("data-imageid");
-          const image = imagesList?.find(
-            (image) => image.id?.toString() === spanImageId
-          );
-          if (image) {
-            const imageLabel = `${image.image_type} ${image.sort_order}`;
-            span.textContent = imageLabel;
-            span.setAttribute("data-mention", imageLabel);
-            span.setAttribute("data-imageurl", image.relative_url ?? "");
-          } else {
-            span.parentNode?.removeChild(span);
-          }
-        });
-
-        // Get the updated HTML
-        const updatedFindings = tempDiv.innerHTML;
-
-        return {
-          ...requirement,
-          findings: updatedFindings,
-        };
-      });
-      setRequirementsList(updatedRequirementsList);
     };
 
     return (

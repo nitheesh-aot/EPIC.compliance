@@ -71,7 +71,7 @@ const createInspectionRequirement = ({
 const updateInspectionRequirement = ({
   inspectionId,
   requirementId,
-  inspectionRequirement
+  inspectionRequirement,
 }: {
   inspectionId: number;
   requirementId: number;
@@ -125,6 +125,7 @@ const deleteInspectionRequirement = ({
 }: {
   inspectionId: number;
   requirementId: number;
+  requirementBatch?: InspectionRequirementBatchAPIData[];
 }) => {
   return request({
     url: `/inspections/${inspectionId}/requirements/${requirementId}`,
@@ -253,7 +254,19 @@ export const useUpdateInspectionRequirementOrder = (
 };
 
 export const useDeleteInspectionRequirement = (onSuccess: OnSuccessType) => {
-  return useMutation({ mutationFn: deleteInspectionRequirement, onSuccess });
+  return useMutation({
+    mutationFn: deleteInspectionRequirement,
+    onSuccess(data, variables) {
+      // Batch update the requirement findings & images
+      if (variables.requirementBatch) {
+        updateInspectionRequirementBatch({
+          inspectionId: variables.inspectionId,
+          requirementBatch: variables.requirementBatch,
+        });
+      }
+      onSuccess(data);
+    },
+  });
 };
 
 export const useUpdateInspectionRequirementBatch = (

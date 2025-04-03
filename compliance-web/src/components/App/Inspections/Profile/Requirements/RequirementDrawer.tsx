@@ -28,10 +28,13 @@ import {
   formatRequirementAPIData,
   formatRequirementBatchAPIData,
   formatRequirementFormData,
+  formatRequirementImagesInFindings,
   RequirementFormSchema,
+  updateImagesWithContinuousSortOrder,
 } from "./RequirementUtils";
 import * as yup from "yup";
 import { useAgenciesData } from "@/hooks/useAgencies";
+import { RequirementImage } from "@/models/Image";
 import { useRequirementStore } from "./requirementStore";
 
 type RequirementDrawerProps = {
@@ -169,7 +172,66 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     useDeleteInspectionRequirement(onDeleteSuccess);
 
   const onDeleteRequirement = () => {
-    if (requirement) {
+    if (!requirement) {
+      return;
+    }
+    if (
+      requirementPhotos[requirement.id]?.length > 0 ||
+      requirementFigures[requirement.id]?.length > 0
+    ) {
+      // Remove the requirement's photos and figures from the records & update the sort order
+      let updatedRequirementPhotos = { ...requirementPhotos };
+      let updatedRequirementFigures = { ...requirementFigures };
+
+      if (requirement.id in updatedRequirementPhotos) {
+        delete updatedRequirementPhotos[requirement.id];
+        updatedRequirementPhotos = updateImagesWithContinuousSortOrder(
+          updatedRequirementPhotos
+        );
+      }
+      if (requirement.id in updatedRequirementFigures) {
+        delete updatedRequirementFigures[requirement.id];
+        updatedRequirementFigures = updateImagesWithContinuousSortOrder(
+          updatedRequirementFigures
+        );
+      }
+
+      // Combine the photos and figures into a single records list
+      const requirementImages = Object.entries({
+        ...updatedRequirementPhotos,
+        ...updatedRequirementFigures,
+      }).reduce(
+        (acc, [key]) => {
+          const numKey = Number(key);
+          acc[numKey] = [
+            ...(updatedRequirementPhotos[numKey] || []),
+            ...(updatedRequirementFigures[numKey] || []),
+          ];
+          return acc;
+        },
+        {} as Record<number, RequirementImage[]>
+      );
+
+      // update the requirement images sort order in all findings
+      const updatedRequirementsList = formatRequirementImagesInFindings(
+        requirementsList,
+        requirementImages
+      );
+
+      // prepare for batch update
+      const requirementBatchAPIData = formatRequirementBatchAPIData(
+        updatedRequirementsList,
+        updatedRequirementPhotos,
+        updatedRequirementFigures,
+        requirement?.id ?? 0
+      );
+
+      deleteInspectionRequirement({
+        inspectionId: inspectionData.id,
+        requirementId: requirement.id,
+        requirementBatch: requirementBatchAPIData,
+      });
+    } else {
       deleteInspectionRequirement({
         inspectionId: inspectionData.id,
         requirementId: requirement.id,

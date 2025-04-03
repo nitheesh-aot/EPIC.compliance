@@ -263,3 +263,73 @@ export const formatRequirementBatchAPIData = (
       };
     });
 };
+
+export const updateImagesWithContinuousSortOrder = (
+  requirementImages: Record<number, RequirementImage[]>
+): Record<number, RequirementImage[]> => {
+  const updatedImagesWithSortOrder = Object.entries(
+    requirementImages
+  ).reduce(
+    (acc, [reqId, images]) => {
+      acc[Number(reqId)] = images.map((image) => ({ ...image }));
+      return acc;
+    },
+    {} as Record<number, RequirementImage[]>
+  );
+
+  let initialIndex = 1;
+  Object.values(updatedImagesWithSortOrder).forEach((images) => {
+    images.forEach((image) => {
+      image.sort_order = initialIndex;
+      initialIndex++;
+    });
+  });
+
+  return updatedImagesWithSortOrder;
+}
+
+export const formatRequirementImagesInFindings = (
+  requirementsList: InspectionRequirement[],
+  requirementImages: Record<number, RequirementImage[]>,
+): InspectionRequirement[] => {
+  return requirementsList.map((requirement) => {
+    const { findings } = requirement;
+    if (!findings || !findings.includes("data-lexical-mention="))
+      return requirement;
+
+    // Create a temporary DOM element to parse the HTML
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = findings;
+
+    // Find all spans with data-lexical-mention attribute
+    const mentionSpans = tempDiv.querySelectorAll(
+      'span[data-lexical-mention="true"]'
+    );
+
+    const imagesList = requirementImages[requirement.id];
+
+    // Replace the content of each mention span with Updated Photo
+    mentionSpans.forEach((span) => {
+      const spanImageId = span.getAttribute("data-imageid");
+      const image = imagesList?.find(
+        (image) => image.id?.toString() === spanImageId
+      );
+      if (image) {
+        const imageLabel = `${image.image_type} ${image.sort_order}`;
+        span.textContent = imageLabel;
+        span.setAttribute("data-mention", imageLabel);
+        span.setAttribute("data-imageurl", image.relative_url ?? "");
+      } else {
+        span.parentNode?.removeChild(span);
+      }
+    });
+
+    // Get the updated HTML
+    const updatedFindings = tempDiv.innerHTML;
+
+    return {
+      ...requirement,
+      findings: updatedFindings,
+    };
+  })
+};
