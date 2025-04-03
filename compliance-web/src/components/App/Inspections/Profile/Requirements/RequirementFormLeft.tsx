@@ -62,7 +62,6 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
         ...(requirementPhotos[requirementId] || []),
         ...(requirementFigures[requirementId] || []),
       ],
-      requirementId
     );
     setMentionDataList(mentionList);
     setMentionVersion((prev) => prev + 1);
@@ -70,23 +69,6 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
 
   useEffect(() => {
     updateMentionList();
-  }, [updateMentionList]);
-
-  useEffect(() => {
-    const handleClick = () => {
-      updateMentionList();
-    };
-
-    const editorElement = document.querySelector(".editor-container");
-    if (editorElement) {
-      editorElement.addEventListener("click", handleClick);
-    }
-
-    return () => {
-      if (editorElement) {
-        editorElement.removeEventListener("click", handleClick);
-      }
-    };
   }, [updateMentionList]);
 
   const isReferredToAnotherAgency = useWatch({

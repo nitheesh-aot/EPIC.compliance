@@ -204,8 +204,8 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
   };
 };
 
-export const formatImagesToMentionList = (images: RequirementImage[], requirementId: number): MentionData[] => {
-  return images.filter((image) => image.requirement_id === requirementId).map((image) => ({
+export const formatImagesToMentionList = (images: RequirementImage[]): MentionData[] => {
+  return images.map((image) => ({
     id: image.id ?? 0,
     name: `${image.image_type ?? ""} ${image.sort_order}`,
     imageRelativeUrl: image.relative_url ?? "",
