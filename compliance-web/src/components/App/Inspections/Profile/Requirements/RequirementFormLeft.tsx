@@ -1,4 +1,4 @@
-import { FC, useEffect, useState, useRef } from "react";
+import { FC, useEffect, useState, useRef, useCallback } from "react";
 import { Box, Grid, IconButton, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { BCDesignTokens } from "epic.theme";
@@ -44,6 +44,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
   const { control, setValue, getValues } = useFormContext();
   const { requirementPhotos, requirementFigures } = useRequirementStore();
   const [mentionDataList, setMentionDataList] = useState<MentionData[]>([]);
+  const [mentionVersion, setMentionVersion] = useState<number>(0);
   const summaryInputRef = useRef<HTMLInputElement>(null);
   const [isReadOnly, setIsReadOnly] = useState(isEditMode);
 
@@ -55,16 +56,38 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
     }
   }, [isReadOnly]);
 
-  useEffect(() => {
+  const updateMentionList = useCallback(() => {
     const mentionList = formatImagesToMentionList(
       [
-        ...(requirementPhotos[requirementId] || []), 
-        ...(requirementFigures[requirementId] || [])
+        ...(requirementPhotos[requirementId] || []),
+        ...(requirementFigures[requirementId] || []),
       ],
       requirementId
     );
     setMentionDataList(mentionList);
+    setMentionVersion((prev) => prev + 1);
   }, [requirementPhotos, requirementFigures, requirementId]);
+
+  useEffect(() => {
+    updateMentionList();
+  }, [updateMentionList]);
+
+  useEffect(() => {
+    const handleClick = () => {
+      updateMentionList();
+    };
+
+    const editorElement = document.querySelector(".editor-container");
+    if (editorElement) {
+      editorElement.addEventListener("click", handleClick);
+    }
+
+    return () => {
+      if (editorElement) {
+        editorElement.removeEventListener("click", handleClick);
+      }
+    };
+  }, [updateMentionList]);
 
   const isReferredToAnotherAgency = useWatch({
     control,
@@ -175,9 +198,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
       <>
         <ControlledTextField
           name="requirementSummary"
-          label={
-            isRegulatoryConsideration ? "Summary" : "Requirement Summary"
-          }
+          label={isRegulatoryConsideration ? "Summary" : "Requirement Summary"}
           placeholder=""
           fullWidth
           inputRef={summaryInputRef}
@@ -276,6 +297,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
         height={`calc(100vh - ${appHeaderHeight + 363}px)`}
         isAdvanced
         mentionsList={mentionDataList}
+        key={`lexical-editor-${mentionVersion}`}
       />
     </Box>
   );

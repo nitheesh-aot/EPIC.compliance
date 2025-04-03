@@ -115,7 +115,7 @@ const mentionLookupService = {
         mention.name.toLowerCase().includes(string.toLowerCase())
       );
       callback(results);
-    }, 500);
+    }, 100);
   },
 };
 
@@ -126,6 +126,11 @@ function useMentionLookupService(
   const [results, setResults] = useState<Array<MentionData>>([]);
 
   useEffect(() => {
+    // Clear the cache when mentionsList changes to ensure we always use the latest data
+    if (mentionsList.length > 0) {
+      mentionsCache.clear();
+    }
+
     const cachedResults = mentionsCache.get(mentionString);
 
     if (mentionString == null) {
@@ -641,23 +646,31 @@ export default function MentionsPlugin({
                 // If no matching image is found, delete the mention node
                 // First, check if the node has a parent
                 const parent = node.getParent();
-                
+
                 if (parent) {
                   // Check if there are spaces around the mention node that should be handled
                   const siblings = parent.getChildren();
                   const nodeIndex = siblings.indexOf(node);
-                  
+
                   // Check for space nodes before and after
-                  const prevNode = nodeIndex > 0 ? siblings[nodeIndex - 1] : null;
-                  const nextNode = nodeIndex < siblings.length - 1 ? siblings[nodeIndex + 1] : null;
-                  
+                  const prevNode =
+                    nodeIndex > 0 ? siblings[nodeIndex - 1] : null;
+                  const nextNode =
+                    nodeIndex < siblings.length - 1
+                      ? siblings[nodeIndex + 1]
+                      : null;
+
                   // Check if we have spaces on both sides
-                  const hasPrevSpace = prevNode instanceof TextNode && prevNode.getTextContent() === " ";
-                  const hasNextSpace = nextNode instanceof TextNode && nextNode.getTextContent() === " ";
-                  
+                  const hasPrevSpace =
+                    prevNode instanceof TextNode &&
+                    prevNode.getTextContent() === " ";
+                  const hasNextSpace =
+                    nextNode instanceof TextNode &&
+                    nextNode.getTextContent() === " ";
+
                   // Remove the mention node
                   node.remove();
-                  
+
                   // If there were spaces on both sides, remove one to avoid double spaces
                   if (hasPrevSpace && hasNextSpace && prevNode) {
                     prevNode.remove();
