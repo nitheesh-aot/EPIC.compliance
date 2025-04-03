@@ -131,13 +131,12 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
             requirement={requirement}
             index={index}
             isRegulatoryConsideration={isRegulatoryConsideration}
-            requirementImages={inspectionRequirementImages}
           />
         ),
         width: DRAWER_WIDTHS.REQUIREMENT_DRAWER,
       });
     },
-    [setOpen, handleOnSubmit, inspectionData, inspectionRequirementImages]
+    [setOpen, handleOnSubmit, inspectionData]
   );
 
   const handleSortOrderChange = useCallback(

@@ -8,7 +8,6 @@ import {
   useEnforcementActionsData,
   useInspectionRequirementTypesData,
   useUpdateInspectionRequirement,
-  useUpdateInspectionRequirementBatch,
 } from "@/hooks/useInspectionRequirements";
 import { useTopicsData } from "@/hooks/useTopics";
 import { Inspection } from "@/models/Inspection";
@@ -34,7 +33,6 @@ import {
 import * as yup from "yup";
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { useRequirementStore } from "./requirementStore";
-import { RequirementImages } from "@/models/Image";
 
 type RequirementDrawerProps = {
   inspectionData: Inspection;
@@ -42,7 +40,6 @@ type RequirementDrawerProps = {
   requirement?: InspectionRequirement;
   index?: number;
   isRegulatoryConsideration?: boolean;
-  requirementImages?: RequirementImages;
 };
 
 const initFormData: InspectionRequirementFormData = {
@@ -60,7 +57,6 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   requirement,
   index,
   isRegulatoryConsideration = false,
-  requirementImages,
 }) => {
   const { appHeaderHeight } = useMenuStore();
   const [inspectionRequirementData, setInspectionRequirementData] = useState<
@@ -102,61 +98,31 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
         },
   });
 
-  const { handleSubmit, reset } = methods;
+  const { handleSubmit, reset: resetForm } = methods;
 
   useEffect(() => {
-    reset(
+    resetForm(
       inspectionRequirementData ?? {
         ...initFormData,
         requirementType: inspectionRequirementTypesList?.[0],
       }
     );
-  }, [inspectionRequirementData, reset, inspectionRequirementTypesList]);
-
-  const onBatchUpdateSuccess = useCallback(() => {
-    onSubmit("Batch update saved successfully!", false);
-    setIsRequirementSourceListDirty(false);
-  }, [onSubmit, setIsRequirementSourceListDirty]);
-
-  const { mutate: updateInspectionRequirementBatch } =
-    useUpdateInspectionRequirementBatch(onBatchUpdateSuccess);
-
-  // const doRequirementBatchUpdate = useCallback(() => {
-  //   const requirementBatchAPIData = formatRequirementBatchAPIData(
-  //     requirementsList,
-  //     requirementPhotos,
-  //     requirementFigures,
-  //     requirement?.id ?? 0
-  //   );
-  //   console.log(requirementBatchAPIData);
-  //   updateInspectionRequirementBatch({
-  //     inspectionId: inspectionData.id,
-  //     requirementBatch: requirementBatchAPIData,
-  //   });
-  // }, [
-  //   requirementsList,
-  //   requirementPhotos,
-  //   requirementFigures,
-  //   inspectionData,
-  //   updateInspectionRequirementBatch,
-  //   requirement,
-  // ]);
+  }, [inspectionRequirementData, resetForm, inspectionRequirementTypesList]);
 
   const onCreateSuccess = useCallback(() => {
     onSubmit("Requirement created successfully!", true);
-    reset();
-  }, [onSubmit, reset]);
+    resetForm();
+  }, [onSubmit, resetForm]);
 
   const onUpdateSuccess = useCallback(() => {
-    // doRequirementBatchUpdate();
     onSubmit("Changes saved successfully!", false);
     setIsRequirementSourceListDirty(false);
   }, [onSubmit]);
 
   const onDeleteSuccess = useCallback(() => {
     onSubmit("Requirement deleted successfully!", true);
-    reset();
-  }, [onSubmit, reset]);
+    resetForm();
+  }, [onSubmit, resetForm]);
 
   const { mutate: createInspectionRequirement } =
     useCreateInspectionRequirement(onCreateSuccess);
@@ -182,11 +148,9 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   useEffect(() => {
     if (requirement) {
       formatAndSetFormData(requirement);
-      setIsDataChanged(false);
-    } else {
-      useRequirementStore.getState().reset();
     }
-  }, [requirement, formatAndSetFormData, requirementImages, setIsDataChanged]);
+    setIsDataChanged(false);
+  }, [requirement, formatAndSetFormData, setIsDataChanged]);
 
   useEffect(() => {
     if (isDataChanged) {
