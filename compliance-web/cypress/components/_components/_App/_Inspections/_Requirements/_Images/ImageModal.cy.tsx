@@ -1,6 +1,6 @@
 import ImageModal from "@/components/App/Inspections/Profile/Requirements/Images/ImageModal";
 import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
-import { Image } from "@/models/Image";
+import { RequirementImage } from "@/models/Image";
 import { StaffUser } from "@/models/Staff";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -23,7 +23,7 @@ describe("ImageModal Component", () => {
     lastModified: new Date("2024-01-01").getTime(),
   });
 
-  const mockImageData: Image = {
+  const mockImageData: RequirementImage = {
     id: 1,
     relative_url: "test-url",
     caption: "Test Caption",
@@ -32,15 +32,16 @@ describe("ImageModal Component", () => {
     original_file_name: "existing-image.jpg",
     date_taken: "2024-01-01T00:00:00Z",
     image_type: "Photo",
+    sort_order: 1,
   };
 
   const queryClient = new QueryClient();
 
-  function mountImageModal(imageData?: Image, onDelete?: () => void): React.ReactNode {
+  function mountImageModal(imageData?: RequirementImage, onDelete?: () => void): React.ReactNode {
     return (
       <QueryClientProvider client={queryClient}>
         <ImageModal
-          imageData={imageData}
+          requirementImage={imageData}
           file={mockFile}
           onSubmit={cy.stub().as("onSubmit")}
           inspectionId={1}
