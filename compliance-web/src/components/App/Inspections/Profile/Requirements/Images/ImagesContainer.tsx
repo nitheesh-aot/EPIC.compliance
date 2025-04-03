@@ -13,10 +13,14 @@ import {
   ExpandMoreRounded,
 } from "@mui/icons-material";
 import { BCDesignTokens } from "epic.theme";
-import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
+import {
+  formatRequirementImagesInFindings,
+  ImageTypeEnum,
+  updateImagesWithContinuousSortOrder,
+} from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import { useModal } from "@/store/modalStore";
 import ImageModal from "./ImageModal";
-import { Image } from "@/models/Image";
+import { RequirementImage } from "@/models/Image";
 import ImageCard from "./ImageCard";
 import {
   DndContext,
@@ -38,21 +42,40 @@ import { useRequirementStore } from "@/components/App/Inspections/Profile/Requir
 type ImagesContainerProps = {
   imageType: ImageTypeEnum;
   inspectionId: number;
+  requirementId: number;
 };
 
 const ImagesContainer: FC<ImagesContainerProps> = memo(
-  ({ imageType, inspectionId }) => {
+  ({ imageType, inspectionId, requirementId }) => {
     const isPhoto = imageType === ImageTypeEnum.PHOTO;
     const { setOpen, setClose } = useModal();
     const [isExpanded, setIsExpanded] = useState(false);
-    const { photos, figures, setPhotos, setFigures, setIsDataChanged } =
-      useRequirementStore();
+    const [currentRequirementId, setCurrentRequirementId] = useState<number>(0);
+    const {
+      requirementsList,
+      requirementPhotos,
+      requirementFigures,
+      setRequirementsList,
+      setRequirementPhotos,
+      setRequirementFigures,
+      setIsDataChanged,
+    } = useRequirementStore();
 
-    const [images, setImages] = useState<Image[]>([]);
+    const [images, setImages] = useState<RequirementImage[]>([]);
 
     useEffect(() => {
-      setImages(isPhoto ? photos : figures);
-    }, [isPhoto, photos, figures]);
+      const currentRequirementImages: Record<number, RequirementImage[]> =
+        isPhoto ? requirementPhotos : requirementFigures;
+
+      const currentReqId = !requirementId ? NaN : requirementId;
+      setCurrentRequirementId(currentReqId);
+
+      if (isPhoto) {
+        setImages(currentRequirementImages[currentReqId] ?? []);
+      } else {
+        setImages(currentRequirementImages[currentReqId] ?? []);
+      }
+    }, [requirementId, requirementPhotos, requirementFigures, isPhoto]);
 
     const activationConstraint = {
       delay: 100,
@@ -79,6 +102,17 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       }
     }
 
+    const getImageIndex = () => {
+      if (!requirementId) {
+        return isPhoto
+          ? (Object.values(requirementPhotos).flat().length || 0) + 1
+          : (Object.values(requirementFigures).flat().length || 0) + 1;
+      }
+      return images.length > 0
+        ? (images[images.length - 1].sort_order || 0) + 1
+        : 1;
+    };
+
     const selectImage = () => {
       const input = document.createElement("input");
       input.type = "file";
@@ -97,7 +131,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                 file={file}
                 inspectionId={inspectionId}
                 imageType={imageType}
-                index={images.length}
+                imageIndex={getImageIndex()}
               />
             ),
             width: "640px",
@@ -107,7 +141,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       input.click();
     };
 
-    const handleImageClick = (image: Image, index: number) => {
+    const handleImageClick = (image: RequirementImage) => {
       setOpen({
         content: (
           <ImageModal
@@ -123,24 +157,74 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
               setImageLists(updatedImages);
               setClose();
             }}
-            imageData={image}
+            requirementImage={image}
             inspectionId={inspectionId}
             imageType={imageType}
-            index={index}
           />
         ),
         width: "640px",
       });
     };
 
-    const setImageLists = (imagesList: Image[]) => {
-      setImages(imagesList);
+    const setImageLists = (imagesList: RequirementImage[]) => {
+      const updatedRequirementImages: Record<number, RequirementImage[]> =
+        isPhoto ? requirementPhotos : requirementFigures;
+
+      updatedRequirementImages[currentRequirementId] = imagesList;
+
+      const updatedImagesWithSortOrder = updateImagesWithContinuousSortOrder(
+        updatedRequirementImages
+      );
+
       if (isPhoto) {
-        setPhotos(imagesList);
+        setRequirementPhotos(updatedImagesWithSortOrder);
       } else {
-        setFigures(imagesList);
+        setRequirementFigures(updatedImagesWithSortOrder);
       }
+
+      // Update any active Lexical editor that might contain mentions related to these images
+      updateActiveLexicalEditor(updatedImagesWithSortOrder); //TODO: Check if all images are needed here
+
+      const updatedRequirementsList = formatRequirementImagesInFindings(
+        requirementsList,
+        updatedImagesWithSortOrder
+      );
+      setRequirementsList(updatedRequirementsList);
+
+      setImages(updatedImagesWithSortOrder[currentRequirementId] ?? []);
       setIsDataChanged(true);
+    };
+
+    const updateActiveLexicalEditor = (
+      updatedImages: Record<number, RequirementImage[]>
+    ) => {
+      // Find all active Lexical editor instances on the page
+      const editorElements = document.querySelectorAll(".editor-input");
+
+      if (!editorElements.length) return;
+
+      // Flatten all images from all requirements into a single array
+      const allImages = Object.values(updatedImages).flat();
+
+      if (!allImages.length) return;
+
+      // For each editor instance, we need to update the mentions
+      editorElements.forEach((editorElement) => {
+        // Check if the editor is initialized and is accessible
+        if (!editorElement || !(editorElement instanceof HTMLElement)) return;
+
+        // Dispatch a custom event to update mentions in the Lexical editor
+        const event = new CustomEvent("lexical-command", {
+          bubbles: true,
+          cancelable: true,
+          detail: {
+            type: "update-mentions",
+            images: allImages,
+          },
+        });
+
+        editorElement.dispatchEvent(event);
+      });
     };
 
     return (
@@ -238,13 +322,12 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                 >
                   {images.map((image, index) => (
                     <ImageCard
-                      key={image.id}
+                      key={`${image.id}-${index}`}
                       image={image}
                       handleImageClick={() => {
-                        handleImageClick(image, index);
+                        handleImageClick(image);
                       }}
                       isPhoto={isPhoto}
-                      index={index}
                     />
                   ))}
                 </SortableContext>

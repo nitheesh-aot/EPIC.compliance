@@ -1,11 +1,14 @@
 import RequirementDrawer from "@/components/App/Inspections/Profile/Requirements/RequirementDrawer";
-import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
+import {
+  useInspectionRequirementImages,
+  useInspectionRequirementsData,
+} from "@/hooks/useInspectionRequirements";
 import { Inspection } from "@/models/Inspection";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import { AddRounded } from "@mui/icons-material";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Typography } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { Reorder } from "framer-motion";
 import React, { useCallback, useEffect } from "react";
@@ -15,6 +18,8 @@ import {
   REQUIREMENT_TYPE_ID,
 } from "./Requirements/RequirementUtils";
 import { DRAWER_WIDTHS } from "@/utils/constants";
+import { useRequirementStore } from "./Requirements/requirementStore";
+import { RequirementImage } from "@/models/Image";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
@@ -25,6 +30,8 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const { setOpen, isOpen, setClose } = useDrawer();
+  const { setRequirementPhotos, setRequirementFigures, setRequirementsList } =
+    useRequirementStore();
   const [activeRequirementId, setActiveRequirementId] = React.useState<
     number | null
   >(null);
@@ -33,30 +40,74 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   >([]);
   const [regulatoryConsideration, setRegulatoryConsideration] =
     React.useState<InspectionRequirement | null>(null);
+  const [isDataLoading, setIsDataLoading] = React.useState<boolean>(true);
 
-  const { data: inspectionRequirementsData } = useInspectionRequirementsData(
-    inspectionData.id
-  );
+  const {
+    data: inspectionRequirementsData,
+    isLoading: isInspectionRequirementsLoading,
+  } = useInspectionRequirementsData(inspectionData.id);
+
+  const {
+    data: inspectionRequirementImages,
+    isLoading: isInspectionRequirementImagesLoading,
+  } = useInspectionRequirementImages(inspectionData.id);
 
   useEffect(() => {
     if (inspectionRequirementsData) {
-      setInspectionRequirements(
-        inspectionRequirementsData.filter(
-          (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
-        )
+      const inspectionRequirements = inspectionRequirementsData.filter(
+        (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
       );
+      setRequirementsList(inspectionRequirements);
+      setInspectionRequirements(inspectionRequirements);
+
       setRegulatoryConsideration(
         inspectionRequirementsData.find(
           (req) => req.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID
         ) ?? null
       );
     }
-  }, [inspectionRequirementsData]);
+  }, [inspectionRequirementsData, setRequirementsList]);
+
+  useEffect(() => {
+    if (inspectionRequirementImages) {
+      setRequirementPhotos(
+        inspectionRequirementImages.photos.reduce(
+          (acc, photo) => {
+            acc[photo.requirement_id ?? 0] = [
+              ...(acc[photo.requirement_id ?? 0] || []),
+              photo,
+            ];
+            return acc;
+          },
+          {} as Record<number, RequirementImage[]>
+        )
+      );
+      setRequirementFigures(
+        inspectionRequirementImages.figures.reduce(
+          (acc, figure) => {
+            acc[figure.requirement_id ?? 0] = [
+              ...(acc[figure.requirement_id ?? 0] || []),
+              figure,
+            ];
+            return acc;
+          },
+          {} as Record<number, RequirementImage[]>
+        )
+      );
+    }
+  }, [
+    inspectionRequirementImages,
+    setRequirementPhotos,
+    setRequirementFigures,
+  ]);
 
   const handleOnSubmit = useCallback(
     (submitMsg: string, isClose: boolean = true) => {
       queryClient.invalidateQueries({
         queryKey: ["inspection-requirements", inspectionData.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["inspection-requirement-images", inspectionData.id],
       });
       notify.success(submitMsg);
       if (isClose) {
@@ -94,7 +145,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   const handleOpenEditRequirementModal = useCallback(
     (
       requirement: InspectionRequirement,
-      index: number,
+      index?: number,
       isRegulatoryConsideration?: boolean
     ) => {
       setActiveRequirementId(requirement.id);
@@ -125,11 +176,20 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     [inspectionData, queryClient]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isOpen) {
       setActiveRequirementId(null);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (
+      !isInspectionRequirementsLoading &&
+      !isInspectionRequirementImagesLoading
+    ) {
+      setIsDataLoading(false);
+    }
+  }, [isInspectionRequirementsLoading, isInspectionRequirementImagesLoading]);
 
   return (
     <Box
@@ -140,59 +200,71 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     >
       <Box display={"flex"} justifyContent={"space-between"} mt={3} mb={2}>
         <Typography variant="h6">Requirements</Typography>
-        <Box display={"flex"} gap={2}>
-          <Button
-            variant="text"
-            color="primary"
-            size="small"
-            onClick={handleOpenAddRegulatoryConsiderationModal}
-            startIcon={<AddRounded />}
-            data-cy="new-regulatory-consideration-button"
-            disabled={!!regulatoryConsideration}
-          >
-            Regulatory Consideration
-          </Button>
-          <Button
-            color="secondary"
-            size="small"
-            onClick={handleOpenAddRequirementModal}
-            startIcon={<AddRounded />}
-            data-cy="new-requirement-button"
-          >
-            New Requirement
-          </Button>
-        </Box>
+        {!isDataLoading && (
+          <Box display={"flex"} gap={2}>
+            <Button
+              variant="text"
+              color="primary"
+              size="small"
+              onClick={handleOpenAddRegulatoryConsiderationModal}
+              startIcon={<AddRounded />}
+              data-cy="new-regulatory-consideration-button"
+              disabled={!!regulatoryConsideration}
+            >
+              Regulatory Consideration
+            </Button>
+            <Button
+              color="secondary"
+              size="small"
+              onClick={handleOpenAddRequirementModal}
+              startIcon={<AddRounded />}
+              data-cy="new-requirement-button"
+            >
+              New Requirement
+            </Button>
+          </Box>
+        )}
       </Box>
-      <Reorder.Group
-        axis="y"
-        onReorder={handleSortOrderChange}
-        values={inspectionRequirements}
-        className="reorder-list"
-      >
-        {inspectionRequirements?.map((requirement, index) => (
-          <RequirementCard
-            key={requirement.id}
-            requirement={requirement}
-            index={index}
-            onEdit={() => handleOpenEditRequirementModal(requirement, index)}
-            isActive={requirement.id === activeRequirementId}
-          />
-        ))}
-      </Reorder.Group>
-      {regulatoryConsideration && (
-        <RequirementCard
-          key={regulatoryConsideration.id}
-          requirement={regulatoryConsideration}
-          index={inspectionRequirements.length}
-          onEdit={() =>
-            handleOpenEditRequirementModal(
-              regulatoryConsideration,
-              inspectionRequirements.length,
-              true
-            )
-          }
-          isActive={regulatoryConsideration.id === activeRequirementId}
-        />
+      {isDataLoading ? (
+        <Box display={"flex"} justifyContent={"center"} mt={6}>
+          <CircularProgress size={80} />
+        </Box>
+      ) : (
+        <>
+          <Reorder.Group
+            axis="y"
+            onReorder={handleSortOrderChange}
+            values={inspectionRequirements}
+            className="reorder-list"
+          >
+            {inspectionRequirements?.map((requirement, index) => (
+              <RequirementCard
+                key={requirement.id}
+                requirement={requirement}
+                index={index}
+                onEdit={() =>
+                  handleOpenEditRequirementModal(requirement, index)
+                }
+                isActive={requirement.id === activeRequirementId}
+              />
+            ))}
+          </Reorder.Group>
+          {regulatoryConsideration && (
+            <RequirementCard
+              key={regulatoryConsideration.id}
+              requirement={regulatoryConsideration}
+              index={inspectionRequirements.length}
+              onEdit={() =>
+                handleOpenEditRequirementModal(
+                  regulatoryConsideration,
+                  undefined,
+                  true
+                )
+              }
+              isActive={regulatoryConsideration.id === activeRequirementId}
+            />
+          )}
+        </>
       )}
     </Box>
   );

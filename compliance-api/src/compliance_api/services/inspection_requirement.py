@@ -332,7 +332,7 @@ def _insert_or_update_images(
         InspectionRequirementImageModel.delete_image(image_id, session=session)
 
     # INSERT or UPDATE images while maintaining order
-    for img in enumerate(images):
+    for img in images:
 
         if "id" in img:  # Update existing image
             InspectionRequirementImageModel.update_image(
