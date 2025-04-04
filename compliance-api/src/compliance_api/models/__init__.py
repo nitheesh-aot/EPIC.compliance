@@ -41,3 +41,4 @@ from .requirement_source import RequirementSource, RequirementSourceEnum
 from .staff_user import StaffUser
 from .topic import Topic
 from .unapproved_project import UnapprovedProject
+from .department_detail import DepartmentDetail

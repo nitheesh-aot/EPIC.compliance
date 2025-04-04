@@ -31,7 +31,7 @@ from .inspection_approval import (
     CreateInspectionRecordApprovalSchema, InspectionRecordApprovalSchema, UpdateInspectionRecordApprovalSchema)
 from .inspection_record import (
     InspectionRecordCreateSchema, InspectionRecordSchema, ResetInspectionRecordFieldSchema,
-    UpdateInspectionRecordSchema)
+    UpdateInspectionRecordSchema, InspectionRecordPreviewSchema)
 from .inspection_requirement import (
     InspectionReqImageCreateSchema, InspectionReqImageSchema, InspectionReqImageSortOrderSchema,
     InspectionRequirementBulkUpdateSchema, InspectionRequirementCreateSchema, InspectionRequirementSchema,
@@ -40,3 +40,4 @@ from .paginate import PaginationParameterSchema
 from .project import ProjectSchema
 from .staff_user import StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateSchema
 from .topic import TopicCreateSchema, TopicSchema
+from .department_detail import DepartmentDetailsSchema

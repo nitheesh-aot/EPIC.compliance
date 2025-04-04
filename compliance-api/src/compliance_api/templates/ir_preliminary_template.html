@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Preliminary Inspection Report</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: white;
+            border-bottom: 1px solid #ccc;
+        }
+        
+        .header img {
+            height: 50px;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #87A5C6;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .section-break {
+            margin: 20px 0;
+            border-top: 1px solid #ccc;
+        }
+        
+        /* Print-specific styles */
+        @media print {
+            @page {
+                margin-top: 100px;
+            }
+            
+            .header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 80px;
+                border-bottom: none;
+            }
+            
+            .content {
+                margin-top: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="{{ department_details.logo_url }}" alt="EAO Logo">
+        <h1>INSPECTION RECORD</h1>
+    </div>
+    <div class="content">
+        <h1>Preliminary Inspection Report</h1>
+        <table>
+            <tr>
+                <th>Project Name</th>
+                <td>{{ project_details.name }}</td>
+                <th>Inspection Status</th>
+                <td>{{ ir_status }}</td>
+            </tr>
+            <tr>
+                <th>EA Certificate #</th>
+                <td>{{ project_details.eac_certificate }}</td>
+                <th>Inspection No.</th>
+                <td>{{ inspection_details.ir_number }}</td>
+            </tr>
+            <tr>
+                <th>Project Status</th>
+                <td>{{ project_details.project_state }}</td>
+                <th>Inspection Start</th>
+                <td>{{ inspection_details.start_date }}</td>
+            </tr>
+            <tr>
+                <th>Inspection Type</th>
+                <td>{{ inspection_details.inspection_type }}</td>
+                <th>Initiation</th>
+                <td>{{ inspection_details.initiation }}</td>
+            </tr>
+            <tr>
+                <th>UTM</th>
+                <td colspan="3">{{ inspection_details.utm }}</td>
+            </tr>
+            <tr>
+                <th>Project Description</th>
+                <td colspan="3">{{ inspection_details.project_description }}</td>
+            </tr>
+            <tr>
+                <th>Location Description</th>
+                <td colspan="3">{{ inspection_details.location_description }}</td>
+            </tr>
+            <tr>
+                <th>Inspection Summary</th>
+                <td colspan="3">
+                    {{ inspection_scope | safe }}
+                    </br>
+                    {% if preliminary_review_details %}
+                    {{ preliminary_review_details | safe }}
+                    </br>
+                    {% endif %}
+                    {{ finding_statement | safe }}
+                </td>
+            </tr>
+            <tr>
+                <th>In Attendance</th>
+                <td colspan="3">{{ officer_details.in_attendance }}</td>
+            </tr>
+            <tr>
+                <th>{{ project_details.proponent_label }}</th>
+                <td colspan="3">{{ project_details.proponent }}</td>
+            </tr>
+            <tr>
+                <th>Mailing Address</th>
+                <td colspan="3">{{ project_details.mailing_address }}</td>
+            </tr>
+            <tr>
+                <th>Inspecting Officer(s)</th>
+                <td colspan="3">{{ officer_details.primary_officer.name }}</td>
+            </tr>
+            <tr>
+                <th>Record Prepared By</th>
+                <td colspan="3">{{ officer_details.primary_officer.name }}</td>
+            </tr>
+            <tr>
+                <th>Record Approved By</th>
+                <td colspan="3">{{ officer_details.primary_officer.name }}</td>
+            </tr>
+        </table>
+
+        <h2>Appendices:</h2>
+        <table>
+            <tr>
+                <td colspan="2">
+                    {% for appendix in appendices %}
+                    Appendix {{ appendix.appendix_no }}: {{ appendix.document_title }}<br>
+                    {% endfor %}
+                </td>
+            </tr>
+        </table>
+
+        <h2>Environmental Assessment Office - Compliance & Enforcement Branch</h2>
+        <table>
+            <tr>
+                <td>
+                    Mailing Address:<br>
+                    {{ department_details.address }}
+                </td>
+                <td>
+                    Phone: {{ department_details.phone }}<br>
+                    Email: <a href="mailto:{{ department_details.email }}" style="color: blue; text-decoration: underline;">{{ department_details.email }}</a><br>
+                    Website: <a href="{{ department_details.website }}" style="color: blue; text-decoration: underline;">{{ department_details.website }}</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,5 +1,5 @@
 """Resources for inspection record."""
-
+import json
 from http import HTTPStatus
 
 from flask_restx import Namespace, Resource
@@ -17,7 +17,8 @@ from compliance_api.utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
 
-API = Namespace("inspection-records", description="Endpoints for Inspection Record")
+API = Namespace("inspection-records",
+                description="Endpoints for Inspection Record")
 
 ir_create_request_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, InspectionRecordCreateSchema(), "IRCreateRequest"
@@ -71,7 +72,8 @@ class InspectionRecords(Resource):
     def post(inspection_id):
         """Create a agency."""
         ir_create_request = InspectionRecordCreateSchema().load(API.payload)
-        created_ir = InspectionRecordService.create(ir_create_request, inspection_id)
+        created_ir = InspectionRecordService.create(
+            ir_create_request, inspection_id)
         return InspectionRecordSchema().dump(created_ir), HTTPStatus.CREATED
 
 
@@ -89,7 +91,8 @@ class InspectionRecord(Resource):
     @auth.require
     def get(inspection_record_id):
         """Fetch inspection record by id."""
-        inspection_record = InspectionRecordService.get_by_id(inspection_record_id)
+        inspection_record = InspectionRecordService.get_by_id(
+            inspection_record_id)
         if not inspection_record:
             raise ResourceNotFoundError(
                 f"No inspection found for the given ID : {inspection_record_id}"
@@ -223,3 +226,24 @@ class InspectionRecordReset(Resource):
         if not updated_ir:
             raise ResourceNotFoundError("Inspection record not found")
         return InspectionRecordSchema().dump(updated_ir), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/<int:inspection_record_id>/preview", methods=["GET", "OPTIONS"])
+class InspectionRecordPreview(Resource):
+    """Resource for managing inspection records."""
+
+    @staticmethod
+    @API.response(code=200, description="Success")
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Preview inspection record"
+    )
+    @auth.require
+    def get(
+        inspection_id, inspection_record_id
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Preview inspection record."""
+        preview = InspectionRecordService.preview(
+            inspection_id, inspection_record_id
+        )
+        return json.dumps(preview), HTTPStatus.OK
