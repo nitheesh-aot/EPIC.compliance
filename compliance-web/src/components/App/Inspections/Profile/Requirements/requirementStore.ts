@@ -10,11 +10,14 @@ interface RequirementStore {
   requirementFigures: Record<number, RequirementImage[]>;
   appendices: Appendix[];
   isDataChanged: boolean;
+  isImageChanged: boolean;
   setRequirementsList: (requirementsList: InspectionRequirement[]) => void;
   setRequirementPhotos: (requirementPhotos: Record<number, RequirementImage[]>) => void;
   setRequirementFigures: (requirementFigures: Record<number, RequirementImage[]>) => void;
   setAppendices: (appendices: Appendix[]) => void;
   setIsDataChanged: (isDataChanged: boolean) => void;
+  setIsImageChanged: (isImageChanged: boolean) => void;
+  resetRequirementStoreFlags: () => void;
   reset: () => void;
 }
 
@@ -25,10 +28,13 @@ export const useRequirementStore = create<RequirementStore>((set) => ({
   requirementFigures: {},
   appendices: [],
   isDataChanged: false,
+  isImageChanged: false,
   setRequirementsList: (requirementsList: InspectionRequirement[]) => set({ requirementsList }),
   setRequirementPhotos: (requirementPhotos: Record<number, RequirementImage[]>) => set({ requirementPhotos }),
   setRequirementFigures: (requirementFigures: Record<number, RequirementImage[]>) => set({ requirementFigures }),
   setAppendices: (appendices: Appendix[]) => set({ appendices }),
   setIsDataChanged: (isDataChanged: boolean) => set({ isDataChanged }),
-  reset: () => set({ requirementsList: [], requirementPhotos: {}, requirementFigures: {}, appendices: [], isDataChanged: false }),
+  setIsImageChanged: (isImageChanged: boolean) => set({ isImageChanged }),
+  resetRequirementStoreFlags: () => set({ isDataChanged: false, isImageChanged: false }),
+  reset: () => set({ requirementsList: [], requirementPhotos: {}, requirementFigures: {}, appendices: [], isDataChanged: false, isImageChanged: false }),
 }));

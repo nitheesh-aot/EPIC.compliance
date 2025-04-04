@@ -59,6 +59,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       setRequirementPhotos,
       setRequirementFigures,
       setIsDataChanged,
+      setIsImageChanged,
     } = useRequirementStore();
 
     const [images, setImages] = useState<RequirementImage[]>([]);
@@ -193,6 +194,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
 
       setImages(updatedImagesWithSortOrder[currentRequirementId] ?? []);
       setIsDataChanged(true);
+      setIsImageChanged(true);
     };
 
     const updateActiveLexicalEditor = (

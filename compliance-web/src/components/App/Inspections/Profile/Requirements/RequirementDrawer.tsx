@@ -76,7 +76,10 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     requirementPhotos,
     requirementFigures,
     isDataChanged,
+    isImageChanged,
     setIsDataChanged,
+    setIsImageChanged,
+    resetRequirementStoreFlags,
   } = useRequirementStore();
 
   const { data: inspectionRequirementTypesList } =
@@ -120,7 +123,8 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const onUpdateSuccess = useCallback(() => {
     onSubmit("Changes saved successfully!", false);
     setIsRequirementSourceListDirty(false);
-  }, [onSubmit]);
+    setIsImageChanged(false);
+  }, [onSubmit, setIsImageChanged]);
 
   const onDeleteSuccess = useCallback(() => {
     onSubmit("Requirement deleted successfully!", true);
@@ -152,8 +156,8 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     if (requirement) {
       formatAndSetFormData(requirement);
     }
-    setIsDataChanged(false);
-  }, [requirement, formatAndSetFormData, setIsDataChanged]);
+    resetRequirementStoreFlags();
+  }, [requirement, formatAndSetFormData, resetRequirementStoreFlags]);
 
   useEffect(() => {
     if (isDataChanged) {
@@ -254,12 +258,14 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
 
       if (inspectionRequirementData) {
         // prepare for batch update
-        const requirementBatchAPIData = formatRequirementBatchAPIData(
-          requirementsList,
-          requirementPhotos,
-          requirementFigures,
-          requirement?.id ?? 0
-        );
+        const requirementBatchAPIData = isImageChanged
+          ? formatRequirementBatchAPIData(
+              requirementsList,
+              requirementPhotos,
+              requirementFigures,
+              requirement?.id ?? 0
+            )
+          : undefined;
         updateInspectionRequirement({
           inspectionId: inspectionData.id,
           requirementId: inspectionRequirementData.id ?? 0,
@@ -284,6 +290,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       updateInspectionRequirement,
       inspectionData,
       createInspectionRequirement,
+      isImageChanged,
     ]
   );
 
