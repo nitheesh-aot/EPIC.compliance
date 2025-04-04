@@ -28,3 +28,4 @@ importlib-resources
 pycryptodome==3.20.0
 tenacity==9.0.0
 gevent==24.11.1
+beautifulsoup4==4.13.3

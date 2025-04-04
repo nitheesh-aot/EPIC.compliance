@@ -3,6 +3,7 @@
 from typing import List
 
 import requests
+from bs4 import BeautifulSoup
 
 from compliance_api.exceptions import BadRequestError, ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import ImageTypeEnum
@@ -57,16 +58,22 @@ class InspectionRequirementService:
                 session,
             )
             #  inserting photos
-            _insert_or_update_images(
+            created_photos = _insert_or_update_images(
                 requirement_id=created_requirement.id,
                 images=requirement_data.get("photos", []),
                 image_type=ImageTypeEnum.PHOTO,
                 session=session,
             )
-            _insert_or_update_images(
+            created_figures = _insert_or_update_images(
                 requirement_id=created_requirement.id,
                 images=requirement_data.get("figures", []),
                 image_type=ImageTypeEnum.FIGURE,
+                session=session,
+            )
+            _update_the_findigs_by_images(
+                photos=created_photos,
+                figures=created_figures,
+                requirement=created_requirement,
                 session=session,
             )
         return created_requirement
@@ -95,16 +102,22 @@ class InspectionRequirementService:
                 requirement_data.get("enforcement_action_ids", []),
                 session,
             )
-            _insert_or_update_images(
+            created_photos = _insert_or_update_images(
                 requirement_id=requirement_id,
                 images=requirement_data.get("photos", []),
                 image_type=ImageTypeEnum.PHOTO,
                 session=session,
             )
-            _insert_or_update_images(
+            created_figures = _insert_or_update_images(
                 requirement_id=requirement_id,
                 images=requirement_data.get("figures", []),
                 image_type=ImageTypeEnum.FIGURE,
+                session=session,
+            )
+            _update_the_findigs_by_images(
+                photos=created_photos,
+                figures=created_figures,
+                requirement=updated_requirement,
                 session=session,
             )
         return updated_requirement
@@ -282,6 +295,68 @@ class InspectionRequirementService:
         db.session.flush()
 
 
+def _update_the_findigs_by_images(
+    photos: list[InspectionRequirementImageModel],
+    figures: list[InspectionRequirementImageModel],
+    requirement: InspectionRequirementModel,
+    session,
+):
+    """Update the findings by images."""
+    findings = requirement.findings
+    if not findings:
+        return
+
+    # Check if findings contains the data-lexical-mention attribute
+    if "data-lexical-mention=" in findings:
+        soup = BeautifulSoup(findings, "html.parser")
+        # Find all spans with data-lexical-mention attribute set to "true"
+        mention_spans = soup.find_all("span", {"data-lexical-mention": "true"})
+
+        for span in mention_spans:
+            # Find the photo/figure reference in the span
+            mention = span.get("data-mention", "")
+
+            # Check if it's a photo mention
+            if mention and mention.lower().startswith("photo "):
+                # Extract the photo number
+                try:
+                    photo_num = int(mention.split(" ")[1])
+                    # Find the corresponding photo by sort_order
+                    matching_photo = next(
+                        (p for p in photos if p.sort_order == photo_num), None)
+                    if matching_photo:
+                        # Update the image ID in the span
+                        span["data-imageid"] = str(matching_photo.id)
+                        # Update image URL if needed
+                        span["data-imageurl"] = matching_photo.relative_url
+                except (ValueError, IndexError):
+                    # Invalid photo number format
+                    pass
+
+            # Check if it's a figure mention
+            elif mention and mention.lower().startswith("figure "):
+                # Extract the figure number
+                try:
+                    figure_num = int(mention.split(" ")[1])
+                    # Find the corresponding figure by sort_order
+                    matching_figure = next(
+                        (f for f in figures if f.sort_order == figure_num), None)
+                    if matching_figure:
+                        # Update the image ID in the span
+                        span["data-imageid"] = str(matching_figure.id)
+                        # Update image URL if needed
+                        span["data-imageurl"] = matching_figure.relative_url
+                except (ValueError, IndexError):
+                    # Invalid figure number format
+                    pass
+
+        # Update the findings with the modified spans
+        requirement.findings = str(soup)
+        InspectionRequirementModel.update_requirement(
+            requirement.id, {"findings": requirement.findings}, session
+        )
+
+
 def _set_signed_url(images):
     """Set the signed url in the image list."""
     for image in images:
@@ -332,6 +407,7 @@ def _insert_or_update_images(
         InspectionRequirementImageModel.delete_image(image_id, session=session)
 
     # INSERT or UPDATE images while maintaining order
+    inserted_images = []
     for img in images:
 
         if "id" in img:  # Update existing image
@@ -344,9 +420,12 @@ def _insert_or_update_images(
                 img=img,
                 image_type=image_type,
             )
-            InspectionRequirementImageModel.create_image(
+            created_image = InspectionRequirementImageModel.create_image(
                 image_obj=image_obj, session=session
             )
+            inserted_images.append(created_image)
+
+    return inserted_images
 
 
 def _update_sort_order_subsequent(requirements, commit=False):
