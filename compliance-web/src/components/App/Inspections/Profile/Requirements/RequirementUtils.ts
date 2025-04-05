@@ -8,6 +8,7 @@ import * as yup from "yup";
 import { RequirementImage, ImageAPIData } from "@/models/Image";
 import dateUtils from "@/utils/dateUtils";
 import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
+import { BCDesignTokens } from "epic.theme";
 
 export const REQUIREMENT_TYPE_ID = "REQ";
 export const REGULATORY_CONSIDERATION_TYPE_ID = "REG";
@@ -27,6 +28,29 @@ export enum ImageTypeEnum {
   PHOTO,
   FIGURE,
 }
+
+export const requirementCardStyles = {
+  card: {
+    backgroundColor: BCDesignTokens.surfaceColorBackgroundWhite,
+    mb: 2,
+    border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+    borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
+    "&:hover": {
+      cursor: "pointer",
+      boxShadow: `0px 4px 6px 0px ${BCDesignTokens.surfaceColorBorderDefault}`,
+    },
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    p: "0.75rem 1.5rem",
+    pl: 0,
+    backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
+  },
+  content: {
+    p: "0.5rem 1.5rem 1rem",
+  },
+};
 
 export const RequirementFormSchema = (isRegulatoryConsideration: boolean) => yup.object().shape({
   requirementSummary: yup.string().required("Summary is required"),

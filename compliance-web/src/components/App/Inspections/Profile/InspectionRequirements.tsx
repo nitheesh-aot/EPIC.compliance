@@ -9,7 +9,7 @@ import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import { AddRounded } from "@mui/icons-material";
-import { Box, Button, CircularProgress, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { Reorder } from "framer-motion";
 import React, { useCallback, useEffect } from "react";
@@ -25,6 +25,7 @@ import { DRAWER_WIDTHS } from "@/utils/constants";
 import { useRequirementStore } from "./Requirements/requirementStore";
 import { RequirementImage } from "@/models/Image";
 import { mergeMapsWithArrayConcat } from "@/utils/appUtils";
+import RequirementLoading from "./Requirements/RequirementLoading";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
@@ -176,7 +177,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 
   // Add a ref to store the timeout ID : to prevent multiple API calls during reordering
   const updateTimeoutRef = React.useRef<NodeJS.Timeout>();
-  
+
   const handleSortOrderChange = useCallback(
     (newOrder: InspectionRequirement[]) => {
       // Create a new map to store updated requirement photos with the new order
@@ -237,7 +238,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
           photosWithSortOrder,
           figuresWithSortOrder
         );
-        
+
         updateInspectionRequirementBatch({
           inspectionId: inspectionData.id,
           requirementBatch: requirementBatchAPIData,
@@ -315,9 +316,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
         )}
       </Box>
       {isDataLoading ? (
-        <Box display={"flex"} justifyContent={"center"} mt={6}>
-          <CircularProgress size={80} />
-        </Box>
+        <RequirementLoading />
       ) : (
         <>
           <Reorder.Group
