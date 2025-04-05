@@ -239,8 +239,8 @@ export const groupRequirementSourcesByType = (
 
 export const formatRequirementBatchAPIData = (
   requirements: InspectionRequirement[],
-  requirementPhotos: Record<number, RequirementImage[]>,
-  requirementFigures: Record<number, RequirementImage[]>,
+  requirementPhotos: Map<number, RequirementImage[]>,
+  requirementFigures: Map<number, RequirementImage[]>,
   currentRequirementId: number
 ): InspectionRequirementBatchAPIData[] => {
   // prepare batch update data for all requirements except the current one
@@ -248,8 +248,8 @@ export const formatRequirementBatchAPIData = (
   return requirements
     .filter((requirement) => requirement.id !== currentRequirementId)
     .map((requirement) => {
-      const photos = requirementPhotos[requirement.id] ?? [];
-      const figures = requirementFigures[requirement.id] ?? [];
+      const photos = requirementPhotos.get(requirement.id) ?? [];
+      const figures = requirementFigures.get(requirement.id) ?? [];
       const images: InspectionRequirementBatchImageAPIData[] = [...photos, ...figures].map((image) => {
         return {
           image_id: image.id ?? 0,
@@ -265,20 +265,16 @@ export const formatRequirementBatchAPIData = (
 };
 
 export const updateImagesWithContinuousSortOrder = (
-  requirementImages: Record<number, RequirementImage[]>
-): Record<number, RequirementImage[]> => {
-  const updatedImagesWithSortOrder = Object.entries(
-    requirementImages
-  ).reduce(
-    (acc, [reqId, images]) => {
-      acc[Number(reqId)] = images.map((image) => ({ ...image }));
-      return acc;
-    },
-    {} as Record<number, RequirementImage[]>
-  );
+  requirementImages: Map<number, RequirementImage[]>
+): Map<number, RequirementImage[]> => {
+  // create a deep copy of the requirement images for updating in the ui
+  const updatedImagesWithSortOrder = new Map<number, RequirementImage[]>();
+  requirementImages.forEach((images, reqId) => {
+    updatedImagesWithSortOrder.set(Number(reqId), images.map((image) => ({ ...image })));
+  });
 
   let initialIndex = 1;
-  Object.values(updatedImagesWithSortOrder).forEach((images) => {
+  updatedImagesWithSortOrder.forEach((images) => {
     images.forEach((image) => {
       image.sort_order = initialIndex;
       initialIndex++;
@@ -290,7 +286,7 @@ export const updateImagesWithContinuousSortOrder = (
 
 export const formatRequirementImagesInFindings = (
   requirementsList: InspectionRequirement[],
-  requirementImages: Record<number, RequirementImage[]>,
+  requirementImages: Map<number, RequirementImage[]>
 ): InspectionRequirement[] => {
   return requirementsList.map((requirement) => {
     const { findings } = requirement;
@@ -306,7 +302,7 @@ export const formatRequirementImagesInFindings = (
       'span[data-lexical-mention="true"]'
     );
 
-    const imagesList = requirementImages[requirement.id];
+    const imagesList = requirementImages.get(requirement.id);
 
     // Replace the content of each mention span with Updated Photo
     mentionSpans.forEach((span) => {

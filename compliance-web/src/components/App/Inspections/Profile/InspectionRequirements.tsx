@@ -73,25 +73,27 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
       setRequirementPhotos(
         inspectionRequirementImages.photos.reduce(
           (acc, photo) => {
-            acc[photo.requirement_id ?? 0] = [
-              ...(acc[photo.requirement_id ?? 0] || []),
-              photo,
-            ];
+            const reqId = photo.requirement_id ?? 0;
+            if (!acc.has(reqId)) {
+              acc.set(reqId, []);
+            }
+            acc.set(reqId, [...(acc.get(reqId) || []), photo]);
             return acc;
           },
-          {} as Record<number, RequirementImage[]>
+          new Map<number, RequirementImage[]>()
         )
       );
       setRequirementFigures(
         inspectionRequirementImages.figures.reduce(
           (acc, figure) => {
-            acc[figure.requirement_id ?? 0] = [
-              ...(acc[figure.requirement_id ?? 0] || []),
-              figure,
-            ];
+            const reqId = figure.requirement_id ?? 0;
+            if (!acc.has(reqId)) {
+              acc.set(reqId, []);
+            }
+            acc.set(reqId, [...(acc.get(reqId) || []), figure]);
             return acc;
           },
-          {} as Record<number, RequirementImage[]>
+          new Map<number, RequirementImage[]>()
         )
       );
     }
@@ -167,11 +169,18 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 
   const handleSortOrderChange = useCallback(
     (newOrder: InspectionRequirement[]) => {
+      // update images with new req sort order, then update the findings
+    
+      // set the reqs with new order & images in the store
+
       setInspectionRequirements(newOrder);
+
       queryClient.setQueryData(
         ["inspection-requirements", inspectionData.id],
         newOrder
       );
+
+      // batch update the findings & images
     },
     [inspectionData, queryClient]
   );

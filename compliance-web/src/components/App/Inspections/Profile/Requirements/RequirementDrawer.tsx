@@ -34,7 +34,6 @@ import {
 } from "./RequirementUtils";
 import * as yup from "yup";
 import { useAgenciesData } from "@/hooks/useAgencies";
-import { RequirementImage } from "@/models/Image";
 import { useRequirementStore } from "./requirementStore";
 
 type RequirementDrawerProps = {
@@ -180,41 +179,31 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       return;
     }
     if (
-      requirementPhotos[requirement.id]?.length > 0 ||
-      requirementFigures[requirement.id]?.length > 0
+      (requirementPhotos.get(requirement.id) ?? []).length > 0 ||
+      (requirementFigures.get(requirement.id) ?? []).length > 0
     ) {
       // Remove the requirement's photos and figures from the records & update the sort order
-      let updatedRequirementPhotos = { ...requirementPhotos };
-      let updatedRequirementFigures = { ...requirementFigures };
+      let updatedRequirementPhotos = new Map(requirementPhotos);
+      let updatedRequirementFigures = new Map(requirementFigures);
 
-      if (requirement.id in updatedRequirementPhotos) {
-        delete updatedRequirementPhotos[requirement.id];
+      if (updatedRequirementPhotos.has(requirement.id)) {
+        updatedRequirementPhotos.delete(requirement.id);
         updatedRequirementPhotos = updateImagesWithContinuousSortOrder(
           updatedRequirementPhotos
         );
       }
-      if (requirement.id in updatedRequirementFigures) {
-        delete updatedRequirementFigures[requirement.id];
+      if (updatedRequirementFigures.has(requirement.id)) {
+        updatedRequirementFigures.delete(requirement.id);
         updatedRequirementFigures = updateImagesWithContinuousSortOrder(
           updatedRequirementFigures
         );
       }
 
-      // Combine the photos and figures into a single records list
-      const requirementImages = Object.entries({
+      // Combine the photos and figures into a single map list
+      const requirementImages = new Map([
         ...updatedRequirementPhotos,
         ...updatedRequirementFigures,
-      }).reduce(
-        (acc, [key]) => {
-          const numKey = Number(key);
-          acc[numKey] = [
-            ...(updatedRequirementPhotos[numKey] || []),
-            ...(updatedRequirementFigures[numKey] || []),
-          ];
-          return acc;
-        },
-        {} as Record<number, RequirementImage[]>
-      );
+      ]);
 
       // update the requirement images sort order in all findings
       const updatedRequirementsList = formatRequirementImagesInFindings(
@@ -252,8 +241,8 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
         : formatRequirementAPIData(
             formLeftData,
             requirementSourceList,
-            requirementPhotos[requirement?.id ?? NaN],
-            requirementFigures[requirement?.id ?? NaN]
+            requirementPhotos.get(requirement?.id ?? NaN),
+            requirementFigures.get(requirement?.id ?? NaN)
           );
 
       if (inspectionRequirementData) {

@@ -95,9 +95,7 @@ describe("ImagesContainer", () => {
       sort_order: 1,
     };
 
-    useRequirementStore.getState().setRequirementPhotos({
-      [1]: [mockImage],
-    });
+    useRequirementStore.getState().setRequirementPhotos(new Map([[1, [mockImage]]]));
 
     cy.mount(
       renderImagesContainer({

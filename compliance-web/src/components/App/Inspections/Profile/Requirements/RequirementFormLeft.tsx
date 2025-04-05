@@ -59,8 +59,8 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
   const updateMentionList = useCallback(() => {
     const mentionList = formatImagesToMentionList(
       [
-        ...(requirementPhotos[requirementId] || []),
-        ...(requirementFigures[requirementId] || []),
+        ...(requirementPhotos.get(requirementId) ?? []),
+        ...(requirementFigures.get(requirementId) ?? []),
       ],
     );
     setMentionDataList(mentionList);
