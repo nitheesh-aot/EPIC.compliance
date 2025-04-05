@@ -241,12 +241,14 @@ export const formatRequirementBatchAPIData = (
   requirements: InspectionRequirement[],
   requirementPhotos: Map<number, RequirementImage[]>,
   requirementFigures: Map<number, RequirementImage[]>,
-  currentRequirementId: number
+  currentRequirementId?: number
 ): InspectionRequirementBatchAPIData[] => {
-  // prepare batch update data for all requirements except the current one
-  // current requirement should be updated separately
-  return requirements
-    .filter((requirement) => requirement.id !== currentRequirementId)
+  // prepare batch update data for all requirements
+  // if currentRequirementId is provided, the current requirement should be updated separately
+  const requirementsList = currentRequirementId ?
+    requirements.filter((requirement) => requirement.id !== currentRequirementId) : requirements;
+
+  return requirementsList
     .map((requirement) => {
       const photos = requirementPhotos.get(requirement.id) ?? [];
       const figures = requirementFigures.get(requirement.id) ?? [];

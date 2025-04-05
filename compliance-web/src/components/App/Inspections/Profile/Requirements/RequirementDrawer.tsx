@@ -35,6 +35,7 @@ import {
 import * as yup from "yup";
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { useRequirementStore } from "./requirementStore";
+import { mergeMapsWithArrayConcat } from "@/utils/appUtils";
 
 type RequirementDrawerProps = {
   inspectionData: Inspection;
@@ -200,10 +201,10 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       }
 
       // Combine the photos and figures into a single map list
-      const requirementImages = new Map([
-        ...updatedRequirementPhotos,
-        ...updatedRequirementFigures,
-      ]);
+      const requirementImages = mergeMapsWithArrayConcat(
+        updatedRequirementPhotos,
+        updatedRequirementFigures
+      );
 
       // update the requirement images sort order in all findings
       const updatedRequirementsList = formatRequirementImagesInFindings(
