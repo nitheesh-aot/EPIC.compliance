@@ -59,21 +59,23 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       setRequirementPhotos,
       setRequirementFigures,
       setIsDataChanged,
+      setIsImageChanged,
     } = useRequirementStore();
 
     const [images, setImages] = useState<RequirementImage[]>([]);
 
     useEffect(() => {
-      const currentRequirementImages: Record<number, RequirementImage[]> =
-        isPhoto ? requirementPhotos : requirementFigures;
+      const currentRequirementImages: Map<number, RequirementImage[]> = isPhoto
+        ? requirementPhotos
+        : requirementFigures;
 
       const currentReqId = !requirementId ? NaN : requirementId;
       setCurrentRequirementId(currentReqId);
 
       if (isPhoto) {
-        setImages(currentRequirementImages[currentReqId] ?? []);
+        setImages(currentRequirementImages.get(currentReqId) ?? []);
       } else {
-        setImages(currentRequirementImages[currentReqId] ?? []);
+        setImages(currentRequirementImages.get(currentReqId) ?? []);
       }
     }, [requirementId, requirementPhotos, requirementFigures, isPhoto]);
 
@@ -167,10 +169,11 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
     };
 
     const setImageLists = (imagesList: RequirementImage[]) => {
-      const updatedRequirementImages: Record<number, RequirementImage[]> =
-        isPhoto ? requirementPhotos : requirementFigures;
+      const updatedRequirementImages: Map<number, RequirementImage[]> = isPhoto
+        ? requirementPhotos
+        : requirementFigures;
 
-      updatedRequirementImages[currentRequirementId] = imagesList;
+      updatedRequirementImages.set(currentRequirementId, imagesList);
 
       const updatedImagesWithSortOrder = updateImagesWithContinuousSortOrder(
         updatedRequirementImages
@@ -191,12 +194,13 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       );
       setRequirementsList(updatedRequirementsList);
 
-      setImages(updatedImagesWithSortOrder[currentRequirementId] ?? []);
+      setImages(updatedImagesWithSortOrder.get(currentRequirementId) ?? []);
       setIsDataChanged(true);
+      setIsImageChanged(true);
     };
 
     const updateActiveLexicalEditor = (
-      updatedImages: Record<number, RequirementImage[]>
+      updatedImages: Map<number, RequirementImage[]>
     ) => {
       // Find all active Lexical editor instances on the page
       const editorElements = document.querySelectorAll(".editor-input");
@@ -204,7 +208,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       if (!editorElements.length) return;
 
       // Flatten all images from all requirements into a single array
-      const allImages = Object.values(updatedImages).flat();
+      const allImages = Array.from(updatedImages.values()).flat();
 
       if (!allImages.length) return;
 

@@ -3,7 +3,7 @@ import LexicalEditor from "@/components/Shared/LexicalEditor/LexicalEditor";
 import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { $getRoot } from "lexical";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { FormControl, FormHelperText } from "@mui/material";
 
 interface ExtendedFieldErrors {
@@ -41,6 +41,16 @@ export default function ControlledLexicalEditor({
     formState: { errors },
   } = useFormContext();
 
+  // Add a memoized key that changes when the mentionsList changes
+  const [mentionsKey, setMentionsKey] = useState<number>(0);
+
+  useEffect(() => {
+    // Update the mentions key whenever the mentionsList changes
+    if (mentionsList) {
+      setMentionsKey((prev) => prev + 1);
+    }
+  }, [mentionsList]);
+
   const errorMessage = useMemo(() => {
     const error = errors[name] as unknown as ExtendedFieldErrors;
     return error && error.text && error.text.message;
@@ -62,6 +72,7 @@ export default function ControlledLexicalEditor({
               defaultHtml={field.value?.html}
               height={height}
               mentionsList={mentionsList}
+              key={`lexical-editor-mentions-${mentionsKey}`}
               onChange={(editorState, editor) => {
                 editorState.read(() => {
                   const editorStateHtmlString = $generateHtmlFromNodes(editor);
