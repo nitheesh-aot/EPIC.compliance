@@ -70,6 +70,13 @@ class InspectionRecordApprovalService:
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
         ServiceUtils.inspection_record_exist_check(inspection_record_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
+        latest_approval = InspectionRecordApprovalModel.get_latest_approval_by_ir(
+            inspection_record_id
+        )
+        if latest_approval.id != approval_id:
+            raise UnprocessableEntityError(
+                "Given approval id does not match the latest approval request"
+            )
         updated_approval = InspectionRecordApprovalModel.update_approval(
             approval_id=approval_id, approval_update_data=approval_update_data
         )
