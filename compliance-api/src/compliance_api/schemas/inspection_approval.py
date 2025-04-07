@@ -36,6 +36,23 @@ class CreateInspectionRecordApprovalSchema(BaseSchema):
     )
 
 
+class UpdateInspectionRecordApprovalStatusSchema(BaseSchema):
+    """Schema for updating the status of an InspectionRecordApproval."""
+
+    approval_status = EnumField(IRApprovalStatusEnum, by_value=False)
+
+    @post_load
+    def validate_fields(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Perform custom validation for allowed fields."""
+        status = data["approval_status"]
+        if status == IRApprovalStatusEnum.DECISION_PENDING:
+            raise ValidationError(f"Invalid status: {status}")
+
+        return data
+
+
 class UpdateInspectionRecordApprovalSchema(BaseSchema):
     """Schema for updating selected fields of an InspectionRecordApproval."""
 

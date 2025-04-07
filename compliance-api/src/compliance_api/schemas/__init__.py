@@ -28,7 +28,8 @@ from .inspection import (
     InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
     InspectionStatusSchema, InspectionUpdateSchema)
 from .inspection_approval import (
-    CreateInspectionRecordApprovalSchema, InspectionRecordApprovalSchema, UpdateInspectionRecordApprovalSchema)
+    CreateInspectionRecordApprovalSchema, InspectionRecordApprovalSchema, UpdateInspectionRecordApprovalSchema,
+    UpdateInspectionRecordApprovalStatusSchema)
 from .inspection_record import (
     InspectionRecordCreateSchema, InspectionRecordSchema, ResetInspectionRecordFieldSchema,
     UpdateInspectionRecordSchema)
