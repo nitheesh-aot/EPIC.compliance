@@ -38,10 +38,8 @@ class InspectionReqDetailDocument(BaseModelVersioned):
         comment="The unique identifier of the document type",
         nullable=False,
     )
-    document_title = Column(String, nullable=True, comment="The title of the document")
-    description = Column(
-        String, nullable=False, comment="The description of the document"
-    )
+    document_title = Column(String, nullable=True,
+                            comment="The title of the document")
     section_number = Column(
         String,
         nullable=True,
@@ -107,7 +105,8 @@ class InspectionReqDetailDocument(BaseModelVersioned):
             .all()
         )
         requirement_detail_ids = [detail.id for detail in requirement_details]
-        details = cls.query.filter(cls.req_detail_id.in_(requirement_detail_ids)).all()
+        details = cls.query.filter(
+            cls.req_detail_id.in_(requirement_detail_ids)).all()
         for detail in details:
             detail.update(DELETE_DIC_PARAMS, commit=False)
         session.flush()

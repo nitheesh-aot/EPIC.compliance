@@ -35,17 +35,83 @@
         table {
             border-collapse: collapse;
             width: 100%;
+            margin-bottom: 20px;
         }
         
         th, td {
             border: 1px solid black;
             padding: 8px;
             text-align: left;
+            vertical-align: top;
         }
         
         .section-break {
             margin: 20px 0;
             border-top: 1px solid #ccc;
+        }
+
+        .inspection-details {
+            margin-top: 30px;
+        }
+
+        .requirement-header {
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .findings {
+            margin: 10px 0;
+        }
+
+        .compliance-table {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .compliance-table td {
+            width: 50%;
+        }
+
+        .appendix-list {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        .department-info td {
+            width: 50%;
+            vertical-align: top;
+        }
+
+        .blue-link {
+            color: blue;
+            text-decoration: underline;
+        }
+        
+        .photo-section {
+            margin: 20px 0;
+        }
+
+        .photo-caption {
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .actions-enforcement {
+            margin: 30px 0;
+        }
+
+        .actions-enforcement table {
+            margin-bottom: 20px;
+        }
+
+        .actions-enforcement th {
+            background-color: #f5f5f5;
+        }
+
+        .actions-enforcement td {
+            min-height: 50px;
+            white-space: pre-wrap;
         }
         
         /* Print-specific styles */
@@ -151,28 +217,112 @@
             </tr>
         </table>
 
+        <div class="inspection-details">
+            <h2>INSPECTION DETAILS</h2>
+            {% for requirement in requirement_details %}
+            <div class="requirement-section">
+                <div class="requirement-header">
+                    Requirement {{ requirement.sort_order }}: {{ requirement.requirement_source_details[0].requirement_source_number }} of {{ requirement.requirement_source_details[0].requirement_source.name }}
+                    {% if requirement.requirement_source_details[0].requirement_source_description %}
+                    ({{ requirement.requirement_source_details[0].requirement_source_description }})
+                    {% endif %}
+                    {% if requirement.requirement_source_details|length > 1 %}
+                    {% for source in requirement.requirement_source_details[1:] %}
+                    <br>{{ source.requirement_source_number }} of {{ source.requirement_source.name }}
+                    {% if source.requirement_documents %}
+                    {% for doc in source.requirement_documents %}
+                    <br><strong>{{ doc.document_title }}</strong>
+                    {% if doc.section_number or doc.section_title %}<br><strong></strong>Section {{ doc.section_number }} {{ doc.section_title }}</strong>{% endif %}
+                    {% if doc.description %}<br>{{ doc.description }}{% endif %}
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <div class="findings">
+                    <strong>Findings:</strong><br>
+                    {{ requirement.requirement_findings | safe }}
+                </div>
+
+                {% if requirement.requirement_photos %}
+                {% for photo in requirement.requirement_photos %}
+                <div class="photo-section">
+                    <img src="{{ photo.photo_url }}" alt="Photo {{ photo.photo_number }}" style="max-width: 100%; margin: 10px 0;">
+                    <div class="photo-caption">
+                        Photo {{ photo.photo_number }}. {{ photo.photo_caption }}
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% if requirement.requirement_figures %}
+                {% for figure in requirement.requirement_figures %}
+                <div class="photo-section">
+                    <img src="{{ figure.figure_url }}" alt="Figure {{ figure.figure_number }}" style="max-width: 100%; margin: 10px 0;">
+                    <div class="photo-caption">
+                        Figure {{ figure.figure_number }}. {{ figure.figure_caption }}
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                <table class="compliance-table">
+                    <tr>
+                        <th>Compliance Finding</th>
+                        <th>Enforcement Action</th>
+                    </tr>
+                    <tr>
+                        <td>{{ requirement.compliance_finding }}</td>
+                        <td>{{ requirement.enforcement_action }}</td>
+                    </tr>
+                </table>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="actions-enforcement">
+            <table>
+                <tr>
+                    <th>Actions Required by {{ project_details.proponent_label }} and Additional Comments</th>
+                </tr>
+                <tr>
+                    <td>{{ action_required_by_rp | safe }}</td>
+                </tr>
+            </table>
+
+            <table>
+                <tr>
+                    <th>Enforcement Summary</th>
+                </tr>
+                <tr>
+                    <td>{{ enforcement_summary | safe }}</td>
+                </tr>
+            </table>
+        </div>
+
         <h2>Appendices:</h2>
         <table>
             <tr>
-                <td colspan="2">
+                <td>
                     {% for appendix in appendices %}
-                    Appendix {{ appendix.appendix_no }}: {{ appendix.document_title }}<br>
+                    Appendix {{ appendix.appendix_no }}: {{ appendix.document_title }}{% if not loop.last %}<br>{% endif %}
                     {% endfor %}
                 </td>
             </tr>
         </table>
 
         <h2>Environmental Assessment Office - Compliance & Enforcement Branch</h2>
-        <table>
+        <table class="department-info">
             <tr>
                 <td>
-                    Mailing Address:<br>
-                    {{ department_details.address }}
+                    {{ department_details.address }}<br>
+                    Victoria BC V8W 9V1
                 </td>
                 <td>
                     Phone: {{ department_details.phone }}<br>
-                    Email: <a href="mailto:{{ department_details.email }}" style="color: blue; text-decoration: underline;">{{ department_details.email }}</a><br>
-                    Website: <a href="{{ department_details.website }}" style="color: blue; text-decoration: underline;">{{ department_details.website }}</a>
+                    Email: <a href="mailto:{{ department_details.email }}" class="blue-link">{{ department_details.email }}</a><br>
+                    Website: <a href="{{ department_details.website }}" class="blue-link">{{ department_details.website }}</a>
                 </td>
             </tr>
         </table>

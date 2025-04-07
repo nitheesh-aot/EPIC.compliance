@@ -190,6 +190,8 @@ class InspectionRecordService:
                             .build_preliminary_review_details()\
                             .build_finding_statement()\
                             .build_enforcement_summary()\
+                            .build_action_required_by_rp()\
+                            .build_requirement_details()\
                             .build()
         preview_data = InspectionRecordPreviewSchema().dump(ir_data)
         response = DocGenService.render_template(

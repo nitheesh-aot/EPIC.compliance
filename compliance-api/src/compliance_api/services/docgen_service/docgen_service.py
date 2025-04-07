@@ -21,11 +21,11 @@ class DocGenService:
         return response.json()
 
 
-# @retry(
-#     retry=retry_if_exception_type(requests.exceptions.RequestException),
-#     stop=stop_after_attempt(3),  # Retry up to 3 times
-#     wait=wait_fixed(2),  # Wait 2 seconds between retries
-# )
+@retry(
+    retry=retry_if_exception_type(requests.exceptions.RequestException),
+    stop=stop_after_attempt(3),  # Retry up to 3 times
+    wait=wait_fixed(2),  # Wait 2 seconds between retries
+)
 def _request_docgen_service(
     relative_url, http_method: HttpMethod = HttpMethod.GET, data=None
 ):

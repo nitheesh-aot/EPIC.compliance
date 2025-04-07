@@ -55,7 +55,7 @@ PRELIMINARY_REVIEW_DETAILS = """<div>
 """
 
 ACTION_REQUIRED_BY_RP = """<p class="editor-paragraph" dir="ltr"><b><strong class="editor-text-bold">Please review
-this inspection record for errors or omissions and provide a response to Officer {{ primary_officer }}
+ this inspection record for errors or omissions and provide a response to Officer {{ primary_officer }}
 by</strong></b>
 {% if date_expected_return %}
     {{ date_expected_return }}

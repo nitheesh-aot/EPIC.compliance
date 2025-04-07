@@ -5,11 +5,12 @@ import re
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.models.inspection import Inspection as InspectionModel, IRStatusOption as IRStatusOptionModel
 from compliance_api.models.inspection import InspectionReqSourceDetail as InspectionReqSourceDetailModel
-from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
+from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel, InspectionRequirementImage as InspectionRequirementImageModel
 from compliance_api.models.inspection import InspectionRequirementTypeEnum
-from compliance_api.models.inspection import InspectionAttendanceOptionEnum
+from compliance_api.models.inspection import InspectionAttendanceOptionEnum, ImageTypeEnum
 from compliance_api.models.inspection_record import InspectionRecord as InspectionRecordModel
 from compliance_api.models.inspection_record import IRProgressEnum, IRStatusEnum
+from compliance_api.models.compliance_finding import ComplianceFindingOptionEnum
 from compliance_api.models.inspection_record_approval import InspectionRecordApproval as InspectionRecordApprovalModel
 from compliance_api.models.requirement_source import RequirementSourceEnum
 from compliance_api.models.unapproved_project import UnapprovedProject as UnapprovedProjectModel
@@ -19,6 +20,8 @@ from compliance_api.services.epic_track_service.track_service import TrackServic
 from compliance_api.utils.template_renderer import render_template_with_data
 from compliance_api.services.inspection_record.ir_template_constant import (
     ACTION_REQUIRED_BY_RP, ENFORCEMENT_SUMMARY, FINDING_STATEMENT, INSPECTION_SCOPE, PRELIMINARY_REVIEW_DETAILS)
+from compliance_api.services.document_service.doc_service import DocService
+from compliance_api.services.document_service.doc_service_enum import ActionOnFileEnum
 
 
 class InspectionRecordDataBuilder:
@@ -304,6 +307,62 @@ class InspectionRecordDataBuilder:
             if self.existing_ir
             else action_required_by_rp
         )
+        return self
+
+    def build_requirement_details(self):
+        """Build the requirement details for the inspection record."""
+        result = []
+        if not self.requirements:
+            self.requirements = InspectionRequirementModel.get_by_inspection_id(
+                self.inspection.id
+            )
+        for requirement in self.requirements:
+            req = {
+                "requirement_id": requirement.id,
+                "requirement_findings": requirement.findings,
+                "sort_order": requirement.sort_order,
+                "compliance_finding": requirement.compliance_finding.name,
+                "enforcement_action": "Not Applicable" if requirement.compliance_finding_id == ComplianceFindingOptionEnum.IN.value else "Not Determined",
+                "requirement_source_details": [],
+                "requirement_photos": [],
+                "requirement_figures": [],
+            }
+            if requirement.requirement_source_details:
+                for detail in requirement.requirement_source_details:
+                    req["requirement_source_details"].append({
+                        "requirement_source_name": detail.requirement_source.name,
+                        "requirement_source_number": self._get_requirement_source_number_field(detail),
+                        "requirement_source_description": detail.description,
+                        "requirement_documents": [],
+                    })
+                    if detail.documents:
+                        for doc in detail.documents:
+                            req["requirement_source_details"][-1]["requirement_documents"].append({
+                                "document_title": doc.document_title,
+                                "section_number": doc.section_number,
+                                "section_title": doc.section_title,
+                                "description": doc.description,
+                            })
+            photos = InspectionRequirementImageModel.find_all_images(
+                requirement.id, ImageTypeEnum.PHOTO)
+            figures = InspectionRequirementImageModel.find_all_images(
+                requirement.id, ImageTypeEnum.FIGURE)
+            for photo in photos:
+                req["requirement_photos"].append({
+                    "photo_caption": photo.caption,
+                    "photo_number": photo.sort_order,
+                    "caption": photo.caption,
+                    "photo_url": DocService.get_presigned_url({"relative_url": photo.relative_url, "action": ActionOnFileEnum.GET.value}),
+                })
+            for figure in figures:
+                req["requirement_figures"].append({
+                    "figure_caption": figure.caption,
+                    "figure_number": figure.sort_order,
+                    "caption": figure.caption,
+                    "figure_url": DocService.get_presigned_url({"relative_url": figure.relative_url, "action": ActionOnFileEnum.GET.value}),
+                })
+            result.append(req)
+        self.data["requirement_details"] = result
         return self
 
     def build(self):
