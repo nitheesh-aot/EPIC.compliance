@@ -52,8 +52,7 @@ class InspectionRequirementImage(BaseModelVersioned):
     relative_url = Column(
         String, nullable=False, comment="The actual url of the final uploaded image"
     )
-    taken_by = relationship("StaffUser", foreign_keys=[
-                            taken_by_id], lazy="joined")
+    taken_by = relationship("StaffUser", foreign_keys=[taken_by_id], lazy="joined")
     inspection_requirement = relationship(
         "InspectionRequirement", foreign_keys=[requirement_id], lazy="select"
     )

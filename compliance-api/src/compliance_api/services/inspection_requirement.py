@@ -40,10 +40,8 @@ class InspectionRequirementService:
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
         _inspection_status_check(inspection)
         ServiceUtils.access_check_update_for_inspection(inspection)
-        requirements = InspectionRequirementModel.get_by_inspection_id(
-            inspection_id)
-        requirement_obj = _create_requirement_obj(
-            inspection_id, requirement_data)
+        requirements = InspectionRequirementModel.get_by_inspection_id(inspection_id)
+        requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
         requirement_obj["sort_order"] = len(requirements) + 1
         with session_scope() as session:
             created_requirement = InspectionRequirementModel.create_requirement(
@@ -85,8 +83,7 @@ class InspectionRequirementService:
         _inspection_status_check(inspection)
         _requirement_check(requirement_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
-        requirement_obj = _create_requirement_obj(
-            inspection_id, requirement_data)
+        requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
         with session_scope() as session:
             updated_requirement = InspectionRequirementModel.update_requirement(
                 requirement_id, requirement_obj, session
@@ -130,8 +127,7 @@ class InspectionRequirementService:
         _requirement_check(requirement_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         with session_scope() as session:
-            InspectionRequirementModel.delete_requirement(
-                requirement_id, session)
+            InspectionRequirementModel.delete_requirement(requirement_id, session)
             InspectionReqSourceDetailModel.delete_by_requirement_id(
                 requirement_id, session
             )
@@ -156,8 +152,7 @@ class InspectionRequirementService:
         ServiceUtils.access_check_update_for_inspection(inspection)
 
         new_sort_order = sort_order_data.get("order")
-        requirements = InspectionRequirementModel.get_by_inspection_id(
-            inspection_id)
+        requirements = InspectionRequirementModel.get_by_inspection_id(inspection_id)
         if new_sort_order > len(requirements):
             raise BadRequestError(
                 f"Invaid order. The order should be less than or equal to {len(requirements)}"
@@ -436,8 +431,7 @@ def _update_sort_order_subsequent(requirements, commit=False):
 
 def _inspection_status_check(inspection: InspectionModel):
     """Check the inspection status."""
-    invalid_statuses = {InspectionStatusEnum.CANCELED,
-                        InspectionStatusEnum.CLOSED}
+    invalid_statuses = {InspectionStatusEnum.CANCELED, InspectionStatusEnum.CLOSED}
     if inspection.inspection_status in invalid_statuses:
         raise UnprocessableEntityError(
             f"No changes to the requirements can be made to  {inspection.inspection_status.name} inspection"
@@ -519,8 +513,7 @@ def _handle_deletion_req_detail_nd_doc(
     existing_doc_detail_ids = {
         doc.id for detail in existing_details for doc in detail.documents
     }
-    details_to_be_deleted = existing_detail_ids.difference(
-        incoming_details_ids)
+    details_to_be_deleted = existing_detail_ids.difference(incoming_details_ids)
     doc_details_to_be_deleted = existing_doc_detail_ids.difference(
         incoming_doc_detail_ids
     )
