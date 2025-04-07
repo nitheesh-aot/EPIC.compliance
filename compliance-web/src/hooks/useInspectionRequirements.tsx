@@ -76,7 +76,7 @@ const updateInspectionRequirement = ({
   inspectionId: number;
   requirementId: number;
   inspectionRequirement: InspectionRequirementAPIData;
-  requirementBatch: InspectionRequirementBatchAPIData[];
+  requirementBatch?: InspectionRequirementBatchAPIData[];
 }) => {
   return request({
     url: `/inspections/${inspectionId}/requirements/${requirementId}`,
@@ -235,10 +235,12 @@ export const useUpdateInspectionRequirement = (onSuccess: OnSuccessType) => {
     mutationFn: updateInspectionRequirement,
     onSuccess(data, variables) {
       // Batch update the requirement findings & images
-      updateInspectionRequirementBatch({
-        inspectionId: variables.inspectionId,
-        requirementBatch: variables.requirementBatch,
-      });
+      if (variables.requirementBatch) {
+        updateInspectionRequirementBatch({
+          inspectionId: variables.inspectionId,
+          requirementBatch: variables.requirementBatch,
+        });
+      }
       onSuccess(data);
     },
   });

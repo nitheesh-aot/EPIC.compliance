@@ -9,6 +9,7 @@ import React, { memo, useCallback, useState } from "react";
 import {
   isRequirementSourceCondition,
   REGULATORY_CONSIDERATION_TYPE_ID,
+  requirementCardStyles,
 } from "./RequirementUtils";
 import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 
@@ -18,29 +19,6 @@ interface RequirementCardProps {
   onEdit: () => void;
   isActive: boolean;
 }
-
-const cardStyles = {
-  card: {
-    backgroundColor: BCDesignTokens.surfaceColorBackgroundWhite,
-    mb: 2,
-    border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-    borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
-    "&:hover": {
-      cursor: "pointer",
-      boxShadow: `0px 4px 6px 0px ${BCDesignTokens.surfaceColorBorderDefault}`,
-    },
-  },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    p: "0.75rem 1.5rem",
-    pl: 0,
-    backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
-  },
-  content: {
-    p: "0.5rem 1.5rem 1rem",
-  },
-};
 
 const RequirementCard: React.FC<RequirementCardProps> = memo(
   ({ requirement, index, onEdit, isActive }) => {
@@ -141,14 +119,14 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
       return (
         <Box
           sx={{
-            ...cardStyles.card,
+            ...requirementCardStyles.card,
             ...(isActive && {
               borderColor: BCDesignTokens.surfaceColorBorderActive,
             }),
           }}
           onClick={handleClick}
         >
-          <Box sx={cardStyles.header}>
+          <Box sx={requirementCardStyles.header}>
             <DragIndicatorRounded
               sx={{
                 mx: 0.5,
@@ -164,7 +142,7 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
                 : `#${index + 1}. ${requirement.summary}`}
             </Typography>
           </Box>
-          <Box sx={cardStyles.content}>
+          <Box sx={requirementCardStyles.content}>
             <Grid container spacing={0.5}>
               {isRegulatoryConsideration
                 ? renderRegulatoryContent()
