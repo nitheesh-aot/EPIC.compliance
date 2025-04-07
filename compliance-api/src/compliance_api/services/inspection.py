@@ -545,12 +545,12 @@ def _create_inspection_other_attendance_object(
     }
 
 
-def _create_cr_entry(inspection_id, ir_no, case_file_id, action):
+def _create_cr_entry(inspection_id, ir_no, case_file_id, text):
     """Create the continuation report entry."""
     return {
         "case_file_id": case_file_id,
-        "text": f"{ir_no} is {action}",
-        "rich_text": f"<p>{ir_no} is {action}</p>",
+        "text": f"{text}",
+        "rich_text": f"<p>{text}</p>",
         "date_created": datetime.utcnow().strftime(INPUT_DATE_TIME_FORMAT),
         "context_type": ContextEnum.INSPECTION,
         "context_id": inspection_id,
