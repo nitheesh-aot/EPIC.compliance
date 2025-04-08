@@ -12,12 +12,14 @@ type DrawerTitleBarProps = {
   title: string;
   isFormDirtyCheck?: boolean;
   isDirtyManual?: boolean;
+  customCloseFn?: () => void;
 };
 
 const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
   title,
   isFormDirtyCheck,
   isDirtyManual,
+  customCloseFn,
 }) => {
   const { isOpen, setClose } = useDrawer();
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
@@ -42,14 +44,24 @@ const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
             onConfirm={() => {
               setClose();
               setModalClose();
+              customCloseFn?.();
             }}
           />
         ),
       });
     } else {
       setClose();
+      customCloseFn?.();
     }
-  }, [isFormDirtyCheck, isDirty, isDirtyManual, setModalOpen, setModalClose, setClose]);
+  }, [
+    isFormDirtyCheck,
+    isDirty,
+    isDirtyManual,
+    setModalOpen,
+    setClose,
+    setModalClose,
+    customCloseFn,
+  ]);
 
   return (
     <Box

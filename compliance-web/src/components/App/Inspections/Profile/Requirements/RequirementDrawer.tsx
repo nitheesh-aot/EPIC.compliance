@@ -79,6 +79,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     isImageChanged,
     setIsDataChanged,
     setIsImageChanged,
+    deleteNewRequirementImages,
     resetRequirementStoreFlags,
   } = useRequirementStore();
 
@@ -306,6 +307,13 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       : "Create Requirement";
   };
 
+
+  const handleCloseClearData = () => {
+    if(!inspectionRequirementData) {
+      deleteNewRequirementImages();
+    }
+  };
+
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
@@ -313,6 +321,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           title={getDrawerTitle()}
           isFormDirtyCheck
           isDirtyManual={isRequirementSourceListDirty}
+          customCloseFn={handleCloseClearData}
         />
         <DrawerActionBarTop isShowActionBar={!inspectionRequirementData} />
         <Stack

@@ -17,6 +17,7 @@ interface RequirementStore {
   setAppendices: (appendices: Appendix[]) => void;
   setIsDataChanged: (isDataChanged: boolean) => void;
   setIsImageChanged: (isImageChanged: boolean) => void;
+  deleteNewRequirementImages: () => void;
   resetRequirementStoreFlags: () => void;
   reset: () => void;
 }
@@ -36,5 +37,18 @@ export const useRequirementStore = create<RequirementStore>((set) => ({
   setIsDataChanged: (isDataChanged: boolean) => set({ isDataChanged }),
   setIsImageChanged: (isImageChanged: boolean) => set({ isImageChanged }),
   resetRequirementStoreFlags: () => set({ isDataChanged: false, isImageChanged: false }),
+  deleteNewRequirementImages: () => {
+    const { requirementPhotos, requirementFigures } = useRequirementStore.getState();
+    const updatedRequirementPhotos = new Map(requirementPhotos);
+    const updatedRequirementFigures = new Map(requirementFigures);
+
+    if (updatedRequirementPhotos.has(NaN)) {
+      updatedRequirementPhotos.delete(NaN);
+    }
+    if (updatedRequirementFigures.has(NaN)) {
+      updatedRequirementFigures.delete(NaN);
+    }
+    set({ requirementPhotos: updatedRequirementPhotos, requirementFigures: updatedRequirementFigures });
+  },
   reset: () => set({ requirementsList: [], requirementPhotos: new Map(), requirementFigures: new Map(), appendices: [], isDataChanged: false, isImageChanged: false }),
 }));
