@@ -1,13 +1,14 @@
 import { Agency } from "@/models/Agency";
 import { ComplianceFinding } from "@/models/ComplianceFinding";
 import { EnforcementAction } from "@/models/EnforcementAction";
-import { InspectionRequirement, InspectionRequirementAPIData, InspectionRequirementFormData, InspectionRequirementSourceAPIData, InspectionRequirementSourceDocumentAPIData, RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData, RequirementSourceFormData } from "@/models/InspectionRequirement";
+import { InspectionRequirement, InspectionRequirementAPIData, InspectionRequirementBatchAPIData, InspectionRequirementBatchImageAPIData, InspectionRequirementFormData, InspectionRequirementSourceAPIData, InspectionRequirementSourceDocumentAPIData, RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData, RequirementSourceFormData } from "@/models/InspectionRequirement";
 import { Topic } from "@/models/Topic";
 import { RequirementSourceEnum } from "@/utils/constants";
 import * as yup from "yup";
-import { Image, ImageAPIData } from "@/models/Image";
+import { RequirementImage, ImageAPIData } from "@/models/Image";
 import dateUtils from "@/utils/dateUtils";
 import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
+import { BCDesignTokens } from "epic.theme";
 
 export const REQUIREMENT_TYPE_ID = "REQ";
 export const REGULATORY_CONSIDERATION_TYPE_ID = "REG";
@@ -27,6 +28,29 @@ export enum ImageTypeEnum {
   PHOTO,
   FIGURE,
 }
+
+export const requirementCardStyles = {
+  card: {
+    backgroundColor: BCDesignTokens.surfaceColorBackgroundWhite,
+    mb: 2,
+    border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+    borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
+    "&:hover": {
+      cursor: "pointer",
+      boxShadow: `0px 4px 6px 0px ${BCDesignTokens.surfaceColorBorderDefault}`,
+    },
+  },
+  header: {
+    display: "flex",
+    alignItems: "center",
+    p: "0.75rem 1.5rem",
+    pl: 0,
+    backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
+  },
+  content: {
+    p: "0.5rem 1.5rem 1rem",
+  },
+};
 
 export const RequirementFormSchema = (isRegulatoryConsideration: boolean) => yup.object().shape({
   requirementSummary: yup.string().required("Summary is required"),
@@ -62,8 +86,8 @@ export const isRequirementSourceCondition = (id: string): boolean =>
 export const formatRequirementAPIData = (
   formData: InspectionRequirementFormData,
   requirementSourceList: RequirementSourceFormData[],
-  photos?: Image[],
-  figures?: Image[],
+  photos?: RequirementImage[],
+  figures?: RequirementImage[],
 ): InspectionRequirementAPIData => {
 
   const requirementSourceDetails: InspectionRequirementSourceAPIData[] =
@@ -121,7 +145,7 @@ export const formatRequirementAPIData = (
   return inspectionRequirementPayload;
 };
 
-const formatImages = (images: Image[]): ImageAPIData[] => {
+const formatImages = (images: RequirementImage[]): ImageAPIData[] => {
   return images.map((image) => {
     return {
       id: image.dbId ?? undefined,
@@ -130,6 +154,7 @@ const formatImages = (images: Image[]): ImageAPIData[] => {
       taken_by_id: image.taken_by_id,
       caption: image.caption,
       relative_url: image.relative_url,
+      sort_order: image.sort_order,
     };
   });
 }
@@ -203,13 +228,13 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
   };
 };
 
-export const formatImagesToMentionList = (images: Image[]): MentionData[] => {
-  return images.map((image, index) => ({
+export const formatImagesToMentionList = (images: RequirementImage[]): MentionData[] => {
+  return images.map((image) => ({
     id: image.id ?? 0,
-    name: `${image.image_type ?? ""} ${index + 1}`,
+    name: `${image.image_type ?? ""} ${image.sort_order}`,
     imageRelativeUrl: image.relative_url ?? "",
   }));
-}
+};
 
 /**
  * Groups requirement source form data by requirement source ID
@@ -233,4 +258,100 @@ export const groupRequirementSourcesByType = (
     },
     new Map<string, RequirementSourceFormData[]>()
   );
+};
+
+
+export const formatRequirementBatchAPIData = (
+  requirements: InspectionRequirement[],
+  requirementPhotos: Map<number, RequirementImage[]>,
+  requirementFigures: Map<number, RequirementImage[]>,
+  currentRequirementId?: number
+): InspectionRequirementBatchAPIData[] => {
+  // prepare batch update data for all requirements
+  // if currentRequirementId is provided, the current requirement should be updated separately
+  const requirementsList = currentRequirementId ?
+    requirements.filter((requirement) => requirement.id !== currentRequirementId) : requirements;
+
+  return requirementsList
+    .map((requirement) => {
+      const photos = requirementPhotos.get(requirement.id) ?? [];
+      const figures = requirementFigures.get(requirement.id) ?? [];
+      const images: InspectionRequirementBatchImageAPIData[] = [...photos, ...figures].map((image) => {
+        return {
+          image_id: image.id ?? 0,
+          sort_order: image.sort_order ?? 0,
+        };
+      });
+      return {
+        requirement_id: requirement.id,
+        findings: requirement.findings,
+        images: images,
+      };
+    });
+};
+
+export const updateImagesWithContinuousSortOrder = (
+  requirementImages: Map<number, RequirementImage[]>
+): Map<number, RequirementImage[]> => {
+  // create a deep copy of the requirement images for updating in the ui
+  const updatedImagesWithSortOrder = new Map<number, RequirementImage[]>();
+  requirementImages.forEach((images, reqId) => {
+    updatedImagesWithSortOrder.set(Number(reqId), images.map((image) => ({ ...image })));
+  });
+
+  let initialIndex = 1;
+  updatedImagesWithSortOrder.forEach((images) => {
+    images.forEach((image) => {
+      image.sort_order = initialIndex;
+      initialIndex++;
+    });
+  });
+
+  return updatedImagesWithSortOrder;
+}
+
+export const formatRequirementImagesInFindings = (
+  requirementsList: InspectionRequirement[],
+  requirementImages: Map<number, RequirementImage[]>
+): InspectionRequirement[] => {
+  return requirementsList.map((requirement) => {
+    const { findings } = requirement;
+    if (!findings || !findings.includes("data-lexical-mention="))
+      return requirement;
+
+    // Create a temporary DOM element to parse the HTML
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = findings;
+
+    // Find all spans with data-lexical-mention attribute
+    const mentionSpans = tempDiv.querySelectorAll(
+      'span[data-lexical-mention="true"]'
+    );
+
+    const imagesList = requirementImages.get(requirement.id);
+
+    // Replace the content of each mention span with Updated Photo
+    mentionSpans.forEach((span) => {
+      const spanImageId = span.getAttribute("data-imageid");
+      const image = imagesList?.find(
+        (image) => image.id?.toString() === spanImageId
+      );
+      if (image) {
+        const imageLabel = `${image.image_type} ${image.sort_order}`;
+        span.textContent = imageLabel;
+        span.setAttribute("data-mention", imageLabel);
+        span.setAttribute("data-imageurl", image.relative_url ?? "");
+      } else {
+        span.parentNode?.removeChild(span);
+      }
+    });
+
+    // Get the updated HTML
+    const updatedFindings = tempDiv.innerHTML;
+
+    return {
+      ...requirement,
+      findings: updatedFindings,
+    };
+  })
 };

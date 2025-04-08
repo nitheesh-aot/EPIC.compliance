@@ -1,29 +1,40 @@
 import { create } from "zustand";
-import { Image } from "@/models/Image";
+import { RequirementImage } from "@/models/Image";
 import { Appendix } from "@/models/Appendix";
+import { InspectionRequirement } from "@/models/InspectionRequirement";
 
 // Define the store state and actions
 interface RequirementStore {
-  photos: Image[];
-  figures: Image[];
+  requirementsList: InspectionRequirement[];
+  requirementPhotos: Map<number, RequirementImage[]>;
+  requirementFigures: Map<number, RequirementImage[]>;
   appendices: Appendix[];
   isDataChanged: boolean;
-  setPhotos: (photos: Image[]) => void;
-  setFigures: (figures: Image[]) => void;
+  isImageChanged: boolean;
+  setRequirementsList: (requirementsList: InspectionRequirement[]) => void;
+  setRequirementPhotos: (requirementPhotos: Map<number, RequirementImage[]>) => void;
+  setRequirementFigures: (requirementFigures: Map<number, RequirementImage[]>) => void;
   setAppendices: (appendices: Appendix[]) => void;
   setIsDataChanged: (isDataChanged: boolean) => void;
+  setIsImageChanged: (isImageChanged: boolean) => void;
+  resetRequirementStoreFlags: () => void;
   reset: () => void;
 }
 
 // Create the Zustand store
 export const useRequirementStore = create<RequirementStore>((set) => ({
-  photos: [],
-  figures: [],
+  requirementsList: [],
+  requirementPhotos: new Map(),
+  requirementFigures: new Map(),
   appendices: [],
   isDataChanged: false,
-  setPhotos: (photos: Image[]) => set({ photos }),
-  setFigures: (figures: Image[]) => set({ figures }),
+  isImageChanged: false,
+  setRequirementsList: (requirementsList: InspectionRequirement[]) => set({ requirementsList }),
+  setRequirementPhotos: (requirementPhotos: Map<number, RequirementImage[]>) => set({ requirementPhotos }),
+  setRequirementFigures: (requirementFigures: Map<number, RequirementImage[]>) => set({ requirementFigures }),
   setAppendices: (appendices: Appendix[]) => set({ appendices }),
   setIsDataChanged: (isDataChanged: boolean) => set({ isDataChanged }),
-  reset: () => set({ photos: [], figures: [], appendices: [], isDataChanged: false }),
+  setIsImageChanged: (isImageChanged: boolean) => set({ isImageChanged }),
+  resetRequirementStoreFlags: () => set({ isDataChanged: false, isImageChanged: false }),
+  reset: () => set({ requirementsList: [], requirementPhotos: new Map(), requirementFigures: new Map(), appendices: [], isDataChanged: false, isImageChanged: false }),
 }));

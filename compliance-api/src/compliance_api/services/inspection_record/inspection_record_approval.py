@@ -1,9 +1,16 @@
 """Service method to handle inspection record approval."""
 
+from datetime import datetime
+
 from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import InspectionRecordApproval as InspectionRecordApprovalModel
 from compliance_api.models import IRApprovalStatusEnum, IRProgressEnum
+from compliance_api.models.db import session_scope
+from compliance_api.models.inspection import Inspection as InspectionModel
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
+from compliance_api.utils.enum import ContextEnum
 
+from ..continuation_report import ContinuationReportService
 from ..service_utils import ServiceUtils
 
 
@@ -18,7 +25,7 @@ class InspectionRecordApprovalService:
         inspection_record_id: int,
     ):
         """Create approval for the inspection record."""
-        ServiceUtils.inspection_exist_check(inspection_id)
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
         inspection_record = ServiceUtils.inspection_record_exist_check(
             inspection_record_id
         )
@@ -47,11 +54,22 @@ class InspectionRecordApprovalService:
             raise UnprocessableEntityError(
                 "New request cannot be made as the existing one is in progress"
             )
-        created_approval = (
-            InspectionRecordApprovalModel.create_inspection_record_approval(
-                approval_data
+        with session_scope() as session:
+            created_approval = (
+                InspectionRecordApprovalModel.create_inspection_record_approval(
+                    approval_data, session
+                )
             )
-        )
+            cr_entry_text = f"{inspection_record.ir_status.name} was sent to"
+            cr_entry_text += f" {created_approval.approved_by.first_name} "
+            cr_entry_text += f"{created_approval.approved_by.last_name} for approval"
+            cr_entry = _create_cr_entry(
+                inspection,
+                cr_entry_text,
+            )
+            ContinuationReportService.create(
+                cr_entry, sys_generated=True, ho_session=session
+            )
         return created_approval
 
     @classmethod
@@ -76,3 +94,16 @@ class InspectionRecordApprovalService:
         if not updated_approval:
             raise ResourceNotFoundError("Approval not found")
         return updated_approval
+
+
+def _create_cr_entry(inspection: InspectionModel, text: str):
+    """Create the continuation report entry."""
+    return {
+        "case_file_id": inspection.case_file_id,
+        "text": text,
+        "rich_text": f"<p>{text}</p>",
+        "date_created": datetime.utcnow().strftime(INPUT_DATE_TIME_FORMAT),
+        "context_type": ContextEnum.INSPECTION,
+        "context_id": inspection.id,
+        "keys": [{"key": inspection.ir_number, "key_context": ContextEnum.INSPECTION}],
+    }

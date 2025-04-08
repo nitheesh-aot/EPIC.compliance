@@ -6,9 +6,10 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   InspectionRequirement,
   InspectionRequirementAPIData,
+  InspectionRequirementBatchAPIData,
 } from "@/models/InspectionRequirement";
 import { InspectionRequirementType } from "@/models/InspectionRequirementType";
-import { Image } from "@/models/Image";
+import { RequirementImage } from "@/models/Image";
 import { useStaticQuery } from "./useCustomQueries";
 
 const fetchInspectionRequirementTypes = (): Promise<
@@ -35,13 +36,21 @@ const fetchInspectionRequirements = (
   return request({ url: `/inspections/${inspectionId}/requirements` });
 };
 
-const fetchInspectionRequirementImages = (
+const fetchInspectionRequirementImages2 = (
   inspectionId: number,
   requirementId: number,
   imageType: "photos" | "figures"
-): Promise<Image[]> => {
+): Promise<RequirementImage[]> => {
   return request({
     url: `/inspections/${inspectionId}/requirements/${requirementId}/${imageType}`,
+  });
+};
+
+const fetchInspectionRequirementImages = (
+  inspectionId: number
+): Promise<RequirementImage[]> => {
+  return request({
+    url: `/inspections/${inspectionId}/images`,
   });
 };
 
@@ -67,6 +76,7 @@ const updateInspectionRequirement = ({
   inspectionId: number;
   requirementId: number;
   inspectionRequirement: InspectionRequirementAPIData;
+  requirementBatch?: InspectionRequirementBatchAPIData[];
 }) => {
   return request({
     url: `/inspections/${inspectionId}/requirements/${requirementId}`,
@@ -93,12 +103,29 @@ const updateInspectionRequirementOrder = ({
   });
 };
 
+const updateInspectionRequirementBatch = ({
+  inspectionId,
+  requirementBatch,
+}: {
+  inspectionId: number;
+  requirementBatch: InspectionRequirementBatchAPIData[];
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/requirements`,
+    method: "patch",
+    data: {
+      requirements: requirementBatch,
+    },
+  });
+};
+
 const deleteInspectionRequirement = ({
   inspectionId,
   requirementId,
 }: {
   inspectionId: number;
   requirementId: number;
+  requirementBatch?: InspectionRequirementBatchAPIData[];
 }) => {
   return request({
     url: `/inspections/${inspectionId}/requirements/${requirementId}`,
@@ -156,8 +183,8 @@ export const useInspectionRequirementImagesData = (
       imageType,
     ],
     queryFn: () =>
-      fetchInspectionRequirementImages(inspectionId, requirementId, imageType),
-    select: (data: Image[]) => {
+      fetchInspectionRequirementImages2(inspectionId, requirementId, imageType),
+    select: (data: RequirementImage[]) => {
       return data.map((image) => ({
         ...image,
         dbId: image.id,
@@ -169,12 +196,54 @@ export const useInspectionRequirementImagesData = (
   });
 };
 
+export const useInspectionRequirementImages = (inspectionId: number) => {
+  return useQuery({
+    queryKey: ["inspection-requirement-images", inspectionId],
+    queryFn: () => fetchInspectionRequirementImages(inspectionId),
+    select: (data: RequirementImage[]) => {
+      const reqPhotos = data
+        .filter((image) => image.image_type?.toLowerCase() === "photo")
+        .map((image, index) => ({
+          ...image,
+          dbId: image.id,
+          sort_order: index + 1,
+        }));
+      const reqFigures = data
+        .filter((image) => image.image_type?.toLowerCase() === "figure")
+        .map((image, index) => ({
+          ...image,
+          dbId: image.id,
+          sort_order: index + 1,
+        }));
+      return {
+        photos: reqPhotos,
+        figures: reqFigures,
+      };
+    },
+    enabled: !!inspectionId,
+    refetchOnWindowFocus: false,
+    staleTime: Infinity,
+  });
+};
+
 export const useCreateInspectionRequirement = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: createInspectionRequirement, onSuccess });
 };
 
 export const useUpdateInspectionRequirement = (onSuccess: OnSuccessType) => {
-  return useMutation({ mutationFn: updateInspectionRequirement, onSuccess });
+  return useMutation({
+    mutationFn: updateInspectionRequirement,
+    onSuccess(data, variables) {
+      // Batch update the requirement findings & images
+      if (variables.requirementBatch) {
+        updateInspectionRequirementBatch({
+          inspectionId: variables.inspectionId,
+          requirementBatch: variables.requirementBatch,
+        });
+      }
+      onSuccess(data);
+    },
+  });
 };
 
 export const useUpdateInspectionRequirementOrder = (
@@ -187,5 +256,26 @@ export const useUpdateInspectionRequirementOrder = (
 };
 
 export const useDeleteInspectionRequirement = (onSuccess: OnSuccessType) => {
-  return useMutation({ mutationFn: deleteInspectionRequirement, onSuccess });
+  return useMutation({
+    mutationFn: deleteInspectionRequirement,
+    onSuccess(data, variables) {
+      // Batch update the requirement findings & images
+      if (variables.requirementBatch) {
+        updateInspectionRequirementBatch({
+          inspectionId: variables.inspectionId,
+          requirementBatch: variables.requirementBatch,
+        });
+      }
+      onSuccess(data);
+    },
+  });
+};
+
+export const useUpdateInspectionRequirementBatch = (
+  onSuccess: OnSuccessType
+) => {
+  return useMutation({
+    mutationFn: updateInspectionRequirementBatch,
+    onSuccess,
+  });
 };

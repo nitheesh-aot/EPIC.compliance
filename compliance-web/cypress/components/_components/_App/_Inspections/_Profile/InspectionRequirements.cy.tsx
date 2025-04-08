@@ -298,12 +298,20 @@ describe("InspectionRequirements Component", () => {
       ["inspection-requirements", mockInspection.id],
       []
     );
+    emptyQueryClient.setQueryData(
+      ["inspection-requirement-images", mockInspection.id],
+      []
+    );
 
     // Mock the API to return empty array
     cy.intercept("GET", "/api/inspection-requirements*", {
       statusCode: 200,
       body: [],
     }).as("getEmptyRequirements");
+    cy.intercept("GET", "/api/inspection-requirement-images*", {
+      statusCode: 200,
+      body: [],
+    }).as("getEmptyRequirementImages");
 
     // Mount with empty data
     mount(
@@ -313,6 +321,7 @@ describe("InspectionRequirements Component", () => {
     );
 
     // Check for empty state message
+    cy.contains("Requirements").should("be.visible");
     cy.contains("New Requirement").should("be.visible");
   });
 

@@ -15,7 +15,7 @@ import { ListNode, ListItemNode } from "@lexical/list";
 import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
 import { TablePlugin } from "@lexical/react/LexicalTablePlugin";
 import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import TableCellResizerPlugin from "./TablePlugins/TableCellResizer";
 import TableCellActionMenuPlugin from "./TablePlugins/TableActionMenu";
 import TableHoverActionsPlugin from "./TablePlugins/TableHoverActions";
@@ -102,6 +102,13 @@ const LexicalEditor = ({
     }
   };
 
+  // Memoize the mentionsList to prevent unnecessary re-renders
+  // but ensure it updates when the mentionsList changes
+  const memoizedMentionsList = useMemo(
+    () => mentionsList || [],
+    [mentionsList]
+  );
+
   return (
     <LexicalComposer initialConfig={editorConfig}>
       <Box
@@ -172,8 +179,11 @@ const LexicalEditor = ({
               <TableHoverActionsPlugin anchorElem={floatingAnchorElem} />
             </>
           )}
-          {mentionsList && (
-            <MentionsPlugin mentionsList={mentionsList} />
+          {memoizedMentionsList.length > 0 && (
+            <MentionsPlugin
+              mentionsList={memoizedMentionsList}
+              key={`mentions-plugin-${memoizedMentionsList.length}`}
+            />
           )}
           <HistoryPlugin />
         </Box>

@@ -30,6 +30,7 @@ export type SerializedMentionNode = Spread<
   {
     mentionName: string;
     imageRelativeUrl: string;
+    imageId: number;
   },
   SerializedTextNode
 >;
@@ -40,12 +41,14 @@ function $convertMentionElement(
   const textContent = domNode.textContent;
   const mentionName = domNode.getAttribute("data-lexical-mention-name");
   const imageUrl = domNode.getAttribute("data-imageurl");
+  const imageId = domNode.getAttribute("data-imageid");
 
   if (textContent !== null) {
     const node = $createMentionNode(
       typeof mentionName === "string" ? mentionName : textContent,
       textContent,
-      imageUrl ?? undefined
+      imageUrl ?? undefined,
+      imageId ? parseInt(imageId) : undefined
     );
     return {
       node,
@@ -58,6 +61,7 @@ function $convertMentionElement(
 export class MentionNode extends TextNode {
   __mention: string;
   __imageRelativeUrl: string;
+  __imageId: number;
 
   static getType(): string {
     return "mention";
@@ -68,6 +72,7 @@ export class MentionNode extends TextNode {
       node.__mention,
       node.__text,
       node.__imageRelativeUrl,
+      node.__imageId,
       node.__key
     );
   }
@@ -81,11 +86,13 @@ export class MentionNode extends TextNode {
     mentionName: string,
     text?: string,
     imageRelativeUrl?: string,
+    imageId?: number,
     key?: NodeKey
   ) {
     super(text ?? mentionName, key);
     this.__mention = mentionName;
     this.__imageRelativeUrl = imageRelativeUrl ?? "";
+    this.__imageId = imageId ?? 0;
   }
 
   exportJSON(): SerializedMentionNode {
@@ -93,6 +100,7 @@ export class MentionNode extends TextNode {
       ...super.exportJSON(),
       mentionName: this.__mention,
       imageRelativeUrl: this.__imageRelativeUrl,
+      imageId: this.__imageId,
     };
   }
 
@@ -122,6 +130,7 @@ export class MentionNode extends TextNode {
     dom.contentEditable = "false";
     dom.dataset.imageurl = this.__imageRelativeUrl;
     dom.dataset.mention = this.__mention;
+    dom.dataset.imageid = this.__imageId.toString();
 
     // Create wrapper for positioning
     const wrapper = document.createElement("span");
@@ -392,6 +401,7 @@ export class MentionNode extends TextNode {
     element.setAttribute("data-lexical-mention", "true");
     element.setAttribute("data-imageurl", this.__imageRelativeUrl);
     element.setAttribute("data-mention", this.__mention);
+    element.setAttribute("data-imageid", this.__imageId.toString());
     if (this.__text !== this.__mention) {
       element.setAttribute("data-lexical-mention-name", this.__mention);
     }
@@ -508,12 +518,14 @@ export class MentionNode extends TextNode {
 export function $createMentionNode(
   mentionName: string,
   textContent?: string,
-  imageRelativeUrl?: string
+  imageRelativeUrl?: string,
+  imageId?: number
 ): MentionNode {
   const mentionNode = new MentionNode(
     mentionName,
     textContent,
-    imageRelativeUrl
+    imageRelativeUrl,
+    imageId
   );
   mentionNode.setMode("segmented").toggleDirectionless();
   return $applyNodeReplacement(mentionNode);
