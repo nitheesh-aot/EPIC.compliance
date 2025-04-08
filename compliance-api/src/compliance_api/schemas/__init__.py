@@ -32,7 +32,8 @@ from .inspection_approval import (
     UpdateInspectionRecordApprovalStatusSchema)
 from .inspection_record import (
     InspectionRecordCreateSchema, InspectionRecordSchema, ResetInspectionRecordFieldSchema,
-    UpdateInspectionRecordSchema, InspectionRecordPreviewSchema)
+    UpdateInspectionRecordSchema)
+from .inspection_record_preview import InspectionRecordPreviewSchema
 from .inspection_requirement import (
     InspectionReqImageCreateSchema, InspectionReqImageSchema, InspectionReqImageSortOrderSchema,
     InspectionRequirementBulkUpdateSchema, InspectionRequirementCreateSchema, InspectionRequirementSchema,

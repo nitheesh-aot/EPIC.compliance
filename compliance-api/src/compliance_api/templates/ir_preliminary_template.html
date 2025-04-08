@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Preliminary Inspection Report</title>
     <style>
@@ -8,7 +9,7 @@
             margin: 0;
             padding: 0;
         }
-        
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -17,34 +18,35 @@
             background-color: white;
             border-bottom: 1px solid #ccc;
         }
-        
+
         .header img {
             height: 50px;
         }
-        
+
         .header h1 {
             font-size: 24px;
             font-weight: bold;
             color: #87A5C6;
         }
-        
+
         .content {
             padding: 20px;
         }
-        
+
         table {
             border-collapse: collapse;
             width: 100%;
             margin-bottom: 20px;
         }
-        
-        th, td {
+
+        th,
+        td {
             border: 1px solid black;
             padding: 8px;
             text-align: left;
             vertical-align: top;
         }
-        
+
         .section-break {
             margin: 20px 0;
             border-top: 1px solid #ccc;
@@ -54,18 +56,33 @@
             margin-top: 30px;
         }
 
+        .requirement-section {
+            margin-top: 30px;
+            border: 1px solid black;
+            padding: 15px;
+        }
+
         .requirement-header {
             font-weight: bold;
-            margin-top: 20px;
+            margin-bottom: 15px;
         }
 
         .findings {
-            margin: 10px 0;
+            margin: 15px 0;
+        }
+
+        .findings strong {
+            display: block;
+            margin-bottom: 10px;
         }
 
         .compliance-table {
+            margin-top: 15px;
             width: 100%;
-            margin: 10px 0;
+        }
+
+        .compliance-table th {
+            background-color: #f5f5f5;
         }
 
         .compliance-table td {
@@ -87,7 +104,7 @@
             color: blue;
             text-decoration: underline;
         }
-        
+
         .photo-section {
             margin: 20px 0;
         }
@@ -113,13 +130,46 @@
             min-height: 50px;
             white-space: pre-wrap;
         }
-        
+
+        .requirement-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .requirement-description {
+            margin: 10px 0;
+        }
+
+        .additional-source {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .document-title {
+            margin-top: 8px;
+            font-weight: bold;
+        }
+
+        .document-section {
+            margin-top: 4px;
+            font-weight: bold;
+        }
+
+        .document-description {
+            margin-top: 4px;
+            margin-bottom: 10px;
+        }
+
+        .findings-content {
+            margin-top: 10px;
+        }
+
         /* Print-specific styles */
         @media print {
             @page {
-                margin-top: 100px;
+                margin: 100px 20px 20px 20px;
             }
-            
+
             .header {
                 position: fixed;
                 top: 0;
@@ -127,14 +177,74 @@
                 right: 0;
                 height: 80px;
                 border-bottom: none;
+                background-color: white;
+                z-index: 1000;
             }
-            
+
             .content {
                 margin-top: 100px;
+            }
+
+            /* Fix table borders and page breaks */
+            table {
+                border-collapse: collapse;
+                page-break-inside: auto;
+                border: 1px solid black;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                border-top: 1px solid black;
+            }
+
+            th,
+            td {
+                border: 1px solid black;
+            }
+
+            /* Ensure table headers repeat on each page */
+            thead {
+                display: table-header-group;
+            }
+
+            /* Control page breaks and spacing */
+            .requirement-section {
+                page-break-inside: avoid;
+                margin-bottom: 20px;
+            }
+
+            .photo-section {
+                page-break-inside: avoid;
+                margin-bottom: 20px;
+            }
+
+            /* Remove extra spacing at bottom */
+            .department-info {
+                margin-bottom: 0;
+            }
+
+            /* Prevent orphaned content */
+            h2 {
+                page-break-after: avoid;
+                margin-top: 20px;
+                margin-bottom: 10px;
+            }
+
+            /* Fix last page spacing */
+            body {
+                min-height: 0 !important;
+            }
+
+            /* Ensure proper table spacing */
+            .compliance-table,
+            .actions-enforcement table {
+                margin-bottom: 20px;
+                page-break-inside: avoid;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="header">
         <img src="{{ department_details.logo_url }}" alt="EAO Logo">
@@ -222,49 +332,67 @@
             {% for requirement in requirement_details %}
             <div class="requirement-section">
                 <div class="requirement-header">
-                    Requirement {{ requirement.sort_order }}: {{ requirement.requirement_source_details[0].requirement_source_number }} of {{ requirement.requirement_source_details[0].requirement_source.name }}
-                    {% if requirement.requirement_source_details[0].requirement_source_description %}
-                    ({{ requirement.requirement_source_details[0].requirement_source_description }})
-                    {% endif %}
-                    {% if requirement.requirement_source_details|length > 1 %}
-                    {% for source in requirement.requirement_source_details[1:] %}
-                    <br>{{ source.requirement_source_number }} of {{ source.requirement_source.name }}
-                    {% if source.requirement_documents %}
-                    {% for doc in source.requirement_documents %}
-                    <br><strong>{{ doc.document_title }}</strong>
-                    {% if doc.section_number or doc.section_title %}<br><strong></strong>Section {{ doc.section_number }} {{ doc.section_title }}</strong>{% endif %}
-                    {% if doc.description %}<br>{{ doc.description }}{% endif %}
-                    {% endfor %}
-                    {% endif %}
-                    {% endfor %}
+                    {% if requirement.requirement_source_details and requirement.requirement_source_details|length > 0 %}
+                        <div class="requirement-title">
+                            Requirement {{ requirement.sort_order }}: {{ requirement.requirement_source_details[0].requirement_source_number }} of {{ requirement.requirement_source_details[0].requirement_source_name }}
+                        </div>
+                        {% if requirement.requirement_source_details[0].requirement_source_description %}
+                        <div class="requirement-description">
+                            {{ requirement.requirement_source_details[0].requirement_source_description | safe}}
+                        </div>
+                        {% endif %}
+                        {% if requirement.requirement_source_details|length > 1 %}
+                            {% for source in requirement.requirement_source_details[1:] %}
+                                <div class="additional-source">
+                                    {{ source.requirement_source_number }} of {{ source.requirement_source_name }}
+                                </div>
+                                {% if source.requirement_documents %}
+                                    {% for doc in source.requirement_documents %}
+                                        <div class="document-title">{{ doc.document_title }}</div>
+                                        {% if doc.section_number or doc.section_title %}
+                                            <div class="document-section">Section {{ doc.section_number }} {{ doc.section_title }}</div>
+                                        {% endif %}
+                                        {% if doc.description %}
+                                            <div class="document-description">{{ doc.description }}</div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% else %}
+                        <div class="requirement-title">
+                            Requirement {{ requirement.sort_order }}
+                        </div>
                     {% endif %}
                 </div>
-                
+
                 <div class="findings">
-                    <strong>Findings:</strong><br>
-                    {{ requirement.requirement_findings | safe }}
+                    <strong>Findings:</strong>
+                    <div class="findings-content">
+                        {{ requirement.requirement_findings | safe }}
+                    </div>
                 </div>
 
                 {% if requirement.requirement_photos %}
-                {% for photo in requirement.requirement_photos %}
-                <div class="photo-section">
-                    <img src="{{ photo.photo_url }}" alt="Photo {{ photo.photo_number }}" style="max-width: 100%; margin: 10px 0;">
-                    <div class="photo-caption">
-                        Photo {{ photo.photo_number }}. {{ photo.photo_caption }}
-                    </div>
-                </div>
-                {% endfor %}
+                    {% for photo in requirement.requirement_photos %}
+                        <div class="photo-section">
+                            <img src="{{ photo.photo_url }}" alt="Photo {{ photo.photo_number }}" style="max-width: 100%; margin: 10px 0;">
+                            <div class="photo-caption">
+                                Photo {{ photo.photo_number }}. {{ photo.photo_caption }}
+                            </div>
+                        </div>
+                    {% endfor %}
                 {% endif %}
 
                 {% if requirement.requirement_figures %}
-                {% for figure in requirement.requirement_figures %}
-                <div class="photo-section">
-                    <img src="{{ figure.figure_url }}" alt="Figure {{ figure.figure_number }}" style="max-width: 100%; margin: 10px 0;">
-                    <div class="photo-caption">
-                        Figure {{ figure.figure_number }}. {{ figure.figure_caption }}
-                    </div>
-                </div>
-                {% endfor %}
+                    {% for figure in requirement.requirement_figures %}
+                        <div class="photo-section">
+                            <img src="{{ figure.figure_url }}" alt="Figure {{ figure.figure_number }}" style="max-width: 100%; margin: 10px 0;">
+                            <div class="photo-caption">
+                                Figure {{ figure.figure_number }}. {{ figure.figure_caption }}
+                            </div>
+                        </div>
+                    {% endfor %}
                 {% endif %}
 
                 <table class="compliance-table">
@@ -306,7 +434,8 @@
             <tr>
                 <td>
                     {% for appendix in appendices %}
-                    Appendix {{ appendix.appendix_no }}: {{ appendix.document_title }}{% if not loop.last %}<br>{% endif %}
+                    Appendix {{ appendix.appendix_no }}: {{ appendix.document_title }}{% if not loop.last %}<br>{% endif
+                    %}
                     {% endfor %}
                 </td>
             </tr>
@@ -321,11 +450,14 @@
                 </td>
                 <td>
                     Phone: {{ department_details.phone }}<br>
-                    Email: <a href="mailto:{{ department_details.email }}" class="blue-link">{{ department_details.email }}</a><br>
-                    Website: <a href="{{ department_details.website }}" class="blue-link">{{ department_details.website }}</a>
+                    Email: <a href="mailto:{{ department_details.email }}" class="blue-link">{{ department_details.email
+                        }}</a><br>
+                    Website: <a href="{{ department_details.website }}" class="blue-link">{{ department_details.website
+                        }}</a>
                 </td>
             </tr>
         </table>
     </div>
 </body>
+
 </html>

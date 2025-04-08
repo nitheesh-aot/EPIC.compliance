@@ -10,8 +10,6 @@ from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 from .base_schema import AutoSchemaBase, BaseSchema
 from .common import KeyValueSchema
 from .inspection import InspectionSchema
-from .appendix import AppendixSchema
-from .department_detail import DepartmentDetailsSchema
 
 
 class InspectionRecordCreateSchema(BaseSchema):
@@ -97,42 +95,3 @@ class ResetInspectionRecordFieldSchema(BaseSchema):
         ),
         metadata={"description": "The field to reset"},
     )
-
-
-class ProjectDetailsSchema(BaseSchema):
-    """Schema for project details."""
-
-    name = fields.Str(required=True)
-    eac_certificate = fields.Str(required=True)
-    project_state = fields.Str(required=True)
-    proponent_label = fields.Str(required=True)
-    proponent = fields.Str(required=True)
-
-
-class InspectionDetailsSchema(BaseSchema):
-    """Schema for inspection details."""
-
-    id = fields.Int(required=True)
-    inspection_type = fields.Str(required=True)
-    start_date = fields.Str(required=True)
-    utm = fields.Str(required=True)
-    project_description = fields.Str(required=True)
-    location_description = fields.Str(required=True)
-    initiation = fields.Str(required=True)
-
-
-class InspectionRecordPreviewSchema(BaseSchema):
-    """Schema for previewing an InspectionRecord."""
-
-    project_details = fields.Nested(ProjectDetailsSchema)
-    inspection_details = fields.Nested(InspectionDetailsSchema)
-    inspection_scope = fields.Str(required=True)
-    officer_details = fields.Raw()
-    appendices = fields.List(fields.Nested(AppendixSchema))
-    department_details = fields.Nested(DepartmentDetailsSchema)
-    preliminary_review_details = fields.Str(required=True)
-    finding_statement = fields.Str(required=True)
-    enforcement_summary = fields.Str(required=True)
-    ir_status = fields.Str(required=True)
-    action_required_by_rp = fields.Str(required=True)
-    ir_number = fields.Str(required=True)

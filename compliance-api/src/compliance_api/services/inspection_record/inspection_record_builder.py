@@ -348,18 +348,20 @@ class InspectionRecordDataBuilder:
             figures = InspectionRequirementImageModel.find_all_images(
                 requirement.id, ImageTypeEnum.FIGURE)
             for photo in photos:
+                photo_response = DocService.get_presigned_url(
+                    {"relative_url": photo.relative_url, "action": ActionOnFileEnum.GET.value})
                 req["requirement_photos"].append({
                     "photo_caption": photo.caption,
                     "photo_number": photo.sort_order,
-                    "caption": photo.caption,
-                    "photo_url": DocService.get_presigned_url({"relative_url": photo.relative_url, "action": ActionOnFileEnum.GET.value}),
+                    "photo_url": photo_response.get("presigned_url"),
                 })
             for figure in figures:
+                figure_response = DocService.get_presigned_url(
+                    {"relative_url": figure.relative_url, "action": ActionOnFileEnum.GET.value})
                 req["requirement_figures"].append({
                     "figure_caption": figure.caption,
                     "figure_number": figure.sort_order,
-                    "caption": figure.caption,
-                    "figure_url": DocService.get_presigned_url({"relative_url": figure.relative_url, "action": ActionOnFileEnum.GET.value}),
+                    "figure_url": figure_response.get("presigned_url"),
                 })
             result.append(req)
         self.data["requirement_details"] = result

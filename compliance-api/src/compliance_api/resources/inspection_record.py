@@ -1,7 +1,6 @@
 """Resources for inspection record."""
-import json
 from http import HTTPStatus
-
+from flask import request
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
@@ -258,7 +257,7 @@ class InspectionRecordReset(Resource):
 
 
 @cors_preflight("GET, OPTIONS")
-@API.route("/<int:inspection_record_id>/preview", methods=["GET", "OPTIONS"])
+@API.route("/<int:inspection_record_id>/render", methods=["GET", "OPTIONS"])
 class InspectionRecordPreview(Resource):
     """Resource for managing inspection records."""
 
@@ -267,12 +266,24 @@ class InspectionRecordPreview(Resource):
     @ApiHelper.swagger_decorators(
         API, endpoint_description="Preview inspection record"
     )
+    @API.doc(
+        params={
+            "output_format": {
+                "description": "The output format of the inspection record",
+                "type": "string",
+                "required": False,
+                "default": "html",
+                "enum": ["html", "pdf"]
+            }
+        }
+    )
     @auth.require
     def get(
         inspection_id, inspection_record_id
     ):  # pylint: disable=no-self-use, unused-argument
         """Preview inspection record."""
-        preview = InspectionRecordService.preview(
-            inspection_id, inspection_record_id
+        output_format = request.args.get("output_format", "html")
+        output_data = InspectionRecordService.render(
+            inspection_id, inspection_record_id, output_format
         )
-        return json.dumps(preview), HTTPStatus.OK
+        return output_data, HTTPStatus.OK

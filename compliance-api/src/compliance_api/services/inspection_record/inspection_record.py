@@ -170,7 +170,7 @@ class InspectionRecordService:
         return updated_inspection_record
 
     @classmethod
-    def preview(cls, inspection_id, inspection_record_id):
+    def render(cls, inspection_id, inspection_record_id, output_format):
         """Preview inspection record."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
         inspection_record = ServiceUtils.inspection_record_exist_check(
@@ -195,8 +195,8 @@ class InspectionRecordService:
                             .build()
         preview_data = InspectionRecordPreviewSchema().dump(ir_data)
         response = DocGenService.render_template(
-            "IR_PRELIMINARY_TEMPLATE", preview_data, "html")
-        return response.get("html")
+            "IR_PRELIMINARY_TEMPLATE", preview_data, output_format)
+        return response
 
     @classmethod
     def process_html_template(cls, json_response):
@@ -238,86 +238,31 @@ class InspectionRecordService:
         return template
 
     @classmethod
-    def render_inspection_record(cls, inspection_id, inspection_record_id=None):
+    def minify_template(cls, template_content: str) -> str:
         """
-        Render an inspection record using the template from the API.
+        Minify the HTML template content by removing unnecessary whitespace and comments.
 
         Args:
-            inspection_id: The ID of the inspection
-            inspection_record_id: The ID of the inspection record (optional)
+            template_content (str): The HTML template content to minify
 
         Returns:
-            The rendered HTML content
+            str: The minified HTML template
         """
-        # Get the inspection
-        inspection = ServiceUtils.inspection_exist_check(inspection_id)
+        # Remove HTML comments
+        template_content = re.sub(
+            r'<!--.*?-->', '', template_content, flags=re.DOTALL)
 
-        # Get the inspection record if provided
-        ir_status = None
-        existing_ir = None
-        if inspection_record_id:
-            existing_ir = ServiceUtils.inspection_record_exist_check(
-                inspection_record_id)
-            ir_status = existing_ir.ir_status_id
-        else:
-            # Default to PRELIMINARY if no record exists
-            ir_status = IRStatusEnum.PRELIMINARY.value
+        # Remove whitespace between tags
+        template_content = re.sub(r'>\s+<', '><', template_content)
 
-        # Create the builder
-        ir_builder = InspectionRecordDataBuilder(
-            inspection=inspection,
-            ir_status=ir_status,
-            existing_ir=existing_ir
-        )
+        # Remove leading/trailing whitespace
+        template_content = re.sub(
+            r'^\s+|\s+$', '', template_content, flags=re.MULTILINE)
 
-        # Build all the data
-        ir_data = (
-            ir_builder.build_inspection_scope()
-            .build_preliminary_review_details()
-            .build_finding_statement()
-            .build_enforcement_summary()
-            .build_action_required_by_rp()
-            .build_appendices()
-            .build_department_details()
-            .build_project_details()
-            .build()
-        )
+        # Remove multiple spaces
+        template_content = re.sub(r'\s+', ' ', template_content)
 
-        # Get the template from the API
-        docgen_service = DocGenService()
-        template_response = docgen_service.get_template(
-            "ir_preliminary_template")
-
-        # Process the template
-        html_template = cls.process_html_template(template_response)
-
-        # Render the template with Jinja2
-        rendered_html = cls.render_template_with_jinja2(html_template, ir_data)
-
-        return rendered_html
-
-    @classmethod
-    def render_template_with_jinja2(cls, template_string, data):
-        """
-        Render a template string using Jinja2.
-
-        Args:
-            template_string: The template string to render
-            data: The data to use for rendering
-
-        Returns:
-            The rendered HTML content
-        """
-        # Create a Jinja2 environment
-        env = Environment(loader=BaseLoader())
-
-        # Create a template from the string
-        template = env.from_string(template_string)
-
-        # Render the template with the data
-        rendered_html = template.render(**data)
-
-        return rendered_html
+        return template_content
 
 
 def _create_ir_object(ir_data, ir_status, inspection_id):
