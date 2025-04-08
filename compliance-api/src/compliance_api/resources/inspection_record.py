@@ -9,7 +9,7 @@ from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
     CreateInspectionRecordApprovalSchema, InspectionRecordApprovalSchema, InspectionRecordCreateSchema,
     InspectionRecordSchema, ResetInspectionRecordFieldSchema, UpdateInspectionRecordApprovalSchema,
-    UpdateInspectionRecordSchema)
+    UpdateInspectionRecordApprovalStatusSchema, UpdateInspectionRecordSchema)
 from compliance_api.services import InspectionRecordApprovalService, InspectionRecordService
 from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
@@ -40,6 +40,9 @@ ir_approval_update_request = ApiHelper.convert_ma_schema_to_restx_model(
 )
 ir_reset_field_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, ResetInspectionRecordFieldSchema(), "ResetInspectionField"
+)
+ir_approval_status_update_request = ApiHelper.convert_ma_schema_to_restx_model(
+    API, UpdateInspectionRecordApprovalStatusSchema(), "IRApprovalStatusUpdate"
 )
 
 
@@ -198,6 +201,32 @@ class InspectionRecordApproval(Resource):
         """Update inspection record approval."""
         approval_update_data = UpdateInspectionRecordApprovalSchema().load(API.payload)
         updated_approval = InspectionRecordApprovalService.update_approval(
+            inspection_id, inspection_record_id, approval_id, approval_update_data
+        )
+        return InspectionRecordApprovalSchema().dump(updated_approval), HTTPStatus.OK
+
+
+@cors_preflight("OPTIONS, PATCH, GET")
+@API.route(
+    "/<int:inspection_record_id>/approvals/<int:approval_id>/status",
+    methods=["PATCH", "OPTIONS"],
+)
+class InspectionRecordApprovalStatus(Resource):
+    """Resource for managing inspection record approval status."""
+
+    @staticmethod
+    @API.response(code=200, description="Sucess", model=ir_approval_schema)
+    @API.expect(ir_approval_status_update_request)
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Update inspection record approval status"
+    )
+    @API.response(404, "Not Found")
+    @API.response(400, "Bad Request")
+    @auth.require
+    def patch(inspection_id, inspection_record_id, approval_id):
+        """Update inspection record approval."""
+        approval_update_data = UpdateInspectionRecordApprovalStatusSchema().load(API.payload)
+        updated_approval = InspectionRecordApprovalService.update_approval_status(
             inspection_id, inspection_record_id, approval_id, approval_update_data
         )
         return InspectionRecordApprovalSchema().dump(updated_approval), HTTPStatus.OK
