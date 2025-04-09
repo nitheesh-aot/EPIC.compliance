@@ -19,7 +19,17 @@ class IRStatusEnum(Enum):
 
 
 class IRProgressEnum(Enum):
-    """Enum for IR Progress."""
+    """Enum for IR Progress.
+
+    PRELIMINARY_DRAFTING: When you create the IR with PRELIMINARY status.
+    PRELIMINARY_DEPUTY_REVIEW: When the PRELIMINARY IR is reviewed by the deputy.
+    PRELIMINARY_APPROVED: When the PRELIMINARY IR is approved by the deputy.
+    HOLDER_PRELIMINARY_REVIEW: When the PRELIMINARY IR is sent to the holder.
+    FINALIZING_RECORD: When you switch the IR to FINAL status or create the IR with FINAL status.
+    FINAL_DEPUTY_REVIEW: When the FINAL IR is reviewed by the deputy.
+    FINAL_APPROVED: When the FINAL IR is approved by the deputy.
+    ISSUED: When the IR is issued.
+    """
 
     PRELIMINARY_DRAFTING = "Preliminary Drafting"
     PRELIMINARY_DEPUTY_REVIEW = "Preliminary Deputy Review"
@@ -45,7 +55,8 @@ class InspectionRecord(BaseModelVersioned):
         comment="The unique identifier of the inspection",
     )
     ir_status_id = Column(
-        ForeignKey("ir_status_options.id", name="ir_status_id_status_options_fkey"),
+        ForeignKey("ir_status_options.id",
+                   name="ir_status_id_status_options_fkey"),
         nullable=False,
         comment="Status of the inspection record",
     )
@@ -54,7 +65,8 @@ class InspectionRecord(BaseModelVersioned):
         nullable=True,
         comment="Mailing address of the associated proponent",
     )
-    inspection_scope = Column(String, nullable=True, comment="Scope of the inspection")
+    inspection_scope = Column(String, nullable=True,
+                              comment="Scope of the inspection")
     preliminary_review_details = Column(
         String, nullable=True, comment="Details of the preliminary review"
     )
@@ -83,7 +95,8 @@ class InspectionRecord(BaseModelVersioned):
         comment="State of the inspection record",
         default=IRProgressEnum.PRELIMINARY_DRAFTING,
     )
-    inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="joined")
+    inspection = relationship("Inspection", foreign_keys=[
+                              inspection_id], lazy="joined")
     ir_status = relationship(
         "IRStatusOption", foreign_keys=[ir_status_id], lazy="joined"
     )
