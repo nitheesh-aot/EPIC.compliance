@@ -5,10 +5,12 @@ import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { CaseFile } from "@/models/CaseFile";
 import { InspectionRecord } from "@/models/InspectionRecord";
 import { QueryClient } from "@tanstack/react-query";
+import { IRApproval } from "@/models/IRApproval";
 // Define the store state and actions
 interface ReportStore {
   queryClient: QueryClient;
   inspectionReportsData: InspectionRecord | undefined;
+  irApprovalsData: IRApproval[] | undefined;
   inspectionData: Inspection | undefined;
   caseFileData: CaseFile | undefined;
   inspectionScope?: string;
@@ -22,6 +24,7 @@ interface ReportStore {
 
   setQueryClient: (queryClient: QueryClient) => void;
   setInspectionReportsData: (inspectionReportsData: InspectionRecord) => void;
+  setIRApprovalsData: (irApprovalsData: IRApproval[]) => void;
   setInspectionData: (inspectionData: Inspection) => void;
   setCaseFileData: (caseFileData: CaseFile) => void;
   setInspectionScope: (inspectionScope: string) => void;
@@ -45,6 +48,7 @@ interface ReportStore {
 export const useReportStore = create<ReportStore>((set) => ({
   queryClient: new QueryClient(),
   inspectionReportsData: undefined,
+  irApprovalsData: undefined,
   inspectionData: undefined,
   caseFileData: undefined,
   inspectionScope: undefined,
@@ -63,6 +67,7 @@ export const useReportStore = create<ReportStore>((set) => ({
       inspectionReportsData
     );
   },
+  setIRApprovalsData: (irApprovalsData: IRApproval[]) => set({ irApprovalsData }),
   setInspectionData: (inspectionData: Inspection) => set({ inspectionData }),
   setCaseFileData: (caseFileData: CaseFile) => set({ caseFileData }),
   setInspectionScope: (inspectionScope: string) => set({ inspectionScope }),

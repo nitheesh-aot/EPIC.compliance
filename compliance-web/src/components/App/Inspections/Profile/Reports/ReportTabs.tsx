@@ -24,12 +24,16 @@ import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import { useModal } from "@/store/modalStore";
 import SendForApprovalModal from "./SendForApprovalModal";
 import { notify } from "@/store/snackbarStore";
+import { IR_APPROVAL_STATUS, STAFF_USER_POSITION } from "@/utils/constants";
+import { useStaffUsersData } from "@/hooks/useStaff";
+import { useAuth } from "react-oidc-context";
 
 export default function ReportTabs() {
   const { inspectionNumber } = useParams({ strict: false });
   const [value, setValue] = useState(0);
   const {
     inspectionRequirements,
+    irApprovalsData,
     setInspectionData,
     setInspectionRequirements,
     setInspectionRegulatoryConsideration,
@@ -38,6 +42,7 @@ export default function ReportTabs() {
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const { setOpen, setClose } = useModal();
 
+  const { user } = useAuth();
   const { data: inspectionData } = useInspectionByNumber(inspectionNumber);
   const { data: caseFileData } = useCaseFileByNumber(
     inspectionData?.case_file.case_file_number || ""
@@ -45,6 +50,18 @@ export default function ReportTabs() {
   const { data: inspectionRequirementsData } = useInspectionRequirementsData(
     inspectionData?.id || 0
   );
+  const { data: staffData } = useStaffUsersData();
+
+  const isCurrentUserApprover = useMemo(() => {
+    return staffData?.some(
+      (staff) =>
+        staff.auth_user_guid === user?.profile?.preferred_username &&
+        [
+          STAFF_USER_POSITION.DEPUTY_DIRECTOR,
+          STAFF_USER_POSITION.DIRECTOR,
+        ].includes(staff.position_id ?? 0)
+    );
+  }, [staffData, user]);
 
   useEffect(() => {
     if (inspectionData && caseFileData) {
@@ -133,6 +150,7 @@ export default function ReportTabs() {
     setOpen({
       content: (
         <SendForApprovalModal
+          staffUsers={staffData ?? []}
           onSubmit={(message) => {
             notify.success(message);
             setClose();
@@ -141,6 +159,10 @@ export default function ReportTabs() {
       ),
     });
   };
+
+  const isShowApprovalButton =
+    irApprovalsData?.length &&
+    irApprovalsData[0].approval_status === IR_APPROVAL_STATUS.DECISION_PENDING;
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", pt: 3 }}>
@@ -153,15 +175,28 @@ export default function ReportTabs() {
         }}
       >
         <Typography variant="h6">Preliminary IR</Typography>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <Button
-            variant="text"
-            color="primary"
-            onClick={handleSendForApproval}
-          >
-            <SendRounded sx={{ mr: 1, fontSize: 20 }} />
-            Send for Approval
-          </Button>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {!isCurrentUserApprover && (
+            <Button
+              variant="text"
+              color="primary"
+              onClick={handleSendForApproval}
+              disabled={!!isShowApprovalButton}
+            >
+              <SendRounded sx={{ mr: 0.5, fontSize: 20 }} />
+              Send for Approval
+            </Button>
+          )}
+          {isCurrentUserApprover && isShowApprovalButton ? (
+            <>
+              <Button color="secondary" size="small">
+                Approve
+              </Button>
+              <Button color="secondary" size="small">
+                Not Approve
+              </Button>
+            </>
+          ) : null}
           <Button variant="text" color="primary">
             <PictureAsPdfOutlined sx={{ mr: 1, fontSize: 20 }} />
             Preview

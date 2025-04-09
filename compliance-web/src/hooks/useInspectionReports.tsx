@@ -1,4 +1,5 @@
 import { InspectionRecord } from "@/models/InspectionRecord";
+import { IRApproval } from "@/models/IRApproval";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -79,6 +80,18 @@ const createIRApproval = ({
   });
 };
 
+const fetchIRApprovals = ({
+  inspectionId,
+  inspectionRecordId,
+}: {
+  inspectionId: number;
+  inspectionRecordId: number;
+}): Promise<IRApproval[]> => {
+  return request({
+    url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/approvals`,
+  });
+};
+
 export const useInspectionReportsData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-reports", inspectionId],
@@ -113,5 +126,17 @@ export const useCreateIRApproval = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: createIRApproval,
     onSuccess,
+  });
+};
+
+export const useFetchIRApprovals = (
+  inspectionId: number,
+  inspectionRecordId: number
+) => {
+  return useQuery({
+    queryKey: ["ir-approvals", inspectionId, inspectionRecordId],
+    queryFn: () => fetchIRApprovals({ inspectionId, inspectionRecordId }),
+    enabled: !!inspectionId && !!inspectionRecordId,
+    staleTime: Infinity,
   });
 };

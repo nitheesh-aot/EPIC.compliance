@@ -6,13 +6,13 @@ import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
 import { FC, useCallback, useEffect, useState } from "react";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
-import { useStaffUsersData } from "@/hooks/useStaff";
 import { StaffUser } from "@/models/Staff";
 import { STAFF_USER_POSITION } from "@/utils/constants";
 import { useCreateIRApproval } from "@/hooks/useInspectionReports";
 import { useReportStore } from "./reportStore";
 
 type SendForApprovalModalProps = {
+  staffUsers: StaffUser[];
   onSubmit: (message: string) => void;
 };
 
@@ -29,10 +29,12 @@ const initFormData = {
   director: undefined,
 };
 
-const SendForApprovalModal: FC<SendForApprovalModalProps> = ({ onSubmit }) => {
+const SendForApprovalModal: FC<SendForApprovalModalProps> = ({
+  onSubmit,
+  staffUsers,
+}) => {
   const [directorsList, setDirectorsList] = useState<StaffUser[]>([]);
   const { inspectionData, inspectionReportsData } = useReportStore();
-  const { data: staffUsers } = useStaffUsersData();
 
   useEffect(() => {
     setDirectorsList(
