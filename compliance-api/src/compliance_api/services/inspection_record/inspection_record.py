@@ -4,7 +4,8 @@ from compliance_api.exceptions import ResourceExistsError, UnprocessableEntityEr
 from compliance_api.models import InspectionRecord as InspectionRecordModel
 from compliance_api.models import InspectionRecordApproval as InspectionRecordApprovalModel
 from compliance_api.models import IRApprovalStatusEnum
-from compliance_api.models.inspection_record import IRStatusEnum
+from compliance_api.models.db import session_scope
+from compliance_api.models.inspection_record import IRProgressEnum, IRStatusEnum
 
 from ..service_utils import ServiceUtils
 from .inspection_record_builder import InspectionRecordDataBuilder
@@ -31,7 +32,8 @@ class InspectionRecordService:
         existing_ir = InspectionRecordModel.get_by_inspection_id(inspection_id)
         #  Raise error, if ir exists and the request is to create another ir of the same status
         if existing_ir:
-            raise ResourceExistsError("IR for the given inspection already exists.")
+            raise ResourceExistsError(
+                "IR for the given inspection already exists.")
 
         ir_builder = InspectionRecordDataBuilder(
             inspection=inspection, ir_status=ir_request_data.get("ir_status")
@@ -70,9 +72,19 @@ class InspectionRecordService:
                 change_info = dict(inspection_record.field_change_info or {})
                 change_info[f"{field_name}_changed"] = True
                 ir_update_data["field_change_info"] = change_info
-        updated_inspection_record = InspectionRecordModel.update_inspection_record(
-            inspection_record_id=inspection_record_id, ir_update_data=ir_update_data
-        )
+        with session_scope() as session:
+            updated_inspection_record = InspectionRecordModel.update_inspection_record(
+                inspection_record_id=inspection_record_id,
+                ir_update_data=ir_update_data,
+                session=session,
+            )
+            # Update the IR progress to ISSUED if date_issued is updated
+            if field_name == "date_issued" and value:
+                InspectionRecordModel.update_inspection_record(
+                    inspection_record_id=inspection_record_id,
+                    ir_update_data={"ir_progress": IRProgressEnum.ISSUED},
+                    session=session,
+                )
         return updated_inspection_record
 
     @classmethod
@@ -87,7 +99,8 @@ class InspectionRecordService:
             inspection_record_id=inspection_record_id
         )
         if not approvals:
-            raise UnprocessableEntityError("IR cannot be FINAL without approval")
+            raise UnprocessableEntityError(
+                "IR cannot be FINAL without approval")
         latest_approval = approvals[0]
         if latest_approval.approval_status != IRApprovalStatusEnum.APPROVED:
             raise UnprocessableEntityError("Pending review for this IR")
@@ -107,6 +120,7 @@ class InspectionRecordService:
             ),
             "enforcement_summary": ir_data.get("enforcement_summary", None),
             "ir_status_id": IRStatusEnum.FINAL.value,
+            "ir_progress": ir_data.get("ir_progress"),
         }
         updated_ir = InspectionRecordModel.update_inspection_record(
             inspection_record_id, update_data
