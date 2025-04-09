@@ -17,6 +17,7 @@ const InspectionSummary = () => {
     inspectionReportsData,
     setInspectionScope,
     setFindingsStatement,
+    setInspectionReportsData,
   } = useReportStore();
   const [isInspectionScopeChanged, setIsInspectionScopeChanged] =
     useState(false);
@@ -26,23 +27,19 @@ const InspectionSummary = () => {
   useEffect(() => {
     setInspectionScope(inspectionReportsData?.inspection_scope ?? "");
     setFindingsStatement(inspectionReportsData?.finding_statement ?? "");
-    setChanges(inspectionReportsData);
+    setIsInspectionScopeChanged(
+      inspectionReportsData?.field_change_info?.inspection_scope_changed ??
+        false
+    );
+    setIsFindingsStatementChanged(
+      inspectionReportsData?.field_change_info?.finding_statement_changed ??
+        false
+    );
   }, [inspectionReportsData, setFindingsStatement, setInspectionScope]);
 
   const handleOnSuccess = (data: InspectionRecord) => {
-    setInspectionScope(data.inspection_scope ?? "");
-    setFindingsStatement(data.finding_statement ?? "");
-    setChanges(data);
+    setInspectionReportsData(data);
     notify.success("Inspection summary updated");
-  };
-
-  const setChanges = (data?: InspectionRecord) => {
-    setIsInspectionScopeChanged(
-      data?.field_change_info?.inspection_scope_changed ?? false
-    );
-    setIsFindingsStatementChanged(
-      data?.field_change_info?.finding_statement_changed ?? false
-    );
   };
 
   const { mutate: updateInspectionRecord } =

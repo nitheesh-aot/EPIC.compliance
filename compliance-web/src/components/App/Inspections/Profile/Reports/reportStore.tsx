@@ -4,9 +4,10 @@ import { DEFAULT_REPORT_TAB_CONTENT } from "@/utils/constants";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { CaseFile } from "@/models/CaseFile";
 import { InspectionRecord } from "@/models/InspectionRecord";
-
+import { QueryClient } from "@tanstack/react-query";
 // Define the store state and actions
 interface ReportStore {
+  queryClient: QueryClient;
   inspectionReportsData: InspectionRecord | undefined;
   inspectionData: Inspection | undefined;
   caseFileData: CaseFile | undefined;
@@ -18,6 +19,8 @@ interface ReportStore {
   inspectionVersionDateIssued?: string;
   inspectionRequirements?: InspectionRequirement[];
   inspectionRegulatoryConsideration?: InspectionRequirement;
+
+  setQueryClient: (queryClient: QueryClient) => void;
   setInspectionReportsData: (inspectionReportsData: InspectionRecord) => void;
   setInspectionData: (inspectionData: Inspection) => void;
   setCaseFileData: (caseFileData: CaseFile) => void;
@@ -40,6 +43,7 @@ interface ReportStore {
 
 // Create the Zustand store
 export const useReportStore = create<ReportStore>((set) => ({
+  queryClient: new QueryClient(),
   inspectionReportsData: undefined,
   inspectionData: undefined,
   caseFileData: undefined,
@@ -49,8 +53,16 @@ export const useReportStore = create<ReportStore>((set) => ({
   enforcementSummary: DEFAULT_REPORT_TAB_CONTENT,
   inspectionRequirements: [],
   inspectionRegulatoryConsideration: undefined,
-  setInspectionReportsData: (inspectionReportsData: InspectionRecord) =>
-    set({ inspectionReportsData }),
+  setQueryClient: (queryClient: QueryClient) => set({ queryClient }),
+  setInspectionReportsData: (inspectionReportsData: InspectionRecord) => {
+    const queryClient = useReportStore.getState().queryClient;
+    const inspectionData = useReportStore.getState().inspectionData;
+    set({ inspectionReportsData });
+    queryClient.setQueryData(
+      ["inspection-reports", inspectionData?.id],
+      inspectionReportsData
+    );
+  },
   setInspectionData: (inspectionData: Inspection) => set({ inspectionData }),
   setCaseFileData: (caseFileData: CaseFile) => set({ caseFileData }),
   setInspectionScope: (inspectionScope: string) => set({ inspectionScope }),

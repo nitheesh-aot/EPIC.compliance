@@ -35,7 +35,13 @@ const DetailSection = ({
   </>
 );
 
-const ImageSection = ({ image, index }: { image: RequirementImage; index: number }) => {
+const ImageSection = ({
+  image,
+  index,
+}: {
+  image: RequirementImage;
+  index: number;
+}) => {
   return (
     <Box key={index} sx={{ marginBottom: 2 }}>
       <Box
@@ -119,10 +125,20 @@ const IRRequirement = ({
         queryKey: ["inspection-requirements", inspectionData?.id],
       });
       queryClient.invalidateQueries({
-        queryKey: ["inspection-requirement-images", inspectionData?.id, requirement?.id, "photos"],
+        queryKey: [
+          "inspection-requirement-images",
+          inspectionData?.id,
+          requirement?.id,
+          "photos",
+        ],
       });
       queryClient.invalidateQueries({
-        queryKey: ["inspection-requirement-images", inspectionData?.id, requirement?.id, "figures"],
+        queryKey: [
+          "inspection-requirement-images",
+          inspectionData?.id,
+          requirement?.id,
+          "figures",
+        ],
       });
       notify.success(submitMsg);
       setClose();
@@ -167,10 +183,10 @@ const IRRequirement = ({
       {Array.from(groupedRequirementSources.entries()).map(
         ([sourceId, reqSourceDetails], groupIndex) => (
           <Box key={sourceId} sx={{ mb: 3 }}>
-            {reqSourceDetails.map((reqSourceDetail, detailIndex) => (
+            {reqSourceDetails.map((reqSourceDetail) => (
               <Box key={reqSourceDetail.id} sx={{ mb: 2 }}>
                 <DetailSection
-                  title={`${detailIndex === 0 ? `Requirement ${groupIndex + 1}:` : ""} 
+                  title={`${groupIndex === 0 ? `Requirement ${requirementIndex + 1}:` : ""} 
                   ${reqSourceDetail.condition_number ? `Condition ${reqSourceDetail.condition_number}` : `Section ${reqSourceDetail.section_number}`}
                   of ${reqSourceDetail.requirement_source?.name || ""}.
                   ${reqSourceDetail.title ?? ""}`}
@@ -179,7 +195,7 @@ const IRRequirement = ({
                 {reqSourceDetail.documents.map((document) => (
                   <DetailSection
                     key={document.id}
-                    title={`${document.document_title} ${document.document_type?.name ?? ""} Section ${document.section_number ?? ""} ${document.section_title ?? ""}`}
+                    title={`${document.document_title} Section ${document.section_number ?? ""} ${document.section_title ?? ""}`}
                     content={document.description || ""}
                   />
                 ))}

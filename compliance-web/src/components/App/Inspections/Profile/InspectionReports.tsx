@@ -27,7 +27,7 @@ const InspectionReports: React.FC<InspectionReportsProps> = ({
   inspectionData,
 }) => {
   const queryClient = useQueryClient();
-  const { setInspectionReportsData } = useReportStore();
+  const { setInspectionReportsData, setQueryClient } = useReportStore();
   const [reportVersion, setReportVersion] = useState<string>("");
 
   const { data: irStatusesData } = useIRStatusesData();
@@ -37,9 +37,15 @@ const InspectionReports: React.FC<InspectionReportsProps> = ({
 
   useEffect(() => {
     if (inspectionReportsData) {
+      setQueryClient(queryClient);
       setInspectionReportsData(inspectionReportsData);
     }
-  }, [inspectionReportsData, setInspectionReportsData]);
+  }, [
+    inspectionReportsData,
+    queryClient,
+    setInspectionReportsData,
+    setQueryClient,
+  ]);
 
   const handleReportVersionChange = (
     event: React.ChangeEvent<HTMLInputElement>
