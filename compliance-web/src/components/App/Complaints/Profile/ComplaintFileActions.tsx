@@ -1,15 +1,15 @@
-import React, { useCallback } from "react";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
-import { useModal } from "@/store/modalStore";
-import { useQueryClient } from "@tanstack/react-query";
-import { Complaint } from "@/models/Complaint";
-import { notify } from "@/store/snackbarStore";
 import {
   useDeleteComplaint,
   useUpdateComplaintStatus,
 } from "@/hooks/useComplaints";
+import { Complaint } from "@/models/Complaint";
+import { useModal } from "@/store/modalStore";
+import { notify } from "@/store/snackbarStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
+import React, { useCallback } from "react";
 
 interface ComplaintFileActionsProps {
   status: string;
@@ -43,8 +43,11 @@ const ComplaintFileActions: React.FC<ComplaintFileActionsProps> = ({
   const onDeleteSuccess = useCallback(() => {
     notify.success("Complaint deleted!");
     setClose();
+    queryClient.removeQueries({
+      queryKey: ["complaint", complaintData?.complaint_number],
+    });
     router.navigate({ to: "/ce-database/complaints" });
-  }, [router, setClose]);
+  }, [router, setClose, queryClient, complaintData]);
 
   const { mutate: updateComplaintStatus } = useUpdateComplaintStatus(
     onUpdateStatusSuccess
