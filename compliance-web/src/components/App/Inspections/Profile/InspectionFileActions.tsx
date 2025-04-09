@@ -43,8 +43,11 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
   const onDeleteSuccess = useCallback(() => {
     notify.success("Inspection deleted!");
     setClose();
+    queryClient.removeQueries({
+      queryKey: ["inspection", inspectionData?.ir_number],
+    });
     router.navigate({ to: "/ce-database/inspections" });
-  }, [router, setClose]);
+  }, [router, setClose, queryClient, inspectionData]);
 
   const { mutate: updateInspectionInspection } = useUpdateInspectionStatus(
     onUpdateStatusSuccess
@@ -123,6 +126,28 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
         });
       },
       hidden: ["canceled", "closed"].includes(status?.toLowerCase()),
+    },
+    {
+      text: "Reopen Inspection",
+      onClick: () => {
+        // Handle reopening inspection
+        setOpen({
+          content: (
+            <ConfirmationModal
+              title="Reopen Inspection?"
+              description="You are about to reopen this inspection. Are you sure?"
+              confirmButtonText="Reopen"
+              onConfirm={() => {
+                updateInspectionInspection({
+                  id: inspectionData?.id ?? 0,
+                  inspectionStatus: { status: "OPEN" },
+                });
+              }}
+            />
+          ),
+        });
+      },
+      hidden: ["canceled", "open"].includes(status?.toLowerCase()),
     },
     {
       text: "Delete Inspection",

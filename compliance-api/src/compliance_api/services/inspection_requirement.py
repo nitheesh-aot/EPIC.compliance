@@ -318,7 +318,8 @@ def _update_the_findigs_by_images(
                     photo_num = int(mention.split(" ")[1])
                     # Find the corresponding photo by sort_order
                     matching_photo = next(
-                        (p for p in photos if p.sort_order == photo_num), None)
+                        (p for p in photos if p.sort_order == photo_num), None
+                    )
                     if matching_photo:
                         # Update the image ID in the span
                         span["data-imageid"] = str(matching_photo.id)
@@ -335,7 +336,8 @@ def _update_the_findigs_by_images(
                     figure_num = int(mention.split(" ")[1])
                     # Find the corresponding figure by sort_order
                     matching_figure = next(
-                        (f for f in figures if f.sort_order == figure_num), None)
+                        (f for f in figures if f.sort_order == figure_num), None
+                    )
                     if matching_figure:
                         # Update the image ID in the span
                         span["data-imageid"] = str(matching_figure.id)
