@@ -61,6 +61,24 @@ const resetInspectionRecord = ({
   });
 };
 
+const createIRApproval = ({
+  inspectionId,
+  inspectionRecordId,
+  approvalPayload,
+}: {
+  inspectionId: number;
+  inspectionRecordId: number;
+  approvalPayload: {
+    approved_by_id: number;
+  };
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/approvals`,
+    method: "post",
+    data: approvalPayload,
+  });
+};
+
 export const useInspectionReportsData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-reports", inspectionId],
@@ -87,6 +105,13 @@ export const useUpdateInspectionRecord = (onSuccess: OnSuccessType) => {
 export const useResetInspectionRecord = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: resetInspectionRecord,
+    onSuccess,
+  });
+};
+
+export const useCreateIRApproval = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: createIRApproval,
     onSuccess,
   });
 };

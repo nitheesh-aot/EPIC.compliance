@@ -21,18 +21,22 @@ import { InspectionRequirement } from "@/models/InspectionRequirement";
 import IRRequirement from "./ReportTabContents/IRRequirement";
 import IRRegulatoryConsideration from "./ReportTabContents/IRRegulatoryConsideration";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
+import { useModal } from "@/store/modalStore";
+import SendForApprovalModal from "./SendForApprovalModal";
+import { notify } from "@/store/snackbarStore";
 
 export default function ReportTabs() {
   const { inspectionNumber } = useParams({ strict: false });
   const [value, setValue] = useState(0);
   const {
+    inspectionRequirements,
     setInspectionData,
     setInspectionRequirements,
     setInspectionRegulatoryConsideration,
     setCaseFileData,
-    inspectionRequirements,
   } = useReportStore();
   const tabsContainerRef = useRef<HTMLDivElement>(null);
+  const { setOpen, setClose } = useModal();
 
   const { data: inspectionData } = useInspectionByNumber(inspectionNumber);
   const { data: caseFileData } = useCaseFileByNumber(
@@ -125,6 +129,19 @@ export default function ReportTabs() {
     };
   }, []);
 
+  const handleSendForApproval = () => {
+    setOpen({
+      content: (
+        <SendForApprovalModal
+          onSubmit={(message) => {
+            notify.success(message);
+            setClose();
+          }}
+        />
+      ),
+    });
+  };
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", pt: 3 }}>
       <Box
@@ -137,7 +154,11 @@ export default function ReportTabs() {
       >
         <Typography variant="h6">Preliminary IR</Typography>
         <Box sx={{ display: "flex", gap: 1 }}>
-          <Button variant="text" color="primary">
+          <Button
+            variant="text"
+            color="primary"
+            onClick={handleSendForApproval}
+          >
             <SendRounded sx={{ mr: 1, fontSize: 20 }} />
             Send for Approval
           </Button>
