@@ -1,18 +1,18 @@
-import React, { useCallback } from "react";
-import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
-import { Box } from "@mui/material";
-import { createFileRoute, useParams } from "@tanstack/react-router";
-import FileProfileHeader from "@/components/App/FileProfileHeader";
+import CaseFileDrawer from "@/components/App/CaseFiles/CaseFileDrawer";
 import CaseFileGeneralInformation from "@/components/App/CaseFiles/Profile/CaseFileGeneralInformation";
 import ContinuationReport from "@/components/App/ContinuationReports/ContinuationReport";
-import CaseFileDrawer from "@/components/App/CaseFiles/CaseFileDrawer";
-import { useDrawer } from "@/store/drawerStore";
-import { notify } from "@/store/snackbarStore";
-import { useQueryClient } from "@tanstack/react-query";
+import FileProfileHeader from "@/components/App/FileProfileHeader";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
+import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
+import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
+import { useDrawer } from "@/store/drawerStore";
+import { notify } from "@/store/snackbarStore";
 import { CR_CONTEXT_TYPE, DRAWER_WIDTHS, FILE_PROFILE_CONTEXT } from "@/utils/constants";
-import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
+import { Box } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, useParams } from "@tanstack/react-router";
+import React, { useCallback } from "react";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/case-files/$caseFileNumber"
@@ -43,7 +43,7 @@ function CaseFileProfilePage() {
     caseFileData
       ? [...[caseFileData.primary_officer], ...caseFileData.officers]
       : []
-  );
+  ) && caseFileData?.case_file_status === "Open";
 
   // Handlers
   const handleOnSubmit = useCallback(
