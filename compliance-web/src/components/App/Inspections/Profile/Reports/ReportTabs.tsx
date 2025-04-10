@@ -24,7 +24,11 @@ import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import { useModal } from "@/store/modalStore";
 import SendForApprovalModal from "./SendForApprovalModal";
 import { notify } from "@/store/snackbarStore";
-import { IR_APPROVAL_STATUS, STAFF_USER_POSITION } from "@/utils/constants";
+import {
+  IR_APPROVAL_STATUS,
+  IRProgressEnum,
+  STAFF_USER_POSITION,
+} from "@/utils/constants";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useUpdateIRApprovalStatus } from "@/hooks/useInspectionReports";
 import { useCurrentLoggedInUser } from "@/hooks/useAuthorization";
@@ -190,13 +194,26 @@ export default function ReportTabs() {
     });
   };
 
-  const isShowApprovalButton = useMemo(() => {
-    if (!irApprovalsData) return false;
+  const isDisableApprovalButton = useMemo(() => {
     return (
-      irApprovalsData?.length &&
-      irApprovalsData[0].approval_status === IR_APPROVAL_STATUS.DECISION_PENDING
+      inspectionReportsData?.ir_progress ===
+        IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW && !isCurrentUserApprover
     );
-  }, [irApprovalsData]);
+  }, [inspectionReportsData, isCurrentUserApprover]);
+
+  const isShowSendForApprovalButton = useMemo(() => {
+    return (
+      inspectionReportsData?.ir_progress ===
+        IRProgressEnum.PRELIMINARY_DRAFTING || isDisableApprovalButton
+    );
+  }, [inspectionReportsData, isDisableApprovalButton]);
+
+  const isShowApprovalButtons = useMemo(() => {
+    return (
+      inspectionReportsData?.ir_progress ===
+        IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW && isCurrentUserApprover
+    );
+  }, [inspectionReportsData, isCurrentUserApprover]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", pt: 3 }}>
@@ -210,18 +227,18 @@ export default function ReportTabs() {
       >
         <Typography variant="h6">Preliminary IR</Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {!isCurrentUserApprover && (
+          {isShowSendForApprovalButton && (
             <Button
               variant="text"
               color="primary"
               onClick={handleSendForApproval}
-              disabled={!!isShowApprovalButton}
+              disabled={isDisableApprovalButton}
             >
               <SendRounded sx={{ mr: 0.5, fontSize: 20 }} />
               Send for Approval
             </Button>
           )}
-          {isCurrentUserApprover && isShowApprovalButton ? (
+          {isShowApprovalButtons ? (
             <>
               <Button
                 color="secondary"

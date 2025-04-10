@@ -42,7 +42,7 @@ class InspectionRecordSchema(AutoSchemaBase):  # pylint: disable=too-many-ancest
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of the inspection record status enum."""
         if "ir_progress" in data and data["ir_progress"] is not None:
-            data["ir_progress"] = IRProgressEnum(data["ir_progress"]).value
+            data["ir_progress"] = IRProgressEnum(data["ir_progress"]).name
         else:
             data["ir_progress"] = ""
         return data
