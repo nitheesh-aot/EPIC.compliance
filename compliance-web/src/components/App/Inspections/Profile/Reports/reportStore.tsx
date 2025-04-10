@@ -67,7 +67,17 @@ export const useReportStore = create<ReportStore>((set) => ({
       inspectionReportsData
     );
   },
-  setIRApprovalsData: (irApprovalsData: IRApproval[]) => set({ irApprovalsData }),
+  setIRApprovalsData: (irApprovalsData: IRApproval[]) => {
+    const queryClient = useReportStore.getState().queryClient;
+    const inspectionData = useReportStore.getState().inspectionData;
+    const inspectionReportsData =
+      useReportStore.getState().inspectionReportsData;
+    set({ irApprovalsData });
+    queryClient.setQueryData(
+      ["ir-approvals", inspectionData?.id, inspectionReportsData?.id],
+      irApprovalsData
+    );
+  },
   setInspectionData: (inspectionData: Inspection) => set({ inspectionData }),
   setCaseFileData: (caseFileData: CaseFile) => set({ caseFileData }),
   setInspectionScope: (inspectionScope: string) => set({ inspectionScope }),

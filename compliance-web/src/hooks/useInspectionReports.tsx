@@ -92,6 +92,48 @@ const fetchIRApprovals = ({
   });
 };
 
+const updateIRApproval = ({
+  inspectionId,
+  inspectionRecordId,
+  approvalId,
+  approvalPayload,
+}: {
+  inspectionId: number;
+  inspectionRecordId: number;
+  approvalId: number;
+  approvalPayload: {
+    field_name: string;
+    value: string;
+  };
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/approvals/${approvalId}`,
+    method: "patch",
+    data: approvalPayload,
+  });
+};
+
+const updateIRApprovalStatus = ({
+  inspectionId,
+  inspectionRecordId,
+  approvalId,
+  statusPayload,
+}: {
+  inspectionId: number;
+  inspectionRecordId: number;
+  approvalId: number;
+  statusPayload: {
+    approval_status: string;
+    approved_by_id: number;
+  };
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/approvals/${approvalId}/status`,
+    method: "patch",
+    data: statusPayload,
+  });
+};
+
 export const useInspectionReportsData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-reports", inspectionId],
@@ -138,5 +180,19 @@ export const useFetchIRApprovals = (
     queryFn: () => fetchIRApprovals({ inspectionId, inspectionRecordId }),
     enabled: !!inspectionId && !!inspectionRecordId,
     staleTime: Infinity,
+  });
+};
+
+export const useUpdateIRApproval = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: updateIRApproval,
+    onSuccess,
+  });
+};
+
+export const useUpdateIRApprovalStatus = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: updateIRApprovalStatus,
+    onSuccess,
   });
 };

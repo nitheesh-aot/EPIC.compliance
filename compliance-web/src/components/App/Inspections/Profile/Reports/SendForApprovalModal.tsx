@@ -10,6 +10,7 @@ import { StaffUser } from "@/models/Staff";
 import { STAFF_USER_POSITION } from "@/utils/constants";
 import { useCreateIRApproval } from "@/hooks/useInspectionReports";
 import { useReportStore } from "./reportStore";
+import { IRApproval } from "@/models/IRApproval";
 
 type SendForApprovalModalProps = {
   staffUsers: StaffUser[];
@@ -34,7 +35,8 @@ const SendForApprovalModal: FC<SendForApprovalModalProps> = ({
   staffUsers,
 }) => {
   const [directorsList, setDirectorsList] = useState<StaffUser[]>([]);
-  const { inspectionData, inspectionReportsData } = useReportStore();
+  const { inspectionData, inspectionReportsData, setIRApprovalsData } =
+    useReportStore();
 
   useEffect(() => {
     setDirectorsList(
@@ -59,7 +61,8 @@ const SendForApprovalModal: FC<SendForApprovalModalProps> = ({
     reset(initFormData);
   }, [reset]);
 
-  const onSuccess = () => {
+  const onSuccess = (data: IRApproval) => {
+    setIRApprovalsData([data]);
     onSubmit("Approval request sent");
   };
 

@@ -26,23 +26,27 @@ import SendForApprovalModal from "./SendForApprovalModal";
 import { notify } from "@/store/snackbarStore";
 import { IR_APPROVAL_STATUS, STAFF_USER_POSITION } from "@/utils/constants";
 import { useStaffUsersData } from "@/hooks/useStaff";
-import { useAuth } from "react-oidc-context";
+import { useUpdateIRApprovalStatus } from "@/hooks/useInspectionReports";
+import { useCurrentLoggedInUser } from "@/hooks/useAuthorization";
+import { IRApproval } from "@/models/IRApproval";
 
 export default function ReportTabs() {
   const { inspectionNumber } = useParams({ strict: false });
   const [value, setValue] = useState(0);
   const {
     inspectionRequirements,
+    inspectionReportsData,
     irApprovalsData,
     setInspectionData,
     setInspectionRequirements,
     setInspectionRegulatoryConsideration,
     setCaseFileData,
+    setIRApprovalsData,
   } = useReportStore();
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const { setOpen, setClose } = useModal();
 
-  const { user } = useAuth();
+  const currentUser = useCurrentLoggedInUser();
   const { data: inspectionData } = useInspectionByNumber(inspectionNumber);
   const { data: caseFileData } = useCaseFileByNumber(
     inspectionData?.case_file.case_file_number || ""
@@ -55,13 +59,13 @@ export default function ReportTabs() {
   const isCurrentUserApprover = useMemo(() => {
     return staffData?.some(
       (staff) =>
-        staff.auth_user_guid === user?.profile?.preferred_username &&
+        staff.auth_user_guid === currentUser?.preferred_username &&
         [
           STAFF_USER_POSITION.DEPUTY_DIRECTOR,
           STAFF_USER_POSITION.DIRECTOR,
         ].includes(staff.position_id ?? 0)
     );
-  }, [staffData, user]);
+  }, [staffData, currentUser]);
 
   useEffect(() => {
     if (inspectionData && caseFileData) {
@@ -160,9 +164,39 @@ export default function ReportTabs() {
     });
   };
 
-  const isShowApprovalButton =
-    irApprovalsData?.length &&
-    irApprovalsData[0].approval_status === IR_APPROVAL_STATUS.DECISION_PENDING;
+  const onSuccess = (data: IRApproval) => {
+    setIRApprovalsData([data]);
+    notify.success("Approval status updated");
+  };
+
+  const { mutate: updateIRApprovalStatus } =
+    useUpdateIRApprovalStatus(onSuccess);
+
+  const handleApproval = (isApprove: boolean) => {
+    const currentUserId =
+      staffData?.find(
+        (staff) => staff.auth_user_guid === currentUser?.preferred_username
+      )?.id ?? 0;
+    updateIRApprovalStatus({
+      inspectionId: inspectionData?.id ?? 0,
+      inspectionRecordId: inspectionReportsData?.id ?? 0,
+      approvalId: irApprovalsData?.[0]?.id ?? 0,
+      statusPayload: {
+        approval_status: isApprove
+          ? IR_APPROVAL_STATUS.APPROVED
+          : IR_APPROVAL_STATUS.NOT_APPROVED,
+        approved_by_id: currentUserId,
+      },
+    });
+  };
+
+  const isShowApprovalButton = useMemo(() => {
+    if (!irApprovalsData) return false;
+    return (
+      irApprovalsData?.length &&
+      irApprovalsData[0].approval_status === IR_APPROVAL_STATUS.DECISION_PENDING
+    );
+  }, [irApprovalsData]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", pt: 3 }}>
@@ -189,10 +223,18 @@ export default function ReportTabs() {
           )}
           {isCurrentUserApprover && isShowApprovalButton ? (
             <>
-              <Button color="secondary" size="small">
+              <Button
+                color="secondary"
+                size="small"
+                onClick={() => handleApproval(true)}
+              >
                 Approve
               </Button>
-              <Button color="secondary" size="small">
+              <Button
+                color="secondary"
+                size="small"
+                onClick={() => handleApproval(false)}
+              >
                 Not Approve
               </Button>
             </>
