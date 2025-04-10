@@ -103,7 +103,8 @@ class InspectionRecordApprovalService:
         if field_name == "date_report_sent" and value:
             date_report_sent = value
             date_expected_return = datetime.strptime(
-                date_report_sent, "%Y-%m-%dT%H:%M:%S.%fZ") + timedelta(days=5)
+                date_report_sent, "%Y-%m-%dT%H:%M:%S.%fZ"
+            ) + timedelta(days=5)
             approval_update_data["date_expected_return"] = date_expected_return
         with session_scope() as session:
             updated_approval = InspectionRecordApprovalModel.update_approval(

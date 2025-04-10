@@ -32,8 +32,7 @@ class InspectionRecordService:
         existing_ir = InspectionRecordModel.get_by_inspection_id(inspection_id)
         #  Raise error, if ir exists and the request is to create another ir of the same status
         if existing_ir:
-            raise ResourceExistsError(
-                "IR for the given inspection already exists.")
+            raise ResourceExistsError("IR for the given inspection already exists.")
 
         ir_builder = InspectionRecordDataBuilder(
             inspection=inspection, ir_status=ir_request_data.get("ir_status")
@@ -99,8 +98,7 @@ class InspectionRecordService:
             inspection_record_id=inspection_record_id
         )
         if not approvals:
-            raise UnprocessableEntityError(
-                "IR cannot be FINAL without approval")
+            raise UnprocessableEntityError("IR cannot be FINAL without approval")
         latest_approval = approvals[0]
         if latest_approval.approval_status != IRApprovalStatusEnum.APPROVED:
             raise UnprocessableEntityError("Pending review for this IR")
