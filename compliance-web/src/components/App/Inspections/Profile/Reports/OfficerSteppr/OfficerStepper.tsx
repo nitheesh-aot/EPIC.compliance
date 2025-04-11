@@ -1,4 +1,4 @@
-import { Box, Button, Step, StepLabel, Stepper } from "@mui/material";
+import { Box, Step, StepLabel, Stepper } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useState } from "react";
 import PreliminaryReview from "./PreliminaryReview";
@@ -15,7 +15,11 @@ export default function OfficerStepper() {
   const [activeStep, setActiveStep] = useState(0);
 
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    if (activeStep === steps.length - 1) {
+      // TODO: Submit form and remove the stepper
+    } else {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
   };
 
   const handleBack = () => {
@@ -50,25 +54,12 @@ export default function OfficerStepper() {
       </Stepper>
       <Box sx={{ p: 2 }}>
         {activeStep === 0 && <PreliminaryReview onNext={handleNext} />}
-        {activeStep === 1 && <RegPartyResponse />}
-        {activeStep === 2 && <IRVersionSelect />}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "flex-end",
-            gap: 1,
-          }}
-        >
-          {activeStep > 0 && (
-            <Button variant="text" size="small" onClick={handleBack}>
-              Previous
-            </Button>
-          )}
-          <Button variant="outlined" size="small" onClick={handleNext}>
-            {activeStep === steps.length - 1 ? "Finish" : "Next"}
-          </Button>
-        </Box>
+        {activeStep === 1 && (
+          <RegPartyResponse onNext={handleNext} onBack={handleBack} />
+        )}
+        {activeStep === 2 && (
+          <IRVersionSelect onNext={handleNext} onBack={handleBack} />
+        )}
       </Box>
     </Box>
   );
