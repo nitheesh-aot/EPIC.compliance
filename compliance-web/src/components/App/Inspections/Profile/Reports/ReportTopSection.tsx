@@ -101,6 +101,12 @@ export default function ReportTopSection() {
     );
   }, [inspectionReportsData, isCurrentUserApprover]);
 
+  const isShowOfficerStepper = useMemo(() => {
+    return (
+      inspectionReportsData?.ir_progress === IRProgressEnum.PRELIMINARY_APPROVED
+    );
+  }, [inspectionReportsData]);
+
   return (
     <>
       <Box
@@ -148,7 +154,7 @@ export default function ReportTopSection() {
           </Button>
         </Box>
       </Box>
-      <OfficerStepper />
+      {isShowOfficerStepper && <OfficerStepper />}
     </>
   );
 }

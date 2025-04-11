@@ -123,7 +123,7 @@ export default function ReportTabs() {
     return () => {
       window.removeEventListener("resize", calculateTabsPosition);
     };
-  }, []);
+  }, [inspectionRequirementsData, value, tabItems]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", pt: 3 }}>
