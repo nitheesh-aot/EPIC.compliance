@@ -14,6 +14,7 @@ import { useCurrentLoggedInUser } from "@/hooks/useAuthorization";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import SendForApprovalModal from "./SendForApprovalModal";
 import { useModal } from "@/store/modalStore";
+import OfficerStepper from "./OfficerSteppr/OfficerStepper";
 
 export default function ReportTopSection() {
   const { setOpen, setClose } = useModal();
@@ -101,50 +102,53 @@ export default function ReportTopSection() {
   }, [inspectionReportsData, isCurrentUserApprover]);
 
   return (
-    <Box
-      sx={{
-        mb: 1,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <Typography variant="h6">Preliminary IR</Typography>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        {isShowSendForApprovalButton && (
-          <Button
-            variant="text"
-            color="primary"
-            onClick={handleSendForApproval}
-            disabled={isDisableApprovalButton}
-          >
-            <SendRounded sx={{ mr: 0.5, fontSize: 20 }} />
-            Send for Approval
+    <>
+      <Box
+        sx={{
+          mb: 1,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h6">Preliminary IR</Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {isShowSendForApprovalButton && (
+            <Button
+              variant="text"
+              color="primary"
+              onClick={handleSendForApproval}
+              disabled={isDisableApprovalButton}
+            >
+              <SendRounded sx={{ mr: 0.5, fontSize: 20 }} />
+              Send for Approval
+            </Button>
+          )}
+          {isShowApprovalButtons ? (
+            <>
+              <Button
+                color="secondary"
+                size="small"
+                onClick={() => handleApproval(true)}
+              >
+                Approve
+              </Button>
+              <Button
+                color="secondary"
+                size="small"
+                onClick={() => handleApproval(false)}
+              >
+                Not Approve
+              </Button>
+            </>
+          ) : null}
+          <Button variant="text" color="primary">
+            <PictureAsPdfOutlined sx={{ mr: 1, fontSize: 20 }} />
+            Preview
           </Button>
-        )}
-        {isShowApprovalButtons ? (
-          <>
-            <Button
-              color="secondary"
-              size="small"
-              onClick={() => handleApproval(true)}
-            >
-              Approve
-            </Button>
-            <Button
-              color="secondary"
-              size="small"
-              onClick={() => handleApproval(false)}
-            >
-              Not Approve
-            </Button>
-          </>
-        ) : null}
-        <Button variant="text" color="primary">
-          <PictureAsPdfOutlined sx={{ mr: 1, fontSize: 20 }} />
-          Preview
-        </Button>
+        </Box>
       </Box>
-    </Box>
+      <OfficerStepper />
+    </>
   );
 }
