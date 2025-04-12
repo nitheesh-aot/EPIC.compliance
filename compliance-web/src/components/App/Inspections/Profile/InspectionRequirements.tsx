@@ -24,7 +24,6 @@ import {
 import { DRAWER_WIDTHS } from "@/utils/constants";
 import { useRequirementStore } from "./Requirements/requirementStore";
 import { RequirementImage } from "@/models/Image";
-import { mergeMapsWithArrayConcat } from "@/utils/appUtils";
 import RequirementLoading from "./Requirements/RequirementLoading";
 
 interface InspectionRequirementsProps {
@@ -68,11 +67,13 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 
   useEffect(() => {
     if (inspectionRequirementsData) {
-      const inspectionRequirements = inspectionRequirementsData.filter(
-        (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
+      setRequirementsList(inspectionRequirementsData);
+
+      setInspectionRequirements(
+        inspectionRequirementsData.filter(
+          (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
+        )
       );
-      setRequirementsList(inspectionRequirements);
-      setInspectionRequirements(inspectionRequirements);
 
       setRegulatoryConsideration(
         inspectionRequirementsData.find(
@@ -84,23 +85,18 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 
   useEffect(() => {
     if (inspectionRequirementImages) {
-      setRequirementPhotos(
-        inspectionRequirementImages.photos.reduce((acc, photo) => {
-          const reqId = photo.requirement_id ?? 0;
-          if (!acc.has(reqId)) {
-            acc.set(reqId, []);
-          }
-          acc.set(reqId, [...(acc.get(reqId) || []), photo]);
-          return acc;
-        }, new Map<number, RequirementImage[]>())
-      );
+      const photos = inspectionRequirementImages.photos.reduce((acc, photo) => {
+        const reqId = photo.requirement_id ?? 0;
+        const existingPhotos = acc.get(reqId) || [];
+        acc.set(reqId, [...existingPhotos, photo]);
+        return acc;
+      }, new Map<number, RequirementImage[]>());
+      setRequirementPhotos(photos);
       setRequirementFigures(
         inspectionRequirementImages.figures.reduce((acc, figure) => {
           const reqId = figure.requirement_id ?? 0;
-          if (!acc.has(reqId)) {
-            acc.set(reqId, []);
-          }
-          acc.set(reqId, [...(acc.get(reqId) || []), figure]);
+          const existingFigures = acc.get(reqId) || [];
+          acc.set(reqId, [...existingFigures, figure]);
           return acc;
         }, new Map<number, RequirementImage[]>())
       );
@@ -179,51 +175,48 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   const updateTimeoutRef = React.useRef<NodeJS.Timeout>();
 
   const handleSortOrderChange = useCallback(
-    (newOrder: InspectionRequirement[]) => {
-      // Create a new map to store updated requirement photos with the new order
-      const updatedPhotosNewReqOrder = new Map<number, RequirementImage[]>();
-      const updatedFiguresNewReqOrder = new Map<number, RequirementImage[]>();
+    (newRequirementListOrder: InspectionRequirement[]) => {
+      const updateRequirementLists = [...newRequirementListOrder];
+
+      if (regulatoryConsideration?.id) {
+        updateRequirementLists.push(regulatoryConsideration);
+      }
 
       // Copy photos from the original map to the new map based on the new order of requirements
-      newOrder.forEach((requirement) => {
-        updatedPhotosNewReqOrder.set(
-          requirement.id,
-          requirementPhotos.get(requirement.id) || []
-        );
-        updatedFiguresNewReqOrder.set(
-          requirement.id,
-          requirementFigures.get(requirement.id) || []
-        );
-      });
+      // updateRequirementLists.forEach((requirement) => {
+      //   updatedPhotosNewReqOrder.set(
+      //     requirement.id,
+      //     requirementPhotos.get(requirement.id) || []
+      //   );
+      //   updatedFiguresNewReqOrder.set(
+      //     requirement.id,
+      //     requirementFigures.get(requirement.id) || []
+      //   );
+      // });
 
       const photosWithSortOrder = updateImagesWithContinuousSortOrder(
-        updatedPhotosNewReqOrder
+        requirementPhotos,
+        updateRequirementLists
       );
       const figuresWithSortOrder = updateImagesWithContinuousSortOrder(
-        updatedFiguresNewReqOrder
-      );
-
-      const requirementImages = mergeMapsWithArrayConcat(
-        photosWithSortOrder,
-        figuresWithSortOrder
+        requirementFigures,
+        updateRequirementLists
       );
 
       // update the requirement images sort order in all findings
       const updatedRequirementsList = formatRequirementImagesInFindings(
-        newOrder,
-        requirementImages
+        updateRequirementLists,
+        photosWithSortOrder,
+        figuresWithSortOrder
       );
 
-      // Update local state immediately
       setRequirementPhotos(photosWithSortOrder);
       setRequirementFigures(figuresWithSortOrder);
-      setRequirementsList(updatedRequirementsList);
-      setInspectionRequirements(updatedRequirementsList);
 
       // Update query client cache
       queryClient.setQueryData(
         ["inspection-requirements", inspectionData.id],
-        newOrder
+        updatedRequirementsList
       );
 
       // Clear any existing timeout
@@ -248,11 +241,11 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     [
       inspectionData,
       queryClient,
+      regulatoryConsideration,
       requirementFigures,
       requirementPhotos,
       setRequirementFigures,
       setRequirementPhotos,
-      setRequirementsList,
       updateInspectionRequirementBatch,
     ]
   );

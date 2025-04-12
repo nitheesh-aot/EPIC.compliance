@@ -1,4 +1,5 @@
 import { InspectionRecord } from "@/models/InspectionRecord";
+import { IRApproval } from "@/models/IRApproval";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -61,6 +62,78 @@ const resetInspectionRecord = ({
   });
 };
 
+const createIRApproval = ({
+  inspectionId,
+  inspectionRecordId,
+  approvalPayload,
+}: {
+  inspectionId: number;
+  inspectionRecordId: number;
+  approvalPayload: {
+    approved_by_id: number;
+  };
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/approvals`,
+    method: "post",
+    data: approvalPayload,
+  });
+};
+
+const fetchIRApprovals = ({
+  inspectionId,
+  inspectionRecordId,
+}: {
+  inspectionId: number;
+  inspectionRecordId: number;
+}): Promise<IRApproval[]> => {
+  return request({
+    url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/approvals`,
+  });
+};
+
+const updateIRApproval = ({
+  inspectionId,
+  inspectionRecordId,
+  approvalId,
+  approvalPayload,
+}: {
+  inspectionId: number;
+  inspectionRecordId: number;
+  approvalId: number;
+  approvalPayload: {
+    field_name: string;
+    value: string;
+  };
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/approvals/${approvalId}`,
+    method: "patch",
+    data: approvalPayload,
+  });
+};
+
+const updateIRApprovalStatus = ({
+  inspectionId,
+  inspectionRecordId,
+  approvalId,
+  statusPayload,
+}: {
+  inspectionId: number;
+  inspectionRecordId: number;
+  approvalId: number;
+  statusPayload: {
+    approval_status: string;
+    approved_by_id: number;
+  };
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/approvals/${approvalId}/status`,
+    method: "patch",
+    data: statusPayload,
+  });
+};
+
 export const useInspectionReportsData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-reports", inspectionId],
@@ -87,6 +160,39 @@ export const useUpdateInspectionRecord = (onSuccess: OnSuccessType) => {
 export const useResetInspectionRecord = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: resetInspectionRecord,
+    onSuccess,
+  });
+};
+
+export const useCreateIRApproval = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: createIRApproval,
+    onSuccess,
+  });
+};
+
+export const useFetchIRApprovals = (
+  inspectionId: number,
+  inspectionRecordId: number
+) => {
+  return useQuery({
+    queryKey: ["ir-approvals", inspectionId, inspectionRecordId],
+    queryFn: () => fetchIRApprovals({ inspectionId, inspectionRecordId }),
+    enabled: !!inspectionId && !!inspectionRecordId,
+    staleTime: Infinity,
+  });
+};
+
+export const useUpdateIRApproval = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: updateIRApproval,
+    onSuccess,
+  });
+};
+
+export const useUpdateIRApprovalStatus = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: updateIRApprovalStatus,
     onSuccess,
   });
 };

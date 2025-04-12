@@ -1,8 +1,7 @@
-import { Box, Tabs, Tab, Typography, Button } from "@mui/material";
+import { Box, Tabs, Tab } from "@mui/material";
 import { useEffect, useState, useMemo, useRef } from "react";
 import ReportPanel from "./ReportPanel";
 import { BCDesignTokens } from "epic.theme";
-import { PictureAsPdfOutlined, SendRounded } from "@mui/icons-material";
 import Overview from "./ReportTabContents/IROverview/Overview";
 import { useReportStore } from "./reportStore";
 import { useParams } from "@tanstack/react-router";
@@ -21,16 +20,17 @@ import { InspectionRequirement } from "@/models/InspectionRequirement";
 import IRRequirement from "./ReportTabContents/IRRequirement";
 import IRRegulatoryConsideration from "./ReportTabContents/IRRegulatoryConsideration";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
+import ReportTopSection from "./ReportTopSection";
 
 export default function ReportTabs() {
   const { inspectionNumber } = useParams({ strict: false });
   const [value, setValue] = useState(0);
   const {
+    inspectionRequirements,
     setInspectionData,
     setInspectionRequirements,
     setInspectionRegulatoryConsideration,
     setCaseFileData,
-    inspectionRequirements,
   } = useReportStore();
   const tabsContainerRef = useRef<HTMLDivElement>(null);
 
@@ -123,30 +123,11 @@ export default function ReportTabs() {
     return () => {
       window.removeEventListener("resize", calculateTabsPosition);
     };
-  }, []);
+  }, [inspectionRequirementsData, value, tabItems]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", pt: 3 }}>
-      <Box
-        sx={{
-          mb: 1,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h6">Preliminary IR</Typography>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <Button variant="text" color="primary">
-            <SendRounded sx={{ mr: 1, fontSize: 20 }} />
-            Send for Approval
-          </Button>
-          <Button variant="text" color="primary">
-            <PictureAsPdfOutlined sx={{ mr: 1, fontSize: 20 }} />
-            Preview
-          </Button>
-        </Box>
-      </Box>
+      <ReportTopSection />
       <Box
         ref={tabsContainerRef}
         sx={{

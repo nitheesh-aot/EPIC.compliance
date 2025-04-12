@@ -71,12 +71,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
 
       const currentReqId = !requirementId ? NaN : requirementId;
       setCurrentRequirementId(currentReqId);
-
-      if (isPhoto) {
-        setImages(currentRequirementImages.get(currentReqId) ?? []);
-      } else {
-        setImages(currentRequirementImages.get(currentReqId) ?? []);
-      }
+      setImages(currentRequirementImages.get(currentReqId) ?? []);
     }, [requirementId, requirementPhotos, requirementFigures, isPhoto]);
 
     const activationConstraint = {
@@ -176,7 +171,8 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       updatedRequirementImages.set(currentRequirementId, imagesList);
 
       const updatedImagesWithSortOrder = updateImagesWithContinuousSortOrder(
-        updatedRequirementImages
+        updatedRequirementImages,
+        requirementsList
       );
 
       if (isPhoto) {
@@ -185,14 +181,27 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
         setRequirementFigures(updatedImagesWithSortOrder);
       }
 
-      // Update any active Lexical editor that might contain mentions related to these images
-      updateActiveLexicalEditor(updatedImagesWithSortOrder); //TODO: Check if all images are needed here
-
+      /**
+       * updatedImagesWithSortOrder is the image map of current type of images (photos or figures)
+       * requirementImagesType2 is the image map of other type of images
+       * formatRequirementImagesInFindings will merge the two maps and return the updated requirements findings and list
+       */
+      const requirementImagesType2 = isPhoto
+        ? requirementFigures
+        : requirementPhotos;
       const updatedRequirementsList = formatRequirementImagesInFindings(
         requirementsList,
-        updatedImagesWithSortOrder
+        updatedImagesWithSortOrder,
+        requirementImagesType2
       );
       setRequirementsList(updatedRequirementsList);
+
+      // Update any active Lexical editor that might contain mentions related to these images
+
+      updateActiveLexicalEditor(
+        updatedImagesWithSortOrder.get(currentRequirementId) ?? [],
+        requirementImagesType2.get(currentRequirementId) ?? []
+      ); //TODO: Check if all images are needed here
 
       setImages(updatedImagesWithSortOrder.get(currentRequirementId) ?? []);
       setIsDataChanged(true);
@@ -200,7 +209,8 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
     };
 
     const updateActiveLexicalEditor = (
-      updatedImages: Map<number, RequirementImage[]>
+      updatedImages: RequirementImage[],
+      imagesType2: RequirementImage[]
     ) => {
       // Find all active Lexical editor instances on the page
       const editorElements = document.querySelectorAll(".editor-input");
@@ -208,7 +218,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       if (!editorElements.length) return;
 
       // Flatten all images from all requirements into a single array
-      const allImages = Array.from(updatedImages.values()).flat();
+      const allImages = [...updatedImages, ...imagesType2];
 
       if (!allImages.length) return;
 

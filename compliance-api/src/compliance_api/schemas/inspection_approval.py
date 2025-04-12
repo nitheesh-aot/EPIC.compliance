@@ -24,7 +24,7 @@ class InspectionRecordApprovalSchema(
         include_fk = True
 
     approved_by = fields.Nested(StaffUserSchema)
-    approval_status = EnumField(IRApprovalStatusEnum, by_value=True)
+    approval_status = EnumField(IRApprovalStatusEnum, by_value=False)
 
 
 class CreateInspectionRecordApprovalSchema(BaseSchema):
