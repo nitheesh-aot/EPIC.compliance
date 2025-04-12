@@ -9,6 +9,7 @@ import { RequirementImage, ImageAPIData } from "@/models/Image";
 import dateUtils from "@/utils/dateUtils";
 import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
 import { BCDesignTokens } from "epic.theme";
+import { mergeMapsWithArrayConcat } from "@/utils/appUtils";
 
 export const REQUIREMENT_TYPE_ID = "REQ";
 export const REGULATORY_CONSIDERATION_TYPE_ID = "REG";
@@ -291,12 +292,18 @@ export const formatRequirementBatchAPIData = (
 };
 
 export const updateImagesWithContinuousSortOrder = (
-  requirementImages: Map<number, RequirementImage[]>
+  requirementImages: Map<number, RequirementImage[]>,
+  requirementList: InspectionRequirement[],
 ): Map<number, RequirementImage[]> => {
-  // create a deep copy of the requirement images for updating in the ui
+
   const updatedImagesWithSortOrder = new Map<number, RequirementImage[]>();
-  requirementImages.forEach((images, reqId) => {
-    updatedImagesWithSortOrder.set(Number(reqId), images.map((image) => ({ ...image })));
+
+  // create a deep copy of the requirement images for updating in the ui
+  requirementList.forEach((requirement) => {
+    updatedImagesWithSortOrder.set(
+      requirement.id,
+      (requirementImages.get(requirement.id) || []).map((image) => ({ ...image }))
+    );
   });
 
   let initialIndex = 1;
@@ -312,8 +319,11 @@ export const updateImagesWithContinuousSortOrder = (
 
 export const formatRequirementImagesInFindings = (
   requirementsList: InspectionRequirement[],
-  requirementImages: Map<number, RequirementImage[]>
+  requirementImagesType1: Map<number, RequirementImage[]>,
+  requirementImagesType2: Map<number, RequirementImage[]>
 ): InspectionRequirement[] => {
+  const requirementImages = mergeMapsWithArrayConcat(requirementImagesType1, requirementImagesType2);
+
   return requirementsList.map((requirement) => {
     const { findings } = requirement;
     if (!findings || !findings.includes("data-lexical-mention="))

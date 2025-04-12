@@ -35,7 +35,6 @@ import {
 import * as yup from "yup";
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { useRequirementStore } from "./requirementStore";
-import { mergeMapsWithArrayConcat } from "@/utils/appUtils";
 
 type RequirementDrawerProps = {
   inspectionData: Inspection;
@@ -204,26 +203,23 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       if (updatedRequirementPhotos.has(requirement.id)) {
         updatedRequirementPhotos.delete(requirement.id);
         updatedRequirementPhotos = updateImagesWithContinuousSortOrder(
-          updatedRequirementPhotos
+          updatedRequirementPhotos,
+          requirementsList
         );
       }
       if (updatedRequirementFigures.has(requirement.id)) {
         updatedRequirementFigures.delete(requirement.id);
         updatedRequirementFigures = updateImagesWithContinuousSortOrder(
-          updatedRequirementFigures
+          updatedRequirementFigures,
+          requirementsList
         );
       }
-
-      // Combine the photos and figures into a single map list
-      const requirementImages = mergeMapsWithArrayConcat(
-        updatedRequirementPhotos,
-        updatedRequirementFigures
-      );
 
       // update the requirement images sort order in all findings
       const updatedRequirementsList = formatRequirementImagesInFindings(
         requirementsList,
-        requirementImages
+        updatedRequirementPhotos,
+        updatedRequirementFigures
       );
 
       // prepare for batch update
