@@ -80,6 +80,8 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     setIsDataChanged,
     setIsImageChanged,
     resetRequirementStoreFlags,
+    createRequirementStoreSnapshot,
+    restoreRequirementStoreFromSnapshot,
   } = useRequirementStore();
 
   const { data: inspectionRequirementTypesList } =
@@ -157,7 +159,13 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       formatAndSetFormData(requirement);
     }
     resetRequirementStoreFlags();
-  }, [requirement, formatAndSetFormData, resetRequirementStoreFlags]);
+    createRequirementStoreSnapshot();
+  }, [
+    requirement,
+    formatAndSetFormData,
+    resetRequirementStoreFlags,
+    createRequirementStoreSnapshot,
+  ]);
 
   useEffect(() => {
     if (isDataChanged) {
@@ -169,8 +177,14 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     if (inspectionRequirementUpdateData) {
       formatAndSetFormData(inspectionRequirementUpdateData);
       setIsDataChanged(false);
+      createRequirementStoreSnapshot();
     }
-  }, [inspectionRequirementUpdateData, formatAndSetFormData, setIsDataChanged]);
+  }, [
+    inspectionRequirementUpdateData,
+    formatAndSetFormData,
+    setIsDataChanged,
+    createRequirementStoreSnapshot,
+  ]);
 
   const { mutate: deleteInspectionRequirement } =
     useDeleteInspectionRequirement(onDeleteSuccess);
@@ -306,6 +320,10 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
       : "Create Requirement";
   };
 
+  const handleClearData = () => {
+    restoreRequirementStoreFromSnapshot();
+  };
+
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
@@ -313,6 +331,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           title={getDrawerTitle()}
           isFormDirtyCheck
           isDirtyManual={isRequirementSourceListDirty}
+          customCloseFn={handleClearData}
         />
         <DrawerActionBarTop isShowActionBar={!inspectionRequirementData} />
         <Stack
@@ -344,6 +363,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           onDeleteTitle="Delete Requirement"
           onDeleteDescription="You are about to delete this Requirement. Are you sure?"
           isDirtyManual={isRequirementSourceListDirty}
+          customCancelFn={handleClearData}
         />
       </form>
     </FormProvider>

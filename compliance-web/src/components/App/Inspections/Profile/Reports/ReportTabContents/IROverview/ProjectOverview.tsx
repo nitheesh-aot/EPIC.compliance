@@ -12,8 +12,12 @@ import { notify } from "@/store/snackbarStore";
 import { InspectionRecord } from "@/models/InspectionRecord";
 
 const ProjectOverview = () => {
-  const { inspectionData, caseFileData, inspectionReportsData, setInspectionReportsData } =
-    useReportStore();
+  const {
+    inspectionData,
+    caseFileData,
+    inspectionReportsData,
+    setInspectionReportsData,
+  } = useReportStore();
   const { setOpen, setClose } = usePopover();
   const [mailingAddress, setMailingAddress] = useState("");
 

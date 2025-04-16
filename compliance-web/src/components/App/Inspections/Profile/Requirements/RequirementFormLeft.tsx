@@ -57,10 +57,11 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
   }, [isReadOnly]);
 
   const updateMentionList = useCallback(() => {
+    const reqId = !requirementId ? NaN : requirementId;
     const mentionList = formatImagesToMentionList(
       [
-        ...(requirementPhotos.get(requirementId) ?? []),
-        ...(requirementFigures.get(requirementId) ?? []),
+        ...(requirementPhotos.get(reqId) ?? []),
+        ...(requirementFigures.get(reqId) ?? []),
       ],
     );
     setMentionDataList(mentionList);

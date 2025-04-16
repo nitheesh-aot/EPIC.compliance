@@ -40,6 +40,10 @@ class UpdateInspectionRecordApprovalStatusSchema(BaseSchema):
     """Schema for updating the status of an InspectionRecordApproval."""
 
     approval_status = EnumField(IRApprovalStatusEnum, by_value=False)
+    approved_by_id = fields.Integer(
+        metadata={"description": "The unique id of the staff who needs to approve"},
+        required=True,
+    )
 
     @post_load
     def validate_fields(

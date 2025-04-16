@@ -44,14 +44,6 @@ const MailingAddressPopover: React.FC<MailingAddressPopoverProps> = ({
 
   const { handleSubmit, reset } = methods;
 
-  // const onSuccess = () => {
-  //   if (mailingAddress) {
-  //     onSubmit("Mailing Address updated successfully");
-  //   } else {
-  //     onSubmit("Mailing Address added successfully");
-  //   }
-  // };
-
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);

@@ -30,8 +30,21 @@ const InspectionGeneralInformation: React.FC<
       .join(", ");
   }, [inspectionData.inspectionAttendances]);
 
+  const dateRange = useMemo(() => {
+    const startDate = dateUtils.formatDate(inspectionData.start_date);
+    const endDate = dateUtils.formatDate(inspectionData.end_date);
+    if (startDate === endDate) {
+      return startDate;
+    }
+    return `${startDate} — ${endDate}`;
+  }, [inspectionData.start_date, inspectionData.end_date]);
+
   const properties = [
-    { name: "Case File", value: inspectionData.case_file.case_file_number, link: true},
+    {
+      name: "Case File",
+      value: inspectionData.case_file.case_file_number,
+      link: true,
+    },
     { name: "Project", value: inspectionData.case_file?.project?.name },
     { name: "Project Description", value: inspectionData.project_description },
     {
@@ -47,9 +60,8 @@ const InspectionGeneralInformation: React.FC<
     },
     {
       name: "Dates",
-      value: `${dateUtils.formatDate(inspectionData.start_date)} — ${dateUtils.formatDate(inspectionData.end_date)}`,
+      value: dateRange,
     },
-    { name: "IR Status", value: inspectionData.ir_status?.name },
     { name: "Project Status", value: inspectionData.project_status?.name },
     { name: "In Attendance", value: inAttendance },
   ];

@@ -11,6 +11,8 @@ from compliance_api.models.inspection_record import IRStatusEnum
 from compliance_api.schemas import InspectionRecordPreviewSchema
 from compliance_api.services.inspection_record.inspection_record_builder import InspectionRecordDataBuilder
 from compliance_api.services.service_utils import ServiceUtils
+from compliance_api.models.db import session_scope
+from compliance_api.models.inspection_record import IRProgressEnum, IRStatusEnum
 
 from ..docgen_service.docgen_service import DocGenService
 
@@ -76,9 +78,19 @@ class InspectionRecordService:
                 change_info = dict(inspection_record.field_change_info or {})
                 change_info[f"{field_name}_changed"] = True
                 ir_update_data["field_change_info"] = change_info
-        updated_inspection_record = InspectionRecordModel.update_inspection_record(
-            inspection_record_id=inspection_record_id, ir_update_data=ir_update_data
-        )
+        with session_scope() as session:
+            updated_inspection_record = InspectionRecordModel.update_inspection_record(
+                inspection_record_id=inspection_record_id,
+                ir_update_data=ir_update_data,
+                session=session,
+            )
+            # Update the IR progress to ISSUED if date_issued is updated
+            if field_name == "date_issued" and value:
+                InspectionRecordModel.update_inspection_record(
+                    inspection_record_id=inspection_record_id,
+                    ir_update_data={"ir_progress": IRProgressEnum.ISSUED},
+                    session=session,
+                )
         return updated_inspection_record
 
     @classmethod
@@ -114,6 +126,7 @@ class InspectionRecordService:
             ),
             "enforcement_summary": ir_data.get("enforcement_summary", None),
             "ir_status_id": IRStatusEnum.FINAL.value,
+            "ir_progress": ir_data.get("ir_progress"),
         }
         updated_ir = InspectionRecordModel.update_inspection_record(
             inspection_record_id, update_data
