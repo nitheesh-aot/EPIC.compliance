@@ -155,8 +155,6 @@ class InspectionService:
     @classmethod
     def create(cls, inspection_data: dict):
         """Create inspection."""
-        from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
-
         case_file_id = inspection_data.get("case_file_id")
         case_file = CaseFileModel.find_by_id(case_file_id)
         if not case_file:
@@ -222,15 +220,6 @@ class InspectionService:
                 InspectionOtherAttendanceModel.create_attendance(
                     other_attendance_obj, session
                 )
-            cr_entry = _create_cr_entry(
-                created_inspection.id,
-                created_inspection.ir_number,
-                created_inspection.case_file_id,
-                "created",
-            )
-            ContinuationReportService.create(
-                cr_entry, sys_generated=True, ho_session=session
-            )
         return created_inspection
 
     @classmethod
@@ -299,8 +288,6 @@ class InspectionService:
     @classmethod
     def change_status(cls, inspection_id, status):
         """Close the inspection."""
-        from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
-
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
             raise ResourceNotFoundError(
@@ -314,21 +301,10 @@ class InspectionService:
             raise UnprocessableEntityError(
                 "No status change can be perforemed on CANCELED inspection"
             )
-        with session_scope() as session:
-            InspectionModel.update_inspection(
-                inspection_id,
-                {"inspection_status": InspectionStatusEnum(status_enum.value)},
-                session,
-            )
-            cr_entry = _create_cr_entry(
-                inspection.id,
-                inspection.ir_number,
-                inspection.case_file_id,
-                status.get("alt_status_text", status_enum.value).lower(),
-            )
-            ContinuationReportService.create(
-                cr_entry, sys_generated=True, ho_session=session
-            )
+        InspectionModel.update_inspection(
+            inspection_id,
+            {"inspection_status": InspectionStatusEnum(status_enum.value)},
+        )
 
     @classmethod
     def delete_by_case_file(cls, case_file_id, ho_session=None):
@@ -357,8 +333,6 @@ class InspectionService:
     @classmethod
     def delete_inspection(cls, inspection_id):
         """Delete inspection."""
-        from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
-
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
             raise ResourceNotFoundError(
@@ -379,11 +353,6 @@ class InspectionService:
                 inspection_id, session
             )
             InspectionAgencyModel.delete_inspection_agency(inspection_id)
-            ContinuationReportService.delete_by_context(
-                context_id=inspection_id,
-                context_type=ContextEnum.INSPECTION,
-                ho_session=session,
-            )
 
 
 def _inspection_status_check(inspection: InspectionModel):

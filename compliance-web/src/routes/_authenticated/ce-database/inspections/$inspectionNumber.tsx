@@ -1,26 +1,26 @@
-import React, { useCallback } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useParams } from "@tanstack/react-router";
-import { Box } from "@mui/material";
+import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
 import { useInspectionByNumber } from "@/hooks/useInspections";
 import { useDrawer } from "@/store/drawerStore";
-import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
 import { notify } from "@/store/snackbarStore";
+import { Box } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, useParams } from "@tanstack/react-router";
+import React, { useCallback } from "react";
 
-import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
-import FileProfileHeader from "@/components/App/FileProfileHeader";
 import ContinuationReport from "@/components/App/ContinuationReports/ContinuationReport";
+import FileProfileHeader from "@/components/App/FileProfileHeader";
+import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
 import InspectionGeneralInformation from "@/components/App/Inspections/Profile/InspectionGeneralInformation";
-import ErrorPage from "@/components/Shared/ErrorPage";
-import LoadingPage from "@/components/Shared/LoadingPage";
-import { CR_CONTEXT_TYPE, DRAWER_WIDTHS, FILE_PROFILE_CONTEXT } from "@/utils/constants";
-import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
-import { CaseFile } from "@/models/CaseFile";
-import TabPanel from "@/components/Shared/TabPanel";
-import { useTab } from "@/store/tabStore";
+import InspectionReports from "@/components/App/Inspections/Profile/InspectionReports";
 import InspectionRequirements from "@/components/App/Inspections/Profile/InspectionRequirements";
 import ComingSoon from "@/components/Shared/ComingSoon";
-import InspectionReports from "@/components/App/Inspections/Profile/InspectionReports";
+import ErrorPage from "@/components/Shared/ErrorPage";
+import LoadingPage from "@/components/Shared/LoadingPage";
+import TabPanel from "@/components/Shared/TabPanel";
+import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
+import { CaseFile } from "@/models/CaseFile";
+import { useTab } from "@/store/tabStore";
+import { CR_CONTEXT_TYPE, DRAWER_WIDTHS, FILE_PROFILE_CONTEXT } from "@/utils/constants";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/$inspectionNumber"
@@ -54,7 +54,7 @@ function InspectionProfilePage() {
   const showCreateCREntryButton = useIsRolesAllowed(
     [KC_USER_GROUPS.SUPERUSER],
     inspectionData?.primary_officer ? [inspectionData?.primary_officer] : []
-  );
+  ) && caseFileData?.case_file_status === "Open";
 
   // Event handlers
   const handleOnSubmit = useCallback(

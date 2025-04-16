@@ -7,12 +7,11 @@ from compliance_api.exceptions import ResourceExistsError, UnprocessableEntityEr
 from compliance_api.models import InspectionRecord as InspectionRecordModel
 from compliance_api.models import InspectionRecordApproval as InspectionRecordApprovalModel
 from compliance_api.models import IRApprovalStatusEnum
-from compliance_api.models.inspection_record import IRStatusEnum
+from compliance_api.models.db import session_scope
+from compliance_api.models.inspection_record import IRProgressEnum, IRStatusEnum
 from compliance_api.schemas import InspectionRecordPreviewSchema
 from compliance_api.services.inspection_record.inspection_record_builder import InspectionRecordDataBuilder
 from compliance_api.services.service_utils import ServiceUtils
-from compliance_api.models.db import session_scope
-from compliance_api.models.inspection_record import IRProgressEnum, IRStatusEnum
 
 from ..docgen_service.docgen_service import DocGenService
 

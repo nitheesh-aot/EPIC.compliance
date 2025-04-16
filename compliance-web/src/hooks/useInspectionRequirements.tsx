@@ -203,17 +203,15 @@ export const useInspectionRequirementImages = (inspectionId: number) => {
     select: (data: RequirementImage[]) => {
       const reqPhotos = data
         .filter((image) => image.image_type?.toLowerCase() === "photo")
-        .map((image, index) => ({
+        .map((image) => ({
           ...image,
           dbId: image.id,
-          sort_order: index + 1,
         }));
       const reqFigures = data
         .filter((image) => image.image_type?.toLowerCase() === "figure")
-        .map((image, index) => ({
+        .map((image) => ({
           ...image,
           dbId: image.id,
-          sort_order: index + 1,
         }));
       return {
         photos: reqPhotos,
