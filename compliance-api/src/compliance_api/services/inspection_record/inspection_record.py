@@ -1,17 +1,18 @@
 """Service for inspection record."""
 
+import json
+import re
+
 from compliance_api.exceptions import ResourceExistsError, UnprocessableEntityError
 from compliance_api.models import InspectionRecord as InspectionRecordModel
 from compliance_api.models import InspectionRecordApproval as InspectionRecordApprovalModel
 from compliance_api.models import IRApprovalStatusEnum
 from compliance_api.models.inspection_record import IRStatusEnum
-from compliance_api.services.service_utils import ServiceUtils
-from compliance_api.services.inspection_record.inspection_record_builder import InspectionRecordDataBuilder
 from compliance_api.schemas import InspectionRecordPreviewSchema
+from compliance_api.services.inspection_record.inspection_record_builder import InspectionRecordDataBuilder
+from compliance_api.services.service_utils import ServiceUtils
+
 from ..docgen_service.docgen_service import DocGenService
-import json
-import re
-from jinja2 import Environment, BaseLoader
 
 
 class InspectionRecordService:
@@ -178,24 +179,30 @@ class InspectionRecordService:
         )
         if inspection.id != inspection_record.inspection_id:
             raise UnprocessableEntityError(
-                "Inspection and inspection record do not match")
+                "Inspection and inspection record do not match"
+            )
         ir_builder = InspectionRecordDataBuilder(
-            inspection=inspection, ir_status=inspection_record.ir_status_id, existing_ir=inspection_record
+            inspection=inspection,
+            ir_status=inspection_record.ir_status_id,
+            existing_ir=inspection_record,
         )
-        ir_data = ir_builder.build_project_details()\
-                            .build_officer_details()\
-                            .build_appendices()\
-                            .build_department_details()\
-                            .build_inspection_scope()\
-                            .build_preliminary_review_details()\
-                            .build_finding_statement()\
-                            .build_enforcement_summary()\
-                            .build_action_required_by_rp()\
-                            .build_requirement_details()\
-                            .build()
+        ir_data = (
+            ir_builder.build_project_details()
+            .build_officer_details()
+            .build_appendices()
+            .build_department_details()
+            .build_inspection_scope()
+            .build_preliminary_review_details()
+            .build_finding_statement()
+            .build_enforcement_summary()
+            .build_action_required_by_rp()
+            .build_requirement_details()
+            .build()
+        )
         preview_data = InspectionRecordPreviewSchema().dump(ir_data)
         response = DocGenService.render_template(
-            "IR_PRELIMINARY_TEMPLATE", preview_data, output_format)
+            "IR_PRELIMINARY_TEMPLATE", preview_data, output_format
+        )
         return response
 
     @classmethod
@@ -250,17 +257,18 @@ class InspectionRecordService:
         """
         # Remove HTML comments
         template_content = re.sub(
-            r'<!--.*?-->', '', template_content, flags=re.DOTALL)
+            r"<!--.*?-->", "", template_content, flags=re.DOTALL)
 
         # Remove whitespace between tags
-        template_content = re.sub(r'>\s+<', '><', template_content)
+        template_content = re.sub(r">\s+<", "><", template_content)
 
         # Remove leading/trailing whitespace
         template_content = re.sub(
-            r'^\s+|\s+$', '', template_content, flags=re.MULTILINE)
+            r"^\s+|\s+$", "", template_content, flags=re.MULTILINE
+        )
 
         # Remove multiple spaces
-        template_content = re.sub(r'\s+', ' ', template_content)
+        template_content = re.sub(r"\s+", " ", template_content)
 
         return template_content
 

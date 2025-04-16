@@ -1,6 +1,9 @@
 """Resources for inspection record."""
+
 from http import HTTPStatus
-from flask import request
+from io import BytesIO
+
+from flask import request, send_file
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
@@ -16,8 +19,7 @@ from compliance_api.utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
 
-API = Namespace("inspection-records",
-                description="Endpoints for Inspection Record")
+API = Namespace("inspection-records", description="Endpoints for Inspection Record")
 
 ir_create_request_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, InspectionRecordCreateSchema(), "IRCreateRequest"
@@ -74,8 +76,7 @@ class InspectionRecords(Resource):
     def post(inspection_id):
         """Create a agency."""
         ir_create_request = InspectionRecordCreateSchema().load(API.payload)
-        created_ir = InspectionRecordService.create(
-            ir_create_request, inspection_id)
+        created_ir = InspectionRecordService.create(ir_create_request, inspection_id)
         return InspectionRecordSchema().dump(created_ir), HTTPStatus.CREATED
 
 
@@ -93,8 +94,7 @@ class InspectionRecord(Resource):
     @auth.require
     def get(inspection_record_id):
         """Fetch inspection record by id."""
-        inspection_record = InspectionRecordService.get_by_id(
-            inspection_record_id)
+        inspection_record = InspectionRecordService.get_by_id(inspection_record_id)
         if not inspection_record:
             raise ResourceNotFoundError(
                 f"No inspection found for the given ID : {inspection_record_id}"
@@ -224,7 +224,9 @@ class InspectionRecordApprovalStatus(Resource):
     @auth.require
     def patch(inspection_id, inspection_record_id, approval_id):
         """Update inspection record approval."""
-        approval_update_data = UpdateInspectionRecordApprovalStatusSchema().load(API.payload)
+        approval_update_data = UpdateInspectionRecordApprovalStatusSchema().load(
+            API.payload
+        )
         updated_approval = InspectionRecordApprovalService.update_approval_status(
             inspection_id, inspection_record_id, approval_id, approval_update_data
         )
@@ -263,9 +265,7 @@ class InspectionRecordPreview(Resource):
 
     @staticmethod
     @API.response(code=200, description="Success")
-    @ApiHelper.swagger_decorators(
-        API, endpoint_description="Preview inspection record"
-    )
+    @ApiHelper.swagger_decorators(API, endpoint_description="Preview inspection record")
     @API.doc(
         params={
             "output_format": {
@@ -273,7 +273,7 @@ class InspectionRecordPreview(Resource):
                 "type": "string",
                 "required": False,
                 "default": "html",
-                "enum": ["html", "pdf"]
+                "enum": ["html", "pdf"],
             }
         }
     )
@@ -283,7 +283,15 @@ class InspectionRecordPreview(Resource):
     ):  # pylint: disable=no-self-use, unused-argument
         """Preview inspection record."""
         output_format = request.args.get("output_format", "html")
-        output_data = InspectionRecordService.render(
+        response = InspectionRecordService.render(
             inspection_id, inspection_record_id, output_format
         )
-        return output_data, HTTPStatus.OK
+        if output_format == "pdf":
+            return send_file(
+                BytesIO(response.content),
+                mimetype="application/pdf",
+                as_attachment=True,
+                download_name=f"{inspection_record_id}.pdf",
+            )
+        else:
+            return response.json(), HTTPStatus.OK

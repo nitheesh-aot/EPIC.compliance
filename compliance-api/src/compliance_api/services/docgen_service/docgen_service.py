@@ -1,24 +1,33 @@
 """Service for generating documents."""
+
 import requests
 from flask import current_app, g, json
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_fixed
 
 from compliance_api.exceptions import BusinessError
-from compliance_api.utils.enum import HttpMethod
 from compliance_api.utils.constant import AUTH_APP
+from compliance_api.utils.enum import HttpMethod
 
 
 class DocGenService:
     """Service for generating documents."""
 
     @staticmethod
-    def render_template(template_key: str, context: dict, output_type: str = "html") -> str:
+    def render_template(
+        template_key: str, context: dict, output_type: str = "html"
+    ) -> str:
         """Render a template with the given context."""
         response = _request_docgen_service(
-            "templates/render", HttpMethod.POST, {"template_key": template_key,
-                                                  "app": AUTH_APP, "data": context, "output_type": output_type}
+            "templates/render",
+            HttpMethod.POST,
+            {
+                "template_key": template_key,
+                "app": AUTH_APP,
+                "data": context,
+                "output_type": output_type,
+            },
         )
-        return response.json()
+        return response
 
 
 @retry(

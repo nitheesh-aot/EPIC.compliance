@@ -2,26 +2,29 @@
 
 import re
 
+from compliance_api.models.appendix import Appendix as AppendixModel
+from compliance_api.models.compliance_finding import ComplianceFindingOptionEnum
+from compliance_api.models.department_detail import DepartmentDetail as DepartmentDetailModel
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
-from compliance_api.models.inspection import Inspection as InspectionModel, IRStatusOption as IRStatusOptionModel
+from compliance_api.models.inspection import ImageTypeEnum
+from compliance_api.models.inspection import Inspection as InspectionModel
+from compliance_api.models.inspection import InspectionAttendanceOptionEnum
 from compliance_api.models.inspection import InspectionReqSourceDetail as InspectionReqSourceDetailModel
-from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel, InspectionRequirementImage as InspectionRequirementImageModel
+from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
+from compliance_api.models.inspection import InspectionRequirementImage as InspectionRequirementImageModel
 from compliance_api.models.inspection import InspectionRequirementTypeEnum
-from compliance_api.models.inspection import InspectionAttendanceOptionEnum, ImageTypeEnum
+from compliance_api.models.inspection import IRStatusOption as IRStatusOptionModel
 from compliance_api.models.inspection_record import InspectionRecord as InspectionRecordModel
 from compliance_api.models.inspection_record import IRProgressEnum, IRStatusEnum
-from compliance_api.models.compliance_finding import ComplianceFindingOptionEnum
 from compliance_api.models.inspection_record_approval import InspectionRecordApproval as InspectionRecordApprovalModel
 from compliance_api.models.requirement_source import RequirementSourceEnum
 from compliance_api.models.unapproved_project import UnapprovedProject as UnapprovedProjectModel
-from compliance_api.models.appendix import Appendix as AppendixModel
-from compliance_api.models.department_detail import DepartmentDetail as DepartmentDetailModel
-from compliance_api.services.epic_track_service.track_service import TrackService
-from compliance_api.utils.template_renderer import render_template_with_data
-from compliance_api.services.inspection_record.ir_template_constant import (
-    ACTION_REQUIRED_BY_RP, ENFORCEMENT_SUMMARY, FINDING_STATEMENT, INSPECTION_SCOPE, PRELIMINARY_REVIEW_DETAILS)
 from compliance_api.services.document_service.doc_service import DocService
 from compliance_api.services.document_service.doc_service_enum import ActionOnFileEnum
+from compliance_api.services.epic_track_service.track_service import TrackService
+from compliance_api.services.inspection_record.ir_template_constant import (
+    ACTION_REQUIRED_BY_RP, ENFORCEMENT_SUMMARY, FINDING_STATEMENT, INSPECTION_SCOPE, PRELIMINARY_REVIEW_DETAILS)
+from compliance_api.utils.template_renderer import render_template_with_data
 
 
 class InspectionRecordDataBuilder:
@@ -47,10 +50,15 @@ class InspectionRecordDataBuilder:
         self.existing_ir = existing_ir
         self.data = {
             "ir_status": IRStatusOptionModel.find_by_id(self.ir_status).name,
+            "mailing_address": (
+                self.existing_ir.mailing_address if self.existing_ir else None
+            ),
         }
         self.data["inspection_details"] = {
             "id": self.inspection.id,
-            "inspection_type": ", ".join([inspection_type.type.name for inspection_type in self.inspection.types]),
+            "inspection_type": ", ".join(
+                [inspection_type.type.name for inspection_type in self.inspection.types]
+            ),
             "start_date": self.inspection.start_date.strftime("%B %d, %Y"),
             "utm": self.inspection.utm,
             "project_description": self.inspection.project_description,
@@ -90,7 +98,8 @@ class InspectionRecordDataBuilder:
 
         # Get all attendance options for this inspection
         attendance_options = InspectionService.get_attendance_options(
-            self.inspection.id)
+            self.inspection.id
+        )
 
         # Initialize an empty list to store attendance information
         attendance_list = []
@@ -98,7 +107,10 @@ class InspectionRecordDataBuilder:
         # Process each attendance option
         for option in attendance_options:
             # Skip officer attendance as per requirement
-            if option.attendance_option_id == InspectionAttendanceOptionEnum.ATTENDING_OFFICERS.value:
+            if (
+                option.attendance_option_id
+                == InspectionAttendanceOptionEnum.ATTENDING_OFFICERS.value
+            ):
                 continue
 
             # Handle different types of attendance data
@@ -106,8 +118,8 @@ class InspectionRecordDataBuilder:
                 if isinstance(option.data, list):
                     # For agencies, first nations, etc.
                     for item in option.data:
-                        if isinstance(item, dict) and 'name' in item:
-                            attendance_list.append(item['name'])
+                        if isinstance(item, dict) and "name" in item:
+                            attendance_list.append(item["name"])
                 elif isinstance(option.data, str):
                     # For municipal and other attendance
                     attendance_list.append(option.data)
@@ -116,8 +128,7 @@ class InspectionRecordDataBuilder:
                 attendance_list.append(option.attendance_option.name)
 
         # Join all attendance items with commas
-        attendance_string = ", ".join(
-            attendance_list) if attendance_list else ""
+        attendance_string = ", ".join(attendance_list) if attendance_list else ""
 
         # Add the attendance information to the officer_details dictionary
         self.data["officer_details"]["in_attendance"] = attendance_string
@@ -136,7 +147,8 @@ class InspectionRecordDataBuilder:
         """Build the department details for the inspection record."""
         # Get the department details
         department_details = DepartmentDetailModel.query.filter_by(
-            is_active=True, is_deleted=False).first()
+            is_active=True, is_deleted=False
+        ).first()
 
         # Add the department details to the data dictionary
         if department_details:
@@ -145,7 +157,7 @@ class InspectionRecordDataBuilder:
                 "email": department_details.email,
                 "address": department_details.address,
                 "phone": department_details.phone,
-                "website": department_details.website
+                "website": department_details.website,
             }
 
         return self
@@ -202,8 +214,7 @@ class InspectionRecordDataBuilder:
                 if requirement.requirement_source_details:
                     #  Identify the first requirement source detail
                     first_rq_detail = requirement.requirement_source_details[0]
-                    number = self._get_requirement_source_number_field(
-                        first_rq_detail)
+                    number = self._get_requirement_source_number_field(first_rq_detail)
 
                     requirement_lines.append(
                         f"{number} of {first_rq_detail.requirement_source.name} with respect to {requirement.summary}"
@@ -322,47 +333,74 @@ class InspectionRecordDataBuilder:
                 "requirement_findings": requirement.findings,
                 "sort_order": requirement.sort_order,
                 "compliance_finding": requirement.compliance_finding.name,
-                "enforcement_action": "Not Applicable" if requirement.compliance_finding_id == ComplianceFindingOptionEnum.IN.value else "Not Determined",
+                "enforcement_action": (
+                    "Not Applicable"
+                    if requirement.compliance_finding_id
+                    == ComplianceFindingOptionEnum.IN.value
+                    else "Not Determined"
+                ),
                 "requirement_source_details": [],
                 "requirement_photos": [],
                 "requirement_figures": [],
             }
             if requirement.requirement_source_details:
                 for detail in requirement.requirement_source_details:
-                    req["requirement_source_details"].append({
-                        "requirement_source_name": detail.requirement_source.name,
-                        "requirement_source_number": self._get_requirement_source_number_field(detail),
-                        "requirement_source_description": detail.description,
-                        "requirement_documents": [],
-                    })
+                    req["requirement_source_details"].append(
+                        {
+                            "requirement_source_name": detail.requirement_source.name,
+                            "requirement_source_number": self._get_requirement_source_number_field(
+                                detail
+                            ),
+                            "requirement_source_description": detail.description,
+                            "requirement_documents": [],
+                        }
+                    )
                     if detail.documents:
                         for doc in detail.documents:
-                            req["requirement_source_details"][-1]["requirement_documents"].append({
-                                "document_title": doc.document_title,
-                                "section_number": doc.section_number,
-                                "section_title": doc.section_title,
-                                "description": doc.description,
-                            })
+                            req["requirement_source_details"][-1][
+                                "requirement_documents"
+                            ].append(
+                                {
+                                    "document_title": doc.document_title,
+                                    "section_number": doc.section_number,
+                                    "section_title": doc.section_title,
+                                    "description": doc.description,
+                                }
+                            )
             photos = InspectionRequirementImageModel.find_all_images(
-                requirement.id, ImageTypeEnum.PHOTO)
+                requirement.id, ImageTypeEnum.PHOTO
+            )
             figures = InspectionRequirementImageModel.find_all_images(
-                requirement.id, ImageTypeEnum.FIGURE)
+                requirement.id, ImageTypeEnum.FIGURE
+            )
             for photo in photos:
                 photo_response = DocService.get_presigned_url(
-                    {"relative_url": photo.relative_url, "action": ActionOnFileEnum.GET.value})
-                req["requirement_photos"].append({
-                    "photo_caption": photo.caption,
-                    "photo_number": photo.sort_order,
-                    "photo_url": photo_response.get("presigned_url"),
-                })
+                    {
+                        "relative_url": photo.relative_url,
+                        "action": ActionOnFileEnum.GET.value,
+                    }
+                )
+                req["requirement_photos"].append(
+                    {
+                        "photo_caption": photo.caption,
+                        "photo_number": photo.sort_order,
+                        "photo_url": photo_response.get("presigned_url"),
+                    }
+                )
             for figure in figures:
                 figure_response = DocService.get_presigned_url(
-                    {"relative_url": figure.relative_url, "action": ActionOnFileEnum.GET.value})
-                req["requirement_figures"].append({
-                    "figure_caption": figure.caption,
-                    "figure_number": figure.sort_order,
-                    "figure_url": figure_response.get("presigned_url"),
-                })
+                    {
+                        "relative_url": figure.relative_url,
+                        "action": ActionOnFileEnum.GET.value,
+                    }
+                )
+                req["requirement_figures"].append(
+                    {
+                        "figure_caption": figure.caption,
+                        "figure_number": figure.sort_order,
+                        "figure_url": figure_response.get("presigned_url"),
+                    }
+                )
             result.append(req)
         self.data["requirement_details"] = result
         return self
@@ -439,8 +477,7 @@ class InspectionRecordDataBuilder:
         self, detail_obj: InspectionReqSourceDetailModel
     ):
         """Identify the number field based on the requirement source id."""
-        requirement_source = RequirementSourceEnum(
-            detail_obj.requirement_source_id)
+        requirement_source = RequirementSourceEnum(detail_obj.requirement_source_id)
         section_sources = {
             RequirementSourceEnum.ACT_2002,
             RequirementSourceEnum.ACT_2018,

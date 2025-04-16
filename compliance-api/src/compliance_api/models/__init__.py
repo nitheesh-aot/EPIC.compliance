@@ -24,6 +24,7 @@ from .complaint import (
 from .compliance_finding import ComplianceFindingOption, ComplianceFindingOptionEnum
 from .continuation_report import ContinuationReport, ContinuationReportKey
 from .db import db, ma, migrate
+from .department_detail import DepartmentDetail
 from .document_type import DocumentType
 from .enforcement_action import EnforcementActionOption, EnforcementActionOptionEnum
 from .inspection import (
@@ -41,4 +42,3 @@ from .requirement_source import RequirementSource, RequirementSourceEnum
 from .staff_user import StaffUser
 from .topic import Topic
 from .unapproved_project import UnapprovedProject
-from .department_detail import DepartmentDetail

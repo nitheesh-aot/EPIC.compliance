@@ -58,7 +58,7 @@ class Api(BaseApi):
             ma_fields.Float: fields.Float,
             ma_fields.Boolean: fields.Boolean,
             ma_fields.DateTime: fields.DateTime,
-            ma_fields.Raw: fields.Raw
+            ma_fields.Raw: fields.Raw,
             # Add more field types as needed
         }
         model_fields = {}

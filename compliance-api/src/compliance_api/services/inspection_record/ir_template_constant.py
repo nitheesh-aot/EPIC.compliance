@@ -12,7 +12,7 @@ INSPECTION_SCOPE = """<p class="editor-paragraph" dir="ltr">
 </p>
 <ol class="editor-list-ol">
     {% for req in requirements %}
-    <li value="1" class="editor-listitem">
+    <li class="editor-listitem">
         <span>{{ req }}.</span>
     </li>
     {% endfor %}

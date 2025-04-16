@@ -1,11 +1,14 @@
+"""Inspection Record Preview Schema."""
 from marshmallow import Schema, fields
+
+from .appendix import AppendixSchema
 from .base_schema import BaseSchema
 from .department_detail import DepartmentDetailsSchema
-from .appendix import AppendixSchema
 
 
 class RequirementDocumentSchema(BaseSchema):
     """Schema for requirement source detail documents."""
+
     document_title = fields.String(allow_none=True)
     section_number = fields.String(allow_none=True)
     section_title = fields.String(allow_none=True)
@@ -14,15 +17,18 @@ class RequirementDocumentSchema(BaseSchema):
 
 class RequirementSourceDetailSchema(BaseSchema):
     """Schema for requirement source details."""
+
     requirement_source_name = fields.String()
     requirement_source_number = fields.String()
     requirement_source_description = fields.String(allow_none=True)
-    requirement_documents = fields.List(fields.Nested(
-        RequirementDocumentSchema), allow_none=True)
+    requirement_documents = fields.List(
+        fields.Nested(RequirementDocumentSchema), allow_none=True
+    )
 
 
 class RequirementPhotoSchema(BaseSchema):
     """Schema for requirement photos."""
+
     photo_caption = fields.String()
     photo_number = fields.Integer()
     photo_url = fields.String()
@@ -30,6 +36,7 @@ class RequirementPhotoSchema(BaseSchema):
 
 class RequirementFigureSchema(BaseSchema):
     """Schema for requirement figures."""
+
     figure_caption = fields.String()
     figure_number = fields.Integer()
     figure_url = fields.String()
@@ -37,13 +44,15 @@ class RequirementFigureSchema(BaseSchema):
 
 class RequirementDetailSchema(BaseSchema):
     """Schema for requirement details."""
+
     requirement_id = fields.Integer()
     requirement_findings = fields.String(allow_none=True)
     sort_order = fields.Integer()
     compliance_finding = fields.String()
     enforcement_action = fields.String()
     requirement_source_details = fields.List(
-        fields.Nested(RequirementSourceDetailSchema))
+        fields.Nested(RequirementSourceDetailSchema)
+    )
     requirement_photos = fields.List(fields.Nested(RequirementPhotoSchema))
     requirement_figures = fields.List(fields.Nested(RequirementFigureSchema))
 
@@ -73,6 +82,7 @@ class InspectionDetailsSchema(BaseSchema):
 
 class InspectionRecordPreviewSchema(Schema):
     """Schema for inspection record preview."""
+
     # Status
     ir_status = fields.String()
     ir_progress = fields.String()

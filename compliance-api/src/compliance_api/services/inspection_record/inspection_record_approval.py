@@ -85,11 +85,12 @@ class InspectionRecordApprovalService:
         return updated_approval
 
     @classmethod
-    def update_approval_status(cls, inspection_id, inspection_record_id, approval_id, approval_status_data):
+    def update_approval_status(
+        cls, inspection_id, inspection_record_id, approval_id, approval_status_data
+    ):
         """Update approval status."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        ServiceUtils.inspection_record_exist_check(
-            inspection_record_id)
+        ServiceUtils.inspection_record_exist_check(inspection_record_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         latest_approval = InspectionRecordApprovalModel.get_latest_approval_by_ir(
             inspection_record_id
@@ -104,7 +105,7 @@ class InspectionRecordApprovalService:
                 f"Approval already in {status_to_be_updated.value} status"
             )
         updated_approval = InspectionRecordApprovalModel.update_approval(
-            approval_id=approval_id, approval_update_data={
-                "approval_status": status_to_be_updated}
+            approval_id=approval_id,
+            approval_update_data={"approval_status": status_to_be_updated},
         )
         return updated_approval

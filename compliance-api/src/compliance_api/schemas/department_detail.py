@@ -1,7 +1,9 @@
 """Department Detail Schema."""
 
-from marshmallow import EXCLUDE, Schema, fields
+from marshmallow import EXCLUDE
+
 from compliance_api.models.department_detail import DepartmentDetail as DepartmentDetailModel
+
 from .base_schema import AutoSchemaBase
 
 

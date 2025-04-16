@@ -1,11 +1,13 @@
-"""The static details of a department"""
+"""The static details of a department."""
+
+from sqlalchemy import Column, Integer, String
 
 from .base_model import BaseModelVersioned
-from sqlalchemy import Column, String, Integer
 
 
 class DepartmentDetail(BaseModelVersioned):
-    """The static details of a department"""
+    """The static details of a department."""
+
     __tablename__ = "department_details"
 
     id = Column(Integer, primary_key=True)
