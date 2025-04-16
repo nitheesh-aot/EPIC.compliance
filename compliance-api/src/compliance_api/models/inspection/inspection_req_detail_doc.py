@@ -39,9 +39,6 @@ class InspectionReqDetailDocument(BaseModelVersioned):
         nullable=False,
     )
     document_title = Column(String, nullable=True, comment="The title of the document")
-    description = Column(
-        String, nullable=False, comment="The description of the document"
-    )
     section_number = Column(
         String,
         nullable=True,

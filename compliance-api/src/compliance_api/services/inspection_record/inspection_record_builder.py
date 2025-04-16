@@ -2,21 +2,29 @@
 
 import re
 
+from compliance_api.models.appendix import Appendix as AppendixModel
+from compliance_api.models.compliance_finding import ComplianceFindingOptionEnum
+from compliance_api.models.department_detail import DepartmentDetail as DepartmentDetailModel
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
+from compliance_api.models.inspection import ImageTypeEnum
 from compliance_api.models.inspection import Inspection as InspectionModel
+from compliance_api.models.inspection import InspectionAttendanceOptionEnum
 from compliance_api.models.inspection import InspectionReqSourceDetail as InspectionReqSourceDetailModel
 from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
+from compliance_api.models.inspection import InspectionRequirementImage as InspectionRequirementImageModel
 from compliance_api.models.inspection import InspectionRequirementTypeEnum
+from compliance_api.models.inspection import IRStatusOption as IRStatusOptionModel
 from compliance_api.models.inspection_record import InspectionRecord as InspectionRecordModel
 from compliance_api.models.inspection_record import IRProgressEnum, IRStatusEnum
 from compliance_api.models.inspection_record_approval import InspectionRecordApproval as InspectionRecordApprovalModel
 from compliance_api.models.requirement_source import RequirementSourceEnum
 from compliance_api.models.unapproved_project import UnapprovedProject as UnapprovedProjectModel
+from compliance_api.services.document_service.doc_service import DocService
+from compliance_api.services.document_service.doc_service_enum import ActionOnFileEnum
 from compliance_api.services.epic_track_service.track_service import TrackService
-from compliance_api.utils.template_renderer import render_template_with_data
-
-from .ir_template_constant import (
+from compliance_api.services.inspection_record.ir_template_constant import (
     ACTION_REQUIRED_BY_RP, ENFORCEMENT_SUMMARY, FINDING_STATEMENT, INSPECTION_SCOPE, PRELIMINARY_REVIEW_DETAILS)
+from compliance_api.utils.template_renderer import render_template_with_data
 
 
 class InspectionRecordDataBuilder:
@@ -25,7 +33,7 @@ class InspectionRecordDataBuilder:
     def __init__(
         self,
         inspection: InspectionModel,
-        ir_status: IRStatusEnum,
+        ir_status: int,
         existing_ir: InspectionRecordModel = None,
     ):
         """
@@ -40,19 +48,27 @@ class InspectionRecordDataBuilder:
         self.ir_status = ir_status
         self.requirements = []
         self.existing_ir = existing_ir
-        self.data = {}
-        self.data["inspection_id"] = self.inspection.id
-        self.data["ir_status_id"] = self.ir_status
-        self.data["inspection_no"] = self.inspection.ir_number
-        self.data["project_name"] = self.inspection.case_file.project.name
-
-        self.data["officer_details"] = {
-            "primary_officer": {
-                "name": f"{self.inspection.primary_officer.first_name} {self.inspection.primary_officer.last_name}",
-                "position": self.inspection.primary_officer.position.name,
-            }
+        self.data = {
+            "ir_status": IRStatusOptionModel.find_by_id(self.ir_status).name,
+            "mailing_address": (
+                self.existing_ir.mailing_address if self.existing_ir else None
+            ),
+        }
+        self.data["inspection_details"] = {
+            "id": self.inspection.id,
+            "inspection_type": ", ".join(
+                [inspection_type.type.name for inspection_type in self.inspection.types]
+            ),
+            "start_date": self.inspection.start_date.strftime("%B %d, %Y"),
+            "utm": self.inspection.utm,
+            "project_description": self.inspection.project_description,
+            "location_description": self.inspection.location_description,
+            "initiation": self.inspection.initiation.name,
+            "ir_number": self.inspection.ir_number,
         }
 
+        # Initialize officer_details
+        self.data["officer_details"] = {}
         if self.existing_ir:
             self.data["ir_progress"] = self.existing_ir.ir_progress
         else:
@@ -61,6 +77,90 @@ class InspectionRecordDataBuilder:
                 if self.ir_status == IRStatusEnum.PRELIMINARY
                 else IRProgressEnum.FINALIZING_RECORD
             )
+
+    def build_officer_details(self):
+        """Build the officer details for the inspection record."""
+        self.data["officer_details"] = {
+            "primary_officer": {
+                "name": f"{self.inspection.primary_officer.first_name} {self.inspection.primary_officer.last_name}",
+                "position": self.inspection.primary_officer.position.name,
+            }
+        }
+
+        # Build the attendance information
+        self._build_officer_attendance()
+
+        return self
+
+    def _build_officer_attendance(self):
+        """Build the attendance information for the inspection record."""
+        from compliance_api.services.inspection import InspectionService
+
+        # Get all attendance options for this inspection
+        attendance_options = InspectionService.get_attendance_options(
+            self.inspection.id
+        )
+
+        # Initialize an empty list to store attendance information
+        attendance_list = []
+
+        # Process each attendance option
+        for option in attendance_options:
+            # Skip officer attendance as per requirement
+            if (
+                option.attendance_option_id
+                == InspectionAttendanceOptionEnum.ATTENDING_OFFICERS.value
+            ):
+                continue
+
+            # Handle different types of attendance data
+            if option.data:
+                if isinstance(option.data, list):
+                    # For agencies, first nations, etc.
+                    for item in option.data:
+                        if isinstance(item, dict) and "name" in item:
+                            attendance_list.append(item["name"])
+                elif isinstance(option.data, str):
+                    # For municipal and other attendance
+                    attendance_list.append(option.data)
+            else:
+                # If no data, use the attendance option name
+                attendance_list.append(option.attendance_option.name)
+
+        # Join all attendance items with commas
+        attendance_string = ", ".join(attendance_list) if attendance_list else ""
+
+        # Add the attendance information to the officer_details dictionary
+        self.data["officer_details"]["in_attendance"] = attendance_string
+
+    def build_appendices(self):
+        """Build the appendices for the inspection record."""
+        # Get all active non-deleted appendices for this inspection
+        appendices = AppendixModel.get_by_inspection_id(self.inspection.id)
+
+        # Add the appendices to the data dictionary
+        self.data["appendices"] = appendices
+
+        return self
+
+    def build_department_details(self):
+        """Build the department details for the inspection record."""
+        # Get the department details
+        department_details = DepartmentDetailModel.query.filter_by(
+            is_active=True, is_deleted=False
+        ).first()
+
+        # Add the department details to the data dictionary
+        if department_details:
+            self.data["department_details"] = {
+                "logo_url": department_details.logo_url,
+                "email": department_details.email,
+                "address": department_details.address,
+                "phone": department_details.phone,
+                "website": department_details.website,
+            }
+
+        return self
 
     def build_project_details(self):
         """Populate project specific details."""
@@ -84,6 +184,7 @@ class InspectionRecordDataBuilder:
             "eac_certificate": eac_certicate,
             "proponent": proponent,
             "name": name,
+            "project_state": project.get("project_state").get("name"),
             "proponent_label": (
                 "Certificate Holder"
                 if re.match(r"^E\d{1,3}-\d{1,3}$", eac_certicate)
@@ -157,7 +258,9 @@ class InspectionRecordDataBuilder:
 
     def build_finding_statement(self):
         """Build the finding statement for the inspection record."""
-        self.data["finding_statement"] = FINDING_STATEMENT
+        self.data["finding_statement"] = render_template_with_data(
+            "FINDING_STATEMENT", FINDING_STATEMENT, data={}
+        )
         return self
 
     def build_enforcement_summary(self):
@@ -197,6 +300,10 @@ class InspectionRecordDataBuilder:
 
     def build_action_required_by_rp(self):
         """Build the action required by proponent."""
+        # Check if officer_details are populated
+        if not self.data["officer_details"].get("primary_officer"):
+            self.build_officer_details()
+
         action_required_by_rp = render_template_with_data(
             "ACTION_REQUIRED_BY_RP",
             ACTION_REQUIRED_BY_RP,
@@ -211,6 +318,91 @@ class InspectionRecordDataBuilder:
             if self.existing_ir
             else action_required_by_rp
         )
+        return self
+
+    def build_requirement_details(self):
+        """Build the requirement details for the inspection record."""
+        result = []
+        if not self.requirements:
+            self.requirements = InspectionRequirementModel.get_by_inspection_id(
+                self.inspection.id
+            )
+        for requirement in self.requirements:
+            req = {
+                "requirement_id": requirement.id,
+                "requirement_findings": requirement.findings,
+                "sort_order": requirement.sort_order,
+                "compliance_finding": requirement.compliance_finding.name,
+                "enforcement_action": (
+                    "Not Applicable"
+                    if requirement.compliance_finding_id
+                    == ComplianceFindingOptionEnum.IN.value
+                    else "Not Determined"
+                ),
+                "requirement_source_details": [],
+                "requirement_photos": [],
+                "requirement_figures": [],
+            }
+            if requirement.requirement_source_details:
+                for detail in requirement.requirement_source_details:
+                    req["requirement_source_details"].append(
+                        {
+                            "requirement_source_name": detail.requirement_source.name,
+                            "requirement_source_number": self._get_requirement_source_number_field(
+                                detail
+                            ),
+                            "requirement_source_description": detail.description,
+                            "requirement_documents": [],
+                        }
+                    )
+                    if detail.documents:
+                        for doc in detail.documents:
+                            req["requirement_source_details"][-1][
+                                "requirement_documents"
+                            ].append(
+                                {
+                                    "document_title": doc.document_title,
+                                    "section_number": doc.section_number,
+                                    "section_title": doc.section_title,
+                                    "description": doc.description,
+                                }
+                            )
+            photos = InspectionRequirementImageModel.find_all_images(
+                requirement.id, ImageTypeEnum.PHOTO
+            )
+            figures = InspectionRequirementImageModel.find_all_images(
+                requirement.id, ImageTypeEnum.FIGURE
+            )
+            for photo in photos:
+                photo_response = DocService.get_presigned_url(
+                    {
+                        "relative_url": photo.relative_url,
+                        "action": ActionOnFileEnum.GET.value,
+                    }
+                )
+                req["requirement_photos"].append(
+                    {
+                        "photo_caption": photo.caption,
+                        "photo_number": photo.sort_order,
+                        "photo_url": photo_response.get("presigned_url"),
+                    }
+                )
+            for figure in figures:
+                figure_response = DocService.get_presigned_url(
+                    {
+                        "relative_url": figure.relative_url,
+                        "action": ActionOnFileEnum.GET.value,
+                    }
+                )
+                req["requirement_figures"].append(
+                    {
+                        "figure_caption": figure.caption,
+                        "figure_number": figure.sort_order,
+                        "figure_url": figure_response.get("presigned_url"),
+                    }
+                )
+            result.append(req)
+        self.data["requirement_details"] = result
         return self
 
     def build(self):

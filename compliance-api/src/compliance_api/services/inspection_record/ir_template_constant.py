@@ -4,22 +4,19 @@ INSPECTION_SCOPE = """<p class="editor-paragraph" dir="ltr">
     <span>The Officer inspected [Brief description of Project Components / Area inspected]</span>
 </p>
 <p class="editor-paragraph" dir="ltr">
-    <span style="white-space: pre-wrap;">The inspection included a debrief</span>
-    <span style="white-space: pre-wrap;"> of observations with Project staff on {{ debrief_date }}.</span>
+    <span>The inspection included a debrief</span>
+    <span> of observations with Project staff on {{ debrief_date }}.</span>
 </p>
 <p class="editor-paragraph" dir="ltr">
-    <span style="white-space: pre-wrap;">The following requirements were inspected against:</span>
+    <span>The following requirements were inspected against:</span>
 </p>
 <ol class="editor-list-ol">
     {% for req in requirements %}
-    <li value="1" class="editor-listitem">
-        <span style="white-space: pre-wrap;">{{ req }}.</span>
+    <li class="editor-listitem">
+        <span>{{ req }}.</span>
     </li>
     {% endfor %}
-</ol>
-<p class="editor-paragraph" dir="ltr">
-    <br>
-</p>"""
+</ol>"""
 
 FINDING_STATEMENT = """<p class="editor-paragraph" dir="ltr">
     <span>Additional detail regarding these findings may be found in the sections below.</span>
@@ -58,7 +55,7 @@ PRELIMINARY_REVIEW_DETAILS = """<div>
 """
 
 ACTION_REQUIRED_BY_RP = """<p class="editor-paragraph" dir="ltr"><b><strong class="editor-text-bold">Please review
-this inspection record for errors or omissions and provide a response to Officer {{ primary_officer }}
+ this inspection record for errors or omissions and provide a response to Officer {{ primary_officer }}
 by</strong></b>
 {% if date_expected_return %}
     {{ date_expected_return }}

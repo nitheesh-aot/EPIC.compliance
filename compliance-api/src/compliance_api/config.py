@@ -84,6 +84,7 @@ class _Config:  # pylint: disable=too-few-public-methods
     AUTH_BASE_URL = os.getenv("AUTH_BASE_URL")
     EPIC_TRACK_URL = os.getenv("EPIC_TRACK_URL")
     DOC_SERVICE_URL = os.getenv("DOC_SERVICE_URL")
+    DOCGEN_SERVICE_URL = os.getenv("DOCGEN_SERVICE_URL")
     STORAGE_HOST_URL = os.getenv("STORAGE_HOST_URL")
     S3_BUCKET = os.getenv("S3_BUCKET")
 

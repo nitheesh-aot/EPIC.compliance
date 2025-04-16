@@ -24,6 +24,7 @@ from .complaint import (
 from .continuation_report import (
     ContinuationReportCreateSchema, ContinuationReportKeyCreateSchema, ContinuationReportKeySchema,
     ContinuationReportSchema, ContinuationReportUpdateSchema, CRGetQueryParamSchema)
+from .department_detail import DepartmentDetailsSchema
 from .inspection import (
     InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
     InspectionStatusSchema, InspectionUpdateSchema)
@@ -33,6 +34,7 @@ from .inspection_approval import (
 from .inspection_record import (
     InspectionRecordCreateSchema, InspectionRecordSchema, ResetInspectionRecordFieldSchema,
     UpdateInspectionRecordSchema)
+from .inspection_record_preview import InspectionRecordPreviewSchema
 from .inspection_requirement import (
     InspectionReqImageCreateSchema, InspectionReqImageSchema, InspectionReqImageSortOrderSchema,
     InspectionRequirementBulkUpdateSchema, InspectionRequirementCreateSchema, InspectionRequirementSchema,
