@@ -86,61 +86,66 @@ export const isRequirementSourceCondition = (id: string): boolean =>
 
 export const formatRequirementAPIData = (
   formData: InspectionRequirementFormData,
-  requirementSourceList: RequirementSourceFormData[],
+  reqType: string,
   photos?: RequirementImage[],
   figures?: RequirementImage[],
+  requirementSourceList?: RequirementSourceFormData[],
 ): InspectionRequirementAPIData => {
 
-  const requirementSourceDetails: InspectionRequirementSourceAPIData[] =
-    requirementSourceList.map((item) => {
-      const requirementSource: InspectionRequirementSourceAPIData = {
-        requirement_source_id: item.requirementSource?.id ?? "",
-        amendment_number: item.sourceAmendmentNumber ?? "",
-        title: item.sourceTitle ?? "",
-        description: item.description?.html ?? "",
-        documents: [],
-      };
-      if (item.dbId) {
-        requirementSource.id = item.dbId;
-      }
-      if (isRequirementSourceCondition(item.requirementSource?.id ?? "")) {
-        requirementSource.condition_number = item.sourceNumber ?? "";
-      } else {
-        requirementSource.section_number = item.sourceNumber ?? "";
-      }
-      item.relatedDocuments?.forEach((document) => {
-        document.sections?.forEach((section) => {
-          const srcDocument: InspectionRequirementSourceDocumentAPIData = {
-            document_type_id: document.relatedDocument?.id ?? "",
-            document_title: document.documentTitle ?? "",
-            section_number: section.sectionNumber ?? "",
-            section_title: section.sectionTitle ?? "",
-            description: section.description?.html ?? "",
-          };
-          if (section.dbId) {
-            srcDocument.id = section.dbId;
-          }
-          requirementSource.documents.push(srcDocument);
-        });
-      });
-      return requirementSource;
-    });
-
   const inspectionRequirementPayload: InspectionRequirementAPIData = {
-    req_type: REQUIREMENT_TYPE_ID,
+    req_type: reqType,
     summary: formData.requirementSummary ?? "",
     topic_id: formData.topic?.id ?? 0,
-    enforcement_action_ids: formData.enforcementAction?.id ? [formData.enforcementAction.id] : [],
-    compliance_finding_id: formData.complianceFinding?.id ?? undefined,
     agency_id: formData.agency?.id ?? undefined,
     findings: formData.findings?.html ?? "",
-    requirement_source_details: requirementSourceDetails,
     photos: formatImages(photos ?? []),
     figures: formatImages(figures ?? []),
   };
 
-  if (formData.enforcementAction?.id === EnforcementActionEnum.ORDER && formData.isReferralToAdministrativePenalty) {
-    inspectionRequirementPayload.enforcement_action_ids?.push(EnforcementActionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY);
+  if (reqType === REQUIREMENT_TYPE_ID) {
+    inspectionRequirementPayload.enforcement_action_ids = formData.enforcementAction?.id ? [formData.enforcementAction.id] : [];
+    inspectionRequirementPayload.compliance_finding_id = formData.complianceFinding?.id ?? undefined;
+
+    if (formData.enforcementAction?.id === EnforcementActionEnum.ORDER && formData.isReferralToAdministrativePenalty) {
+      inspectionRequirementPayload.enforcement_action_ids?.push(EnforcementActionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY);
+    }
+
+    const requirementSourceDetails: InspectionRequirementSourceAPIData[] =
+      (requirementSourceList ?? []).map((item) => {
+        const requirementSource: InspectionRequirementSourceAPIData = {
+          requirement_source_id: item.requirementSource?.id ?? "",
+          amendment_number: item.sourceAmendmentNumber ?? "",
+          title: item.sourceTitle ?? "",
+          description: item.description?.html ?? "",
+          documents: [],
+        };
+        if (item.dbId) {
+          requirementSource.id = item.dbId;
+        }
+        if (isRequirementSourceCondition(item.requirementSource?.id ?? "")) {
+          requirementSource.condition_number = item.sourceNumber ?? "";
+        } else {
+          requirementSource.section_number = item.sourceNumber ?? "";
+        }
+        item.relatedDocuments?.forEach((document) => {
+          document.sections?.forEach((section) => {
+            const srcDocument: InspectionRequirementSourceDocumentAPIData = {
+              document_type_id: document.relatedDocument?.id ?? "",
+              document_title: document.documentTitle ?? "",
+              section_number: section.sectionNumber ?? "",
+              section_title: section.sectionTitle ?? "",
+              description: section.description?.html ?? "",
+            };
+            if (section.dbId) {
+              srcDocument.id = section.dbId;
+            }
+            requirementSource.documents.push(srcDocument);
+          });
+        });
+        return requirementSource;
+      });
+
+    inspectionRequirementPayload.requirement_source_details = requirementSourceDetails;
   }
 
   return inspectionRequirementPayload;
@@ -158,20 +163,6 @@ const formatImages = (images: RequirementImage[]): ImageAPIData[] => {
       sort_order: image.sort_order,
     };
   });
-}
-
-export const formatRegulatoryConsiderationAPIData = (
-  formData: InspectionRequirementFormData,
-): InspectionRequirementAPIData => {
-  const inspectionRequirementPayload: InspectionRequirementAPIData = {
-    req_type: REGULATORY_CONSIDERATION_TYPE_ID,
-    summary: formData.requirementSummary ?? "",
-    topic_id: formData.topic?.id ?? 0,
-    findings: formData.findings?.html ?? "",
-    agency_id: formData.agency?.id ?? undefined,
-  };
-
-  return inspectionRequirementPayload;
 }
 
 export const formatRequirementFormData = (requirement: InspectionRequirement): InspectionRequirementFormData => {
@@ -295,22 +286,40 @@ export const updateImagesWithContinuousSortOrder = (
   requirementImages: Map<number, RequirementImage[]>,
   requirementList: InspectionRequirement[],
 ): Map<number, RequirementImage[]> => {
-
   const updatedImagesWithSortOrder = new Map<number, RequirementImage[]>();
+  const createNewReqEntry = requirementImages.get(NaN);
 
-  // create a deep copy of the requirement images for updating in the ui
-  requirementList.forEach((requirement) => {
-    updatedImagesWithSortOrder.set(
-      requirement.id,
-      (requirementImages.get(requirement.id) || []).map((image) => ({ ...image }))
-    );
-  });
+  // Group requirements by type
+  const regularRequirements = requirementList.filter(req => req.req_type.id !== REGULATORY_CONSIDERATION_TYPE_ID);
+  const regulatoryConsiderations = requirementList.filter(req => req.req_type.id === REGULATORY_CONSIDERATION_TYPE_ID);
 
-  let initialIndex = 1;
-  updatedImagesWithSortOrder.forEach((images) => {
-    images.forEach((image) => {
-      image.sort_order = initialIndex;
-      initialIndex++;
+  // Helper function to copy and add images to the map
+  const addToMap = (requirement: InspectionRequirement) => {
+    const images = requirementImages.get(requirement.id);
+    if (images && images.length > 0) {
+      updatedImagesWithSortOrder.set(
+        requirement.id,
+        images.map(image => ({ ...image }))
+      );
+    }
+  };
+
+  // Add requirements in desired order
+  regularRequirements.forEach(addToMap);
+
+  // Add createNewReqEntry (NaN entry) if it exists
+  if (createNewReqEntry && createNewReqEntry.length > 0) {
+    updatedImagesWithSortOrder.set(NaN, createNewReqEntry.map(image => ({ ...image })));
+  }
+
+  // Add regulatory considerations last
+  regulatoryConsiderations.forEach(addToMap);
+
+  // Assign continuous sort order
+  let sortOrder = 1;
+  updatedImagesWithSortOrder.forEach(images => {
+    images.forEach(image => {
+      image.sort_order = sortOrder++;
     });
   });
 
