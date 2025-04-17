@@ -5,20 +5,20 @@
     <title>Inspection Report</title>
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Calibri-Regular', sans-serif;
             margin: 0;
             padding: 0;
-            font-size: 10pt;
+            font-size: 11pt;
         }
 
-        .header {
+        /* .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0;
             margin-bottom: 20px;
             background-color: white;
-        }
+        } */
 
         .header-container {
             display: flex;
@@ -36,9 +36,9 @@
 
         .header-title {
             text-align: right;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
-            color: #1d4e89;
+            color: #336699;
             line-height: 1.2;
         }
 
@@ -47,22 +47,21 @@
             height: 60px;
         }
 
-        .header h1 {
+        /* .header h1 {
             font-size: 14pt;
             color: #456a9a;
             margin: 0;
-        }
+        } */
 
         .photo-img {
-            width: 150px;
+            width: 350px;
             max-width: 100%;
             height: auto;
         }
 
         h2 {
-            page-break-before: always;
-            color: #2a2a2a;
-            font-size: 12pt;
+            color: #336699;
+            font-size: 11pt;
         }
 
         .content {
@@ -86,7 +85,7 @@
 
         th {
             font-weight: bold;
-            width: 20%;
+            width: 30%;
             background-color: white;
         }
 
@@ -146,6 +145,7 @@
         .photo-caption {
             margin-top: 5px;
             font-style: italic;
+            font-size: 9pt;
         }
 
         .actions-enforcement {
@@ -203,8 +203,8 @@
         /* Print-specific styles */
         @media print {
             @page {
-                size: A4;
-                margin: 100px 20px 20px 20px;
+                size: letter;
+                margin: 100px 20px 40px 20px;
 
                 /* Top margin reserves space for header, bottom for footer */
                 @top-left {
@@ -221,15 +221,8 @@
             body {
                 margin: 0;
                 padding: 0;
-                font-size: 10pt;
-            }
-
-            .header {
-                display: flex;
-                justify-content: space-between;
-                width: 100%;
-                height: 60px;
-                background-color: red;
+                font-family: 'Calibri-Regular', sans-serif;
+                font-size: 11pt;
             }
 
             .header-container {
@@ -251,9 +244,9 @@
             }
 
             .header-title {
-                font-size: 16px;
+                font-size: 18px;
                 font-weight: bold;
-                color: #1d4e89;
+                color: #336699;
                 line-height: 1.2;
                 text-align: right;
             }
@@ -280,10 +273,9 @@
                 position: running(footer);
                 width: 100%;
                 text-align: center;
-                height: 20px;
                 padding: 10px 40px;
-                font-size: 9pt;
-                color: #666;
+                background-color: white;
+                font-size: 11pt;
             }
 
             /* Ensure tables don't break across pages */
@@ -296,9 +288,9 @@
                 padding: 6px 8px;
             }
 
-            /* tr {
+            tr {
                 page-break-inside: avoid;
-            } */
+            }
 
             h2 {
                 margin-top: 30px;
@@ -332,6 +324,9 @@
         <div class="header-title">INSPECTION RECORD</div>
     </div>
     <!-- </div> -->
+    <div class="footer">
+        <span class="pageNumber"></span>
+    </div>
     <div class="content">
         <!-- First page content -->
         <table>
@@ -410,7 +405,6 @@
         </table>
 
         <!-- Add spacer before inspection details -->
-        <div class="header-spacer" style="display: none;"></div>
         <div class="inspection-details">
             <h2>INSPECTION DETAILS</h2>
             {% for requirement in requirement_details %}
@@ -506,7 +500,8 @@
                 <tr>
                     <td colspan="2">
                         <div class="photo-section">
-                            <img src="{{ figure.figure_url }}" alt="Figure {{ figure.figure_number }}" class="photo-img">
+                            <img src="{{ figure.figure_url }}" alt="Figure {{ figure.figure_number }}"
+                                class="photo-img">
                             <div class="photo-caption">
                                 Figure {{ figure.figure_number }}. {{ figure.figure_caption }}
                             </div>
@@ -572,8 +567,7 @@
             <table class="department-info">
                 <tr>
                     <td>
-                        {{ department_details.address }}<br>
-                        Victoria BC V8W 9V1
+                        {{ department_details.address }}
                     </td>
                     <td>
                         Phone: {{ department_details.phone }}<br>
@@ -588,9 +582,6 @@
             </table>
 
         </div>
-    </div>
-    <div class="footer">
-        Page <span class="pageNumber"></span> of <span class="totalPages"></span>
     </div>
 </body>
 
