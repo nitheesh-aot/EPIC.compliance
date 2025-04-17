@@ -11,7 +11,10 @@ import InspectionDates from "./ReportTabContents/InspectionDates";
 import IREnforcementSummary from "./ReportTabContents/IREnforcementSummary";
 import IRAppendices from "./ReportTabContents/IRAppendices";
 import { useInspectionByNumber } from "@/hooks/useInspections";
-import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
+import {
+  useInspectionRequirementImages,
+  useInspectionRequirementsData,
+} from "@/hooks/useInspectionRequirements";
 import {
   REQUIREMENT_TYPE_ID,
   REGULATORY_CONSIDERATION_TYPE_ID,
@@ -29,6 +32,7 @@ export default function ReportTabs() {
     inspectionRequirements,
     setInspectionData,
     setInspectionRequirements,
+    setInspectionRequirementImages,
     setInspectionRegulatoryConsideration,
     setCaseFileData,
   } = useReportStore();
@@ -39,6 +43,9 @@ export default function ReportTabs() {
     inspectionData?.case_file.case_file_number || ""
   );
   const { data: inspectionRequirementsData } = useInspectionRequirementsData(
+    inspectionData?.id || 0
+  );
+  const { data: inspectionRequirementImages } = useInspectionRequirementImages(
     inspectionData?.id || 0
   );
 
@@ -56,15 +63,20 @@ export default function ReportTabs() {
           (req) => req.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID
         ) ?? undefined
       );
+      setInspectionRequirementImages(
+        inspectionRequirementImages ?? { photos: [], figures: [] }
+      );
     }
   }, [
     inspectionData,
     caseFileData,
     inspectionRequirementsData,
+    inspectionRequirementImages,
     setInspectionData,
     setInspectionRequirements,
     setInspectionRegulatoryConsideration,
     setCaseFileData,
+    setInspectionRequirementImages,
   ]);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {

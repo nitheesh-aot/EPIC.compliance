@@ -3,12 +3,11 @@ import { RequirementImage } from "@/models/Image";
 import IRBoxContainer from "./IRBoxContainer";
 import { Box, Typography } from "@mui/material";
 import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
-import { useInspectionRequirementImagesData } from "@/hooks/useInspectionRequirements";
 import { formatS3Url } from "@/utils/appUtils";
 import imageNotFound from "@/assets/images/image-not-found.svg";
 import { DRAWER_WIDTHS } from "@/utils/constants";
 import RequirementDrawer from "../../Requirements/RequirementDrawer";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import { Inspection } from "@/models/Inspection";
@@ -35,15 +34,9 @@ const DetailSection = ({
   </>
 );
 
-const ImageSection = ({
-  image,
-  index,
-}: {
-  image: RequirementImage;
-  index: number;
-}) => {
+const ImageSection = ({ image }: { image: RequirementImage }) => {
   return (
-    <Box key={index} sx={{ marginBottom: 2 }}>
+    <Box key={image.id} sx={{ marginBottom: 2 }}>
       <Box
         sx={{
           height: 150,
@@ -73,7 +66,7 @@ const ImageSection = ({
         />
       </Box>
       <Typography variant="caption">
-        {image.image_type} {index + 1}. {image.caption}
+        {image.image_type} {image.sort_order}. {image.caption}
       </Typography>
     </Box>
   );
@@ -103,21 +96,24 @@ const IRRequirement = ({
   requirement: InspectionRequirement;
   requirementIndex: number;
 }) => {
-  const { inspectionData } = useReportStore();
+  const { inspectionData, inspectionRequirementImages } = useReportStore();
   const { setOpen, setClose } = useDrawer();
   const queryClient = useQueryClient();
+  const [photos, setPhotos] = useState<RequirementImage[]>([]);
+  const [figures, setFigures] = useState<RequirementImage[]>([]);
 
-  const { data: photosData } = useInspectionRequirementImagesData(
-    inspectionData?.id ?? 0,
-    requirement?.id ?? 0,
-    "photos"
-  );
-
-  const { data: figuresData } = useInspectionRequirementImagesData(
-    inspectionData?.id ?? 0,
-    requirement?.id ?? 0,
-    "figures"
-  );
+  useEffect(() => {
+    setPhotos(
+      inspectionRequirementImages?.photos.filter(
+        (photo) => photo.requirement_id === requirement.id
+      ) ?? []
+    );
+    setFigures(
+      inspectionRequirementImages?.figures.filter(
+        (figure) => figure.requirement_id === requirement.id
+      ) ?? []
+    );
+  }, [inspectionRequirementImages, requirement]);
 
   const handleOnSubmit = useCallback(
     (submitMsg: string) => {
@@ -125,25 +121,12 @@ const IRRequirement = ({
         queryKey: ["inspection-requirements", inspectionData?.id],
       });
       queryClient.invalidateQueries({
-        queryKey: [
-          "inspection-requirement-images",
-          inspectionData?.id,
-          requirement?.id,
-          "photos",
-        ],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [
-          "inspection-requirement-images",
-          inspectionData?.id,
-          requirement?.id,
-          "figures",
-        ],
+        queryKey: ["inspection-requirement-images", inspectionData?.id],
       });
       notify.success(submitMsg);
       setClose();
     },
-    [setClose, inspectionData, requirement, queryClient]
+    [setClose, inspectionData, queryClient]
   );
 
   const handleOpenEditRequirementModal = useCallback(() => {
@@ -210,12 +193,12 @@ const IRRequirement = ({
         content={requirement.findings || ""}
       />
 
-      {photosData?.map((photo, index) => (
-        <ImageSection key={index} image={photo} index={index} />
+      {photos.map((photo) => (
+        <ImageSection key={photo.id} image={photo} />
       ))}
 
-      {figuresData?.map((figure, index) => (
-        <ImageSection key={index} image={figure} index={index} />
+      {figures.map((figure) => (
+        <ImageSection key={figure.id} image={figure} />
       ))}
 
       <BottomSection

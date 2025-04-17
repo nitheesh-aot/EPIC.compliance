@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { notify } from "@/store/snackbarStore";
 import { useUpdateInspectionRecord } from "@/hooks/useInspectionReports";
 import { InspectionRecord } from "@/models/InspectionRecord";
+import { DEFAULT_REPORT_TAB_CONTENT } from "@/utils/constants";
 
 const ActionsRequired = () => {
   const {
@@ -48,7 +49,9 @@ const ActionsRequired = () => {
         variant="body1"
         component={"div"}
         className="editor-content"
-        dangerouslySetInnerHTML={{ __html: actionsRequired || "" }}
+        dangerouslySetInnerHTML={{
+          __html: actionsRequired || DEFAULT_REPORT_TAB_CONTENT,
+        }}
       />
     </IRBoxContainer>
   );
