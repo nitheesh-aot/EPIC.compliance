@@ -24,11 +24,12 @@ import { FormProvider, useForm } from "react-hook-form";
 import RequirementFormLeft from "./RequirementFormLeft";
 import RequirementFormRight from "./RequirementFormRight";
 import {
-  formatRegulatoryConsiderationAPIData,
   formatRequirementAPIData,
   formatRequirementBatchAPIData,
   formatRequirementFormData,
   formatRequirementImagesInFindings,
+  REGULATORY_CONSIDERATION_TYPE_ID,
+  REQUIREMENT_TYPE_ID,
   RequirementFormSchema,
   updateImagesWithContinuousSortOrder,
 } from "./RequirementUtils";
@@ -247,14 +248,13 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     (formData: RequirementSchemaType) => {
       const formLeftData = formData as InspectionRequirementFormData;
 
-      const inspectionRequirementPayload = isRegulatoryConsideration
-        ? formatRegulatoryConsiderationAPIData(formLeftData)
-        : formatRequirementAPIData(
-            formLeftData,
-            requirementSourceList,
-            requirementPhotos.get(requirement?.id ?? NaN),
-            requirementFigures.get(requirement?.id ?? NaN)
-          );
+      const inspectionRequirementPayload = formatRequirementAPIData(
+        formLeftData,
+        isRegulatoryConsideration ? REGULATORY_CONSIDERATION_TYPE_ID : REQUIREMENT_TYPE_ID,
+        requirementPhotos.get(requirement?.id ?? NaN),
+        requirementFigures.get(requirement?.id ?? NaN),
+        requirementSourceList ?? undefined
+      );
 
       if (inspectionRequirementData) {
         // prepare for batch update
