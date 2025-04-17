@@ -74,7 +74,7 @@ class InspectionRecordDataBuilder:
         else:
             self.data["ir_progress"] = (
                 IRProgressEnum.PRELIMINARY_DRAFTING
-                if self.ir_status == IRStatusEnum.PRELIMINARY
+                if self.ir_status == IRStatusEnum.PRELIMINARY.value
                 else IRProgressEnum.FINALIZING_RECORD
             )
 
@@ -128,7 +128,8 @@ class InspectionRecordDataBuilder:
                 attendance_list.append(option.attendance_option.name)
 
         # Join all attendance items with commas
-        attendance_string = ", ".join(attendance_list) if attendance_list else ""
+        attendance_string = ", ".join(
+            attendance_list) if attendance_list else ""
 
         # Add the attendance information to the officer_details dictionary
         self.data["officer_details"]["in_attendance"] = attendance_string
@@ -214,7 +215,8 @@ class InspectionRecordDataBuilder:
                 if requirement.requirement_source_details:
                     #  Identify the first requirement source detail
                     first_rq_detail = requirement.requirement_source_details[0]
-                    number = self._get_requirement_source_number_field(first_rq_detail)
+                    number = self._get_requirement_source_number_field(
+                        first_rq_detail)
 
                     requirement_lines.append(
                         f"{number} of {first_rq_detail.requirement_source.name} with respect to {requirement.summary}"
@@ -477,7 +479,8 @@ class InspectionRecordDataBuilder:
         self, detail_obj: InspectionReqSourceDetailModel
     ):
         """Identify the number field based on the requirement source id."""
-        requirement_source = RequirementSourceEnum(detail_obj.requirement_source_id)
+        requirement_source = RequirementSourceEnum(
+            detail_obj.requirement_source_id)
         section_sources = {
             RequirementSourceEnum.ACT_2002,
             RequirementSourceEnum.ACT_2018,
