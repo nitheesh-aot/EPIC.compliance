@@ -15,6 +15,7 @@ import { Reorder } from "framer-motion";
 import React, { useCallback, useEffect } from "react";
 import RequirementCard from "./Requirements/RequirementCard";
 import {
+  convertRequirementImagesArrToMap,
   formatRequirementBatchAPIData,
   formatRequirementImagesInFindings,
   REGULATORY_CONSIDERATION_TYPE_ID,
@@ -23,7 +24,6 @@ import {
 } from "./Requirements/RequirementUtils";
 import { DRAWER_WIDTHS } from "@/utils/constants";
 import { useRequirementStore } from "./Requirements/requirementStore";
-import { RequirementImage } from "@/models/Image";
 import RequirementLoading from "./Requirements/RequirementLoading";
 
 interface InspectionRequirementsProps {
@@ -85,20 +85,11 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 
   useEffect(() => {
     if (inspectionRequirementImages) {
-      const photos = inspectionRequirementImages.photos.reduce((acc, photo) => {
-        const reqId = photo.requirement_id ?? 0;
-        const existingPhotos = acc.get(reqId) || [];
-        acc.set(reqId, [...existingPhotos, photo]);
-        return acc;
-      }, new Map<number, RequirementImage[]>());
-      setRequirementPhotos(photos);
+      setRequirementPhotos(
+        convertRequirementImagesArrToMap(inspectionRequirementImages.photos)
+      );
       setRequirementFigures(
-        inspectionRequirementImages.figures.reduce((acc, figure) => {
-          const reqId = figure.requirement_id ?? 0;
-          const existingFigures = acc.get(reqId) || [];
-          acc.set(reqId, [...existingFigures, figure]);
-          return acc;
-        }, new Map<number, RequirementImage[]>())
+        convertRequirementImagesArrToMap(inspectionRequirementImages.figures)
       );
     }
   }, [

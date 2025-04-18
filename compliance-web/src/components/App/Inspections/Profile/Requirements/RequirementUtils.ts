@@ -374,3 +374,12 @@ export const formatRequirementImagesInFindings = (
     };
   })
 };
+
+export const convertRequirementImagesArrToMap = (requirementImages: RequirementImage[]): Map<number, RequirementImage[]> => {
+  return requirementImages.reduce((acc, image) => {
+    const reqId = image.requirement_id ?? 0;
+    const existingImages = acc.get(reqId) || [];
+    acc.set(reqId, [...existingImages, image]);
+    return acc;
+  }, new Map<number, RequirementImage[]>());
+};

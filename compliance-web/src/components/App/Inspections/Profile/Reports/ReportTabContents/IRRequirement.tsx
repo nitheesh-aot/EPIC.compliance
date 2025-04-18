@@ -3,16 +3,15 @@ import { RequirementImage } from "@/models/Image";
 import IRBoxContainer from "./IRBoxContainer";
 import { Box, Typography } from "@mui/material";
 import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
-import { useInspectionRequirementImagesData } from "@/hooks/useInspectionRequirements";
-import { formatS3Url } from "@/utils/appUtils";
-import imageNotFound from "@/assets/images/image-not-found.svg";
 import { DRAWER_WIDTHS } from "@/utils/constants";
-import RequirementDrawer from "../../Requirements/RequirementDrawer";
-import { useCallback, useMemo } from "react";
+import RequirementDrawer from "@/components/App/Inspections/Profile/Requirements/RequirementDrawer";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import { Inspection } from "@/models/Inspection";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRequirementStore } from "@/components/App/Inspections/Profile/Requirements/requirementStore";
+import IRImageSection from "./IRImageSection";
 
 const DetailSection = ({
   title,
@@ -34,50 +33,6 @@ const DetailSection = ({
     />
   </>
 );
-
-const ImageSection = ({
-  image,
-  index,
-}: {
-  image: RequirementImage;
-  index: number;
-}) => {
-  return (
-    <Box key={index} sx={{ marginBottom: 2 }}>
-      <Box
-        sx={{
-          height: 150,
-          width: 200,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          overflow: "hidden",
-          borderRadius: 2,
-        }}
-      >
-        <img
-          src={formatS3Url(image.relative_url ?? "")}
-          alt={image.caption}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-          }}
-          onError={(e) => {
-            e.currentTarget.src = imageNotFound;
-            e.currentTarget.style.opacity = "0.5";
-            e.currentTarget.style.width = "45%";
-            e.currentTarget.style.height = "150px";
-            e.currentTarget.style.objectFit = "contain";
-          }}
-        />
-      </Box>
-      <Typography variant="caption">
-        {image.image_type} {index + 1}. {image.caption}
-      </Typography>
-    </Box>
-  );
-};
 
 const BottomSection = ({
   title,
@@ -104,20 +59,16 @@ const IRRequirement = ({
   requirementIndex: number;
 }) => {
   const { inspectionData } = useReportStore();
+  const { requirementPhotos, requirementFigures } = useRequirementStore();
   const { setOpen, setClose } = useDrawer();
   const queryClient = useQueryClient();
+  const [photos, setPhotos] = useState<RequirementImage[]>([]);
+  const [figures, setFigures] = useState<RequirementImage[]>([]);
 
-  const { data: photosData } = useInspectionRequirementImagesData(
-    inspectionData?.id ?? 0,
-    requirement?.id ?? 0,
-    "photos"
-  );
-
-  const { data: figuresData } = useInspectionRequirementImagesData(
-    inspectionData?.id ?? 0,
-    requirement?.id ?? 0,
-    "figures"
-  );
+  useEffect(() => {
+    setPhotos(requirementPhotos.get(requirement.id) ?? []);
+    setFigures(requirementFigures.get(requirement.id) ?? []);
+  }, [requirementPhotos, requirementFigures, requirement]);
 
   const handleOnSubmit = useCallback(
     (submitMsg: string) => {
@@ -125,25 +76,12 @@ const IRRequirement = ({
         queryKey: ["inspection-requirements", inspectionData?.id],
       });
       queryClient.invalidateQueries({
-        queryKey: [
-          "inspection-requirement-images",
-          inspectionData?.id,
-          requirement?.id,
-          "photos",
-        ],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [
-          "inspection-requirement-images",
-          inspectionData?.id,
-          requirement?.id,
-          "figures",
-        ],
+        queryKey: ["inspection-requirement-images", inspectionData?.id],
       });
       notify.success(submitMsg);
       setClose();
     },
-    [setClose, inspectionData, requirement, queryClient]
+    [setClose, inspectionData, queryClient]
   );
 
   const handleOpenEditRequirementModal = useCallback(() => {
@@ -210,12 +148,12 @@ const IRRequirement = ({
         content={requirement.findings || ""}
       />
 
-      {photosData?.map((photo, index) => (
-        <ImageSection key={index} image={photo} index={index} />
+      {photos.map((photo) => (
+        <IRImageSection key={photo.id} image={photo} />
       ))}
 
-      {figuresData?.map((figure, index) => (
-        <ImageSection key={index} image={figure} index={index} />
+      {figures.map((figure) => (
+        <IRImageSection key={figure.id} image={figure} />
       ))}
 
       <BottomSection
