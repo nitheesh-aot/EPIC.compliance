@@ -1,12 +1,11 @@
 import { create } from "zustand";
 import { Inspection } from "@/models/Inspection";
 import { DEFAULT_REPORT_TAB_CONTENT } from "@/utils/constants";
-import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { CaseFile } from "@/models/CaseFile";
 import { InspectionRecord } from "@/models/InspectionRecord";
 import { QueryClient } from "@tanstack/react-query";
 import { IRApproval } from "@/models/IRApproval";
-import { RequirementImages } from "@/models/Image";
+
 // Define the store state and actions
 interface ReportStore {
   queryClient: QueryClient;
@@ -20,9 +19,6 @@ interface ReportStore {
   enforcementSummary?: string;
   inspectionVersionDatePreliminary?: string;
   inspectionVersionDateIssued?: string;
-  inspectionRequirements?: InspectionRequirement[];
-  inspectionRequirementImages?: RequirementImages;
-  inspectionRegulatoryConsideration?: InspectionRequirement;
 
   setQueryClient: (queryClient: QueryClient) => void;
   setInspectionReportsData: (inspectionReportsData: InspectionRecord) => void;
@@ -37,15 +33,6 @@ interface ReportStore {
     inspectionVersionDatePreliminary: string
   ) => void;
   setInspectionVersionDateIssued: (inspectionVersionDateIssued: string) => void;
-  setInspectionRequirements: (
-    inspectionRequirements: InspectionRequirement[]
-  ) => void;
-  setInspectionRequirementImages: (
-    inspectionRequirementImages: RequirementImages
-  ) => void;
-  setInspectionRegulatoryConsideration: (
-    inspectionRegulatoryConsideration?: InspectionRequirement
-  ) => void;
   reset: () => void;
 }
 
@@ -60,9 +47,6 @@ export const useReportStore = create<ReportStore>((set) => ({
   findingsStatement: undefined,
   actionsRequired: undefined,
   enforcementSummary: DEFAULT_REPORT_TAB_CONTENT,
-  inspectionRequirements: [],
-  inspectionRegulatoryConsideration: undefined,
-  inspectionRequirementImages: undefined,
 
   setQueryClient: (queryClient: QueryClient) => set({ queryClient }),
   setInspectionReportsData: (inspectionReportsData: InspectionRecord) => {
@@ -98,15 +82,6 @@ export const useReportStore = create<ReportStore>((set) => ({
   ) => set({ inspectionVersionDatePreliminary }),
   setInspectionVersionDateIssued: (inspectionVersionDateIssued: string) =>
     set({ inspectionVersionDateIssued }),
-  setInspectionRequirements: (
-    inspectionRequirements: InspectionRequirement[]
-  ) => set({ inspectionRequirements }),
-  setInspectionRequirementImages: (
-    inspectionRequirementImages: RequirementImages
-  ) => set({ inspectionRequirementImages }),
-  setInspectionRegulatoryConsideration: (
-    inspectionRegulatoryConsideration?: InspectionRequirement
-  ) => set({ inspectionRegulatoryConsideration }),
   reset: () =>
     set({
       inspectionReportsData: undefined,
@@ -118,8 +93,5 @@ export const useReportStore = create<ReportStore>((set) => ({
       enforcementSummary: DEFAULT_REPORT_TAB_CONTENT,
       inspectionVersionDatePreliminary: undefined,
       inspectionVersionDateIssued: undefined,
-      inspectionRequirements: [],
-      inspectionRegulatoryConsideration: undefined,
-      inspectionRequirementImages: undefined,
     }),
 }));

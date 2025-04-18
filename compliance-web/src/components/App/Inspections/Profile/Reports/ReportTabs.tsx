@@ -16,26 +16,26 @@ import {
   useInspectionRequirementsData,
 } from "@/hooks/useInspectionRequirements";
 import {
+  convertRequirementImagesArrToMap,
   REQUIREMENT_TYPE_ID,
-  REGULATORY_CONSIDERATION_TYPE_ID,
 } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import IRRequirement from "./ReportTabContents/IRRequirement";
 import IRRegulatoryConsideration from "./ReportTabContents/IRRegulatoryConsideration";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import ReportTopSection from "./ReportTopSection";
+import { useRequirementStore } from "@/components/App/Inspections/Profile/Requirements/requirementStore";
 
 export default function ReportTabs() {
   const { inspectionNumber } = useParams({ strict: false });
   const [value, setValue] = useState(0);
+  const { setInspectionData, setCaseFileData } = useReportStore();
   const {
-    inspectionRequirements,
-    setInspectionData,
-    setInspectionRequirements,
-    setInspectionRequirementImages,
-    setInspectionRegulatoryConsideration,
-    setCaseFileData,
-  } = useReportStore();
+    requirementsList,
+    setRequirementsList,
+    setRequirementPhotos,
+    setRequirementFigures,
+  } = useRequirementStore();
   const tabsContainerRef = useRef<HTMLDivElement>(null);
 
   const { data: inspectionData } = useInspectionByNumber(inspectionNumber);
@@ -53,18 +53,16 @@ export default function ReportTabs() {
     if (inspectionData && caseFileData) {
       setInspectionData(inspectionData);
       setCaseFileData(caseFileData);
-      setInspectionRequirements(
-        inspectionRequirementsData?.filter(
-          (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
-        ) ?? []
+      setRequirementsList(inspectionRequirementsData ?? []);
+      setRequirementPhotos(
+        convertRequirementImagesArrToMap(
+          inspectionRequirementImages?.photos ?? []
+        )
       );
-      setInspectionRegulatoryConsideration(
-        inspectionRequirementsData?.find(
-          (req) => req.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID
-        ) ?? undefined
-      );
-      setInspectionRequirementImages(
-        inspectionRequirementImages ?? { photos: [], figures: [] }
+      setRequirementFigures(
+        convertRequirementImagesArrToMap(
+          inspectionRequirementImages?.figures ?? []
+        )
       );
     }
   }, [
@@ -73,10 +71,10 @@ export default function ReportTabs() {
     inspectionRequirementsData,
     inspectionRequirementImages,
     setInspectionData,
-    setInspectionRequirements,
-    setInspectionRegulatoryConsideration,
     setCaseFileData,
-    setInspectionRequirementImages,
+    setRequirementsList,
+    setRequirementPhotos,
+    setRequirementFigures,
   ]);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -92,10 +90,14 @@ export default function ReportTabs() {
 
     // Dynamic requirement tabs based on inspectionRequirements
     const requirementTabs =
-      inspectionRequirements?.map((req: InspectionRequirement, index) => ({
-        title: `#${index + 1}. ${req.summary}`,
-        component: <IRRequirement requirement={req} requirementIndex={index} />,
-      })) ?? [];
+      requirementsList
+        .filter((req) => req.req_type?.id === REQUIREMENT_TYPE_ID)
+        ?.map((req: InspectionRequirement, index) => ({
+          title: `#${index + 1}. ${req.summary}`,
+          component: (
+            <IRRequirement requirement={req} requirementIndex={index} />
+          ),
+        })) ?? [];
 
     // Remaining static tabs
     const remainingTabs = [
@@ -113,7 +115,7 @@ export default function ReportTabs() {
     ];
 
     return [...baseTabs, ...requirementTabs, ...remainingTabs];
-  }, [inspectionRequirements]);
+  }, [requirementsList]);
 
   useEffect(() => {
     // Calculate and set the top position of tabs as a CSS variable
