@@ -14,3 +14,8 @@ export interface IRApproval {
   approved_date: string;
   is_active: boolean;
 }
+
+export interface InspectionRecordApprovalPayload {
+  field_name: string;
+  value: string;
+}

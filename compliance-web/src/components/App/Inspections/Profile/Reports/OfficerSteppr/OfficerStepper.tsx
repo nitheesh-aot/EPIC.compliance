@@ -4,6 +4,13 @@ import { useState } from "react";
 import PreliminaryReview from "./PreliminaryReview";
 import RegPartyResponse from "./RegPartyResponse";
 import IRVersionSelect from "./IRVersionSelect";
+import { useUpdateIRApproval } from "@/hooks/useInspectionReports";
+import { useReportStore } from "../reportStore";
+import {
+  InspectionRecordApprovalPayload,
+  IRApproval,
+} from "@/models/IRApproval";
+import { notify } from "@/store/snackbarStore";
 
 const steps = [
   "Preliminary Review",
@@ -12,6 +19,12 @@ const steps = [
 ];
 
 export default function OfficerStepper() {
+  const {
+    inspectionData,
+    inspectionReportsData,
+    irApprovalsData,
+    setIRApprovalsData,
+  } = useReportStore();
   const [activeStep, setActiveStep] = useState(0);
 
   const handleNext = () => {
@@ -24,6 +37,28 @@ export default function OfficerStepper() {
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const onSuccess = (data: IRApproval) => {
+    setIRApprovalsData([data]);
+    notify.success("Inspection record approval updated");
+  };
+
+  const { mutateAsync: updateIRApprovalStatusAsync } =
+    useUpdateIRApproval(onSuccess);
+
+  const onUpdateIRApprovalStep = async (
+    approvalPayloads: InspectionRecordApprovalPayload[]
+  ) => {
+    for (const approvalPayload of approvalPayloads) {
+      await updateIRApprovalStatusAsync({
+        inspectionId: inspectionData?.id ?? 0,
+        inspectionRecordId: inspectionReportsData?.id ?? 0,
+        approvalId: irApprovalsData?.[0]?.id ?? 0,
+        approvalPayload,
+      });
+    }
+    handleNext();
   };
 
   return (
@@ -53,7 +88,12 @@ export default function OfficerStepper() {
         })}
       </Stepper>
       <Box sx={{ p: 2 }}>
-        {activeStep === 0 && <PreliminaryReview onNext={handleNext} />}
+        {activeStep === 0 && (
+          <PreliminaryReview
+            onUpdateIRApprovalStep={onUpdateIRApprovalStep}
+            nextStep={handleNext}
+          />
+        )}
         {activeStep === 1 && (
           <RegPartyResponse onNext={handleNext} onBack={handleBack} />
         )}

@@ -21,6 +21,7 @@ export default function ReportTopSection() {
   const currentUser = useCurrentLoggedInUser();
 
   const {
+    queryClient,
     inspectionData,
     inspectionReportsData,
     irApprovalsData,
@@ -40,6 +41,12 @@ export default function ReportTopSection() {
     );
   }, [staffData, currentUser]);
 
+  const refetchInspectionReportsData = () => {
+    queryClient.invalidateQueries({
+      queryKey: ["inspection-reports", inspectionData?.id],
+    });
+  };
+
   const handleSendForApproval = () => {
     setOpen({
       content: (
@@ -48,19 +55,21 @@ export default function ReportTopSection() {
           onSubmit={(message) => {
             notify.success(message);
             setClose();
+            refetchInspectionReportsData();
           }}
         />
       ),
     });
   };
 
-  const onSuccess = (data: IRApproval) => {
+  const onApprovalSuccess = (data: IRApproval) => {
     setIRApprovalsData([data]);
     notify.success("Approval status updated");
+    refetchInspectionReportsData();
   };
 
   const { mutate: updateIRApprovalStatus } =
-    useUpdateIRApprovalStatus(onSuccess);
+    useUpdateIRApprovalStatus(onApprovalSuccess);
 
   const handleApproval = (isApprove: boolean) => {
     const currentUserId =
@@ -82,8 +91,11 @@ export default function ReportTopSection() {
 
   const isDisableApprovalButton = useMemo(() => {
     return (
-      inspectionReportsData?.ir_progress ===
-        IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW && !isCurrentUserApprover
+      [
+        IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW,
+        IRProgressEnum.FINAL_DEPUTY_REVIEW,
+      ].includes(inspectionReportsData?.ir_progress as IRProgressEnum) &&
+      !isCurrentUserApprover
     );
   }, [inspectionReportsData, isCurrentUserApprover]);
 
@@ -96,15 +108,20 @@ export default function ReportTopSection() {
 
   const isShowApprovalButtons = useMemo(() => {
     return (
-      inspectionReportsData?.ir_progress ===
-        IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW && isCurrentUserApprover
+      [
+        IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW,
+        IRProgressEnum.FINAL_DEPUTY_REVIEW,
+      ].includes(inspectionReportsData?.ir_progress as IRProgressEnum) &&
+      isCurrentUserApprover
     );
   }, [inspectionReportsData, isCurrentUserApprover]);
 
   const isShowOfficerStepper = useMemo(() => {
-    return (
-      inspectionReportsData?.ir_progress === IRProgressEnum.PRELIMINARY_APPROVED
-    );
+    return [
+      IRProgressEnum.PRELIMINARY_APPROVED,
+      IRProgressEnum.FINAL_APPROVED,
+      IRProgressEnum.HOLDER_PRELIMINARY_REVIEW,
+    ].includes(inspectionReportsData?.ir_progress as IRProgressEnum);
   }, [inspectionReportsData]);
 
   return (
@@ -117,7 +134,9 @@ export default function ReportTopSection() {
           alignItems: "center",
         }}
       >
-        <Typography variant="h6">Preliminary IR</Typography>
+        <Typography variant="h6">
+          {inspectionReportsData?.ir_status?.name} IR
+        </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           {isShowSendForApprovalButton && (
             <Button
