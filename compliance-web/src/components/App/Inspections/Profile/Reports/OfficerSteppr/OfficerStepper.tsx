@@ -95,7 +95,11 @@ export default function OfficerStepper() {
           />
         )}
         {activeStep === 1 && (
-          <RegPartyResponse onNext={handleNext} onBack={handleBack} />
+          <RegPartyResponse
+            onUpdateIRApprovalStep={onUpdateIRApprovalStep}
+            onNext={handleNext}
+            onBack={handleBack}
+          />
         )}
         {activeStep === 2 && (
           <IRVersionSelect onNext={handleNext} onBack={handleBack} />
