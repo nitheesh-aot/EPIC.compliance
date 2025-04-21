@@ -17,5 +17,5 @@ export interface IRApproval {
 
 export interface InspectionRecordApprovalPayload {
   field_name: string;
-  value: string;
+  value: string | null;
 }

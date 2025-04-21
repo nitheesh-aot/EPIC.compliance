@@ -39,7 +39,6 @@ describe("ImagesContainer", () => {
   });
 
   it("shows add button when expanded", () => {
-    cy.get(".MuiAccordionSummary-root").click();
     cy.contains("button", "Photo").should("be.visible");
   });
 

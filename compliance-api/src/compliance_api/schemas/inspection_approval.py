@@ -61,7 +61,7 @@ class UpdateInspectionRecordApprovalSchema(BaseSchema):
     """Schema for updating selected fields of an InspectionRecordApproval."""
 
     field_name = fields.Str(required=True, validate=validate.Length(min=1))
-    value = fields.Str(required=True)  # Allows various types of input
+    value = fields.Str(required=True, allow_none=True)  # Allows various types of input
 
     @post_load
     def validate_fields(

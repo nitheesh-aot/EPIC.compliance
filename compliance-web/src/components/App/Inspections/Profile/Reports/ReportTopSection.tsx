@@ -101,8 +101,11 @@ export default function ReportTopSection() {
 
   const isShowSendForApprovalButton = useMemo(() => {
     return (
-      inspectionReportsData?.ir_progress ===
-        IRProgressEnum.PRELIMINARY_DRAFTING || isDisableApprovalButton
+      [
+        IRProgressEnum.PRELIMINARY_DRAFTING,
+        IRProgressEnum.FINALIZING_RECORD,
+      ].includes(inspectionReportsData?.ir_progress as IRProgressEnum) &&
+      isDisableApprovalButton
     );
   }, [inspectionReportsData, isDisableApprovalButton]);
 
