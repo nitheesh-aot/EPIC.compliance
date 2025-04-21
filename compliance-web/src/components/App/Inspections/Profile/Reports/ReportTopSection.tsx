@@ -104,7 +104,7 @@ export default function ReportTopSection() {
       [
         IRProgressEnum.PRELIMINARY_DRAFTING,
         IRProgressEnum.FINALIZING_RECORD,
-      ].includes(inspectionReportsData?.ir_progress as IRProgressEnum) &&
+      ].includes(inspectionReportsData?.ir_progress as IRProgressEnum) ||
       isDisableApprovalButton
     );
   }, [inspectionReportsData, isDisableApprovalButton]);
