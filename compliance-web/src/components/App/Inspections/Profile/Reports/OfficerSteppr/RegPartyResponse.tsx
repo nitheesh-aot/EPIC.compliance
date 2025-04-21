@@ -87,7 +87,7 @@ const RegPartyResponse: React.FC<RegPartyResponseProps> = ({
           value:
             data.responseReceived === "yes" && data.responseDate
               ? dateUtils.dateToISO(data.responseDate)
-              : "",
+              : null,
         },
       ];
       onUpdateIRApprovalStep(approvalPayloads);
