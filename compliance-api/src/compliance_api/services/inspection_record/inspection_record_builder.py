@@ -302,6 +302,9 @@ class InspectionRecordDataBuilder:
 
     def build_action_required_by_rp(self):
         """Build the action required by proponent."""
+        if self.ir_status == IRStatusEnum.FINAL.value:
+            self.data["action_required_by_rp"] = None
+            return self
         # Check if officer_details are populated
         if not self.data["officer_details"].get("primary_officer"):
             self.build_officer_details()
