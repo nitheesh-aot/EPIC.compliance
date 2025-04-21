@@ -4,21 +4,41 @@
 <head>
     <title>Inspection Report</title>
     <style>
+        @font-face {
+            font-family: 'CalibriRegular';
+            src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'CalibriItalic';
+            src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-italic.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'CalibriBold';
+            src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-bold.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'CalibriBoldItalic';
+            src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-bold-italic.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         body {
-            font-family: 'Calibri-Regular', sans-serif;
+            font-family: 'CalibriRegular', sans-serif;
             margin: 0;
             padding: 0;
             font-size: 11pt;
+            line-height: 17px;
         }
-
-        /* .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0;
-            margin-bottom: 20px;
-            background-color: white;
-        } */
 
         .header-container {
             display: flex;
@@ -47,11 +67,6 @@
             height: 60px;
         }
 
-        /* .header h1 {
-            font-size: 14pt;
-            color: #456a9a;
-            margin: 0;
-        } */
 
         .photo-img {
             width: 350px;
@@ -68,7 +83,9 @@
             padding: 0;
             margin: 0;
         }
-
+        .header-background {
+            background-color: #bfbfbf;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -78,15 +95,14 @@
         th,
         td {
             border: 1px solid black;
-            padding: 6px 8px;
+            padding: 4px 8px;
             text-align: left;
-            vertical-align: top;
+            vertical-align: middle;
         }
 
         th {
-            font-weight: bold;
-            width: 30%;
-            background-color: white;
+            width: 140px;
+            vertical-align: top;
         }
 
         .requirement-section {
@@ -109,23 +125,12 @@
             margin-bottom: 10px;
         }
 
-        .compliance-table {
-            margin-top: 15px;
-            width: 100%;
+        .compliance-finding-header {
+            background-color: #d9d9d9 !important;
         }
 
-        .compliance-table th {
-            background-color: #f5f5f5;
-        }
-
-        .compliance-table td {
-            width: 50%;
-        }
-
-        .appendix-list {
-            margin: 0;
-            padding: 0;
-            list-style-type: none;
+        .enforcement-action {
+            background-color: #bfbfbf;
         }
 
         .department-info td {
@@ -200,6 +205,18 @@
             white-space: normal !important;
         }
 
+        /* Remove any pre-wrap styles from rich text content */
+        td[style*="white-space: pre-wrap"] {
+            white-space: normal !important;
+        }
+
+        .findings-content,
+        .document-description,
+        td p {
+            margin: 0;
+            white-space: normal !important;
+        }
+
         /* Print-specific styles */
         @media print {
             @page {
@@ -218,11 +235,40 @@
                 counter-increment: page;
             }
 
+            @font-face {
+                font-family: 'CalibriRegular';
+                src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-regular.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+            }
+
+            @font-face {
+                font-family: 'CalibriItalic';
+                src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-italic.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+            }
+
+            @font-face {
+                font-family: 'CalibriBold';
+                src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-bold.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+            }
+
+            @font-face {
+                font-family: 'CalibriBoldItalic';
+                src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-bold-italic.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+            }
+
             body {
                 margin: 0;
                 padding: 0;
-                font-family: 'Calibri-Regular', sans-serif;
-                font-size: 11pt;
+                font-family: 'CalibriRegular', sans-serif;
+                font-size: 11px;
+                line-height: 17px;
             }
 
             .header-container {
@@ -232,9 +278,9 @@
                 align-items: center;
                 height: 80px;
                 margin-top: 20px;
-                width: 190mm;
+                width: 718px;
                 box-sizing: border-box;
-                background-color: white;
+                background-color: red;
                 padding: 0 20px 20px 40px;
             }
 
@@ -252,7 +298,7 @@
             }
 
             .content {
-                padding: 0 15mm;
+                padding: 0 56px;
             }
 
             /* Page number counter */
@@ -286,6 +332,7 @@
             td,
             th {
                 padding: 6px 8px;
+                font-family: 'CalibriBold';
             }
 
             tr {
@@ -296,18 +343,6 @@
                 margin-top: 30px;
                 margin-bottom: 15px;
             }
-        }
-
-        /* Remove any pre-wrap styles from rich text content */
-        td[style*="white-space: pre-wrap"] {
-            white-space: normal !important;
-        }
-
-        .findings-content,
-        .document-description,
-        td p {
-            margin: 0;
-            white-space: normal !important;
         }
     </style>
     <script>
@@ -392,15 +427,18 @@
             </tr>
             <tr>
                 <th>Inspecting Officer(s)</th>
-                <td colspan="3">{{ officer_details.primary_officer.name }}</td>
+                <td colspan="3">{{ officer_details.primary_officer.name }},&nbsp;{{
+                    officer_details.primary_officer.position }}</td>
             </tr>
             <tr>
                 <th>Record Prepared By</th>
-                <td colspan="3">{{ officer_details.primary_officer.name }}</td>
+                <td colspan="3">{{ officer_details.primary_officer.name }},&nbsp;{{
+                    officer_details.primary_officer.position }}</td>
             </tr>
             <tr>
                 <th>Record Approved By</th>
-                <td colspan="3">{{ officer_details.primary_officer.name }}</td>
+                <td colspan="3">{{ officer_details.primary_officer.name }},&nbsp;{{
+                    officer_details.primary_officer.position }}</td>
             </tr>
         </table>
 
@@ -416,11 +454,7 @@
                     <td colspan="2">
                         <strong>Requirement {{ requirement.sort_order }}: {{
                             requirement.requirement_source_details[0].requirement_source_number }} of {{
-                            requirement.requirement_source_details[0].requirement_source_name }}</strong>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
+                            requirement.requirement_source_details[0].requirement_source_name }}</strong></br>
                         {{ requirement.requirement_source_details[0].requirement_source_description | safe |
                         replace('style="white-space: pre-wrap;"', '') }}
                     </td>
@@ -450,7 +484,9 @@
                     <td colspan="2">
                         <div class="additional-source">
                             <strong>Requirement {{ source.sort_order }}: {{ source.requirement_source_number }} of {{
-                                source.requirement_source_name }}</strong>
+                                source.requirement_source_name }}</strong></br>
+                            {{ source.requirement_source_description | safe | replace('style="white-space: pre-wrap;"',
+                            '') }}
                         </div>
                         {% if source.requirement_documents %}
                         {% for doc in source.requirement_documents %}
@@ -478,27 +514,19 @@
                                 '') }}
                             </div>
                         </div>
-                    </td>
-                </tr>
-                {% if requirement.requirement_photos and requirement.requirement_photos|length > 0 %}
-                {% for photo in requirement.requirement_photos %}
-                <tr>
-                    <td colspan="2">
+                        {% if requirement.requirement_photos and requirement.requirement_photos|length > 0 %}
+                        {% for photo in requirement.requirement_photos %}
                         <div class="photo-section">
                             <img src="{{ photo.photo_url }}" alt="Photo {{ photo.photo_number }}" class="photo-img">
                             <div class="photo-caption">
                                 Photo {{ photo.photo_number }}. {{ photo.photo_caption }}
                             </div>
                         </div>
-                    </td>
-                </tr>
-                {% endfor %}
-                {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                        {% if requirement.requirement_figures and requirement.requirement_figures|length > 0 %}
+                        {% for figure in requirement.requirement_figures %}
 
-                {% if requirement.requirement_figures and requirement.requirement_figures|length > 0 %}
-                {% for figure in requirement.requirement_figures %}
-                <tr>
-                    <td colspan="2">
                         <div class="photo-section">
                             <img src="{{ figure.figure_url }}" alt="Figure {{ figure.figure_number }}"
                                 class="photo-img">
@@ -506,22 +534,22 @@
                                 Figure {{ figure.figure_number }}. {{ figure.figure_caption }}
                             </div>
                         </div>
+                        {% endfor %}
+                        {% endif %}
                     </td>
                 </tr>
-                {% endfor %}
-                {% endif %}
                 <tr>
-                    <td width="30%" style="background-color: #e1e1e1">
-                        <div class="findings">Compliance Finding</div>
-                    </td>
+                    <th class="compliance-finding-header">
+                        Compliance Finding
+                    </th>
                     <td>
                         {{ requirement.compliance_finding }}
                     </td>
                 </tr>
                 <tr>
-                    <td width="30%" style="background-color: #cccccc">
-                        <div class="findings">Enforcement Action</div>
-                    </td>
+                    <th class="header-background">
+                        Enforcement Action
+                    </th>
                     <td>
                         {{ requirement.enforcement_action }}
                     </td>
@@ -529,30 +557,28 @@
             </table>
             {% endfor %}
 
-            <div class="actions-enforcement">
-                <table>
-                    <tr>
-                        <th>Actions Required by {{ project_details.proponent_label }} and Additional Comments</th>
-                    </tr>
-                    <tr>
-                        <td>{{ action_required_by_rp | safe | replace('style="white-space: pre-wrap;"', '') }}</td>
-                    </tr>
-                </table>
-
-                <table>
-                    <tr>
-                        <th>Enforcement Summary</th>
-                    </tr>
-                    <tr>
-                        <td>{{ enforcement_summary | safe | replace('style="white-space: pre-wrap;"', '') }}</td>
-                    </tr>
-                </table>
-            </div>
-            {% if appendices %}
-            <h2>Appendices:</h2>
             <table>
                 <tr>
-                    <td>
+                    <th colspan="2" class="header-background">Actions Required by {{ project_details.proponent_label }} and Additional Comments
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan="2">{{ action_required_by_rp | safe | replace('style="white-space: pre-wrap;"', '') }}
+                    </td>
+                </tr>
+                <tr>
+                    <th colspan="2" class="header-background">Enforcement Summary</th>
+                </tr>
+                <tr>
+                    <td colspan="2">{{ enforcement_summary | safe | replace('style="white-space: pre-wrap;"', '') }}
+                    </td>
+                </tr>
+                {% if appendices %}
+                <tr>
+                    <th colspan="2" class="header-background">Appendices:</th>
+                </tr>
+                <tr>
+                    <td colspan="2">
                         {% for appendix in appendices %}
                         Appendix {{ appendix.appendix_no }}: {{ appendix.document_title }}{% if not loop.last %}<br>{%
                         endif
@@ -560,27 +586,27 @@
                         {% endfor %}
                     </td>
                 </tr>
-            </table>
-            {% endif %}
+                {% endif %}
 
-            <h2>Environmental Assessment Office - Compliance & Enforcement Branch</h2>
-            <table class="department-info">
+                <tr>
+                    <th colspan="2" class="header-background">Environmental Assessment Office - Compliance & Enforcement Branch</th>
+                </tr>
                 <tr>
                     <td>
+                        <strong>Mailing Address:</strong></br>
                         {{ department_details.address }}
                     </td>
                     <td>
-                        Phone: {{ department_details.phone }}<br>
-                        Email: <a href="mailto:{{ department_details.email }}" class="blue-link">{{
+                        <strong>Phone:</strong> {{ department_details.phone }}<br>
+                        <strong>Email:</strong> <a href="mailto:{{ department_details.email }}" class="blue-link">{{
                             department_details.email
                             }}</a><br>
-                        Website: <a href="{{ department_details.website }}" class="blue-link">{{
+                        <strong>Website:</strong> <a href="{{ department_details.website }}" class="blue-link">{{
                             department_details.website
                             }}</a>
                     </td>
                 </tr>
             </table>
-
         </div>
     </div>
 </body>
