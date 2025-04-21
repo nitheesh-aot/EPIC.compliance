@@ -26,7 +26,7 @@ type AppendicesContainerProps = {
 
 const AppendicesContainer: FC<AppendicesContainerProps> = memo(
   ({ inspectionId }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(true);
     const { setOpen, setClose } = usePopover();
 
     const { appendices, setAppendices, setIsDataChanged } =

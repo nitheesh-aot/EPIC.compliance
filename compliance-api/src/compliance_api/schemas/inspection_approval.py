@@ -89,7 +89,7 @@ class UpdateInspectionRecordApprovalSchema(BaseSchema):
                     "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
                 },
             ),
-            "date_respose": fields.DateTime(
+            "date_response": fields.DateTime(
                 format=INPUT_DATE_TIME_FORMAT,
                 metadata={
                     "description": "The date when the actual response received from proponent in ISO 8601 format."

@@ -6,6 +6,9 @@ import dayjs from "dayjs";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
+import { InspectionRecordApprovalPayload } from "@/models/IRApproval";
+import dateUtils from "@/utils/dateUtils";
+import { useReportStore } from "../reportStore";
 
 const preliminaryReviewFormSchema = yup.object().shape({
   dateSent: yup
@@ -28,13 +31,32 @@ const initFormData: PreliminaryReviewSchemaType = {
 };
 
 type PreliminaryReviewProps = {
-  onNext: () => void;
+  onUpdateIRApprovalStep: (
+    approvalPayloads: InspectionRecordApprovalPayload[]
+  ) => void;
+  nextStep: () => void;
 };
 
-const PreliminaryReview: React.FC<PreliminaryReviewProps> = ({ onNext }) => {
+const PreliminaryReview: React.FC<PreliminaryReviewProps> = ({
+  onUpdateIRApprovalStep,
+  nextStep,
+}) => {
+  const { irApprovalsData } = useReportStore();
+
   const defaultValues = useMemo<PreliminaryReviewSchemaType>(() => {
+    const currentApproval = irApprovalsData?.[0];
+    if (currentApproval) {
+      return {
+        dateSent: currentApproval.date_report_sent
+          ? dayjs(currentApproval.date_report_sent)
+          : (undefined as unknown as Dayjs),
+        dueDate: currentApproval.date_expected_return
+          ? dayjs(currentApproval.date_expected_return)
+          : (undefined as unknown as Dayjs),
+      };
+    }
     return initFormData;
-  }, []);
+  }, [irApprovalsData]);
 
   const methods = useForm<PreliminaryReviewSchemaType>({
     resolver: yupResolver(preliminaryReviewFormSchema),
@@ -42,7 +64,21 @@ const PreliminaryReview: React.FC<PreliminaryReviewProps> = ({ onNext }) => {
     defaultValues,
   });
 
-  const { handleSubmit, watch, setValue, clearErrors } = methods;
+  const {
+    handleSubmit,
+    watch,
+    setValue,
+    clearErrors,
+    reset,
+    formState: { isDirty },
+  } = methods;
+
+  // Reset form with defaultValues when they change
+  useEffect(() => {
+    if (defaultValues.dateSent || defaultValues.dueDate) {
+      reset(defaultValues);
+    }
+  }, [defaultValues, reset]);
 
   // Watch for changes in dateSent
   const dateSent = watch("dateSent");
@@ -60,10 +96,29 @@ const PreliminaryReview: React.FC<PreliminaryReviewProps> = ({ onNext }) => {
   }, [dateSent, setValue, clearErrors]);
 
   const onSubmitHandler = (data: PreliminaryReviewSchemaType) => {
-    // eslint-disable-next-line no-console
-    console.log(data);
-    // TODO: Update approvals with data
-    onNext();
+    if (isDirty) {
+      // Create an array to hold the approval payloads
+      const approvalPayloads: InspectionRecordApprovalPayload[] = [
+        {
+          field_name: "date_report_sent",
+          value: dateUtils.dateToISO(data.dateSent),
+        },
+      ];
+
+      const daysDifference = data.dueDate.diff(data.dateSent, "day");
+
+      // Only add dueDate to the payload if it's different from the default (more than 5 days)
+      if (daysDifference !== 5) {
+        approvalPayloads.push({
+          field_name: "date_expected_return",
+          value: dateUtils.dateToISO(data.dueDate),
+        });
+      }
+
+      onUpdateIRApprovalStep(approvalPayloads);
+    } else {
+      nextStep();
+    }
   };
 
   return (
@@ -96,6 +151,7 @@ const PreliminaryReview: React.FC<PreliminaryReviewProps> = ({ onNext }) => {
               label="Due Date"
               height="2rem"
               isRequired={true}
+              minDate={dateSent ?? undefined}
             />
           </Box>
           <Button variant="outlined" size="small" type="submit">

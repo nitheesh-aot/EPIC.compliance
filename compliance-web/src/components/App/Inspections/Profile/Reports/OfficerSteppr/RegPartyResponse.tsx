@@ -1,11 +1,14 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Box, Button, Typography } from "@mui/material";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
 import ControlledRadioButtonGroup from "@/components/Shared/Controlled/ControlledRadioButtonGroup";
+import { InspectionRecordApprovalPayload } from "@/models/IRApproval";
+import { useReportStore } from "../reportStore";
+import dateUtils from "@/utils/dateUtils";
 
 const regPartyResponseFormSchema = yup.object().shape({
   responseReceived: yup.string().required("Response selection is required"),
@@ -27,17 +30,32 @@ const initFormData: RegPartyResponseSchemaType = {
 };
 
 type RegPartyResponseProps = {
+  onUpdateIRApprovalStep: (
+    approvalPayloads: InspectionRecordApprovalPayload[]
+  ) => void;
   onNext: () => void;
   onBack: () => void;
 };
 
 const RegPartyResponse: React.FC<RegPartyResponseProps> = ({
+  onUpdateIRApprovalStep,
   onNext,
   onBack,
 }) => {
+  const { irApprovalsData } = useReportStore();
+
   const defaultValues = useMemo<RegPartyResponseSchemaType>(() => {
+    const currentApproval = irApprovalsData?.[0];
+    if (currentApproval) {
+      return {
+        responseReceived: currentApproval.date_response ? "yes" : "no",
+        responseDate: currentApproval.date_response
+          ? dayjs(currentApproval.date_response)
+          : (undefined as unknown as Dayjs),
+      };
+    }
     return initFormData;
-  }, []);
+  }, [irApprovalsData]);
 
   const methods = useForm<RegPartyResponseSchemaType>({
     resolver: yupResolver(regPartyResponseFormSchema),
@@ -45,15 +63,37 @@ const RegPartyResponse: React.FC<RegPartyResponseProps> = ({
     defaultValues,
   });
 
-  const { handleSubmit, watch } = methods;
+  const {
+    handleSubmit,
+    watch,
+    reset,
+    formState: { isDirty },
+  } = methods;
+
+  // Reset form with defaultValues when they change
+  useEffect(() => {
+    if (defaultValues.responseReceived || defaultValues.responseDate) {
+      reset(defaultValues);
+    }
+  }, [defaultValues, reset]);
 
   const responseReceived = watch("responseReceived");
 
   const onSubmitHandler = (data: RegPartyResponseSchemaType) => {
-    // eslint-disable-next-line no-console
-    console.log(data);
-    // TODO: Update approvals with data
-    onNext();
+    if (isDirty) {
+      const approvalPayloads: InspectionRecordApprovalPayload[] = [
+        {
+          field_name: "date_response",
+          value:
+            data.responseReceived === "yes" && data.responseDate
+              ? dateUtils.dateToISO(data.responseDate)
+              : "",
+        },
+      ];
+      onUpdateIRApprovalStep(approvalPayloads);
+    } else {
+      onNext();
+    }
   };
 
   return (
@@ -73,7 +113,8 @@ const RegPartyResponse: React.FC<RegPartyResponseProps> = ({
           sx={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: responseReceived === "yes" ? "space-between" : "flex-end",
+            justifyContent:
+              responseReceived === "yes" ? "space-between" : "flex-end",
             alignItems: "center",
             gap: 1,
             mt: 2,

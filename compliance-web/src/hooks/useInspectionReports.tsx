@@ -1,5 +1,8 @@
 import { InspectionRecord } from "@/models/InspectionRecord";
-import { IRApproval } from "@/models/IRApproval";
+import {
+  InspectionRecordApprovalPayload,
+  IRApproval,
+} from "@/models/IRApproval";
 import { OnSuccessType, request } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -101,10 +104,7 @@ const updateIRApproval = ({
   inspectionId: number;
   inspectionRecordId: number;
   approvalId: number;
-  approvalPayload: {
-    field_name: string;
-    value: string;
-  };
+  approvalPayload: InspectionRecordApprovalPayload;
 }) => {
   return request({
     url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/approvals/${approvalId}`,

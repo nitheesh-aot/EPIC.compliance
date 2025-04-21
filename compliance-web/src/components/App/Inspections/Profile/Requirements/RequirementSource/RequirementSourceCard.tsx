@@ -60,7 +60,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
     onDeleteRelatedDocumentSection,
     onEditRelatedDocumentSection,
   }) => {
-    const [isExpanded, setIsExpanded] = useState(index === 0);
+    const [isExpanded, setIsExpanded] = useState(true);
 
     const requirementSource = data[0].requirementSource;
     const isCondition = isRequirementSourceCondition(
