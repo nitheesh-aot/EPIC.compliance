@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Inspection Report</title>
+    <style>
+        @font-face {
+            font-family: CalibriRegular;
+            src: url(https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-regular.ttf) format('truetype');
+            font-weight: 400;
+            font-style: normal
+        }
+/* 
+        @font-face {
+            font-family: CalibriItalic;
+            src: url(https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-italic.ttf) format('truetype');
+            font-weight: 400;
+            font-style: normal
+        }
+
+        @font-face {
+            font-family: CalibriBold;
+            src: url(https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-bold.ttf) format('truetype');
+            font-weight: 700;
+            font-style: normal
+        }
+
+        @font-face {
+            font-family: CalibriBoldItalic;
+            src: url(https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-bold-italic.ttf) format('truetype');
+            font-weight: 700;
+            font-style: normal
+        } */
+
+        body {
+            font-family: 'CalibriRegular', sans-serif;
+            margin: 0;
+            padding: 0;
+            font-size: 11pt;
+            line-height: 17px
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+            width: 100%;
+            padding: 0 15mm
+        }
+
+        .header-logo {
+            height: 60px;
+            width: auto
+        }
+
+        .header-title {
+            text-align: right;
+            font-size: 18px;
+            font-weight: 700;
+            color: #369;
+            line-height: 1.2
+        }
+
+        .header img {
+            height: 60px
+        }
+
+        .photo-img {
+            width: 350px;
+            max-width: 100%;
+            height: auto
+        }
+
+        h2 {
+            color: #369;
+            font-size: 11pt
+        }
+
+        .content {
+            padding: 0;
+            margin: 0
+        }
+
+        .header-background {
+            background-color: #bfbfbf
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px
+        }
+
+        td,
+        th {
+            border: 1px solid #000;
+            padding: 4px 8px;
+            text-align: left;
+            vertical-align: middle
+        }
+
+        th {
+            width: 140px;
+            font-family: 'CalibriBold',sans-serif;
+            vertical-align: top
+        }
+
+        .requirement-section {
+            margin-top: 30px;
+            border: 1px solid #000;
+            padding: 15px
+        }
+
+        .requirement-header {
+            font-weight: 700;
+            margin-bottom: 15px
+        }
+
+        .findings {
+            margin: 15px 0
+        }
+
+        .findings strong {
+            display: block;
+            margin-bottom: 10px
+        }
+
+        .compliance-finding-header {
+            background-color: #d9d9d9 !important
+        }
+
+        .enforcement-action {
+            background-color: #bfbfbf
+        }
+
+        .department-info td {
+            width: 50%;
+            vertical-align: top
+        }
+
+        .blue-link {
+            color: #00f;
+            text-decoration: underline
+        }
+
+        .photo-section {
+            margin: 20px 0
+        }
+
+        .photo-caption {
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 9pt
+        }
+
+        .actions-enforcement {
+            margin: 30px 0
+        }
+
+        .actions-enforcement table {
+            margin-bottom: 20px
+        }
+
+        .actions-enforcement th {
+            background-color: #f5f5f5
+        }
+
+        .actions-enforcement td {
+            min-height: 50px;
+            white-space: normal !important
+        }
+
+        .requirement-title {
+            font-weight: 700;
+            margin-bottom: 10px
+        }
+
+        .requirement-description {
+            margin: 10px 0
+        }
+
+        .additional-source {
+            margin-top: 10px;
+            font-weight: 700
+        }
+
+        .document-title {
+            margin-top: 8px;
+            font-weight: 700
+        }
+
+        .document-section {
+            margin-top: 4px;
+            font-weight: 700
+        }
+
+        .document-description {
+            margin-top: 4px;
+            margin-bottom: 10px;
+            white-space: normal !important
+        }
+
+        .findings-content {
+            margin-top: 10px;
+            white-space: normal !important
+        }
+
+        td[style*="white-space: pre-wrap"] {
+            white-space: normal !important
+        }
+
+        .document-description,
+        .findings-content,
+        td p {
+            margin: 0;
+            white-space: normal !important
+        }
+
+        @media print {
+            @page {
+                size: letter;
+                margin: 100px 20px 40px 20px;
+
+                @top-left {
+                    content: element(header)
+                }
+
+                @bottom-right {
+                    content: element(footer)
+                }
+
+                counter-increment:page
+            }
+
+            @font-face {
+                font-family: CalibriRegular;
+                src: url(https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-regular.ttf) format('truetype');
+                font-weight: 400;
+                font-style: normal
+            }
+
+            @font-face {
+                font-family: CalibriItalic;
+                src: url(https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-italic.ttf) format('truetype');
+                font-weight: 400;
+                font-style: normal
+            }
+
+            @font-face {
+                font-family: CalibriBold;
+                src: url(https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-bold.ttf) format('truetype');
+                font-weight: 400;
+                font-style: normal
+            }
+
+            @font-face {
+                font-family: CalibriBoldItalic;
+                src: url(https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-bold-italic.ttf) format('truetype');
+                font-weight: 400;
+                font-style: normal
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: CalibriRegular, sans-serif;
+                font-size: 11px;
+                line-height: 17px
+            }
+
+            .header-container {
+                display: flex;
+                position: running(header);
+                justify-content: space-between;
+                align-items: center;
+                height: 80px;
+                margin-top: 20px;
+                width: 718px;
+                box-sizing: border-box;
+                background-color: red;
+                padding: 0 20px 20px 40px
+            }
+
+            .header-logo {
+                height: 60px;
+                width: auto
+            }
+
+            .header-title {
+                font-size: 18px;
+                font-weight: 700;
+                color: #369;
+                line-height: 1.2;
+                text-align: right
+            }
+
+            .content {
+                padding: 0 56px
+            }
+
+            .pageNumber:before {
+                content: counter(page)
+            }
+
+            .totalPages:before {
+                content: counter(pages)
+            }
+
+            .footer {
+                position: running(footer);
+                width: 100%;
+                text-align: center;
+                padding: 10px 40px;
+                background-color: #fff;
+                font-size: 11pt
+            }
+
+            td,
+            th {
+                padding: 6px 8px;
+                font-family: CalibriBold
+            }
+
+            tr {
+                page-break-inside: avoid
+            }
+
+            h2 {
+                margin-top: 30px;
+                margin-bottom: 15px
+            }
+        }
+    </style>
+    <script>function stripStyles(e) { return e.replace(/style="[^"]*"/g, "") }</script>
+</head>
+
+<body>
+    <div class="header-container"><img src="https://nrs.objectstore.gov.bc.ca/prod-epic/logo/eao_log.png"
+            class="header-logo" alt="EAO Logo">
+        <div class="header-title">INSPECTION RECORD</div>
+    </div>
+    <div class="footer"><span class="pageNumber"></span></div>
+    <div class="content">
+        <table>
+            <tr>
+                <th>Project Name</th>
+                <td>Prince Rupert Gas Transmission</td>
+                <th>Inspection Status</th>
+                <td>Preliminary</td>
+            </tr>
+            <tr>
+                <th>EA Certificate #</th>
+                <td>E14-06</td>
+                <th>Inspection No.</th>
+                <td>PRGTRA_20250008_IR001</td>
+            </tr>
+            <tr>
+                <th>Project Status</th>
+                <td>Preconstruction</td>
+                <th>Inspection Start</th>
+                <td>April 09, 2025</td>
+            </tr>
+            <tr>
+                <th>Inspection Type</th>
+                <td>Field, Administrative</td>
+                <th>Initiation</th>
+                <td>Planned inspection</td>
+            </tr>
+            <tr>
+                <th>UTM</th>
+                <td colspan="3">497060 E 6121905 N to 463791 E 6094970 N </td>
+            </tr>
+            <tr>
+                <th>Project Description</th>
+                <td colspan="3">Prince Rupert Gas Transmission Limited proposes to develop the Prince Rupert Gas
+                    Transmission pipeline between Hudson’s Hope to the proposed Pacific NorthWest LNG natural gas
+                    liquefaction and export facility on Lelu Island near Port Edward. The project consists of both
+                    land-based and marine sections of pipeline. Depending on the final route, the pipeline could include
+                    up to 780 kilometres of land-based pipeline with a diameter of over 1.2 metres and up to 120
+                    kilometres of twin marine pipelines approximately one metre in diameter. The proposed project is
+                    anticipated to produce approximately two billion cubic feet per day with the potential of expansion
+                    up to approximately 3.6 billion cubic feet per day. </td>
+            </tr>
+            <tr>
+                <th>Location Description</th>
+                <td colspan="3">The Project extends from the Hudson’s Hope area in northeast BC to Lelu Island, near
+                    Prince Rupert. This inspection covered Project activities in the Nass Area, northwest of Terrace.
+                    The UTM range listed above correspond to the extent of the right-of-way (ROW) \ninspected. </td>
+            </tr>
+            <tr>
+                <th>Inspection Summary</th>
+                <td colspan="3">
+                    <p class="editor-paragraph" dir="ltr"> <span>The Officer inspected [Brief description of Project
+                            Components / Area inspected]</span></p>
+                    <p class="editor-paragraph" dir="ltr"> <span>The inspection included a debrief</span> <span> of
+                            observations with Project staff on None.</span></p>
+                    <p class="editor-paragraph" dir="ltr"> <span>The following requirements were inspected
+                            against:</span></p>
+                    <ol class="editor-list-ol">
+                        <li class="editor-listitem"> <span>Condition 1 of EAC Certificate with respect to Requirement
+                                1.</span> </li>
+                        <li class="editor-listitem"> <span>Condition 3 of EAC Certificate with respect to Requirement
+                                2.</span> </li>
+                        <li class="editor-listitem"> <span>Condition 16 of Schedule B - Table of Conditions with respect
+                                to Requirement 3.</span> </li>
+                        <li class="editor-listitem"> <span>Condition 31 of Schedule B - Table of Conditions with respect
+                                to Requirement 4.</span> </li>
+                        <li class="editor-listitem"> <span>Condition 36 of Schedule B - Table of Conditions with respect
+                                to Requirement 5.</span> </li>
+                        <li class="editor-listitem"> <span>Condition 36 of Schedule B - Table of Conditions with respect
+                                to Requirement 7.</span> </li>
+                    </ol><br>
+                    <p class="editor-paragraph" dir="ltr"> <span>Additional detail regarding these findings may be found
+                            in the sections below.</span></p>
+                    <p class="editor-paragraph"> <br></p>
+                    <p class="editor-paragraph" dir="ltr"> <span> The compliance findings in this report reflect the
+                            analysis based on the information obtained during the inspection commenced on the date noted
+                            above. These findings can change at any time upon information gathered through future
+                            inspections or if new information is obtained by the EAO Compliance and Enforcement Branch
+                            (CEB). </span></p>
+                </td>
+            </tr>
+            <tr>
+                <th>In Attendance</th>
+                <td colspan="3">'Namgis First Nation, Lead Environmental Inspector, Western LNG Aquatics QP, Western LNG
+                    Lands Officer</td>
+            </tr>
+            <tr>
+                <th>Certificate Holder</th>
+                <td colspan="3">Prince Rupert Gas Transmission Limited</td>
+            </tr>
+            <tr>
+                <th>Mailing Address</th>
+                <td colspan="3"></td>
+            </tr>
+            <tr>
+                <th>Inspecting Officer(s)</th>
+                <td colspan="3">Dinesh Peickal Balakrishnan,&nbsp;Deputy Director, Compliance & Enforcement Operations
+                </td>
+            </tr>
+            <tr>
+                <th>Record Prepared By</th>
+                <td colspan="3">Dinesh Peickal Balakrishnan,&nbsp;Deputy Director, Compliance & Enforcement Operations
+                </td>
+            </tr>
+            <tr>
+                <th>Record Approved By</th>
+                <td colspan="3">Dinesh Peickal Balakrishnan,&nbsp;Deputy Director, Compliance & Enforcement Operations
+                </td>
+            </tr>
+        </table>
+        <div class="inspection-details">
+            <h2>INSPECTION DETAILS</h2>
+            <table>
+                <tr>
+                    <td colspan="2"><strong>Requirement 1: Condition 1 of EAC Certificate</strong><br>
+                        <p class="editor-paragraph" dir="ltr"><span>The Holder must submit a report to EAO Compliance
+                                and Enforcement staff on the status of compliance with the conditions of this
+                                Certificate, and the conditions in Schedule B, at the following times: </span></p>
+                        <p class="editor-paragraph" dir="ltr"><span>a. one month prior to substantially starting
+                                construction of any of the Project facilities;</span></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="findings"><strong>Findings:</strong>
+                            <div class="findings-content">
+                                <p class="editor-paragraph" dir="ltr"><span>On July 23, 2024, the Certificate Holder
+                                        submitted a pre-construction compliance self-report to EAO CEB (Appendix 3). The
+                                        report presents a status of compliance and associated activities for all the
+                                        conditions in Environmental Assessment Certificate (EAC) # E14-06 as well as the
+                                        conditions in Schedule B to the EAC. The report was submitted one month before
+                                        the Project commenced construction on August 24, 2024. This information provides
+                                        evidence of compliance with EAC Condition 1 with respect to the submission of a
+                                        pre construction compliance self-report.</span></p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="compliance-finding-header">Compliance Finding</th>
+                    <td>In</td>
+                </tr>
+                <tr>
+                    <th class="header-background">Enforcement Action</th>
+                    <td>Not Applicable</td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td colspan="2"><strong>Requirement 2: Condition 3 of EAC Certificate</strong><br>
+                        <p class="editor-paragraph" dir="ltr"><span>The Holder must provide EAO with a table of
+                                concordance showing updated kilometre post (KP) locations including the revised
+                                longitude and latitude, and a corresponding map (i) 15 days prior to the Holder’s
+                                planned date to commence Construction;</span></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="findings"><strong>Findings:</strong>
+                            <div class="findings-content">
+                                <p class="editor-paragraph" dir="ltr"><span>As noted in Requirement 1 above, the Project
+                                        commenced construction on August 24, 2024. On July 3, 2024, the Certificate
+                                        Holder made a Condition 3 submission to the EAO (Appendix 4), consisting of a
+                                        table of concordance with KPs and coordinates and an updated Project map
+                                        identifying the approved route amendments.</span></p>
+                                <p class="editor-paragraph" dir="ltr"><span>This information provides evidence of
+                                        compliance with Condition 3 with respect to submitting a table of concordance to
+                                        the EAO in advance of the commencement of construction.</span></p>
+                                <p class="editor-paragraph" dir="ltr"><br></p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="compliance-finding-header">Compliance Finding</th>
+                    <td>In</td>
+                </tr>
+                <tr>
+                    <th class="header-background">Enforcement Action</th>
+                    <td>Not Applicable</td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td colspan="2"><strong>Requirement 3: Condition 16 of Schedule B - Table of Conditions</strong><br>
+                        <p class="editor-paragraph" dir="ltr"><span>The Holder must develop, in consultation with FLNR
+                                and OGC, and implement a Human-Wildlife Conflict Plan to avoid or minimize direct
+                                wildlife mortalities as a result of Construction and Operations.</span></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="document-title">Human-Wildlife Conflict Plan (Appendix 5)</div>
+                        <div class="document-section">Section 5-1 Human-Wildlife Conflict Mitigation – Mortality Related
+                            to Food and Waste Handling</div>
+                        <div class="document-description">
+                            <p class="editor-paragraph" dir="ltr"><span>PRGT will install or implement the
+                                    following:</span></p>
+                            <ul class="editor-list-ul">
+                                <li value="1" class="editor-listitem"><span>A 3–4 strand electric fence surrounding all
+                                        camps </span></li>
+                                <li value="2" class="editor-listitem"><span>Gate access</span></li>
+                                <li value="3" class="editor-listitem"><span>The entire camp, including cooking, garbage,
+                                        and waste water plants will be within the fenced area</span></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="findings"><strong>Findings:</strong>
+                            <div class="findings-content">
+                                <p class="editor-paragraph" dir="ltr"><span>On October 2, 2024, the Officer inspected
+                                        Sga Sgin’ist Lodge, the project accommodation camp near Nass Camp, which was in
+                                        operation and housing approximately 80 workers. A multi-strand electric fence
+                                        was observed around the perimeter of the camp ( </span><span data-imageid="22"
+                                        data-imageurl="compliance/inspections/77/requirements-images/3816373f-49c7-473e-bd70-8c5a65be4fc8.JPG"
+                                        data-lexical-mention="true" data-mention="Photo 1">Photo 1</span><span> ) with
+                                        an operational voltage confirmed by a handheld meter to be 6.2 kilovolts. The
+                                        camp access gate was observed to be kept closed and no component of the camp was
+                                        observed to be outside of the fenced area.</span></p>
+                                <p class="editor-paragraph" dir="ltr"><span>These observations provide evidence of
+                                        compliance with Condition 16 with respect to camp fencing.</span></p>
+                            </div>
+                        </div>
+                        <div class="photo-section"><img
+                                src="https://nrs.objectstore.gov.bc.ca/dev-epic/compliance/inspections/77/requirements-images/3816373f-49c7-473e-bd70-8c5a65be4fc8.JPG?AWSAccessKeyId=nr-epic-tst&Signature=y%2FkgAiDH1qMx85MJ9msunesjue0%3D&Expires=1745263391"
+                                alt="Photo 1" class="photo-img">
+                            <div class="photo-caption">Photo 1. Electric fencing at Sga Sgin'ist Lodge accommodation
+                                camp.</div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="compliance-finding-header">Compliance Finding</th>
+                    <td>In</td>
+                </tr>
+                <tr>
+                    <th class="header-background">Enforcement Action</th>
+                    <td>Not Applicable</td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td colspan="2"><strong>Requirement 4: Condition 31 of Schedule B - Table of Conditions</strong><br>
+                        <p class="editor-paragraph" dir="ltr"><span>The Holder must develop, in consultation with FLNR
+                                and OGC, and implement a Timber Salvage Strategy that takes into account OGC’s “Fibre
+                                Utilization Plan Guideline’. </span></p>
+                        <p class="editor-paragraph" dir="ltr"><span>The Holder must obtain advice from a Qualified
+                                Professional regarding steps that must be implemented in respect of timber management
+                                and hauling practices and times to mitigate risk of forest pest spread.</span></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="document-title">Timber Salvage Strategy (Appendix 6) </div>
+                        <div class="document-section">Section 10.0 Forest Pest Management Strategy </div>
+                        <div class="document-description">
+                            <p class="editor-paragraph" dir="ltr"><span>Forest Pest Management Plans will be created
+                                    prior to commencement of clearing activities on the Project areas and will apply to
+                                    all construction phases of the Project, from pre-construction to clearing to
+                                    reclamation. These plans will provide strategic and operational guidance to mitigate
+                                    the occurrence and spread of forest pests . . . In addition, the plans will provide
+                                    strategies for monitoring and mitigating impacts to forest health from damage agents
+                                    (including forest insects and pathogens) during construction on the ROW.</span></p>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="findings"><strong>Findings:</strong>
+                            <div class="findings-content">
+                                <p class="editor-paragraph" dir="ltr"><span>As noted in Requirement 1 above, Project
+                                        construction commenced on August 24, 2024. On October 23, 2024, the Certificate
+                                        Holder provided the Officer with a copy of the Construction Forest Pest
+                                        Management Plan relevant to the 2024 clearing program (Appendix 7), dated August
+                                        25, 2015, which was requested as part of the inspection. The Construction Forest
+                                        Pest Management Plan identifies a number of specific damage agents associated
+                                        with pipeline clearing works, including beetles, root diseases, foliar diseases,
+                                        and stem borers. Section 5 of the plan outlines mitigations and measures for
+                                        detection and monitoring of each of the damage agents. The plan concludes that
+                                        the potential expansion of project areas with forest health issues can be
+                                        prevented or mitigated by adhering to the management strategies identified
+                                        therein. The Forest Pest Management Plan was prepared and reviewed by Registered
+                                        Professional Biologists and Foresters whose professional registration status was
+                                        confirmed by the Officer using online registrant directories on November 6, 2024
+                                        (Appendix 8). This information provides evidence of compliance with Condition 31
+                                        with respect to the development of a strategy to mitigate the risk of forest
+                                        pest spread.</span></p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="compliance-finding-header">Compliance Finding</th>
+                    <td>In</td>
+                </tr>
+                <tr>
+                    <th class="header-background">Enforcement Action</th>
+                    <td>Not Applicable</td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td colspan="2"><strong>Requirement 5: Condition 36 of Schedule B - Table of Conditions</strong><br>
+                        <p class="editor-paragraph" dir="ltr"><span>The Holder must develop and implement an
+                                Environmental Management Plan (EMP) in accordance with Section 36 of the Application and
+                                the draft EMP submitted to EAO on September 30, 2014.</span></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="document-title">Application for an Environmental Assessment Certificate (Appendix 9)
+                        </div>
+                        <div class="document-section">Section 36.1 Summary of Proposed Environmental and Operational
+                            Management Plans – Project-Specific Environmental Management Plan</div>
+                        <div class="document-description">
+                            <p class="editor-paragraph" dir="ltr"><span>The EMP will include requirements for:</span>
+                            </p>
+                            <ul class="editor-list-ul">
+                                <li value="1" class="editor-listitem"><span>Notification of concerned parties</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="document-title">Construction Environmental Management Plan (Appendix 10) </div>
+                        <div class="document-section">Section 5.1 Notification of Concerned Parties - Introduction</div>
+                        <div class="document-description">
+                            <p class="editor-paragraph" dir="ltr"><span>Notification of the construction schedule and
+                                    timing of specific construction activities will facilitate awareness of upcoming
+                                    activities, and allow Aboriginal Groups, landowners including Nisǥa’a Nation and
+                                    regulatory agencies to plan as appropriate for construction activities in their
+                                    area.</span></p>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="document-title">Construction Environmental Management Plan (Appendix 10) </div>
+                        <div class="document-section">Section 5.3 Public Notification </div>
+                        <div class="document-description">
+                            <ul class="editor-list-ul">
+                                <li value="1" class="editor-listitem"><span>PRGT will continue to provide information on
+                                        the Project through a number of different ways, including updates to the Project
+                                        website (www.princerupertgas.com), communication with local government staff and
+                                        officials and distribution of PRGT’s monthly Project Activity Updates.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="findings"><strong>Findings:</strong>
+                            <div class="findings-content">
+                                <p class="editor-paragraph" dir="ltr"><span>On October 9, 2024, the Officer attempted to
+                                        access the website www.princerupertgas.com noted in the Environmental Management
+                                        Plan, but found it was not in use (Appendix 11). The Officer subsequently
+                                        accessed the Western LNG website and found a web page
+                                        (www.westernlng.com/projects/prince-rupert-gas-transmission project) dedicated
+                                        to the Project. The webpage contained a brief description of the Project and
+                                        contact information for the BC Energy Regulator, noted as governing the Project.
+                                        No Project updates or information regarding Project activities were present on
+                                        the dedicated Project webpage (Appendix 12), nor was information on construction
+                                        scheduling or the timing of specific construction activities was found on the
+                                        broader Western LNG website. On October 16, 2024, the Officer issued an
+                                        information request to the Certificate Holder to confirm the address of the
+                                        Project website used to notify the public of Project activities. On October 23,
+                                        2024, the Certificate Holder confirmed to the Officer the Project website as
+                                        www.westernlng.com (Appendix 13). The Certificate Holder response further
+                                        indicated that public notifications for the Project were targeted for the
+                                        Nisga’a public and were posted on the Nisga’a Nation website, Nisga’a Nation
+                                        Facebook account, and newsletters of the Nisga’a Nation. Given that Nisga’a
+                                        Nation is one of a range of concerned parties on the Project, limiting public
+                                        information to Nisga’a Nation social media and publications is not consistent
+                                        with the requirements of the Construction Environmental Management Plan. This
+                                        information provides evidence of non-compliance with Condition 36 with respect
+                                        to public notifications, as the Certificate Holder is not currently maintaining
+                                        a Project website to provide construction information such as schedule and
+                                        timing of specific construction activities as described in the Construction
+                                        Environmental Management Plan.</span></p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="compliance-finding-header">Compliance Finding</th>
+                    <td>Out</td>
+                </tr>
+                <tr>
+                    <th class="header-background">Enforcement Action</th>
+                    <td>Not Determined</td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td colspan="2">
+                        <div class="findings"><strong>Findings:</strong>
+                            <div class="findings-content">
+                                <p class="editor-paragraph" dir="ltr"><span>On October 2, 2024, the Officer inspected
+                                        the Project ROW at KP 726+500 (Photo 2, 3), which had been cleared.</span></p>
+                                <p class="editor-paragraph"><span data-imageid="23"
+                                        data-imageurl="compliance/inspections/77/requirements-images/d4614e54-a6ac-4f43-99d7-b1c5fa7faf9f.jpg"
+                                        data-lexical-mention="true" data-mention="Photo 2">Photo 2</span><span>
+                                    </span><span data-imageid="24"
+                                        data-imageurl="compliance/inspections/77/requirements-images/39f1216a-d373-4cf4-8e2e-1d18ec7d7113.jpg"
+                                        data-lexical-mention="true" data-mention="Photo 3">Photo 3</span><span> </span>
+                                </p>
+                                <p class="editor-paragraph"><span> </span></p>
+                                <p class="editor-paragraph" dir="ltr"><span>Table 7-1a of the Construction Environmental
+                                        Management Plan (Appendix 15), provided to the Officer by the Certificate Holder
+                                        on October 1, 2024 and an excerpt of which is presented in Requirement 7 below,
+                                        identifies a potential bat hibernaculum or roost located between approximately
+                                        KP 726+359 to 608 with feature number W_262. This feature is also indicated on
+                                        the Environmental Alignment Sheets the Certificate Holder provided to the
+                                        Officer on January 22, 2025 (Appendix 14). The Officer observed feature W_262 at
+                                        the edge of the cleared ROW, approximately in the centre of the Certified
+                                        Pipeline Corridor. The feature was not delineated and there was no signage the
+                                        ROW, only a few pieces of pink flagging tape were observed (Photo 4). Signage
+                                        associated with a buffer and speed limit mitigation for the potential
+                                        hibernaculum was observed on the road adjacent to the ROW (Road 24/Iskheenickh
+                                        Road), which is on the opposite of the ROW from the potential hibernaculum and
+                                        separated from the ROW by a vegetation buffer. This sign was not visible from
+                                        the ROW or while in the direct vicinity of the potential hibernaculum (Photo
+                                        5).</span></p>
+                                <p class="editor-paragraph"><span data-imageid="25"
+                                        data-imageurl="compliance/inspections/77/requirements-images/1f9d1e87-03bf-4536-becd-ad3759a7339f.jpg"
+                                        data-lexical-mention="true" data-mention="Photo 4">Photo 4</span><span>
+                                    </span><span data-imageid="26"
+                                        data-imageurl="compliance/inspections/77/requirements-images/613c796f-546c-408e-8cd9-c750f9e94fff.jpeg"
+                                        data-lexical-mention="true" data-mention="Photo 5">Photo 5</span><span> </span>
+                                </p>
+                                <p class="editor-paragraph" dir="ltr"><span>Further observations by the Officer during
+                                        the inspection in the vicinity of KP 726 identified that the placement of
+                                        signage for environmental features on the road, rather than the ROW, as a common
+                                        practice in the area.</span></p>
+                                <p class="editor-paragraph" dir="ltr"><span>These observations provide evidence of
+                                        non-compliance with Condition 36 with respect to delineation and signage of
+                                        environmentally sensitive features.</span></p>
+                            </div>
+                        </div>
+                        <div class="photo-section"><img
+                                src="https://nrs.objectstore.gov.bc.ca/dev-epic/compliance/inspections/77/requirements-images/d4614e54-a6ac-4f43-99d7-b1c5fa7faf9f.jpg?AWSAccessKeyId=nr-epic-tst&Signature=9L2hbTNc0dGxffYcaKdrFoy0OXE%3D&Expires=1745263394"
+                                alt="Photo 2" class="photo-img">
+                            <div class="photo-caption">Photo 2. Cleared Project ROW at KP 726+500 in highchain
+                                direction.</div>
+                        </div>
+                        <div class="photo-section"><img
+                                src="https://nrs.objectstore.gov.bc.ca/dev-epic/compliance/inspections/77/requirements-images/39f1216a-d373-4cf4-8e2e-1d18ec7d7113.jpg?AWSAccessKeyId=nr-epic-tst&Signature=qbzxtFA%2B0D0doc7So2H7Ot%2F0JPI%3D&Expires=1745263394"
+                                alt="Photo 3" class="photo-img">
+                            <div class="photo-caption">Photo 3. Cleared Project ROW at KP 726+500 in lowchain direction
+                            </div>
+                        </div>
+                        <div class="photo-section"><img
+                                src="https://nrs.objectstore.gov.bc.ca/dev-epic/compliance/inspections/77/requirements-images/1f9d1e87-03bf-4536-becd-ad3759a7339f.jpg?AWSAccessKeyId=nr-epic-tst&Signature=ax6UmRsCgY1L0VNEMKXslVu3b2M%3D&Expires=1745263394"
+                                alt="Photo 4" class="photo-img">
+                            <div class="photo-caption">Photo 4. Location of potential bat hibernaculum W_262 on the
+                                Project ROW, marked only with flagging tape.</div>
+                        </div>
+                        <div class="photo-section"><img
+                                src="https://nrs.objectstore.gov.bc.ca/dev-epic/compliance/inspections/77/requirements-images/613c796f-546c-408e-8cd9-c750f9e94fff.jpeg?AWSAccessKeyId=nr-epic-tst&Signature=fmcbAZmRmbEelL%2FoTyLZh6%2FjFKI%3D&Expires=1745263397"
+                                alt="Photo 5" class="photo-img">
+                            <div class="photo-caption">Photo 5. Road signage for potential bat hibernaculum W_262, not
+                                visible from the Project ROW.</div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="compliance-finding-header">Compliance Finding</th>
+                    <td>Out</td>
+                </tr>
+                <tr>
+                    <th class="header-background">Enforcement Action</th>
+                    <td>Not Determined</td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td colspan="2"><strong>Requirement 7: Condition 36 of Schedule B - Table of Conditions</strong><br>
+                        <p class="editor-paragraph" dir="ltr"><span>The Holder must develop and implement an
+                                Environmental Management Plan (EMP) in accordance with Section 36 of the Application and
+                                the draft EMP submitted to EAO on September 30, 2014.</span></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="document-title">Construction Environmental Management Plan (Appendix 10)</div>
+                        <div class="document-section">Section 7.1 Project Specific Protection Measures - Introduction
+                        </div>
+                        <div class="document-description">
+                            <p class="editor-paragraph" dir="ltr"><span>The location of features that require
+                                    site-specific mitigation are indicated on the Environmental Alignment Sheets and
+                                    included in the Resource-Specific Mitigation Tables (Table 7-1 and Table
+                                    7-1a).</span></p>
+                            <p class="editor-paragraph" dir="ltr"><b><strong class="editor-text-bold">Table 7-1a
+                                        Resource-Specific Mitigation Table for Nisga’a Nation within the Nass Wildlife
+                                        Area for the Prince Rupert Gas Transmission Project BCER Pipeline Permit Section
+                                        5B (Appendix 15)</strong></b></p>
+                            <p class="editor-paragraph"><br></p>
+                            <table class="editor-table">
+                                <colgroup>
+                                    <col style="width: 92px;">
+                                    <col style="width: 92px;">
+                                    <col style="width: 92px;">
+                                    <col style="width: 123px;">
+                                    <col style="width: 136px;">
+                                </colgroup>
+                                <tbody>
+                                    <tr>
+                                        <th rowspan="2" class="editor-tableCell editor-tableCellHeader"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start; background-color: rgb(242, 243, 245);">
+                                            <p class="editor-paragraph" dir="ltr"><span>Wildlife</span></p>
+                                            <p class="editor-paragraph" dir="ltr"><span>Feature</span></p>
+                                        </th>
+                                        <th colspan="2" class="editor-tableCell editor-tableCellHeader"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start; background-color: rgb(242, 243, 245);">
+                                            <p class="editor-paragraph" dir="ltr"><span>Approximate Location</span></p>
+                                        </th>
+                                        <th rowspan="2" class="editor-tableCell editor-tableCellHeader"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start; background-color: rgb(242, 243, 245);">
+                                            <p class="editor-paragraph" dir="ltr"><span>Issues</span></p>
+                                        </th>
+                                        <th rowspan="2" class="editor-tableCell editor-tableCellHeader"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start; background-color: rgb(242, 243, 245);">
+                                            <p class="editor-paragraph" dir="ltr"><span>Mitigations</span></p>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th class="editor-tableCell editor-tableCellHeader"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start; background-color: rgb(242, 243, 245);">
+                                            <p class="editor-paragraph" dir="ltr"><span>KP Start</span></p>
+                                        </th>
+                                        <th class="editor-tableCell editor-tableCellHeader"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start; background-color: rgb(242, 243, 245);">
+                                            <p class="editor-paragraph" dir="ltr"><span>KP End</span></p>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <p class="editor-paragraph" dir="ltr"><span>W_262</span></p>
+                                        </td>
+                                        <td class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <p class="editor-paragraph"><span>726+359</span></p>
+                                        </td>
+                                        <td class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <p class="editor-paragraph"><span>726+608</span></p>
+                                        </td>
+                                        <td rowspan="4" class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <p class="editor-paragraph" dir="ltr"><b><strong
+                                                        class="editor-text-bold">Potential Bat Hibernaculum or
+                                                        Roost</strong></b></p>
+                                        </td>
+                                        <td rowspan="4" class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <ul class="editor-list-ul">
+                                                <li value="1" class="editor-listitem"><span>Potential bat hibernaculum
+                                                        or roost requires follow-up for use by bats prior to
+                                                        construction/clearing activities.</span></li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <p class="editor-paragraph" dir="ltr"><span>W_260</span></p>
+                                        </td>
+                                        <td class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <p class="editor-paragraph"><span>726+957</span></p>
+                                        </td>
+                                        <td class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <p class="editor-paragraph"><span>727+208</span></p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <p class="editor-paragraph" dir="ltr"><span>W_258</span></p>
+                                        </td>
+                                        <td class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <p class="editor-paragraph"><span>727+230</span></p>
+                                        </td>
+                                        <td class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <p class="editor-paragraph"><span>727+556</span></p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <p class="editor-paragraph" dir="ltr"><span>W_259</span></p>
+                                        </td>
+                                        <td class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <p class="editor-paragraph"><span>727+213</span></p>
+                                        </td>
+                                        <td class="editor-tableCell"
+                                            style="border: 1px solid black; width: 75px; vertical-align: top; text-align: start;">
+                                            <p class="editor-paragraph"><span>727+524</span></p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p class="editor-paragraph" dir="ltr"><span>*This table is an excerpt from the
+                                    resource-specific mitigation table relevant to the requirements inspected against,
+                                    see Appendix 14 for additional information.</span></p>
+                            <p class="editor-paragraph" dir="ltr"><br></p>
+                            <p class="editor-paragraph" dir="ltr"><br></p>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="document-title">Wildlife Mitigation and Management Plan (Appendix 16) </div>
+                        <div class="document-section">Section 6.2 Wildlife Habitat Features Surveys -
+                            Seasonally-Dependent Surveys to be Completed </div>
+                        <div class="document-description">
+                            <p class="editor-paragraph" dir="ltr"><span>Ongoing, seasonally-dependent wildlife habitat
+                                    feature surveys will be completed where the Project has the potential to interact
+                                    with that feature (i.e., where Project activities are scheduled to overlap with
+                                    suitable habitat, timing restrictions, and setbacks of those features, or require
+                                    in-stream works). The ongoing seasonally dependent wildlife habitat feature surveys
+                                    will include:</span></p>
+                            <ul class="editor-list-ul">
+                                <li value="1" class="editor-listitem"><span>bat hibernacula and maternity roosts</span>
+                                </li>
+                            </ul>
+                            <p class="editor-paragraph" dir="ltr"><span>Any discoveries of wildlife habitat features
+                                    will be added to the Table 7-1 of the CEMP and to the Environmental Alignment
+                                    Sheets. The specific mitigation measures to be implemented will depend on the
+                                    species or habitat feature, but generally will include implementing appropriate
+                                    setbacks and avoiding work for specified periods of time.</span></p>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="additional-source"><strong>Requirement : Condition 20 of Schedule B - Table of
+                                Conditions</strong><br>
+                            <p class="editor-paragraph" dir="ltr"><span>The Holder must develop and implement a Plan to
+                                    include all relevant wildlife mitigation, as set out in draft EMP submitted to EAO
+                                    September 30, 2014 and Section 38.16 of the Application in one document.</span></p>
+                            <p class="editor-paragraph" dir="ltr"><span>The Plan must . . . :</span></p>
+                            <ul class="editor-list-ul">
+                                <li value="1" class="editor-listitem"><span>Provide specific information on how and when
+                                        the mitigation will be implemented throughout the life of the Project;</span>
+                                </li>
+                                <li value="2" class="editor-listitem"><span>Provide information on the specific
+                                        mitigation that will be implemented for habitat features that are encountered
+                                        within the Certified Pipeline Corridor;</span></li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div class="findings"><strong>Findings:</strong>
+                            <div class="findings-content">
+                                <p class="editor-paragraph" dir="ltr"><span>As noted in Requirement 6 above, on October
+                                        2, 2024 the Officer observed that the Project ROW in the vicinity of KP 726+500
+                                        had been cleared. In response to information requests associated with the
+                                        inspection, the Certificate Holder identified that clearing between KP 726 and
+                                        727 commenced on September 17 and was completed on September 30, 2024 (Appendix
+                                        13) and that clearing between KP 726+363 to 727+259 was ongoing or planned to
+                                        start before October 2, 2024 (Appendix 17).</span></p>
+                                <p class="editor-paragraph" dir="ltr"><span>When the Officer requested the results of
+                                        the required pre-clearing follow-up for the four potential bat hibernacula or
+                                        roosts between KP 726 to 728, the Certificate Holder identified that emergence
+                                        surveys for three of the four sites (W_259, W_260 and W_262) were conducted
+                                        between October 3 and 20, 2024 (Appendix 13), which was after clearing had
+                                        already been completed. No survey data was provided for the fourth site (W_258),
+                                        beyond confirmation that an emergence survey had not been conducted at that
+                                        location as it had potential as a roost only, not as a hibernaculum.</span></p>
+                                <p class="editor-paragraph" dir="ltr"><span>On November 21, 2024, the Certificate Holder
+                                        identified to the Officer that bat surveys had, in fact, been conducted for
+                                        W_259, W_260 and W_262 on September 22, 2024, additionally noting that:</span>
+                                </p>
+                                <p class="editor-paragraph" dir="ltr"
+                                    style="padding-inline-start: 80px; text-align: left;"><i><em
+                                            class="editor-text-italic">While these bat surveys did identify usage, the
+                                            focus was to evaluate if the potential feature had the characteristics
+                                            necessary to support hibernation. The bat surveys were completed prior to
+                                            clearing for W_259 and W-260 (September 27, 2024), but not for W_262
+                                            (September 17-20, 2024).</em></i></p>
+                                <p class="editor-paragraph" dir="ltr"><span>On January 22, 2025, the Certificate Holder
+                                        provided the Officer with copies of the Bat Hibernaculum Assessment Forms for
+                                        the surveys conducted at sites W_259, W_260, W_262 on September 22, 2024, which
+                                        were requested as part of the inspection. The survey forms identify that, at the
+                                        time of the survey, the ROW was already cleared adjacent to site of features
+                                        W_260 and W_262 (Appendix 14).</span></p>
+                                <p class="editor-paragraph" dir="ltr"><span>Based on the information provided by the
+                                        Certificate Holder, a bat usage survey was not conducted at feature W_262 in
+                                        advance of clearing. Emergence surveys, conducted after clearing was complete,
+                                        identified the presence of big brown or silver-haired bats emerging and in the
+                                        vicinity of this feature (Appendix 13). Conflicting information has been
+                                        provided regarding the completion of a usage survey in advance of clearing at
+                                        feature W_260.</span></p>
+                                <p class="editor-paragraph" dir="ltr"><span>These findings provide evidence of
+                                        non-compliance with Condition 36 with respect to following up on the use of
+                                        potential bat hibernacula or roosts in advance of clearing.</span></p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="compliance-finding-header">Compliance Finding</th>
+                    <td>Out</td>
+                </tr>
+                <tr>
+                    <th class="header-background">Enforcement Action</th>
+                    <td>Not Determined</td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <th colspan="2" class="header-background">Actions Required by Certificate Holder and Additional
+                        Comments</th>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <p class="editor-paragraph" dir="ltr"><b><strong class="editor-text-bold">Please reviewthis
+                                    inspection record for errors or omissions and provide a response to Officer Dinesh
+                                    Peickal Balakrishnanby</strong></b> <span style="color: gray;">date will appear once
+                                due date is set.</span></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th colspan="2" class="header-background">Enforcement Summary</th>
+                </tr>
+                <tr>
+                    <td colspan="2">None</td>
+                </tr>
+                <tr>
+                    <th colspan="2" class="header-background">Appendices:</th>
+                </tr>
+                <tr>
+                    <td colspan="2"> Appendix 1: Environmental Assessment Certificate E14-06<br> Appendix 2: EAC E14-06
+                        Schedule B Table of Conditions<br> Appendix 3: Pre-Construction Compliance Self-Report
+                        2024-07-24<br> Appendix 4: Condition 3 Concordance Table 2024-07-03<br> Appendix 5: Human
+                        Wildlife Conflict Plan Rev6 April 2016<br> Appendix 6: Timber Salvage Strategy Rev5 2015-03-30
+                        <br> Appendix 7: Construction Forest Pest Management Plan<br> Appendix 8: CAB and FPBC Directory
+                        Searches 2024-11-06 <br> Appendix 9: EAC Application Section 36 <br> Appendix 10: CEMP Rev6
+                        April 2016 <br> Appendix 11: 2024-10-09 princerupertgas Website Access<br> Appendix 12:
+                        2024-10-09 westernlng Website Access – PRGT Subpage<br> Appendix 13: Certificate Holder Info
+                        Request Response 2024-10-23 <br> Appendix 14: Certificate Holder Info Request Response
+                        2025-01-22 <br> Appendix 15: CEMP Table7-1a Resource-Specific Mitigation Table Rev2 <br>
+                        Appendix 16: Wildlife Mitigation and Management Plan Rev1 Sept2015 <br> Appendix 17: Certificate
+                        Holder Info Request Response 2024-10-01<br> Appendix 18: CEMP Appendix F-4 Chemical and Waste
+                        Plan Rev6 April 2016 <br> Appendix 19: 2025-03-06 Warning Letter 20240051_WN001 </td>
+                </tr>
+                <tr>
+                    <th colspan="2" class="header-background">Environmental Assessment Office - Compliance & Enforcement
+                        Branch</th>
+                </tr>
+                <tr>
+                    <td><strong>Mailing Address:</strong><br>PO Box 9426 Stn Prov Govt\nVictoria, BC V8W 9V1</td>
+                    <td><strong>Phone:</strong>250-387-0131<br><strong>Email:</strong><a
+                            href="mailto:eao.compliance@gov.bc.ca"
+                            class="blue-link">eao.compliance@gov.bc.ca</a><br><strong>Website:</strong><a
+                            href="www.gov.bc.ca/eao" class="blue-link">www.gov.bc.ca/eao</a></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>
