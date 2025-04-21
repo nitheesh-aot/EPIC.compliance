@@ -49,7 +49,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
   ({ imageType, inspectionId, requirementId }) => {
     const isPhoto = imageType === ImageTypeEnum.PHOTO;
     const { setOpen, setClose } = useModal();
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(true);
     const [currentRequirementId, setCurrentRequirementId] = useState<number>(0);
     const {
       requirementsList,
