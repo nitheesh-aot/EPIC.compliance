@@ -127,7 +127,6 @@ class InspectionRecordFinal(Resource):
 
     @staticmethod
     @API.response(code=200, description="Sucess", model=ir_list_model)
-    @API.expect(ir_update_request_model)
     @ApiHelper.swagger_decorators(API, endpoint_description="Switch to FINAL IR")
     @API.response(404, "Not Found")
     @auth.require
