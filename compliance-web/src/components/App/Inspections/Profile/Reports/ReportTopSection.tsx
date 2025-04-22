@@ -5,8 +5,11 @@ import {
   IRProgressEnum,
   STAFF_USER_POSITION,
 } from "@/utils/constants";
-import { useMemo } from "react";
-import { useUpdateIRApprovalStatus } from "@/hooks/useInspectionReports";
+import { useMemo, useState } from "react";
+import {
+  useInspectionRecordRender,
+  useUpdateIRApprovalStatus,
+} from "@/hooks/useInspectionReports";
 import { notify } from "@/store/snackbarStore";
 import { useReportStore } from "./reportStore";
 import { IRApproval } from "@/models/IRApproval";
@@ -15,10 +18,12 @@ import { useStaffUsersData } from "@/hooks/useStaff";
 import SendForApprovalModal from "./SendForApprovalModal";
 import { useModal } from "@/store/modalStore";
 import OfficerStepper from "./OfficerSteppr/OfficerStepper";
+import ReportPreviewModal from "./ReportPreviewModal";
 
 export default function ReportTopSection() {
   const { setOpen, setClose } = useModal();
   const currentUser = useCurrentLoggedInUser();
+  const [previewClicked, setPreviewClicked] = useState(false);
 
   const {
     queryClient,
@@ -29,6 +34,54 @@ export default function ReportTopSection() {
   } = useReportStore();
 
   const { data: staffData } = useStaffUsersData();
+
+  const { refetch: refetchIrRenderData } = useInspectionRecordRender(
+    inspectionData?.id ?? 0,
+    inspectionReportsData?.id ?? 0,
+    "html",
+    false
+  );
+
+  const handlePreviewClick = async () => {
+    setPreviewClicked(true);
+    try {
+      const result = await refetchIrRenderData();
+      if (result.data) {
+        setPreviewClicked(false);
+
+        if (result.data.html) {
+          // Handle HTML preview
+          const html = result.data.html ?? "";
+          setOpen({
+            content: <ReportPreviewModal previewHtml={html} />,
+            width: "612px",
+          });
+        } else {
+          // Create a Blob from the PDF data
+          const blob = new Blob([result.data], { type: "application/pdf" });
+
+          // Create a URL for the Blob
+          const url = URL.createObjectURL(blob);
+
+          // Create an anchor element and set properties for download
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `inspection-report-${inspectionReportsData?.id || "download"}.pdf`;
+
+          // Append to body, click and clean up
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          // Release the blob URL
+          URL.revokeObjectURL(url);
+        }
+      }
+    } catch (error) {
+      notify.error("Failed to generate PDF preview");
+      setPreviewClicked(false);
+    }
+  };
 
   const isCurrentUserApprover = useMemo(() => {
     return staffData?.some(
@@ -170,9 +223,14 @@ export default function ReportTopSection() {
               </Button>
             </>
           ) : null}
-          <Button variant="text" color="primary">
+          <Button
+            variant="text"
+            color="primary"
+            onClick={handlePreviewClick}
+            disabled={previewClicked}
+          >
             <PictureAsPdfOutlined sx={{ mr: 1, fontSize: 20 }} />
-            Preview
+            {previewClicked ? "Loading..." : "Preview"}
           </Button>
         </Box>
       </Box>

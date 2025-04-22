@@ -134,6 +134,23 @@ const updateIRApprovalStatus = ({
   });
 };
 
+const inspectionRecordRender = ({
+  inspectionId,
+  inspectionRecordId,
+  format,
+}: {
+  inspectionId: number;
+  inspectionRecordId: number;
+  format: "html" | "pdf";
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/render`,
+    params: {
+      output_format: format,
+    },
+  });
+};
+
 export const useInspectionReportsData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-reports", inspectionId],
@@ -194,5 +211,20 @@ export const useUpdateIRApprovalStatus = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: updateIRApprovalStatus,
     onSuccess,
+  });
+};
+
+export const useInspectionRecordRender = (
+  inspectionId: number,
+  inspectionRecordId: number,
+  format: "html" | "pdf",
+  isEnabled: boolean = true
+) => {
+  return useQuery({
+    queryKey: ["ir-render", inspectionId, inspectionRecordId],
+    queryFn: () =>
+      inspectionRecordRender({ inspectionId, inspectionRecordId, format }),
+    enabled: !!inspectionId && !!inspectionRecordId && isEnabled,
+    refetchOnWindowFocus: false,
   });
 };
