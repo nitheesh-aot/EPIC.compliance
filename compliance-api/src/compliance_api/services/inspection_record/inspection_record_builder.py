@@ -10,7 +10,7 @@ from compliance_api.models.inspection import ImageTypeEnum
 from compliance_api.models.inspection import Inspection as InspectionModel
 from compliance_api.models.inspection import InspectionAttendanceOptionEnum
 from compliance_api.models.inspection import InspectionReqSourceDetail as InspectionReqSourceDetailModel
-from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
+from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel, InspectionRequirementTypeEnum
 from compliance_api.models.inspection import InspectionRequirementImage as InspectionRequirementImageModel
 from compliance_api.models.inspection import InspectionRequirementTypeEnum
 from compliance_api.models.inspection import IRStatusOption as IRStatusOptionModel
@@ -294,9 +294,10 @@ class InspectionRecordDataBuilder:
                         )
                         if summary_line:
                             enforment_summary_lines.append(summary_line)
+            enforment_summary_lines.append(ENFORCEMENT_SUMMARY.get("DEFAULT"))
             if len(enforment_summary_lines) > 0:
                 self.data["enforcement_summary"] = (
-                    f"<p>{'</br>'.join(enforment_summary_lines)}</p>"
+                    f"<p class='editor-paragraph' dir='ltr'>{'</br>'.join(enforment_summary_lines)}</p>"
                 )
         return self
 
@@ -333,11 +334,14 @@ class InspectionRecordDataBuilder:
                 self.inspection.id
             )
         for requirement in self.requirements:
+            #  Skip regulatory considerations
+            if requirement.req_type == InspectionRequirementTypeEnum.REG:
+                continue
             req = {
                 "requirement_id": requirement.id,
                 "requirement_findings": requirement.findings,
                 "sort_order": requirement.sort_order,
-                "compliance_finding": requirement.compliance_finding.name,
+                "compliance_finding": requirement.compliance_finding.name if requirement.compliance_finding else None,
                 "enforcement_action": (
                     "Not Applicable"
                     if requirement.compliance_finding_id
