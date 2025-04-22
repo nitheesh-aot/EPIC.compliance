@@ -16,6 +16,7 @@ import { BCDesignTokens } from "epic.theme";
 import {
   formatRequirementImagesInFindings,
   ImageTypeEnum,
+  REGULATORY_CONSIDERATION_TYPE_ID,
   updateImagesWithContinuousSortOrder,
 } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import { useModal } from "@/store/modalStore";
@@ -43,10 +44,11 @@ type ImagesContainerProps = {
   imageType: ImageTypeEnum;
   inspectionId: number;
   requirementId: number;
+  isRegulatoryConsideration: boolean;
 };
 
 const ImagesContainer: FC<ImagesContainerProps> = memo(
-  ({ imageType, inspectionId, requirementId }) => {
+  ({ imageType, inspectionId, requirementId, isRegulatoryConsideration }) => {
     const isPhoto = imageType === ImageTypeEnum.PHOTO;
     const { setOpen, setClose } = useModal();
     const [isExpanded, setIsExpanded] = useState(true);
@@ -101,9 +103,20 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
 
     const getImageIndex = () => {
       if (!requirementId) {
-        return isPhoto
-          ? (Object.values(requirementPhotos).flat().length || 0) + 1
-          : (Object.values(requirementFigures).flat().length || 0) + 1;
+        let reqImagesList = Array.from(
+          isPhoto ? requirementPhotos.values() : requirementFigures.values()
+        ).flat();
+        if (!isRegulatoryConsideration) {
+          const regConsId = requirementsList.find(
+            (req) => req.req_type.id === REGULATORY_CONSIDERATION_TYPE_ID
+          )?.id;
+          if (regConsId) {
+            reqImagesList = reqImagesList.filter(
+              (img) => img.requirement_id !== regConsId
+            );
+          }
+        }
+        return (reqImagesList.length ?? 0) + 1;
       }
       return images.length > 0
         ? (images[images.length - 1].sort_order || 0) + 1

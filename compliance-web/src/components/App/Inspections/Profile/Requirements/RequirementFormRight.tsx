@@ -38,7 +38,6 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   const [requirementSourceFormData, setRequirementSourceFormData] = useState<
     RequirementSourceFormData[]
   >(requirementSourceFormDataList);
-  
 
   useEffect(() => {
     onDataChange(requirementSourceFormData);
@@ -314,11 +313,13 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         imageType={ImageTypeEnum.PHOTO}
         inspectionId={inspectionId}
         requirementId={requirementId}
+        isRegulatoryConsideration={isRegulatoryConsideration}
       />
       <ImagesContainer
         imageType={ImageTypeEnum.FIGURE}
         inspectionId={inspectionId}
         requirementId={requirementId}
+        isRegulatoryConsideration={isRegulatoryConsideration}
       />
       <AppendicesContainer inspectionId={inspectionId} />
     </Box>
