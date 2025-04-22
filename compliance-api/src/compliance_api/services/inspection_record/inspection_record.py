@@ -125,7 +125,7 @@ class InspectionRecordService:
             ),
             "enforcement_summary": ir_data.get("enforcement_summary", None),
             "ir_status_id": IRStatusEnum.FINAL.value,
-            "ir_progress": ir_data.get("ir_progress"),
+            "ir_progress": IRProgressEnum.FINALIZING_RECORD,
         }
         updated_ir = InspectionRecordModel.update_inspection_record(
             inspection_record_id, update_data
