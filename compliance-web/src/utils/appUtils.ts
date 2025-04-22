@@ -23,3 +23,21 @@ export function mergeMapsWithArrayConcat<K, V>(...maps: Map<K, V[]>[]): Map<K, V
 
   return result;
 }
+
+export const downloadFile = (blob: Blob, filename: string) => {
+  // Create a URL for the Blob
+  const url = URL.createObjectURL(blob);
+
+  // Create an anchor element and set properties for download
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+
+  // Append to body, click and clean up
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  // Release the blob URL
+  URL.revokeObjectURL(url);
+};

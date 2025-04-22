@@ -50,8 +50,6 @@ const MailingAddressPopover: React.FC<MailingAddressPopoverProps> = ({
 
   const onSubmitHandler = (data: MailingAddressSchemaType) => {
     const formData = data as { mailingAddress: string };
-    // eslint-disable-next-line no-console
-    console.log(formData);
     onSubmit(formData.mailingAddress);
   };
 
