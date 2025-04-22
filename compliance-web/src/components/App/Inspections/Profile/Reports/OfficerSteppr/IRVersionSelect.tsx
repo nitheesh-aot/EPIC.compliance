@@ -18,13 +18,15 @@ const initFormData: IRVersionSelectSchemaType = {
 };
 
 type IRVersionSelectProps = {
-  onNext: () => void;
   onBack: () => void;
+  onUpdateIRReportToFinal: () => void;
+  onUpdateIRReportToPreliminary: () => void;
 };
 
 const IRVersionSelect: React.FC<IRVersionSelectProps> = ({
-  onNext,
   onBack,
+  onUpdateIRReportToFinal,
+  onUpdateIRReportToPreliminary,
 }) => {
   const defaultValues = useMemo<IRVersionSelectSchemaType>(() => {
     return initFormData;
@@ -39,10 +41,11 @@ const IRVersionSelect: React.FC<IRVersionSelectProps> = ({
   const { handleSubmit } = methods;
 
   const onSubmitHandler = (data: IRVersionSelectSchemaType) => {
-    // eslint-disable-next-line no-console
-    console.log(data);
-    // TODO: Update approvals with data
-    onNext();
+    if (data.versionSelection === "final") {
+      onUpdateIRReportToFinal();
+    } else {
+      onUpdateIRReportToPreliminary();
+    }
   };
 
   return (
