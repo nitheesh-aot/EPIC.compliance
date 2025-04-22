@@ -4,13 +4,19 @@ import { useState } from "react";
 import PreliminaryReview from "./PreliminaryReview";
 import RegPartyResponse from "./RegPartyResponse";
 import IRVersionSelect from "./IRVersionSelect";
-import { useUpdateIRApproval } from "@/hooks/useInspectionReports";
+import {
+  useUpdateInspectionRecord,
+  useUpdateIRApproval,
+  useUpdateIRReportToFinal,
+} from "@/hooks/useInspectionReports";
 import { useReportStore } from "../reportStore";
 import {
   InspectionRecordApprovalPayload,
   IRApproval,
 } from "@/models/IRApproval";
 import { notify } from "@/store/snackbarStore";
+import { InspectionRecord } from "@/models/InspectionRecord";
+import { IRProgressEnum } from "@/utils/constants";
 
 const steps = [
   "Preliminary Review",
@@ -24,6 +30,7 @@ export default function OfficerStepper() {
     inspectionReportsData,
     irApprovalsData,
     setIRApprovalsData,
+    setInspectionReportsData,
   } = useReportStore();
   const [activeStep, setActiveStep] = useState(0);
 
@@ -39,13 +46,25 @@ export default function OfficerStepper() {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const onSuccess = (data: IRApproval) => {
+  const onSuccessApproval = (data: IRApproval) => {
     setIRApprovalsData([data]);
     notify.success("Inspection record approval updated");
   };
 
+  const onSuccessIRReport = (data: InspectionRecord) => {
+    setInspectionReportsData(data);
+    notify.success("Inspection record updated");
+    handleNext();
+  };
+
   const { mutateAsync: updateIRApprovalStatusAsync } =
-    useUpdateIRApproval(onSuccess);
+    useUpdateIRApproval(onSuccessApproval);
+
+  const { mutate: updateIRReportToFinal } =
+    useUpdateIRReportToFinal(onSuccessIRReport);
+
+  const { mutate: updateInspectionRecord } =
+    useUpdateInspectionRecord(onSuccessIRReport);
 
   const onUpdateIRApprovalStep = async (
     approvalPayloads: InspectionRecordApprovalPayload[]
@@ -58,7 +77,26 @@ export default function OfficerStepper() {
         approvalPayload,
       });
     }
+    // doing this to avoid going to the next step before all the updates are done
     handleNext();
+  };
+
+  const onUpdateIRReport = (type: "final" | "preliminary") => {
+    if (type === "final") {
+      updateIRReportToFinal({
+        inspectionId: inspectionData?.id ?? 0,
+        inspectionRecordId: inspectionReportsData?.id ?? 0,
+      });
+    } else {
+      updateInspectionRecord({
+        inspectionId: inspectionData?.id ?? 0,
+        inspectionRecordId: inspectionReportsData?.id ?? 0,
+        updateRecord: {
+          field_name: "ir_progress",
+          value: IRProgressEnum.PRELIMINARY_DRAFTING,
+        },
+      });
+    }
   };
 
   return (
@@ -102,7 +140,13 @@ export default function OfficerStepper() {
           />
         )}
         {activeStep === 2 && (
-          <IRVersionSelect onNext={handleNext} onBack={handleBack} />
+          <IRVersionSelect
+            onBack={handleBack}
+            onUpdateIRReportToFinal={() => onUpdateIRReport("final")}
+            onUpdateIRReportToPreliminary={() =>
+              onUpdateIRReport("preliminary")
+            }
+          />
         )}
       </Box>
     </Box>
