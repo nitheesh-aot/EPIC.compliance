@@ -22,3 +22,4 @@ data:
   AUTH_BASE_URL: {{ .Values.auth_service.url }}
   STORAGE_HOST_URL: {{ .Values.storage_service.url }}
   S3_BUCKET: {{ .Values.storage_service.s3_bucket }}
+  DOCGEN_SERVICE_URL: {{ .Values.docgen_service.url }}
