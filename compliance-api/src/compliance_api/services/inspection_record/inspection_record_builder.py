@@ -197,6 +197,10 @@ class InspectionRecordDataBuilder:
 
     def build_inspection_scope(self):
         """Populate the inspection scope data."""
+        #  if there is an existing ir and we are building the same ir, then the inspection scope should not be built
+        if self.existing_ir is not None and self.existing_ir.ir_status.id == self.ir_status:
+            self.data["inspection_scope"] = self.existing_ir.inspection_scope
+            return self
         debreif_date = self.inspection.debrief_date
         inspection_scope_data = {
             "debrief_date": (
@@ -231,6 +235,11 @@ class InspectionRecordDataBuilder:
 
     def build_preliminary_review_details(self):
         """Build the preliminary review details."""
+        #  if there is an existing ir and we are building the same ir, then
+        # the preliminary review details should not be built
+        if self.existing_ir is not None and self.existing_ir.ir_status.id == self.ir_status:
+            self.data["preliminary_review_details"] = self.existing_ir.preliminary_review_details
+            return self
         preliminary_review_details = {}
         #  No preliminary_review_details for ir when it is PRELIMINARY
         if self.ir_status == IRStatusEnum.PRELIMINARY.value:
@@ -261,6 +270,10 @@ class InspectionRecordDataBuilder:
 
     def build_finding_statement(self):
         """Build the finding statement for the inspection record."""
+        #  if there is an existing ir and we are building the same ir, then the finding statement should not be built
+        if self.existing_ir is not None and self.existing_ir.ir_status.id == self.ir_status:
+            self.data["finding_statement"] = self.existing_ir.finding_statement
+            return self
         self.data["finding_statement"] = render_template_with_data(
             "FINDING_STATEMENT", FINDING_STATEMENT, data={}
         )
@@ -299,8 +312,13 @@ class InspectionRecordDataBuilder:
                         )
                         if summary_line:
                             enforment_summary_lines.append(summary_line)
-            enforment_summary_lines.append(ENFORCEMENT_SUMMARY.get("DEFAULT"))
             if len(enforment_summary_lines) > 0:
+                enforment_summary_lines.append(render_template_with_data(
+                    "ENFORCEMENT_SUMMARY.DEFAULT", ENFORCEMENT_SUMMARY.get("DEFAULT"), {
+                        "project_name": self.data["project_details"].get("name"),
+                        "act": "Environmental Assessment Act (2018)",
+                    }
+                ))
                 self.data["enforcement_summary"] = (
                     f"<p class='editor-paragraph' dir='ltr'>{'</br>'.join(enforment_summary_lines)}</p>"
                 )
@@ -308,6 +326,11 @@ class InspectionRecordDataBuilder:
 
     def build_action_required_by_rp(self):
         """Build the action required by proponent."""
+        #  if there is an existing ir and we are building the same ir,
+        # then the action_required_by_rp should not be built
+        if self.existing_ir is not None and self.existing_ir.ir_status.id == self.ir_status:
+            self.data["action_required_by_rp"] = self.existing_ir.action_required_by_rp
+            return self
         if self.ir_status == IRStatusEnum.FINAL.value:
             self.data["action_required_by_rp"] = None
             return self

@@ -95,6 +95,7 @@ class InspectionRecordPreviewSchema(Schema):
 
     # Officer Details
     officer_details = fields.Raw()
+    mailing_address = fields.Str()
 
     # Content Fields
     inspection_scope = fields.String(allow_none=True)
