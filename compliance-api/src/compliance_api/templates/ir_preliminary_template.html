@@ -6,29 +6,29 @@
     <style>
         @font-face {
             font-family: 'CalibriRegular';
-            src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-regular.ttf') format('truetype');
-            font-weight: normal;
+            src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-regular.ttf') format('truetype');
+            font-weight: 400;
             font-style: normal;
         }
 
         @font-face {
             font-family: 'CalibriItalic';
-            src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-italic.ttf') format('truetype');
-            font-weight: normal;
+            src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-italic.ttf') format('truetype');
+            font-weight: 400;
             font-style: normal;
         }
 
         @font-face {
             font-family: 'CalibriBold';
-            src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-bold.ttf') format('truetype');
-            font-weight: normal;
+            src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-bold.ttf') format('truetype');
+            font-weight: 700;
             font-style: normal;
         }
 
         @font-face {
             font-family: 'CalibriBoldItalic';
-            src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-bold-italic.ttf') format('truetype');
-            font-weight: normal;
+            src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-bold-italic.ttf') format('truetype');
+            font-weight: 700;
             font-style: normal;
         }
 
@@ -51,6 +51,10 @@
         .com-ir-header-logo {
             height: 60px;
             width: auto;
+        }
+
+        strong {
+            font-family: 'CalibriBold';
         }
 
         .com-ir-header-title {
@@ -81,11 +85,13 @@
 
         .com-ir-header-background {
             background-color: #bfbfbf;
+            font-family: 'CalibriBold';
         }
 
         .com-ir-general-info-header th {
             width: 140px;
             vertical-align: top;
+            font-family: 'CalibriBold';
         }
 
         table {
@@ -99,11 +105,10 @@
             border: 1px solid black;
             padding: 4px 8px;
             text-align: left;
-            font-family: 'CalibriBold';
             vertical-align: middle;
         }
 
-        .com-ir-mailing-address-container {
+        .com-ir-mailing-address-container strong {
             vertical-align: top !important;
         }
 
@@ -185,29 +190,29 @@
 
             @font-face {
                 font-family: 'CalibriRegular';
-                src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-regular.ttf') format('truetype');
-                font-weight: normal;
+                src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-regular.ttf') format('truetype');
+                font-weight: 400;
                 font-style: normal;
             }
 
             @font-face {
                 font-family: 'CalibriItalic';
-                src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-italic.ttf') format('truetype');
-                font-weight: normal;
+                src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-italic.ttf') format('truetype');
+                font-weight: 400;
                 font-style: normal;
             }
 
             @font-face {
                 font-family: 'CalibriBold';
-                src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-bold.ttf') format('truetype');
-                font-weight: normal;
+                src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-bold.ttf') format('truetype');
+                font-weight: 700;
                 font-style: normal;
             }
 
             @font-face {
                 font-family: 'CalibriBoldItalic';
-                src: url('https://dev.compliance.eao.gov.bc.ca/fonts/pdf-fonts/calibri-bold-italic.ttf') format('truetype');
-                font-weight: normal;
+                src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-bold-italic.ttf') format('truetype');
+                font-weight: 700;
                 font-style: normal;
             }
 
@@ -217,6 +222,10 @@
                 font-family: 'CalibriRegular', sans-serif;
                 font-size: 11px;
                 line-height: 17px;
+            }
+
+            strong {
+                font-family: 'CalibriBold';
             }
 
             .com-ir-header-container {
@@ -247,12 +256,28 @@
                 font-family: 'CalibriBold';
             }
 
+            .com-ir-header-background {
+                background-color: #bfbfbf;
+                font-family: 'CalibriBold';
+            }
+
             .com-ir-photo-caption {
                 margin-top: 4px;
                 font-style: italic;
                 font-family: 'CalibriItalic';
                 font-size: 9pt;
             }
+
+            .com-ir-mailing-address-container strong {
+                vertical-align: top !important;
+                font-family: 'CalibriBold';
+            }
+
+            .com-ir-comp-finding-header {
+                background-color: #d9d9d9 !important;
+                font-family: 'CalibriBold';
+            }
+
 
             /* .content {
                 padding: 0 56px;
@@ -294,6 +319,9 @@
             td,
             th {
                 padding: 6px 8px;
+            }
+
+            .com-ir-general-info-header th {
                 font-family: 'CalibriBold';
             }
 
@@ -312,7 +340,8 @@
 <body>
     <!-- <div class="header"> -->
     <div class="com-ir-header-container">
-        <img src="https://dev.compliance.eao.gov.bc.ca/logo/EAO_Compliance_IR_Report_Logo.png" class="com-ir-header-logo" alt="EAO Logo">
+        <img src="https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/images/EAO_Compliance_IR_Report_Logo.png"
+            class="com-ir-header-logo" alt="EAO Logo">
         <div class="com-ir-header-title">INSPECTION RECORD</div>
     </div>
     <!-- </div> -->
@@ -553,10 +582,11 @@
                         Enforcement
                         Branch</th>
                 </tr>
-                <tr>
-                    <td class="com-ir-mailing-address-container">
+                <tr class="com-ir-mailing-address-container">
+                    <td>
                         <strong>Mailing Address:</strong></br>
-                        {{ department_details.address }}
+                        {{ department_details.address_line1 }}</br>
+                        {{ department_details.address_line2 }}
                     </td>
                     <td>
                         <strong>Phone:</strong> {{ department_details.phone }}<br>

@@ -10,7 +10,7 @@ from compliance_api.models.inspection import ImageTypeEnum
 from compliance_api.models.inspection import Inspection as InspectionModel
 from compliance_api.models.inspection import InspectionAttendanceOptionEnum
 from compliance_api.models.inspection import InspectionReqSourceDetail as InspectionReqSourceDetailModel
-from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel, InspectionRequirementTypeEnum
+from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models.inspection import InspectionRequirementImage as InspectionRequirementImageModel
 from compliance_api.models.inspection import InspectionRequirementTypeEnum
 from compliance_api.models.inspection import IRStatusOption as IRStatusOptionModel

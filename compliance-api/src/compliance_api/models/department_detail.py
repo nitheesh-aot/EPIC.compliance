@@ -13,6 +13,7 @@ class DepartmentDetail(BaseModelVersioned):
     id = Column(Integer, primary_key=True)
     logo_url = Column(String, nullable=True)
     email = Column(String, nullable=False)
-    address = Column(String, nullable=False)
+    address_line1 = Column(String, nullable=True)
+    address_line2 = Column(String, nullable=True)
     phone = Column(String, nullable=False)
     website = Column(String, nullable=True)
