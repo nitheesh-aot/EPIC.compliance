@@ -134,6 +134,19 @@ const updateIRApprovalStatus = ({
   });
 };
 
+const updateIRReportToFinal = ({
+  inspectionId,
+  inspectionRecordId,
+}: {
+  inspectionId: number;
+  inspectionRecordId: number;
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/switch-to-final`,
+    method: "patch",
+  });
+};
+
 const inspectionRecordRender = ({
   inspectionId,
   inspectionRecordId,
@@ -210,6 +223,13 @@ export const useUpdateIRApproval = (onSuccess: OnSuccessType) => {
 export const useUpdateIRApprovalStatus = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: updateIRApprovalStatus,
+    onSuccess,
+  });
+};
+
+export const useUpdateIRReportToFinal = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: updateIRReportToFinal,
     onSuccess,
   });
 };
