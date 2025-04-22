@@ -337,7 +337,7 @@ class InspectionRecordDataBuilder:
                 "requirement_id": requirement.id,
                 "requirement_findings": requirement.findings,
                 "sort_order": requirement.sort_order,
-                "compliance_finding": requirement.compliance_finding.name,
+                "compliance_finding": requirement.compliance_finding.name if requirement.compliance_finding else None,
                 "enforcement_action": (
                     "Not Applicable"
                     if requirement.compliance_finding_id
