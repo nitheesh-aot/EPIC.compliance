@@ -268,6 +268,9 @@ class InspectionRecordDataBuilder:
 
     def build_enforcement_summary(self):
         """Build the enforcement summary for the inspection record."""
+        if self.existing_ir is not None and self.existing_ir.ir_status == self.ir_status:
+            self.data["enforcement_summary"] = self.existing_ir.enforcement_summary
+            return self
         if self.ir_status == IRStatusEnum.PRELIMINARY.value:
             self.data["enforcement_summary"] = None
             #  Order needs to be checked and returned from here

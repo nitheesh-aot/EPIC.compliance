@@ -78,7 +78,7 @@ ENFORCEMENT_SUMMARY = {
     may be referred to a decision maker for consideration of an Administrative Penalty.</span>""",
     "AGENCY": """<span>{{ number }} of {{ req_source_name }} of {{ eac }} was refered to {{ agency_name }}.
      See Requirement {{ req_sort_order }} for further information</span>""",
-    "DEFAULT": """<span>The EAO CED may inspect to determine if {{ project_name }} has been brought into compliance with these
+    "DEFAULT": """<span>The EAO CEB may inspect to determine if {{ project_name }} has been brought into compliance with these
      requirements. Continued non-compliance with these requirements may result in additional enforcement
      under the {{ act }} </span>""",
 }
