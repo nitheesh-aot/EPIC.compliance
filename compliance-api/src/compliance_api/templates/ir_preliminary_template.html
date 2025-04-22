@@ -33,20 +33,230 @@
         }
 
         /* Rich Text css */
-        .editor-text-bold {
-            font-weight: bold;
-        }
-
-        .editor-text-italic {
-            font-style: italic;
-        }
-
         .editor-content .editor-text-bold {
             font-weight: bold;
         }
 
         .editor-content .editor-text-italic {
             font-style: italic;
+        }
+
+        .editor-content .editor-text-underline {
+            text-decoration: underline;
+        }
+
+        .editor-content .editor-text-strikethrough {
+            text-decoration: line-through;
+        }
+
+        .editor-content .editor-text-underlineStrikethrough {
+            text-decoration: underline line-through;
+        }
+
+        .editor-content .editor-text-code {
+            background-color: rgb(240, 242, 245);
+            padding: 1px 0.25rem;
+            font-family: Menlo, Consolas, Monaco, monospace;
+            font-size: 94%;
+        }
+
+        .editor-content .editor-link {
+            color: rgb(33, 111, 219);
+            text-decoration: none;
+        }
+
+        .editor-content .tree-view-output {
+            display: block;
+            background: #222;
+            color: #fff;
+            padding: 5px;
+            font-size: 12px;
+            white-space: pre-wrap;
+            margin: 1px auto 10px auto;
+            max-height: 250px;
+            position: relative;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            overflow: auto;
+            line-height: 14px;
+        }
+
+        .editor-content .editor-tokenComment {
+            color: slategray;
+        }
+
+        .editor-content .editor-tokenPunctuation {
+            color: #999;
+        }
+
+        .editor-content .editor-tokenProperty {
+            color: #905;
+        }
+
+        .editor-content .editor-tokenSelector {
+            color: #690;
+        }
+
+        .editor-content .editor-tokenOperator {
+            color: #9a6e3a;
+        }
+
+        .editor-content .editor-tokenAttr {
+            color: #07a;
+        }
+
+        .editor-content .editor-tokenVariable {
+            color: #e90;
+        }
+
+        .editor-content .editor-tokenFunction {
+            color: #dd4a68;
+        }
+
+        .editor-content .editor-paragraph {
+            margin: 0;
+            position: relative;
+        }
+
+        .editor-content .editor-paragraph:last-child {
+            margin-bottom: 0;
+        }
+
+        .editor-content .editor-heading-h1 {
+            font-size: 24px;
+            color: rgb(5, 5, 5);
+            font-weight: 400;
+            margin: 0;
+            margin-bottom: 12px;
+            padding: 0;
+        }
+
+        .editor-content .editor-heading-h2 {
+            font-size: 15px;
+            color: rgb(101, 103, 107);
+            font-weight: 700;
+            margin: 0;
+            margin-top: 10px;
+            padding: 0;
+            text-transform: uppercase;
+        }
+
+        .editor-content .editor-quote {
+            margin: 0;
+            margin-left: 20px;
+            font-size: 15px;
+            color: rgb(101, 103, 107);
+            border-left-color: rgb(206, 208, 212);
+            border-left-width: 4px;
+            border-left-style: solid;
+            padding-left: 16px;
+        }
+
+        .editor-content .editor-list-ol,
+        .editor-content .editor-list-ul {
+            padding: 0;
+            margin: 0;
+            margin-left: 8px;
+        }
+
+        .editor-content .editor-listitem {
+            margin: 0.25rem 1.5rem;
+        }
+
+        .editor-content .editor-nested-listitem {
+            list-style-type: none;
+        }
+
+        .editor-content a {
+            margin: 0;
+            -webkit-text-decoration: none;
+            text-decoration: none;
+            color: #255a90;
+        }
+
+        .editor-content a:hover {
+            -webkit-text-decoration: underline;
+            text-decoration: underline;
+        }
+
+        .editor-content .editor-tableScrollableWrapper {
+            overflow-x: auto;
+            margin: 0 25px 30px 0;
+        }
+
+        .editor-content .editor-tableScrollableWrapper>.editor-table {
+            /* Remove the table's vertical margin and put it on the wrapper */
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .editor-content .editor-tableAlignmentCenter {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .editor-content .editor-tableAlignmentRight {
+            margin-left: auto;
+        }
+
+        .editor-content .editor-table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            overflow-y: scroll;
+            overflow-x: scroll;
+            table-layout: fixed;
+            width: fit-content;
+            margin-top: 25px;
+            margin-bottom: 30px;
+        }
+
+        .editor-content .editor-tableRowStriping tr:nth-child(even) {
+            background-color: #f2f5fb;
+        }
+
+        .editor-content .editor-tableSelection *::selection {
+            background-color: transparent;
+        }
+
+        .editor-content .editor-tableSelected {
+            outline: 2px solid rgb(60, 132, 244);
+        }
+
+        .editor-content .editor-tableCell {
+            border: 1px solid #bbb;
+            width: 75px;
+            vertical-align: top;
+            text-align: start;
+            padding: 6px 8px;
+            position: relative;
+            outline: none;
+            overflow: auto;
+        }
+
+        .editor-content .editor-tableCell>* {
+            overflow: inherit;
+        }
+
+        .editor-content .editor-tableCellHeader {
+            background-color: #f2f3f5;
+            text-align: start;
+        }
+
+        .ltr {
+            text-align: left;
+        }
+
+        .rtl {
+            text-align: right;
+        }
+
+        pre::-webkit-scrollbar {
+            background: transparent;
+            width: 10px;
+        }
+
+        pre::-webkit-scrollbar-thumb {
+            background: #999;
         }
 
         body {
@@ -157,11 +367,13 @@
         .com-ir-document-title {
             margin-top: 8px;
             font-weight: bold;
+            font-family: 'CalibriBold';
         }
 
         .com-ir-document-section {
             margin-top: 4px;
             font-weight: bold;
+            font-family: 'CalibriBold';
         }
 
         .com-ir-document-description {
@@ -342,8 +554,20 @@
                 font-family: 'CalibriBold';
             }
 
-            tr {
+            /* tr {
                 page-break-inside: avoid;
+            } */
+
+            .com-ir-document-title {
+                margin-top: 8px;
+                font-weight: bold;
+                font-family: 'CalibriBold';
+            }
+
+            .com-ir-document-section {
+                margin-top: 4px;
+                font-weight: bold;
+                font-family: 'CalibriBold';
             }
         }
     </style>
@@ -460,12 +684,8 @@
                             requirement.requirement_source_details[0].requirement_source_name }}</strong></br>
                         {{ requirement.requirement_source_details[0].requirement_source_description | safe |
                         replace('style="white-space: pre-wrap;"', '') }}
-                    </td>
-                </tr>
-                {% if requirement.requirement_source_details[0].requirement_documents %}
-                {% for doc in requirement.requirement_source_details[0].requirement_documents %}
-                <tr>
-                    <td colspan="2">
+                        {% if requirement.requirement_source_details[0].requirement_documents %}
+                        {% for doc in requirement.requirement_source_details[0].requirement_documents %}
                         <div class="com-ir-document-title">{{ doc.document_title }}</div>
                         {% if doc.section_number or doc.section_title %}
                         <div class="com-ir-document-section">Section {{ doc.section_number }} {{ doc.section_title }}
@@ -476,10 +696,10 @@
                             replace('style="white-space:
                             pre-wrap;"', '') }}</div>
                         {% endif %}
+                        {% endfor %}
+                        {% endif %}
                     </td>
                 </tr>
-                {% endfor %}
-                {% endif %}
                 {% endif %}
                 <!-- END: handle the first requirement source details -->
                 <!-- START: Handle the additional requirement source details -->
