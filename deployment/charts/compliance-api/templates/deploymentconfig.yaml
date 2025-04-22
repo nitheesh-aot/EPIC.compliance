@@ -220,6 +220,11 @@ spec:
               configMapKeyRef:
                 name: {{ .Chart.Name }}
                 key: S3_BUCKET
+          - name: DOCGEN_SERVICE_URL
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Chart.Name }}
+                key: DOCGEN_SERVICE_URL
         ports:
           - containerPort: 8080
             protocol: TCP

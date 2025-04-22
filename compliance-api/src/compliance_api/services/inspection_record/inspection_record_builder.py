@@ -156,7 +156,8 @@ class InspectionRecordDataBuilder:
             self.data["department_details"] = {
                 "logo_url": department_details.logo_url,
                 "email": department_details.email,
-                "address": department_details.address,
+                "address_line1": department_details.address_line1,
+                "address_line2": department_details.address_line2,
                 "phone": department_details.phone,
                 "website": department_details.website,
             }
