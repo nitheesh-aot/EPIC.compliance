@@ -54,7 +54,7 @@ export default function ReportTopSection() {
           const html = result.data.html ?? "";
           setOpen({
             content: <ReportPreviewModal previewHtml={html} />,
-            width: "612px",
+            width: "660px",
           });
         } else {
           // Create a Blob from the PDF data
@@ -157,6 +157,7 @@ export default function ReportTopSection() {
       [
         IRProgressEnum.PRELIMINARY_DRAFTING,
         IRProgressEnum.FINALIZING_RECORD,
+        IRProgressEnum.HOLDER_PRELIMINARY_REVIEW,
       ].includes(inspectionReportsData?.ir_progress as IRProgressEnum) ||
       isDisableApprovalButton
     );
@@ -176,7 +177,7 @@ export default function ReportTopSection() {
     return [
       IRProgressEnum.PRELIMINARY_APPROVED,
       IRProgressEnum.FINAL_APPROVED,
-      IRProgressEnum.HOLDER_PRELIMINARY_REVIEW,
+      // IRProgressEnum.HOLDER_PRELIMINARY_REVIEW, QN: should I show send button for this?
     ].includes(inspectionReportsData?.ir_progress as IRProgressEnum);
   }, [inspectionReportsData]);
 
