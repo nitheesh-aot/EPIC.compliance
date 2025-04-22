@@ -40,35 +40,29 @@
             line-height: 17px;
         }
 
-        .header-container {
+        .com-ir-header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
             height: 80px;
             width: 100%;
-            padding: 0 15mm;
         }
 
-        .header-logo {
+        .com-ir-header-logo {
             height: 60px;
             width: auto;
         }
 
-        .header-title {
+        .com-ir-header-title {
             text-align: right;
             font-size: 18px;
             font-weight: bold;
             color: #336699;
+            font-family: 'CalibriBold';
             line-height: 1.2;
         }
 
-
-        .header img {
-            height: 60px;
-        }
-
-
-        .photo-img {
+        .com-ir-photo-img {
             width: 350px;
             max-width: 100%;
             height: auto;
@@ -77,15 +71,23 @@
         h2 {
             color: #336699;
             font-size: 11pt;
+            font-family: 'CalibriBold';
         }
 
-        .content {
+        .com-ir-content {
             padding: 0;
             margin: 0;
         }
-        .header-background {
+
+        .com-ir-header-background {
             background-color: #bfbfbf;
         }
+
+        .com-ir-general-info-header th {
+            width: 140px;
+            vertical-align: top;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -97,45 +99,16 @@
             border: 1px solid black;
             padding: 4px 8px;
             text-align: left;
+            font-family: 'CalibriBold';
             vertical-align: middle;
         }
 
-        th {
-            width: 140px;
-            vertical-align: top;
+        .com-ir-mailing-address-container {
+            vertical-align: top !important;
         }
 
-        .requirement-section {
-            margin-top: 30px;
-            border: 1px solid black;
-            padding: 15px;
-        }
-
-        .requirement-header {
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .findings {
-            margin: 15px 0;
-        }
-
-        .findings strong {
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .compliance-finding-header {
+        .com-ir-comp-finding-header {
             background-color: #d9d9d9 !important;
-        }
-
-        .enforcement-action {
-            background-color: #bfbfbf;
-        }
-
-        .department-info td {
-            width: 50%;
-            vertical-align: top;
         }
 
         .blue-link {
@@ -143,64 +116,39 @@
             text-decoration: underline;
         }
 
-        .photo-section {
-            margin: 20px 0;
+        .com-ir-photo-section {
+            margin: 4px 8px;
         }
 
-        .photo-caption {
-            margin-top: 5px;
+        .com-ir-photo-caption {
+            margin-top: 4px;
             font-style: italic;
+            font-family: 'CalibriItalic';
             font-size: 9pt;
         }
 
-        .actions-enforcement {
-            margin: 30px 0;
-        }
-
-        .actions-enforcement table {
-            margin-bottom: 20px;
-        }
-
-        .actions-enforcement th {
-            background-color: #f5f5f5;
-        }
-
-        .actions-enforcement td {
-            min-height: 50px;
-            white-space: normal !important;
-        }
-
-        .requirement-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .requirement-description {
-            margin: 10px 0;
-        }
-
-        .additional-source {
+        .com-ir-additional-source {
             margin-top: 10px;
             font-weight: bold;
         }
 
-        .document-title {
+        .com-ir-document-title {
             margin-top: 8px;
             font-weight: bold;
         }
 
-        .document-section {
+        .com-ir-document-section {
             margin-top: 4px;
             font-weight: bold;
         }
 
-        .document-description {
+        .com-ir-document-description {
             margin-top: 4px;
             margin-bottom: 10px;
             white-space: normal !important;
         }
 
-        .findings-content {
+        .com-ir-findings-content {
             margin-top: 10px;
             white-space: normal !important;
         }
@@ -210,8 +158,8 @@
             white-space: normal !important;
         }
 
-        .findings-content,
-        .document-description,
+        .com-ir-findings-content,
+        .com-ir-document-description,
         td p {
             margin: 0;
             white-space: normal !important;
@@ -221,7 +169,7 @@
         @media print {
             @page {
                 size: letter;
-                margin: 100px 20px 40px 20px;
+                margin: 96px 72px 72px 96px;
 
                 /* Top margin reserves space for header, bottom for footer */
                 @top-left {
@@ -271,34 +219,47 @@
                 line-height: 17px;
             }
 
-            .header-container {
+            .com-ir-header-container {
                 display: flex;
                 position: running(header);
                 justify-content: space-between;
                 align-items: center;
+                justify-content: space-between;
                 height: 80px;
                 margin-top: 20px;
-                width: 718px;
+                width: 720px;
                 box-sizing: border-box;
-                background-color: red;
-                padding: 0 20px 20px 40px;
+                padding-left: 0px;
+                padding-right: 72px;
             }
 
-            .header-logo {
+            .com-ir-header-logo {
                 height: 60px;
                 width: auto;
             }
 
-            .header-title {
+            .com-ir-header-title {
                 font-size: 18px;
                 font-weight: bold;
                 color: #336699;
                 line-height: 1.2;
                 text-align: right;
+                font-family: 'CalibriBold';
             }
 
-            .content {
+            .com-ir-photo-caption {
+                margin-top: 4px;
+                font-style: italic;
+                font-family: 'CalibriItalic';
+                font-size: 9pt;
+            }
+
+            /* .content {
                 padding: 0 56px;
+            } */
+
+            .com-ir-photo-section {
+                page-break-inside: avoid;
             }
 
             /* Page number counter */
@@ -315,19 +276,20 @@
                 margin-top: 0;
             } */
 
-            .footer {
+            .com-ir-footer {
                 position: running(footer);
-                width: 100%;
+                width: auto;
                 text-align: center;
                 padding: 10px 40px;
                 background-color: white;
                 font-size: 11pt;
             }
 
-            /* Ensure tables don't break across pages */
-            /* table {
-                page-break-inside: avoid;
-            } */
+            h2 {
+                color: #336699;
+                font-family: 'CalibriBold';
+                font-size: 11pt;
+            }
 
             td,
             th {
@@ -337,11 +299,6 @@
 
             tr {
                 page-break-inside: avoid;
-            }
-
-            h2 {
-                margin-top: 30px;
-                margin-bottom: 15px;
             }
         }
     </style>
@@ -354,17 +311,17 @@
 
 <body>
     <!-- <div class="header"> -->
-    <div class="header-container">
-        <img src="{{ department_details.logo_url }}" class="header-logo" alt="EAO Logo">
-        <div class="header-title">INSPECTION RECORD</div>
+    <div class="com-ir-header-container">
+        <img src="https://dev.compliance.eao.gov.bc.ca/logo/EAO_Compliance_IR_Report_Logo.png" class="com-ir-header-logo" alt="EAO Logo">
+        <div class="com-ir-header-title">INSPECTION RECORD</div>
     </div>
     <!-- </div> -->
-    <div class="footer">
+    <div class="com-ir-footer">
         <span class="pageNumber"></span>
     </div>
-    <div class="content">
+    <div class="com-ir-content">
         <!-- First page content -->
-        <table>
+        <table class="com-ir-general-info-header">
             <tr>
                 <th>Project Name</th>
                 <td>{{ project_details.name }}</td>
@@ -463,12 +420,14 @@
                 {% for doc in requirement.requirement_source_details[0].requirement_documents %}
                 <tr>
                     <td colspan="2">
-                        <div class="document-title">{{ doc.document_title }}</div>
+                        <div class="com-ir-document-title">{{ doc.document_title }}</div>
                         {% if doc.section_number or doc.section_title %}
-                        <div class="document-section">Section {{ doc.section_number }} {{ doc.section_title }}</div>
+                        <div class="com-ir-document-section">Section {{ doc.section_number }} {{ doc.section_title }}
+                        </div>
                         {% endif %}
                         {% if doc.description %}
-                        <div class="document-description">{{ doc.description | safe | replace('style="white-space:
+                        <div class="com-ir-document-description">{{ doc.description | safe |
+                            replace('style="white-space:
                             pre-wrap;"', '') }}</div>
                         {% endif %}
                     </td>
@@ -482,7 +441,7 @@
                 {% for source in requirement.requirement_source_details[1:] %}
                 <tr>
                     <td colspan="2">
-                        <div class="additional-source">
+                        <div class="com-ir-additional-source">
                             <strong>Requirement {{ source.sort_order }}: {{ source.requirement_source_number }} of {{
                                 source.requirement_source_name }}</strong></br>
                             {{ source.requirement_source_description | safe | replace('style="white-space: pre-wrap;"',
@@ -490,12 +449,14 @@
                         </div>
                         {% if source.requirement_documents %}
                         {% for doc in source.requirement_documents %}
-                        <div class="document-title">{{ doc.document_title }}</div>
+                        <div class="com-ir-document-title">{{ doc.document_title }}</div>
                         {% if doc.section_number or doc.section_title %}
-                        <div class="document-section">Section {{ doc.section_number }} {{ doc.section_title }}</div>
+                        <div class="com-ir-document-section">Section {{ doc.section_number }} {{ doc.section_title }}
+                        </div>
                         {% endif %}
                         {% if doc.description %}
-                        <div class="document-description">{{ doc.description | safe | replace('style="white-space:
+                        <div class="com-ir-document-description">{{ doc.description | safe |
+                            replace('style="white-space:
                             pre-wrap;"', '') }}</div>
                         {% endif %}
                         {% endfor %}
@@ -507,18 +468,15 @@
                 <!-- END: Handle the additional requirement source details -->
                 <tr>
                     <td colspan="2">
-                        <div class="findings">
-                            <strong>Findings:</strong>
-                            <div class="findings-content">
-                                {{ requirement.requirement_findings | safe | replace('style="white-space: pre-wrap;"',
-                                '') }}
-                            </div>
-                        </div>
+                        <strong>Findings:</strong></br>
+                        {{ requirement.requirement_findings | safe | replace('style="white-space: pre-wrap;"',
+                        '') }}
                         {% if requirement.requirement_photos and requirement.requirement_photos|length > 0 %}
                         {% for photo in requirement.requirement_photos %}
-                        <div class="photo-section">
-                            <img src="{{ photo.photo_url }}" alt="Photo {{ photo.photo_number }}" class="photo-img">
-                            <div class="photo-caption">
+                        <div class="com-ir-photo-section">
+                            <img src="{{ photo.photo_url }}" alt="Photo {{ photo.photo_number }}"
+                                class="com-ir-photo-img">
+                            <div class="com-ir-photo-caption">
                                 Photo {{ photo.photo_number }}. {{ photo.photo_caption }}
                             </div>
                         </div>
@@ -527,10 +485,10 @@
                         {% if requirement.requirement_figures and requirement.requirement_figures|length > 0 %}
                         {% for figure in requirement.requirement_figures %}
 
-                        <div class="photo-section">
+                        <div class="com-ir-photo-section">
                             <img src="{{ figure.figure_url }}" alt="Figure {{ figure.figure_number }}"
-                                class="photo-img">
-                            <div class="photo-caption">
+                                class="com-ir-photo-img">
+                            <div class="com-ir-photo-caption">
                                 Figure {{ figure.figure_number }}. {{ figure.figure_caption }}
                             </div>
                         </div>
@@ -539,7 +497,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th class="compliance-finding-header">
+                    <th class="com-ir-comp-finding-header">
                         Compliance Finding
                     </th>
                     <td>
@@ -547,7 +505,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th class="header-background">
+                    <th class="com-ir-header-background">
                         Enforcement Action
                     </th>
                     <td>
@@ -559,7 +517,9 @@
 
             <table>
                 <tr>
-                    <th colspan="2" class="header-background">Actions Required by {{ project_details.proponent_label }} and Additional Comments
+                    <th colspan="2" class="com-ir-header-background">Actions Required by {{
+                        project_details.proponent_label }}
+                        and Additional Comments
                     </th>
                 </tr>
                 <tr>
@@ -567,7 +527,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th colspan="2" class="header-background">Enforcement Summary</th>
+                    <th colspan="2" class="com-ir-header-background">Enforcement Summary</th>
                 </tr>
                 <tr>
                     <td colspan="2">{{ enforcement_summary | safe | replace('style="white-space: pre-wrap;"', '') }}
@@ -575,7 +535,7 @@
                 </tr>
                 {% if appendices %}
                 <tr>
-                    <th colspan="2" class="header-background">Appendices:</th>
+                    <th colspan="2" class="com-ir-header-background">Appendices:</th>
                 </tr>
                 <tr>
                     <td colspan="2">
@@ -589,10 +549,12 @@
                 {% endif %}
 
                 <tr>
-                    <th colspan="2" class="header-background">Environmental Assessment Office - Compliance & Enforcement Branch</th>
+                    <th colspan="2" class="com-ir-header-background">Environmental Assessment Office - Compliance &
+                        Enforcement
+                        Branch</th>
                 </tr>
                 <tr>
-                    <td>
+                    <td class="com-ir-mailing-address-container">
                         <strong>Mailing Address:</strong></br>
                         {{ department_details.address }}
                     </td>
