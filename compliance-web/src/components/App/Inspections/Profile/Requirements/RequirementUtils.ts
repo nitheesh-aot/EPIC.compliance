@@ -224,7 +224,6 @@ export const formatImagesToMentionList = (images: RequirementImage[]): MentionDa
   return images.map((image) => ({
     id: image.id ?? 0,
     name: `${image.image_type ?? ""} ${image.sort_order}`,
-    imageRelativeUrl: image.relative_url ?? "",
     imageUrl: image.url ?? "",
   }));
 };
