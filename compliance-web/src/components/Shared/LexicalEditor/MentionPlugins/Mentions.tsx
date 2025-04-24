@@ -295,7 +295,7 @@ export default function MentionsPlugin({
         const mentionNode = $createMentionNode(
           selectedOption.mentionData.name,
           undefined,
-          selectedOption.mentionData.imageRelativeUrl,
+          selectedOption.mentionData.imageUrl,
           selectedOption.mentionData.id
         );
 
@@ -636,7 +636,7 @@ export default function MentionsPlugin({
                 const newMentionNode = $createMentionNode(
                   newName,
                   newName,
-                  updatedImage.relative_url || "",
+                  updatedImage.url || "",
                   updatedImage.id
                 );
 

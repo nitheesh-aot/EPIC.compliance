@@ -225,6 +225,7 @@ export const formatImagesToMentionList = (images: RequirementImage[]): MentionDa
     id: image.id ?? 0,
     name: `${image.image_type ?? ""} ${image.sort_order}`,
     imageRelativeUrl: image.relative_url ?? "",
+    imageUrl: image.url ?? "",
   }));
 };
 
@@ -359,7 +360,7 @@ export const formatRequirementImagesInFindings = (
         const imageLabel = `${image.image_type} ${image.sort_order}`;
         span.textContent = imageLabel;
         span.setAttribute("data-mention", imageLabel);
-        span.setAttribute("data-imageurl", image.relative_url ?? "");
+        span.setAttribute("data-imageurl", image.url ?? "");
       } else {
         span.parentNode?.removeChild(span);
       }
