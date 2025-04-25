@@ -20,17 +20,14 @@ class ContinuationReportService:
         _access_check(report_entry)
         case_file = CaseFileModel.find_by_id(report_entry.get("case_file_id"))
         if not case_file:
-            raise ResourceNotFoundError(
-                "Case file not found."
-            )
+            raise ResourceNotFoundError("Case file not found.")
         report_entry_obj = _create_report_entry(report_entry, sys_generated)
         with session_scope() as session:
             created_entry = ContinuationReportModel.create_entry(
                 report_entry_obj, ho_session or session
             )
             keys = report_entry.get("keys", [])
-            _insert_or_update_keys(
-                created_entry.id, keys, ho_session or session)
+            _insert_or_update_keys(created_entry.id, keys, ho_session or session)
         return created_entry
 
     @classmethod
@@ -83,8 +80,7 @@ class ContinuationReportService:
         :param ho_session: SQLAlchemy session object (optional).
         """
         with session_scope() as session:
-            ContinuationReportModel.delete_by_context(
-                context_id, context_type, session)
+            ContinuationReportModel.delete_by_context(context_id, context_type, session)
             ContinuationReportKeyModel.delete_keys_by_context(
                 context_id, context_type, ho_session or session
             )
@@ -136,8 +132,7 @@ def _is_logged_user_primary_or_officer(case_file_id):
 def _insert_or_update_keys(report_id, keys, session=None):
     """Insert or update keys for continuatino report."""
     existing_keys = ContinuationReportKeyModel.get_by_report_id(report_id)
-    existing_keys = {
-        entry.key for entry in existing_keys if entry.is_active is True}
+    existing_keys = {entry.key for entry in existing_keys if entry.is_active is True}
 
     new_keys = {key.get("key") for key in keys}
     keys_to_be_deleted = existing_keys.difference(new_keys)
@@ -147,8 +142,7 @@ def _insert_or_update_keys(report_id, keys, session=None):
             report_id, list(keys_to_be_deleted), session
         )
     if keysto_be_added:
-        key_objects = [key for key in keys if key.get(
-            "key") in keysto_be_added]
+        key_objects = [key for key in keys if key.get("key") in keysto_be_added]
         ContinuationReportKeyModel.bulk_insert(report_id, key_objects, session)
 
 
