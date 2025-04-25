@@ -26,6 +26,7 @@ describe("ImageModal Component", () => {
   const mockImageData: RequirementImage = {
     id: 1,
     relative_url: "test-url",
+    url: "https://test-image.jpg",
     caption: "Test Caption",
     taken_by: mockStaffUsers[0] as unknown as StaffUser,
     taken_by_id: mockStaffUsers[0].id,
@@ -37,7 +38,10 @@ describe("ImageModal Component", () => {
 
   const queryClient = new QueryClient();
 
-  function mountImageModal(imageData?: RequirementImage, onDelete?: () => void): React.ReactNode {
+  function mountImageModal(
+    imageData?: RequirementImage,
+    onDelete?: () => void
+  ): React.ReactNode {
     return (
       <QueryClientProvider client={queryClient}>
         <ImageModal
@@ -106,7 +110,7 @@ describe("ImageModal Component", () => {
 
     // Click delete button
     cy.get('[data-testid="delete-action-modal-button"]').click();
-    
+
     // Confirm deletion
     cy.get('[data-testid="delete-confirmation-button"]').click();
 
