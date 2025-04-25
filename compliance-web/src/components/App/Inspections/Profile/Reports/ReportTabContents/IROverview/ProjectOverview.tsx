@@ -10,14 +10,12 @@ import { formatAuthorization } from "@/utils/appUtils";
 import { useUpdateInspectionRecord } from "@/hooks/useInspectionReports";
 import { notify } from "@/store/snackbarStore";
 import { InspectionRecord } from "@/models/InspectionRecord";
-import { IRProgressEnum } from "@/utils/constants";
 
 const ProjectOverview = () => {
   const {
     inspectionData,
     caseFileData,
     inspectionReportsData,
-    irApprovalsData,
     setInspectionReportsData,
   } = useReportStore();
   const { setOpen, setClose } = usePopover();
@@ -69,18 +67,6 @@ const ProjectOverview = () => {
       ),
       width: "440px",
     });
-  };
-
-  const getApprovedBy = () => {
-    const isApproved = [
-      IRProgressEnum.PRELIMINARY_APPROVED,
-      IRProgressEnum.FINAL_APPROVED,
-    ].includes(inspectionReportsData?.ir_progress as IRProgressEnum);
-    if (isApproved) {
-      const approvedBy = irApprovalsData?.[0]?.approved_by;
-      return `${approvedBy?.name}, ${approvedBy?.position?.name}`;
-    }
-    return "";
   };
 
   return (
@@ -160,10 +146,7 @@ const ProjectOverview = () => {
             </Button>
           )}
         </Grid>
-        <GridLabelValuePair
-          label="Record Approved By"
-          value={getApprovedBy()}
-        />
+        <GridLabelValuePair label="Record Approved By" value="" />
       </Grid>
     </Box>
   );
