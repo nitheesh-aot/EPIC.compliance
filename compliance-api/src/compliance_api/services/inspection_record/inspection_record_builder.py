@@ -56,7 +56,7 @@ class InspectionRecordDataBuilder:
         }
         self.data["inspection_details"] = {
             "id": self.inspection.id,
-            "inspection_type": ", ".join(
+            "inspection_type": " and ".join(
                 [inspection_type.type.name for inspection_type in self.inspection.types]
             ),
             "start_date": self.inspection.start_date.strftime("%Y-%m-%d"),
@@ -103,7 +103,11 @@ class InspectionRecordDataBuilder:
 
         # Initialize an empty list to store attendance information
         attendance_list = []
-
+        # Initialize inspecting officers list with primary officer
+        inspecting_officers = [
+            f"{self.data['officer_details']['primary_officer']['name']},"
+            f"{self.data['officer_details']['primary_officer']['position']}"
+        ]
         # Process each attendance option
         for option in attendance_options:
             # Skip officer attendance as per requirement
@@ -111,8 +115,13 @@ class InspectionRecordDataBuilder:
                 option.attendance_option_id
                 == InspectionAttendanceOptionEnum.ATTENDING_OFFICERS.value
             ):
+                for officer in option.data:
+                    # Avoid duplicate primary officer
+                    if officer.get("id") != self.inspection.primary_officer_id:
+                        inspecting_officers.append(
+                            f"{officer.get('name')}, {officer.get('position').get('name')}"
+                        )
                 continue
-
             # Handle different types of attendance data
             if option.data:
                 if isinstance(option.data, list):
@@ -129,9 +138,15 @@ class InspectionRecordDataBuilder:
 
         # Join all attendance items with commas
         attendance_string = ", ".join(attendance_list) if attendance_list else ""
+        inspecting_officers_string = (
+            "; ".join(inspecting_officers) if inspecting_officers else ""
+        )
 
         # Add the attendance information to the officer_details dictionary
         self.data["officer_details"]["in_attendance"] = attendance_string
+        self.data["officer_details"]["inspecting_officers"] = inspecting_officers_string
+
+        return self
 
     def build_appendices(self):
         """Build the appendices for the inspection record."""
@@ -181,11 +196,30 @@ class InspectionRecordDataBuilder:
                 eac_certicate = project.get("ea_certificate", None)
                 proponent = project.get("proponent").get("name")
                 name = project.get("name")
+        project_status_id = self.inspection.project_status_id
+        project_status_name = None
+        if project_status_id:
+            project_statuses = TrackService.get_project_statuses()
+            project_status = next(
+                (
+                    status
+                    for status in project_statuses
+                    if status.get("id") == project_status_id
+                ),
+                None,
+            )
+            if project_status:
+                project_status_name = project_status.get("name")
         self.data["project_details"] = {
             "eac_certificate": eac_certicate,
             "proponent": proponent,
             "name": name,
-            "project_state": project.get("project_state").get("name"),
+            "project_state": project_status_name,
+            "certificate_label": (
+                "Exemption Order"
+                if re.match(r"^X\d{1,3}-\d{1,3}$", eac_certicate)
+                else "EA Certificate #"
+            ),
             "proponent_label": (
                 "Certificate Holder"
                 if re.match(r"^E\d{1,3}-\d{1,3}$", eac_certicate)

@@ -13,7 +13,6 @@ import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 import { ImageFormData, RequirementImage } from "@/models/Image";
 import { useEffect, useMemo } from "react";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { formatS3Url } from "@/utils/appUtils";
 import dayjs from "dayjs";
 import dateUtils from "@/utils/dateUtils";
 import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
@@ -69,11 +68,15 @@ const ImageModal: React.FC<ImageModalProps> = ({
 
   const { handleSubmit, reset, getValues } = methods;
 
-  const onSuccess = (uploadedFileUrl: string) => {
+  const onSuccess = (uploadedFile: {
+    presigned_url: string;
+    relative_url: string;
+  }) => {
     const takenBy = getValues("takenBy") as StaffUser;
     const imageFormData: RequirementImage = {
       id: Date.now(),
-      relative_url: uploadedFileUrl,
+      relative_url: uploadedFile.relative_url,
+      url: uploadedFile.presigned_url,
       caption: getValues("caption"),
       taken_by: takenBy,
       taken_by_id: takenBy?.id,
@@ -139,7 +142,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 src={
                   file
                     ? URL.createObjectURL(file)
-                    : formatS3Url(requirementImage?.relative_url ?? "")
+                    : (requirementImage?.url ?? "")
                 }
                 alt="Preview"
                 style={{ maxHeight: "100%", maxWidth: "100%" }}
@@ -181,8 +184,9 @@ const ImageModal: React.FC<ImageModalProps> = ({
                     ? dateUtils.formatDate(
                         dayjs(file.lastModified).toISOString()
                       )
-                    : dateUtils.formatDate(requirementImage?.date_taken ?? "") ||
-                      "No file selected"
+                    : dateUtils.formatDate(
+                        requirementImage?.date_taken ?? ""
+                      ) || "No file selected"
                 }
                 gridProps={{ xs: 4 }}
                 isBold

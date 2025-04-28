@@ -42,7 +42,10 @@ class InspectionRecordSchema(AutoSchemaBase):  # pylint: disable=too-many-ancest
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of the inspection record status enum."""
         if "ir_progress" in data and data["ir_progress"] is not None:
-            data["ir_progress"] = IRProgressEnum(data["ir_progress"]).name
+            data["ir_progress"] = {
+                "id": data["ir_progress"].name,
+                "name": data["ir_progress"].value,
+            }
         else:
             data["ir_progress"] = ""
         return data
@@ -72,6 +75,14 @@ class UpdateInspectionRecordSchema(BaseSchema):
                 metadata={
                     "description": "Inspection record issued date in ISO 8601 format."
                 },
+                required=True,
+                error_messages={
+                    "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
+                },
+            ),
+            "intended_issuance_date": fields.DateTime(
+                format=INPUT_DATE_TIME_FORMAT,
+                metadata={"description": "Intended issuance date in ISO 8601 format."},
                 required=True,
                 error_messages={
                     "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
