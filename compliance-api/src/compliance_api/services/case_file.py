@@ -55,11 +55,9 @@ class CaseFileService:
         from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
 
         case_file_obj = _create_case_file_object(case_file_data)
-        _validate_existence_by_file_number(
-            case_file_obj.get("case_file_number", None))
+        _validate_existence_by_file_number(case_file_obj.get("case_file_number", None))
         with session_scope() as session:
-            created_case_file = CaseFileModel.create_case_file(
-                case_file_obj, session)
+            created_case_file = CaseFileModel.create_case_file(case_file_obj, session)
             # If Selected Project is unapproved project
             if not case_file_data.get("project_id", None):
                 unapproved_project_obj = _create_unapproved_project_object(
@@ -69,8 +67,7 @@ class CaseFileService:
                     unapproved_project_obj, session
                 )
             cls.insert_or_update_officers(
-                created_case_file.id, case_file_data.get(
-                    "officer_ids", []), session
+                created_case_file.id, case_file_data.get("officer_ids", []), session
             )
             cr_entry = _create_cr_entry(
                 created_case_file.id,
@@ -130,10 +127,8 @@ class CaseFileService:
             }
 
             new_officer_ids = set(officer_ids)
-            officer_ids_to_be_deleted = existing_officer_ids.difference(
-                new_officer_ids)
-            officer_ids_to_be_added = new_officer_ids.difference(
-                existing_officer_ids)
+            officer_ids_to_be_deleted = existing_officer_ids.difference(new_officer_ids)
+            officer_ids_to_be_added = new_officer_ids.difference(existing_officer_ids)
             if officer_ids_to_be_deleted:
                 CaseFileOfficerModel.bulk_delete(
                     case_file_id, list(officer_ids_to_be_deleted), session
@@ -197,16 +192,14 @@ class CaseFileService:
         """Link the case file to another one of the same project."""
         case_file = CaseFileModel.find_by_id(case_file_id)
         if not case_file:
-            raise ResourceNotFoundError(
-                f"CaseFile with {case_file_id} not found")
+            raise ResourceNotFoundError(f"CaseFile with {case_file_id} not found")
         _case_file_close_check(case_file)
         _access_check_for_update(case_file_id)
         case_file = CaseFileModel.find_by_id(case_file_id)
         link_case_file_id = link.get("link_case_file_id")
         link_to_case_file = CaseFileModel.find_by_id(link_case_file_id)
         if not link_to_case_file:
-            raise ResourceNotFoundError(
-                f"CaseFile with {link_case_file_id} not found")
+            raise ResourceNotFoundError(f"CaseFile with {link_case_file_id} not found")
         _link_case_file_checks(case_file, case_file_id)
         _link_case_file_checks(link_to_case_file, link_case_file_id)
         source_link = CaseFileLinkModel.get_links_by_source_and_target(
@@ -232,8 +225,7 @@ class CaseFileService:
         """Unlink the case file from another case file."""
         case_file = CaseFileModel.find_by_id(case_file_id)
         if not case_file:
-            raise ResourceNotFoundError(
-                f"CaseFile with {case_file_id} not found")
+            raise ResourceNotFoundError(f"CaseFile with {case_file_id} not found")
         _case_file_close_check(case_file)
         _access_check_for_update(case_file_id)
         unlink_case_file_id = unlink.get("case_file_to_unlink")
@@ -255,8 +247,7 @@ class CaseFileService:
     @classmethod
     def get_linked_case_files(cls, case_file_id):
         """Get all linked case files."""
-        linked_case_files = CaseFileLinkModel.get_links_by_source_id(
-            case_file_id)
+        linked_case_files = CaseFileLinkModel.get_links_by_source_id(case_file_id)
         links = [link.target for link in linked_case_files]
         return links
 
@@ -280,8 +271,7 @@ def _create_link(source, target, session):
 def _link_case_file_checks(case_file, case_file_id):
     """Validate case file link."""
     if not case_file:
-        raise ResourceNotFoundError(
-            f"Case file with ID: {case_file_id} not found.")
+        raise ResourceNotFoundError(f"Case file with ID: {case_file_id} not found.")
     if case_file.is_active is False or case_file.is_deleted is True:
         raise UnprocessableEntityError(
             f"Case file should be active and non-deleted. Case file number {case_file.case_file_number}"
@@ -298,12 +288,10 @@ def _set_project_parameters(case_file):
         project_id = case_file.project_id
         if project_id:
             project = TrackService.get_project_by_id(project_id)
-            setattr(case_file, "authorization",
-                    project.get("ea_certificate", None))
+            setattr(case_file, "authorization", project.get("ea_certificate", None))
             setattr(case_file, "type", project.get("type").get("name"))
             setattr(case_file, "sub_type", project.get("sub_type").get("name"))
-            setattr(case_file, "regulated_party",
-                    project.get("proponent").get("name"))
+            setattr(case_file, "regulated_party", project.get("proponent").get("name"))
         if not project_id:
             project = UnapprovedProjectModel.get_by_case_file_id(case_file.id)
             setattr(case_file, "authorization", project.authorization)
@@ -352,8 +340,7 @@ def _create_case_file_object(case_file_data: dict):
             datetime.now().year
         )
     else:
-        case_file_obj["case_file_number"] = case_file_data.get(
-            "case_file_number")
+        case_file_obj["case_file_number"] = case_file_data.get("case_file_number")
     return case_file_obj
 
 

@@ -1,6 +1,6 @@
 """Schema for Inspection Record Approval."""
 
-from marshmallow import EXCLUDE, ValidationError, fields, post_load, validate
+from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load, validate
 from marshmallow_enum import EnumField
 
 from compliance_api.models.inspection_record_approval import InspectionRecordApproval as InspectionRecordApprovalModel
@@ -24,7 +24,16 @@ class InspectionRecordApprovalSchema(
         include_fk = True
 
     approved_by = fields.Nested(StaffUserSchema)
-    approval_status = EnumField(IRApprovalStatusEnum, by_value=False)
+
+    @post_dump
+    def convert_enum_to_key_value(self, data, **kwargs):
+        """Convert enum to key value schema."""
+        if "approval_status" in data and data["approval_status"] is not None:
+            data["approval_status"] = {
+                "id": data["approval_status"].name,
+                "name": data["approval_status"].value,
+            }
+        return data
 
 
 class CreateInspectionRecordApprovalSchema(BaseSchema):

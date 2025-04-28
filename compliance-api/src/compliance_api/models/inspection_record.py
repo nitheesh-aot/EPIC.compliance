@@ -82,6 +82,11 @@ class InspectionRecord(BaseModelVersioned):
     action_required_by_rp = Column(
         String, nullable=True, comment="Action required by Regulated Party"
     )
+    intended_issuance_date = Column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="Date when the inspection report was intended to be issued",
+    )
     date_issued = Column(
         DateTime(timezone=True),
         nullable=True,

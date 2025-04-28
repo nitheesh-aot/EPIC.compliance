@@ -173,8 +173,7 @@ class InspectionService:
             created_inspection = InspectionModel.create_inspection(
                 inspection_obj, session
             )
-            attendance_option_ids = inspection_data.get(
-                "attendance_option_ids", [])
+            attendance_option_ids = inspection_data.get("attendance_option_ids", [])
             _insert_or_update_inspection_relationship(
                 created_inspection.id,
                 attendance_option_ids,
@@ -227,8 +226,7 @@ class InspectionService:
         """Update inspection."""
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
-            raise ResourceNotFoundError(
-                f"Inspection with ID {inspection_id} not found")
+            raise ResourceNotFoundError(f"Inspection with ID {inspection_id} not found")
         _inspection_status_check(inspection)
         ServiceUtils.access_check_update_for_inspection(inspection)
         inspection_obj = _create_inspection_update_obj(inspection_data)
@@ -250,8 +248,7 @@ class InspectionService:
                 "type_id",
                 session,
             )
-            attendance_option_ids = inspection_data.get(
-                "attendance_option_ids", [])
+            attendance_option_ids = inspection_data.get("attendance_option_ids", [])
             _insert_or_update_inspection_relationship(
                 inspection_id,
                 attendance_option_ids,
@@ -290,8 +287,7 @@ class InspectionService:
         """Close the inspection."""
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
-            raise ResourceNotFoundError(
-                f"Inspection with ID {inspection_id} not found")
+            raise ResourceNotFoundError(f"Inspection with ID {inspection_id} not found")
         ServiceUtils.access_check_update_for_inspection(inspection)
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
@@ -310,8 +306,7 @@ class InspectionService:
     def delete_by_case_file(cls, case_file_id, ho_session=None):
         """Delete inspection and related entries by case file id."""
         with session_scope() as session:
-            InspectionModel.delete_by_case_file(
-                case_file_id, ho_session or session)
+            InspectionModel.delete_by_case_file(case_file_id, ho_session or session)
             InspectionAgencyModel.delete_by_case_file(
                 case_file_id, ho_session or session
             )
@@ -324,8 +319,7 @@ class InspectionService:
             InspectionOfficerModel.delete_by_case_file(
                 case_file_id, ho_session or session
             )
-            InspectionTypeModel.delete_by_case_file(
-                case_file_id, ho_session or session)
+            InspectionTypeModel.delete_by_case_file(case_file_id, ho_session or session)
             InspectionOtherAttendanceModel.delete_by_case_file(
                 case_file_id, ho_session or session
             )
@@ -335,8 +329,7 @@ class InspectionService:
         """Delete inspection."""
         inspection = InspectionModel.find_by_id(inspection_id)
         if not inspection:
-            raise ResourceNotFoundError(
-                f"Inspection with ID {inspection_id} not found")
+            raise ResourceNotFoundError(f"Inspection with ID {inspection_id} not found")
         _inspection_status_check(inspection)
         with session_scope() as session:
             InspectionModel.delete_inspection(inspection_id, session)
@@ -344,8 +337,7 @@ class InspectionService:
             InspectionOtherAttendanceModel.delete_inspection_attendance(
                 inspection_id, session
             )
-            InspectionOfficerModel.delete_inspection_officer(
-                inspection_id, session)
+            InspectionOfficerModel.delete_inspection_officer(inspection_id, session)
             InspectionFirstnationModel.delete_inspection_firstnation(
                 inspection_id, session
             )
@@ -357,8 +349,7 @@ class InspectionService:
 
 def _inspection_status_check(inspection: InspectionModel):
     """Check the inspection status."""
-    invalid_statuses = {InspectionStatusEnum.CANCELED,
-                        InspectionStatusEnum.CLOSED}
+    invalid_statuses = {InspectionStatusEnum.CANCELED, InspectionStatusEnum.CLOSED}
     if inspection.inspection_status in invalid_statuses:
         raise UnprocessableEntityError(
             f"You cannot make changes to  {inspection.inspection_status.name} inspection"
@@ -402,8 +393,7 @@ def _set_first_nation_names(first_nation_list: list):
     """Set the name of the first nations from epic.track."""
     result = []
     for first_nation in first_nation_list:
-        response = TrackService.get_first_nation_by_id(
-            first_nation.firstnation_id)
+        response = TrackService.get_first_nation_by_id(first_nation.firstnation_id)
         result.append({"id": response.get("id"), "name": response.get("name")})
     return result
 
@@ -443,12 +433,10 @@ def _insert_or_update_inspection_relationship(
 
     # Perform bulk delete and insert
     if entity_ids_to_be_deleted:
-        model_class.bulk_delete(inspection_id, list(
-            entity_ids_to_be_deleted), session)
+        model_class.bulk_delete(inspection_id, list(entity_ids_to_be_deleted), session)
 
     if entity_ids_to_be_added:
-        model_class.bulk_insert(inspection_id, list(
-            entity_ids_to_be_added), session)
+        model_class.bulk_insert(inspection_id, list(entity_ids_to_be_added), session)
 
 
 def _create_inspection_update_obj(inspection_data: dict):
@@ -496,8 +484,7 @@ def _create_inspection_record_number(
     if not case_file:
         raise ResourceNotFoundError("Given case file doesn't exist")
     if case_file.project_id != project_id:
-        raise UnprocessableEntityError(
-            "Given project and case file doesn't match")
+        raise UnprocessableEntityError("Given project and case file doesn't match")
 
     count = InspectionModel.get_count_by_project_nd_case_file_id(
         project_id, case_file_id

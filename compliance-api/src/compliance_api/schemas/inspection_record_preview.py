@@ -1,4 +1,5 @@
 """Inspection Record Preview Schema."""
+
 from marshmallow import Schema, fields
 
 from .appendix import AppendixSchema
