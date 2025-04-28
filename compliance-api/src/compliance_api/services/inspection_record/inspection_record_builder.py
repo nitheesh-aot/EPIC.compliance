@@ -56,10 +56,10 @@ class InspectionRecordDataBuilder:
         }
         self.data["inspection_details"] = {
             "id": self.inspection.id,
-            "inspection_type": ", ".join(
+            "inspection_type": " and ".join(
                 [inspection_type.type.name for inspection_type in self.inspection.types]
             ),
-            "start_date": self.inspection.start_date.strftime("%B %d, %Y"),
+            "start_date": self.inspection.start_date.strftime("%Y-%m-%d"),
             "utm": self.inspection.utm,
             "project_description": self.inspection.project_description,
             "location_description": self.inspection.location_description,
@@ -103,7 +103,11 @@ class InspectionRecordDataBuilder:
 
         # Initialize an empty list to store attendance information
         attendance_list = []
-
+        # Initialize inspecting officers list with primary officer
+        inspecting_officers = [
+            f"{self.data['officer_details']['primary_officer']['name']},"
+            f"{self.data['officer_details']['primary_officer']['position']}"
+        ]
         # Process each attendance option
         for option in attendance_options:
             # Skip officer attendance as per requirement
@@ -111,8 +115,13 @@ class InspectionRecordDataBuilder:
                 option.attendance_option_id
                 == InspectionAttendanceOptionEnum.ATTENDING_OFFICERS.value
             ):
+                for officer in option.data:
+                    # Avoid duplicate primary officer
+                    if officer.get("id") != self.inspection.primary_officer_id:
+                        inspecting_officers.append(
+                            f"{officer.get('name')}, {officer.get('position').get('name')}"
+                        )
                 continue
-
             # Handle different types of attendance data
             if option.data:
                 if isinstance(option.data, list):
@@ -128,11 +137,16 @@ class InspectionRecordDataBuilder:
                 attendance_list.append(option.attendance_option.name)
 
         # Join all attendance items with commas
-        attendance_string = ", ".join(
-            attendance_list) if attendance_list else ""
+        attendance_string = ", ".join(attendance_list) if attendance_list else ""
+        inspecting_officers_string = (
+            "; ".join(inspecting_officers) if inspecting_officers else ""
+        )
 
         # Add the attendance information to the officer_details dictionary
         self.data["officer_details"]["in_attendance"] = attendance_string
+        self.data["officer_details"]["inspecting_officers"] = inspecting_officers_string
+
+        return self
 
     def build_appendices(self):
         """Build the appendices for the inspection record."""
@@ -182,11 +196,30 @@ class InspectionRecordDataBuilder:
                 eac_certicate = project.get("ea_certificate", None)
                 proponent = project.get("proponent").get("name")
                 name = project.get("name")
+        project_status_id = self.inspection.project_status_id
+        project_status_name = None
+        if project_status_id:
+            project_statuses = TrackService.get_project_statuses()
+            project_status = next(
+                (
+                    status
+                    for status in project_statuses
+                    if status.get("id") == project_status_id
+                ),
+                None,
+            )
+            if project_status:
+                project_status_name = project_status.get("name")
         self.data["project_details"] = {
             "eac_certificate": eac_certicate,
             "proponent": proponent,
             "name": name,
-            "project_state": project.get("project_state").get("name"),
+            "project_state": project_status_name,
+            "certificate_label": (
+                "Exemption Order"
+                if re.match(r"^X\d{1,3}-\d{1,3}$", eac_certicate)
+                else "EA Certificate #"
+            ),
             "proponent_label": (
                 "Certificate Holder"
                 if re.match(r"^E\d{1,3}-\d{1,3}$", eac_certicate)
@@ -198,7 +231,10 @@ class InspectionRecordDataBuilder:
     def build_inspection_scope(self):
         """Populate the inspection scope data."""
         #  if there is an existing ir and we are building the same ir, then the inspection scope should not be built
-        if self.existing_ir is not None and self.existing_ir.ir_status.id == self.ir_status:
+        if (
+            self.existing_ir is not None
+            and self.existing_ir.ir_status.id == self.ir_status
+        ):
             self.data["inspection_scope"] = self.existing_ir.inspection_scope
             return self
         debreif_date = self.inspection.debrief_date
@@ -220,8 +256,7 @@ class InspectionRecordDataBuilder:
                 if requirement.requirement_source_details:
                     #  Identify the first requirement source detail
                     first_rq_detail = requirement.requirement_source_details[0]
-                    number = self._get_requirement_source_number_field(
-                        first_rq_detail)
+                    number = self._get_requirement_source_number_field(first_rq_detail)
 
                     requirement_lines.append(
                         f"{number} of {first_rq_detail.requirement_source.name} with respect to {requirement.summary}"
@@ -237,8 +272,13 @@ class InspectionRecordDataBuilder:
         """Build the preliminary review details."""
         #  if there is an existing ir and we are building the same ir, then
         # the preliminary review details should not be built
-        if self.existing_ir is not None and self.existing_ir.ir_status.id == self.ir_status:
-            self.data["preliminary_review_details"] = self.existing_ir.preliminary_review_details
+        if (
+            self.existing_ir is not None
+            and self.existing_ir.ir_status.id == self.ir_status
+        ):
+            self.data["preliminary_review_details"] = (
+                self.existing_ir.preliminary_review_details
+            )
             return self
         preliminary_review_details = {}
         #  No preliminary_review_details for ir when it is PRELIMINARY
@@ -271,7 +311,10 @@ class InspectionRecordDataBuilder:
     def build_finding_statement(self):
         """Build the finding statement for the inspection record."""
         #  if there is an existing ir and we are building the same ir, then the finding statement should not be built
-        if self.existing_ir is not None and self.existing_ir.ir_status.id == self.ir_status:
+        if (
+            self.existing_ir is not None
+            and self.existing_ir.ir_status.id == self.ir_status
+        ):
             self.data["finding_statement"] = self.existing_ir.finding_statement
             return self
         self.data["finding_statement"] = render_template_with_data(
@@ -282,7 +325,10 @@ class InspectionRecordDataBuilder:
     def build_enforcement_summary(self):
         """Build the enforcement summary for the inspection record."""
         #  if there is an existing ir and we are building the same ir, then the enforcement summary should not be built
-        if self.existing_ir is not None and self.existing_ir.ir_status.id == self.ir_status:
+        if (
+            self.existing_ir is not None
+            and self.existing_ir.ir_status.id == self.ir_status
+        ):
             self.data["enforcement_summary"] = self.existing_ir.enforcement_summary
             return self
         if self.ir_status == IRStatusEnum.PRELIMINARY.value:
@@ -313,12 +359,16 @@ class InspectionRecordDataBuilder:
                         if summary_line:
                             enforment_summary_lines.append(summary_line)
             if len(enforment_summary_lines) > 0:
-                enforment_summary_lines.append(render_template_with_data(
-                    "ENFORCEMENT_SUMMARY.DEFAULT", ENFORCEMENT_SUMMARY.get("DEFAULT"), {
-                        "project_name": self.data["project_details"].get("name"),
-                        "act": "Environmental Assessment Act (2018)",
-                    }
-                ))
+                enforment_summary_lines.append(
+                    render_template_with_data(
+                        "ENFORCEMENT_SUMMARY.DEFAULT",
+                        ENFORCEMENT_SUMMARY.get("DEFAULT"),
+                        {
+                            "project_name": self.data["project_details"].get("name"),
+                            "act": "Environmental Assessment Act (2018)",
+                        },
+                    )
+                )
                 self.data["enforcement_summary"] = (
                     f"<p class='editor-paragraph' dir='ltr'>{'</br>'.join(enforment_summary_lines)}</p>"
                 )
@@ -328,7 +378,10 @@ class InspectionRecordDataBuilder:
         """Build the action required by proponent."""
         #  if there is an existing ir and we are building the same ir,
         # then the action_required_by_rp should not be built
-        if self.existing_ir is not None and self.existing_ir.ir_status.id == self.ir_status:
+        if (
+            self.existing_ir is not None
+            and self.existing_ir.ir_status.id == self.ir_status
+        ):
             self.data["action_required_by_rp"] = self.existing_ir.action_required_by_rp
             return self
         if self.ir_status == IRStatusEnum.FINAL.value:
@@ -369,7 +422,11 @@ class InspectionRecordDataBuilder:
                 "requirement_id": requirement.id,
                 "requirement_findings": requirement.findings,
                 "sort_order": requirement.sort_order,
-                "compliance_finding": requirement.compliance_finding.name if requirement.compliance_finding else None,
+                "compliance_finding": (
+                    requirement.compliance_finding.name
+                    if requirement.compliance_finding
+                    else None
+                ),
                 "enforcement_action": (
                     "Not Applicable"
                     if requirement.compliance_finding_id
@@ -514,8 +571,7 @@ class InspectionRecordDataBuilder:
         self, detail_obj: InspectionReqSourceDetailModel
     ):
         """Identify the number field based on the requirement source id."""
-        requirement_source = RequirementSourceEnum(
-            detail_obj.requirement_source_id)
+        requirement_source = RequirementSourceEnum(detail_obj.requirement_source_id)
         section_sources = {
             RequirementSourceEnum.ACT_2002,
             RequirementSourceEnum.ACT_2018,

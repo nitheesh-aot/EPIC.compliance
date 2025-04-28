@@ -45,8 +45,7 @@ class EncryptedType(TypeDecorator):  # pylint: disable=too-many-ancestors
             initialization_vector = encrypted_value[: AES.block_size]
             encrypted_value = encrypted_value[AES.block_size:]
             cipher = self._get_cipher_suite(initialization_vector)
-            decrypted_value = unpad(cipher.decrypt(
-                encrypted_value), AES.block_size)
+            decrypted_value = unpad(cipher.decrypt(encrypted_value), AES.block_size)
             return decrypted_value.decode("utf-8")
         return None
 
