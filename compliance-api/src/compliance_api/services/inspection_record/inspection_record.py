@@ -211,7 +211,7 @@ class InspectionRecordService:
         )
         preview_data = InspectionRecordPreviewSchema().dump(ir_data)
         response = DocGenService.render_template(
-            "IR_PRELIMINARY_TEMPLATE", preview_data, output_format
+            "IR_TEMPLATE", preview_data, output_format
         )
         return response
 
