@@ -5,9 +5,11 @@ import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import dayjs, { Dayjs } from "dayjs";
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
-import { InspectionRecordApprovalPayload } from "@/models/IRApproval";
 import { useReportStore } from "../reportStore";
 import dateUtils from "@/utils/dateUtils";
+import { notify } from "@/store/snackbarStore";
+import { useUpdateInspectionRecord } from "@/hooks/useInspectionReports";
+import { InspectionRecord } from "@/models/InspectionRecord";
 
 const issuanceDateFormSchema = yup.object().shape({
   issuanceDate: yup.mixed<Dayjs>().required("Issuance date is required"),
@@ -19,30 +21,18 @@ const initFormData: IssuanceDateSchemaType = {
   issuanceDate: undefined as unknown as Dayjs,
 };
 
-type IssuanceDateProps = {
-  onUpdateIRApprovalStep: (
-    approvalPayloads: InspectionRecordApprovalPayload[]
-  ) => void;
-  onNext: () => void;
-};
-
-const IssuanceDate: React.FC<IssuanceDateProps> = ({
-  onUpdateIRApprovalStep,
-  onNext,
-}) => {
-  const { irApprovalsData } = useReportStore();
+const IssuanceDate: React.FC = () => {
+  const { inspectionData, inspectionReportsData, setInspectionReportsData } =
+    useReportStore();
 
   const defaultValues = useMemo<IssuanceDateSchemaType>(() => {
-    const currentApproval = irApprovalsData?.[0];
-    if (currentApproval) {
+    if (inspectionReportsData?.intended_issuance_date) {
       return {
-        issuanceDate: currentApproval.date_response
-          ? dayjs(currentApproval.date_response)
-          : (undefined as unknown as Dayjs),
+        issuanceDate: dayjs(inspectionReportsData?.intended_issuance_date),
       };
     }
     return initFormData;
-  }, [irApprovalsData]);
+  }, [inspectionReportsData]);
 
   const methods = useForm<IssuanceDateSchemaType>({
     resolver: yupResolver(issuanceDateFormSchema),
@@ -63,19 +53,24 @@ const IssuanceDate: React.FC<IssuanceDateProps> = ({
     }
   }, [defaultValues, reset]);
 
+  const handleOnSuccess = (data: InspectionRecord) => {
+    notify.success("Intended issuance date updated");
+    setInspectionReportsData(data);
+  };
+
+  const { mutate: updateInspectionRecord } =
+    useUpdateInspectionRecord(handleOnSuccess);
+
   const onSubmitHandler = (data: IssuanceDateSchemaType) => {
     if (isDirty) {
-      const approvalPayloads: InspectionRecordApprovalPayload[] = [
-        {
-          field_name: "date_response",
-          value: data.issuanceDate
-            ? dateUtils.dateToISO(data.issuanceDate)
-            : null,
+      updateInspectionRecord({
+        inspectionId: inspectionData?.id ?? 0,
+        inspectionRecordId: inspectionReportsData?.id ?? 0,
+        updateRecord: {
+          field_name: "intended_issuance_date",
+          value: dateUtils.dateToISO(data.issuanceDate),
         },
-      ];
-      onUpdateIRApprovalStep(approvalPayloads);
-    } else {
-      onNext();
+      });
     }
   };
 
@@ -107,7 +102,7 @@ const IssuanceDate: React.FC<IssuanceDateProps> = ({
               gap: 1,
             }}
           >
-            <Button variant="outlined" size="small" type="submit">
+            <Button variant="outlined" size="small" type="submit" disabled={!isDirty}>
               Save
             </Button>
           </Box>

@@ -37,8 +37,10 @@ export default function OfficerStepper() {
   } = useReportStore();
   const [activeStep, setActiveStep] = useState(0);
 
-  const isFinalStep = useMemo(() => {
-    return inspectionReportsData?.ir_progress === IRProgressEnum.FINAL_APPROVED;
+  const isFinalReportStep = useMemo(() => {
+    return (
+      inspectionReportsData?.ir_progress?.id === IRProgressEnum.FINAL_APPROVED
+    );
   }, [inspectionReportsData]);
 
   const handleNext = () => {
@@ -124,7 +126,7 @@ export default function OfficerStepper() {
           fontWeight: 600,
         }}
       >
-        {(isFinalStep ? finalSteps : preliminarySteps).map((label) => {
+        {(isFinalReportStep ? finalSteps : preliminarySteps).map((label) => {
           return (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -133,11 +135,8 @@ export default function OfficerStepper() {
         })}
       </Stepper>
       <Box sx={{ p: 2 }}>
-        {activeStep === 0 && isFinalStep ? (
-          <IssuanceDate
-            onUpdateIRApprovalStep={onUpdateIRApprovalStep}
-            onNext={handleNext}
-          />
+        {activeStep === 0 && isFinalReportStep ? (
+          <IssuanceDate />
         ) : (
           <PreliminaryReview
             onUpdateIRApprovalStep={onUpdateIRApprovalStep}

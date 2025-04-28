@@ -95,7 +95,7 @@ export default function ReportTopSection() {
       [
         IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW,
         IRProgressEnum.FINAL_DEPUTY_REVIEW,
-      ].includes(inspectionReportsData?.ir_progress as IRProgressEnum) &&
+      ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum) &&
       !isCurrentUserApprover
     );
   }, [inspectionReportsData, isCurrentUserApprover]);
@@ -105,7 +105,7 @@ export default function ReportTopSection() {
       [
         IRProgressEnum.PRELIMINARY_DRAFTING,
         IRProgressEnum.FINALIZING_RECORD,
-      ].includes(inspectionReportsData?.ir_progress as IRProgressEnum) ||
+      ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum) ||
       isDisableApprovalButton
     );
   }, [inspectionReportsData, isDisableApprovalButton]);
@@ -115,7 +115,7 @@ export default function ReportTopSection() {
       [
         IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW,
         IRProgressEnum.FINAL_DEPUTY_REVIEW,
-      ].includes(inspectionReportsData?.ir_progress as IRProgressEnum) &&
+      ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum) &&
       isCurrentUserApprover
     );
   }, [inspectionReportsData, isCurrentUserApprover]);
@@ -125,7 +125,7 @@ export default function ReportTopSection() {
       IRProgressEnum.PRELIMINARY_APPROVED,
       IRProgressEnum.FINAL_APPROVED,
       IRProgressEnum.HOLDER_PRELIMINARY_REVIEW,
-    ].includes(inspectionReportsData?.ir_progress as IRProgressEnum);
+    ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum);
   }, [inspectionReportsData]);
 
   return (
