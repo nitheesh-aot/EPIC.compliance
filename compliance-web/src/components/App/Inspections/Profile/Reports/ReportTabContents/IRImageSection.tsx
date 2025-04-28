@@ -1,5 +1,4 @@
 import { RequirementImage } from "@/models/Image";
-import { formatS3Url } from "@/utils/appUtils";
 import { Typography } from "@mui/material";
 import { Box } from "@mui/material";
 import imageNotFound from "@/assets/images/image-not-found.svg";
@@ -19,7 +18,7 @@ const IRImageSection = ({ image }: { image: RequirementImage }) => {
         }}
       >
         <img
-          src={formatS3Url(image.relative_url ?? "")}
+          src={image.url ?? ""}
           alt={image.caption}
           style={{
             width: "100%",

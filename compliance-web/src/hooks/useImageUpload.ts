@@ -32,7 +32,11 @@ export const useImageUpload = (onSuccess: OnSuccessType) => {
         relative_url: `compliance/inspections/${imageData.inspectionId}/requirements-images/${imageData.fileName}`,
       });
       await uploadFile(presignedUrlData.presigned_url, imageData.file);
-      return presignedUrlData.relative_url;
+      const getPresignedUrlData = await getPresignedUrl({
+        relative_url: presignedUrlData.relative_url,
+        action: "GET",
+      });
+      return getPresignedUrlData;
     },
     onSuccess,
   });

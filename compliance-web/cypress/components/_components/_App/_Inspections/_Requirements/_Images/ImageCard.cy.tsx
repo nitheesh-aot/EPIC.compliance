@@ -8,6 +8,7 @@ describe("ImageCard Component", () => {
     relative_url: "test-image.jpg",
     caption: "Test Image Caption",
     sort_order: 1,
+    url: "https://test-image.jpg",
   };
 
   const renderImageCard = (props = {}) => {
@@ -28,7 +29,7 @@ describe("ImageCard Component", () => {
     renderImageCard();
     
     // Check if image is rendered with correct source
-    cy.get("img").should("have.attr", "src").and("include", "test-image.jpg");
+    cy.get("img").should("have.attr", "src").and("include", "https://test-image.jpg");
     
     // Check if caption is rendered correctly
     cy.get("a").should("contain.text", "Photo 1: Test Image Caption");

@@ -36,7 +36,6 @@ import { $createMentionNode, MentionNode } from "./MentionNode";
 import ReactDOM from "react-dom";
 import { Box, Typography } from "@mui/material";
 import { MentionData } from "../LexicalUtils";
-import { formatS3Url } from "@/utils/appUtils";
 import { RequirementImage } from "@/models/Image";
 
 const PUNCTUATION =
@@ -236,7 +235,7 @@ function MentionsTypeaheadMenuItem({
         </Typography>
         <Box
           component="img"
-          src={formatS3Url(option.mentionData.imageRelativeUrl ?? "")}
+          src={option.mentionData.imageUrl ?? ""}
           alt={option.mentionData.name}
           sx={{ width: 100 }}
         />
@@ -295,7 +294,7 @@ export default function MentionsPlugin({
         const mentionNode = $createMentionNode(
           selectedOption.mentionData.name,
           undefined,
-          selectedOption.mentionData.imageRelativeUrl,
+          selectedOption.mentionData.imageUrl,
           selectedOption.mentionData.id
         );
 
@@ -636,7 +635,7 @@ export default function MentionsPlugin({
                 const newMentionNode = $createMentionNode(
                   newName,
                   newName,
-                  updatedImage.relative_url || "",
+                  updatedImage.url || "",
                   updatedImage.id
                 );
 

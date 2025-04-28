@@ -3,7 +3,6 @@ import { Box } from "@mui/material";
 import { RequirementImage } from "@/models/Image";
 import { arraySwap, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { formatS3Url } from "@/utils/appUtils";
 import imageNotFound from "@/assets/images/image-not-found.svg";
 import { BCDesignTokens } from "epic.theme";
 
@@ -66,7 +65,7 @@ export default function ImageCard({
         }}
       >
         <img
-          src={formatS3Url(image.relative_url ?? "")}
+          src={image.url ?? ""}
           alt={image.caption}
           width={"100%"}
           onError={(e) => {
