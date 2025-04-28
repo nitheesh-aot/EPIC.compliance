@@ -1,6 +1,6 @@
 import { Box, Step, StepLabel, Stepper } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import PreliminaryReview from "./PreliminaryReview";
 import RegPartyResponse from "./RegPartyResponse";
 import IRVersionSelect from "./IRVersionSelect";
@@ -17,12 +17,15 @@ import {
 import { notify } from "@/store/snackbarStore";
 import { InspectionRecord } from "@/models/InspectionRecord";
 import { IRProgressEnum } from "@/utils/constants";
+import IssuanceDate from "./IssuanceDate";
 
-const steps = [
+const preliminarySteps = [
   "Preliminary Review",
   "Response from Regulated Party",
   "Select IR version",
 ];
+
+const finalSteps = ["IR Intended Issuance Date"];
 
 export default function OfficerStepper() {
   const {
@@ -34,8 +37,12 @@ export default function OfficerStepper() {
   } = useReportStore();
   const [activeStep, setActiveStep] = useState(0);
 
+  const isFinalStep = useMemo(() => {
+    return inspectionReportsData?.ir_progress === IRProgressEnum.FINAL_APPROVED;
+  }, [inspectionReportsData]);
+
   const handleNext = () => {
-    if (activeStep === steps.length - 1) {
+    if (activeStep === preliminarySteps.length - 1) {
       // TODO: Submit form and remove the stepper
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -117,7 +124,7 @@ export default function OfficerStepper() {
           fontWeight: 600,
         }}
       >
-        {steps.map((label) => {
+        {(isFinalStep ? finalSteps : preliminarySteps).map((label) => {
           return (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -126,7 +133,12 @@ export default function OfficerStepper() {
         })}
       </Stepper>
       <Box sx={{ p: 2 }}>
-        {activeStep === 0 && (
+        {activeStep === 0 && isFinalStep ? (
+          <IssuanceDate
+            onUpdateIRApprovalStep={onUpdateIRApprovalStep}
+            onNext={handleNext}
+          />
+        ) : (
           <PreliminaryReview
             onUpdateIRApprovalStep={onUpdateIRApprovalStep}
             nextStep={handleNext}

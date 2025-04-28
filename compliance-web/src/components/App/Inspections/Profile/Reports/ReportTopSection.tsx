@@ -105,7 +105,6 @@ export default function ReportTopSection() {
       [
         IRProgressEnum.PRELIMINARY_DRAFTING,
         IRProgressEnum.FINALIZING_RECORD,
-        IRProgressEnum.HOLDER_PRELIMINARY_REVIEW,
       ].includes(inspectionReportsData?.ir_progress as IRProgressEnum) ||
       isDisableApprovalButton
     );
@@ -125,7 +124,7 @@ export default function ReportTopSection() {
     return [
       IRProgressEnum.PRELIMINARY_APPROVED,
       IRProgressEnum.FINAL_APPROVED,
-      // IRProgressEnum.HOLDER_PRELIMINARY_REVIEW, QN: should I show send button for this?
+      IRProgressEnum.HOLDER_PRELIMINARY_REVIEW,
     ].includes(inspectionReportsData?.ir_progress as IRProgressEnum);
   }, [inspectionReportsData]);
 
