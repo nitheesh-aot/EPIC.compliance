@@ -135,13 +135,17 @@ export default function OfficerStepper() {
         })}
       </Stepper>
       <Box sx={{ p: 2 }}>
-        {activeStep === 0 && isFinalReportStep ? (
-          <IssuanceDate />
-        ) : (
-          <PreliminaryReview
-            onUpdateIRApprovalStep={onUpdateIRApprovalStep}
-            nextStep={handleNext}
-          />
+        {activeStep === 0 && (
+          <>
+            {isFinalReportStep ? (
+              <IssuanceDate />
+            ) : (
+              <PreliminaryReview
+                onUpdateIRApprovalStep={onUpdateIRApprovalStep}
+                nextStep={handleNext}
+              />
+            )}
+          </>
         )}
         {activeStep === 1 && (
           <RegPartyResponse

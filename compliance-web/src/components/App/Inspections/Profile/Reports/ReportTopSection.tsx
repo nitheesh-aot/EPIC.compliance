@@ -16,6 +16,7 @@ import SendForApprovalModal from "./SendForApprovalModal";
 import { useModal } from "@/store/modalStore";
 import OfficerStepper from "./OfficerSteppr/OfficerStepper";
 import PreviewDownloadButton from "./PreviewDownloadButton";
+import IssueIRModal from "./IssueIRModal";
 
 export default function ReportTopSection() {
   const { setOpen, setClose } = useModal();
@@ -53,6 +54,20 @@ export default function ReportTopSection() {
       content: (
         <SendForApprovalModal
           staffUsers={staffData ?? []}
+          onSubmit={(message) => {
+            notify.success(message);
+            setClose();
+            refetchInspectionReportsData();
+          }}
+        />
+      ),
+    });
+  };
+
+  const handleIssueIR = () => {
+    setOpen({
+      content: (
+        <IssueIRModal
           onSubmit={(message) => {
             notify.success(message);
             setClose();
@@ -128,6 +143,14 @@ export default function ReportTopSection() {
     ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum);
   }, [inspectionReportsData]);
 
+  const isShowIssueIRButton = useMemo(() => {
+    return (
+      inspectionReportsData?.ir_progress?.id ===
+        IRProgressEnum.FINAL_APPROVED &&
+      inspectionReportsData?.intended_issuance_date
+    );
+  }, [inspectionReportsData]);
+
   return (
     <>
       <Box
@@ -171,6 +194,9 @@ export default function ReportTopSection() {
               </Button>
             </>
           ) : null}
+          {isShowIssueIRButton && (
+            <Button onClick={handleIssueIR}>Issue IR</Button>
+          )}
           <PreviewDownloadButton />
         </Box>
       </Box>
