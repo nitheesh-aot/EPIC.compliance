@@ -26,7 +26,7 @@ class InspectionRecordApprovalSchema(
     approved_by = fields.Nested(StaffUserSchema)
 
     @post_dump
-    def convert_enum_to_key_value(self, data, **kwargs):
+    def convert_enum_to_key_value(self, data, **kwargs):  # pylint: disable=no-self-use, unused-argument
         """Convert enum to key value schema."""
         if "approval_status" in data and data["approval_status"] is not None:
             data["approval_status"] = {
