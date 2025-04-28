@@ -293,7 +293,7 @@
                 <td>{{ ir_status }}</td>
             </tr>
             <tr>
-                <th>EA Certificate #</th>
+                <th>{{ project_details.certificate_label }}</th>
                 <td>{{ project_details.eac_certificate }}</td>
                 <th>Inspection No.</th>
                 <td>{{ inspection_details.ir_number }}</td>
@@ -348,8 +348,7 @@
             </tr>
             <tr>
                 <th>Inspecting Officer(s)</th>
-                <td colspan="3">{{ officer_details.primary_officer.name }},&nbsp;{{
-                    officer_details.primary_officer.position }}</td>
+                <td colspan="3">{{ officer_details.inspecting_officers }}</td>
             </tr>
             <tr>
                 <th>Record Prepared By</th>
@@ -358,8 +357,7 @@
             </tr>
             <tr>
                 <th>Record Approved By</th>
-                <td colspan="3">{{ officer_details.primary_officer.name }},&nbsp;{{
-                    officer_details.primary_officer.position }}</td>
+                <td colspan="3"></td>
             </tr>
         </table>
 
