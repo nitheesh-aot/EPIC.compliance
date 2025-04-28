@@ -323,8 +323,6 @@ def _update_the_findigs_by_images(
                     if matching_photo:
                         # Update the image ID in the span
                         span["data-imageid"] = str(matching_photo.id)
-                        # Update image URL if needed
-                        span["data-imageurl"] = matching_photo.relative_url
                 except (ValueError, IndexError):
                     # Invalid photo number format
                     pass
@@ -341,8 +339,6 @@ def _update_the_findigs_by_images(
                     if matching_figure:
                         # Update the image ID in the span
                         span["data-imageid"] = str(matching_figure.id)
-                        # Update image URL if needed
-                        span["data-imageurl"] = matching_figure.relative_url
                 except (ValueError, IndexError):
                     # Invalid figure number format
                     pass

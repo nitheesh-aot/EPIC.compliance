@@ -12,6 +12,7 @@ export interface RequirementImage {
   original_file_name?: string;
   date_taken?: string;
   relative_url?: string;
+  url?: string;
   is_active?: boolean;
 }
 
