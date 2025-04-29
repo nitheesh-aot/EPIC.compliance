@@ -330,10 +330,10 @@ describe("InspectionRequirements Component", () => {
     cy.get("[data-cy=new-requirement-button]").click({ force: true });
 
     // Wait for the form to be visible before interacting with it
-    cy.get("input[name=requirementSummary]").should("be.visible");
+    cy.get("textarea[name=requirementSummary]").should("be.visible");
     
     // Fill in the form fields
-    cy.get("input[name=requirementSummary]").type("New Requirement");
+    cy.get("textarea[name=requirementSummary]").type("New Requirement");
     cy.get("input[name=topic]").click();
     cy.contains("Some Topic").click();
 

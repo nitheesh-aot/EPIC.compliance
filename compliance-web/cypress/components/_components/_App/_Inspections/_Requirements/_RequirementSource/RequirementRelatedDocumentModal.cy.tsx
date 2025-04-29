@@ -130,8 +130,8 @@ describe("RequirementRelatedDocumentModal", () => {
     );
 
     // Fill out the form
-    cy.get('input[name="documentTitle"]').clear();
-    cy.get('input[name="documentTitle"]').type("Test Document");
+    cy.get('textarea[name="documentTitle"]').clear();
+    cy.get('textarea[name="documentTitle"]').type("Test Document");
     cy.get('input[name="sectionNumber"]').type("1.1");
     cy.get('input[name="sectionTitle"]').type("Test Section");
 

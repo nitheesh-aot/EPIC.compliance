@@ -184,6 +184,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                           size="small"
                           onClick={() => onAddRelatedDocument(item)}
                           startIcon={<AddRounded />}
+                          data-testid={`requirement-source-add-related-document-${index}`}
                           sx={{
                             backgroundColor: "transparent",
                             paddingY: 0,
