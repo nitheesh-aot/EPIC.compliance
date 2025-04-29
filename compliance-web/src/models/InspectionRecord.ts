@@ -1,4 +1,5 @@
 import { Inspection } from "./Inspection";
+import { IRProgress } from "./IRProgress";
 import { IRStatus } from "./IRStatus";
 
 export interface InspectionRecord {
@@ -10,7 +11,8 @@ export interface InspectionRecord {
   enforcement_summary?: string;
   finding_statement?: string;
   inspection_scope?: string;
-  ir_progress?: string;
+  intended_issuance_date?: string;
+  ir_progress?: IRProgress;
   ir_status_id?: number;
   ir_status?: IRStatus;
   is_active?: boolean;
