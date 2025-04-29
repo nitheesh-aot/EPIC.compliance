@@ -284,10 +284,12 @@ class InspectionRecordDataBuilder:
         #  No preliminary_review_details for ir when it is PRELIMINARY
         if self.ir_status == IRStatusEnum.PRELIMINARY.value:
             preliminary_review_details = None
-        elif self.ir_status == IRStatusEnum.FINAL.value and self.existing_ir:
+        elif self.ir_status == IRStatusEnum.FINAL.value:
+            inspection_record = InspectionRecordModel.get_by_inspection_id(self.inspection.id)
             approvals = InspectionRecordApprovalModel.get_approvals_by_ir(
-                self.existing_ir.id
+                inspection_record.id
             )
+            # Build comma separated dates from the approval requests
             if approvals:
                 data = {
                     "date_report_sent": ", ".join(
@@ -301,11 +303,15 @@ class InspectionRecordDataBuilder:
                         if approval.date_response is not None
                     ),
                 }
+                # Bulid the project details if not yet build to get the proponent label
+                if not self.data.get("project_details"):
+                    self.build_project_details()
+                data["proponent_label"] = self.data["project_details"]["proponent_label"]
+                data["primary_last_name"] = self.inspection.primary_officer.last_name
                 preliminary_review_details = render_template_with_data(
                     "PRELIMINARY_REVIEW_DETAILS", PRELIMINARY_REVIEW_DETAILS, data
                 )
-
-        self.data["preliminary_review_details"] = preliminary_review_details
+                self.data["preliminary_review_details"] = preliminary_review_details
         return self
 
     def build_finding_statement(self):
