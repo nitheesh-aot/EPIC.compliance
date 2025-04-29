@@ -19,18 +19,12 @@ const InspectionSummary = () => {
     setFindingsStatement,
     setInspectionReportsData,
   } = useReportStore();
-  const [isInspectionScopeChanged, setIsInspectionScopeChanged] =
-    useState(false);
   const [isFindingsStatementChanged, setIsFindingsStatementChanged] =
     useState(false);
 
   useEffect(() => {
     setInspectionScope(inspectionReportsData?.inspection_scope ?? "");
     setFindingsStatement(inspectionReportsData?.finding_statement ?? "");
-    setIsInspectionScopeChanged(
-      inspectionReportsData?.field_change_info?.inspection_scope_changed ??
-        false
-    );
     setIsFindingsStatementChanged(
       inspectionReportsData?.field_change_info?.finding_statement_changed ??
         false
@@ -78,11 +72,7 @@ const InspectionSummary = () => {
         onEditSubmit={(editorValue) =>
           handleSaveInspectionSummary(editorValue, "inspection_scope")
         }
-        onReset={
-          isInspectionScopeChanged
-            ? () => handleResetInspectionSummary("inspection_scope")
-            : undefined
-        }
+        onReset={() => handleResetInspectionSummary("inspection_scope")}
       >
         <Typography
           variant="body1"
