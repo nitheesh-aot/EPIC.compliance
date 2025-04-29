@@ -349,7 +349,7 @@ class InspectionRecordDataBuilder:
                 EnforcementActionOptionEnum.REFERRAL_TO_ANOTHER_AGENCY,
                 EnforcementActionOptionEnum.WARNING_LETTER,
             }
-            enforment_summary_lines = []
+            enforcement_summary_lines = []
             for action_id, requirements in grouped_enforcementactions.items():
                 for requirement in requirements:
                     if EnforcementActionOptionEnum(action_id) in valid_actions:
@@ -357,9 +357,17 @@ class InspectionRecordDataBuilder:
                             EnforcementActionOptionEnum(action_id), requirement
                         )
                         if summary_line:
-                            enforment_summary_lines.append(summary_line)
-            if len(enforment_summary_lines) > 0:
-                enforment_summary_lines.append(
+                            enforcement_summary_lines.append(summary_line)
+            # Add a line for Regulatory Considerations in the requirements
+            if any(
+                req.req_type == InspectionRequirementTypeEnum.REG
+                for req in self.requirements
+            ):
+                enforcement_summary_lines.append(
+                    "<p>See Regulatory Considerations Section for additional information.</p>"
+                )
+            if len(enforcement_summary_lines) > 0:
+                enforcement_summary_lines.append(
                     render_template_with_data(
                         "ENFORCEMENT_SUMMARY.DEFAULT",
                         ENFORCEMENT_SUMMARY.get("DEFAULT"),
@@ -370,7 +378,7 @@ class InspectionRecordDataBuilder:
                     )
                 )
                 self.data["enforcement_summary"] = (
-                    f"<p class='editor-paragraph' dir='ltr'>{'</br>'.join(enforment_summary_lines)}</p>"
+                    f"<p class='editor-paragraph' dir='ltr'>{'</br>'.join(enforcement_summary_lines)}</p>"
                 )
         return self
 
@@ -509,8 +517,6 @@ class InspectionRecordDataBuilder:
         requirement: InspectionRequirementModel,
     ):
         """Create the enforcement summary lines."""
-        if requirement.req_type == InspectionRequirementTypeEnum.REG:
-            return "<p>See Regulatory Considerations Section for additional information.</p>"
         if action == EnforcementActionOptionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY:
             return render_template_with_data(
                 "ENFORCEMENT_SUMMARY.ADMINISTRATIVE_PENALTY",
