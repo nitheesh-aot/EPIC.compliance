@@ -37,7 +37,7 @@ FINDING_STATEMENT = """<p class="editor-paragraph" dir="ltr">
 PRELIMINARY_REVIEW_DETAILS = """<div>
     <p class="editor-paragraph" dir="ltr">
         <span>
-            On {{ date_report_sent}} ., Officer [Lombardi] provided the preliminary
+            On {{ date_report_sent}} ., Officer {{ primary_last_name }} provided the preliminary
             inspection record to the {{ proponent_label }}.
         AND</span><br><span>On {{ date_repsonse }} ., the {{ proponent_label }}
             provided comments pertaining to the preliminary inspection record. These comments were reviewed, and edits
@@ -56,7 +56,7 @@ PRELIMINARY_REVIEW_DETAILS = """<div>
 
 ACTION_REQUIRED_BY_RP = """<p class="editor-paragraph" dir="ltr"><b><strong class="editor-text-bold">Please review
  this inspection record for errors or omissions and provide a response to Officer {{ primary_officer }}
-by</strong></b>
+ by</strong></b>
 {% if date_expected_return %}
     {{ date_expected_return }}
 {% else %}

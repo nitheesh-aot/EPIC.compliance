@@ -122,6 +122,7 @@ class InspectionRecordService:
                 "preliminary_review_details", None
             ),
             "enforcement_summary": ir_data.get("enforcement_summary", None),
+            "action_required_by_rp": None,  # This field should be NONE when you switch to final
             "ir_status_id": IRStatusEnum.FINAL.value,
             "ir_progress": IRProgressEnum.FINALIZING_RECORD,
         }
@@ -168,6 +169,8 @@ class InspectionRecordService:
             ir_data = ir_builder.build_preliminary_review_details().build()
         elif field_name == "finding_statement":
             ir_data = ir_builder.build_finding_statement().build()
+        elif field_name == "enforcement_summary":
+            ir_data = ir_builder.build_enforcement_summary().build()
         change_info[f"{field_name}_changed"] = False
         update_data = {
             field_name: ir_data.get(field_name),
@@ -211,7 +214,7 @@ class InspectionRecordService:
         )
         preview_data = InspectionRecordPreviewSchema().dump(ir_data)
         response = DocGenService.render_template(
-            "IR_PRELIMINARY_TEMPLATE", preview_data, output_format
+            "IR_TEMPLATE", preview_data, output_format
         )
         return response
 

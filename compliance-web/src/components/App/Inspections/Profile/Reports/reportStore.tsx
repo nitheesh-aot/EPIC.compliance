@@ -17,8 +17,6 @@ interface ReportStore {
   findingsStatement?: string;
   actionsRequired?: string;
   enforcementSummary?: string;
-  inspectionVersionDatePreliminary?: string;
-  inspectionVersionDateIssued?: string;
 
   setQueryClient: (queryClient: QueryClient) => void;
   setInspectionReportsData: (inspectionReportsData: InspectionRecord) => void;
@@ -29,10 +27,6 @@ interface ReportStore {
   setFindingsStatement: (findingsStatement: string) => void;
   setActionsRequired: (actionsRequired: string) => void;
   setEnforcementSummary: (enforcementSummary: string) => void;
-  setInspectionVersionDatePreliminary: (
-    inspectionVersionDatePreliminary: string
-  ) => void;
-  setInspectionVersionDateIssued: (inspectionVersionDateIssued: string) => void;
   reset: () => void;
 }
 
@@ -77,11 +71,6 @@ export const useReportStore = create<ReportStore>((set) => ({
   setActionsRequired: (actionsRequired: string) => set({ actionsRequired }),
   setEnforcementSummary: (enforcementSummary: string) =>
     set({ enforcementSummary }),
-  setInspectionVersionDatePreliminary: (
-    inspectionVersionDatePreliminary: string
-  ) => set({ inspectionVersionDatePreliminary }),
-  setInspectionVersionDateIssued: (inspectionVersionDateIssued: string) =>
-    set({ inspectionVersionDateIssued }),
   reset: () =>
     set({
       inspectionReportsData: undefined,
@@ -91,7 +80,5 @@ export const useReportStore = create<ReportStore>((set) => ({
       findingsStatement: undefined,
       actionsRequired: undefined,
       enforcementSummary: DEFAULT_REPORT_TAB_CONTENT,
-      inspectionVersionDatePreliminary: undefined,
-      inspectionVersionDateIssued: undefined,
     }),
 }));

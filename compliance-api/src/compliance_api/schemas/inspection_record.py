@@ -103,7 +103,12 @@ class ResetInspectionRecordFieldSchema(BaseSchema):
     field_name = fields.Str(
         required=True,
         validate=validate.OneOf(
-            ["inspection_scope", "preliminary_review_details", "finding_statement"]
+            [
+                "inspection_scope",
+                "preliminary_review_details",
+                "finding_statement",
+                "enforcement_summary",
+            ]
         ),
         metadata={"description": "The field to reset"},
     )

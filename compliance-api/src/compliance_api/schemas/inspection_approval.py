@@ -1,6 +1,6 @@
 """Schema for Inspection Record Approval."""
 
-from marshmallow import EXCLUDE, ValidationError, fields, post_load, validate
+from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load, validate
 from marshmallow_enum import EnumField
 
 from compliance_api.models.inspection_record_approval import InspectionRecordApproval as InspectionRecordApprovalModel
@@ -8,7 +8,6 @@ from compliance_api.models.inspection_record_approval import IRApprovalStatusEnu
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from .base_schema import AutoSchemaBase, BaseSchema
-from .common import KeyValueSchema
 from .staff_user import StaffUserSchema
 
 
@@ -25,17 +24,13 @@ class InspectionRecordApprovalSchema(
         include_fk = True
 
     approved_by = fields.Nested(StaffUserSchema)
-    approval_status = fields.Nested(
-        KeyValueSchema,
-        metadata={"description": "The approval status of the inspection record"},
-    )
 
-    @post_load
-    def convert_enum_to_key_value(self, data, **kwargs):
+    @post_dump
+    def convert_enum_to_key_value(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
         """Convert enum to key value schema."""
-        if "approval_status" in data and isinstance(
-            data["approval_status"], IRApprovalStatusEnum
-        ):
+        if "approval_status" in data and data["approval_status"] is not None:
             data["approval_status"] = {
                 "id": data["approval_status"].name,
                 "name": data["approval_status"].value,
