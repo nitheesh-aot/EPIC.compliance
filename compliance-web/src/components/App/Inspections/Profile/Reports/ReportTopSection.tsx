@@ -1,11 +1,11 @@
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, Chip } from "@mui/material";
 import { SendRounded } from "@mui/icons-material";
 import {
   IR_APPROVAL_STATUS,
   IRProgressEnum,
   STAFF_USER_POSITION,
 } from "@/utils/constants";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useUpdateIRApprovalStatus } from "@/hooks/useInspectionReports";
 import { notify } from "@/store/snackbarStore";
 import { useReportStore } from "./reportStore";
@@ -21,6 +21,10 @@ import IssueIRModal from "./IssueIRModal";
 export default function ReportTopSection() {
   const { setOpen, setClose } = useModal();
   const currentUser = useCurrentLoggedInUser();
+  const [irApprStatusBadge, setIrApprStatusBadge] = useState<{
+    text: string;
+    color: "default" | "error" | "success" | "warning";
+  }>({ text: "", color: "default" });
 
   const {
     queryClient,
@@ -151,6 +155,49 @@ export default function ReportTopSection() {
     );
   }, [inspectionReportsData]);
 
+  useEffect(() => {
+    if (
+      [
+        IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW,
+        IRProgressEnum.FINAL_DEPUTY_REVIEW,
+      ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum)
+    ) {
+      setIrApprStatusBadge({
+        text: "Decision Pending",
+        color: "warning",
+      });
+    } else if (isShowOfficerStepper) {
+      setIrApprStatusBadge({
+        text: "Approved",
+        color: "success",
+      });
+    } else if (
+      [
+        IRProgressEnum.PRELIMINARY_DRAFTING,
+        IRProgressEnum.FINALIZING_RECORD,
+      ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum) &&
+      irApprovalsData?.[0]?.approval_status?.id ===
+        IR_APPROVAL_STATUS.NOT_APPROVED
+    ) {
+      setIrApprStatusBadge({
+        text: "Not Approved",
+        color: "error",
+      });
+    } else if (
+      inspectionReportsData?.ir_progress?.id === IRProgressEnum.ISSUED
+    ) {
+      setIrApprStatusBadge({
+        text: "Issued",
+        color: "success",
+      });
+    } else {
+      setIrApprStatusBadge({
+        text: "",
+        color: "default",
+      });
+    }
+  }, [inspectionReportsData, isShowOfficerStepper, irApprovalsData]);
+
   return (
     <>
       <Box
@@ -161,9 +208,19 @@ export default function ReportTopSection() {
           alignItems: "center",
         }}
       >
-        <Typography variant="h6">
-          {inspectionReportsData?.ir_status?.name} IR
-        </Typography>
+        <Box display={"flex"} gap={1} alignItems={"center"}>
+          <Typography variant="h6">
+            {inspectionReportsData?.ir_status?.name} IR
+          </Typography>
+          {irApprStatusBadge.text && (
+            <Chip
+              label={irApprStatusBadge.text}
+              color={irApprStatusBadge.color}
+              variant="outlined"
+              size="small"
+            />
+          )}
+        </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           {isShowSendForApprovalButton && (
             <Button
