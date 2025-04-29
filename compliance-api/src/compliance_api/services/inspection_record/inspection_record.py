@@ -168,6 +168,8 @@ class InspectionRecordService:
             ir_data = ir_builder.build_preliminary_review_details().build()
         elif field_name == "finding_statement":
             ir_data = ir_builder.build_finding_statement().build()
+        elif field_name == "enforcement_summary":
+            ir_data = ir_builder.build_enforcement_summary().build()
         change_info[f"{field_name}_changed"] = False
         update_data = {
             field_name: ir_data.get(field_name),
