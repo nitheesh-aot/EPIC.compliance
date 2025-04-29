@@ -284,9 +284,10 @@ class InspectionRecordDataBuilder:
         #  No preliminary_review_details for ir when it is PRELIMINARY
         if self.ir_status == IRStatusEnum.PRELIMINARY.value:
             preliminary_review_details = None
-        elif self.ir_status == IRStatusEnum.FINAL.value and self.existing_ir:
+        elif self.ir_status == IRStatusEnum.FINAL.value:
+            inspection_record = InspectionRecordModel.get_by_inspection_id(self.inspection.id)
             approvals = InspectionRecordApprovalModel.get_approvals_by_ir(
-                self.existing_ir.id
+                inspection_record.id
             )
             # Build comma separated dates from the approval requests
             if approvals:

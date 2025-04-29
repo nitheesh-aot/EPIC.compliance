@@ -481,7 +481,7 @@
                     </th>
                 </tr>
                 <tr>
-                    <td colspan="2">{{ action_required_by_rp | safe | replace('style="white-space: pre-wrap;"', '') }}
+                    <td colspan="2">{% if action_required_by_rp %}{{ action_required_by_rp | safe | replace('style="white-space: pre-wrap;"', '') }}{% else %}None at this time{% endif %}
                     </td>
                 </tr>
                 <tr>
