@@ -1,8 +1,9 @@
+import { IRApprovalStatus } from "./IRApprovalStatus";
 import { StaffUser } from "./Staff";
 
 export interface IRApproval {
   approved_by: StaffUser;
-  approval_status: string;
+  approval_status: IRApprovalStatus;
   id: number;
   inspection_record_id: number;
   date_report_sent: string;

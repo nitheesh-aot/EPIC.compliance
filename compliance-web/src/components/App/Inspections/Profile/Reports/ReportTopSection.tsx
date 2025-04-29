@@ -16,6 +16,7 @@ import SendForApprovalModal from "./SendForApprovalModal";
 import { useModal } from "@/store/modalStore";
 import OfficerStepper from "./OfficerSteppr/OfficerStepper";
 import PreviewDownloadButton from "./PreviewDownloadButton";
+import IssueIRModal from "./IssueIRModal";
 
 export default function ReportTopSection() {
   const { setOpen, setClose } = useModal();
@@ -63,6 +64,20 @@ export default function ReportTopSection() {
     });
   };
 
+  const handleIssueIR = () => {
+    setOpen({
+      content: (
+        <IssueIRModal
+          onSubmit={(message) => {
+            notify.success(message);
+            setClose();
+            refetchInspectionReportsData();
+          }}
+        />
+      ),
+    });
+  };
+
   const onApprovalSuccess = (data: IRApproval) => {
     setIRApprovalsData([data]);
     notify.success("Approval status updated");
@@ -95,7 +110,7 @@ export default function ReportTopSection() {
       [
         IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW,
         IRProgressEnum.FINAL_DEPUTY_REVIEW,
-      ].includes(inspectionReportsData?.ir_progress as IRProgressEnum) &&
+      ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum) &&
       !isCurrentUserApprover
     );
   }, [inspectionReportsData, isCurrentUserApprover]);
@@ -105,8 +120,7 @@ export default function ReportTopSection() {
       [
         IRProgressEnum.PRELIMINARY_DRAFTING,
         IRProgressEnum.FINALIZING_RECORD,
-        IRProgressEnum.HOLDER_PRELIMINARY_REVIEW,
-      ].includes(inspectionReportsData?.ir_progress as IRProgressEnum) ||
+      ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum) ||
       isDisableApprovalButton
     );
   }, [inspectionReportsData, isDisableApprovalButton]);
@@ -116,7 +130,7 @@ export default function ReportTopSection() {
       [
         IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW,
         IRProgressEnum.FINAL_DEPUTY_REVIEW,
-      ].includes(inspectionReportsData?.ir_progress as IRProgressEnum) &&
+      ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum) &&
       isCurrentUserApprover
     );
   }, [inspectionReportsData, isCurrentUserApprover]);
@@ -125,8 +139,16 @@ export default function ReportTopSection() {
     return [
       IRProgressEnum.PRELIMINARY_APPROVED,
       IRProgressEnum.FINAL_APPROVED,
-      // IRProgressEnum.HOLDER_PRELIMINARY_REVIEW, QN: should I show send button for this?
-    ].includes(inspectionReportsData?.ir_progress as IRProgressEnum);
+      IRProgressEnum.HOLDER_PRELIMINARY_REVIEW,
+    ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum);
+  }, [inspectionReportsData]);
+
+  const isShowIssueIRButton = useMemo(() => {
+    return (
+      inspectionReportsData?.ir_progress?.id ===
+        IRProgressEnum.FINAL_APPROVED &&
+      inspectionReportsData?.intended_issuance_date
+    );
   }, [inspectionReportsData]);
 
   return (
@@ -172,6 +194,9 @@ export default function ReportTopSection() {
               </Button>
             </>
           ) : null}
+          {isShowIssueIRButton && (
+            <Button onClick={handleIssueIR}>Issue IR</Button>
+          )}
           <PreviewDownloadButton />
         </Box>
       </Box>

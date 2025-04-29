@@ -19,6 +19,11 @@ export const INITIATION = {
   COMPLAINTS_ID: "2",
 };
 
+export const IR_STATUS = {
+  PRELIMINARY: 1,
+  FINAL: 2,
+};
+
 export const CORS_ERROR_MSG = "Network error or CORS issue";
 
 export const REGEX_EMAIL = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
