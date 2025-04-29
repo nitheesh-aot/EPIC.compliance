@@ -122,6 +122,7 @@ class InspectionRecordService:
                 "preliminary_review_details", None
             ),
             "enforcement_summary": ir_data.get("enforcement_summary", None),
+            "action_required_by_rp": None,  # This field should be NONE when you switch to final
             "ir_status_id": IRStatusEnum.FINAL.value,
             "ir_progress": IRProgressEnum.FINALIZING_RECORD,
         }
