@@ -37,7 +37,7 @@ FINDING_STATEMENT = """<p class="editor-paragraph" dir="ltr">
 PRELIMINARY_REVIEW_DETAILS = """<div>
     <p class="editor-paragraph" dir="ltr">
         <span>
-            On {{ date_report_sent}} ., Officer [Lombardi] provided the preliminary
+            On {{ date_report_sent}} ., Officer {{ primary_last_name }} provided the preliminary
             inspection record to the {{ proponent_label }}.
         AND</span><br><span>On {{ date_repsonse }} ., the {{ proponent_label }}
             provided comments pertaining to the preliminary inspection record. These comments were reviewed, and edits
