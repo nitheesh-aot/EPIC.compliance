@@ -80,7 +80,7 @@ describe("ImageModal Component", () => {
 
     cy.contains("Edit Photo").should("be.visible");
     cy.get("img").should("be.visible");
-    cy.get('input[name="caption"]').should("have.value", "Test Caption");
+    cy.get('textarea[name="caption"]').should("have.value", "Test Caption");
   });
 
   it("validates required fields", () => {
@@ -97,7 +97,7 @@ describe("ImageModal Component", () => {
   it("submits form with valid data", () => {
     cy.mount(mountImageModal());
 
-    cy.get('input[name="caption"]').type("Test caption");
+    cy.get('textarea[name="caption"]').type("Test caption");
 
     // Submit form
     cy.contains("button", "Add").click();

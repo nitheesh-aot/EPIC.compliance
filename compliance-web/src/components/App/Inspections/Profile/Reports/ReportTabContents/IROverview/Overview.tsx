@@ -135,6 +135,11 @@ const Overview = () => {
             multiline
           />
           <GridLabelValuePair
+            label="UTM"
+            value={inspectionData?.utm}
+            gridProps={{ xs: 6 }}
+          />
+          <GridLabelValuePair
             label="In Attendance"
             value={inAttendance}
             hideTooltip

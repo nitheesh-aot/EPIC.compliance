@@ -8,34 +8,49 @@ import {
 } from "@/hooks/useInspectionReports";
 import { InspectionRecord } from "@/models/InspectionRecord";
 import { notify } from "@/store/snackbarStore";
+import { IR_STATUS } from "@/utils/constants";
 
 const InspectionSummary = () => {
   const {
     inspectionData,
     inspectionScope,
+    preliminaryReviewDetails,
     findingsStatement,
     inspectionReportsData,
     setInspectionScope,
+    setPreliminaryReviewDetails,
     setFindingsStatement,
     setInspectionReportsData,
   } = useReportStore();
-  const [isInspectionScopeChanged, setIsInspectionScopeChanged] =
-    useState(false);
   const [isFindingsStatementChanged, setIsFindingsStatementChanged] =
     useState(false);
+  const [
+    isPreliminaryReviewDetailsChanged,
+    setIsPreliminaryReviewDetailsChanged,
+  ] = useState(false);
+  const [isFinalReport, setIsFinalReport] = useState(false);
 
   useEffect(() => {
     setInspectionScope(inspectionReportsData?.inspection_scope ?? "");
-    setFindingsStatement(inspectionReportsData?.finding_statement ?? "");
-    setIsInspectionScopeChanged(
-      inspectionReportsData?.field_change_info?.inspection_scope_changed ??
-        false
+    setPreliminaryReviewDetails(
+      inspectionReportsData?.preliminary_review_details ?? ""
     );
+    setFindingsStatement(inspectionReportsData?.finding_statement ?? "");
     setIsFindingsStatementChanged(
       inspectionReportsData?.field_change_info?.finding_statement_changed ??
         false
     );
-  }, [inspectionReportsData, setFindingsStatement, setInspectionScope]);
+    setIsPreliminaryReviewDetailsChanged(
+      inspectionReportsData?.field_change_info
+        ?.preliminary_review_details_changed ?? false
+    );
+    setIsFinalReport(inspectionReportsData?.ir_status_id === IR_STATUS.FINAL);
+  }, [
+    inspectionReportsData,
+    setFindingsStatement,
+    setInspectionScope,
+    setPreliminaryReviewDetails,
+  ]);
 
   const handleOnSuccess = (data: InspectionRecord) => {
     setInspectionReportsData(data);
@@ -78,11 +93,7 @@ const InspectionSummary = () => {
         onEditSubmit={(editorValue) =>
           handleSaveInspectionSummary(editorValue, "inspection_scope")
         }
-        onReset={
-          isInspectionScopeChanged
-            ? () => handleResetInspectionSummary("inspection_scope")
-            : undefined
-        }
+        onReset={() => handleResetInspectionSummary("inspection_scope")}
       >
         <Typography
           variant="body1"
@@ -91,6 +102,31 @@ const InspectionSummary = () => {
           dangerouslySetInnerHTML={{ __html: inspectionScope || "" }}
         />
       </IRBoxContainer>
+      {isFinalReport && (
+        <IRBoxContainer
+          title="Preliminary Review Details"
+          sx={{ mb: 1 }}
+          defaultValue={preliminaryReviewDetails}
+          onEditSubmit={(editorValue) =>
+            handleSaveInspectionSummary(
+              editorValue,
+              "preliminary_review_details"
+            )
+          }
+          onReset={
+            isPreliminaryReviewDetailsChanged
+              ? () => handleResetInspectionSummary("preliminary_review_details")
+              : undefined
+          }
+        >
+          <Typography
+            variant="body1"
+            component={"div"}
+            className="editor-content"
+            dangerouslySetInnerHTML={{ __html: preliminaryReviewDetails || "" }}
+          />
+        </IRBoxContainer>
+      )}
       <IRBoxContainer
         title="Findings Statement"
         defaultValue={findingsStatement}

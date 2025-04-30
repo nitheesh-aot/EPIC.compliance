@@ -126,7 +126,7 @@ const RequirementRelatedDocumentCard: FC<
                 borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
               }}
             >
-              <Box display={"flex"} justifyContent={"flex-end"} gap={".25rem"}>
+              <Box display={"flex"} justifyContent={"flex-start"} gap={".25rem"}>
                 <Tooltip title="Edit" arrow>
                   <IconButton
                     size="small"

@@ -14,6 +14,7 @@ interface ReportStore {
   inspectionData: Inspection | undefined;
   caseFileData: CaseFile | undefined;
   inspectionScope?: string;
+  preliminaryReviewDetails?: string;
   findingsStatement?: string;
   actionsRequired?: string;
   enforcementSummary?: string;
@@ -24,6 +25,7 @@ interface ReportStore {
   setInspectionData: (inspectionData: Inspection) => void;
   setCaseFileData: (caseFileData: CaseFile) => void;
   setInspectionScope: (inspectionScope: string) => void;
+  setPreliminaryReviewDetails: (preliminaryReviewDetails: string) => void;
   setFindingsStatement: (findingsStatement: string) => void;
   setActionsRequired: (actionsRequired: string) => void;
   setEnforcementSummary: (enforcementSummary: string) => void;
@@ -38,6 +40,7 @@ export const useReportStore = create<ReportStore>((set) => ({
   inspectionData: undefined,
   caseFileData: undefined,
   inspectionScope: undefined,
+  preliminaryReviewDetails: undefined,
   findingsStatement: undefined,
   actionsRequired: undefined,
   enforcementSummary: DEFAULT_REPORT_TAB_CONTENT,
@@ -66,6 +69,8 @@ export const useReportStore = create<ReportStore>((set) => ({
   setInspectionData: (inspectionData: Inspection) => set({ inspectionData }),
   setCaseFileData: (caseFileData: CaseFile) => set({ caseFileData }),
   setInspectionScope: (inspectionScope: string) => set({ inspectionScope }),
+  setPreliminaryReviewDetails: (preliminaryReviewDetails: string) =>
+    set({ preliminaryReviewDetails }),
   setFindingsStatement: (findingsStatement: string) =>
     set({ findingsStatement }),
   setActionsRequired: (actionsRequired: string) => set({ actionsRequired }),

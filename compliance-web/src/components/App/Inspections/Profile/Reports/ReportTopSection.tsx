@@ -1,11 +1,11 @@
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, Chip } from "@mui/material";
 import { SendRounded } from "@mui/icons-material";
 import {
   IR_APPROVAL_STATUS,
   IRProgressEnum,
   STAFF_USER_POSITION,
 } from "@/utils/constants";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useUpdateIRApprovalStatus } from "@/hooks/useInspectionReports";
 import { notify } from "@/store/snackbarStore";
 import { useReportStore } from "./reportStore";
@@ -18,9 +18,21 @@ import OfficerStepper from "./OfficerSteppr/OfficerStepper";
 import PreviewDownloadButton from "./PreviewDownloadButton";
 import IssueIRModal from "./IssueIRModal";
 
+// Status badge configurations
+const STATUS_BADGE_CONFIG = {
+  PENDING: { text: "Decision Pending", color: "warning" },
+  APPROVED: { text: "Approved", color: "success" },
+  NOT_APPROVED: { text: "Not Approved", color: "error" },
+  ISSUED: { text: "Issued", color: "success" },
+  DEFAULT: { text: "", color: "default" },
+};
+
 export default function ReportTopSection() {
   const { setOpen, setClose } = useModal();
   const currentUser = useCurrentLoggedInUser();
+  const [irApprStatusBadge, setIrApprStatusBadge] = useState(
+    STATUS_BADGE_CONFIG.DEFAULT
+  );
 
   const {
     queryClient,
@@ -31,7 +43,18 @@ export default function ReportTopSection() {
   } = useReportStore();
 
   const { data: staffData } = useStaffUsersData();
+  const irProgressId = inspectionReportsData?.ir_progress?.id as IRProgressEnum;
 
+  // Memoize the current user's staff ID
+  const currentUserStaffId = useMemo(
+    () =>
+      staffData?.find(
+        (staff) => staff.auth_user_guid === currentUser?.preferred_username
+      )?.id ?? 0,
+    [staffData, currentUser]
+  );
+
+  // Check if current user is an approver (director or deputy director)
   const isCurrentUserApprover = useMemo(() => {
     return staffData?.some(
       (staff) =>
@@ -43,13 +66,78 @@ export default function ReportTopSection() {
     );
   }, [staffData, currentUser]);
 
-  const refetchInspectionReportsData = () => {
+  const refetchInspectionReportsData = useCallback(() => {
     queryClient.invalidateQueries({
       queryKey: ["inspection-reports", inspectionData?.id],
     });
-  };
+  }, [queryClient, inspectionData?.id]);
 
-  const handleSendForApproval = () => {
+  // Callback for handling approval success
+  const onApprovalSuccess = useCallback(
+    (data: IRApproval) => {
+      setIRApprovalsData([data]);
+      notify.success("Approval status updated");
+      refetchInspectionReportsData();
+    },
+    [setIRApprovalsData, refetchInspectionReportsData]
+  );
+
+  const { mutate: updateIRApprovalStatus } =
+    useUpdateIRApprovalStatus(onApprovalSuccess);
+
+  // Flag conditions
+  const isInDeputyReview = useMemo(
+    () =>
+      [
+        IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW,
+        IRProgressEnum.FINAL_DEPUTY_REVIEW,
+      ].includes(irProgressId),
+    [irProgressId]
+  );
+
+  const isInDraftingOrFinalizing = useMemo(
+    () =>
+      [
+        IRProgressEnum.PRELIMINARY_DRAFTING,
+        IRProgressEnum.FINALIZING_RECORD,
+      ].includes(irProgressId),
+    [irProgressId]
+  );
+
+  const isDisableApprovalButton = useMemo(
+    () => isInDeputyReview && !isCurrentUserApprover,
+    [isInDeputyReview, isCurrentUserApprover]
+  );
+
+  const isShowSendForApprovalButton = useMemo(
+    () => isInDraftingOrFinalizing || isDisableApprovalButton,
+    [isInDraftingOrFinalizing, isDisableApprovalButton]
+  );
+
+  const isShowApprovalButtons = useMemo(
+    () => isInDeputyReview && isCurrentUserApprover,
+    [isInDeputyReview, isCurrentUserApprover]
+  );
+
+  const isShowOfficerStepper = useMemo(
+    () =>
+      [
+        IRProgressEnum.PRELIMINARY_APPROVED,
+        IRProgressEnum.FINAL_APPROVED,
+        IRProgressEnum.HOLDER_PRELIMINARY_REVIEW,
+      ].includes(irProgressId),
+    [irProgressId]
+  );
+
+  const isShowIssueIRButton = useMemo(
+    () =>
+      irProgressId === IRProgressEnum.FINAL_APPROVED &&
+      inspectionReportsData?.intended_issuance_date,
+    [irProgressId, inspectionReportsData?.intended_issuance_date]
+  );
+
+  // Modal handlers
+  const handleSendForApproval = useCallback(() => {
     setOpen({
       content: (
         <SendForApprovalModal
@@ -62,9 +150,9 @@ export default function ReportTopSection() {
         />
       ),
     });
-  };
+  }, [setOpen, setClose, staffData, refetchInspectionReportsData]);
 
-  const handleIssueIR = () => {
+  const handleIssueIR = useCallback(() => {
     setOpen({
       content: (
         <IssueIRModal
@@ -76,80 +164,55 @@ export default function ReportTopSection() {
         />
       ),
     });
-  };
+  }, [setOpen, setClose, refetchInspectionReportsData]);
 
-  const onApprovalSuccess = (data: IRApproval) => {
-    setIRApprovalsData([data]);
-    notify.success("Approval status updated");
-    refetchInspectionReportsData();
-  };
+  const handleApproval = useCallback(
+    (isApprove: boolean) => {
+      updateIRApprovalStatus({
+        inspectionId: inspectionData?.id ?? 0,
+        inspectionRecordId: inspectionReportsData?.id ?? 0,
+        approvalId: irApprovalsData?.[0]?.id ?? 0,
+        statusPayload: {
+          approval_status: isApprove
+            ? IR_APPROVAL_STATUS.APPROVED
+            : IR_APPROVAL_STATUS.NOT_APPROVED,
+          approved_by_id: currentUserStaffId,
+        },
+      });
+    },
+    [
+      updateIRApprovalStatus,
+      inspectionData?.id,
+      inspectionReportsData?.id,
+      irApprovalsData,
+      currentUserStaffId,
+    ]
+  );
 
-  const { mutate: updateIRApprovalStatus } =
-    useUpdateIRApprovalStatus(onApprovalSuccess);
-
-  const handleApproval = (isApprove: boolean) => {
-    const currentUserId =
-      staffData?.find(
-        (staff) => staff.auth_user_guid === currentUser?.preferred_username
-      )?.id ?? 0;
-    updateIRApprovalStatus({
-      inspectionId: inspectionData?.id ?? 0,
-      inspectionRecordId: inspectionReportsData?.id ?? 0,
-      approvalId: irApprovalsData?.[0]?.id ?? 0,
-      statusPayload: {
-        approval_status: isApprove
-          ? IR_APPROVAL_STATUS.APPROVED
-          : IR_APPROVAL_STATUS.NOT_APPROVED,
-        approved_by_id: currentUserId,
-      },
-    });
-  };
-
-  const isDisableApprovalButton = useMemo(() => {
-    return (
-      [
-        IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW,
-        IRProgressEnum.FINAL_DEPUTY_REVIEW,
-      ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum) &&
-      !isCurrentUserApprover
-    );
-  }, [inspectionReportsData, isCurrentUserApprover]);
-
-  const isShowSendForApprovalButton = useMemo(() => {
-    return (
-      [
-        IRProgressEnum.PRELIMINARY_DRAFTING,
-        IRProgressEnum.FINALIZING_RECORD,
-      ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum) ||
-      isDisableApprovalButton
-    );
-  }, [inspectionReportsData, isDisableApprovalButton]);
-
-  const isShowApprovalButtons = useMemo(() => {
-    return (
-      [
-        IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW,
-        IRProgressEnum.FINAL_DEPUTY_REVIEW,
-      ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum) &&
-      isCurrentUserApprover
-    );
-  }, [inspectionReportsData, isCurrentUserApprover]);
-
-  const isShowOfficerStepper = useMemo(() => {
-    return [
-      IRProgressEnum.PRELIMINARY_APPROVED,
-      IRProgressEnum.FINAL_APPROVED,
-      IRProgressEnum.HOLDER_PRELIMINARY_REVIEW,
-    ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum);
-  }, [inspectionReportsData]);
-
-  const isShowIssueIRButton = useMemo(() => {
-    return (
-      inspectionReportsData?.ir_progress?.id ===
-        IRProgressEnum.FINAL_APPROVED &&
-      inspectionReportsData?.intended_issuance_date
-    );
-  }, [inspectionReportsData]);
+  // Determine status badge based on current state
+  useEffect(() => {
+    if (isInDeputyReview) {
+      setIrApprStatusBadge(STATUS_BADGE_CONFIG.PENDING);
+    } else if (isShowOfficerStepper) {
+      setIrApprStatusBadge(STATUS_BADGE_CONFIG.APPROVED);
+    } else if (
+      isInDraftingOrFinalizing &&
+      irApprovalsData?.[0]?.approval_status?.id ===
+        IR_APPROVAL_STATUS.NOT_APPROVED
+    ) {
+      setIrApprStatusBadge(STATUS_BADGE_CONFIG.NOT_APPROVED);
+    } else if (irProgressId === IRProgressEnum.ISSUED) {
+      setIrApprStatusBadge(STATUS_BADGE_CONFIG.ISSUED);
+    } else {
+      setIrApprStatusBadge(STATUS_BADGE_CONFIG.DEFAULT);
+    }
+  }, [
+    irProgressId,
+    isInDeputyReview,
+    isShowOfficerStepper,
+    isInDraftingOrFinalizing,
+    irApprovalsData,
+  ]);
 
   return (
     <>
@@ -161,9 +224,25 @@ export default function ReportTopSection() {
           alignItems: "center",
         }}
       >
-        <Typography variant="h6">
-          {inspectionReportsData?.ir_status?.name} IR
-        </Typography>
+        <Box display={"flex"} gap={1} alignItems={"center"}>
+          <Typography variant="h6">
+            {inspectionReportsData?.ir_status?.name} IR
+          </Typography>
+          {irApprStatusBadge.text && (
+            <Chip
+              label={irApprStatusBadge.text}
+              color={
+                irApprStatusBadge.color as
+                  | "default"
+                  | "error"
+                  | "success"
+                  | "warning"
+              }
+              variant="outlined"
+              size="small"
+            />
+          )}
+        </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           {isShowSendForApprovalButton && (
             <Button
@@ -176,7 +255,7 @@ export default function ReportTopSection() {
               Send for Approval
             </Button>
           )}
-          {isShowApprovalButtons ? (
+          {isShowApprovalButtons && (
             <>
               <Button
                 color="secondary"
@@ -193,7 +272,7 @@ export default function ReportTopSection() {
                 Not Approve
               </Button>
             </>
-          ) : null}
+          )}
           {isShowIssueIRButton && (
             <Button onClick={handleIssueIR}>Issue IR</Button>
           )}

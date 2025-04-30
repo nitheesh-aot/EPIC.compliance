@@ -58,12 +58,10 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
 
   const updateMentionList = useCallback(() => {
     const reqId = !requirementId ? NaN : requirementId;
-    const mentionList = formatImagesToMentionList(
-      [
-        ...(requirementPhotos.get(reqId) ?? []),
-        ...(requirementFigures.get(reqId) ?? []),
-      ],
-    );
+    const mentionList = formatImagesToMentionList([
+      ...(requirementPhotos.get(reqId) ?? []),
+      ...(requirementFigures.get(reqId) ?? []),
+    ]);
     setMentionDataList(mentionList);
     setMentionVersion((prev) => prev + 1);
   }, [requirementPhotos, requirementFigures, requirementId]);
@@ -130,7 +128,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
           <GridLabelValuePair
             label="Requirement Summary"
             value={getValues("requirementSummary")}
-            gridProps={{ xs: 4 }}
+            multiline
           />
           <GridLabelValuePair
             label="Topic"
@@ -182,10 +180,11 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
         <ControlledTextField
           name="requirementSummary"
           label={isRegulatoryConsideration ? "Summary" : "Requirement Summary"}
-          placeholder=""
+          placeholder="e.g installing and maintaining erosion and sediment control measures"
           fullWidth
           inputRef={summaryInputRef}
           inputProps={{ "data-cy": "requirement-summary-input" }}
+          multiline
           isRequired={true}
         />
         <ControlledAutoComplete

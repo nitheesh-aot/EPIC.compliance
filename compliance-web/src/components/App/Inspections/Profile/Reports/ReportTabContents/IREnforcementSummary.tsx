@@ -3,7 +3,7 @@ import IRBoxContainer from "./IRBoxContainer";
 import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
 import { useEffect } from "react";
 import { notify } from "@/store/snackbarStore";
-import { useUpdateInspectionRecord } from "@/hooks/useInspectionReports";
+import { useResetInspectionRecord, useUpdateInspectionRecord } from "@/hooks/useInspectionReports";
 import { InspectionRecord } from "@/models/InspectionRecord";
 import { DEFAULT_REPORT_TAB_CONTENT } from "@/utils/constants";
 
@@ -39,11 +39,25 @@ const IREnforcementSummary = () => {
     });
   };
 
+  const { mutate: resetInspectionRecord } =
+    useResetInspectionRecord(handleOnSuccess);
+
+  const handleResetEnforcementSummary = () => {
+    resetInspectionRecord({
+      inspectionId: inspectionData?.id ?? 0,
+      inspectionRecordId: inspectionReportsData?.id ?? 0,
+      resetPayload: {
+        field_name: "enforcement_summary",
+      },
+    });
+  };
+
   return (
     <IRBoxContainer
       title="Enforcement Summary"
       defaultValue={enforcementSummary}
       onEditSubmit={handleSaveEnforcementSummary}
+      onReset={handleResetEnforcementSummary}
     >
       <Typography
         variant="body1"

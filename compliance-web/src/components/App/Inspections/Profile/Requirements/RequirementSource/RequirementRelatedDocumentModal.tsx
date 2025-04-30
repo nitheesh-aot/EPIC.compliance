@@ -199,6 +199,7 @@ const RequirementRelatedDocumentModal: React.FC<
           <ControlledTextField
             name="documentTitle"
             label="Document Title"
+            multiline
             fullWidth
           />
           <Grid container spacing={2}>

@@ -147,6 +147,7 @@ const AppendicesContainer: FC<AppendicesContainerProps> = memo(
                   sx={{
                     display: "flex",
                     gap: 0.75,
+                    fontSize: "0.875rem",
                     cursor: "pointer",
                     "&:hover": {
                       textDecoration: "underline",
