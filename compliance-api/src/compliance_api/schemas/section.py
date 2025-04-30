@@ -19,4 +19,4 @@ class SectionSchema(AutoSchemaBase):
 
     id = fields.Integer(required=True)
     name = fields.String(required=True)
-    description = fields.String(required=True)
+    act = fields.Integer(required=True)

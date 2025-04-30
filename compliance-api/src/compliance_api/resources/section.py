@@ -27,6 +27,6 @@ class Sections(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all active sections")
     def get():
         """Fetch all active sections."""
-        sections = SectionService.get_active_sections()
+        sections = SectionService.get_all()
         section_list_schema = SectionSchema(many=True)
         return section_list_schema.dump(sections), HTTPStatus.OK

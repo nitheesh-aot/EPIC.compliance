@@ -1,4 +1,5 @@
 """Order Service."""
+
 from typing import List
 
 from compliance_api.models.db import session_scope

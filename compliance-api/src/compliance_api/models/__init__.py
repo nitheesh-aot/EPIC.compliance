@@ -35,7 +35,7 @@ from .inspection import (
     InspectionType, InspectionTypeOption, IRStatusOption)
 from .inspection_record import InspectionRecord, IRProgressEnum
 from .inspection_record_approval import InspectionRecordApproval, IRApprovalStatusEnum
-from .order import Order, OrderInspectionRequirementMap
+from .order import Order, OrderInspectionRequirementMap, OrderStatusEnum
 from .position import Position
 from .project import Project
 from .req_source_document_map import RequirementSourceDocumentMap

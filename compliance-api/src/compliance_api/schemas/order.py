@@ -1,4 +1,5 @@
 """Order Schemas."""
+
 from marshmallow import EXCLUDE, fields
 
 from ..models.order import Order
@@ -20,15 +21,17 @@ class OrderCreateSchema(BaseSchema):
         required=True, metadata={"description": "The issuing officer id"}
     )
     intended_issuance_date = fields.DateTime(
-        required=True, metadata={"description": "The intended issuance date"}
+        allow_none=True, metadata={"description": "The intended issuance date"}
     )
-    where_as = fields.String(required=True, metadata={"description": "The where as"})
+    where_as = fields.String(
+        allow_none=True, metadata={"description": "The where as"}
+    )
     now_therefore = fields.String(
-        required=True, metadata={"description": "The now therefore"}
+        allow_none=True, metadata={"description": "The now therefore"}
     )
     inspection_requirement_ids = fields.List(
         fields.Integer(),
-        required=False,
+        allow_none=True,
         metadata={
             "description": "List of inspection requirement IDs associated with the order."
         },

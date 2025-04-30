@@ -1,12 +1,22 @@
 """Order model."""
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+import enum
+
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
 from .base_model import BaseModelVersioned
 from .utils import with_session
+
+
+class OrderStatusEnum(enum.Enum):
+    """Order status enum."""
+
+    OPEN = "Open"
+    CLOSED = "Closed"
+    RESCINDED = "Rescinded"
 
 
 class OrderInspectionRequirementMap(BaseModelVersioned):
@@ -92,6 +102,7 @@ class Order(BaseModelVersioned):
     )
     section = relationship("Section", foreign_keys=[section_id], lazy="joined")
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
+    order_status = Column(Enum(OrderStatusEnum), nullable=True)
 
     @classmethod
     def create(cls, order_data: dict, session=None):

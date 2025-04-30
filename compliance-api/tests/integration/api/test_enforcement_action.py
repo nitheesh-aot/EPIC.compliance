@@ -1,4 +1,5 @@
 """test suit for enforcement actions."""
+
 from http import HTTPStatus
 from urllib.parse import urljoin
 

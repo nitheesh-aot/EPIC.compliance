@@ -90,8 +90,7 @@ def test_update_agency_with_non_super_user(client, auth_header):
     """Update agency."""
     url = urljoin(API_BASE_URL, "agencies/1")
     update_dict = AgencyScenario.agency1.value
-    result = client.patch(url, data=json.dumps(
-        update_dict), headers=auth_header)
+    result = client.patch(url, data=json.dumps(update_dict), headers=auth_header)
     assert result.status_code == HTTPStatus.FORBIDDEN
 
 

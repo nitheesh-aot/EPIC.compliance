@@ -7,6 +7,6 @@ class SectionService:
     """Service layer for Section operations."""
 
     @classmethod
-    def get_active_sections(cls) -> list:
+    def get_all(cls) -> list:
         """Retrieve all valid active sections."""
-        return SectionModel.get_all()
+        return SectionModel.get_all(default_filters=False)
