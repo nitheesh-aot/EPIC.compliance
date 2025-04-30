@@ -1,4 +1,5 @@
 """test suit for document type."""
+
 from http import HTTPStatus
 from urllib.parse import urljoin
 

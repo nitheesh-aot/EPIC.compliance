@@ -59,7 +59,7 @@ def test_create_staff_user_mandatory(
         "auth_user_guid": username,
         "permission": "VIEWER",
         "position_id": 1,
-        "is_active": True
+        "is_active": True,
     }
 
     result = client.post(
@@ -100,7 +100,7 @@ def test_create_staff_user_all_fields(
         "position_id": 1,
         "deputy_director_id": new_user.id,
         "supervisor_id": new_user.id,
-        "is_active": True
+        "is_active": True,
     }
 
     result = client.post(
@@ -133,7 +133,7 @@ def test_create_staff_user_with_non_super_user(
         "position_id": 1,
         "deputy_director_id": new_user.id,
         "supervisor_id": new_user.id,
-        "is_active": True
+        "is_active": True,
     }
     result = client.post(url, data=json.dumps(staff_user_data), headers=auth_header)
     assert result.status_code == HTTPStatus.FORBIDDEN
@@ -151,7 +151,7 @@ def test_create_existing_user(mock_auth_service, client, auth_header_super_user)
         "auth_user_guid": auth_user_guid,
         "permission": "VIEWER",
         "position_id": 1,
-        "is_active": True
+        "is_active": True,
     }
 
     result = client.post(
@@ -231,7 +231,7 @@ def test_update_staff(mock_auth_service, client, auth_header_super_user, mocker)
         "deputy_director_id": another_user.id,
         "supervisor_id": another_user.id,
         "permission": "VIEWER",
-        "is_active": True
+        "is_active": True,
     }
 
     result = client.patch(
@@ -251,7 +251,7 @@ def test_update_staff_with_non_super_user(mock_auth_service, client, auth_header
         "deputy_director_id": 1,
         "supervisor_id": 1,
         "permission": "VIEWER",
-        "is_active": True
+        "is_active": True,
     }
 
     result = client.patch(url, data=json.dumps(update_payload), headers=auth_header)
@@ -259,7 +259,9 @@ def test_update_staff_with_non_super_user(mock_auth_service, client, auth_header
     assert result.status_code == HTTPStatus.FORBIDDEN
 
 
-def test_user_update_non_existing(mock_auth_service, client, auth_header_super_user, mocker):
+def test_user_update_non_existing(
+    mock_auth_service, client, auth_header_super_user, mocker
+):
     """Update non-existing user."""
     mock_delete_user_group = mocker.patch(
         "compliance_api.services.authorize_service.auth_service.AuthService.delete_user_group"
@@ -271,7 +273,7 @@ def test_user_update_non_existing(mock_auth_service, client, auth_header_super_u
         "deputy_directory_id": 1,
         "supervisor_id": 1,
         "permission": "VIEWER",
-        "is_active": True
+        "is_active": True,
     }
     result = client.patch(
         url, data=json.dumps(update_payload), headers=auth_header_super_user

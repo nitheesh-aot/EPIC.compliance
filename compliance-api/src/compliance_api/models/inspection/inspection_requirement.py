@@ -89,6 +89,15 @@ class InspectionRequirement(BaseModelVersioned):
         "InspectionReqEnforcementMap.is_active == True, "
         "InspectionReqEnforcementMap.is_deleted == False)",
     )
+    orders_requirement_maps = relationship(
+        "OrderInspectionRequirementMap",
+        back_populates="inspection_requirement",
+        lazy="select",
+        primaryjoin="and_(OrderInspectionRequirementMap.inspection_requirement_id == InspectionRequirement.id, "
+        "OrderInspectionRequirementMap.is_active == True, "
+        "OrderInspectionRequirementMap.is_deleted == False)",
+        order_by="OrderInspectionRequirementMap.id.asc()",
+    )
 
     @classmethod
     @with_session

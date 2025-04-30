@@ -321,8 +321,7 @@ def test_case_file_update_viewer_fails(client, auth_header, created_staff):
     case_file_data["primary_officer_id"] = created_staff.id
     created_result = CaseFileModel.create_case_file(case_file_data)
     url = urljoin(API_BASE_URL, f"case-files/{created_result.id}")
-    result = client.patch(url, data=json.dumps(
-        case_file_data), headers=auth_header)
+    result = client.patch(url, data=json.dumps(case_file_data), headers=auth_header)
     assert result.status_code == HTTPStatus.FORBIDDEN
 
 
@@ -331,8 +330,7 @@ def test_case_file_update_with_primary(
 ):
     """Update as primary."""
     case_file_data = copy.copy(CasefileScenario.default_value.value)
-    case_file_data["case_file_number"] = str(
-        datetime.utcnow().timestamp() * 1000)
+    case_file_data["case_file_number"] = str(datetime.utcnow().timestamp() * 1000)
     case_file_data["primary_officer_id"] = created_staff.id
     created_result = CaseFileModel.create_case_file(case_file_data)
     header = TokenJWTClaims.default.value
@@ -340,8 +338,7 @@ def test_case_file_update_with_primary(
     headers = factory_auth_header(jwt=jwt, claims=header)
 
     url = urljoin(API_BASE_URL, f"case-files/{created_result.id}")
-    result = client.patch(url, data=json.dumps(
-        case_file_data), headers=headers)
+    result = client.patch(url, data=json.dumps(case_file_data), headers=headers)
     assert result.status_code == HTTPStatus.OK
 
 
@@ -350,8 +347,7 @@ def test_case_file_close(client, jwt, created_staff, mocker):
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
     contains_role.return_value = True
     case_file_data = copy.copy(CasefileScenario.default_value.value)
-    case_file_data["case_file_number"] = str(
-        datetime.utcnow().timestamp() * 1000)
+    case_file_data["case_file_number"] = str(datetime.utcnow().timestamp() * 1000)
     case_file_data["primary_officer_id"] = created_staff.id
     created_result = CaseFileService.create(case_file_data)
     print(created_result)
@@ -362,11 +358,9 @@ def test_case_file_close(client, jwt, created_staff, mocker):
     headers = factory_auth_header(jwt=jwt, claims=header)
     print(created_result)
     url = urljoin(API_BASE_URL, f"case-files/{created_result.id}/status")
-    result = client.patch(url, data=json.dumps(
-        {"status": "OPEN"}), headers=headers)
+    result = client.patch(url, data=json.dumps({"status": "OPEN"}), headers=headers)
     assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-    result = client.patch(url, data=json.dumps(
-        {"status": "CLOSED"}), headers=headers)
+    result = client.patch(url, data=json.dumps({"status": "CLOSED"}), headers=headers)
     assert result.status_code == HTTPStatus.NO_CONTENT
     cr_entry = (
         db.session.query(ContinuationReportModel)
@@ -391,11 +385,9 @@ def test_case_file_close(client, jwt, created_staff, mocker):
         .all()
     )
     assert cr_key is not None
-    result = client.patch(url, data=json.dumps(
-        {"status": "CLOSED"}), headers=headers)
+    result = client.patch(url, data=json.dumps({"status": "CLOSED"}), headers=headers)
     assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-    result = client.patch(url, data=json.dumps(
-        {"status": "OPEN"}), headers=headers)
+    result = client.patch(url, data=json.dumps({"status": "OPEN"}), headers=headers)
     assert result.status_code == HTTPStatus.NO_CONTENT
     cr_entry = (
         db.session.query(ContinuationReportModel)
@@ -427,8 +419,7 @@ def test_case_file_delete(client, jwt, created_staff, mocker, auth_header_super_
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
     contains_role.return_value = True
     case_file_data = copy.copy(CasefileScenario.default_value.value)
-    case_file_data["case_file_number"] = str(
-        datetime.utcnow().timestamp() * 1000)
+    case_file_data["case_file_number"] = str(datetime.utcnow().timestamp() * 1000)
     case_file_data["primary_officer_id"] = created_staff.id
     created_result = CaseFileService.create(case_file_data)
 
@@ -446,14 +437,12 @@ def test_case_file_linking(client, jwt, created_staff, auth_header_super_user, m
     contains_role.return_value = True
     #  Create source case file
     case_file_data = copy.copy(CasefileScenario.default_value.value)
-    case_file_data["case_file_number"] = str(
-        datetime.utcnow().timestamp() * 1000)
+    case_file_data["case_file_number"] = str(datetime.utcnow().timestamp() * 1000)
     case_file_data["primary_officer_id"] = created_staff.id
     source_case_file = CaseFileService.create(case_file_data)
     # Create target case file
     case_file_data = copy.copy(CasefileScenario.default_value.value)
-    case_file_data["case_file_number"] = str(
-        datetime.utcnow().timestamp() * 1000)
+    case_file_data["case_file_number"] = str(datetime.utcnow().timestamp() * 1000)
     case_file_data["primary_officer_id"] = created_staff.id
     target_case_file = CaseFileService.create(case_file_data)
     url = urljoin(API_BASE_URL, f"case-files/{source_case_file.id}/links")
