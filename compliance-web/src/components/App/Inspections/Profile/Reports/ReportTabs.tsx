@@ -29,7 +29,8 @@ import { useRequirementStore } from "@/components/App/Inspections/Profile/Requir
 export default function ReportTabs() {
   const { inspectionNumber } = useParams({ strict: false });
   const [value, setValue] = useState(0);
-  const { setInspectionData, setCaseFileData } = useReportStore();
+  const { setInspectionData, setCaseFileData, proponentLabel } =
+    useReportStore();
   const {
     requirementsList,
     setRequirementsList,
@@ -102,7 +103,7 @@ export default function ReportTabs() {
     // Remaining static tabs
     const remainingTabs = [
       {
-        title: "Actions Required by Regulated Party and Additional Comments",
+        title: `Actions Required by ${proponentLabel} and Additional Comments`,
         component: <ActionsRequired />,
       },
       { title: "Enforcement Summary", component: <IREnforcementSummary /> },
@@ -115,7 +116,7 @@ export default function ReportTabs() {
     ];
 
     return [...baseTabs, ...requirementTabs, ...remainingTabs];
-  }, [requirementsList]);
+  }, [requirementsList, proponentLabel]);
 
   useEffect(() => {
     // Calculate and set the top position of tabs as a CSS variable
