@@ -37,15 +37,15 @@ FINDING_STATEMENT = """<p class="editor-paragraph" dir="ltr">
 PRELIMINARY_REVIEW_DETAILS = """<div>
     <p class="editor-paragraph" dir="ltr">
         <span>
-            On {{ date_report_sent}} ., Officer {{ primary_last_name }} provided the preliminary
+            On {{ date_report_sent}}, Officer {{ primary_last_name }} provided the preliminary
             inspection record to the {{ proponent_label }}.
-        AND</span><br><span>On {{ date_repsonse }} ., the {{ proponent_label }}
+        AND</span><br><span>On {{ date_response }}, the {{ proponent_label }}
             provided comments pertaining to the preliminary inspection record. These comments were reviewed, and edits
             were made to the record by the EAO Compliance and Enforcement Branch (CEB) to correct identified errors of
             fact or omission prior to finalizing. </span>
     </p>
     <p class="editor-paragraph" dir="ltr"><span>OR</span></p>
-    <p class="editor-paragraph" dir="ltr"><span>On {{ date_response }} ., the {{ proponent_label }} provided comments
+    <p class="editor-paragraph" dir="ltr"><span>On {{ date_response }}, the {{ proponent_label }} provided comments
             pertaining to the preliminary inspection record. These comments were reviewed by the EAO Compliance and
             Enforcement Branch (CEB). No errors of fact or omission were identified.</span></p>
     <p class="editor-paragraph" dir="ltr"><span>OR</span></p>
