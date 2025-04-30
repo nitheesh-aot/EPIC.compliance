@@ -23,4 +23,4 @@ from compliance_api.config import get_named_config
 
 fake = Faker()
 
-CONFIG = get_named_config('testing')
+CONFIG = get_named_config("testing")

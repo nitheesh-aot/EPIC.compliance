@@ -1,4 +1,5 @@
 """Various test data for agency."""
+
 from enum import Enum
 
 from faker import Faker

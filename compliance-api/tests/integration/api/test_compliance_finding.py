@@ -1,4 +1,5 @@
 """test suit for compliance findings."""
+
 from http import HTTPStatus
 from urllib.parse import urljoin
 
