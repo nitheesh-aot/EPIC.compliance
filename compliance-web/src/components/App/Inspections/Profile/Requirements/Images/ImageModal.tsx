@@ -205,6 +205,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
               name="caption"
               label="Caption"
               fullWidth
+              multiline
               isRequired={true}
             />
           </DialogContent>

@@ -84,6 +84,7 @@ export default function ImageCard({
             WebkitLineClamp: 2,
             overflow: "hidden",
             textOverflow: "ellipsis",
+            fontSize: "0.75rem",
           }}
         >
           <strong>
