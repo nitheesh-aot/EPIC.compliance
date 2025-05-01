@@ -93,7 +93,7 @@ class InspectionRequirementService:
                 requirement_id, requirement_data, session
             )
             _create_update_source_details_nd_docs(
-                requirement_id, requirement_data, session
+                inspection_id, requirement_id, requirement_data, session
             )
             cls.insert_or_update_enforcements(
                 requirement_id,

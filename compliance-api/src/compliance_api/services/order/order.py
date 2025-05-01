@@ -7,10 +7,13 @@ from compliance_api.models.order import OrderInspectionRequirementMap as OrderIn
 from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils
 
-from ..exceptions import ResourceNotFoundError, UnprocessableEntityError
-from ..models.case_file import CaseFile as CaseFileModel
-from ..models.order import Order
-from ..utils.constant import UNAPPROVED_PROJECT_CODE
+from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
+from compliance_api.models.case_file import CaseFile as CaseFileModel
+from compliance_api.models.order import Order
+from compliance_api.models.section import Section as SectionModel
+from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE
+from .order_constant import DEFAULT_ACT, DEFAULT_SECTION
+from .order_template_constant import WHERE_AS, NOW_THEREFORE
 
 
 class OrderService:
@@ -90,6 +93,7 @@ class OrderService:
 
 def _create_order_obj(inspection, order_data: dict) -> dict:
     """Create an order object as a dictionary."""
+    default_section = SectionModel.get_by_name_act(DEFAULT_SECTION, DEFAULT_ACT)
     order_number = _create_order_number(
         inspection.case_file.project_id, inspection.case_file.id
     )
@@ -97,13 +101,22 @@ def _create_order_obj(inspection, order_data: dict) -> dict:
         "order_number": order_number,
         "inspection_id": inspection.id,
         "issuing_officer_id": order_data.get("issuing_officer_id"),
-        "section_id": order_data.get("section_id"),
-        "where_as": order_data.get("where_as"),
-        "now_therefore": order_data.get("now_therefore"),
+        "section_id": order_data.get("section_id", default_section.id),
+        "where_as": order_data.get("where_as", _create_where_as(inspection)),
+        "now_therefore": order_data.get("now_therefore", _create_now_therefore()),
         "intended_issuance_date": order_data.get("intended_issuance_date"),
     }
 
-
+def _create_where_as(inspection):
+    """Create where as."""
+    return """
+    WHEREAS:
+    """
+def _create_now_therefore():
+    """Create now therefore."""
+    return """
+    NOW THEREFORE:
+    """
 def _create_order_number(project_id: int, case_file_id: int) -> str:
     """Generate the order number."""
     project_code = _get_project_abbreviation(project_id)

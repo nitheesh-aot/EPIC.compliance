@@ -9,7 +9,7 @@ from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.utils.constant import PermissionEnum
 
 from ..schemas import OrderCreateSchema, OrderSchema
-from ..services.order import OrderService
+from compliance_api.services.order.order import OrderService
 from ..utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 

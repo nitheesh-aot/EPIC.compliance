@@ -17,6 +17,7 @@ class Section(BaseModelVersioned):
     )
     name = Column(String, nullable=False, comment="The name of the section")
     act = Column(Integer, nullable=False, comment="The act associated with the section")
+    # chapter = Column(Integer, nullable=False, comment="The chapter associated with the section")
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
 
     __table_args__ = (
@@ -28,3 +29,9 @@ class Section(BaseModelVersioned):
             postgresql_where=(is_deleted is False),
         ),
     )
+
+    @classmethod
+    def get_by_name_act(cls, name: str, act: int):
+        """Get section by name and act."""
+        return cls.query.filter_by(name=name, act=act, is_deleted=False).first()
+
