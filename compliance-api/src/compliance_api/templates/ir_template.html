@@ -361,7 +361,7 @@
             </tr>
             <tr>
                 <th>Record Approved By</th>
-                <td colspan="3"></td>
+                <td colspan="3">{{ record_approved_by if record_approved_by else 'N/A' }}</td>
             </tr>
         </table>
 
@@ -377,7 +377,7 @@
                     <td colspan="2">
                         <div class="com-ir-section-header">Requirement {{ requirement.sort_order }}: {{
                             requirement.requirement_source_details[0].requirement_source_number }} of {{
-                            requirement.requirement_source_details[0].requirement_source_name }}</div>
+                            requirement.requirement_source_details[0].requirement_source_name }}{% if requirement.requirement_source_details[0].appendix_no %} (Appendix {{ requirement.requirement_source_details[0].appendix_no }}){% endif %}</div>
                         {{ requirement.requirement_source_details[0].requirement_source_description | safe |
                         replace('style="white-space: pre-wrap;"', '') }}
                         {% if requirement.requirement_source_details[0].requirement_documents %}
@@ -405,7 +405,7 @@
                     <td colspan="2">
                         <div class="com-ir-additional-source">
                             <div class="com-ir-section-header">Requirement {{ source.sort_order }}: {{ source.requirement_source_number }} of {{
-                                source.requirement_source_name }}</div>
+                                source.requirement_source_name }}{% if source.appendix_no %} (Appendix {{ source.appendix_no }}){% endif %}</div>
                             {{ source.requirement_source_description | safe | replace('style="white-space: pre-wrap;"',
                             '') }}
                         </div>

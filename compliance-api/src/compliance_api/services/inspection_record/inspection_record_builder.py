@@ -468,6 +468,9 @@ class InspectionRecordDataBuilder:
                     req["requirement_source_details"].append(
                         {
                             "requirement_source_name": detail.requirement_source.name,
+                            "appendix_no": (
+                                detail.appendix.appendix_no if detail.appendix else None
+                            ),
                             "requirement_source_number": self._get_requirement_source_number_field(
                                 detail
                             ),

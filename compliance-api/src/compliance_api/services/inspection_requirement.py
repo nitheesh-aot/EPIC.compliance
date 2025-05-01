@@ -6,6 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from compliance_api.exceptions import BadRequestError, ResourceNotFoundError, UnprocessableEntityError
+from compliance_api.models import Appendix as AppendixModel
 from compliance_api.models import ImageTypeEnum
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionReqDetailDocument as InspectionReqDetailDocumentModel
@@ -48,7 +49,7 @@ class InspectionRequirementService:
                 requirement_obj, session
             )
             _create_update_source_details_nd_docs(
-                created_requirement.id, requirement_data, session
+                inspection_id, created_requirement.id, requirement_data, session
             )
             cls.insert_or_update_enforcements(
                 created_requirement.id,
@@ -448,7 +449,7 @@ def _requirement_check(requirement_id):
 
 
 def _create_update_source_details_nd_docs(
-    requirement_id, requirement_data, session=None
+    inspection_id, requirement_id, requirement_data, session=None
 ):
     """
     Persist the source details and related document details.
@@ -458,6 +459,11 @@ def _create_update_source_details_nd_docs(
     """
     for source_detail_data in requirement_data.get("requirement_source_details", []):
         req_detail_id = source_detail_data.get("id", None)
+        appendix = AppendixModel.find_by_id(source_detail_data.get("appendix_id"))
+        if not appendix:
+            raise ResourceNotFoundError(
+                f"Appendix with given ID {source_detail_data.get('appendix_id')} not found"
+            )
         source_detail_obj = _create_requirement_source_detail_obj(
             requirement_id, source_detail_data
         )
@@ -541,6 +547,7 @@ def _create_requirement_source_detail_obj(requirement_id, requirement_source_dat
     return {
         "requirement_id": requirement_id,
         "requirement_source_id": requirement_source_data.get("requirement_source_id"),
+        "appendix_id": requirement_source_data.get("appendix_id", None),
         "section_number": requirement_source_data.get("section_number", None),
         "condition_number": requirement_source_data.get("condition_number", None),
         "amendment_number": requirement_source_data.get("amendment_number", None),

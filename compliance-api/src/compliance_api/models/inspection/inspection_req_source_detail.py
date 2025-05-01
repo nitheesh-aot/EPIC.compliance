@@ -35,6 +35,12 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         nullable=False,
         comment="The source of the requirement",
     )
+    appendix_id = Column(
+        Integer,
+        ForeignKey("appendices.id", name="inspection_req_detail_appendix_id_fkey"),
+        nullable=True,
+        comment="The appendix id associated with requirement sources",
+    )
     section_number = Column(
         String,
         nullable=True,
@@ -76,6 +82,7 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         "InspectionReqDetailDocument.is_active == True, "
         "InspectionReqDetailDocument.is_deleted == False)",
     )
+    appendix = relationship("Appendix", foreign_keys=[appendix_id], lazy="joined")
 
     @classmethod
     @with_session
