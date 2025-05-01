@@ -340,7 +340,7 @@
             </tr>
             <tr>
                 <th>In Attendance</th>
-                <td colspan="3">{{ officer_details.in_attendance }}</td>
+                <td colspan="3">{{ officer_details.in_attendance if officer_details.in_attendance else 'N/A' }}</td>
             </tr>
             <tr>
                 <th>{{ project_details.proponent_label }}</th>

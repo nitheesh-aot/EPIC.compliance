@@ -63,6 +63,7 @@ class ProjectDetailsSchema(BaseSchema):
 
     name = fields.Str(required=True)
     eac_certificate = fields.Str(required=True)
+    certificate_label = fields.Str(required=True)
     project_state = fields.Str(required=True)
     proponent_label = fields.Str(required=True)
     proponent = fields.Str(required=True)
