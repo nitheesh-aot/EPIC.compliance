@@ -485,6 +485,11 @@ class InspectionRecordDataBuilder:
                             ].append(
                                 {
                                     "document_title": doc.document_title,
+                                    "appendix_no": (
+                                        doc.appendix.appendix_no
+                                        if doc.appendix
+                                        else None
+                                    ),
                                     "section_number": doc.section_number,
                                     "section_title": doc.section_title,
                                     "description": doc.description,

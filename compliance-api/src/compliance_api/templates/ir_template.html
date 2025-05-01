@@ -382,7 +382,7 @@
                         replace('style="white-space: pre-wrap;"', '') }}
                         {% if requirement.requirement_source_details[0].requirement_documents %}
                         {% for doc in requirement.requirement_source_details[0].requirement_documents %}
-                        <div class="com-ir-document-title">{{ doc.document_title }}</div>
+                        <div class="com-ir-document-title">{{ doc.document_title }}{% if doc.appendix_no %} (Appendix {{ doc.appendix_no }}){% endif %}</div>
                         {% if doc.section_number or doc.section_title %}
                         <div class="com-ir-document-section">Section {{ doc.section_number }} {{ doc.section_title }}
                         </div>
@@ -411,7 +411,7 @@
                         </div>
                         {% if source.requirement_documents %}
                         {% for doc in source.requirement_documents %}
-                        <div class="com-ir-document-title">{{ doc.document_title }}</div>
+                        <div class="com-ir-document-title">{{ doc.document_title }}{% if doc.appendix_no %} (Appendix {{ doc.appendix_no }}){% endif %}</div>
                         {% if doc.section_number or doc.section_title %}
                         <div class="com-ir-document-section">Section {{ doc.section_number }} {{ doc.section_title }}
                         </div>
