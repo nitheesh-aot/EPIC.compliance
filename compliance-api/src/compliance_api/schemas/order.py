@@ -8,7 +8,7 @@ from .section import SectionSchema
 from .staff_user import StaffUserSchema
 
 
-class OrderCreateSchema(BaseSchema):
+class OrderCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     """Schema for order model."""
 
     order_number = fields.String(
@@ -23,9 +23,7 @@ class OrderCreateSchema(BaseSchema):
     intended_issuance_date = fields.DateTime(
         allow_none=True, metadata={"description": "The intended issuance date"}
     )
-    where_as = fields.String(
-        allow_none=True, metadata={"description": "The where as"}
-    )
+    where_as = fields.String(allow_none=True, metadata={"description": "The where as"})
     now_therefore = fields.String(
         allow_none=True, metadata={"description": "The now therefore"}
     )
@@ -38,7 +36,7 @@ class OrderCreateSchema(BaseSchema):
     )
 
 
-class OrderSchema(AutoSchemaBase):
+class OrderSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     """Schema for order model."""
 
     class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
@@ -53,14 +51,3 @@ class OrderSchema(AutoSchemaBase):
         only=("id", "first_name", "last_name", "name", "auth_user_guid"),
     )
     section = fields.Nested(SectionSchema, only=("id", "name"))
-
-    # @post_dump
-    # def post_dump_actions(
-    #     self, data, many, **kwargs
-    # ):  # pylint: disable=no-self-use, unused-argument
-    #     """Extract the value of the order status enum."""
-    #     if "status" in data and data.get("status", None) is not None:
-    #         data["status"] = OrderStatusEnum(data["status"]).value
-    #     else:
-    #         data["status"] = ""
-    #     return data
