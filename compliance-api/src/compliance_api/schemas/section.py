@@ -6,10 +6,10 @@ from ..models.section import Section
 from .base_schema import AutoSchemaBase
 
 
-class SectionSchema(AutoSchemaBase):
+class SectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     """Section Schema."""
 
-    class Meta:
+    class Meta:  # pylint: disable=too-few-public-methods
         """Meta class for Section schema."""
 
         model = Section

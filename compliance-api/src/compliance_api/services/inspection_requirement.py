@@ -464,6 +464,10 @@ def _create_update_source_details_nd_docs(
             raise ResourceNotFoundError(
                 f"Appendix with given ID {source_detail_data.get('appendix_id')} not found"
             )
+        if appendix.inspection_id != inspection_id:
+            raise ResourceNotFoundError(
+                f"Appendix with given ID {source_detail_data.get('appendix_id')} does not belong to this inspection"
+            )
         source_detail_obj = _create_requirement_source_detail_obj(
             requirement_id, source_detail_data
         )

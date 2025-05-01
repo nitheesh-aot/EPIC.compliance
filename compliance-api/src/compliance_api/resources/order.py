@@ -8,7 +8,6 @@ from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.utils.constant import PermissionEnum
 
-from ..models import db
 from ..schemas import OrderCreateSchema, OrderSchema
 from ..services.order import OrderService
 from ..utils.util import cors_preflight
@@ -64,7 +63,7 @@ class Order(Resource):
     @API.response(404, "Not Found")
     def get(order_id):
         """Fetch an order by id."""
-        order = OrderService.get_order(db.session, order_id)
+        order = OrderService.get_order(order_id)
         if not order:
             raise ResourceNotFoundError(f"Order with {order_id} not found")
         return OrderSchema().dump(order), HTTPStatus.OK
@@ -78,7 +77,7 @@ class Order(Resource):
     def patch(order_id):
         """Update order."""
         order_data = OrderSchema().load(API.payload)
-        updated_order = OrderService.update_order(db.session, order_id, order_data)
+        updated_order = OrderService.update_order(order_id, order_data)
         return OrderSchema().dump(updated_order), HTTPStatus.OK
 
     @staticmethod
@@ -89,5 +88,5 @@ class Order(Resource):
     @API.response(404, "Not Found")
     def delete(order_id):
         """Delete order."""
-        OrderService.delete_order(db.session, order_id)
+        OrderService.delete_order(order_id)
         return {}, HTTPStatus.NO_CONTENT
