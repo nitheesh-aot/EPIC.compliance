@@ -13,6 +13,7 @@ interface ReportStore {
   irApprovalsData: IRApproval[] | undefined;
   inspectionData: Inspection | undefined;
   caseFileData: CaseFile | undefined;
+  proponentLabel?: string;
   inspectionScope?: string;
   preliminaryReviewDetails?: string;
   findingsStatement?: string;
@@ -39,6 +40,7 @@ export const useReportStore = create<ReportStore>((set) => ({
   irApprovalsData: undefined,
   inspectionData: undefined,
   caseFileData: undefined,
+  proponentLabel: undefined,
   inspectionScope: undefined,
   preliminaryReviewDetails: undefined,
   findingsStatement: undefined,
@@ -67,7 +69,16 @@ export const useReportStore = create<ReportStore>((set) => ({
     );
   },
   setInspectionData: (inspectionData: Inspection) => set({ inspectionData }),
-  setCaseFileData: (caseFileData: CaseFile) => set({ caseFileData }),
+  setCaseFileData: (caseFileData: CaseFile) => {
+    set({ caseFileData });
+    set({
+      proponentLabel:
+        caseFileData?.authorization &&
+        /^E\d{1,3}-\d{1,3}$/.test(caseFileData.authorization)
+          ? "Certificate Holder"
+          : "Regulated Party",
+    });
+  },
   setInspectionScope: (inspectionScope: string) => set({ inspectionScope }),
   setPreliminaryReviewDetails: (preliminaryReviewDetails: string) =>
     set({ preliminaryReviewDetails }),

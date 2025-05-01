@@ -133,7 +133,6 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
           <GridLabelValuePair
             label="Topic"
             value={getValues("topic")?.name}
-            gridProps={{ xs: 8 }}
           />
           {!isRegulatoryConsideration && (
             <>
