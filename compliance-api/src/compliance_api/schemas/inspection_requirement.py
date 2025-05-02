@@ -83,6 +83,10 @@ class InspectionReqDetailDocCreateSchema(BaseSchema):
         required=True,
     )
     document_title = fields.Str(metadata={"description": "The title of the document"})
+    appendix_id = fields.Int(
+        metadata={"description": "The unique identifier of the appendix"},
+        allow_none=True,
+    )
     description = fields.Str(
         metadata={"description": "The description of the document"}, required=True
     )
@@ -306,6 +310,7 @@ class InspectionReqDetailDocSchema(
         include_fk = True
 
     document_type = fields.Nested(KeyValueSchema)
+    appendix = fields.Nested(AppendixSchema)
 
 
 class InspectionReqSourceDetailSchema(

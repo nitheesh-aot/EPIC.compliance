@@ -482,6 +482,15 @@ def _create_update_source_details_nd_docs(
                 req_detail_id, source_detail_obj, session
             )
         for doc_detail_data in source_detail_data.get("documents", []):
+            appendix = AppendixModel.find_by_id(doc_detail_data.get("appendix_id"))
+            if not appendix:
+                raise ResourceNotFoundError(
+                    f"Appendix with given ID {doc_detail_data.get('appendix_id')} not found"
+                )
+            if appendix.inspection_id != inspection_id:
+                raise ResourceNotFoundError(
+                    f"Appendix with given ID {doc_detail_data.get('appendix_id')} does not belong to this inspection"
+                )
             doc_detail_id = doc_detail_data.get("id", None)
             doc_detail_obj = _create_requirement_source_doc_obj(
                 req_detail_id, doc_detail_data
@@ -567,6 +576,7 @@ def _create_requirement_source_doc_obj(
     return {
         "req_detail_id": requirement_source_detail_id,
         "document_type_id": requirement_source_doc_data.get("document_type_id"),
+        "appendix_id": requirement_source_doc_data.get("appendix_id", None),
         "document_title": requirement_source_doc_data.get("document_title"),
         "section_number": requirement_source_doc_data.get("section_number", None),
         "section_title": requirement_source_doc_data.get("section_title", None),
