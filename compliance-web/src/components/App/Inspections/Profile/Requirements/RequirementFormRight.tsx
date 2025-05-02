@@ -9,6 +9,7 @@ import {
   groupRequirementSourcesByType,
 } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import { useAppendicesData } from "@/hooks/useAppendices";
 import {
   RequirementRelatedDocumentData,
   RequirementRelatedDocumentSectionData,
@@ -38,6 +39,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   const [requirementSourceFormData, setRequirementSourceFormData] = useState<
     RequirementSourceFormData[]
   >(requirementSourceFormDataList);
+  const { data: appendixList } = useAppendicesData(inspectionId);
 
   useEffect(() => {
     onDataChange(requirementSourceFormData);
@@ -125,7 +127,12 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
 
   const handleAddRequirementSource = () => {
     setOpen({
-      content: <RequirementSourceModal onSubmit={handleOnAddSubmit} />,
+      content: (
+        <RequirementSourceModal
+          onSubmit={handleOnAddSubmit}
+          appendixList={appendixList}
+        />
+      ),
       width: "640px",
     });
   };
@@ -136,6 +143,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         <RequirementSourceModal
           onSubmit={handleOnEditSubmit}
           requirementSourceFormData={data}
+          appendixList={appendixList}
         />
       ),
       width: "640px",
@@ -185,6 +193,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         <RequirementSourceModal
           onSubmit={handleOnAddSubmit}
           requirementSource={data.requirementSource}
+          appendixList={appendixList}
         />
       ),
       width: "640px",
@@ -199,6 +208,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         <RequirementRelatedDocumentModal
           onSubmit={handleOnAddRelatedDocumentSubmit}
           requirementSourceData={data}
+          appendixList={appendixList}
         />
       ),
       width: "640px",
@@ -215,6 +225,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
           onSubmit={handleOnAddRelatedDocumentSubmit}
           requirementSourceData={srcData}
           relatedDocumentData={docData}
+          appendixList={appendixList}
         />
       ),
       width: "640px",
@@ -243,6 +254,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
           requirementSourceData={srcData!}
           relatedDocumentData={docData!}
           relatedDocumentSectionData={data}
+          appendixList={appendixList}
           isEditSection={true}
         />
       ),

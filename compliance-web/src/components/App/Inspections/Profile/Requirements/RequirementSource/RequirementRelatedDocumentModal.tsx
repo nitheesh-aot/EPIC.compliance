@@ -21,12 +21,14 @@ import {
   RequirementSourceEnum,
 } from "@/utils/constants";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
+import { Appendix } from "@/models/Appendix";
 
 type RequirementRelatedDocumentModalProps = {
   onSubmit: (data: RequirementRelatedDocumentData) => void;
   requirementSourceData: RequirementSourceFormData;
   relatedDocumentData?: RequirementRelatedDocumentData;
   relatedDocumentSectionData?: RequirementRelatedDocumentSectionData;
+  appendixList?: Appendix[];
   isEditSection?: boolean;
 };
 
@@ -35,6 +37,7 @@ const relatedDocumentFormSchema = yup.object().shape({
     .object<RequirementDocumentType>()
     .nullable()
     .required("Related Document is required"),
+  appendix: yup.object<Appendix>().nullable(),
   documentTitle: yup.string().nullable(),
   sectionNumber: yup.string().nullable(),
   sectionTitle: yup.string().nullable(),
@@ -58,6 +61,7 @@ const RequirementRelatedDocumentModal: React.FC<
   requirementSourceData,
   relatedDocumentData,
   relatedDocumentSectionData,
+  appendixList,
   isEditSection,
 }) => {
   const { data: documentTypeList } = useDocumentTypesData();
@@ -73,6 +77,7 @@ const RequirementRelatedDocumentModal: React.FC<
         sectionNumber: "",
         sectionTitle: "",
         description: undefined,
+        appendix: undefined,
       };
       if (relatedDocumentData) {
         defaultData.relatedDocument =
@@ -85,6 +90,8 @@ const RequirementRelatedDocumentModal: React.FC<
             relatedDocumentSectionData?.sectionTitle ?? "";
           defaultData.description =
             relatedDocumentSectionData?.description ?? undefined;
+          defaultData.appendix =
+            relatedDocumentSectionData?.appendix ?? undefined;
         }
       }
       if (!isScheduleB) {
@@ -131,6 +138,7 @@ const RequirementRelatedDocumentModal: React.FC<
       sourceFormId: requirementSourceData.id,
       relatedDocumentFormId:
         relatedDocumentData?.id ?? reqRelatedDocumentData.id,
+      appendix: formData.appendix,
       sectionNumber: formData.sectionNumber,
       sectionTitle: formData.sectionTitle,
       description: formData.description,
@@ -195,6 +203,16 @@ const RequirementRelatedDocumentModal: React.FC<
             isOptionEqualToValue={(option, value) => option.id === value.id}
             disabled={!isScheduleB || isEditSection}
             isRequired={true}
+          />
+          <ControlledAutoComplete
+            name="appendix"
+            label="Appendix"
+            options={appendixList ?? []}
+            getOptionLabel={(option) =>
+              `Appendix ${option.appendix_no}: ${option.document_title}`
+            }
+            getOptionKey={(option) => option.id ?? ""}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
           />
           <ControlledTextField
             name="documentTitle"

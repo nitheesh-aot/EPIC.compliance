@@ -117,6 +117,7 @@ export const formatRequirementAPIData = (
           amendment_number: item.sourceAmendmentNumber ?? "",
           title: item.sourceTitle ?? "",
           description: item.description?.html ?? "",
+          appendix_id: item.appendix?.id ?? undefined,
           documents: [],
         };
         if (item.dbId) {
@@ -135,6 +136,7 @@ export const formatRequirementAPIData = (
               section_number: section.sectionNumber ?? "",
               section_title: section.sectionTitle ?? "",
               description: section.description?.html ?? "",
+              appendix_id: section.appendix?.id ?? undefined,
             };
             if (section.dbId) {
               srcDocument.id = section.dbId;
@@ -178,6 +180,7 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
         dbId: document.id,
         sourceFormId: item.id,
         relatedDocumentFormId: docFormId,
+        appendix: document.appendix,
         sectionNumber: document.section_number,
         sectionTitle: document.section_title,
         description: { html: document.description, text: document.description },
@@ -198,6 +201,7 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
       id: item.id,
       dbId: item.id,
       requirementSource: item.requirement_source,
+      appendix: item.appendix,
       sourceNumber: item.section_number ?? item.condition_number,
       sourceTitle: item.title,
       sourceAmendmentNumber: item.amendment_number,

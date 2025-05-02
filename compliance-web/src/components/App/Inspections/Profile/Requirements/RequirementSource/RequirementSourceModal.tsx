@@ -13,11 +13,13 @@ import { useRequirementSourcesData } from "@/hooks/useComplaints";
 import { RequirementSourceEnum } from "@/utils/constants";
 import { isRequirementSourceCondition } from "../RequirementUtils";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
+import { Appendix } from "@/models/Appendix";
 
 type RequirementSourceModalProps = {
   onSubmit: (data: RequirementSourceFormData) => void;
   requirementSourceFormData?: RequirementSourceFormData;
   requirementSource?: RequirementSource;
+  appendixList?: Appendix[];
 };
 
 const requirementSourceFormSchema = yup.object().shape({
@@ -25,7 +27,7 @@ const requirementSourceFormSchema = yup.object().shape({
     .object<RequirementSource>()
     .nullable()
     .required("Requirement Source is required"),
-  sourceNumber: yup.string().nullable(),
+  appendix: yup.object<Appendix>().nullable(),
   sourceTitle: yup.string().nullable(),
   sourceAmendmentNumber: yup.string().nullable(),
   description: yup
@@ -43,6 +45,7 @@ type RequirementSourceSchemaType = yup.InferType<
 
 const initFormData: RequirementSourceFormData = {
   requirementSource: undefined,
+  appendix: undefined,
   sourceNumber: "",
   sourceTitle: "",
   sourceAmendmentNumber: "",
@@ -53,6 +56,7 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
   onSubmit,
   requirementSourceFormData,
   requirementSource,
+  appendixList,
 }) => {
   const { data: requirementSourceList } = useRequirementSourcesData();
 
@@ -113,6 +117,16 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
               isOptionEqualToValue={(option, value) => option.id === value.id}
               disabled={!!requirementSourceFormData || !!requirementSource}
               isRequired={true}
+            />
+            <ControlledAutoComplete
+              name="appendix"
+              label="Appendix"
+              options={appendixList ?? []}
+              getOptionLabel={(option) => {
+                return `Appendix ${option.appendix_no}: ${option.document_title}`;
+              }}
+              getOptionKey={(option) => option.id ?? ""}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
             />
             {selectedRequirementSource?.id === RequirementSourceEnum.EACA && (
               <ControlledTextField

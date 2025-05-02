@@ -62,6 +62,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
     const [isExpanded, setIsExpanded] = useState(true);
 
     const requirementSource = data[0].requirementSource;
+    const appendix = data[0].appendix;
     const isCondition = isRequirementSourceCondition(
       requirementSource?.id ?? ""
     );
@@ -103,10 +104,13 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
         >
           <Box display={"flex"} alignItems={"flex-start"} gap={0.5}>
             {isExpanded ? <ExpandLessRounded /> : <ExpandMoreRounded />}
-            <Typography variant="body2" fontWeight={700}>
-              {requirementSource?.name}
-              {requirementSource?.id === RequirementSourceEnum.EACA &&
-                ` #${data[0].sourceAmendmentNumber}`}
+            <Typography variant="body2">
+              <strong>
+                {requirementSource?.name}
+                {requirementSource?.id === RequirementSourceEnum.EACA &&
+                  ` #${data[0].sourceAmendmentNumber}`}
+              </strong>
+              {appendix && ` (Appendix ${appendix.appendix_no})`}
             </Typography>
           </Box>
           {isExpanded && (

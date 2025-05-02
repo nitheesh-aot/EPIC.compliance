@@ -11,3 +11,8 @@ export interface AppendixFormData {
   appendixNumber: string;
   documentTitle: string;
 }
+
+export interface AppendixListItem {
+  id: number;
+  name: string;
+}
