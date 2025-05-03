@@ -34,7 +34,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   inspectionData,
 }) => {
   const queryClient = useQueryClient();
-  const { setOpen, isOpen, setClose } = useDrawer();
+  const { setOpen, isOpen: isDrawerOpen, setClose } = useDrawer();
   const {
     requirementPhotos,
     requirementFigures,
@@ -167,6 +167,10 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 
   const handleSortOrderChange = useCallback(
     (newRequirementListOrder: InspectionRequirement[]) => {
+      if (isDrawerOpen) {
+        return;
+      }
+
       const updateRequirementLists = [...newRequirementListOrder];
 
       if (regulatoryConsideration?.id) {
@@ -230,6 +234,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
       }, 500);
     },
     [
+      isDrawerOpen,
       inspectionData,
       queryClient,
       regulatoryConsideration,
@@ -251,10 +256,10 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   }, []);
 
   useEffect(() => {
-    if (!isOpen) {
+    if (!isDrawerOpen) {
       setActiveRequirementId(null);
     }
-  }, [isOpen]);
+  }, [isDrawerOpen]);
 
   useEffect(() => {
     if (
@@ -308,6 +313,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
             onReorder={handleSortOrderChange}
             values={inspectionRequirements}
             className="reorder-list"
+            disabled={isDrawerOpen}
           >
             {inspectionRequirements?.map((requirement, index) => (
               <RequirementCard
@@ -318,6 +324,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
                   handleOpenEditRequirementModal(requirement, index)
                 }
                 isActive={requirement.id === activeRequirementId}
+                disabled={isDrawerOpen}
               />
             ))}
           </Reorder.Group>
@@ -334,6 +341,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
                 )
               }
               isActive={regulatoryConsideration.id === activeRequirementId}
+              disabled={isDrawerOpen}
             />
           )}
         </>

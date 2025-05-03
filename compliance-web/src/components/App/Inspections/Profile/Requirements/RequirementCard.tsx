@@ -18,10 +18,11 @@ interface RequirementCardProps {
   index: number;
   onEdit: () => void;
   isActive: boolean;
+  disabled?: boolean;
 }
 
 const RequirementCard: React.FC<RequirementCardProps> = memo(
-  ({ requirement, index, onEdit, isActive }) => {
+  ({ requirement, index, onEdit, isActive, disabled }) => {
     const [isDragging, setIsDragging] = useState(false);
 
     const isRegulatoryConsideration =
@@ -39,6 +40,7 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
       useUpdateInspectionRequirementOrder(onSuccess);
 
     const handleDragEnd = useCallback(() => {
+      if (disabled) return;
       updateInspectionRequirementOrder({
         inspectionId: requirement.inspection_id,
         requirementId: requirement.id,
@@ -50,13 +52,13 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
       requirement.id,
       index,
       updateInspectionRequirementOrder,
+      disabled,
     ]);
 
     const handleClick = useCallback(() => {
-      if (!isDragging) {
-        onEdit();
-      }
-    }, [isDragging, onEdit]);
+      if (disabled || isDragging) return;
+      onEdit();
+    }, [isDragging, onEdit, disabled]);
 
     const renderRegulatoryContent = useCallback(
       () => (
@@ -123,6 +125,13 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
             ...(isActive && {
               borderColor: BCDesignTokens.surfaceColorBorderActive,
             }),
+            ...(disabled && {
+              cursor: "not-allowed",
+              opacity: 0.7,
+              "&:hover": {
+                boxShadow: "none",
+              },
+            }),
           }}
           onClick={handleClick}
         >
@@ -132,7 +141,7 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
                 mx: 0.5,
                 mb: 0.25,
                 fontSize: "1.125rem",
-                visibility: isRegulatoryConsideration ? "hidden" : "visible",
+                visibility: isRegulatoryConsideration || disabled ? "hidden" : "visible",
               }}
               color="action"
             />
@@ -159,6 +168,7 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
       renderRegulatoryContent,
       renderRequirementContent,
       requirement,
+      disabled,
     ]);
 
     return isRegulatoryConsideration ? (
@@ -167,8 +177,9 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
       <Reorder.Item
         key={requirement.id}
         value={requirement}
-        onDragStart={() => setIsDragging(true)}
+        onDragStart={() => !disabled && setIsDragging(true)}
         onDragEnd={handleDragEnd}
+        disabled={disabled}
       >
         {renderCardContent()}
       </Reorder.Item>
