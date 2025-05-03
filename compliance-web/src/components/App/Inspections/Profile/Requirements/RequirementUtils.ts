@@ -193,6 +193,7 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
           id: docFormId,
           relatedDocument: document.document_type,
           documentTitle: document.document_title,
+          appendix: document.appendix,
           sections: [section],
         });
       }

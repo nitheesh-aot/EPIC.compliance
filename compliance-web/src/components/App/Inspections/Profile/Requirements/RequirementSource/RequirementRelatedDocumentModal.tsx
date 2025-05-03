@@ -83,6 +83,7 @@ const RequirementRelatedDocumentModal: React.FC<
         defaultData.relatedDocument =
           relatedDocumentData.relatedDocument ?? undefined;
         defaultData.documentTitle = relatedDocumentData.documentTitle ?? "";
+        defaultData.appendix = relatedDocumentData?.appendix ?? undefined;
         if (isEditSection) {
           defaultData.sectionNumber =
             relatedDocumentSectionData?.sectionNumber ?? "";
@@ -90,8 +91,6 @@ const RequirementRelatedDocumentModal: React.FC<
             relatedDocumentSectionData?.sectionTitle ?? "";
           defaultData.description =
             relatedDocumentSectionData?.description ?? undefined;
-          defaultData.appendix =
-            relatedDocumentSectionData?.appendix ?? undefined;
         }
       }
       if (!isScheduleB) {
@@ -130,6 +129,7 @@ const RequirementRelatedDocumentModal: React.FC<
       sourceFormId: requirementSourceData.id,
       relatedDocument: formData.relatedDocument,
       documentTitle: formData.documentTitle,
+      appendix: formData.appendix,
       sections: relatedDocumentData?.sections ?? [],
     };
     const reqSectionData: RequirementRelatedDocumentSectionData = {
@@ -204,6 +204,12 @@ const RequirementRelatedDocumentModal: React.FC<
             disabled={!isScheduleB || isEditSection}
             isRequired={true}
           />
+          <ControlledTextField
+            name="documentTitle"
+            label="Document Title"
+            multiline
+            fullWidth
+          />
           <ControlledAutoComplete
             name="appendix"
             label="Appendix"
@@ -213,12 +219,6 @@ const RequirementRelatedDocumentModal: React.FC<
             }
             getOptionKey={(option) => option.id ?? ""}
             isOptionEqualToValue={(option, value) => option.id === value.id}
-          />
-          <ControlledTextField
-            name="documentTitle"
-            label="Document Title"
-            multiline
-            fullWidth
           />
           <Grid container spacing={2}>
             <Grid item xs={3}>

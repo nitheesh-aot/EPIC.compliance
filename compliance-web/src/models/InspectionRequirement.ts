@@ -95,6 +95,7 @@ export interface RequirementRelatedDocumentData {
   relatedDocument?: RequirementDocumentType;
   documentTitle?: string;
   sections?: RequirementRelatedDocumentSectionData[];
+  appendix?: Appendix;
 }
 
 export interface RequirementRelatedDocumentSectionData {

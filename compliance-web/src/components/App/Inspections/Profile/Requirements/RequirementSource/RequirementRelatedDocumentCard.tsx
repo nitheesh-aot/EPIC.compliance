@@ -85,8 +85,10 @@ const RequirementRelatedDocumentCard: FC<
       >
         <Box display={"flex"} alignItems={"flex-start"} gap={0.5}>
           {isExpanded ? <ExpandLessRounded /> : <ExpandMoreRounded />}
-          <Typography variant="body2" fontWeight={700}>
-            {relatedDocument.documentTitle}
+          <Typography variant="body2">
+            <strong>{relatedDocument.documentTitle}</strong>
+            {relatedDocument.appendix &&
+              ` (Appendix ${relatedDocument.appendix.appendix_no})`}
           </Typography>
         </Box>
         {isExpanded && (
@@ -126,7 +128,11 @@ const RequirementRelatedDocumentCard: FC<
                 borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
               }}
             >
-              <Box display={"flex"} justifyContent={"flex-start"} gap={".25rem"}>
+              <Box
+                display={"flex"}
+                justifyContent={"flex-start"}
+                gap={".25rem"}
+              >
                 <Tooltip title="Edit" arrow>
                   <IconButton
                     size="small"
