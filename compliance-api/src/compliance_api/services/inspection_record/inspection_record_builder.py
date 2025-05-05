@@ -247,6 +247,8 @@ class InspectionRecordDataBuilder:
             inspection_record = InspectionRecordModel.get_by_inspection_id(
                 self.inspection.id
             )
+            if inspection_record is None:
+                return self
             approvals = InspectionRecordApprovalModel.get_approvals_by_ir(
                 inspection_record.id
             )
