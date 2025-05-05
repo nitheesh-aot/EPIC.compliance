@@ -73,7 +73,7 @@ class ServiceUtils:
         else:
             project = TrackService.get_project_by_id(project_id)
             if project:
-                eac_certicate = project.get("ea_certificate", "N/A")
+                eac_certicate = project.get("ea_certificate") or "N/A"
                 proponent = project.get("proponent").get("name")
                 name = project.get("name")
         project_status_name = None
