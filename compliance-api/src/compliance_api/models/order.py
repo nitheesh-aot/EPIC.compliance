@@ -2,12 +2,14 @@
 
 import enum
 
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Index, Integer, String, func
 from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
 from .base_model import BaseModelVersioned
+from .case_file import CaseFile as CaseFileModel
+from .inspection import Inspection as InspectionModel
 from .utils import with_session
 
 
@@ -103,11 +105,43 @@ class Order(BaseModelVersioned):
     section = relationship("Section", foreign_keys=[section_id], lazy="joined")
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
     order_status = Column(Enum(OrderStatusEnum), nullable=True)
+    is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
+    __table_args__ = (
+        Index(
+            "unique_non_deleted_order_number",  # Index name
+            "order_number",
+            unique=True,
+            postgresql_where=(is_deleted is False),  # Condition for uniqueness
+        ),
+    )
 
     @classmethod
+    @with_session
     def create(cls, order_data: dict, session=None):
         """Create a new order."""
-        order = cls(**order_data)
+        order = Order(**order_data)
         session.add(order)
         session.flush()
         return order
+
+    @classmethod
+    def get_count_by_project_nd_case_file_id(cls, project_id: int, case_file_id: int):
+        """Get count of orders by project and case file id."""
+        result = (
+            cls.query.join(InspectionModel, InspectionModel.id == cls.inspection_id)
+            .join(CaseFileModel, CaseFileModel.id == InspectionModel.case_file_id)
+            .with_entities(
+                InspectionModel.case_file_id,
+                CaseFileModel.project_id,
+                func.count(cls.id).label("order_count"),  # pylint: disable=not-callable
+            )
+            .filter(
+                CaseFileModel.project_id == project_id,
+                InspectionModel.case_file_id == case_file_id,
+                cls.is_active.is_(True),
+                cls.is_deleted.is_(False),
+            )
+            .group_by(InspectionModel.case_file_id, CaseFileModel.project_id)
+            .first()
+        )
+        return result.order_count if result else 0

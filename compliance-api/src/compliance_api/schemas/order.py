@@ -12,13 +12,13 @@ class OrderCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     """Schema for order model."""
 
     order_number = fields.String(
-        required=True, metadata={"description": "The unique order number."}
+        allow_none=True, metadata={"description": "The unique order number."}
     )
     section_id = fields.Integer(
-        required=True, metadata={"description": "The section id"}
+        allow_none=True, metadata={"description": "The section id"}
     )
     issuing_officer_id = fields.Integer(
-        required=True, metadata={"description": "The issuing officer id"}
+        allow_none=True, metadata={"description": "The issuing officer id"}
     )
     intended_issuance_date = fields.DateTime(
         allow_none=True, metadata={"description": "The intended issuance date"}
@@ -29,7 +29,7 @@ class OrderCreateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     )
     inspection_requirement_ids = fields.List(
         fields.Integer(),
-        allow_none=True,
+        required=True,
         metadata={
             "description": "List of inspection requirement IDs associated with the order."
         },

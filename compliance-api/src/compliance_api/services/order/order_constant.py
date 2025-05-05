@@ -1,3 +1,5 @@
+"""Order Constant."""
+
 DEFAULT_SECTION = "53"
 DEFAULT_ACT = "2018"
 DEFAULT_CHAPTER = "51"

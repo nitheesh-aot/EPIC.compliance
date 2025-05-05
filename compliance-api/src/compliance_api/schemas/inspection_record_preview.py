@@ -53,6 +53,7 @@ class RequirementDetailSchema(BaseSchema):
     sort_order = fields.Integer()
     compliance_finding = fields.String()
     enforcement_action = fields.String()
+    requirement_summary = fields.String()
     requirement_source_details = fields.List(
         fields.Nested(RequirementSourceDetailSchema)
     )

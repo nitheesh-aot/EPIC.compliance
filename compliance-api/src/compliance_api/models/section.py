@@ -34,4 +34,3 @@ class Section(BaseModelVersioned):
     def get_by_name_act(cls, name: str, act: int):
         """Get section by name and act."""
         return cls.query.filter_by(name=name, act=act, is_deleted=False).first()
-
