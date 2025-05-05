@@ -6,6 +6,7 @@ import { RequirementDocumentType } from "./RequirementDocumentType";
 import { RequirementSource } from "./RequirementSource";
 import { Topic } from "./Topic";
 import { RequirementImage } from "./Image";
+import { Appendix } from "./Appendix";
 
 export interface InspectionRequirement {
   id: number;
@@ -32,6 +33,8 @@ export interface InspectionRequirement {
       section_number: string,
       condition_number: string,
       amendment_number: string,
+      appendix_id: number,
+      appendix: Appendix,
       title: string,
       description: string,
       is_active: boolean,
@@ -44,6 +47,8 @@ export interface InspectionRequirement {
           document_title: string,
           section_number: string,
           section_title: string,
+          appendix_id: number,
+          appendix: Appendix,
           description: string,
           is_active: boolean
         }
@@ -73,6 +78,7 @@ export interface RequirementSourceFormData {
   id?: number;
   dbId?: number;
   requirementSource?: RequirementSource;
+  appendix?: Appendix;
   sourceNumber?: string;
   sourceTitle?: string,
   sourceAmendmentNumber?: string,
@@ -89,6 +95,7 @@ export interface RequirementRelatedDocumentData {
   relatedDocument?: RequirementDocumentType;
   documentTitle?: string;
   sections?: RequirementRelatedDocumentSectionData[];
+  appendix?: Appendix;
 }
 
 export interface RequirementRelatedDocumentSectionData {
@@ -96,6 +103,7 @@ export interface RequirementRelatedDocumentSectionData {
   dbId?: number;
   sourceFormId?: number;
   relatedDocumentFormId?: number;
+  appendix?: Appendix;
   sectionNumber?: string;
   sectionTitle?: string;
   description?: {
@@ -107,6 +115,7 @@ export interface RequirementRelatedDocumentSectionData {
 export interface RequirementRelatedDocumentSectionFormData {
   id?: number;
   relatedDocument?: RequirementDocumentType,
+  appendix?: Appendix;
   documentTitle?: string,
   sectionNumber?: string,
   sectionTitle?: string,
@@ -136,6 +145,7 @@ export interface InspectionRequirementSourceAPIData {
   section_number?: string,
   condition_number?: string,
   amendment_number?: string,
+  appendix_id?: number,
   title: string,
   description: string,
   documents: InspectionRequirementSourceDocumentAPIData[]
@@ -148,6 +158,7 @@ export interface InspectionRequirementSourceDocumentAPIData {
   section_number: string,
   section_title: string,
   description: string,
+  appendix_id?: number,
 }
 
 export interface InspectionRequirementBatchAPIData {

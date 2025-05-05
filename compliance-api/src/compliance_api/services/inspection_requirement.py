@@ -93,7 +93,7 @@ class InspectionRequirementService:
                 requirement_id, requirement_data, session
             )
             _create_update_source_details_nd_docs(
-                requirement_id, requirement_data, session
+                inspection_id, requirement_id, requirement_data, session
             )
             cls.insert_or_update_enforcements(
                 requirement_id,
@@ -459,15 +459,17 @@ def _create_update_source_details_nd_docs(
     """
     for source_detail_data in requirement_data.get("requirement_source_details", []):
         req_detail_id = source_detail_data.get("id", None)
-        appendix = AppendixModel.find_by_id(source_detail_data.get("appendix_id"))
-        if not appendix:
-            raise ResourceNotFoundError(
-                f"Appendix with given ID {source_detail_data.get('appendix_id')} not found"
-            )
-        if appendix.inspection_id != inspection_id:
-            raise ResourceNotFoundError(
-                f"Appendix with given ID {source_detail_data.get('appendix_id')} does not belong to this inspection"
-            )
+        appendix_id = source_detail_data.get("appendix_id", None)
+        if appendix_id is not None:
+            appendix = AppendixModel.find_by_id(appendix_id)
+            if not appendix:
+                raise ResourceNotFoundError(
+                    f"Appendix with given ID {source_detail_data.get('appendix_id')} not found"
+                )
+            if appendix.inspection_id != inspection_id:
+                raise ResourceNotFoundError(
+                    f"Appendix with given ID {source_detail_data.get('appendix_id')} does not belong to this inspection"
+                )
         source_detail_obj = _create_requirement_source_detail_obj(
             requirement_id, source_detail_data
         )
@@ -482,15 +484,17 @@ def _create_update_source_details_nd_docs(
                 req_detail_id, source_detail_obj, session
             )
         for doc_detail_data in source_detail_data.get("documents", []):
-            appendix = AppendixModel.find_by_id(doc_detail_data.get("appendix_id"))
-            if not appendix:
-                raise ResourceNotFoundError(
-                    f"Appendix with given ID {doc_detail_data.get('appendix_id')} not found"
-                )
-            if appendix.inspection_id != inspection_id:
-                raise ResourceNotFoundError(
-                    f"Appendix with given ID {doc_detail_data.get('appendix_id')} does not belong to this inspection"
-                )
+            appendix_id = doc_detail_data.get("appendix_id", None)
+            if appendix_id is not None:
+                appendix = AppendixModel.find_by_id(appendix_id)
+                if not appendix:
+                    raise ResourceNotFoundError(
+                        f"Appendix with given ID {doc_detail_data.get('appendix_id')} not found"
+                    )
+                if appendix.inspection_id != inspection_id:
+                    raise ResourceNotFoundError(
+                        f"Appendix with given ID {doc_detail_data.get('appendix_id')} not belong to this inspection"
+                    )
             doc_detail_id = doc_detail_data.get("id", None)
             doc_detail_obj = _create_requirement_source_doc_obj(
                 req_detail_id, doc_detail_data

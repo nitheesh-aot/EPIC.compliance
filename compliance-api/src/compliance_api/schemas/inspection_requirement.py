@@ -143,7 +143,7 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
     )
     appendix_id = fields.Int(
         metadata={"description": "The unique identifier of the appendix"},
-        required=True,
+        allow_none=True,
     )
     documents = fields.List(fields.Nested(InspectionReqDetailDocCreateSchema))
 
