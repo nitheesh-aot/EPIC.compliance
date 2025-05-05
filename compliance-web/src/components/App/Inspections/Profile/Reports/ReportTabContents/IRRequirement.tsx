@@ -16,13 +16,16 @@ import IRImageSection from "./IRImageSection";
 const DetailSection = ({
   title,
   content,
+  appendixNo,
 }: {
   title: string;
   content: string;
+  appendixNo?: string;
 }) => (
   <>
-    <Typography variant="body1" fontWeight={"bold"} mb={0.5}>
-      {title}
+    <Typography variant="body1" mb={0.5}>
+      <strong>{title}</strong>
+      {appendixNo && ` (Appendix ${appendixNo})`}
     </Typography>
     <Typography
       variant="body1"
@@ -129,12 +132,14 @@ const IRRequirement = ({
                   of ${reqSourceDetail.requirement_source?.name || ""}.
                   ${reqSourceDetail.title ?? ""}`}
                   content={reqSourceDetail.description || ""}
+                  appendixNo={reqSourceDetail.appendix?.appendix_no}
                 />
                 {reqSourceDetail.documents.map((document) => (
                   <DetailSection
                     key={document.id}
                     title={`${document.document_title} Section ${document.section_number ?? ""} ${document.section_title ?? ""}`}
                     content={document.description || ""}
+                    appendixNo={document.appendix?.appendix_no}
                   />
                 ))}
               </Box>
