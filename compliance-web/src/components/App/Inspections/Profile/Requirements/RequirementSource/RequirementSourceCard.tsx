@@ -16,7 +16,6 @@ import {
   EditOutlined,
   ExpandLessRounded,
   ExpandMoreRounded,
-  PostAddOutlined,
 } from "@mui/icons-material";
 import {
   RequirementRelatedDocumentData,
@@ -60,9 +59,10 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
     onDeleteRelatedDocumentSection,
     onEditRelatedDocumentSection,
   }) => {
-    const [isExpanded, setIsExpanded] = useState(index === 0);
+    const [isExpanded, setIsExpanded] = useState(true);
 
     const requirementSource = data[0].requirementSource;
+    const appendix = data[0].appendix;
     const isCondition = isRequirementSourceCondition(
       requirementSource?.id ?? ""
     );
@@ -104,10 +104,13 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
         >
           <Box display={"flex"} alignItems={"flex-start"} gap={0.5}>
             {isExpanded ? <ExpandLessRounded /> : <ExpandMoreRounded />}
-            <Typography variant="body2" fontWeight={700}>
-              {requirementSource?.name}
-              {requirementSource?.id === RequirementSourceEnum.EACA &&
-                ` #${data[0].sourceAmendmentNumber}`}
+            <Typography variant="body2">
+              <strong>
+                {requirementSource?.name}
+                {requirementSource?.id === RequirementSourceEnum.EACA &&
+                  ` #${data[0].sourceAmendmentNumber}`}
+              </strong>
+              {appendix && ` (Appendix ${appendix.appendix_no})`}
             </Typography>
           </Box>
           {isExpanded && (
@@ -150,38 +153,53 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                   >
                     <Box
                       display={"flex"}
-                      justifyContent={"flex-end"}
+                      justifyContent={"space-between"}
                       gap={".25rem"}
                     >
-                      <Tooltip title="Add Related Document" arrow>
-                        <IconButton
-                          size="small"
+                      <Box display={"flex"} gap={".25rem"}>
+                        <Tooltip title="Edit" arrow>
+                          <IconButton
+                            size="small"
+                            color="secondary"
+                            onClick={() => onEdit(item)}
+                            data-testid={`requirement-source-edit-${index}`}
+                          >
+                            <EditOutlined />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete" arrow>
+                          <IconButton
+                            size="small"
+                            color="secondary"
+                            onClick={() => onDelete(item)}
+                            data-testid={`requirement-source-delete-${index}`}
+                          >
+                            <DeleteOutlineRounded />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                      <Tooltip
+                        title="Add an extract from a management plan or other referenced document to support this requirement"
+                        arrow
+                      >
+                        <Button
+                          variant="text"
                           color="secondary"
+                          size="small"
                           onClick={() => onAddRelatedDocument(item)}
+                          startIcon={<AddRounded />}
                           data-testid={`requirement-source-add-related-document-${index}`}
+                          sx={{
+                            backgroundColor: "transparent",
+                            paddingY: 0,
+                            height: "auto",
+                            "& .MuiButton-startIcon": {
+                              mr: 0,
+                            },
+                          }}
                         >
-                          <PostAddOutlined />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Edit" arrow>
-                        <IconButton
-                          size="small"
-                          color="secondary"
-                          onClick={() => onEdit(item)}
-                          data-testid={`requirement-source-edit-${index}`}
-                        >
-                          <EditOutlined />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete" arrow>
-                        <IconButton
-                          size="small"
-                          color="secondary"
-                          onClick={() => onDelete(item)}
-                          data-testid={`requirement-source-delete-${index}`}
-                        >
-                          <DeleteOutlineRounded />
-                        </IconButton>
+                          Management Plan / Other Document
+                        </Button>
                       </Tooltip>
                     </Box>
                     <Box

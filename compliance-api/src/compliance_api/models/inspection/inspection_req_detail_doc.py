@@ -30,6 +30,14 @@ class InspectionReqDetailDocument(BaseModelVersioned):
         comment="The unique identifier of the requirement detail",
         nullable=False,
     )
+    appendix_id = Column(
+        Integer,
+        ForeignKey(
+            "appendices.id", name="inspection_req_detail_documents_appendix_id_fkey"
+        ),
+        comment="The unique identifier of the appendix",
+        nullable=True,
+    )
     document_type_id = Column(
         Integer,
         ForeignKey(
@@ -39,9 +47,6 @@ class InspectionReqDetailDocument(BaseModelVersioned):
         nullable=False,
     )
     document_title = Column(String, nullable=True, comment="The title of the document")
-    description = Column(
-        String, nullable=False, comment="The description of the document"
-    )
     section_number = Column(
         String,
         nullable=True,
@@ -64,6 +69,7 @@ class InspectionReqDetailDocument(BaseModelVersioned):
     document_type = relationship(
         "DocumentType", foreign_keys=[document_type_id], lazy="select"
     )
+    appendix = relationship("Appendix", foreign_keys=[appendix_id], lazy="joined")
 
     @classmethod
     @with_session

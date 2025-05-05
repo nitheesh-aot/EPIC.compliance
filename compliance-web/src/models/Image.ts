@@ -1,6 +1,6 @@
 import { StaffUser } from "./Staff";
 
-export interface Image {
+export interface RequirementImage {
   id?: number;
   dbId?: number;
   requirement_id?: number;
@@ -12,7 +12,13 @@ export interface Image {
   original_file_name?: string;
   date_taken?: string;
   relative_url?: string;
+  url?: string;
   is_active?: boolean;
+}
+
+export interface RequirementImages {
+  photos: RequirementImage[];
+  figures: RequirementImage[];
 }
 
 export interface ImageAPIData {

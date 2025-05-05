@@ -4,7 +4,7 @@ import ContinuationReport from "@/components/App/ContinuationReports/Continuatio
 import FileProfileHeader from "@/components/App/FileProfileHeader";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
-import { useIsRolesAllowed, KC_USER_GROUPS } from "@/hooks/useAuthorization";
+import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import { useComplaintByNumber } from "@/hooks/useComplaints";
 import { CaseFile } from "@/models/CaseFile";
@@ -47,7 +47,7 @@ function ComplaintProfilePage() {
   const showCreateCREntryButton = useIsRolesAllowed(
     [KC_USER_GROUPS.SUPERUSER],
     complaintData?.primary_officer ? [complaintData.primary_officer] : []
-  );
+  ) && caseFileData?.case_file_status === "Open";
 
   const handleOpenEditModal = () => {
     setOpen({

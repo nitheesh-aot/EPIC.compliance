@@ -9,6 +9,7 @@ import React, { memo, useCallback, useState } from "react";
 import {
   isRequirementSourceCondition,
   REGULATORY_CONSIDERATION_TYPE_ID,
+  requirementCardStyles,
 } from "./RequirementUtils";
 import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 
@@ -17,33 +18,11 @@ interface RequirementCardProps {
   index: number;
   onEdit: () => void;
   isActive: boolean;
+  disabled?: boolean;
 }
 
-const cardStyles = {
-  card: {
-    backgroundColor: BCDesignTokens.surfaceColorBackgroundWhite,
-    mb: 2,
-    border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-    borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
-    "&:hover": {
-      cursor: "pointer",
-      boxShadow: `0px 4px 6px 0px ${BCDesignTokens.surfaceColorBorderDefault}`,
-    },
-  },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    p: "0.75rem 1.5rem",
-    pl: 0,
-    backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
-  },
-  content: {
-    p: "0.5rem 1.5rem 1rem",
-  },
-};
-
 const RequirementCard: React.FC<RequirementCardProps> = memo(
-  ({ requirement, index, onEdit, isActive }) => {
+  ({ requirement, index, onEdit, isActive, disabled }) => {
     const [isDragging, setIsDragging] = useState(false);
 
     const isRegulatoryConsideration =
@@ -61,6 +40,7 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
       useUpdateInspectionRequirementOrder(onSuccess);
 
     const handleDragEnd = useCallback(() => {
+      if (disabled) return;
       updateInspectionRequirementOrder({
         inspectionId: requirement.inspection_id,
         requirementId: requirement.id,
@@ -72,13 +52,13 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
       requirement.id,
       index,
       updateInspectionRequirementOrder,
+      disabled,
     ]);
 
     const handleClick = useCallback(() => {
-      if (!isDragging) {
-        onEdit();
-      }
-    }, [isDragging, onEdit]);
+      if (disabled || isDragging) return;
+      onEdit();
+    }, [isDragging, onEdit, disabled]);
 
     const renderRegulatoryContent = useCallback(
       () => (
@@ -141,20 +121,27 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
       return (
         <Box
           sx={{
-            ...cardStyles.card,
+            ...requirementCardStyles.card,
             ...(isActive && {
               borderColor: BCDesignTokens.surfaceColorBorderActive,
+            }),
+            ...(disabled && {
+              cursor: "not-allowed",
+              opacity: 0.7,
+              "&:hover": {
+                boxShadow: "none",
+              },
             }),
           }}
           onClick={handleClick}
         >
-          <Box sx={cardStyles.header}>
+          <Box sx={requirementCardStyles.header}>
             <DragIndicatorRounded
               sx={{
                 mx: 0.5,
                 mb: 0.25,
                 fontSize: "1.125rem",
-                visibility: isRegulatoryConsideration ? "hidden" : "visible",
+                visibility: isRegulatoryConsideration || disabled ? "hidden" : "visible",
               }}
               color="action"
             />
@@ -164,7 +151,7 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
                 : `#${index + 1}. ${requirement.summary}`}
             </Typography>
           </Box>
-          <Box sx={cardStyles.content}>
+          <Box sx={requirementCardStyles.content}>
             <Grid container spacing={0.5}>
               {isRegulatoryConsideration
                 ? renderRegulatoryContent()
@@ -181,6 +168,7 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
       renderRegulatoryContent,
       renderRequirementContent,
       requirement,
+      disabled,
     ]);
 
     return isRegulatoryConsideration ? (
@@ -189,8 +177,9 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
       <Reorder.Item
         key={requirement.id}
         value={requirement}
-        onDragStart={() => setIsDragging(true)}
+        onDragStart={() => !disabled && setIsDragging(true)}
         onDragEnd={handleDragEnd}
+        disabled={disabled}
       >
         {renderCardContent()}
       </Reorder.Item>

@@ -86,15 +86,10 @@ describe("InspectionFormUtils", () => {
         start_date: dayjs("2023-01-01").toISOString(),
         end_date: dayjs("2023-01-02").toISOString(),
         primary_officer_id: 1,
-        attending_officer_ids: [2],
         location_description: "Location A",
         utm: "9U 454135 6399452",
         project_status_id: 1,
         attendance_option_ids: [1],
-        agency_attendance_ids: [1],
-        firstnation_attendance_ids: [1],
-        attendance_municipal: "Municipal Info",
-        attendance_other: "Other Info",
       };
 
       const formattedData = formatInspectionData(formData, 123);

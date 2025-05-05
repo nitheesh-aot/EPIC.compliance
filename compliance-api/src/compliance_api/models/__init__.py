@@ -24,6 +24,7 @@ from .complaint import (
 from .compliance_finding import ComplianceFindingOption, ComplianceFindingOptionEnum
 from .continuation_report import ContinuationReport, ContinuationReportKey
 from .db import db, ma, migrate
+from .department_detail import DepartmentDetail
 from .document_type import DocumentType
 from .enforcement_action import EnforcementActionOption, EnforcementActionOptionEnum
 from .inspection import (
@@ -34,10 +35,12 @@ from .inspection import (
     InspectionType, InspectionTypeOption, IRStatusOption)
 from .inspection_record import InspectionRecord, IRProgressEnum
 from .inspection_record_approval import InspectionRecordApproval, IRApprovalStatusEnum
+from .order import Order, OrderInspectionRequirementMap, OrderStatusEnum
 from .position import Position
 from .project import Project
 from .req_source_document_map import RequirementSourceDocumentMap
 from .requirement_source import RequirementSource, RequirementSourceEnum
+from .section import Section
 from .staff_user import StaffUser
 from .topic import Topic
 from .unapproved_project import UnapprovedProject

@@ -298,12 +298,20 @@ describe("InspectionRequirements Component", () => {
       ["inspection-requirements", mockInspection.id],
       []
     );
+    emptyQueryClient.setQueryData(
+      ["inspection-requirement-images", mockInspection.id],
+      []
+    );
 
     // Mock the API to return empty array
     cy.intercept("GET", "/api/inspection-requirements*", {
       statusCode: 200,
       body: [],
     }).as("getEmptyRequirements");
+    cy.intercept("GET", "/api/inspection-requirement-images*", {
+      statusCode: 200,
+      body: [],
+    }).as("getEmptyRequirementImages");
 
     // Mount with empty data
     mount(
@@ -313,6 +321,7 @@ describe("InspectionRequirements Component", () => {
     );
 
     // Check for empty state message
+    cy.contains("Requirements").should("be.visible");
     cy.contains("New Requirement").should("be.visible");
   });
 
@@ -321,10 +330,10 @@ describe("InspectionRequirements Component", () => {
     cy.get("[data-cy=new-requirement-button]").click({ force: true });
 
     // Wait for the form to be visible before interacting with it
-    cy.get("input[name=requirementSummary]").should("be.visible");
+    cy.get("textarea[name=requirementSummary]").should("be.visible");
     
     // Fill in the form fields
-    cy.get("input[name=requirementSummary]").type("New Requirement");
+    cy.get("textarea[name=requirementSummary]").type("New Requirement");
     cy.get("input[name=topic]").click();
     cy.contains("Some Topic").click();
 

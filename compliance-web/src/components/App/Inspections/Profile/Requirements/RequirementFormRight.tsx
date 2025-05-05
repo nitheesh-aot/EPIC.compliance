@@ -9,6 +9,7 @@ import {
   groupRequirementSourcesByType,
 } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import { useAppendicesData } from "@/hooks/useAppendices";
 import {
   RequirementRelatedDocumentData,
   RequirementRelatedDocumentSectionData,
@@ -23,6 +24,7 @@ interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
   requirementSourceFormDataList: RequirementSourceFormData[];
   inspectionId: number;
+  requirementId: number;
   isRegulatoryConsideration: boolean;
 }
 
@@ -30,12 +32,14 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   onDataChange,
   requirementSourceFormDataList,
   inspectionId,
+  requirementId,
   isRegulatoryConsideration,
 }) => {
   const { setOpen, setClose } = useModal();
   const [requirementSourceFormData, setRequirementSourceFormData] = useState<
     RequirementSourceFormData[]
   >(requirementSourceFormDataList);
+  const { data: appendixList } = useAppendicesData(inspectionId);
 
   useEffect(() => {
     onDataChange(requirementSourceFormData);
@@ -123,7 +127,12 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
 
   const handleAddRequirementSource = () => {
     setOpen({
-      content: <RequirementSourceModal onSubmit={handleOnAddSubmit} />,
+      content: (
+        <RequirementSourceModal
+          onSubmit={handleOnAddSubmit}
+          appendixList={appendixList}
+        />
+      ),
       width: "640px",
     });
   };
@@ -134,6 +143,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         <RequirementSourceModal
           onSubmit={handleOnEditSubmit}
           requirementSourceFormData={data}
+          appendixList={appendixList}
         />
       ),
       width: "640px",
@@ -183,6 +193,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         <RequirementSourceModal
           onSubmit={handleOnAddSubmit}
           requirementSource={data.requirementSource}
+          appendixList={appendixList}
         />
       ),
       width: "640px",
@@ -197,6 +208,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         <RequirementRelatedDocumentModal
           onSubmit={handleOnAddRelatedDocumentSubmit}
           requirementSourceData={data}
+          appendixList={appendixList}
         />
       ),
       width: "640px",
@@ -213,6 +225,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
           onSubmit={handleOnAddRelatedDocumentSubmit}
           requirementSourceData={srcData}
           relatedDocumentData={docData}
+          appendixList={appendixList}
         />
       ),
       width: "640px",
@@ -241,6 +254,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
           requirementSourceData={srcData!}
           relatedDocumentData={docData!}
           relatedDocumentSectionData={data}
+          appendixList={appendixList}
           isEditSection={true}
         />
       ),
@@ -310,10 +324,14 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       <ImagesContainer
         imageType={ImageTypeEnum.PHOTO}
         inspectionId={inspectionId}
+        requirementId={requirementId}
+        isRegulatoryConsideration={isRegulatoryConsideration}
       />
       <ImagesContainer
         imageType={ImageTypeEnum.FIGURE}
         inspectionId={inspectionId}
+        requirementId={requirementId}
+        isRegulatoryConsideration={isRegulatoryConsideration}
       />
       <AppendicesContainer inspectionId={inspectionId} />
     </Box>

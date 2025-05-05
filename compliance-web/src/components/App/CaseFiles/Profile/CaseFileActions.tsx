@@ -55,8 +55,11 @@ const CaseFileActions: React.FC<CaseFileActionsProps> = ({
   const onDeleteSuccess = useCallback(() => {
     notify.success("Case File deleted!");
     setClose();
+    queryClient.removeQueries({
+      queryKey: ["case-file", caseFileData?.case_file_number],
+    });
     router.navigate({ to: "/ce-database/case-files" });
-  }, [setClose, router]);
+  }, [setClose, router, queryClient, caseFileData]);
 
   const { mutate: linkCaseFile } = useLinkCaseFile(onLinkCaseFileSuccess);
   const { mutate: unlinkCaseFile } = useUnlinkCaseFile(onLinkCaseFileSuccess);

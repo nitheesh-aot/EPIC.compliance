@@ -254,34 +254,16 @@ class CaseFileService:
 
 def _unlink(source, target, session):
     """Unlink the case file."""
-    from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
-
     CaseFileLinkModel.delete_link(
         source_id=source.id, taget_id=target.id, session=session
     )
-    cr_entry = _create_cr_entry(
-        source.id,
-        source.case_file_number,
-        f"unlinked from {target.case_file_number}",
-        [source.case_file_number, target.case_file_number],
-    )
-    ContinuationReportService.create(cr_entry, sys_generated=True, ho_session=session)
 
 
 def _create_link(source, target, session):
     """Create case file link entry."""
-    from .continuation_report import ContinuationReportService  # pylint: disable=import-outside-toplevel
-
     created_link = CaseFileLinkModel.create_link(
         {"source_case_id": source.id, "target_case_id": target.id}, session
     )
-    cr_entry = _create_cr_entry(
-        source.id,
-        source.case_file_number,
-        f"linked to {target.case_file_number}",
-        [source.case_file_number, target.case_file_number],
-    )
-    ContinuationReportService.create(cr_entry, sys_generated=True, ho_session=session)
 
     return created_link
 

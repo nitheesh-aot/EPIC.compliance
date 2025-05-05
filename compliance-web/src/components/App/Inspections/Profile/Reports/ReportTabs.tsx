@@ -1,8 +1,7 @@
-import { Box, Tabs, Tab, Typography, Button } from "@mui/material";
+import { Box, Tabs, Tab } from "@mui/material";
 import { useEffect, useState, useMemo, useRef } from "react";
 import ReportPanel from "./ReportPanel";
 import { BCDesignTokens } from "epic.theme";
-import { PictureAsPdfOutlined, SendRounded } from "@mui/icons-material";
 import Overview from "./ReportTabContents/IROverview/Overview";
 import { useReportStore } from "./reportStore";
 import { useParams } from "@tanstack/react-router";
@@ -12,26 +11,32 @@ import InspectionDates from "./ReportTabContents/InspectionDates";
 import IREnforcementSummary from "./ReportTabContents/IREnforcementSummary";
 import IRAppendices from "./ReportTabContents/IRAppendices";
 import { useInspectionByNumber } from "@/hooks/useInspections";
-import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
 import {
+  useInspectionRequirementImages,
+  useInspectionRequirementsData,
+} from "@/hooks/useInspectionRequirements";
+import {
+  convertRequirementImagesArrToMap,
   REQUIREMENT_TYPE_ID,
-  REGULATORY_CONSIDERATION_TYPE_ID,
 } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import IRRequirement from "./ReportTabContents/IRRequirement";
 import IRRegulatoryConsideration from "./ReportTabContents/IRRegulatoryConsideration";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
+import ReportTopSection from "./ReportTopSection";
+import { useRequirementStore } from "@/components/App/Inspections/Profile/Requirements/requirementStore";
 
 export default function ReportTabs() {
   const { inspectionNumber } = useParams({ strict: false });
   const [value, setValue] = useState(0);
+  const { setInspectionData, setCaseFileData, proponentLabel } =
+    useReportStore();
   const {
-    setInspectionData,
-    setInspectionRequirements,
-    setInspectionRegulatoryConsideration,
-    setCaseFileData,
-    inspectionRequirements,
-  } = useReportStore();
+    requirementsList,
+    setRequirementsList,
+    setRequirementPhotos,
+    setRequirementFigures,
+  } = useRequirementStore();
   const tabsContainerRef = useRef<HTMLDivElement>(null);
 
   const { data: inspectionData } = useInspectionByNumber(inspectionNumber);
@@ -41,30 +46,36 @@ export default function ReportTabs() {
   const { data: inspectionRequirementsData } = useInspectionRequirementsData(
     inspectionData?.id || 0
   );
+  const { data: inspectionRequirementImages } = useInspectionRequirementImages(
+    inspectionData?.id || 0
+  );
 
   useEffect(() => {
     if (inspectionData && caseFileData) {
       setInspectionData(inspectionData);
       setCaseFileData(caseFileData);
-      setInspectionRequirements(
-        inspectionRequirementsData?.filter(
-          (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
-        ) ?? []
+      setRequirementsList(inspectionRequirementsData ?? []);
+      setRequirementPhotos(
+        convertRequirementImagesArrToMap(
+          inspectionRequirementImages?.photos ?? []
+        )
       );
-      setInspectionRegulatoryConsideration(
-        inspectionRequirementsData?.find(
-          (req) => req.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID
-        ) ?? undefined
+      setRequirementFigures(
+        convertRequirementImagesArrToMap(
+          inspectionRequirementImages?.figures ?? []
+        )
       );
     }
   }, [
     inspectionData,
     caseFileData,
     inspectionRequirementsData,
+    inspectionRequirementImages,
     setInspectionData,
-    setInspectionRequirements,
-    setInspectionRegulatoryConsideration,
     setCaseFileData,
+    setRequirementsList,
+    setRequirementPhotos,
+    setRequirementFigures,
   ]);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -80,15 +91,19 @@ export default function ReportTabs() {
 
     // Dynamic requirement tabs based on inspectionRequirements
     const requirementTabs =
-      inspectionRequirements?.map((req: InspectionRequirement, index) => ({
-        title: `#${index + 1}. ${req.summary}`,
-        component: <IRRequirement requirement={req} requirementIndex={index} />,
-      })) ?? [];
+      requirementsList
+        .filter((req) => req.req_type?.id === REQUIREMENT_TYPE_ID)
+        ?.map((req: InspectionRequirement, index) => ({
+          title: `#${index + 1}. ${req.summary}`,
+          component: (
+            <IRRequirement requirement={req} requirementIndex={index} />
+          ),
+        })) ?? [];
 
     // Remaining static tabs
     const remainingTabs = [
       {
-        title: "Actions Required by Regulated Party and Additional Comments",
+        title: `Actions Required by ${proponentLabel} and Additional Comments`,
         component: <ActionsRequired />,
       },
       { title: "Enforcement Summary", component: <IREnforcementSummary /> },
@@ -101,7 +116,7 @@ export default function ReportTabs() {
     ];
 
     return [...baseTabs, ...requirementTabs, ...remainingTabs];
-  }, [inspectionRequirements]);
+  }, [requirementsList, proponentLabel]);
 
   useEffect(() => {
     // Calculate and set the top position of tabs as a CSS variable
@@ -123,30 +138,11 @@ export default function ReportTabs() {
     return () => {
       window.removeEventListener("resize", calculateTabsPosition);
     };
-  }, []);
+  }, [inspectionRequirementsData, value, tabItems]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", pt: 3 }}>
-      <Box
-        sx={{
-          mb: 1,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h6">Preliminary IR</Typography>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <Button variant="text" color="primary">
-            <SendRounded sx={{ mr: 1, fontSize: 20 }} />
-            Send for Approval
-          </Button>
-          <Button variant="text" color="primary">
-            <PictureAsPdfOutlined sx={{ mr: 1, fontSize: 20 }} />
-            Preview
-          </Button>
-        </Box>
-      </Box>
+      <ReportTopSection />
       <Box
         ref={tabsContainerRef}
         sx={{

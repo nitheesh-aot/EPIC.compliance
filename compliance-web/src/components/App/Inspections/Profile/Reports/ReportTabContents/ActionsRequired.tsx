@@ -5,12 +5,14 @@ import { useEffect } from "react";
 import { notify } from "@/store/snackbarStore";
 import { useUpdateInspectionRecord } from "@/hooks/useInspectionReports";
 import { InspectionRecord } from "@/models/InspectionRecord";
+import { DEFAULT_REPORT_TAB_CONTENT } from "@/utils/constants";
 
 const ActionsRequired = () => {
   const {
     inspectionData,
     inspectionReportsData,
     actionsRequired,
+    proponentLabel,
     setActionsRequired,
     setInspectionReportsData,
   } = useReportStore();
@@ -40,7 +42,7 @@ const ActionsRequired = () => {
 
   return (
     <IRBoxContainer
-      title="Actions Required by Certificate Holder and Comments"
+      title={`Actions Required by ${proponentLabel} and Comments`}
       defaultValue={actionsRequired}
       onEditSubmit={handleSaveActionsRequired}
     >
@@ -48,7 +50,9 @@ const ActionsRequired = () => {
         variant="body1"
         component={"div"}
         className="editor-content"
-        dangerouslySetInnerHTML={{ __html: actionsRequired || "" }}
+        dangerouslySetInnerHTML={{
+          __html: actionsRequired || DEFAULT_REPORT_TAB_CONTENT,
+        }}
       />
     </IRBoxContainer>
   );

@@ -13,10 +13,15 @@ import {
   ExpandMoreRounded,
 } from "@mui/icons-material";
 import { BCDesignTokens } from "epic.theme";
-import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
+import {
+  formatRequirementImagesInFindings,
+  ImageTypeEnum,
+  REGULATORY_CONSIDERATION_TYPE_ID,
+  updateImagesWithContinuousSortOrder,
+} from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import { useModal } from "@/store/modalStore";
 import ImageModal from "./ImageModal";
-import { Image } from "@/models/Image";
+import { RequirementImage } from "@/models/Image";
 import ImageCard from "./ImageCard";
 import {
   DndContext,
@@ -38,21 +43,38 @@ import { useRequirementStore } from "@/components/App/Inspections/Profile/Requir
 type ImagesContainerProps = {
   imageType: ImageTypeEnum;
   inspectionId: number;
+  requirementId: number;
+  isRegulatoryConsideration: boolean;
 };
 
 const ImagesContainer: FC<ImagesContainerProps> = memo(
-  ({ imageType, inspectionId }) => {
+  ({ imageType, inspectionId, requirementId, isRegulatoryConsideration }) => {
     const isPhoto = imageType === ImageTypeEnum.PHOTO;
     const { setOpen, setClose } = useModal();
-    const [isExpanded, setIsExpanded] = useState(false);
-    const { photos, figures, setPhotos, setFigures, setIsDataChanged } =
-      useRequirementStore();
+    const [isExpanded, setIsExpanded] = useState(true);
+    const [currentRequirementId, setCurrentRequirementId] = useState<number>(0);
+    const {
+      requirementsList,
+      requirementPhotos,
+      requirementFigures,
+      setRequirementsList,
+      setRequirementPhotos,
+      setRequirementFigures,
+      setIsDataChanged,
+      setIsImageChanged,
+    } = useRequirementStore();
 
-    const [images, setImages] = useState<Image[]>([]);
+    const [images, setImages] = useState<RequirementImage[]>([]);
 
     useEffect(() => {
-      setImages(isPhoto ? photos : figures);
-    }, [isPhoto, photos, figures]);
+      const currentRequirementImages: Map<number, RequirementImage[]> = isPhoto
+        ? requirementPhotos
+        : requirementFigures;
+
+      const currentReqId = !requirementId ? NaN : requirementId;
+      setCurrentRequirementId(currentReqId);
+      setImages(currentRequirementImages.get(currentReqId) ?? []);
+    }, [requirementId, requirementPhotos, requirementFigures, isPhoto]);
 
     const activationConstraint = {
       delay: 100,
@@ -79,6 +101,28 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       }
     }
 
+    const getImageIndex = () => {
+      if (!requirementId) {
+        let reqImagesList = Array.from(
+          isPhoto ? requirementPhotos.values() : requirementFigures.values()
+        ).flat();
+        if (!isRegulatoryConsideration) {
+          const regConsId = requirementsList.find(
+            (req) => req.req_type.id === REGULATORY_CONSIDERATION_TYPE_ID
+          )?.id;
+          if (regConsId) {
+            reqImagesList = reqImagesList.filter(
+              (img) => img.requirement_id !== regConsId
+            );
+          }
+        }
+        return (reqImagesList.length ?? 0) + 1;
+      }
+      return images.length > 0
+        ? (images[images.length - 1].sort_order || 0) + 1
+        : 1;
+    };
+
     const selectImage = () => {
       const input = document.createElement("input");
       input.type = "file";
@@ -97,7 +141,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                 file={file}
                 inspectionId={inspectionId}
                 imageType={imageType}
-                index={images.length}
+                imageIndex={getImageIndex()}
               />
             ),
             width: "640px",
@@ -107,7 +151,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
       input.click();
     };
 
-    const handleImageClick = (image: Image, index: number) => {
+    const handleImageClick = (image: RequirementImage) => {
       setOpen({
         content: (
           <ImageModal
@@ -123,24 +167,91 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
               setImageLists(updatedImages);
               setClose();
             }}
-            imageData={image}
+            requirementImage={image}
             inspectionId={inspectionId}
             imageType={imageType}
-            index={index}
           />
         ),
         width: "640px",
       });
     };
 
-    const setImageLists = (imagesList: Image[]) => {
-      setImages(imagesList);
+    const setImageLists = (imagesList: RequirementImage[]) => {
+      const updatedRequirementImages: Map<number, RequirementImage[]> = isPhoto
+        ? requirementPhotos
+        : requirementFigures;
+
+      updatedRequirementImages.set(currentRequirementId, imagesList);
+
+      const updatedImagesWithSortOrder = updateImagesWithContinuousSortOrder(
+        updatedRequirementImages,
+        requirementsList
+      );
+
       if (isPhoto) {
-        setPhotos(imagesList);
+        setRequirementPhotos(updatedImagesWithSortOrder);
       } else {
-        setFigures(imagesList);
+        setRequirementFigures(updatedImagesWithSortOrder);
       }
+
+      /**
+       * updatedImagesWithSortOrder is the image map of current type of images (photos or figures)
+       * requirementImagesType2 is the image map of other type of images
+       * formatRequirementImagesInFindings will merge the two maps and return the updated requirements findings and list
+       */
+      const requirementImagesType2 = isPhoto
+        ? requirementFigures
+        : requirementPhotos;
+      const updatedRequirementsList = formatRequirementImagesInFindings(
+        requirementsList,
+        updatedImagesWithSortOrder,
+        requirementImagesType2
+      );
+      setRequirementsList(updatedRequirementsList);
+
+      // Update any active Lexical editor that might contain mentions related to these images
+
+      updateActiveLexicalEditor(
+        updatedImagesWithSortOrder.get(currentRequirementId) ?? [],
+        requirementImagesType2.get(currentRequirementId) ?? []
+      ); //TODO: Check if all images are needed here
+
+      setImages(updatedImagesWithSortOrder.get(currentRequirementId) ?? []);
       setIsDataChanged(true);
+      setIsImageChanged(true);
+    };
+
+    const updateActiveLexicalEditor = (
+      updatedImages: RequirementImage[],
+      imagesType2: RequirementImage[]
+    ) => {
+      // Find all active Lexical editor instances on the page
+      const editorElements = document.querySelectorAll(".editor-input");
+
+      if (!editorElements.length) return;
+
+      // Flatten all images from all requirements into a single array
+      const allImages = [...updatedImages, ...imagesType2];
+
+      if (!allImages.length) return;
+
+      // For each editor instance, we need to update the mentions
+      editorElements.forEach((editorElement) => {
+        // Check if the editor is initialized and is accessible
+        if (!editorElement || !(editorElement instanceof HTMLElement)) return;
+
+        // Dispatch a custom event to update mentions in the Lexical editor
+        const event = new CustomEvent("lexical-command", {
+          bubbles: true,
+          cancelable: true,
+          detail: {
+            type: "update-mentions",
+            images: allImages,
+          },
+        });
+
+        editorElement.dispatchEvent(event);
+      });
     };
 
     return (
@@ -238,13 +349,12 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                 >
                   {images.map((image, index) => (
                     <ImageCard
-                      key={image.id}
+                      key={`${image.id}-${index}`}
                       image={image}
                       handleImageClick={() => {
-                        handleImageClick(image, index);
+                        handleImageClick(image);
                       }}
                       isPhoto={isPhoto}
-                      index={index}
                     />
                   ))}
                 </SortableContext>

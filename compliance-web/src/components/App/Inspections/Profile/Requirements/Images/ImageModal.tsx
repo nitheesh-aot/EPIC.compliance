@@ -10,22 +10,21 @@ import { StaffUser } from "@/models/Staff";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { BCDesignTokens } from "epic.theme";
 import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
-import { ImageFormData, Image } from "@/models/Image";
+import { ImageFormData, RequirementImage } from "@/models/Image";
 import { useEffect, useMemo } from "react";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { formatS3Url } from "@/utils/appUtils";
 import dayjs from "dayjs";
 import dateUtils from "@/utils/dateUtils";
 import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 
 type ImageModalProps = {
   file?: File;
-  onSubmit: (data: Image) => void;
+  onSubmit: (data: RequirementImage) => void;
   onDelete?: (imageId: number) => void;
-  imageData?: Image;
+  requirementImage?: RequirementImage;
   inspectionId: number;
   imageType: ImageTypeEnum;
-  index?: number;
+  imageIndex?: number;
 };
 
 const imageFormSchema = yup.object().shape({
@@ -44,22 +43,22 @@ const ImageModal: React.FC<ImageModalProps> = ({
   file,
   onSubmit,
   onDelete,
-  imageData,
+  requirementImage,
   inspectionId,
   imageType,
-  index,
+  imageIndex,
 }) => {
   const { data: staffUserList } = useStaffUsersData();
   const isPhoto = imageType === ImageTypeEnum.PHOTO;
   const ImageTypeLabel = isPhoto ? "Photo" : "Figure";
   const defaultValues = useMemo<ImageFormData>(() => {
-    return imageData
+    return requirementImage
       ? {
-          takenBy: imageData.taken_by,
-          caption: imageData.caption,
+          takenBy: requirementImage.taken_by,
+          caption: requirementImage.caption,
         }
       : initFormData;
-  }, [imageData]);
+  }, [requirementImage]);
 
   const methods = useForm<ImageSchemaType>({
     resolver: yupResolver(imageFormSchema),
@@ -69,11 +68,15 @@ const ImageModal: React.FC<ImageModalProps> = ({
 
   const { handleSubmit, reset, getValues } = methods;
 
-  const onSuccess = (uploadedFileUrl: string) => {
+  const onSuccess = (uploadedFile: {
+    presigned_url: string;
+    relative_url: string;
+  }) => {
     const takenBy = getValues("takenBy") as StaffUser;
-    const imageFormData: Image = {
+    const imageFormData: RequirementImage = {
       id: Date.now(),
-      relative_url: uploadedFileUrl,
+      relative_url: uploadedFile.relative_url,
+      url: uploadedFile.presigned_url,
       caption: getValues("caption"),
       taken_by: takenBy,
       taken_by_id: takenBy?.id,
@@ -95,10 +98,10 @@ const ImageModal: React.FC<ImageModalProps> = ({
   }, [defaultValues, reset]);
 
   const onSubmitHandler = (data: ImageSchemaType) => {
-    if (imageData) {
+    if (requirementImage) {
       const formData = data as ImageFormData;
       onSubmit({
-        ...imageData,
+        ...requirementImage,
         caption: formData.caption,
         taken_by_id: formData.takenBy?.id,
         taken_by: formData.takenBy,
@@ -113,7 +116,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
   };
 
   const onDeleteHandler = () => {
-    onDelete?.(imageData?.id ?? 0);
+    onDelete?.(requirementImage?.id ?? 0);
   };
 
   return (
@@ -121,7 +124,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmitHandler)}>
           <ModalTitleBar
-            title={`${imageData ? "Edit" : "Add"} ${ImageTypeLabel}`}
+            title={`${requirementImage ? "Edit" : "Add"} ${ImageTypeLabel}`}
           />
           <DialogContent dividers>
             <Box
@@ -139,7 +142,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 src={
                   file
                     ? URL.createObjectURL(file)
-                    : formatS3Url(imageData?.relative_url ?? "")
+                    : (requirementImage?.url ?? "")
                 }
                 alt="Preview"
                 style={{ maxHeight: "100%", maxWidth: "100%" }}
@@ -160,7 +163,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
             >
               <GridLabelValuePair
                 label={`${ImageTypeLabel} #`}
-                value={index !== undefined ? index + 1 : 0}
+                value={imageIndex ?? requirementImage?.sort_order ?? 0}
                 gridProps={{ xs: 2 }}
                 isBold
               />
@@ -169,7 +172,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
                 value={
                   file
                     ? file.name
-                    : imageData?.original_file_name || "No file selected"
+                    : requirementImage?.original_file_name || "No file selected"
                 }
                 gridProps={{ xs: 6 }}
                 isBold
@@ -181,8 +184,9 @@ const ImageModal: React.FC<ImageModalProps> = ({
                     ? dateUtils.formatDate(
                         dayjs(file.lastModified).toISOString()
                       )
-                    : dateUtils.formatDate(imageData?.date_taken ?? "") ||
-                      "No file selected"
+                    : dateUtils.formatDate(
+                        requirementImage?.date_taken ?? ""
+                      ) || "No file selected"
                 }
                 gridProps={{ xs: 4 }}
                 isBold
@@ -201,12 +205,13 @@ const ImageModal: React.FC<ImageModalProps> = ({
               name="caption"
               label="Caption"
               fullWidth
+              multiline
               isRequired={true}
             />
           </DialogContent>
           <ModalActions
-            primaryActionButtonText={imageData ? "Save" : "Add"}
-            onDeleteAction={imageData ? onDeleteHandler : undefined}
+            primaryActionButtonText={requirementImage ? "Save" : "Add"}
+            onDeleteAction={requirementImage ? onDeleteHandler : undefined}
             onDeleteConfirmationText={`Are you sure you want to delete this ${ImageTypeLabel}?`}
             isLoading={isPending}
           />

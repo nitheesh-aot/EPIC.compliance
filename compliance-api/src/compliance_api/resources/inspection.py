@@ -31,8 +31,7 @@ from compliance_api.utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
 
-API = Namespace(
-    "inspections", description="Endpoints for Inspection Management")
+API = Namespace("inspections", description="Endpoints for Inspection Management")
 
 keyvalue_list_schema = ApiHelper.convert_ma_schema_to_restx_model(
     API, KeyValueSchema(), "List"
@@ -174,8 +173,7 @@ class Inspections(Resource):
     @auth.require
     def post():
         """Create an inspection."""
-        current_app.logger.info(
-            f"Creating Inspection with payload: {API.payload}")
+        current_app.logger.info(f"Creating Inspection with payload: {API.payload}")
         inspection_data = InspectionCreateSchema().load(API.payload)
         created_inspection = InspectionService.create(inspection_data)
         return InspectionSchema().dump(created_inspection), HTTPStatus.CREATED
@@ -229,8 +227,7 @@ class Inspection(Resource):
     def patch(inspection_id):
         """Update inspection."""
         inspection_data = InspectionUpdateSchema().load(API.payload)
-        updated_inspection = InspectionService.update(
-            inspection_id, inspection_data)
+        updated_inspection = InspectionService.update(inspection_id, inspection_data)
         return InspectionSchema().dump(updated_inspection), HTTPStatus.OK
 
     @staticmethod

@@ -1,5 +1,9 @@
 import RequirementDrawer from "@/components/App/Inspections/Profile/Requirements/RequirementDrawer";
-import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
+import {
+  useInspectionRequirementImages,
+  useInspectionRequirementsData,
+  useUpdateInspectionRequirementBatch,
+} from "@/hooks/useInspectionRequirements";
 import { Inspection } from "@/models/Inspection";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { useDrawer } from "@/store/drawerStore";
@@ -11,10 +15,16 @@ import { Reorder } from "framer-motion";
 import React, { useCallback, useEffect } from "react";
 import RequirementCard from "./Requirements/RequirementCard";
 import {
+  convertRequirementImagesArrToMap,
+  formatRequirementBatchAPIData,
+  formatRequirementImagesInFindings,
   REGULATORY_CONSIDERATION_TYPE_ID,
   REQUIREMENT_TYPE_ID,
+  updateImagesWithContinuousSortOrder,
 } from "./Requirements/RequirementUtils";
 import { DRAWER_WIDTHS } from "@/utils/constants";
+import { useRequirementStore } from "./Requirements/requirementStore";
+import RequirementLoading from "./Requirements/RequirementLoading";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
@@ -24,7 +34,14 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   inspectionData,
 }) => {
   const queryClient = useQueryClient();
-  const { setOpen, isOpen, setClose } = useDrawer();
+  const { setOpen, isOpen: isDrawerOpen, setClose } = useDrawer();
+  const {
+    requirementPhotos,
+    requirementFigures,
+    setRequirementPhotos,
+    setRequirementFigures,
+    setRequirementsList,
+  } = useRequirementStore();
   const [activeRequirementId, setActiveRequirementId] = React.useState<
     number | null
   >(null);
@@ -33,30 +50,61 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   >([]);
   const [regulatoryConsideration, setRegulatoryConsideration] =
     React.useState<InspectionRequirement | null>(null);
+  const [isDataLoading, setIsDataLoading] = React.useState<boolean>(true);
 
-  const { data: inspectionRequirementsData } = useInspectionRequirementsData(
-    inspectionData.id
-  );
+  const {
+    data: inspectionRequirementsData,
+    isLoading: isInspectionRequirementsLoading,
+  } = useInspectionRequirementsData(inspectionData.id);
+
+  const {
+    data: inspectionRequirementImages,
+    isLoading: isInspectionRequirementImagesLoading,
+  } = useInspectionRequirementImages(inspectionData.id);
+
+  const { mutate: updateInspectionRequirementBatch } =
+    useUpdateInspectionRequirementBatch(() => {});
 
   useEffect(() => {
     if (inspectionRequirementsData) {
+      setRequirementsList(inspectionRequirementsData);
+
       setInspectionRequirements(
         inspectionRequirementsData.filter(
           (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
         )
       );
+
       setRegulatoryConsideration(
         inspectionRequirementsData.find(
           (req) => req.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID
         ) ?? null
       );
     }
-  }, [inspectionRequirementsData]);
+  }, [inspectionRequirementsData, setRequirementsList]);
+
+  useEffect(() => {
+    if (inspectionRequirementImages) {
+      setRequirementPhotos(
+        convertRequirementImagesArrToMap(inspectionRequirementImages.photos)
+      );
+      setRequirementFigures(
+        convertRequirementImagesArrToMap(inspectionRequirementImages.figures)
+      );
+    }
+  }, [
+    inspectionRequirementImages,
+    setRequirementPhotos,
+    setRequirementFigures,
+  ]);
 
   const handleOnSubmit = useCallback(
     (submitMsg: string, isClose: boolean = true) => {
       queryClient.invalidateQueries({
         queryKey: ["inspection-requirements", inspectionData.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["inspection-requirement-images", inspectionData.id],
       });
       notify.success(submitMsg);
       if (isClose) {
@@ -94,7 +142,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   const handleOpenEditRequirementModal = useCallback(
     (
       requirement: InspectionRequirement,
-      index: number,
+      index?: number,
       isRegulatoryConsideration?: boolean
     ) => {
       setActiveRequirementId(requirement.id);
@@ -114,22 +162,113 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     [setOpen, handleOnSubmit, inspectionData]
   );
 
+  // Add a ref to store the timeout ID : to prevent multiple API calls during reordering
+  const updateTimeoutRef = React.useRef<NodeJS.Timeout>();
+
   const handleSortOrderChange = useCallback(
-    (newOrder: InspectionRequirement[]) => {
-      setInspectionRequirements(newOrder);
+    (newRequirementListOrder: InspectionRequirement[]) => {
+      if (isDrawerOpen) {
+        return;
+      }
+
+      const updateRequirementLists = [...newRequirementListOrder];
+
+      if (regulatoryConsideration?.id) {
+        updateRequirementLists.push(regulatoryConsideration);
+      }
+
+      // Copy photos from the original map to the new map based on the new order of requirements
+      // updateRequirementLists.forEach((requirement) => {
+      //   updatedPhotosNewReqOrder.set(
+      //     requirement.id,
+      //     requirementPhotos.get(requirement.id) || []
+      //   );
+      //   updatedFiguresNewReqOrder.set(
+      //     requirement.id,
+      //     requirementFigures.get(requirement.id) || []
+      //   );
+      // });
+
+      const photosWithSortOrder = updateImagesWithContinuousSortOrder(
+        requirementPhotos,
+        updateRequirementLists
+      );
+      const figuresWithSortOrder = updateImagesWithContinuousSortOrder(
+        requirementFigures,
+        updateRequirementLists
+      );
+
+      // update the requirement images sort order in all findings
+      const updatedRequirementsList = formatRequirementImagesInFindings(
+        updateRequirementLists,
+        photosWithSortOrder,
+        figuresWithSortOrder
+      );
+
+      setRequirementPhotos(photosWithSortOrder);
+      setRequirementFigures(figuresWithSortOrder);
+
+      // Update query client cache
       queryClient.setQueryData(
         ["inspection-requirements", inspectionData.id],
-        newOrder
+        updatedRequirementsList
       );
+
+      // Clear any existing timeout
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+
+      // Set a new timeout to make the API call 500ms after the last reordering
+      updateTimeoutRef.current = setTimeout(() => {
+        const requirementBatchAPIData = formatRequirementBatchAPIData(
+          updatedRequirementsList,
+          photosWithSortOrder,
+          figuresWithSortOrder
+        );
+
+        updateInspectionRequirementBatch({
+          inspectionId: inspectionData.id,
+          requirementBatch: requirementBatchAPIData,
+        });
+      }, 500);
     },
-    [inspectionData, queryClient]
+    [
+      isDrawerOpen,
+      inspectionData,
+      queryClient,
+      regulatoryConsideration,
+      requirementFigures,
+      requirementPhotos,
+      setRequirementFigures,
+      setRequirementPhotos,
+      updateInspectionRequirementBatch,
+    ]
   );
 
-  React.useEffect(() => {
-    if (!isOpen) {
+  // Clean up the timeout when the component unmounts
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isDrawerOpen) {
       setActiveRequirementId(null);
     }
-  }, [isOpen]);
+  }, [isDrawerOpen]);
+
+  useEffect(() => {
+    if (
+      !isInspectionRequirementsLoading &&
+      !isInspectionRequirementImagesLoading
+    ) {
+      setIsDataLoading(false);
+    }
+  }, [isInspectionRequirementsLoading, isInspectionRequirementImagesLoading]);
 
   return (
     <Box
@@ -140,59 +279,72 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     >
       <Box display={"flex"} justifyContent={"space-between"} mt={3} mb={2}>
         <Typography variant="h6">Requirements</Typography>
-        <Box display={"flex"} gap={2}>
-          <Button
-            variant="text"
-            color="primary"
-            size="small"
-            onClick={handleOpenAddRegulatoryConsiderationModal}
-            startIcon={<AddRounded />}
-            data-cy="new-regulatory-consideration-button"
-            disabled={!!regulatoryConsideration}
-          >
-            Regulatory Consideration
-          </Button>
-          <Button
-            color="secondary"
-            size="small"
-            onClick={handleOpenAddRequirementModal}
-            startIcon={<AddRounded />}
-            data-cy="new-requirement-button"
-          >
-            New Requirement
-          </Button>
-        </Box>
+        {!isDataLoading && (
+          <Box display={"flex"} gap={2}>
+            <Button
+              variant="text"
+              color="primary"
+              size="small"
+              onClick={handleOpenAddRegulatoryConsiderationModal}
+              startIcon={<AddRounded />}
+              data-cy="new-regulatory-consideration-button"
+              disabled={!!regulatoryConsideration}
+            >
+              Regulatory Consideration
+            </Button>
+            <Button
+              color="secondary"
+              size="small"
+              onClick={handleOpenAddRequirementModal}
+              startIcon={<AddRounded />}
+              data-cy="new-requirement-button"
+            >
+              New Requirement
+            </Button>
+          </Box>
+        )}
       </Box>
-      <Reorder.Group
-        axis="y"
-        onReorder={handleSortOrderChange}
-        values={inspectionRequirements}
-        className="reorder-list"
-      >
-        {inspectionRequirements?.map((requirement, index) => (
-          <RequirementCard
-            key={requirement.id}
-            requirement={requirement}
-            index={index}
-            onEdit={() => handleOpenEditRequirementModal(requirement, index)}
-            isActive={requirement.id === activeRequirementId}
-          />
-        ))}
-      </Reorder.Group>
-      {regulatoryConsideration && (
-        <RequirementCard
-          key={regulatoryConsideration.id}
-          requirement={regulatoryConsideration}
-          index={inspectionRequirements.length}
-          onEdit={() =>
-            handleOpenEditRequirementModal(
-              regulatoryConsideration,
-              inspectionRequirements.length,
-              true
-            )
-          }
-          isActive={regulatoryConsideration.id === activeRequirementId}
-        />
+      {isDataLoading ? (
+        <RequirementLoading />
+      ) : (
+        <>
+          <Reorder.Group
+            axis="y"
+            onReorder={handleSortOrderChange}
+            values={inspectionRequirements}
+            className="reorder-list"
+            disabled={isDrawerOpen}
+          >
+            {inspectionRequirements?.map((requirement, index) => (
+              <RequirementCard
+                key={requirement.id}
+                requirement={requirement}
+                index={index}
+                onEdit={() =>
+                  handleOpenEditRequirementModal(requirement, index)
+                }
+                isActive={requirement.id === activeRequirementId}
+                disabled={isDrawerOpen}
+              />
+            ))}
+          </Reorder.Group>
+          {regulatoryConsideration && (
+            <RequirementCard
+              key={regulatoryConsideration.id}
+              requirement={regulatoryConsideration}
+              index={inspectionRequirements.length}
+              onEdit={() =>
+                handleOpenEditRequirementModal(
+                  regulatoryConsideration,
+                  undefined,
+                  true
+                )
+              }
+              isActive={regulatoryConsideration.id === activeRequirementId}
+              disabled={isDrawerOpen}
+            />
+          )}
+        </>
       )}
     </Box>
   );

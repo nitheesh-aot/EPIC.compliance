@@ -4,7 +4,7 @@ import { AuthUser } from "@/models/AuthUser";
 import { Permission } from "@/models/Permission";
 import { Position } from "@/models/Position";
 import { StaffUser } from "@/models/Staff";
-import { DEPUTY_DIRECTOR_POSITION } from "@/utils/constants";
+import { STAFF_USER_POSITION } from "@/utils/constants";
 import { Stack } from "@mui/material";
 import React, { useMemo } from "react";
 
@@ -25,7 +25,7 @@ const StaffForm: React.FC<StaffFormProps> = ({
 }) => {
   const deputyDirectors = useMemo(
     () =>
-      staffUsersList?.filter((p) => p.position_id == DEPUTY_DIRECTOR_POSITION),
+      staffUsersList?.filter((p) => p.position_id == STAFF_USER_POSITION.DEPUTY_DIRECTOR),
     [staffUsersList]
   );
   return (

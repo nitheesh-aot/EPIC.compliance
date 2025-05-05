@@ -22,8 +22,6 @@ from compliance_api.services.epic_track_service.track_service import TrackServic
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE
 from compliance_api.utils.enum import ContextEnum, PermissionEnum
 
-from .continuation_report import ContinuationReportService
-
 
 class ComplaintService:
     """Complaint Service."""
@@ -126,15 +124,6 @@ class ComplaintService:
             _create_or_update_requirement_details(
                 complaint_data, created_complaint, session
             )
-            cr_entry = _create_cr_entry(
-                created_complaint.id,
-                created_complaint.complaint_number,
-                "created",
-                created_complaint.case_file_id,
-            )
-            ContinuationReportService.create(
-                cr_entry, sys_generated=True, ho_session=session
-            )
         return created_complaint
 
     @classmethod
@@ -160,11 +149,6 @@ class ComplaintService:
             ComplaintModel.delete_complaint(complaint_id, session)
             ComplaintSourceContactModel.delete_by_complaint(complaint_id, session)
             ComplaintRequirementDetailModel.delete_by_complaint(complaint_id, session)
-            ContinuationReportService.delete_by_context(
-                context_id=complaint_id,
-                context_type=ContextEnum.COMPLAINT,
-                ho_session=session,
-            )
         return complaint
 
     @classmethod
@@ -179,17 +163,8 @@ class ComplaintService:
             raise UnprocessableEntityError(
                 f"The complaint is already in {status_enum.value} status."
             )
-        with session_scope() as session:
-            ComplaintModel.change_status(complaint_id, status_enum, session)
-            cr_entry = _create_cr_entry(
-                complaint_id,
-                complaint.complaint_number,
-                "reopened" if status_enum.value == "Open" else "closed",
-                complaint.case_file_id,
-            )
-            ContinuationReportService.create(
-                cr_entry, sys_generated=True, ho_session=session
-            )
+
+        ComplaintModel.change_status(complaint_id, status_enum)
 
 
 def _create_or_update_requirement_details(

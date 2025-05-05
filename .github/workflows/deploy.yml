@@ -15,7 +15,7 @@ defaults:
 
 jobs:
   deployment:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     environment:
       name: ${{ github.event.inputs.environment }}
     steps:
@@ -33,5 +33,5 @@ jobs:
           oc tag compliance-api:latest compliance-api:${{ github.event.inputs.environment }}
           oc tag compliance-web:latest compliance-web:${{ github.event.inputs.environment }}
           
-          oc rollout status dc/compliance-api -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }} -w
-          oc rollout status dc/compliance-web -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }} -w
+          oc rollout restart deployment/compliance-api -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }}
+          oc rollout restart deployment/compliance-web -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }}

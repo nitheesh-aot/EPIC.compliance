@@ -350,6 +350,7 @@ def test_case_file_close(client, jwt, created_staff, mocker):
     case_file_data["case_file_number"] = str(datetime.utcnow().timestamp() * 1000)
     case_file_data["primary_officer_id"] = created_staff.id
     created_result = CaseFileService.create(case_file_data)
+    print(created_result)
     case_file_id = created_result.id
     case_file_number = created_result.case_file_number
     header = TokenJWTClaims.default.value

@@ -1,6 +1,6 @@
 """Schema for Inspection Record Approval."""
 
-from marshmallow import EXCLUDE, ValidationError, fields, post_load, validate
+from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load, validate
 from marshmallow_enum import EnumField
 
 from compliance_api.models.inspection_record_approval import InspectionRecordApproval as InspectionRecordApprovalModel
@@ -24,7 +24,18 @@ class InspectionRecordApprovalSchema(
         include_fk = True
 
     approved_by = fields.Nested(StaffUserSchema)
-    approval_status = EnumField(IRApprovalStatusEnum, by_value=True)
+
+    @post_dump
+    def convert_enum_to_key_value(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Convert enum to key value schema."""
+        if "approval_status" in data and data["approval_status"] is not None:
+            data["approval_status"] = {
+                "id": data["approval_status"].name,
+                "name": data["approval_status"].value,
+            }
+        return data
 
 
 class CreateInspectionRecordApprovalSchema(BaseSchema):
@@ -36,11 +47,32 @@ class CreateInspectionRecordApprovalSchema(BaseSchema):
     )
 
 
+class UpdateInspectionRecordApprovalStatusSchema(BaseSchema):
+    """Schema for updating the status of an InspectionRecordApproval."""
+
+    approval_status = EnumField(IRApprovalStatusEnum, by_value=False)
+    approved_by_id = fields.Integer(
+        metadata={"description": "The unique id of the staff who needs to approve"},
+        required=True,
+    )
+
+    @post_load
+    def validate_fields(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Perform custom validation for allowed fields."""
+        status = data["approval_status"]
+        if status == IRApprovalStatusEnum.DECISION_PENDING:
+            raise ValidationError(f"Invalid status: {status}")
+
+        return data
+
+
 class UpdateInspectionRecordApprovalSchema(BaseSchema):
     """Schema for updating selected fields of an InspectionRecordApproval."""
 
     field_name = fields.Str(required=True, validate=validate.Length(min=1))
-    value = fields.Raw(required=True)  # Allows various types of input
+    value = fields.Str(required=True, allow_none=True)  # Allows various types of input
 
     @post_load
     def validate_fields(
@@ -68,7 +100,7 @@ class UpdateInspectionRecordApprovalSchema(BaseSchema):
                     "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
                 },
             ),
-            "date_respose": fields.DateTime(
+            "date_response": fields.DateTime(
                 format=INPUT_DATE_TIME_FORMAT,
                 metadata={
                     "description": "The date when the actual response received from proponent in ISO 8601 format."

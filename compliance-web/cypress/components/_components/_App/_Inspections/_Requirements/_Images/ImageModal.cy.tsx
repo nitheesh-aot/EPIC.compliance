@@ -1,6 +1,6 @@
 import ImageModal from "@/components/App/Inspections/Profile/Requirements/Images/ImageModal";
 import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
-import { Image } from "@/models/Image";
+import { RequirementImage } from "@/models/Image";
 import { StaffUser } from "@/models/Staff";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -23,24 +23,29 @@ describe("ImageModal Component", () => {
     lastModified: new Date("2024-01-01").getTime(),
   });
 
-  const mockImageData: Image = {
+  const mockImageData: RequirementImage = {
     id: 1,
     relative_url: "test-url",
+    url: "https://test-image.jpg",
     caption: "Test Caption",
     taken_by: mockStaffUsers[0] as unknown as StaffUser,
     taken_by_id: mockStaffUsers[0].id,
     original_file_name: "existing-image.jpg",
     date_taken: "2024-01-01T00:00:00Z",
     image_type: "Photo",
+    sort_order: 1,
   };
 
   const queryClient = new QueryClient();
 
-  function mountImageModal(imageData?: Image, onDelete?: () => void): React.ReactNode {
+  function mountImageModal(
+    imageData?: RequirementImage,
+    onDelete?: () => void
+  ): React.ReactNode {
     return (
       <QueryClientProvider client={queryClient}>
         <ImageModal
-          imageData={imageData}
+          requirementImage={imageData}
           file={mockFile}
           onSubmit={cy.stub().as("onSubmit")}
           inspectionId={1}
@@ -75,7 +80,7 @@ describe("ImageModal Component", () => {
 
     cy.contains("Edit Photo").should("be.visible");
     cy.get("img").should("be.visible");
-    cy.get('input[name="caption"]').should("have.value", "Test Caption");
+    cy.get('textarea[name="caption"]').should("have.value", "Test Caption");
   });
 
   it("validates required fields", () => {
@@ -92,7 +97,7 @@ describe("ImageModal Component", () => {
   it("submits form with valid data", () => {
     cy.mount(mountImageModal());
 
-    cy.get('input[name="caption"]').type("Test caption");
+    cy.get('textarea[name="caption"]').type("Test caption");
 
     // Submit form
     cy.contains("button", "Add").click();
@@ -105,7 +110,7 @@ describe("ImageModal Component", () => {
 
     // Click delete button
     cy.get('[data-testid="delete-action-modal-button"]').click();
-    
+
     // Confirm deletion
     cy.get('[data-testid="delete-confirmation-button"]').click();
 

@@ -3,11 +3,13 @@ import { ImageTypeEnum } from "@/components/App/Inspections/Profile/Requirements
 import ModalProvider from "@/components/Shared/Modals/ModalProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useRequirementStore } from "@/components/App/Inspections/Profile/Requirements/requirementStore";
+import { RequirementImage } from "@/models/Image";
 
 describe("ImagesContainer", () => {
   const mockProps = {
     imageType: ImageTypeEnum.PHOTO,
     inspectionId: 123,
+    requirementId: 1,
   };
 
   const queryClient = new QueryClient();
@@ -37,7 +39,6 @@ describe("ImagesContainer", () => {
   });
 
   it("shows add button when expanded", () => {
-    cy.get(".MuiAccordionSummary-root").click();
     cy.contains("button", "Photo").should("be.visible");
   });
 
@@ -77,6 +78,7 @@ describe("ImagesContainer", () => {
       renderImagesContainer({
         imageType: ImageTypeEnum.FIGURE,
         inspectionId: 123,
+        requirementId: 1,
       })
     );
 
@@ -85,19 +87,20 @@ describe("ImagesContainer", () => {
 
   // Test with pre-populated images
   it("displays images when available", () => {
-    const mockImage = {
+    const mockImage: RequirementImage = {
       id: 1,
-      url: "test-url",
+      relative_url: "test-url",
       caption: "Test Caption",
-      order: 1,
+      sort_order: 1,
     };
 
-    useRequirementStore.getState().setPhotos([mockImage]);
+    useRequirementStore.getState().setRequirementPhotos(new Map([[1, [mockImage]]]));
 
     cy.mount(
       renderImagesContainer({
         imageType: ImageTypeEnum.PHOTO,
         inspectionId: 123,
+        requirementId: 1,
       })
     );
 

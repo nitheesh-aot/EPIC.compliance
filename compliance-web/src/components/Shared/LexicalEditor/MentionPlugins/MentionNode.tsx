@@ -6,7 +6,6 @@
  *
  */
 
-import { formatS3Url } from "@/utils/appUtils";
 import { Popover } from "@mui/material";
 import {
   $applyNodeReplacement,
@@ -29,7 +28,8 @@ import React from "react";
 export type SerializedMentionNode = Spread<
   {
     mentionName: string;
-    imageRelativeUrl: string;
+    imageUrl: string;
+    imageId: number;
   },
   SerializedTextNode
 >;
@@ -40,12 +40,14 @@ function $convertMentionElement(
   const textContent = domNode.textContent;
   const mentionName = domNode.getAttribute("data-lexical-mention-name");
   const imageUrl = domNode.getAttribute("data-imageurl");
+  const imageId = domNode.getAttribute("data-imageid");
 
   if (textContent !== null) {
     const node = $createMentionNode(
       typeof mentionName === "string" ? mentionName : textContent,
       textContent,
-      imageUrl ?? undefined
+      imageUrl ?? undefined,
+      imageId ? parseInt(imageId) : undefined
     );
     return {
       node,
@@ -57,7 +59,8 @@ function $convertMentionElement(
 
 export class MentionNode extends TextNode {
   __mention: string;
-  __imageRelativeUrl: string;
+  __imageUrl: string;
+  __imageId: number;
 
   static getType(): string {
     return "mention";
@@ -67,7 +70,8 @@ export class MentionNode extends TextNode {
     return new MentionNode(
       node.__mention,
       node.__text,
-      node.__imageRelativeUrl,
+      node.__imageUrl,
+      node.__imageId,
       node.__key
     );
   }
@@ -80,19 +84,22 @@ export class MentionNode extends TextNode {
   constructor(
     mentionName: string,
     text?: string,
-    imageRelativeUrl?: string,
+    imageUrl?: string,
+    imageId?: number,
     key?: NodeKey
   ) {
     super(text ?? mentionName, key);
     this.__mention = mentionName;
-    this.__imageRelativeUrl = imageRelativeUrl ?? "";
+    this.__imageUrl = imageUrl ?? "";
+    this.__imageId = imageId ?? 0;
   }
 
   exportJSON(): SerializedMentionNode {
     return {
       ...super.exportJSON(),
       mentionName: this.__mention,
-      imageRelativeUrl: this.__imageRelativeUrl,
+      imageUrl: this.__imageUrl,
+      imageId: this.__imageId,
     };
   }
 
@@ -120,8 +127,9 @@ export class MentionNode extends TextNode {
     dom.className = "mention-chip";
     dom.spellcheck = false;
     dom.contentEditable = "false";
-    dom.dataset.imageurl = this.__imageRelativeUrl;
+    dom.dataset.imageurl = this.__imageUrl;
     dom.dataset.mention = this.__mention;
+    dom.dataset.imageid = this.__imageId.toString();
 
     // Create wrapper for positioning
     const wrapper = document.createElement("span");
@@ -135,10 +143,10 @@ export class MentionNode extends TextNode {
     // Add click handler to move cursor to end of mention node
     dom.addEventListener("click", (e) => {
       e.stopPropagation();
-      
+
       // Reference to this node
       const nodeKey = this.__key;
-      
+
       // Find the editor
       const editorElement = dom.closest(".editor-input");
       if (editorElement) {
@@ -146,9 +154,9 @@ export class MentionNode extends TextNode {
         const event = new CustomEvent("lexical-command", {
           bubbles: true,
           cancelable: true,
-          detail: { 
-            type: "move-selection-after-mention", 
-            key: nodeKey 
+          detail: {
+            type: "move-selection-after-mention",
+            key: nodeKey,
           },
         });
         editorElement.dispatchEvent(event);
@@ -159,10 +167,10 @@ export class MentionNode extends TextNode {
     dom.addEventListener("keydown", (e) => {
       if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
         e.stopPropagation();
-        
+
         // Reference to this node
         const nodeKey = this.__key;
-        
+
         // Find the editor
         const editorElement = dom.closest(".editor-input");
         if (editorElement) {
@@ -170,10 +178,10 @@ export class MentionNode extends TextNode {
           const event = new CustomEvent("lexical-command", {
             bubbles: true,
             cancelable: true,
-            detail: { 
-              type: "navigate-from-mention", 
+            detail: {
+              type: "navigate-from-mention",
               key: nodeKey,
-              direction: e.key === "ArrowLeft" ? "left" : "right"
+              direction: e.key === "ArrowLeft" ? "left" : "right",
             },
           });
           editorElement.dispatchEvent(event);
@@ -224,10 +232,10 @@ export class MentionNode extends TextNode {
     // Handle close button click - remove the mention node
     closeButton.addEventListener("click", (e) => {
       e.stopPropagation();
-      
+
       // Store a reference to this node
       const nodeKey = this.__key;
-      
+
       // Find the editor - all nodes are connected to their editor via DOM
       const editorElement = dom.closest(".editor-input");
       if (editorElement) {
@@ -245,106 +253,121 @@ export class MentionNode extends TextNode {
     dom.appendChild(closeButton);
 
     // Add image preview on hover functionality
-    if (this.__imageRelativeUrl) {
+    if (this.__imageUrl) {
       // Create a unique ID for this mention element
       const mentionId = `mention-${Math.random().toString(36).substring(2, 11)}`;
       dom.id = mentionId;
 
       // Create React component with Popover - using global React reference
-      const PopoverComponent = React.lazy(() => Promise.resolve({
-        default: () => {
-          const MentionPopover = () => {
-            const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
-            const open = Boolean(anchorEl);
+      const PopoverComponent = React.lazy(() =>
+        Promise.resolve({
+          default: () => {
+            const MentionPopover = () => {
+              const [anchorEl, setAnchorEl] =
+                React.useState<HTMLElement | null>(null);
+              const open = Boolean(anchorEl);
 
-            React.useEffect(() => {
-              const mentionElement = document.getElementById(mentionId);
+              React.useEffect(() => {
+                const mentionElement = document.getElementById(mentionId);
 
-              const handleMouseEnter = (event: MouseEvent) => {
-                setAnchorEl(event.currentTarget as HTMLElement);
-              };
+                const handleMouseEnter = (event: MouseEvent) => {
+                  setAnchorEl(event.currentTarget as HTMLElement);
+                };
 
-              const handleMouseLeave = () => {
-                setAnchorEl(null);
-              };
+                const handleMouseLeave = () => {
+                  setAnchorEl(null);
+                };
 
-              if (mentionElement) {
-                mentionElement.addEventListener("mouseenter", handleMouseEnter);
-                mentionElement.addEventListener("mouseleave", handleMouseLeave);
-              }
-
-              return () => {
                 if (mentionElement) {
-                  mentionElement.removeEventListener("mouseenter", handleMouseEnter);
-                  mentionElement.removeEventListener("mouseleave", handleMouseLeave);
+                  mentionElement.addEventListener(
+                    "mouseenter",
+                    handleMouseEnter
+                  );
+                  mentionElement.addEventListener(
+                    "mouseleave",
+                    handleMouseLeave
+                  );
                 }
-              };
-            }, []);
 
-            return (
-              <Popover
-                open={open}
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "center",
-                }}
-                transformOrigin={{
-                  vertical: "bottom",
-                  horizontal: "center",
-                }}
-                onClose={() => setAnchorEl(null)}
-                disableRestoreFocus
-                disablePortal={false}
-                disableAutoFocus
-                disableEnforceFocus
-                sx={{
-                  pointerEvents: "none",
-                }}
-                slotProps={{
-                  paper: {
-                    elevation: 2,
-                    sx: {
-                      pointerEvents: "none",
-                      outline: "none",
-                      tabIndex: -1,
-                    },
-                  },
-                }}
-                container={document.body}
-              >
-                <img
-                  src={formatS3Url(this.__imageRelativeUrl)}
-                  alt={this.__mention}
-                  style={{
-                    maxWidth: "300px",
-                    maxHeight: "240px",
-                    objectFit: "contain",
-                    borderRadius: "4px",
-                    padding: "4px",
-                    paddingBottom: "0px",
+                return () => {
+                  if (mentionElement) {
+                    mentionElement.removeEventListener(
+                      "mouseenter",
+                      handleMouseEnter
+                    );
+                    mentionElement.removeEventListener(
+                      "mouseleave",
+                      handleMouseLeave
+                    );
+                  }
+                };
+              }, []);
+
+              return (
+                <Popover
+                  open={open}
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
                   }}
-                  tabIndex={-1}
-                />
-              </Popover>
-            );
-          };
-          
-          return <MentionPopover />;
-        }
-      }));
+                  transformOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                  onClose={() => setAnchorEl(null)}
+                  disableRestoreFocus
+                  disablePortal={false}
+                  disableAutoFocus
+                  disableEnforceFocus
+                  sx={{
+                    pointerEvents: "none",
+                  }}
+                  slotProps={{
+                    paper: {
+                      elevation: 2,
+                      sx: {
+                        pointerEvents: "none",
+                        outline: "none",
+                        tabIndex: -1,
+                      },
+                    },
+                  }}
+                  container={document.body}
+                >
+                  <img
+                    src={this.__imageUrl}
+                    alt={this.__mention}
+                    style={{
+                      maxWidth: "300px",
+                      maxHeight: "240px",
+                      objectFit: "contain",
+                      borderRadius: "4px",
+                      padding: "4px",
+                      paddingBottom: "0px",
+                    }}
+                    tabIndex={-1}
+                  />
+                </Popover>
+              );
+            };
+
+            return <MentionPopover />;
+          },
+        })
+      );
 
       // Use MUI's global PopoverService
       // This leverages the existing portal support in MUI
       if (typeof window !== "undefined") {
         // Add a data attribute to track this popover instance
         dom.dataset.hasPopover = "true";
-        
+
         // Use a simple registry to track popover components
         if (!window.__mentionPopovers) {
           window.__mentionPopovers = new Map();
         }
-        
+
         // Store the component reference
         window.__mentionPopovers.set(mentionId, {
           Component: PopoverComponent,
@@ -353,7 +376,7 @@ export class MentionNode extends TextNode {
             if (window.__mentionPopovers) {
               window.__mentionPopovers.delete(mentionId);
             }
-          }
+          },
         });
       }
 
@@ -390,8 +413,9 @@ export class MentionNode extends TextNode {
   exportDOM(): DOMExportOutput {
     const element = document.createElement("span");
     element.setAttribute("data-lexical-mention", "true");
-    element.setAttribute("data-imageurl", this.__imageRelativeUrl);
+    element.setAttribute("data-imageurl", this.__imageUrl);
     element.setAttribute("data-mention", this.__mention);
+    element.setAttribute("data-imageid", this.__imageId.toString());
     if (this.__text !== this.__mention) {
       element.setAttribute("data-lexical-mention-name", this.__mention);
     }
@@ -432,20 +456,25 @@ export class MentionNode extends TextNode {
     if (parent) {
       const siblings = parent.getChildren();
       const nodeIndex = siblings.indexOf(this);
-      const nextNode = nodeIndex < siblings.length - 1 ? siblings[nodeIndex + 1] : null;
-      
-      if (nextNode && nextNode instanceof TextNode && nextNode.getTextContent().startsWith(' ')) {
+      const nextNode =
+        nodeIndex < siblings.length - 1 ? siblings[nodeIndex + 1] : null;
+
+      if (
+        nextNode &&
+        nextNode instanceof TextNode &&
+        nextNode.getTextContent().startsWith(" ")
+      ) {
         // If there's a space after, put cursor after the space
         nextNode.select(1, 1);
         return $getSelection() as RangeSelection;
       }
     }
-    
+
     // Otherwise put cursor right after the mention node
     const selection = $createRangeSelection();
     const textContentSize = this.getTextContentSize();
-    selection.anchor.set(this.getKey(), textContentSize, 'text');
-    selection.focus.set(this.getKey(), textContentSize, 'text');
+    selection.anchor.set(this.getKey(), textContentSize, "text");
+    selection.focus.set(this.getKey(), textContentSize, "text");
     $setSelection(selection);
     return selection;
   }
@@ -458,21 +487,25 @@ export class MentionNode extends TextNode {
       const siblings = parent.getChildren();
       const nodeIndex = siblings.indexOf(this);
       const prevNode = nodeIndex > 0 ? siblings[nodeIndex - 1] : null;
-      
-      if (prevNode && prevNode instanceof TextNode && prevNode.getTextContent().endsWith(' ')) {
+
+      if (
+        prevNode &&
+        prevNode instanceof TextNode &&
+        prevNode.getTextContent().endsWith(" ")
+      ) {
         // If there's a space before, put cursor before the space
         const prevContentSize = prevNode.getTextContentSize();
         prevNode.select(prevContentSize - 1, prevContentSize - 1);
         return $getSelection() as RangeSelection;
       }
     }
-    
+
     // Place cursor at the start of the node or at the specified offset
     const selection = $createRangeSelection();
     const startOffset = anchorOffset !== undefined ? anchorOffset : 0;
     const endOffset = focusOffset !== undefined ? focusOffset : startOffset;
-    selection.anchor.set(this.getKey(), startOffset, 'text');
-    selection.focus.set(this.getKey(), endOffset, 'text');
+    selection.anchor.set(this.getKey(), startOffset, "text");
+    selection.focus.set(this.getKey(), endOffset, "text");
     $setSelection(selection);
     return selection;
   }
@@ -484,22 +517,28 @@ export class MentionNode extends TextNode {
     if (parent) {
       const siblings = parent.getChildren();
       const nodeIndex = siblings.indexOf(this);
-      const nextNode = nodeIndex < siblings.length - 1 ? siblings[nodeIndex + 1] : null;
-      
-      if (nextNode && nextNode instanceof TextNode && nextNode.getTextContent().startsWith(' ')) {
+      const nextNode =
+        nodeIndex < siblings.length - 1 ? siblings[nodeIndex + 1] : null;
+
+      if (
+        nextNode &&
+        nextNode instanceof TextNode &&
+        nextNode.getTextContent().startsWith(" ")
+      ) {
         // If there's a space after, put cursor after the space
         nextNode.select(1, 1);
         return $getSelection() as RangeSelection;
       }
     }
-    
+
     // Place cursor at the end of the node or at the specified offset
     const selection = $createRangeSelection();
     const textContentSize = this.getTextContentSize();
-    const startOffset = anchorOffset !== undefined ? anchorOffset : textContentSize;
+    const startOffset =
+      anchorOffset !== undefined ? anchorOffset : textContentSize;
     const endOffset = focusOffset !== undefined ? focusOffset : startOffset;
-    selection.anchor.set(this.getKey(), startOffset, 'text');
-    selection.focus.set(this.getKey(), endOffset, 'text');
+    selection.anchor.set(this.getKey(), startOffset, "text");
+    selection.focus.set(this.getKey(), endOffset, "text");
     $setSelection(selection);
     return selection;
   }
@@ -508,12 +547,14 @@ export class MentionNode extends TextNode {
 export function $createMentionNode(
   mentionName: string,
   textContent?: string,
-  imageRelativeUrl?: string
+  imageUrl?: string,
+  imageId?: number
 ): MentionNode {
   const mentionNode = new MentionNode(
     mentionName,
     textContent,
-    imageRelativeUrl
+    imageUrl,
+    imageId
   );
   mentionNode.setMode("segmented").toggleDirectionless();
   return $applyNodeReplacement(mentionNode);

@@ -1,24 +1,21 @@
 import { Link, Tooltip } from "@mui/material";
 import { Box } from "@mui/material";
-import { Image } from "@/models/Image";
+import { RequirementImage } from "@/models/Image";
 import { arraySwap, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { formatS3Url } from "@/utils/appUtils";
 import imageNotFound from "@/assets/images/image-not-found.svg";
 import { BCDesignTokens } from "epic.theme";
 
 type ImageCardProps = {
-  image: Image;
+  image: RequirementImage;
   handleImageClick: () => void;
   isPhoto: boolean;
-  index: number;
 };
 
 export default function ImageCard({
   image,
   handleImageClick,
   isPhoto,
-  index,
 }: ImageCardProps) {
   const { attributes, listeners, setNodeRef, transition, transform } =
     useSortable({
@@ -34,7 +31,7 @@ export default function ImageCard({
 
   return (
     <Box
-      id={index.toString()}
+      id={image.id?.toString()}
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -68,7 +65,7 @@ export default function ImageCard({
         }}
       >
         <img
-          src={formatS3Url(image.relative_url ?? "")}
+          src={image.url ?? ""}
           alt={image.caption}
           width={"100%"}
           onError={(e) => {
@@ -87,10 +84,11 @@ export default function ImageCard({
             WebkitLineClamp: 2,
             overflow: "hidden",
             textOverflow: "ellipsis",
+            fontSize: "0.75rem",
           }}
         >
           <strong>
-            {isPhoto ? "Photo" : "Figure"} {index + 1}:
+            {isPhoto ? "Photo" : "Figure"} {image.sort_order}:
           </strong>{" "}
           {image.caption}
         </Link>

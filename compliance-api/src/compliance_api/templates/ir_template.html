@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Inspection Report</title>
+    <style>
+        /* Base styles */
+        @font-face {
+            font-family: 'Calibri';
+            src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Calibri';
+            src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-italic.ttf') format('truetype');
+            font-weight: normal;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'Calibri';
+            src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-bold.ttf') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Calibri';
+            src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-bold-italic.ttf') format('truetype');
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        /* Reset and base styles */
+        body {
+            font-family: 'Calibri', 'BC Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            font-size: 11pt;
+            line-height: 12.75pt;
+            color: #000000;
+        }
+
+        strong {
+            font-weight: bold;
+        }
+
+        /* Layout components */
+        .com-ir-content {
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Header styles */
+        .com-ir-header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+            width: 100%;
+        }
+
+        .com-ir-header-logo {
+            height: 60px;
+            width: auto;
+        }
+
+        .com-ir-header-title {
+            text-align: right;
+            font-size: 18pt;
+            font-weight: bold;
+            color: #336699;
+            line-height: 1.2;
+        }
+
+        .com-ir-cell-padding {
+            padding: 6px 8px;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 3px 6px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .com-ir-header-background {
+            background-color: #bfbfbf;
+            font-weight: bold;
+        }
+
+        .com-ir-general-info-header th {
+            width: 20%;
+            vertical-align: top;
+            font-weight: bold;
+        }
+        .com-ir-general-info-header td {
+            width: 30%;
+            vertical-align: top;
+        }
+
+        .com-ir-comp-finding-header {
+            background-color: #d9d9d9 !important;
+        }
+
+        /* Section styles */
+        .com-ir-inspection-details-header {
+            color: #336699;
+            font-size: 11pt;
+            font-weight: bold;
+        }
+
+        .com-ir-section-header {
+            font-weight: bold;
+            padding-bottom: 4px;
+        }
+
+        /* Photo and document styles */
+        .com-ir-photo-img {
+            width: 350px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .com-ir-photo-section {
+            margin: 4px 2px;
+        }
+
+        .com-ir-photo-caption {
+            margin-top: 4px;
+            font-size: 9pt;
+        }
+
+        .com-ir-additional-source {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .com-ir-document-title {
+            margin-top: 8px;
+            font-weight: bold;
+        }
+
+        .com-ir-document-section {
+            margin-top: 4px;
+            font-weight: bold;
+        }
+
+        .com-ir-document-description, 
+        .com-ir-findings-content {
+            margin-top: 4px;
+            margin-bottom: 10px;
+            white-space: normal !important;
+        }
+
+        /* Links */
+        .blue-link {
+            color: blue;
+            text-decoration: underline;
+        }
+
+        /* Lexical Rich Text styling */
+        .editor-content .editor-text-bold {
+            font-weight: bold;
+        }
+
+        .editor-content .editor-text-italic {
+            font-style: italic;
+        }
+
+        .editor-content .editor-text-underline {
+            text-decoration: underline;
+        }
+
+        .editor-content .editor-text-strikethrough {
+            text-decoration: line-through;
+        }
+
+        .editor-content .editor-link {
+            color: rgb(33, 111, 219);
+            text-decoration: none;
+        }
+
+        .editor-content .editor-link:hover {
+            text-decoration: underline;
+        }
+
+        .editor-content .editor-paragraph {
+            margin: 0;
+        }
+
+        .editor-content .editor-list-ol,
+        .editor-content .editor-list-ul {
+            padding: 0;
+            margin: 0 0 0 8px;
+        }
+
+        .editor-content .editor-listitem {
+            margin: 0.25rem 1.5rem;
+        }
+
+        /* Clean up spacing */
+        td p {
+            margin: 0;
+            white-space: normal !important;
+        }
+
+        /* Print-specific styles */
+        @media print {
+            @page {
+                size: letter;
+                margin-top: 1.25in;
+                margin-right: 0.5in;
+                margin-bottom: 1in;
+                margin-left: 0.75in;
+
+                @top-left {
+                    content: element(header);
+                }
+
+                @bottom-right {
+                    content: element(footer);
+                }
+
+                counter-increment: page;
+            }
+
+            .com-ir-header-container {
+                position: running(header);
+                height: 0.6in;
+                width: 7.25in;
+                box-sizing: border-box;
+                padding-right: 0.2in;
+                margin-top: 0.25in;
+            }
+
+            .com-ir-header-logo {
+                height: 0.6in;
+            }
+
+            .com-ir-footer {
+                position: running(footer);
+                width: auto;
+                text-align: center;
+                padding: 8px 32px;
+                font-size: 11pt;
+            }
+
+            .com-ir-photo-section {
+                page-break-inside: avoid;
+            }
+
+            /* Page numbering */
+            .pageNumber:before {
+                content: counter(page);
+            }
+
+            .totalPages:before {
+                content: counter(pages);
+            }
+        }
+    </style>
+    <script>
+        function stripStyles(html) {
+            return html.replace(/style="[^"]*"/g, '');
+        }
+    </script>
+</head>
+
+<body>
+    <!-- <div class="header"> -->
+    <div class="com-ir-header-container">
+        <img src="https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/images/EAO_Compliance_IR_Report_Logo.png"
+            class="com-ir-header-logo" alt="EAO Logo">
+        <div class="com-ir-header-title">INSPECTION RECORD</div>
+    </div>
+    <!-- </div> -->
+    <div class="com-ir-footer">
+        <span class="pageNumber"></span>
+    </div>
+    <div class="com-ir-content">
+        <!-- First page content -->
+        <table class="com-ir-general-info-header">
+            <tr>
+                <th>Project Name</th>
+                <td>{{ project_details.name }}</td>
+                <th>Inspection Status</th>
+                <td>{{ ir_status }}</td>
+            </tr>
+            <tr>
+                <th>{{ project_details.certificate_label }}</th>
+                <td>{{ project_details.eac_certificate }}</td>
+                <th>Inspection No.</th>
+                <td>{{ inspection_details.ir_number }}</td>
+            </tr>
+            <tr>
+                <th>Project Status</th>
+                <td>{{ project_details.project_state }}</td>
+                <th>Inspection Start</th>
+                <td>{{ inspection_details.start_date }}</td>
+            </tr>
+            <tr>
+                <th>Inspection Type</th>
+                <td>{{ inspection_details.inspection_type }}</td>
+                <th>Initiation</th>
+                <td>{{ inspection_details.initiation }}</td>
+            </tr>
+            <tr>
+                <th>UTM</th>
+                <td colspan="3">{{ inspection_details.utm }}</td>
+            </tr>
+            <tr>
+                <th>Project Description</th>
+                <td colspan="3">{{ inspection_details.project_description }}</td>
+            </tr>
+            <tr>
+                <th>Location Description</th>
+                <td colspan="3">{{ inspection_details.location_description }}</td>
+            </tr>
+            <tr>
+                <th>Inspection Summary</th>
+                <td colspan="3">
+                    {{ inspection_scope | safe | replace('style="white-space: pre-wrap;"', '') }}
+                    </br>
+                    {% if preliminary_review_details %}
+                    {{ preliminary_review_details | safe | replace('style="white-space: pre-wrap;"', '') }}
+                    </br>
+                    {% endif %}
+                    {{ finding_statement | safe | replace('style="white-space: pre-wrap;"', '') }}
+                </td>
+            </tr>
+            <tr>
+                <th>In Attendance</th>
+                <td colspan="3">{{ officer_details.in_attendance if officer_details.in_attendance else 'N/A' }}</td>
+            </tr>
+            <tr>
+                <th>{{ project_details.proponent_label }}</th>
+                <td colspan="3">{{ project_details.proponent }}</td>
+            </tr>
+            <tr>
+                <th>Mailing Address</th>
+                <td colspan="3">{{ mailing_address }}</td>
+            </tr>
+            <tr>
+                <th>Inspecting Officer(s)</th>
+                <td colspan="3">{{ officer_details.inspecting_officers }}</td>
+            </tr>
+            <tr>
+                <th>Record Prepared By</th>
+                <td colspan="3">{{ officer_details.primary_officer.name }}</br>{{
+                    officer_details.primary_officer.position }}</td>
+            </tr>
+            <tr>
+                <th>Record Approved By</th>
+                <td colspan="3">{{ record_approved_by if record_approved_by else 'N/A' }}</td>
+            </tr>
+        </table>
+
+        <!-- Add spacer before inspection details -->
+        <div class="inspection-details">
+            <div class="com-ir-inspection-details-header">INSPECTION DETAILS</div>
+            {% for requirement in requirement_details %}
+            <table>
+                <!-- START: Handle the first requirement source details -->
+                {% if requirement.requirement_source_details and requirement.requirement_source_details|length > 0 and
+                requirement.requirement_source_details[0] %}
+                <tr>
+                    <td colspan="2">
+                        <div class="com-ir-section-header">Requirement {{ requirement.sort_order }}: {{
+                            requirement.requirement_source_details[0].requirement_source_number }} of {{
+                            requirement.requirement_source_details[0].requirement_source_name }}{% if requirement.requirement_source_details[0].appendix_no %} (Appendix {{ requirement.requirement_source_details[0].appendix_no }}){% endif %}</div>
+                        {{ requirement.requirement_source_details[0].requirement_source_description | safe |
+                        replace('style="white-space: pre-wrap;"', '') }}
+                        {% if requirement.requirement_source_details[0].requirement_documents %}
+                        {% for doc in requirement.requirement_source_details[0].requirement_documents %}
+                        <div class="com-ir-document-title">{{ doc.document_title }}{% if doc.appendix_no %} (Appendix {{ doc.appendix_no }}){% endif %}</div>
+                        {% if doc.section_number or doc.section_title %}
+                        <div class="com-ir-document-section">Section {{ doc.section_number }} {{ doc.section_title }}
+                        </div>
+                        {% endif %}
+                        {% if doc.description %}
+                        <div class="com-ir-document-description">{{ doc.description | safe |
+                            replace('style="white-space:
+                            pre-wrap;"', '') }}</div>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+                <!-- END: handle the first requirement source details -->
+                <!-- START: Handle the additional requirement source details -->
+                {% if requirement.requirement_source_details|length > 1 %}
+                {% for source in requirement.requirement_source_details[1:] %}
+                <tr>
+                    <td colspan="2">
+                        <div class="com-ir-additional-source">
+                            <div class="com-ir-section-header">Requirement {{ source.sort_order }}: {{ source.requirement_source_number }} of {{
+                                source.requirement_source_name }}{% if source.appendix_no %} (Appendix {{ source.appendix_no }}){% endif %}</div>
+                            {{ source.requirement_source_description | safe | replace('style="white-space: pre-wrap;"',
+                            '') }}
+                        </div>
+                        {% if source.requirement_documents %}
+                        {% for doc in source.requirement_documents %}
+                        <div class="com-ir-document-title">{{ doc.document_title }}{% if doc.appendix_no %} (Appendix {{ doc.appendix_no }}){% endif %}</div>
+                        {% if doc.section_number or doc.section_title %}
+                        <div class="com-ir-document-section">Section {{ doc.section_number }} {{ doc.section_title }}
+                        </div>
+                        {% endif %}
+                        {% if doc.description %}
+                        <div class="com-ir-document-description">{{ doc.description | safe |
+                            replace('style="white-space:
+                            pre-wrap;"', '') }}</div>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+                <!-- END: Handle the additional requirement source details -->
+                <tr>
+                    <td colspan="2">
+                        <div class="com-ir-section-header">Findings:</div>
+                        {{ requirement.requirement_findings | safe | replace('style="white-space: pre-wrap;"',
+                        '') }}
+                        {% if requirement.requirement_photos and requirement.requirement_photos|length > 0 %}
+                        {% for photo in requirement.requirement_photos %}
+                        <div class="com-ir-photo-section">
+                            <img src="{{ photo.photo_url }}" alt="Photo {{ photo.photo_number }}"
+                                class="com-ir-photo-img">
+                            <div class="com-ir-photo-caption">
+                                Photo {{ photo.photo_number }}. {{ photo.photo_caption }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {% if requirement.requirement_figures and requirement.requirement_figures|length > 0 %}
+                        {% for figure in requirement.requirement_figures %}
+
+                        <div class="com-ir-photo-section">
+                            <img src="{{ figure.figure_url }}" alt="Figure {{ figure.figure_number }}"
+                                class="com-ir-photo-img">
+                            <div class="com-ir-photo-caption">
+                                Figure {{ figure.figure_number }}. {{ figure.figure_caption }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="com-ir-comp-finding-header com-ir-cell-padding">
+                        Compliance Finding
+                    </th>
+                    <td>
+                        {{ requirement.compliance_finding }}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="com-ir-header-background com-ir-cell-padding">
+                        Enforcement Action
+                    </th>
+                    <td>
+                        {{ requirement.enforcement_action }}
+                    </td>
+                </tr>
+            </table>
+            {% endfor %}
+
+            <table>
+                <tr>
+                    <th colspan="2" class="com-ir-header-background">Actions Required by {{
+                        project_details.proponent_label }}
+                        and Additional Comments
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan="2">{% if action_required_by_rp %}{{ action_required_by_rp | safe | replace('style="white-space: pre-wrap;"', '') }}{% else %}None at this time{% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th colspan="2" class="com-ir-header-background">Enforcement Summary</th>
+                </tr>
+                <tr>
+                    <td colspan="2">{{ enforcement_summary | safe | replace('style="white-space: pre-wrap;"', '') }}
+                    </td>
+                </tr>
+                {% if appendices %}
+                <tr>
+                    <th colspan="2" class="com-ir-header-background">Appendices:</th>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        {% for appendix in appendices %}
+                        Appendix {{ appendix.appendix_no }}: {{ appendix.document_title }}{% if not loop.last %}<br>{%
+                        endif
+                        %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endif %}
+
+                <tr>
+                    <th colspan="2" class="com-ir-header-background">Environmental Assessment Office - Compliance &
+                        Enforcement
+                        Branch</th>
+                </tr>
+                <tr class="com-ir-mailing-address-container">
+                    <td>
+                        <strong>Mailing Address:</strong></br>
+                        {{ department_details.address_line1 }}</br>
+                        {{ department_details.address_line2 }}
+                    </td>
+                    <td>
+                        <strong>Phone: </strong> {{ department_details.phone }}<br>
+                        <strong>Email: </strong> <a href="mailto:{{ department_details.email }}" class="blue-link">{{
+                            department_details.email
+                            }}</a><br>
+                        <strong>Website: </strong> <a href="{{ department_details.website }}" class="blue-link">{{
+                            department_details.website
+                            }}</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

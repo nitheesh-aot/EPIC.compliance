@@ -31,6 +31,8 @@ storage_service:
   s3_bucket: test-epic
 doc_service:
   url: https://epic-document-api-c8b80a-test.apps.gold.devops.gov.bc.ca
+docgen_service:
+  url: https://docgen-api-c8b80a-test.apps.gold.devops.gov.bc.ca
 
 service:
   type: ClusterIP

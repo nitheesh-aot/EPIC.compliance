@@ -21,6 +21,7 @@ from compliance_api.models import (
 from compliance_api.models.requirement_source import RequirementSourceEnum
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
+from .appendix import AppendixSchema
 from .base_schema import AutoSchemaBase, BaseSchema
 from .common import KeyValueSchema
 from .staff_user import StaffUserSchema
@@ -82,6 +83,10 @@ class InspectionReqDetailDocCreateSchema(BaseSchema):
         required=True,
     )
     document_title = fields.Str(metadata={"description": "The title of the document"})
+    appendix_id = fields.Int(
+        metadata={"description": "The unique identifier of the appendix"},
+        allow_none=True,
+    )
     description = fields.Str(
         metadata={"description": "The description of the document"}, required=True
     )
@@ -135,6 +140,10 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
     description = fields.Str(
         metadata={"description": "The description of the requirement source detail"},
         required=True,
+    )
+    appendix_id = fields.Int(
+        metadata={"description": "The unique identifier of the appendix"},
+        allow_none=True,
     )
     documents = fields.List(fields.Nested(InspectionReqDetailDocCreateSchema))
 
@@ -301,6 +310,7 @@ class InspectionReqDetailDocSchema(
         include_fk = True
 
     document_type = fields.Nested(KeyValueSchema)
+    appendix = fields.Nested(AppendixSchema)
 
 
 class InspectionReqSourceDetailSchema(
@@ -317,6 +327,7 @@ class InspectionReqSourceDetailSchema(
 
     documents = fields.List(fields.Nested(InspectionReqDetailDocSchema))
     requirement_source = fields.Nested(KeyValueSchema)
+    appendix = fields.Nested(AppendixSchema)
 
 
 class InspectionRequirementSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors

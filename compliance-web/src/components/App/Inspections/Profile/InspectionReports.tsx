@@ -12,6 +12,7 @@ import {
 import ReportTabs from "./Reports/ReportTabs";
 import {
   useCreateInspectionRecord,
+  useFetchIRApprovals,
   useInspectionReportsData,
 } from "@/hooks/useInspectionReports";
 import { useReportStore } from "./Reports/reportStore";
@@ -27,19 +28,33 @@ const InspectionReports: React.FC<InspectionReportsProps> = ({
   inspectionData,
 }) => {
   const queryClient = useQueryClient();
-  const { setInspectionReportsData } = useReportStore();
+  const { setInspectionReportsData, setQueryClient, setIRApprovalsData } =
+    useReportStore();
   const [reportVersion, setReportVersion] = useState<string>("");
 
   const { data: irStatusesData } = useIRStatusesData();
   const { data: inspectionReportsData, isLoading } = useInspectionReportsData(
     inspectionData.id
   );
+  const { data: irApprovalsData } = useFetchIRApprovals(
+    inspectionData.id,
+    inspectionReportsData?.id ?? 0
+  );
 
   useEffect(() => {
     if (inspectionReportsData) {
+      setQueryClient(queryClient);
       setInspectionReportsData(inspectionReportsData);
+      setIRApprovalsData(irApprovalsData ?? []);
     }
-  }, [inspectionReportsData, setInspectionReportsData]);
+  }, [
+    inspectionReportsData,
+    queryClient,
+    irApprovalsData,
+    setInspectionReportsData,
+    setQueryClient,
+    setIRApprovalsData,
+  ]);
 
   const handleReportVersionChange = (
     event: React.ChangeEvent<HTMLInputElement>

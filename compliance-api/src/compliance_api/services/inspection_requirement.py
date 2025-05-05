@@ -3,8 +3,10 @@
 from typing import List
 
 import requests
+from bs4 import BeautifulSoup
 
 from compliance_api.exceptions import BadRequestError, ResourceNotFoundError, UnprocessableEntityError
+from compliance_api.models import Appendix as AppendixModel
 from compliance_api.models import ImageTypeEnum
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionReqDetailDocument as InspectionReqDetailDocumentModel
@@ -39,17 +41,15 @@ class InspectionRequirementService:
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
         _inspection_status_check(inspection)
         ServiceUtils.access_check_update_for_inspection(inspection)
-        requirements = InspectionRequirementModel.get_by_inspection_id(
-            inspection_id)
-        requirement_obj = _create_requirement_obj(
-            inspection_id, requirement_data)
+        requirements = InspectionRequirementModel.get_by_inspection_id(inspection_id)
+        requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
         requirement_obj["sort_order"] = len(requirements) + 1
         with session_scope() as session:
             created_requirement = InspectionRequirementModel.create_requirement(
                 requirement_obj, session
             )
             _create_update_source_details_nd_docs(
-                created_requirement.id, requirement_data, session
+                inspection_id, created_requirement.id, requirement_data, session
             )
             cls.insert_or_update_enforcements(
                 created_requirement.id,
@@ -57,16 +57,22 @@ class InspectionRequirementService:
                 session,
             )
             #  inserting photos
-            _insert_or_update_images(
+            created_photos = _insert_or_update_images(
                 requirement_id=created_requirement.id,
                 images=requirement_data.get("photos", []),
                 image_type=ImageTypeEnum.PHOTO,
                 session=session,
             )
-            _insert_or_update_images(
+            created_figures = _insert_or_update_images(
                 requirement_id=created_requirement.id,
                 images=requirement_data.get("figures", []),
                 image_type=ImageTypeEnum.FIGURE,
+                session=session,
+            )
+            _update_the_findigs_by_images(
+                photos=created_photos,
+                figures=created_figures,
+                requirement=created_requirement,
                 session=session,
             )
         return created_requirement
@@ -78,8 +84,7 @@ class InspectionRequirementService:
         _inspection_status_check(inspection)
         _requirement_check(requirement_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
-        requirement_obj = _create_requirement_obj(
-            inspection_id, requirement_data)
+        requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
         with session_scope() as session:
             updated_requirement = InspectionRequirementModel.update_requirement(
                 requirement_id, requirement_obj, session
@@ -88,23 +93,29 @@ class InspectionRequirementService:
                 requirement_id, requirement_data, session
             )
             _create_update_source_details_nd_docs(
-                requirement_id, requirement_data, session
+                inspection_id, requirement_id, requirement_data, session
             )
             cls.insert_or_update_enforcements(
                 requirement_id,
                 requirement_data.get("enforcement_action_ids", []),
                 session,
             )
-            _insert_or_update_images(
+            created_photos = _insert_or_update_images(
                 requirement_id=requirement_id,
                 images=requirement_data.get("photos", []),
                 image_type=ImageTypeEnum.PHOTO,
                 session=session,
             )
-            _insert_or_update_images(
+            created_figures = _insert_or_update_images(
                 requirement_id=requirement_id,
                 images=requirement_data.get("figures", []),
                 image_type=ImageTypeEnum.FIGURE,
+                session=session,
+            )
+            _update_the_findigs_by_images(
+                photos=created_photos,
+                figures=created_figures,
+                requirement=updated_requirement,
                 session=session,
             )
         return updated_requirement
@@ -117,8 +128,7 @@ class InspectionRequirementService:
         _requirement_check(requirement_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         with session_scope() as session:
-            InspectionRequirementModel.delete_requirement(
-                requirement_id, session)
+            InspectionRequirementModel.delete_requirement(requirement_id, session)
             InspectionReqSourceDetailModel.delete_by_requirement_id(
                 requirement_id, session
             )
@@ -143,8 +153,7 @@ class InspectionRequirementService:
         ServiceUtils.access_check_update_for_inspection(inspection)
 
         new_sort_order = sort_order_data.get("order")
-        requirements = InspectionRequirementModel.get_by_inspection_id(
-            inspection_id)
+        requirements = InspectionRequirementModel.get_by_inspection_id(inspection_id)
         if new_sort_order > len(requirements):
             raise BadRequestError(
                 f"Invaid order. The order should be less than or equal to {len(requirements)}"
@@ -282,6 +291,66 @@ class InspectionRequirementService:
         db.session.flush()
 
 
+def _update_the_findigs_by_images(
+    photos: list[InspectionRequirementImageModel],
+    figures: list[InspectionRequirementImageModel],
+    requirement: InspectionRequirementModel,
+    session,
+):
+    """Update the findings by images."""
+    findings = requirement.findings
+    if not findings:
+        return
+
+    # Check if findings contains the data-lexical-mention attribute
+    if "data-lexical-mention=" in findings:
+        soup = BeautifulSoup(findings, "html.parser")
+        # Find all spans with data-lexical-mention attribute set to "true"
+        mention_spans = soup.find_all("span", {"data-lexical-mention": "true"})
+
+        for span in mention_spans:
+            # Find the photo/figure reference in the span
+            mention = span.get("data-mention", "")
+
+            # Check if it's a photo mention
+            if mention and mention.lower().startswith("photo "):
+                # Extract the photo number
+                try:
+                    photo_num = int(mention.split(" ")[1])
+                    # Find the corresponding photo by sort_order
+                    matching_photo = next(
+                        (p for p in photos if p.sort_order == photo_num), None
+                    )
+                    if matching_photo:
+                        # Update the image ID in the span
+                        span["data-imageid"] = str(matching_photo.id)
+                except (ValueError, IndexError):
+                    # Invalid photo number format
+                    pass
+
+            # Check if it's a figure mention
+            elif mention and mention.lower().startswith("figure "):
+                # Extract the figure number
+                try:
+                    figure_num = int(mention.split(" ")[1])
+                    # Find the corresponding figure by sort_order
+                    matching_figure = next(
+                        (f for f in figures if f.sort_order == figure_num), None
+                    )
+                    if matching_figure:
+                        # Update the image ID in the span
+                        span["data-imageid"] = str(matching_figure.id)
+                except (ValueError, IndexError):
+                    # Invalid figure number format
+                    pass
+
+        # Update the findings with the modified spans
+        requirement.findings = str(soup)
+        InspectionRequirementModel.update_requirement(
+            requirement.id, {"findings": requirement.findings}, session
+        )
+
+
 def _set_signed_url(images):
     """Set the signed url in the image list."""
     for image in images:
@@ -332,7 +401,8 @@ def _insert_or_update_images(
         InspectionRequirementImageModel.delete_image(image_id, session=session)
 
     # INSERT or UPDATE images while maintaining order
-    for img in enumerate(images):
+    inserted_images = []
+    for img in images:
 
         if "id" in img:  # Update existing image
             InspectionRequirementImageModel.update_image(
@@ -344,9 +414,12 @@ def _insert_or_update_images(
                 img=img,
                 image_type=image_type,
             )
-            InspectionRequirementImageModel.create_image(
+            created_image = InspectionRequirementImageModel.create_image(
                 image_obj=image_obj, session=session
             )
+            inserted_images.append(created_image)
+
+    return inserted_images
 
 
 def _update_sort_order_subsequent(requirements, commit=False):
@@ -357,8 +430,7 @@ def _update_sort_order_subsequent(requirements, commit=False):
 
 def _inspection_status_check(inspection: InspectionModel):
     """Check the inspection status."""
-    invalid_statuses = {InspectionStatusEnum.CANCELED,
-                        InspectionStatusEnum.CLOSED}
+    invalid_statuses = {InspectionStatusEnum.CANCELED, InspectionStatusEnum.CLOSED}
     if inspection.inspection_status in invalid_statuses:
         raise UnprocessableEntityError(
             f"No changes to the requirements can be made to  {inspection.inspection_status.name} inspection"
@@ -377,7 +449,7 @@ def _requirement_check(requirement_id):
 
 
 def _create_update_source_details_nd_docs(
-    requirement_id, requirement_data, session=None
+    inspection_id, requirement_id, requirement_data, session=None
 ):
     """
     Persist the source details and related document details.
@@ -387,6 +459,17 @@ def _create_update_source_details_nd_docs(
     """
     for source_detail_data in requirement_data.get("requirement_source_details", []):
         req_detail_id = source_detail_data.get("id", None)
+        appendix_id = source_detail_data.get("appendix_id", None)
+        if appendix_id is not None:
+            appendix = AppendixModel.find_by_id(appendix_id)
+            if not appendix:
+                raise ResourceNotFoundError(
+                    f"Appendix with given ID {source_detail_data.get('appendix_id')} not found"
+                )
+            if appendix.inspection_id != inspection_id:
+                raise ResourceNotFoundError(
+                    f"Appendix with given ID {source_detail_data.get('appendix_id')} does not belong to this inspection"
+                )
         source_detail_obj = _create_requirement_source_detail_obj(
             requirement_id, source_detail_data
         )
@@ -401,6 +484,17 @@ def _create_update_source_details_nd_docs(
                 req_detail_id, source_detail_obj, session
             )
         for doc_detail_data in source_detail_data.get("documents", []):
+            appendix_id = doc_detail_data.get("appendix_id", None)
+            if appendix_id is not None:
+                appendix = AppendixModel.find_by_id(appendix_id)
+                if not appendix:
+                    raise ResourceNotFoundError(
+                        f"Appendix with given ID {doc_detail_data.get('appendix_id')} not found"
+                    )
+                if appendix.inspection_id != inspection_id:
+                    raise ResourceNotFoundError(
+                        f"Appendix with given ID {doc_detail_data.get('appendix_id')} not belong to this inspection"
+                    )
             doc_detail_id = doc_detail_data.get("id", None)
             doc_detail_obj = _create_requirement_source_doc_obj(
                 req_detail_id, doc_detail_data
@@ -440,8 +534,7 @@ def _handle_deletion_req_detail_nd_doc(
     existing_doc_detail_ids = {
         doc.id for detail in existing_details for doc in detail.documents
     }
-    details_to_be_deleted = existing_detail_ids.difference(
-        incoming_details_ids)
+    details_to_be_deleted = existing_detail_ids.difference(incoming_details_ids)
     doc_details_to_be_deleted = existing_doc_detail_ids.difference(
         incoming_doc_detail_ids
     )
@@ -471,6 +564,7 @@ def _create_requirement_source_detail_obj(requirement_id, requirement_source_dat
     return {
         "requirement_id": requirement_id,
         "requirement_source_id": requirement_source_data.get("requirement_source_id"),
+        "appendix_id": requirement_source_data.get("appendix_id", None),
         "section_number": requirement_source_data.get("section_number", None),
         "condition_number": requirement_source_data.get("condition_number", None),
         "amendment_number": requirement_source_data.get("amendment_number", None),
@@ -486,6 +580,7 @@ def _create_requirement_source_doc_obj(
     return {
         "req_detail_id": requirement_source_detail_id,
         "document_type_id": requirement_source_doc_data.get("document_type_id"),
+        "appendix_id": requirement_source_doc_data.get("appendix_id", None),
         "document_title": requirement_source_doc_data.get("document_title"),
         "section_number": requirement_source_doc_data.get("section_number", None),
         "section_title": requirement_source_doc_data.get("section_title", None),

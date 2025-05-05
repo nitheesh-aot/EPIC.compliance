@@ -3,7 +3,7 @@
 from flask import g
 
 from compliance_api.auth import auth
-from compliance_api.exceptions import PermissionDeniedError
+from compliance_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.continuation_report import ContinuationReport as ContinuationReportModel
 from compliance_api.models.continuation_report import ContinuationReportKey as ContinuationReportKeyModel
@@ -18,6 +18,9 @@ class ContinuationReportService:
     def create(cls, report_entry: dict, sys_generated: bool = False, ho_session=None):
         """Create continuation report entry."""
         _access_check(report_entry)
+        case_file = CaseFileModel.find_by_id(report_entry.get("case_file_id"))
+        if not case_file:
+            raise ResourceNotFoundError("Case file not found.")
         report_entry_obj = _create_report_entry(report_entry, sys_generated)
         with session_scope() as session:
             created_entry = ContinuationReportModel.create_entry(

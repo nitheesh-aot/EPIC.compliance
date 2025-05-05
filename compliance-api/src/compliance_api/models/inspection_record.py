@@ -19,7 +19,17 @@ class IRStatusEnum(Enum):
 
 
 class IRProgressEnum(Enum):
-    """Enum for IR Progress."""
+    """Enum for IR Progress.
+
+    PRELIMINARY_DRAFTING: When you create the IR with PRELIMINARY status.
+    PRELIMINARY_DEPUTY_REVIEW: When the PRELIMINARY IR is reviewed by the deputy.
+    PRELIMINARY_APPROVED: When the PRELIMINARY IR is approved by the deputy.
+    HOLDER_PRELIMINARY_REVIEW: When the PRELIMINARY IR is sent to the holder.
+    FINALIZING_RECORD: When you switch the IR to FINAL status or create the IR with FINAL status.
+    FINAL_DEPUTY_REVIEW: When the FINAL IR is reviewed by the deputy.
+    FINAL_APPROVED: When the FINAL IR is approved by the deputy.
+    ISSUED: When the IR is issued.
+    """
 
     PRELIMINARY_DRAFTING = "Preliminary Drafting"
     PRELIMINARY_DEPUTY_REVIEW = "Preliminary Deputy Review"
@@ -71,6 +81,11 @@ class InspectionRecord(BaseModelVersioned):
     )
     action_required_by_rp = Column(
         String, nullable=True, comment="Action required by Regulated Party"
+    )
+    intended_issuance_date = Column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="Date when the inspection report was intended to be issued",
     )
     date_issued = Column(
         DateTime(timezone=True),

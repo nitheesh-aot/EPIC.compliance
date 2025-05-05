@@ -1,12 +1,14 @@
-import ImageCard from "@/components/App/Inspections/Profile/Requirements/Images/ImageCard";
-import { Image } from "@/models/Image";
+  import ImageCard from "@/components/App/Inspections/Profile/Requirements/Images/ImageCard";
+  import { RequirementImage } from "@/models/Image";
 import { DndContext } from "@dnd-kit/core";
 
 describe("ImageCard Component", () => {
-  const mockImage: Image = {
+  const mockImage: RequirementImage = {
     id: 1,
     relative_url: "test-image.jpg",
     caption: "Test Image Caption",
+    sort_order: 1,
+    url: "https://test-image.jpg",
   };
 
   const renderImageCard = (props = {}) => {
@@ -17,7 +19,6 @@ describe("ImageCard Component", () => {
           image={mockImage}
           handleImageClick={handleImageClick}
           isPhoto={true}
-          index={0}
           {...props}
         />
       </DndContext>
@@ -28,7 +29,7 @@ describe("ImageCard Component", () => {
     renderImageCard();
     
     // Check if image is rendered with correct source
-    cy.get("img").should("have.attr", "src").and("include", "test-image.jpg");
+    cy.get("img").should("have.attr", "src").and("include", "https://test-image.jpg");
     
     // Check if caption is rendered correctly
     cy.get("a").should("contain.text", "Photo 1: Test Image Caption");

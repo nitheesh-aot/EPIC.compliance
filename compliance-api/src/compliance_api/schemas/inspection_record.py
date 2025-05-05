@@ -42,7 +42,10 @@ class InspectionRecordSchema(AutoSchemaBase):  # pylint: disable=too-many-ancest
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of the inspection record status enum."""
         if "ir_progress" in data and data["ir_progress"] is not None:
-            data["ir_progress"] = IRProgressEnum(data["ir_progress"]).value
+            data["ir_progress"] = {
+                "id": data["ir_progress"].name,
+                "name": data["ir_progress"].value,
+            }
         else:
             data["ir_progress"] = ""
         return data
@@ -66,11 +69,20 @@ class UpdateInspectionRecordSchema(BaseSchema):
             "finding_statement": fields.Str(),
             "enforcement_summary": fields.Str(),
             "action_required_by_rp": fields.Str(),
+            "ir_progress": EnumField(IRProgressEnum, by_value=False),
             "date_issued": fields.DateTime(
                 format=INPUT_DATE_TIME_FORMAT,
                 metadata={
                     "description": "Inspection record issued date in ISO 8601 format."
                 },
+                required=True,
+                error_messages={
+                    "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
+                },
+            ),
+            "intended_issuance_date": fields.DateTime(
+                format=INPUT_DATE_TIME_FORMAT,
+                metadata={"description": "Intended issuance date in ISO 8601 format."},
                 required=True,
                 error_messages={
                     "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
@@ -91,7 +103,12 @@ class ResetInspectionRecordFieldSchema(BaseSchema):
     field_name = fields.Str(
         required=True,
         validate=validate.OneOf(
-            ["inspection_scope", "preliminary_review_details", "finding_statement"]
+            [
+                "inspection_scope",
+                "preliminary_review_details",
+                "finding_statement",
+                "enforcement_summary",
+            ]
         ),
         metadata={"description": "The field to reset"},
     )

@@ -26,7 +26,7 @@ type AppendicesContainerProps = {
 
 const AppendicesContainer: FC<AppendicesContainerProps> = memo(
   ({ inspectionId }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(true);
     const { setOpen, setClose } = usePopover();
 
     const { appendices, setAppendices, setIsDataChanged } =
@@ -147,6 +147,7 @@ const AppendicesContainer: FC<AppendicesContainerProps> = memo(
                   sx={{
                     display: "flex",
                     gap: 0.75,
+                    fontSize: "0.875rem",
                     cursor: "pointer",
                     "&:hover": {
                       textDecoration: "underline",

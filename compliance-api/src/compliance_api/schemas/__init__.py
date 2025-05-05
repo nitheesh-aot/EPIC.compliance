@@ -24,19 +24,24 @@ from .complaint import (
 from .continuation_report import (
     ContinuationReportCreateSchema, ContinuationReportKeyCreateSchema, ContinuationReportKeySchema,
     ContinuationReportSchema, ContinuationReportUpdateSchema, CRGetQueryParamSchema)
+from .department_detail import DepartmentDetailsSchema
 from .inspection import (
     InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
     InspectionStatusSchema, InspectionUpdateSchema)
 from .inspection_approval import (
-    CreateInspectionRecordApprovalSchema, InspectionRecordApprovalSchema, UpdateInspectionRecordApprovalSchema)
+    CreateInspectionRecordApprovalSchema, InspectionRecordApprovalSchema, UpdateInspectionRecordApprovalSchema,
+    UpdateInspectionRecordApprovalStatusSchema)
 from .inspection_record import (
     InspectionRecordCreateSchema, InspectionRecordSchema, ResetInspectionRecordFieldSchema,
     UpdateInspectionRecordSchema)
+from .inspection_record_preview import InspectionRecordPreviewSchema
 from .inspection_requirement import (
     InspectionReqImageCreateSchema, InspectionReqImageSchema, InspectionReqImageSortOrderSchema,
     InspectionRequirementBulkUpdateSchema, InspectionRequirementCreateSchema, InspectionRequirementSchema,
     InspectionRequirementUpdateSchema, InspectionSortOrderSchema)
+from .order import OrderCreateSchema, OrderSchema
 from .paginate import PaginationParameterSchema
 from .project import ProjectSchema
+from .section import SectionSchema
 from .staff_user import StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateSchema
 from .topic import TopicCreateSchema, TopicSchema

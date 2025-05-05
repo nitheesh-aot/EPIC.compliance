@@ -42,6 +42,7 @@ export const InspectionFormSchema = yup.object().shape({
   debriefDate: yup
     .mixed<Dayjs>()
     .nullable()
+    .optional()
     .typeError("Invalid date"),
   initiation: yup
     .object<Initiation>()
@@ -135,7 +136,8 @@ export const formatInspectionData = (
     end_date: formData.endDate
       ? dateUtils.dateToISO(formData.endDate)
       : undefined,
-    debrief_date: formData.debriefDate
+    debrief_date: formData.debriefDate &&
+      formData.debriefDate.isValid?.()
       ? dateUtils.dateToISO(formData.debriefDate)
       : undefined,
     primary_officer_id: (formData.primaryOfficer as StaffUser)?.id,
@@ -145,15 +147,35 @@ export const formatInspectionData = (
     attendance_option_ids: inAttendanceOptions,
   };
   if (inAttendanceOptions.length) {
+    // Create an object to hold the attendance-related data
+    const attendanceData: Partial<InspectionAPIData> = {};
+
+    if (inAttendanceOptions.includes(AttendanceEnum.AGENCIES)) {
+      attendanceData.agency_attendance_ids =
+        (formData.agencies as Agency[])?.map((item) => item.id) ?? [];
+    }
+
+    if (inAttendanceOptions.includes(AttendanceEnum.FIRST_NATIONS)) {
+      attendanceData.firstnation_attendance_ids =
+        (formData.firstNations as FirstNation[])?.map((item) => item.id) ?? [];
+    }
+
+    if (inAttendanceOptions.includes(AttendanceEnum.OFFICERS)) {
+      attendanceData.attending_officer_ids =
+        (formData.officers as StaffUser[])?.map((item) => item.id) ?? [];
+    }
+
+    if (inAttendanceOptions.includes(AttendanceEnum.MUNICIPAL)) {
+      attendanceData.attendance_municipal = formData.municipal ?? "";
+    }
+
+    if (inAttendanceOptions.includes(AttendanceEnum.OTHER)) {
+      attendanceData.attendance_other = formData.other ?? "";
+    }
+
+    // Merge the attendance data with the inspection data
     inspectionData = {
-      agency_attendance_ids:
-        (formData.agencies as Agency[])?.map((item) => item.id) ?? [],
-      firstnation_attendance_ids:
-        (formData.firstNations as FirstNation[])?.map((item) => item.id) ?? [],
-      attending_officer_ids:
-        (formData.officers as StaffUser[])?.map((item) => item.id) ?? [],
-      attendance_municipal: formData.municipal ?? "",
-      attendance_other: formData.other ?? "",
+      ...attendanceData,
       ...inspectionData,
     };
   }

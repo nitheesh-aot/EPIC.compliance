@@ -10,6 +10,7 @@ type IFormDateInputProps = {
   label: string;
   placeHolder?: string;
   isRequired?: boolean;
+  height?: string;
 } & DatePickerProps<Dayjs>;
 
 const ControlledDateField: FC<IFormDateInputProps> = ({
@@ -17,6 +18,7 @@ const ControlledDateField: FC<IFormDateInputProps> = ({
   label,
   placeHolder = DATE_FORMAT,
   isRequired = false,
+  height = "40px",
   ...otherProps
 }) => {
   const {
@@ -51,6 +53,7 @@ const ControlledDateField: FC<IFormDateInputProps> = ({
               sx: {
                 "& .MuiOutlinedInput-root": {
                   paddingRight: "0",
+                  height: height,
                   "& .MuiOutlinedInput-input": {
                     paddingRight: "0",
                   },
