@@ -6,10 +6,10 @@ from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
+from compliance_api.services.order.order import OrderService
 from compliance_api.utils.constant import PermissionEnum
 
 from ..schemas import OrderCreateSchema, OrderSchema
-from ..services.order import OrderService
 from ..utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
@@ -31,6 +31,7 @@ class Orders(Resource):
     """Resource for managing orders."""
 
     @staticmethod
+    @auth.require
     @API.response(code=200, description="Success", model=[order_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all orders")
     def get(inspection_id):
@@ -40,6 +41,7 @@ class Orders(Resource):
         return order_list_schema.dump(orders), HTTPStatus.OK
 
     @staticmethod
+    @auth.require
     @ApiHelper.swagger_decorators(API, endpoint_description="Create an order")
     @API.expect(order_create_model)
     @API.response(code=201, model=order_list_model, description="OrderCreated")
@@ -58,6 +60,7 @@ class Order(Resource):
     """Resource for managing a single Order."""
 
     @staticmethod
+    @auth.require
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch an order by id")
     @API.response(code=200, model=order_list_model, description="Success")
     @API.response(404, "Not Found")
@@ -69,6 +72,7 @@ class Order(Resource):
         return OrderSchema().dump(order), HTTPStatus.OK
 
     @staticmethod
+    @auth.require
     @API.response(code=200, description="Success", model=[order_list_model])
     @API.response(400, "Bad Request")
     @API.response(404, "Not Found")
