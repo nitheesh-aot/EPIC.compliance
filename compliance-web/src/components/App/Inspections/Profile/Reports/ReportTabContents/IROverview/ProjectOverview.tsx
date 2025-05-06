@@ -75,6 +75,7 @@ const ProjectOverview = () => {
     const isApproved = [
       IRProgressEnum.PRELIMINARY_APPROVED,
       IRProgressEnum.FINAL_APPROVED,
+      IRProgressEnum.ISSUED,
     ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum);
     if (isApproved) {
       const approvedBy = irApprovalsData?.[0]?.approved_by;
