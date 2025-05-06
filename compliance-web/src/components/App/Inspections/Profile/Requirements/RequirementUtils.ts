@@ -210,6 +210,10 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
       relatedDocuments: relatedDocuments,
     };
   });
+  // Sort enforcement actions by ID
+  const enforcementActions = requirement.enforcement_action_data.sort((a, b) => {
+    return Number(a.id) - Number(b.id);
+  });
   return {
     id: requirement.id,
     requirementType: requirement.req_type,
@@ -218,8 +222,10 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
     agency: requirement.agency,
     isReferredToAnotherAgency: !!requirement.agency_id,
     complianceFinding: requirement.compliance_finding,
-    enforcementAction: requirement.enforcement_action_data[0],
-    isReferralToAdministrativePenalty: requirement.enforcement_action_data.some(action => action.id === EnforcementActionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY),
+    enforcementAction: enforcementActions[0],
+    isReferralToAdministrativePenalty:
+      enforcementActions.some(a => a.id === EnforcementActionEnum.ORDER) &&
+      enforcementActions.some(a => a.id === EnforcementActionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY),
     findings: { html: requirement.findings, text: requirement.findings },
     requirementSourceDetails: requirementSourceDetails,
   };
