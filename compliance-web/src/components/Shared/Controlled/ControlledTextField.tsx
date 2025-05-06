@@ -34,13 +34,15 @@ const CustomMaskedInput = React.forwardRef<
 
 type IFormInputProps = {
   name: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
   inputEffects?: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => string;
   maxLength?: number;
   mask?: string;
-  inputRef?: React.Ref<HTMLInputElement>;
+  inputRef?: React.Ref<HTMLInputElement | HTMLTextAreaElement>;
   isRequired?: boolean;
 } & TextFieldProps;
 
@@ -96,10 +98,14 @@ const ControlledTextField: FC<IFormInputProps> = ({
               field.ref(el);
               if (inputRef) {
                 // Handle both function and object refs
-                if (typeof inputRef === 'function') {
+                if (typeof inputRef === "function") {
                   inputRef(el);
                 } else {
-                  (inputRef as React.MutableRefObject<HTMLInputElement | null>).current = el;
+                  (
+                    inputRef as React.MutableRefObject<
+                      HTMLInputElement | HTMLTextAreaElement | null
+                    >
+                  ).current = el;
                 }
               }
             }}

@@ -48,13 +48,21 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
   const summaryInputRef = useRef<HTMLInputElement>(null);
   const [isReadOnly, setIsReadOnly] = useState(isEditMode);
 
+  const inputFocus = useCallback((inputRef: HTMLInputElement | null) => {
+    if (inputRef) {
+      inputRef.focus();
+      const textLength = inputRef.value?.length || 0;
+      inputRef.setSelectionRange(textLength, textLength);
+    }
+  }, []);
+
   useEffect(() => {
-    if (!isReadOnly) {
+    if (!isReadOnly && summaryInputRef.current !== document.activeElement) {
       setTimeout(() => {
-        summaryInputRef.current?.focus();
+        inputFocus(summaryInputRef.current);
       }, 0);
     }
-  }, [isReadOnly]);
+  }, [isReadOnly, inputFocus]);
 
   const updateMentionList = useCallback(() => {
     const reqId = !requirementId ? NaN : requirementId;
@@ -130,10 +138,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
             value={getValues("requirementSummary")}
             multiline
           />
-          <GridLabelValuePair
-            label="Topic"
-            value={getValues("topic")?.name}
-          />
+          <GridLabelValuePair label="Topic" value={getValues("topic")?.name} />
           {!isRegulatoryConsideration && (
             <>
               <GridLabelValuePair
@@ -170,7 +175,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
         document.activeElement === null ||
         document.activeElement === document.body
       ) {
-        summaryInputRef.current?.focus();
+        inputFocus(summaryInputRef.current);
       }
     }, []);
 
