@@ -172,7 +172,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
       ) {
         summaryInputRef.current?.focus();
       }
-    });
+    }, []);
 
     return (
       <>
