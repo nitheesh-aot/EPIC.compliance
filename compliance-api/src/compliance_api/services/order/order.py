@@ -43,9 +43,18 @@ class OrderService:
         return created_order
 
     @classmethod
-    def get_order(cls, order_id: int) -> OrderModel:
+    def get_order(cls, inspection_id: int, order_id: int) -> OrderModel:
         """Retrieve an order by ID."""
+        ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         return OrderModel.find_by_id(order_id)
+
+    @classmethod
+    def get_order_by_order_number(
+        cls, inspection_id: int, order_number: str
+    ) -> OrderModel:
+        """Retrieve an order by order number."""
+        ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
+        return OrderModel.get_by_order_number(order_number)
 
     @classmethod
     def update_order(cls, order_id: int, update_data: dict) -> OrderModel:
