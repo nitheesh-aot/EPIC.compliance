@@ -81,7 +81,7 @@ class Order(Resource):
     def patch(inspection_id, order_id):
         """Update order."""
         order_data = OrderSchema().load(API.payload)
-        updated_order = OrderService.update_order(order_id, order_data)
+        updated_order = OrderService.update_order(inspection_id, order_id, order_data)
         return OrderSchema().dump(updated_order), HTTPStatus.OK
 
     @staticmethod

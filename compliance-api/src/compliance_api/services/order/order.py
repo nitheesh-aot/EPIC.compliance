@@ -57,17 +57,17 @@ class OrderService:
         return OrderModel.get_by_order_number(order_number)
 
     @classmethod
-    def update_order(cls, order_id: int, update_data: dict) -> OrderModel:
+    def update_order(cls, inspection_id: int, order_id: int, update_data: dict) -> OrderModel:
         """Update an existing order."""
-        order = cls.get_order(order_id)
+        order = cls.get_order(inspection_id, order_id)
         if order:
             order.update(update_data)
         return order
 
     @classmethod
-    def delete_order(cls, order_id: int) -> None:
+    def delete_order(cls, inspection_id: int, order_id: int) -> None:
         """Delete an order by ID."""
-        order = cls.get_order(order_id)
+        order = cls.get_order(inspection_id, order_id)
         if order:
             order.delete()
 
