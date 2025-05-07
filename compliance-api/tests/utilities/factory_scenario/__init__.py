@@ -3,6 +3,7 @@
 from .agency_scenario import AgencyScenario
 from .case_file_scenario import CasefileScenario
 from .complaint_scenario import ComplaintScenario
+from .inspection_scenario import InspectionScenario
 from .section_scenario import SectionScenario
 from .staff_scenario import StaffScenario
 from .token_claim import TokenJWTClaims

@@ -71,5 +71,7 @@ def _request_track_service(
             raise ValueError("Invalid HTTP method")
         response.raise_for_status()
     except requests.exceptions.RequestException as e:
-        raise requests.exceptions.RequestException(f"Error making request to EPIC.track server: {str(e)}") from e
+        raise requests.exceptions.RequestException(
+            f"Error making request to EPIC.track server: {str(e)}"
+        ) from e
     return response
