@@ -67,21 +67,37 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 
   useEffect(() => {
     if (inspectionRequirementsData) {
-      setRequirementsList(inspectionRequirementsData);
+      let requirementsList = inspectionRequirementsData;
+
+      // Update the requirement images with latest image get url in the findings
+      if (requirementPhotos.size || requirementFigures.size) {
+        requirementsList = formatRequirementImagesInFindings(
+          requirementsList,
+          requirementPhotos,
+          requirementFigures
+        );
+      }
+
+      setRequirementsList(requirementsList);
 
       setInspectionRequirements(
-        inspectionRequirementsData.filter(
+        requirementsList.filter(
           (req) => req.req_type?.id === REQUIREMENT_TYPE_ID
         )
       );
 
       setRegulatoryConsideration(
-        inspectionRequirementsData.find(
+        requirementsList.find(
           (req) => req.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID
         ) ?? null
       );
     }
-  }, [inspectionRequirementsData, setRequirementsList]);
+  }, [
+    inspectionRequirementsData,
+    setRequirementsList,
+    requirementPhotos,
+    requirementFigures,
+  ]);
 
   useEffect(() => {
     if (inspectionRequirementImages) {
