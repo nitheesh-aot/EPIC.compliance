@@ -145,3 +145,8 @@ class Order(BaseModelVersioned):
             .first()
         )
         return result.order_count if result else 0
+
+    @classmethod
+    def get_by_order_number(cls, order_number: str):
+        """Find an order by order number."""
+        return cls.query.filter_by(order_number=order_number, is_deleted=False).first()
