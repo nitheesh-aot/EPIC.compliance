@@ -10,11 +10,8 @@ import pytest
 from faker import Faker
 
 from compliance_api.models import CaseFile as CaseFileModel
-from compliance_api.models.inspection import InspectionStatusEnum, InspectionAttendanceOptionEnum
-from compliance_api.services.inspection import InspectionService
-from compliance_api.services.inspection_requirement import InspectionRequirementService
-from tests.utilities.factory_scenario import CasefileScenario, InspectionScenario, StaffScenario, TokenJWTClaims
-from tests.utilities.factory_utils import factory_auth_header
+from compliance_api.models.inspection import InspectionStatusEnum
+from tests.utilities.factory_scenario import CasefileScenario, InspectionScenario, StaffScenario
 
 
 API_BASE_URL = "/api/"
@@ -59,11 +56,7 @@ def mock_track_service(mocker):
         "compliance_api.services.epic_track_service.track_service.TrackService.get_project_statuses"
     )
     mock_get_project_statuses.return_value = [
-        {
-            "id": 1,
-            "name": "Active",
-            "description": "Project is active"
-        }
+        {"id": 1, "name": "Active", "description": "Project is active"}
     ]
 
     yield mock_get_project_by_id, mock_get_project_statuses
@@ -143,15 +136,19 @@ def test_get_inspection_status_options(client, auth_header):
     assert result.status_code == HTTPStatus.OK
 
 
-def test_create_inspection(client, auth_header_super_user, created_staff, created_case_file, mock_track_service):
+def test_create_inspection(
+    client, auth_header_super_user, created_staff, created_case_file, mock_track_service
+):
     """Create inspection with basic fields."""
     url = urljoin(API_BASE_URL, "inspections")
     inspection_data = copy.copy(InspectionScenario.default_value.value)
-    inspection_data.update({
-        "case_file_id": created_case_file.id,
-        "primary_officer_id": created_staff.id,
-        "initiation_id": 1,
-    })
+    inspection_data.update(
+        {
+            "case_file_id": created_case_file.id,
+            "primary_officer_id": created_staff.id,
+            "initiation_id": 1,
+        }
+    )
 
     result = client.post(
         url,

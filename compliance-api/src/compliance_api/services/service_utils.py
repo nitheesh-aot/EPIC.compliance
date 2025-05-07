@@ -233,3 +233,4 @@ class ServiceUtils:
             return f"Condition {getattr(detail_obj, 'condition_number')}"
         if requirement_source == RequirementSourceEnum.ORDER:
             return f"Order {getattr(detail_obj, 'order_number')}"
+        return None
