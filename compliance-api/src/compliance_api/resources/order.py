@@ -64,9 +64,9 @@ class Order(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch an order by id")
     @API.response(code=200, model=order_list_model, description="Success")
     @API.response(404, "Not Found")
-    def get(order_id):
+    def get(inspection_id, order_id):
         """Fetch an order by id."""
-        order = OrderService.get_order(order_id)
+        order = OrderService.get_order(inspection_id, order_id)
         if not order:
             raise ResourceNotFoundError(f"Order with {order_id} not found")
         return OrderSchema().dump(order), HTTPStatus.OK
@@ -78,10 +78,10 @@ class Order(Resource):
     @API.response(404, "Not Found")
     @API.expect(order_list_model)
     @ApiHelper.swagger_decorators(API, endpoint_description="Update order")
-    def patch(order_id):
+    def patch(inspection_id, order_id):
         """Update order."""
         order_data = OrderSchema().load(API.payload)
-        updated_order = OrderService.update_order(order_id, order_data)
+        updated_order = OrderService.update_order(inspection_id, order_id, order_data)
         return OrderSchema().dump(updated_order), HTTPStatus.OK
 
     @staticmethod
@@ -90,7 +90,26 @@ class Order(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Delete an Order by id")
     @API.response(code=204, description="Success")
     @API.response(404, "Not Found")
-    def delete(order_id):
+    def delete(inspection_id, order_id):
         """Delete order."""
-        OrderService.delete_order(order_id)
+        OrderService.delete_order(inspection_id, order_id)
         return {}, HTTPStatus.NO_CONTENT
+
+
+@cors_preflight("GET, PATCH, DELETE, OPTIONS")
+@API.route("/order-numbers/<string:order_number>", methods=["GET", "OPTIONS"])
+@API.doc(params={"order_number": "The unique identifier for the order"})
+class OrderByOrderNumber(Resource):
+    """Resource for managing a single Order."""
+
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch an order by id")
+    @API.response(code=200, model=order_list_model, description="Success")
+    @API.response(404, "Not Found")
+    def get(inspection_id, order_number):
+        """Fetch an order by id."""
+        order = OrderService.get_order_by_order_number(inspection_id, order_number)
+        if not order:
+            raise ResourceNotFoundError(f"Order with {order_number} not found")
+        return OrderSchema().dump(order), HTTPStatus.OK
