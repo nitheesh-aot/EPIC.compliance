@@ -1,24 +1,16 @@
 import { Agency } from "@/models/Agency";
 import { Attendance } from "@/models/Attendance";
+import { CaseFile } from "@/models/CaseFile";
 import { FirstNation } from "@/models/FirstNation";
 import { Initiation } from "@/models/Initiation";
-import { InspectionAPIData } from "@/models/Inspection";
+import { Inspection, InspectionAPIData } from "@/models/Inspection";
 import { IRType } from "@/models/IRType";
 import { ProjectStatus } from "@/models/ProjectStatus";
 import { StaffUser } from "@/models/Staff";
+import { AttendanceEnum } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import { Dayjs } from "dayjs";
 import * as yup from "yup";
-
-export enum AttendanceEnum {
-  AGENCIES = "1",
-  FIRST_NATIONS = "2",
-  MUNICIPAL = "3",
-  INDIVIDUAL_ENV_MONITOR = "4",
-  CH_RP_REPRESENTATIVE = "5",
-  OTHER = "7",
-  OFFICERS = "8",
-}
 
 export const InspectionFormSchema = yup.object().shape({
   projectDescription: yup.string().nullable(),
@@ -185,4 +177,38 @@ export const formatInspectionData = (
   inspectionData.case_file_id = caseFileId ?? undefined; // map the fields only for create new inspection, and case file id is available
 
   return inspectionData;
+};
+
+export const formatInAttendance = (
+  inspectionData?: Inspection,
+  caseFileData?: CaseFile,
+  isReport?: boolean
+) => {
+  let inAttendance = inspectionData?.inspectionAttendances;
+  if (isReport) {
+    inAttendance = inAttendance?.filter(
+      (attendance) =>
+        attendance.attendance_option.id !== AttendanceEnum.OFFICERS
+    );
+  }
+
+  return inAttendance
+    ?.map((attendance) => {
+      if (attendance.data) {
+        if (Array.isArray(attendance.data)) {
+          return attendance.data.map((item) => item.name).join(", ");
+        } else if (typeof attendance.data === "string") {
+          return attendance.data;
+        }
+      } else {
+        if (
+          attendance.attendance_option.id ===
+          AttendanceEnum.CH_RP_REPRESENTATIVE
+        ) {
+          return caseFileData?.regulated_party ?? attendance.attendance_option.name;
+        }
+        return attendance.attendance_option.name;
+      }
+    })
+    .join(", ") || "n/a";
 };

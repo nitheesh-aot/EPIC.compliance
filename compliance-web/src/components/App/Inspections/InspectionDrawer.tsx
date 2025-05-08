@@ -24,8 +24,8 @@ import { useCallback, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import InspectionFormLeft from "./InspectionFormLeft";
 import InspectionFormRight from "./InspectionFormRight";
+import { AttendanceEnum } from "@/utils/constants";
 import {
-  AttendanceEnum,
   formatInspectionData,
   InspectionFormSchema,
   InspectionSchemaType,

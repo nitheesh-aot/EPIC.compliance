@@ -14,7 +14,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { FC, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
-import { AttendanceEnum } from "./InspectionFormUtils";
+import { AttendanceEnum } from "@/utils/constants";
 import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbox";
 
 type InspectionFormRightProps = {
@@ -159,7 +159,9 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
             />
           </Box>
           <Box p={sectionPadding}>
-            <Typography variant="body2" mb={1}>Inspection Attendees</Typography>
+            <Typography variant="body2" mb={1}>
+              Inspection Attendees
+            </Typography>
             <Typography component="p" variant="caption" mb={2}>
               Select the categories of people who attended this inspection in
               addition to yourself
