@@ -1,7 +1,7 @@
 import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 import { Grid } from "@mui/material";
 import { useReportStore } from "@/components/App/Inspections/Profile/Reports/reportStore";
-import { AttendanceEnum } from "@/components/App/Inspections/InspectionFormUtils";
+import { AttendanceEnum } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import { useCallback, useMemo } from "react";
 import { StaffUser } from "@/models/Staff";
@@ -14,31 +14,17 @@ import { CaseFile } from "@/models/CaseFile";
 import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
 import { notify } from "@/store/snackbarStore";
 import { useQueryClient } from "@tanstack/react-query";
+import { formatInAttendance } from "@/components/App/Inspections/InspectionFormUtils";
 
 const Overview = () => {
   const { inspectionData, caseFileData } = useReportStore();
   const { setOpen, setClose } = useDrawer();
   const queryClient = useQueryClient();
 
-  const inAttendance = useMemo(() => {
-    return inspectionData?.inspectionAttendances
-      ?.filter(
-        (attendance) =>
-          attendance.attendance_option.id !== AttendanceEnum.OFFICERS
-      )
-      ?.map((attendance) => {
-        if (attendance.data) {
-          if (Array.isArray(attendance.data)) {
-            return attendance.data.map((item) => item.name).join(", ");
-          } else if (typeof attendance.data === "string") {
-            return attendance.data;
-          }
-        } else {
-          return attendance.attendance_option.name;
-        }
-      })
-      .join(", ");
-  }, [inspectionData]);
+  const inAttendance = useMemo(
+    () => formatInAttendance(inspectionData, caseFileData, true),
+    [inspectionData, caseFileData]
+  );
 
   const inspectingOfficers: StaffUser[] = useMemo(() => {
     const primaryOfficer = inspectionData?.primary_officer

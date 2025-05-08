@@ -10,11 +10,12 @@ import { FirstNation } from "@/models/FirstNation";
 import { StaffUser } from "@/models/Staff";
 import { useDrawer } from "@/store/drawerStore";
 import { useModal } from "@/store/modalStore";
-import { Box, Stack } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { FC, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
-import { AttendanceEnum } from "./InspectionFormUtils";
+import { AttendanceEnum } from "@/utils/constants";
+import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbox";
 
 type InspectionFormRightProps = {
   attendanceList: Attendance[];
@@ -22,6 +23,12 @@ type InspectionFormRightProps = {
   firstNationsList: FirstNation[];
   staffList: StaffUser[];
 };
+
+type AttendanceDynamicField =
+  | AttendanceEnum.AGENCIES
+  | AttendanceEnum.FIRST_NATIONS
+  | AttendanceEnum.MUNICIPAL
+  | AttendanceEnum.OTHER;
 
 const sectionPadding = "1rem 2rem 0rem 1rem";
 
@@ -34,6 +41,15 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
   const { isOpen } = useDrawer();
   const { setOpen, setClose } = useModal();
   const { control, resetField, getValues, setValue } = useFormContext();
+
+  const attendanceOptions = attendanceList.filter(
+    (attendance) =>
+      ![
+        AttendanceEnum.INDIVIDUAL_ENV_MONITOR,
+        AttendanceEnum.CH_RP_REPRESENTATIVE,
+        AttendanceEnum.OFFICERS,
+      ].includes(attendance.id as AttendanceEnum)
+  );
 
   // Watch for changes in `inAttendance` field
   const selectedAttendance = useWatch({
@@ -50,7 +66,8 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
   }, [isOpen, setValue]);
 
   const handleDeleteOption = (option: Attendance) => {
-    const fieldName = dynamicFieldConfig[option.id as AttendanceEnum]?.name;
+    const fieldName =
+      dynamicFieldConfig[option.id as AttendanceDynamicField]?.name;
     const fieldValue = getValues(fieldName);
 
     if (fieldName && fieldValue?.length) {
@@ -72,7 +89,7 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
   const handleConfirmRemove = (selectedToRemove: Attendance) => {
     if (selectedToRemove) {
       const fieldName =
-        dynamicFieldConfig[selectedToRemove.id as AttendanceEnum]?.name;
+        dynamicFieldConfig[selectedToRemove.id as AttendanceDynamicField]?.name;
       if (fieldName) {
         resetField(fieldName); // Reset the corresponding field value
       }
@@ -85,7 +102,10 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
     setClose();
   };
 
-  const dynamicFieldConfig: Record<AttendanceEnum, DynamicInputFieldConfig> = {
+  const dynamicFieldConfig: Record<
+    AttendanceDynamicField,
+    DynamicInputFieldConfig
+  > = {
     [AttendanceEnum.AGENCIES]: {
       type: "autocomplete",
       name: "agencies",
@@ -99,14 +119,6 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
       name: "firstNations",
       label: "First Nations",
       options: firstNationsList,
-      multiple: true,
-      required: true,
-    },
-    [AttendanceEnum.OFFICERS]: {
-      type: "autocomplete",
-      name: "officers",
-      label: "Attending Officers",
-      options: staffList,
       multiple: true,
       required: true,
     },
@@ -147,11 +159,39 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
             />
           </Box>
           <Box p={sectionPadding}>
+            <Typography variant="body2" mb={1}>
+              Inspection Attendees
+            </Typography>
+            <Typography component="p" variant="caption" mb={2}>
+              Select the categories of people who attended this inspection in
+              addition to yourself
+            </Typography>
+            <ControlledCheckbox
+              name="isCHRepresentatives"
+              label="Certificate Holder / Regulated Party Representatives"
+              fontSize="small"
+            />
+            <ControlledCheckbox
+              name="isIndependentEnvMonitor"
+              label="Independent Environmental Monitor"
+              fontSize="small"
+            />
+            <ControlledAutoComplete
+              name="officers"
+              label="Attending Officers"
+              placeholder="Select officers that attended inspection"
+              options={staffList}
+              getOptionLabel={(option) => option.name}
+              getOptionKey={(option) => option.id}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              multiple
+              fullWidth
+            />
             <ControlledAutoComplete
               name="inAttendance"
               label="In Attendance"
               placeholder="Select groups that attended inspection"
-              options={attendanceList}
+              options={attendanceOptions}
               getOptionLabel={(option) => option.name}
               getOptionKey={(option) => option.id}
               isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -170,7 +210,9 @@ const InspectionFormRight: FC<InspectionFormRightProps> = ({
                 return (
                   <DynamicInputField
                     key={attendee.name}
-                    config={dynamicFieldConfig[attendee.id as AttendanceEnum]}
+                    config={
+                      dynamicFieldConfig[attendee.id as AttendanceDynamicField]
+                    }
                   />
                 );
               })}
