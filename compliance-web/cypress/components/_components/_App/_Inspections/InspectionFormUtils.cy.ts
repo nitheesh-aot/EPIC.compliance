@@ -1,5 +1,6 @@
 /// <reference types="cypress" />
 import { InspectionFormSchema, formatInspectionData } from "@/components/App/Inspections/InspectionFormUtils";
+import { AttendanceEnum } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import dayjs from "dayjs";
 
@@ -89,7 +90,8 @@ describe("InspectionFormUtils", () => {
         location_description: "Location A",
         utm: "9U 454135 6399452",
         project_status_id: 1,
-        attendance_option_ids: [1],
+        attendance_option_ids: [1, AttendanceEnum.OFFICERS],
+        attending_officer_ids: [2],
       };
 
       const formattedData = formatInspectionData(formData, 123);
