@@ -8,6 +8,7 @@ from compliance_api.models.db import session_scope
 from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models.order import Order as OrderModel
 from compliance_api.models.order import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
+from compliance_api.models.order import OrderStatusEnum
 from compliance_api.models.section import Section as SectionModel
 from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils
@@ -32,6 +33,12 @@ class OrderService:
     def create_order(cls, inspection_id: int, order_data: dict) -> OrderModel:
         """Create a new order."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
+        ServiceUtils.access_check_update_for_inspection(inspection)
+        requirement_ids = order_data.get("inspection_requirement_ids", [])
+        if OrderModel.does_order_exists_by_requirement_ids(requirement_ids):
+            raise UnprocessableEntityError(
+                "Order already exists for these requirements."
+            )
         order_obj = _create_order_obj(inspection, order_data)
         with session_scope() as session:
             created_order = OrderModel.create(order_obj, session)
@@ -57,12 +64,25 @@ class OrderService:
         return OrderModel.get_by_order_number(order_number)
 
     @classmethod
-    def update_order(cls, inspection_id: int, order_id: int, update_data: dict) -> OrderModel:
+    def update_order(
+        cls, inspection_id: int, order_id: int, update_data: dict
+    ) -> OrderModel:
         """Update an existing order."""
-        order = cls.get_order(inspection_id, order_id)
-        if order:
-            order.update(update_data)
-        return order
+        inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
+        ServiceUtils.access_check_update_for_inspection(inspection)
+        requirement_ids = update_data.get("inspection_requirement_ids", [])
+        if OrderModel.does_order_exists_by_requirement_ids(requirement_ids, order_id):
+            raise UnprocessableEntityError(
+                "Order already exists for these requirements."
+            )
+        with session_scope() as session:
+            updated_order = OrderModel.update_order(order_id, update_data, session)
+            cls.insert_or_update_inspection_requirements(
+                updated_order.id,
+                update_data.get("inspection_requirement_ids", []),
+                session,
+            )
+        return updated_order
 
     @classmethod
     def delete_order(cls, inspection_id: int, order_id: int) -> None:
@@ -101,6 +121,48 @@ class OrderService:
                     order_id, list(requirement_ids_to_be_added), session
                 )
 
+    @classmethod
+    def change_status(cls, inspection_id, order_id, status):
+        """Close the order."""
+        order = OrderModel.find_by_id(order_id)
+        if not order:
+            raise ResourceNotFoundError(f"Order with ID {order_id} not found")
+        inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
+        ServiceUtils.access_check_update_for_inspection(inspection)
+        status_enum = OrderStatusEnum(status.get("status"))
+        if order.order_status == status_enum:
+            raise UnprocessableEntityError(
+                "The order is already in the requested status"
+            )
+        possible_status_change = {
+            OrderStatusEnum.OPEN: [OrderStatusEnum.CLOSED, OrderStatusEnum.RESCINDED],
+            OrderStatusEnum.CLOSED: [OrderStatusEnum.OPEN],
+        }
+        if status_enum not in possible_status_change.get(order.order_status, []):
+            raise UnprocessableEntityError("Invalid status change requested")
+        updated_order = OrderModel.update_order(
+            order_id,
+            {"order_status": OrderStatusEnum(status_enum.value)},
+        )
+        return updated_order
+
+    @classmethod
+    def issue_order(cls, inspection_id, order_id, issue):
+        """Issue an order."""
+        order = OrderModel.find_by_id(order_id)
+        if not order:
+            raise ResourceNotFoundError(f"Order with ID {order_id} not found")
+        inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
+        ServiceUtils.access_check_update_for_inspection(inspection)
+        OrderModel.update_order(
+            order_id,
+            {
+                "order_status": OrderStatusEnum.ISSUED,
+                "date_issued": issue.get("date_issued"),
+            },
+        )
+        return order
+
 
 def _create_order_obj(inspection, order_data: dict) -> dict:
     """
@@ -137,6 +199,7 @@ def _create_order_obj(inspection, order_data: dict) -> dict:
         "where_as": where_as,
         "now_therefore": now_therefore,
         "intended_issuance_date": order_data.get("intended_issuance_date"),
+        "order_status": OrderStatusEnum.OPEN,
     }
 
 

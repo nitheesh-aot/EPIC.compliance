@@ -124,6 +124,10 @@
             font-weight: bold;
             padding-bottom: 4px;
         }
+        .com-ir-section-header-appendix {
+            font-weight: normal;
+            padding-bottom: 4px;
+        }
 
         /* Photo and document styles */
         .com-ir-photo-img {
@@ -378,12 +382,12 @@
                     <td colspan="2">
                         <div class="com-ir-section-header">Requirement {{ requirement.sort_order }}: {{
                             requirement.requirement_source_details[0].requirement_source_number }} of {{
-                            requirement.requirement_source_details[0].requirement_source_name }}{% if requirement.requirement_source_details[0].appendix_no %} (Appendix {{ requirement.requirement_source_details[0].appendix_no }}){% endif %}</div>
+                            requirement.requirement_source_details[0].requirement_source_name }}{% if requirement.requirement_source_details[0].appendix_no %} <span class="com-ir-section-header-appendix">&nbsp;(Appendix {{ requirement.requirement_source_details[0].appendix_no }})</span>{% endif %}</div>
                         {{ requirement.requirement_source_details[0].requirement_source_description | safe |
                         replace('style="white-space: pre-wrap;"', '') }}
                         {% if requirement.requirement_source_details[0].requirement_documents %}
                         {% for doc in requirement.requirement_source_details[0].requirement_documents %}
-                        <div class="com-ir-document-title">{{ doc.document_title }}{% if doc.appendix_no %} (Appendix {{ doc.appendix_no }}){% endif %}</div>
+                        <div class="com-ir-document-title">{{ doc.document_title }}{% if doc.appendix_no %} <span class="com-ir-section-header-appendix">&nbsp;(Appendix {{ doc.appendix_no }})</span>{% endif %}</div>
                         {% if doc.section_number or doc.section_title %}
                         <div class="com-ir-document-section">Section {{ doc.section_number }} {{ doc.section_title }}
                         </div>
@@ -406,13 +410,13 @@
                     <td colspan="2">
                         <div class="com-ir-additional-source">
                             <div class="com-ir-section-header">Requirement {{ source.sort_order }}: {{ source.requirement_source_number }} of {{
-                                source.requirement_source_name }}{% if source.appendix_no %} (Appendix {{ source.appendix_no }}){% endif %}</div>
+                                source.requirement_source_name }}{% if source.appendix_no %} <span class="com-ir-section-header-appendix">&nbsp;(Appendix {{ source.appendix_no }})</span>{% endif %}</div>
                             {{ source.requirement_source_description | safe | replace('style="white-space: pre-wrap;"',
                             '') }}
                         </div>
                         {% if source.requirement_documents %}
                         {% for doc in source.requirement_documents %}
-                        <div class="com-ir-document-title">{{ doc.document_title }}{% if doc.appendix_no %} (Appendix {{ doc.appendix_no }}){% endif %}</div>
+                        <div class="com-ir-document-title">{{ doc.document_title }}{% if doc.appendix_no %} <span class="com-ir-section-header-appendix">&nbsp;(Appendix {{ doc.appendix_no }})</span>{% endif %}</div>
                         {% if doc.section_number or doc.section_title %}
                         <div class="com-ir-document-section">Section {{ doc.section_number }} {{ doc.section_title }}
                         </div>

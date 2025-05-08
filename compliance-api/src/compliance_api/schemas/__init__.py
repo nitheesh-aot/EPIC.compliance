@@ -39,7 +39,7 @@ from .inspection_requirement import (
     InspectionReqImageCreateSchema, InspectionReqImageSchema, InspectionReqImageSortOrderSchema,
     InspectionRequirementBulkUpdateSchema, InspectionRequirementCreateSchema, InspectionRequirementSchema,
     InspectionRequirementUpdateSchema, InspectionSortOrderSchema)
-from .order import OrderCreateSchema, OrderSchema
+from .order import OrderCreateSchema, OrderIssueSchema, OrderSchema, OrderStatusSchema, OrderUpdateSchema
 from .paginate import PaginationParameterSchema
 from .project import ProjectSchema
 from .section import SectionSchema

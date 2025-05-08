@@ -125,6 +125,18 @@ class Order(BaseModelVersioned):
         return order
 
     @classmethod
+    @with_session
+    def update_order(cls, order_id, order_data, session=None):
+        """Update order."""
+        query = cls.query.filter_by(id=order_id)
+        order: Order = query.first()
+        if not order or order.is_deleted:
+            return None
+        order.update(order_data, commit=False)
+        session.flush()
+        return order
+
+    @classmethod
     def get_count_by_project_nd_case_file_id(cls, project_id: int, case_file_id: int):
         """Get count of orders by project and case file id."""
         result = (
@@ -145,6 +157,24 @@ class Order(BaseModelVersioned):
             .first()
         )
         return result.order_count if result else 0
+
+    @classmethod
+    def does_order_exists_by_requirement_ids(
+        cls, requirement_ids: list[int], order_id: int = None
+    ):
+        """Check if an order exists by requirement ids."""
+        query = cls.query.join(
+            OrderInspectionRequirementMap,
+            OrderInspectionRequirementMap.order_id == cls.id,
+        ).filter(
+            OrderInspectionRequirementMap.inspection_requirement_id.in_(
+                requirement_ids
+            ),
+            cls.is_deleted.is_(False),
+        )
+        if order_id:
+            query = query.filter(cls.id != order_id)
+        return query.first()
 
     @classmethod
     def get_by_order_number(cls, order_number: str):
