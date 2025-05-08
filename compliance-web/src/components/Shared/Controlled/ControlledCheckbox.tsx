@@ -6,7 +6,7 @@ import { Controller, useFormContext } from "react-hook-form";
 type IFormCheckboxProps = {
   name: string;
   label: string;
-  fontSize?: "small" | "medium";  
+  fontSize?: "small" | "medium";
   isRequired?: boolean;
 };
 const ControlledCheckbox: FC<IFormCheckboxProps> = ({
@@ -35,13 +35,14 @@ const ControlledCheckbox: FC<IFormCheckboxProps> = ({
           }
           label={label}
           sx={{
-            marginBottom: "1.5rem",
+            marginBottom: fontSize === "small" ? "1rem" : "1.5rem",
             "& .MuiFormControlLabel-label": {
               fontSize:
                 fontSize === "small"
                   ? BCDesignTokens.typographyFontSizeSmallBody
                   : BCDesignTokens.typographyFontSizeBody,
               fontWeight: isRequired ? "bold" : "normal",
+              lineHeight: fontSize === "small" ? "1.313rem" : "1.688rem",
             },
           }}
         />

@@ -45,7 +45,6 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
           multiline
           fullWidth
           minRows={4}
-          isRequired={true}
         />
         <ControlledTextField
           name="locationDescription"

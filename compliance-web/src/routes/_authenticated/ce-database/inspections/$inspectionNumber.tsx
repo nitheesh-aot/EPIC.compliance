@@ -105,6 +105,7 @@ function InspectionProfilePage() {
         <TabPanel value={currentTab} index={0} id="inspection-profile">
           <InspectionGeneralInformation
             inspectionData={inspectionData}
+            caseFileData={caseFileData as CaseFile}
             onEdit={handleOpenEditModal}
             allowEdit={showEditInspectionButton}
           />

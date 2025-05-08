@@ -4,9 +4,10 @@ import json
 import re
 
 from compliance_api.exceptions import ResourceExistsError, UnprocessableEntityError
+from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionRecord as InspectionRecordModel
 from compliance_api.models import InspectionRecordApproval as InspectionRecordApprovalModel
-from compliance_api.models import IRApprovalStatusEnum, Inspection as InspectionModel, InspectionStatusEnum
+from compliance_api.models import InspectionStatusEnum, IRApprovalStatusEnum
 from compliance_api.models.db import session_scope
 from compliance_api.models.inspection_record import IRProgressEnum, IRStatusEnum
 from compliance_api.schemas import InspectionRecordPreviewSchema
@@ -216,6 +217,7 @@ class InspectionRecordService:
             .build_enforcement_summary()
             .build_action_required_by_rp()
             .build_requirement_details()
+            .build_regulatory_considerations()
             .build()
         )
         preview_data = InspectionRecordPreviewSchema().dump(ir_data)

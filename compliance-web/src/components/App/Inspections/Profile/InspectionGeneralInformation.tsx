@@ -1,34 +1,26 @@
 import FileProfileProperty from "@/components/App/FileProfileProperty";
 import { Inspection } from "@/models/Inspection";
+import { CaseFile } from "@/models/CaseFile";
 import dateUtils from "@/utils/dateUtils";
 import { EditRounded } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import React, { useMemo } from "react";
+import { formatInAttendance } from "../InspectionFormUtils";
 
 interface InspectionGeneralInformationProps {
   inspectionData: Inspection;
+  caseFileData: CaseFile;
   onEdit: () => void;
   allowEdit?: boolean;
 }
 
 const InspectionGeneralInformation: React.FC<
   InspectionGeneralInformationProps
-> = ({ inspectionData, onEdit, allowEdit }) => {
-  const inAttendance = useMemo(() => {
-    return inspectionData.inspectionAttendances
-      ?.map((attendance) => {
-        if (attendance.data) {
-          if (Array.isArray(attendance.data)) {
-            return attendance.data.map((item) => item.name).join(", ");
-          } else if (typeof attendance.data === "string") {
-            return attendance.data;
-          }
-        } else {
-          return attendance.attendance_option.name;
-        }
-      })
-      .join(", ");
-  }, [inspectionData.inspectionAttendances]);
+> = ({ inspectionData, caseFileData, onEdit, allowEdit }) => {
+  const inAttendance = useMemo(
+    () => formatInAttendance(inspectionData, caseFileData),
+    [inspectionData, caseFileData]
+  );
 
   const dateRange = useMemo(() => {
     const startDate = dateUtils.formatDate(inspectionData.start_date);

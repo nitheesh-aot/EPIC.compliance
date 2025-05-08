@@ -85,3 +85,13 @@ export enum IRProgressEnum {
   FINAL_APPROVED = "FINAL_APPROVED",
   ISSUED = "ISSUED",
 }
+
+export enum AttendanceEnum {
+  AGENCIES = "1",
+  FIRST_NATIONS = "2",
+  MUNICIPAL = "3",
+  INDIVIDUAL_ENV_MONITOR = "4",
+  CH_RP_REPRESENTATIVE = "5",
+  OTHER = "7",
+  OFFICERS = "8",
+}

@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
 import { Inspection } from "@/models/Inspection";
 import dayjs from "dayjs";
-import { AttendanceEnum } from "@/components/App/Inspections/InspectionFormUtils";
+import { AttendanceEnum } from "@/utils/constants";
 import { CaseFile } from "@/models/CaseFile";
 import { AuthProvider } from "react-oidc-context";
 import { OidcConfig } from "@/utils/config";
@@ -50,6 +50,7 @@ describe("InspectionDrawer Component", () => {
     primary_officer: { id: 1, name: "Officer Name", is_active: true },
     ir_status: { id: "1", name: "Status" },
     project_status: { id: "1", name: "Project Status" },
+    debrief_date: dayjs("2023-01-01").toISOString(),
     types: [
       { id: "1", name: "Type1" },
       { id: "2", name: "Type2" },

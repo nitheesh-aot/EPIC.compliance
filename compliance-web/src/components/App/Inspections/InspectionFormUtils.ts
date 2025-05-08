@@ -1,22 +1,16 @@
 import { Agency } from "@/models/Agency";
 import { Attendance } from "@/models/Attendance";
+import { CaseFile } from "@/models/CaseFile";
 import { FirstNation } from "@/models/FirstNation";
 import { Initiation } from "@/models/Initiation";
-import { InspectionAPIData } from "@/models/Inspection";
+import { Inspection, InspectionAPIData } from "@/models/Inspection";
 import { IRType } from "@/models/IRType";
 import { ProjectStatus } from "@/models/ProjectStatus";
 import { StaffUser } from "@/models/Staff";
+import { AttendanceEnum } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import { Dayjs } from "dayjs";
 import * as yup from "yup";
-
-export enum AttendanceEnum {
-  AGENCIES = "1",
-  FIRST_NATIONS = "2",
-  MUNICIPAL = "3",
-  OTHER = "7",
-  OFFICERS = "8",
-}
 
 export const InspectionFormSchema = yup.object().shape({
   projectDescription: yup.string().nullable(),
@@ -49,9 +43,14 @@ export const InspectionFormSchema = yup.object().shape({
     .nullable()
     .required("Initiation is required"),
   projectStatus: yup.object<ProjectStatus>().nullable(),
+  officers: yup
+    .array()
+    .of(yup.object<StaffUser>())
+    .nullable(),
+  isIndependentEnvMonitor: yup.boolean().nullable(),
+  isCHRepresentatives: yup.boolean().nullable(),
 
   inAttendance: yup.array().of(yup.object<Attendance>()).nullable(),
-
   // Adding dynamic fields conditionally required based on `inAttendance` selection
   municipal: yup
     .string()
@@ -101,20 +100,6 @@ export const InspectionFormSchema = yup.object().shape({
           .required("Agencies are required"),
       otherwise: (schema) => schema.notRequired(),
     }),
-
-  officers: yup
-    .array()
-    .of(yup.object<StaffUser>())
-    .nullable()
-    .when("inAttendance", {
-      is: (attendance: Attendance[]) =>
-        attendance?.some((item) => item.id === AttendanceEnum.OFFICERS),
-      then: (schema) =>
-        schema
-          .min(1, "At least one Officer is required")
-          .required("Officers are required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
 });
 
 export type InspectionSchemaType = yup.InferType<typeof InspectionFormSchema>;
@@ -146,6 +131,21 @@ export const formatInspectionData = (
     project_status_id: (formData.projectStatus as ProjectStatus)?.id,
     attendance_option_ids: inAttendanceOptions,
   };
+
+  if (formData.officers?.length) {
+    inspectionData.attendance_option_ids?.push(AttendanceEnum.OFFICERS);
+    inspectionData.attending_officer_ids =
+      (formData.officers as StaffUser[])?.map((item) => item.id) ?? [];
+  }
+
+  if (formData.isIndependentEnvMonitor) {
+    inspectionData.attendance_option_ids?.push(AttendanceEnum.INDIVIDUAL_ENV_MONITOR);
+  }
+
+  if (formData.isCHRepresentatives) {
+    inspectionData.attendance_option_ids?.push(AttendanceEnum.CH_RP_REPRESENTATIVE);
+  }
+
   if (inAttendanceOptions.length) {
     // Create an object to hold the attendance-related data
     const attendanceData: Partial<InspectionAPIData> = {};
@@ -158,11 +158,6 @@ export const formatInspectionData = (
     if (inAttendanceOptions.includes(AttendanceEnum.FIRST_NATIONS)) {
       attendanceData.firstnation_attendance_ids =
         (formData.firstNations as FirstNation[])?.map((item) => item.id) ?? [];
-    }
-
-    if (inAttendanceOptions.includes(AttendanceEnum.OFFICERS)) {
-      attendanceData.attending_officer_ids =
-        (formData.officers as StaffUser[])?.map((item) => item.id) ?? [];
     }
 
     if (inAttendanceOptions.includes(AttendanceEnum.MUNICIPAL)) {
@@ -182,4 +177,38 @@ export const formatInspectionData = (
   inspectionData.case_file_id = caseFileId ?? undefined; // map the fields only for create new inspection, and case file id is available
 
   return inspectionData;
+};
+
+export const formatInAttendance = (
+  inspectionData?: Inspection,
+  caseFileData?: CaseFile,
+  isReport?: boolean
+) => {
+  let inAttendance = inspectionData?.inspectionAttendances;
+  if (isReport) {
+    inAttendance = inAttendance?.filter(
+      (attendance) =>
+        attendance.attendance_option.id !== AttendanceEnum.OFFICERS
+    );
+  }
+
+  return inAttendance
+    ?.map((attendance) => {
+      if (attendance.data) {
+        if (Array.isArray(attendance.data)) {
+          return attendance.data.map((item) => item.name).join(", ");
+        } else if (typeof attendance.data === "string") {
+          return attendance.data;
+        }
+      } else {
+        if (
+          attendance.attendance_option.id ===
+          AttendanceEnum.CH_RP_REPRESENTATIVE
+        ) {
+          return caseFileData?.regulated_party ?? attendance.attendance_option.name;
+        }
+        return attendance.attendance_option.name;
+      }
+    })
+    .join(", ") || "n/a";
 };
