@@ -210,6 +210,7 @@ class InspectionRecordService:
             .build_enforcement_summary()
             .build_action_required_by_rp()
             .build_requirement_details()
+            .build_regulatory_considerations()
             .build()
         )
         preview_data = InspectionRecordPreviewSchema().dump(ir_data)

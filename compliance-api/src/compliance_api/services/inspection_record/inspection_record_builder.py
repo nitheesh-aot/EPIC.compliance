@@ -399,6 +399,34 @@ class InspectionRecordDataBuilder:
         self.data["requirement_details"] = result
         return self
 
+    def build_regulatory_considerations(self):
+        """Build the regulatory considerations for the inspection record."""
+        if not self.requirements:
+            self.requirements = InspectionRequirementModel.get_by_inspection_id(
+                self.inspection.id
+            )
+        # There will be only one regulatory consideration possible for an inspection
+        regulatory_consideration = next(
+            (
+                req
+                for req in self.requirements
+                if req.req_type == InspectionRequirementTypeEnum.REG
+            ),
+            None,
+        )
+        if regulatory_consideration:
+            photos = []
+            figures = []
+            photos, figures = ServiceUtils.get_photos_and_figures(
+                regulatory_consideration.id
+            )
+            self.data["regulatory_consideration"] = {
+                "findings": regulatory_consideration.findings,
+                "photos": photos,
+                "figures": figures,
+            }
+        return self
+
     def build(self):
         """Return the final object."""
         return self.data

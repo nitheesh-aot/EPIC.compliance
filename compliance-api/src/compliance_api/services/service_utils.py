@@ -174,42 +174,54 @@ class ServiceUtils:
                                 }
                             )
             if photo_required:
-                photos = InspectionRequirementImageModel.find_all_images(
-                    requirement.id, ImageTypeEnum.PHOTO
-                )
-                figures = InspectionRequirementImageModel.find_all_images(
-                    requirement.id, ImageTypeEnum.FIGURE
-                )
-                for photo in photos:
-                    photo_response = DocService.get_presigned_url(
-                        {
-                            "relative_url": photo.relative_url,
-                            "action": ActionOnFileEnum.GET.value,
-                        }
-                    )
-                    req["requirement_photos"].append(
-                        {
-                            "photo_caption": photo.caption,
-                            "photo_number": photo.sort_order,
-                            "photo_url": photo_response.get("presigned_url"),
-                        }
-                    )
-                for figure in figures:
-                    figure_response = DocService.get_presigned_url(
-                        {
-                            "relative_url": figure.relative_url,
-                            "action": ActionOnFileEnum.GET.value,
-                        }
-                    )
-                    req["requirement_figures"].append(
-                        {
-                            "figure_caption": figure.caption,
-                            "figure_number": figure.sort_order,
-                            "figure_url": figure_response.get("presigned_url"),
-                        }
-                    )
+                photos = []
+                figures = []
+                photos, figures = ServiceUtils.get_photos_and_figures(requirement.id)
+                req["requirement_photos"] = photos
+                req["requirement_figures"] = figures
             result.append(req)
         return result
+
+    @staticmethod
+    def get_photos_and_figures(requirement_id: int):
+        """Get photos and figures for a requirement."""
+        photo_list = []
+        figure_list = []
+        photos = InspectionRequirementImageModel.find_all_images(
+            requirement_id, ImageTypeEnum.PHOTO
+        )
+        figures = InspectionRequirementImageModel.find_all_images(
+            requirement_id, ImageTypeEnum.FIGURE
+        )
+        for photo in photos:
+            photo_response = DocService.get_presigned_url(
+                {
+                    "relative_url": photo.relative_url,
+                    "action": ActionOnFileEnum.GET.value,
+                }
+            )
+            photo_list.append(
+                {
+                    "photo_caption": photo.caption,
+                    "photo_number": photo.sort_order,
+                    "photo_url": photo_response.get("presigned_url"),
+                }
+            )
+        for figure in figures:
+            figure_response = DocService.get_presigned_url(
+                {
+                    "relative_url": figure.relative_url,
+                    "action": ActionOnFileEnum.GET.value,
+                }
+            )
+            figure_list.append(
+                {
+                    "figure_caption": figure.caption,
+                    "figure_number": figure.sort_order,
+                    "figure_url": figure_response.get("presigned_url"),
+                }
+            )
+        return photo_list, figure_list
 
     @staticmethod
     def get_requirement_source_number_field(detail_obj: InspectionReqSourceDetailModel):
