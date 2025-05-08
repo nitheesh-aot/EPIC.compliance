@@ -500,6 +500,40 @@
                     <td colspan="2">{{ enforcement_summary | safe | replace('style="white-space: pre-wrap;"', '') }}
                     </td>
                 </tr>
+                {% if regulatory_consideration %}
+                <tr>
+                    <th colspan="2" class="com-ir-header-background">Regulatory Considerations</th>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        {{ regulatory_consideration.findings | safe | replace('style="white-space: pre-wrap;"',
+                        '') }}
+                        {% if regulatory_consideration.photos and regulatory_consideration.photos|length > 0 %}
+                        {% for photo in regulatory_consideration.photos %}
+                        <div class="com-ir-photo-section">
+                            <img src="{{ photo.photo_url }}" alt="Photo {{ photo.photo_number }}"
+                                class="com-ir-photo-img">
+                            <div class="com-ir-photo-caption">
+                                Photo {{ photo.photo_number }}. {{ photo.photo_caption }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {% if regulatory_consideration.figures and regulatory_consideration.figures|length > 0 %}
+                        {% for figure in regulatory_consideration.figures %}
+
+                        <div class="com-ir-photo-section">
+                            <img src="{{ figure.figure_url }}" alt="Figure {{ figure.figure_number }}"
+                                class="com-ir-photo-img">
+                            <div class="com-ir-photo-caption">
+                                Figure {{ figure.figure_number }}. {{ figure.figure_caption }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
                 {% if appendices %}
                 <tr>
                     <th colspan="2" class="com-ir-header-background">Appendices:</th>
