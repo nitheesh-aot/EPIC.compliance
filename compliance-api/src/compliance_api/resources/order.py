@@ -9,7 +9,7 @@ from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.services.order.order import OrderService
 from compliance_api.utils.constant import PermissionEnum
 
-from ..schemas import OrderCreateSchema, OrderSchema
+from ..schemas import OrderCreateSchema, OrderIssueSchema, OrderSchema, OrderStatusSchema, OrderUpdateSchema
 from ..utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
@@ -22,6 +22,15 @@ order_create_model = ApiHelper.convert_ma_schema_to_restx_model(
 
 order_list_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, OrderSchema(), "OrderList"
+)
+order_update_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, OrderUpdateSchema(), "OrderUpdate"
+)
+order_status_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, OrderStatusSchema(), "OrderStatus"
+)
+order_issue_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, OrderIssueSchema(), "OrderIssue"
 )
 
 
@@ -76,11 +85,11 @@ class Order(Resource):
     @API.response(code=200, description="Success", model=[order_list_model])
     @API.response(400, "Bad Request")
     @API.response(404, "Not Found")
-    @API.expect(order_list_model)
+    @API.expect(order_update_model)
     @ApiHelper.swagger_decorators(API, endpoint_description="Update order")
     def patch(inspection_id, order_id):
         """Update order."""
-        order_data = OrderSchema().load(API.payload)
+        order_data = OrderUpdateSchema().load(API.payload)
         updated_order = OrderService.update_order(inspection_id, order_id, order_data)
         return OrderSchema().dump(updated_order), HTTPStatus.OK
 
@@ -113,3 +122,43 @@ class OrderByOrderNumber(Resource):
         if not order:
             raise ResourceNotFoundError(f"Order with {order_number} not found")
         return OrderSchema().dump(order), HTTPStatus.OK
+
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/<int:order_id>/status", methods=["PATCH", "OPTIONS"])
+@API.doc(params={"order_id": "The unique identifier for the order"})
+class OrderStatus(Resource):
+    """Update the inspection status."""
+
+    @staticmethod
+    @auth.require
+    @API.response(400, "Bad Request")
+    @API.expect(order_status_model)
+    @API.response(404, "Not Found")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Change order status")
+    @API.response(code=204, description="Order status changed")
+    def patch(inspection_id, order_id):
+        """Change Order Status."""
+        status = OrderStatusSchema().load(API.payload)
+        OrderService.change_status(inspection_id, order_id, status)
+        return {}, HTTPStatus.NO_CONTENT
+
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/<int:order_id>/issue", methods=["PATCH", "OPTIONS"])
+@API.doc(params={"order_id": "The unique identifier for the order"})
+class OrderIssue(Resource):
+    """Update the inspection status."""
+
+    @staticmethod
+    @auth.require
+    @API.response(400, "Bad Request")
+    @API.expect(order_issue_model)
+    @API.response(404, "Not Found")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Issue order")
+    @API.response(code=204, description="Order issued")
+    def patch(inspection_id, order_id):
+        """Issue Order."""
+        issue = OrderIssueSchema().load(API.payload)
+        OrderService.issue_order(inspection_id, order_id, issue)
+        return {}, HTTPStatus.NO_CONTENT
