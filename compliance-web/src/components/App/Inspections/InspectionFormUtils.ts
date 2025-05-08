@@ -14,6 +14,8 @@ export enum AttendanceEnum {
   AGENCIES = "1",
   FIRST_NATIONS = "2",
   MUNICIPAL = "3",
+  INDIVIDUAL_ENV_MONITOR = "4",
+  CH_RP_REPRESENTATIVE = "5",
   OTHER = "7",
   OFFICERS = "8",
 }
@@ -49,9 +51,14 @@ export const InspectionFormSchema = yup.object().shape({
     .nullable()
     .required("Initiation is required"),
   projectStatus: yup.object<ProjectStatus>().nullable(),
+  officers: yup
+    .array()
+    .of(yup.object<StaffUser>())
+    .nullable(),
+  isIndependentEnvMonitor: yup.boolean().nullable(),
+  isCHRepresentatives: yup.boolean().nullable(),
 
   inAttendance: yup.array().of(yup.object<Attendance>()).nullable(),
-
   // Adding dynamic fields conditionally required based on `inAttendance` selection
   municipal: yup
     .string()
@@ -101,20 +108,6 @@ export const InspectionFormSchema = yup.object().shape({
           .required("Agencies are required"),
       otherwise: (schema) => schema.notRequired(),
     }),
-
-  officers: yup
-    .array()
-    .of(yup.object<StaffUser>())
-    .nullable()
-    .when("inAttendance", {
-      is: (attendance: Attendance[]) =>
-        attendance?.some((item) => item.id === AttendanceEnum.OFFICERS),
-      then: (schema) =>
-        schema
-          .min(1, "At least one Officer is required")
-          .required("Officers are required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
 });
 
 export type InspectionSchemaType = yup.InferType<typeof InspectionFormSchema>;
@@ -146,6 +139,21 @@ export const formatInspectionData = (
     project_status_id: (formData.projectStatus as ProjectStatus)?.id,
     attendance_option_ids: inAttendanceOptions,
   };
+
+  if (formData.officers?.length) {
+    inspectionData.attendance_option_ids?.push(AttendanceEnum.OFFICERS);
+    inspectionData.attending_officer_ids =
+      (formData.officers as StaffUser[])?.map((item) => item.id) ?? [];
+  }
+
+  if (formData.isIndependentEnvMonitor) {
+    inspectionData.attendance_option_ids?.push(AttendanceEnum.INDIVIDUAL_ENV_MONITOR);
+  }
+
+  if (formData.isCHRepresentatives) {
+    inspectionData.attendance_option_ids?.push(AttendanceEnum.CH_RP_REPRESENTATIVE);
+  }
+
   if (inAttendanceOptions.length) {
     // Create an object to hold the attendance-related data
     const attendanceData: Partial<InspectionAPIData> = {};
@@ -158,11 +166,6 @@ export const formatInspectionData = (
     if (inAttendanceOptions.includes(AttendanceEnum.FIRST_NATIONS)) {
       attendanceData.firstnation_attendance_ids =
         (formData.firstNations as FirstNation[])?.map((item) => item.id) ?? [];
-    }
-
-    if (inAttendanceOptions.includes(AttendanceEnum.OFFICERS)) {
-      attendanceData.attending_officer_ids =
-        (formData.officers as StaffUser[])?.map((item) => item.id) ?? [];
     }
 
     if (inAttendanceOptions.includes(AttendanceEnum.MUNICIPAL)) {

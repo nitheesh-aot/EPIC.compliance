@@ -10,7 +10,7 @@ import {
   useInitiationsData,
   useIRTypesData,
   useProjectStatusesData,
-  useUpdateInspection
+  useUpdateInspection,
 } from "@/hooks/useInspections";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { CaseFile } from "@/models/CaseFile";
@@ -65,8 +65,10 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
   const { data: inattendanceOfficersList } = useStaffUsersData(true);
   const currentUser = useCurrentLoggedInUser();
 
-  const staffUserList = [caseFile.primary_officer, ...(caseFile.officers ?? [])]
-    .filter(Boolean) as StaffUser[];
+  const staffUserList = [
+    caseFile.primary_officer,
+    ...(caseFile.officers ?? []),
+  ].filter(Boolean) as StaffUser[];
 
   const defaultValues = useMemo<InspectionFormData>(() => {
     if (inspection) {
@@ -80,9 +82,30 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
         irTypes: inspection.types,
         startDate: dayjs(inspection.start_date),
         endDate: dayjs(inspection.end_date),
-        inAttendance: inspection.inspectionAttendances?.map(
-          (item) => item.attendance_option
+        officers: inspection.inspectionAttendances?.find(
+          (item) =>
+            item.attendance_option_id === Number(AttendanceEnum.OFFICERS)
+        )?.data,
+        isIndependentEnvMonitor: inspection.inspectionAttendances?.some(
+          (item) =>
+            item.attendance_option_id ===
+            Number(AttendanceEnum.INDIVIDUAL_ENV_MONITOR)
         ),
+        isCHRepresentatives: inspection.inspectionAttendances?.some(
+          (item) =>
+            item.attendance_option_id ===
+            Number(AttendanceEnum.CH_RP_REPRESENTATIVE)
+        ),
+        inAttendance: inspection.inspectionAttendances
+          ?.filter(
+            (item) =>
+              ![
+                AttendanceEnum.INDIVIDUAL_ENV_MONITOR,
+                AttendanceEnum.CH_RP_REPRESENTATIVE,
+                AttendanceEnum.OFFICERS,
+              ].includes(item.attendance_option_id.toString() as AttendanceEnum)
+          )
+          .map((item) => item.attendance_option),
         agencies: inspection.inspectionAttendances?.find(
           (item) =>
             item.attendance_option_id === Number(AttendanceEnum.AGENCIES)
@@ -90,10 +113,6 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
         firstNations: inspection.inspectionAttendances?.find(
           (item) =>
             item.attendance_option_id === Number(AttendanceEnum.FIRST_NATIONS)
-        )?.data,
-        officers: inspection.inspectionAttendances?.find(
-          (item) =>
-            item.attendance_option_id === Number(AttendanceEnum.OFFICERS)
         )?.data,
         municipal: inspection.inspectionAttendances?.find(
           (item) =>
@@ -111,7 +130,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
       ...initFormData,
       caseFileId: caseFile.id?.toString(),
       primaryOfficer: selectedOfficer,
-      projectDescription: caseFile.project_description,
+      projectDescription: caseFile.project_description ?? "",
     };
   }, [inspection, caseFile, staffUserList, currentUser?.preferred_username]);
 
