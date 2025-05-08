@@ -6,7 +6,7 @@ import re
 from compliance_api.exceptions import ResourceExistsError, UnprocessableEntityError
 from compliance_api.models import InspectionRecord as InspectionRecordModel
 from compliance_api.models import InspectionRecordApproval as InspectionRecordApprovalModel
-from compliance_api.models import IRApprovalStatusEnum
+from compliance_api.models import IRApprovalStatusEnum, Inspection as InspectionModel, InspectionStatusEnum
 from compliance_api.models.db import session_scope
 from compliance_api.models.inspection_record import IRProgressEnum, IRStatusEnum
 from compliance_api.schemas import InspectionRecordPreviewSchema
@@ -83,11 +83,17 @@ class InspectionRecordService:
                 session=session,
             )
             # Update the IR progress to ISSUED if date_issued is updated
+            # Update the inspection status to be closed if date_issued is updated
             if field_name == "date_issued" and value:
                 InspectionRecordModel.update_inspection_record(
                     inspection_record_id=inspection_record_id,
                     ir_update_data={"ir_progress": IRProgressEnum.ISSUED},
-                    session=session,
+                    session=session
+                )
+                InspectionModel.update_inspection(
+                    inspection_id=inspection_id,
+                    inspection_data={"inspection_status": InspectionStatusEnum.CLOSED},
+                    session=session
                 )
         return updated_inspection_record
 
