@@ -86,6 +86,7 @@ function ComplaintProfilePage() {
               { label: complaintNumber },
             ]}
             profileContext={FILE_PROFILE_CONTEXT.COMPLAINT}
+            caseFileNumber={caseFileData?.case_file_number}
           />
           <Box p={"1rem 1rem 1.25rem 3.75rem"} display={"flex"} gap={3}>
             <ComplaintGeneralInformation

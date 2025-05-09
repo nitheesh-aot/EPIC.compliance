@@ -32,11 +32,6 @@ const InspectionGeneralInformation: React.FC<
   }, [inspectionData.start_date, inspectionData.end_date]);
 
   const properties = [
-    {
-      name: "Case File",
-      value: inspectionData.case_file.case_file_number,
-      link: true,
-    },
     { name: "Project", value: inspectionData.case_file?.project?.name },
     { name: "Project Description", value: inspectionData.project_description },
     {
@@ -86,8 +81,6 @@ const InspectionGeneralInformation: React.FC<
             key={property.name}
             propertyName={property.name}
             propertyValue={property.value}
-            linksList={property.link ? [property.value] : undefined}
-            linkRoute={property.link ? "/ce-database/case-files" : undefined}
           />
         ))}
       </Box>
