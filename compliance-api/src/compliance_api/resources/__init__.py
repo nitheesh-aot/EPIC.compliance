@@ -45,6 +45,7 @@ from .requirement_source import API as REQUIREMENT_SOURCE_API
 from .section import API as SECTION_API
 from .staff_user import API as USER_API
 from .topic import API as TOPIC_API
+from .warning_letter import API as WARNING_LETTER_API
 
 
 __all__ = ("API_BLUEPRINT", "OPS_BLUEPRINT")
@@ -101,3 +102,4 @@ API.add_namespace(APPENDIX_API)
 API.add_namespace(IR_API, path="inspections/<int:inspection_id>/inspection-records")
 API.add_namespace(ORDER_API, path="inspections/<int:inspection_id>/orders")
 API.add_namespace(SECTION_API)
+API.add_namespace(WARNING_LETTER_API, path="inspections/<int:inspection_id>/warning-letters")

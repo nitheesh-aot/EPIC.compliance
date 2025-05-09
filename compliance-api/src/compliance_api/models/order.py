@@ -16,9 +16,18 @@ from .utils import with_session
 class OrderStatusEnum(enum.Enum):
     """Order status enum."""
 
-    OPEN = "Open"
-    CLOSED = "Closed"
-    RESCINDED = "Rescinded"
+    CREATED = "Created"  # When you create the order
+    OPEN = "Open"  # When the order is issued
+    CLOSED = "Closed"  # When the order is closed
+    RESCINDED = "Rescinded"  # When the order is rescinded
+
+class OrderProgressEnum(enum.Enum):
+    """Order progress enum."""
+
+    DRAFTING = "Drafting"  # When you create the order
+    DEPUTY_REVIEW = "Deputy Review"  # When the deputy reviews the order
+    APPROVED = "Approved"  # When the order is approved
+    ISSUED = "Issued"  # When the order is issued
 
 
 class OrderInspectionRequirementMap(BaseModelVersioned):
@@ -105,6 +114,7 @@ class Order(BaseModelVersioned):
     section = relationship("Section", foreign_keys=[section_id], lazy="joined")
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
     order_status = Column(Enum(OrderStatusEnum), nullable=True)
+    order_progress = Column(Enum(OrderProgressEnum), nullable=True)
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
     __table_args__ = (
         Index(
