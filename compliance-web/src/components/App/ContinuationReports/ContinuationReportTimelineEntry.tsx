@@ -1,6 +1,6 @@
 import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 import { CRKeys } from "@/models/ContinuationReport";
-import { CR_CONTEXT_LINK } from "@/utils/constants";
+import { CR_CONTEXT_LINK, CR_CONTEXT_TYPE } from "@/utils/constants";
 import TimelineContent from "@mui/lab/TimelineContent";
 import { Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
@@ -21,11 +21,13 @@ export default function ContinuationReportTimelineEntry({
   const applyNavigationLinks = () => {
     if (keys && keys.length > 0) {
       keys.forEach((key) => {
-        const regEx = new RegExp(key.key, "gi");
-        renderText = renderText.replace(
-          regEx,
-          `<a href="${CR_CONTEXT_LINK[key.key_context]}/${key.key}">${key.key}</a>`
-        );
+        if (key.key_context !== CR_CONTEXT_TYPE.CASEFILE) {
+          const regEx = new RegExp(key.key, "gi");
+          renderText = renderText.replace(
+            regEx,
+            `<a href="${CR_CONTEXT_LINK[key.key_context]}/${key.key}">${key.key}</a>`
+          );
+        }
       });
     }
     return renderText;
