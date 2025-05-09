@@ -130,9 +130,8 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
           <DialogContent dividers>
             <ControlledDateTimeField
               name="dateOfEntry"
-              label="Date and Time"
-              sx={{ width: "50%" }}
-              maxDateTime={maxSelectableDate}
+              width="75%"
+              maxDate={maxSelectableDate}
               isRequired={true}
             />
             <ControlledLexicalEditor
