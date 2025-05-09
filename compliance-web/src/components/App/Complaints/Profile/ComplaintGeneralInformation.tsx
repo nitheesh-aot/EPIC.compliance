@@ -20,11 +20,6 @@ const ComplaintGeneralInformation: React.FC<
   const { appHeaderHeight } = useMenuStore();
 
   const generalProperties = [
-    {
-      name: "Case File",
-      value: complaintData.case_file.case_file_number,
-      link: true,
-    },
     { name: "Project Name", value: complaintData.case_file?.project?.name },
     {
       name: "Concern Description",
@@ -160,8 +155,6 @@ const ComplaintGeneralInformation: React.FC<
             key={property.name}
             propertyName={property.name}
             propertyValue={property.value}
-            linksList={property.link ? [property.value] : undefined}
-            linkRoute={property.link ? "/ce-database/case-files" : undefined}
           />
         ))}
       </Box>

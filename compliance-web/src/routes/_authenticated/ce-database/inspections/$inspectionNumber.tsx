@@ -100,6 +100,7 @@ function InspectionProfilePage() {
           { label: inspectionNumber },
         ]}
         profileContext={FILE_PROFILE_CONTEXT.INSPECTION}
+        caseFileNumber={caseFileData?.case_file_number}
       />
       <Box p="1rem 1rem 1.25rem 3.75rem" display="flex" gap={3}>
         <TabPanel value={currentTab} index={0} id="inspection-profile">

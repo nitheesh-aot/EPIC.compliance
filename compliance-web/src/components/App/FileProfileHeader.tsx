@@ -17,6 +17,7 @@ interface FileProfileHeaderProps {
   status: string;
   breadcrumbs: BreadcrumbItem[];
   profileContext: string;
+  caseFileNumber?: string;
 }
 
 const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
@@ -24,6 +25,7 @@ const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
   status,
   breadcrumbs,
   profileContext,
+  caseFileNumber,
 }) => {
   return (
     <Box
@@ -38,7 +40,7 @@ const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
         padding={"1.5rem 2.5rem 1.5rem 3.75rem"}
       >
         <Box display={"flex"} flexDirection={"column"} gap={1}>
-          <BreadcrumbsNav items={breadcrumbs} />
+          <BreadcrumbsNav items={breadcrumbs} caseFileNumber={caseFileNumber} />
           <Box display={"flex"} gap={1} alignItems={"center"}>
             <Typography variant="h3">{fileNumber}</Typography>
             <Chip
