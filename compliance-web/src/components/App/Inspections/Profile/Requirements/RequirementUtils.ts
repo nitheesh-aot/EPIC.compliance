@@ -16,6 +16,7 @@ export const REGULATORY_CONSIDERATION_TYPE_ID = "REG";
 
 export enum EnforcementActionEnum {
   NOT_APPLICABLE = "2",
+  WARNING_LETTER = "4",
   ORDER = "5",
   REFERRAL_TO_ADMINISTRATIVE_PENALTY = "6",
   REFER_TO_ANOTHER_AGENCY = "7",
