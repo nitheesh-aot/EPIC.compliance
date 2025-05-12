@@ -8,7 +8,7 @@ from compliance_api.models.db import session_scope
 from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models.order import Order as OrderModel
 from compliance_api.models.order import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
-from compliance_api.models.order import OrderStatusEnum, OrderProgressEnum
+from compliance_api.models.order import OrderProgressEnum, OrderStatusEnum
 from compliance_api.models.section import Section as SectionModel
 from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils

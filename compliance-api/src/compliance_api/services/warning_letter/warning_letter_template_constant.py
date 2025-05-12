@@ -1,4 +1,5 @@
 """Warning Letter Constant."""
+
 WARNING_LETTER_CONTENT = """<p class='editor-paragraph' dir='ltr'>
 <strong>SENT VIA EMAIL</strong></p>
 <div class="address-block">
@@ -11,14 +12,16 @@ WARNING_LETTER_CONTENT = """<p class='editor-paragraph' dir='ltr'>
     </p>
 </div>
 <p>Dear [NAME],</p>
-<p><strong>RE: Warning for Non-Compliance with {{requirement_details[0].requirement_source_number}} of Environmental Assessment
- Certificate # {{project_details.eac_certificate}}</strong></p>
+<p><strong>RE: Warning for Non-Compliance with {{requirement_details[0].requirement_source_number}}
+ of Environmental Assessment Certificate # {{project_details.eac_certificate}}</strong></p>
 <p>
-    On {{ inspection_details.start_date }}, {{inspection_details.officer_position}} {{ inspection_details.officer_name }} conducted a {{inspection_details.inspection_type}}
-     inspection (Inspection) of the {{ project_details.name }} (Project) against the requirements of {{ requirement_sources }}.
-     Based on information obtained during the Inspection, it was determined that the {{project_details.proponent}},
-      {{ project_details.proponent }} (the Holder) is not compliant with {{condition_lines}}. It was also determined that the {{project_details.proponent}},
-     {{project_details.proponent}} (the Holder) is not compliant with {{condition_lines}}. 
+    On {{ inspection_details.start_date }}, {{inspection_details.officer_position}}
+     {{ inspection_details.officer_name }} conducted a {{inspection_details.inspection_type}}
+     inspection (Inspection) of the {{ project_details.name }} (Project) against the requirements of
+      {{ requirement_sources }}. Based on information obtained during the Inspection, it was determined
+       that the {{project_details.proponent}}, {{ project_details.proponent }} (the Holder) is not compliant
+        with {{condition_lines}}. It was also determined that the {{project_details.proponent}},
+         {{project_details.proponent}} (the Holder) is not compliant with {{condition_lines}}.
 </p>
 {% for requirement in requirement_details %}
 <p>

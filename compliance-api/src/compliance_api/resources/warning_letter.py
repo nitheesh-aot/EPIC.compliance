@@ -6,10 +6,12 @@ from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
-from compliance_api.services.order.order import OrderService
+from compliance_api.schemas.warning_letter import (
+    WarningLetterCreateSchema, WarningLetterIssueSchema, WarningLetterSchema, WarningLetterStatusSchema,
+    WarningLetterUpdateSchema)
+from compliance_api.services.warning_letter.warning_letter import WarningLetterService
 from compliance_api.utils.constant import PermissionEnum
 
-from compliance_api.schemas.warning_letter import WarningLetterCreateSchema, WarningLetterIssueSchema, WarningLetterSchema, WarningLetterStatusSchema, WarningLetterUpdateSchema
 from ..utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
@@ -53,12 +55,16 @@ class WarningLetters(Resource):
     @auth.require
     @ApiHelper.swagger_decorators(API, endpoint_description="Create a warning letter")
     @API.expect(warning_letter_create_model)
-    @API.response(code=201, model=warning_letter_list_model, description="WarningLetterCreated")
+    @API.response(
+        code=201, model=warning_letter_list_model, description="WarningLetterCreated"
+    )
     @API.response(400, "Bad Request")
     def post(inspection_id):
         """Create a warning letter."""
         warning_letter_data = WarningLetterCreateSchema().load(API.payload)
-        created_warning_letter = WarningLetterService.create_warning_letter(inspection_id, warning_letter_data)
+        created_warning_letter = WarningLetterService.create_warning_letter(
+            inspection_id, warning_letter_data
+        )
         return WarningLetterSchema().dump(created_warning_letter), HTTPStatus.CREATED
 
 
@@ -70,14 +76,20 @@ class WarningLetter(Resource):
 
     @staticmethod
     @auth.require
-    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch a warning letter by id")
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Fetch a warning letter by id"
+    )
     @API.response(code=200, model=warning_letter_list_model, description="Success")
     @API.response(404, "Not Found")
     def get(inspection_id, warning_letter_id):
         """Fetch a warning letter by id."""
-        warning_letter = WarningLetterService.get_warning_letter(inspection_id, warning_letter_id)
+        warning_letter = WarningLetterService.get_warning_letter(
+            inspection_id, warning_letter_id
+        )
         if not warning_letter:
-            raise ResourceNotFoundError(f"Warning letter with {warning_letter_id} not found")
+            raise ResourceNotFoundError(
+                f"Warning letter with {warning_letter_id} not found"
+            )
         return WarningLetterSchema().dump(warning_letter), HTTPStatus.OK
 
     @staticmethod
@@ -90,13 +102,17 @@ class WarningLetter(Resource):
     def patch(inspection_id, warning_letter_id):
         """Update warning letter."""
         warning_letter_data = WarningLetterUpdateSchema().load(API.payload)
-        updated_warning_letter = WarningLetterService.update_warning_letter(inspection_id, warning_letter_id, warning_letter_data)
+        updated_warning_letter = WarningLetterService.update_warning_letter(
+            inspection_id, warning_letter_id, warning_letter_data
+        )
         return WarningLetterSchema().dump(updated_warning_letter), HTTPStatus.OK
 
     @staticmethod
     @auth.require
     @auth.has_one_of_roles([PermissionEnum.SUPERUSER])
-    @ApiHelper.swagger_decorators(API, endpoint_description="Delete a warning letter by id")
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Delete a warning letter by id"
+    )
     @API.response(code=204, description="Success")
     @API.response(404, "Not Found")
     def delete(inspection_id, warning_letter_id):
@@ -106,42 +122,34 @@ class WarningLetter(Resource):
 
 
 @cors_preflight("GET, PATCH, DELETE, OPTIONS")
-@API.route("/warning-letter-numbers/<string:warning_letter_number>", methods=["GET", "OPTIONS"])
-@API.doc(params={"warning_letter_number": "The unique identifier for the warning letter"})
+@API.route(
+    "/warning-letter-numbers/<string:warning_letter_number>", methods=["GET", "OPTIONS"]
+)
+@API.doc(
+    params={"warning_letter_number": "The unique identifier for the warning letter"}
+)
 class WarningLetterByWarningLetterNumber(Resource):
     """Resource for managing a single Warning Letter."""
 
     @staticmethod
     @auth.require
-    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch a warning letter by id")
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Fetch a warning letter by id"
+    )
     @API.response(code=200, model=warning_letter_list_model, description="Success")
     @API.response(404, "Not Found")
     def get(inspection_id, warning_letter_number):
         """Fetch a warning letter by id."""
-        warning_letter = WarningLetterService.get_warning_letter_by_warning_letter_number(inspection_id, warning_letter_number)
+        warning_letter = (
+            WarningLetterService.get_warning_letter_by_warning_letter_number(
+                inspection_id, warning_letter_number
+            )
+        )
         if not warning_letter:
-            raise ResourceNotFoundError(f"Warning letter with {warning_letter_number} not found")
+            raise ResourceNotFoundError(
+                f"Warning letter with {warning_letter_number} not found"
+            )
         return WarningLetterSchema().dump(warning_letter), HTTPStatus.OK
-
-
-@cors_preflight("PATCH, OPTIONS")
-@API.route("/<int:warning_letter_id>/status", methods=["PATCH", "OPTIONS"])
-@API.doc(params={"warning_letter_id": "The unique identifier for the warning letter"})
-class WarningLetterStatus(Resource):
-    """Update the inspection status."""
-
-    @staticmethod
-    @auth.require
-    @API.response(400, "Bad Request")
-    @API.expect(warning_letter_status_model)
-    @API.response(404, "Not Found")
-    @ApiHelper.swagger_decorators(API, endpoint_description="Change warning letter status")
-    @API.response(code=204, description="Warning letter status changed")
-    def patch(inspection_id, warning_letter_id):
-        """Change Order Status."""
-        status = WarningLetterStatusSchema().load(API.payload)
-        WarningLetterService.change_status(inspection_id, warning_letter_id, status)
-        return {}, HTTPStatus.NO_CONTENT
 
 
 @cors_preflight("PATCH, OPTIONS")
@@ -151,7 +159,7 @@ class WarningLetterIssue(Resource):
     """Update the inspection status."""
 
     @staticmethod
-    @auth.require   
+    @auth.require
     @API.response(400, "Bad Request")
     @API.expect(warning_letter_issue_model)
     @API.response(404, "Not Found")
@@ -160,5 +168,7 @@ class WarningLetterIssue(Resource):
     def patch(inspection_id, warning_letter_id):
         """Issue Warning Letter."""
         issue = WarningLetterIssueSchema().load(API.payload)
-        WarningLetterService.issue_warning_letter(inspection_id, warning_letter_id, issue)
+        WarningLetterService.issue_warning_letter(
+            inspection_id, warning_letter_id, issue
+        )
         return {}, HTTPStatus.NO_CONTENT

@@ -5,7 +5,7 @@ from marshmallow_enum import EnumField
 
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
-from ..models.order import Order, OrderStatusEnum
+from ..models.order import Order, OrderProgressEnum, OrderStatusEnum
 from .base_schema import AutoSchemaBase, BaseSchema
 from .section import SectionSchema
 from .staff_user import StaffUserSchema
@@ -74,6 +74,10 @@ class OrderSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
             data["order_status"] = OrderStatusEnum(data["order_status"]).value
         else:
             data["order_status"] = ""
+        if "order_progress" in data and data["order_progress"] is not None:
+            data["order_progress"] = OrderProgressEnum(data["order_progress"]).value
+        else:
+            data["order_progress"] = ""
         return data
 
 

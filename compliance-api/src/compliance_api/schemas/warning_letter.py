@@ -7,7 +7,6 @@ from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from ..models.warning_letter import WarningLetter, WarningLetterStatusEnum
 from .base_schema import AutoSchemaBase, BaseSchema
-from .section import SectionSchema
 from .staff_user import StaffUserSchema
 
 
@@ -35,7 +34,9 @@ class WarningLetterUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancesto
     )
 
 
-class WarningLetterCreateSchema(WarningLetterUpdateSchema):  # pylint: disable=too-many-ancestors
+class WarningLetterCreateSchema(
+    WarningLetterUpdateSchema
+):  # pylint: disable=too-many-ancestors
     """Schema for warning letter model."""
 
     warning_letter_number = fields.String(
@@ -63,10 +64,10 @@ class WarningLetterSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         self, data, many, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of the inspection status enum."""
-        if "warning_letter_status" in data and data["warning_letter_status"] is not None:
-            data["warning_letter_status"] = WarningLetterStatusEnum(data["warning_letter_status"]).value
+        if "status" in data and data["status"] is not None:
+            data["status"] = WarningLetterStatusEnum(data["status"]).value
         else:
-            data["warning_letter_status"] = ""
+            data["status"] = ""
         return data
 
 

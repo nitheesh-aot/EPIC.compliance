@@ -1,15 +1,22 @@
 """Warning Letter Model."""
 
-from compliance_api.models.base_model import BaseModelVersioned
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
-from sqlalchemy.orm import relationship
 from enum import Enum
+
+from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy import Enum as SqlEnum
+from sqlalchemy import ForeignKey, Index, Integer, String, func
+from sqlalchemy.orm import relationship
+
+from compliance_api.models.base_model import BaseModelVersioned
+from compliance_api.models.case_file import CaseFile as CaseFileModel
+from compliance_api.models.inspection import Inspection as InspectionModel
 from compliance_api.models.utils import with_session
-from sqlalchemy import Index
+from compliance_api.utils.constant import DELETE_DIC_PARAMS
+
 
 class WarningLetterStatusEnum(Enum):
     """Enum for Warning Letter Status."""
+
     CREATED = "Created"
     ISSUED = "Issued"
 
@@ -23,7 +30,10 @@ class WarningLetterInspectionRequirementMap(BaseModelVersioned):
         Integer, primary_key=True, autoincrement=True, comment="The unique identifier"
     )
     warning_letter_id = Column(
-        Integer, ForeignKey("warning_letters.id", name="warning_letter_inspection_map_order_id_fkey")
+        Integer,
+        ForeignKey(
+            "warning_letters.id", name="warning_letter_inspection_map_order_id_fkey"
+        ),
     )
     inspection_requirement_id = Column(
         Integer,
@@ -32,7 +42,9 @@ class WarningLetterInspectionRequirementMap(BaseModelVersioned):
             name="order_inspection_map_requirement_id_fkey",
         ),
     )
-    warning_letter = relationship("WarningLetter", foreign_keys=[warning_letter_id], lazy="joined")
+    warning_letter = relationship(
+        "WarningLetter", foreign_keys=[warning_letter_id], lazy="joined"
+    )
     inspection_requirement = relationship(
         "InspectionRequirement", foreign_keys=[inspection_requirement_id], lazy="joined"
     )
@@ -107,8 +119,13 @@ class WarningLetter(BaseModelVersioned):
     issuing_officer = relationship(
         "StaffUser", foreign_keys=[issuing_officer_id], lazy="joined"
     )
-    status = Column(SqlEnum(WarningLetterStatusEnum), nullable=True, comment="Status of the warning letter", default=WarningLetterStatusEnum.CREATED)
-    
+    status = Column(
+        SqlEnum(WarningLetterStatusEnum),
+        nullable=True,
+        comment="Status of the warning letter",
+        default=WarningLetterStatusEnum.CREATED,
+    )
+
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="joined")
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
     __table_args__ = (
@@ -147,6 +164,15 @@ class WarningLetter(BaseModelVersioned):
         """Find all warning letters by inspection id."""
         return cls.query.filter_by(
             inspection_id=inspection_id, is_deleted=False, is_active=True
+        ).first()
+
+    @classmethod
+    def get_by_warning_letter_number(cls, warning_letter_number):
+        """Find warning letter by warning letter number."""
+        return cls.query.filter_by(
+            warning_letter_number=warning_letter_number,
+            is_deleted=False,
+            is_active=True,
         ).first()
 
     @classmethod

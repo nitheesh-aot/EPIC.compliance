@@ -5,15 +5,17 @@ from typing import List
 from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import session_scope
+from compliance_api.models.department_detail import DepartmentDetail as DepartmentDetailModel
 from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models.warning_letter import WarningLetter as WarningLetterModel
-from compliance_api.models.warning_letter import WarningLetterInspectionRequirementMap as WarningLetterInspectionRequirementMapModel
+from compliance_api.models.warning_letter import \
+    WarningLetterInspectionRequirementMap as WarningLetterInspectionRequirementMapModel
 from compliance_api.models.warning_letter import WarningLetterStatusEnum
-from compliance_api.services.service_utils import ServiceUtils
-from compliance_api.models.department_detail import DepartmentDetail as DepartmentDetailModel
-from compliance_api.utils.template_renderer import render_template_with_data
 from compliance_api.services.epic_track_service.track_service import TrackService
+from compliance_api.services.service_utils import ServiceUtils
 from compliance_api.services.warning_letter.warning_letter_template_constant import WARNING_LETTER_CONTENT
+from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE
+from compliance_api.utils.template_renderer import render_template_with_data
 
 
 class WarningLetterService:
@@ -27,18 +29,24 @@ class WarningLetterService:
         )
 
     @classmethod
-    def create_warning_letter(cls, inspection_id: int, warning_letter_data: dict) -> WarningLetterModel:
+    def create_warning_letter(
+        cls, inspection_id: int, warning_letter_data: dict
+    ) -> WarningLetterModel:
         """Create a new warning letter."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         requirement_ids = warning_letter_data.get("inspection_requirement_ids", [])
-        if WarningLetterModel.does_warning_letter_exists_by_requirement_ids(requirement_ids):
+        if WarningLetterModel.does_warning_letter_exists_by_requirement_ids(
+            requirement_ids
+        ):
             raise UnprocessableEntityError(
                 "Warning letter already exists for these requirements."
             )
         warning_letter_obj = _create_warning_letter_obj(inspection, warning_letter_data)
         with session_scope() as session:
-            created_warning_letter = WarningLetterModel.create(warning_letter_obj, session)
+            created_warning_letter = WarningLetterModel.create_warning_letter(
+                warning_letter_obj, session
+            )
             cls.insert_or_update_inspection_requirements(
                 created_warning_letter.id,
                 warning_letter_data.get("inspection_requirement_ids", []),
@@ -47,18 +55,20 @@ class WarningLetterService:
         return created_warning_letter
 
     @classmethod
-    def get_warning_letter(cls, inspection_id: int, warning_letter_id: int) -> WarningLetterModel:
+    def get_warning_letter(
+        cls, inspection_id: int, warning_letter_id: int
+    ) -> WarningLetterModel:
         """Retrieve a warning letter by ID."""
         ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         return WarningLetterModel.find_by_id(warning_letter_id)
 
     @classmethod
-    def get_warning_letter_by_order_number(
-        cls, inspection_id: int, order_number: str
+    def get_warning_letter_by_warning_letter_number(
+        cls, inspection_id: int, warning_letter_number: str
     ) -> WarningLetterModel:
-        """Retrieve a warning letter by order number."""
+        """Retrieve a warning letter by warning letter number."""
         ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
-        return WarningLetterModel.get_by_order_number(order_number)
+        return WarningLetterModel.get_by_warning_letter_number(warning_letter_number)
 
     @classmethod
     def update_warning_letter(
@@ -68,12 +78,16 @@ class WarningLetterService:
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         requirement_ids = update_data.get("inspection_requirement_ids", [])
-        if WarningLetterModel.does_warning_letter_exists_by_requirement_ids(requirement_ids, warning_letter_id):
+        if WarningLetterModel.does_warning_letter_exists_by_requirement_ids(
+            requirement_ids, warning_letter_id
+        ):
             raise UnprocessableEntityError(
                 "Warning letter already exists for these requirements."
             )
         with session_scope() as session:
-            updated_warning_letter = WarningLetterModel.update_warning_letter(warning_letter_id, update_data, session)
+            updated_warning_letter = WarningLetterModel.update_warning_letter(
+                warning_letter_id, update_data, session
+            )
             cls.insert_or_update_inspection_requirements(
                 updated_warning_letter.id,
                 update_data.get("inspection_requirement_ids", []),
@@ -94,8 +108,10 @@ class WarningLetterService:
     ):
         """Insert/Update inspection requirements associated with a given warning letter."""
         if inspection_requirement_ids is not None:
-            existing_requirements = WarningLetterInspectionRequirementMapModel.get_by_warning_letter_id(
-                warning_letter_id
+            existing_requirements = (
+                WarningLetterInspectionRequirementMapModel.get_by_warning_letter_id(
+                    warning_letter_id
+                )
             )
             existing_requirement_ids = {
                 req.inspection_requirement_id for req in existing_requirements
@@ -119,42 +135,19 @@ class WarningLetterService:
                 )
 
     @classmethod
-    def change_status(cls, inspection_id, warning_letter_id, status):
-        """Close the warning letter."""
-        warning_letter = WarningLetterModel.find_by_id(warning_letter_id)
-        if not warning_letter:
-            raise ResourceNotFoundError(f"Warning letter with ID {warning_letter_id} not found")
-        inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
-        ServiceUtils.access_check_update_for_inspection(inspection)
-        status_enum = WarningLetterStatusEnum(status.get("status"))
-        if warning_letter.warning_letter_status == status_enum:
-            raise UnprocessableEntityError(
-                "The warning letter is already in the requested status"
-            )
-        possible_status_change = {
-            WarningLetterStatusEnum.OPEN: [WarningLetterStatusEnum.CLOSED, WarningLetterStatusEnum.RESCINDED],
-            WarningLetterStatusEnum.CLOSED: [WarningLetterStatusEnum.OPEN],
-        }
-        if status_enum not in possible_status_change.get(warning_letter.warning_letter_status, []):
-            raise UnprocessableEntityError("Invalid status change requested")
-        updated_warning_letter = WarningLetterModel.update_warning_letter(
-            warning_letter_id,
-            {"warning_letter_status": WarningLetterStatusEnum(status_enum.value)},
-        )
-        return updated_warning_letter
-
-    @classmethod
     def issue_warning_letter(cls, inspection_id, warning_letter_id, issue):
         """Issue a warning letter."""
         warning_letter = WarningLetterModel.find_by_id(warning_letter_id)
         if not warning_letter:
-            raise ResourceNotFoundError(f"Warning letter with ID {warning_letter_id} not found")
+            raise ResourceNotFoundError(
+                f"Warning letter with ID {warning_letter_id} not found"
+            )
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         updated_warning_letter = WarningLetterModel.update_warning_letter(
             warning_letter_id,
             {
-                "warning_letter_status": WarningLetterStatusEnum.ISSUED,
+                "status": WarningLetterStatusEnum.ISSUED,
                 "date_issued": issue.get("date_issued"),
             },
         )
@@ -176,9 +169,7 @@ def _create_warning_letter_obj(inspection, warning_letter_data: dict) -> dict:
         )
     content = warning_letter_data.get("content")
     if not content:
-        generated_content = (
-            _create_content(inspection, warning_letter_number)
-        )
+        generated_content = _create_content(inspection, warning_letter_number)
         content = content or generated_content
     return {
         "warning_letter_number": warning_letter_number,
@@ -188,41 +179,48 @@ def _create_warning_letter_obj(inspection, warning_letter_data: dict) -> dict:
         ),
         "content": content,
         "intended_issuance_date": warning_letter_data.get("intended_issuance_date"),
-        "warning_letter_status": WarningLetterStatusEnum.CREATED
+        "status": WarningLetterStatusEnum.CREATED,
     }
 
 
 def _create_content(inspection, warning_letter_number):
     """Create where_as and now_therefore."""
     department_details = DepartmentDetailModel.query.filter_by(
-            is_active=True, is_deleted=False
-        ).first()
+        is_active=True, is_deleted=False
+    ).first()
     requirements = InspectionRequirementModel.get_by_inspection_id(inspection.id)
     requirement_details = ServiceUtils.get_formatted_requirement_details(requirements)
     requirements = []
     for requirement in requirement_details:
-        requirements.append({
-            "requirement_summary": requirement["requirement_summary"],
-            "requirement_source_number": requirement["requirement_source_details"][0]["requirement_source_number"],
-            "requirement_source_name": requirement["requirement_source_details"][0]["requirement_source_name"],
-        })
+        if len(requirement["requirement_source_details"]) > 0:
+            requirements.append(
+                {
+                    "requirement_summary": requirement["requirement_summary"],
+                    "requirement_source_number": requirement[
+                        "requirement_source_details"
+                    ][0]["requirement_source_number"],
+                    "requirement_source_name": requirement[
+                        "requirement_source_details"
+                    ][0]["requirement_source_name"],
+                }
+            )
     # Create condition_line by grouping requirements by source name
     condition_lines = []
     grouped_requirements = {}
-    
+
     # Group requirements by source name
     for requirement in requirements:
-        source_name = requirement['requirement_source_name']
+        source_name = requirement["requirement_source_name"]
         if source_name not in grouped_requirements:
             grouped_requirements[source_name] = []
-        grouped_requirements[source_name].append({
-            'number': requirement['requirement_source_number']
-        })
-    
+        grouped_requirements[source_name].append(
+            {"number": requirement["requirement_source_number"]}
+        )
+
     # Create condition line for each source
     for source_name, reqs in grouped_requirements.items():
-        numbers = ', '.join(req['number'] for req in reqs)
-        condition_lines.append(f"{numbers} of {source_name}")        
+        numbers = ", ".join(req["number"] for req in reqs)
+        condition_lines.append(f"{numbers} of {source_name}")
     warning_letter_content = {
         "project_details": ServiceUtils.get_project_details(
             inspection.case_file.project_id, inspection.case_file.id
@@ -237,18 +235,20 @@ def _create_content(inspection, warning_letter_number):
                 inspection.end_date.strftime("%Y-%m-%d") if inspection.end_date else ""
             ),
             "ir_number": inspection.ir_number,
-            "officer_name": inspection.primary_officer.name,
-            "officer_position": inspection.primary_officer.position,
+            "officer_name": f"{inspection.primary_officer.first_name} {inspection.primary_officer.last_name}",
+            "officer_position": inspection.primary_officer.position.name,
         },
         "department_details": {
             "email": department_details.email,
             "phone": department_details.phone,
         },
         "requirement_details": requirements,
-        "condition_lines": " ,".join(condition_lines)
+        "condition_lines": " ,".join(condition_lines),
     }
 
-    content = render_template_with_data("WARNING_LETTER_CONTENT", WARNING_LETTER_CONTENT, warning_letter_content)
+    content = render_template_with_data(
+        "WARNING_LETTER_CONTENT", WARNING_LETTER_CONTENT, warning_letter_content
+    )
     return content
 
 
@@ -261,7 +261,9 @@ def _create_warning_letter_number(project_id: int, case_file_id: int) -> str:
     if case_file.project_id != project_id:
         raise UnprocessableEntityError("Given project and case file don't match")
 
-    count = WarningLetterModel.get_count_by_project_nd_case_file_id(project_id, case_file_id)
+    count = WarningLetterModel.get_count_by_project_nd_case_file_id(
+        project_id, case_file_id
+    )
     serial_number = f"{count + 1:04}"
     return f"{project_code}_{case_file.case_file_number}_WL{serial_number}"
 

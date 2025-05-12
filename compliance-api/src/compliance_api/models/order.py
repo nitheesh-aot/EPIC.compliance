@@ -21,6 +21,7 @@ class OrderStatusEnum(enum.Enum):
     CLOSED = "Closed"  # When the order is closed
     RESCINDED = "Rescinded"  # When the order is rescinded
 
+
 class OrderProgressEnum(enum.Enum):
     """Order progress enum."""
 
