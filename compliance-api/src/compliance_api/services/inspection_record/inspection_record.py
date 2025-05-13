@@ -89,12 +89,12 @@ class InspectionRecordService:
                 InspectionRecordModel.update_inspection_record(
                     inspection_record_id=inspection_record_id,
                     ir_update_data={"ir_progress": IRProgressEnum.ISSUED},
-                    session=session
+                    session=session,
                 )
                 InspectionModel.update_inspection(
                     inspection_id=inspection_id,
                     inspection_data={"inspection_status": InspectionStatusEnum.CLOSED},
-                    session=session
+                    session=session,
                 )
         return updated_inspection_record
 

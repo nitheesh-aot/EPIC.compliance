@@ -1,22 +1,18 @@
-"""Order Schemas."""
+"""Warning Letter Schemas."""
 
 from marshmallow import EXCLUDE, fields, post_dump, post_load
 from marshmallow_enum import EnumField
 
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
-from ..models.order import Order, OrderProgressEnum, OrderStatusEnum
+from ..models.warning_letter import WarningLetter, WarningLetterStatusEnum
 from .base_schema import AutoSchemaBase, BaseSchema
-from .section import SectionSchema
 from .staff_user import StaffUserSchema
 
 
-class OrderUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
-    """Schema for order model."""
+class WarningLetterUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
+    """Schema for warning letter model."""
 
-    section_id = fields.Integer(
-        allow_none=True, metadata={"description": "The section id"}
-    )
     issuing_officer_id = fields.Integer(
         allow_none=True, metadata={"description": "The issuing officer id"}
     )
@@ -28,10 +24,7 @@ class OrderUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
         },
         metadata={"description": "The intended issuance date"},
     )
-    where_as = fields.String(allow_none=True, metadata={"description": "The where as"})
-    now_therefore = fields.String(
-        allow_none=True, metadata={"description": "The now therefore"}
-    )
+    content = fields.String(allow_none=True, metadata={"description": "The content"})
     inspection_requirement_ids = fields.List(
         fields.Integer(),
         required=True,
@@ -41,48 +34,45 @@ class OrderUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     )
 
 
-class OrderCreateSchema(OrderUpdateSchema):  # pylint: disable=too-many-ancestors
-    """Schema for order model."""
+class WarningLetterCreateSchema(
+    WarningLetterUpdateSchema
+):  # pylint: disable=too-many-ancestors
+    """Schema for warning letter model."""
 
-    order_number = fields.String(
-        allow_none=True, metadata={"description": "The unique order number."}
+    warning_letter_number = fields.String(
+        allow_none=True, metadata={"description": "The unique warning letter number."}
     )
 
 
-class OrderSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
-    """Schema for order model."""
+class WarningLetterSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
+    """Schema for warning letter model."""
 
     class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
         """Meta."""
 
         unknown = EXCLUDE
-        model = Order
+        model = WarningLetter
         include_fk = True
 
     issuing_officer = fields.Nested(
         StaffUserSchema(),
         only=("id", "first_name", "last_name", "name", "auth_user_guid"),
     )
-    section = fields.Nested(SectionSchema, only=("id", "name"))
 
     @post_dump
     def post_dump_actions(
         self, data, many, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of the inspection status enum."""
-        if "order_status" in data and data["order_status"] is not None:
-            data["order_status"] = OrderStatusEnum(data["order_status"]).value
+        if "status" in data and data["status"] is not None:
+            data["status"] = WarningLetterStatusEnum(data["status"]).value
         else:
-            data["order_status"] = ""
-        if "order_progress" in data and data["order_progress"] is not None:
-            data["order_progress"] = OrderProgressEnum(data["order_progress"]).value
-        else:
-            data["order_progress"] = ""
+            data["status"] = ""
         return data
 
 
-class OrderStatusSchema(BaseSchema):
-    """OrderStatusSchema."""
+class WarningLetterStatusSchema(BaseSchema):
+    """WarningLetterStatusSchema."""
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
@@ -90,8 +80,8 @@ class OrderStatusSchema(BaseSchema):
         unknown = EXCLUDE
 
     status = EnumField(
-        OrderStatusEnum,
-        metadata={"description": "The status of the order"},
+        WarningLetterStatusEnum,
+        metadata={"description": "The status of the warning letter"},
         required=True,
     )
 
@@ -106,8 +96,8 @@ class OrderStatusSchema(BaseSchema):
         return data
 
 
-class OrderIssueSchema(BaseSchema):
-    """OrderIssueSchema."""
+class WarningLetterIssueSchema(BaseSchema):
+    """WarningLetterIssueSchema."""
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
@@ -120,5 +110,5 @@ class OrderIssueSchema(BaseSchema):
         error_messages={
             "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
         },
-        metadata={"description": "The date the order was issued"},
+        metadata={"description": "The date the warning letter was issued"},
     )

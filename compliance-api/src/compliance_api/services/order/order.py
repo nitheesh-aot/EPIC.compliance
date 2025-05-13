@@ -8,7 +8,7 @@ from compliance_api.models.db import session_scope
 from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models.order import Order as OrderModel
 from compliance_api.models.order import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
-from compliance_api.models.order import OrderStatusEnum
+from compliance_api.models.order import OrderProgressEnum, OrderStatusEnum
 from compliance_api.models.section import Section as SectionModel
 from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils
@@ -157,7 +157,8 @@ class OrderService:
         OrderModel.update_order(
             order_id,
             {
-                "order_status": OrderStatusEnum.ISSUED,
+                "order_status": OrderStatusEnum.OPEN,
+                "order_progress": OrderProgressEnum.ISSUED,
                 "date_issued": issue.get("date_issued"),
             },
         )
@@ -199,7 +200,8 @@ def _create_order_obj(inspection, order_data: dict) -> dict:
         "where_as": where_as,
         "now_therefore": now_therefore,
         "intended_issuance_date": order_data.get("intended_issuance_date"),
-        "order_status": OrderStatusEnum.OPEN,
+        "order_status": OrderStatusEnum.CREATED,
+        "order_progress": OrderProgressEnum.DRAFTING,
     }
 
 
