@@ -4,7 +4,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
-import { FC, useCallback, useEffect } from "react";
+import { FC, useCallback, useEffect, useMemo } from "react";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { EnforcementActionEnum } from "@/utils/constants";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
@@ -21,6 +21,7 @@ type EnforcementModalProps = {
   inspectionId: number;
   enforcementType: EnforcementActionEnum;
   requirementsList: InspectionRequirement[];
+  requirement?: InspectionRequirement;
   onSubmit: (message: string) => void;
 };
 
@@ -46,13 +47,23 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
   onSubmit,
   requirementsList,
   enforcementType,
+  requirement,
 }) => {
   const isEnforcementOrder = enforcementType === EnforcementActionEnum.ORDER;
+
+  const defaultValues = useMemo(() => {
+    if (requirement) {
+      return {
+        requirements: [requirement],
+      };
+    }
+    return initFormData;
+  }, [requirement]);
 
   const methods = useForm<EnforcementFormType>({
     resolver: yupResolver(enforcementSchema),
     mode: "onBlur",
-    defaultValues: initFormData,
+    defaultValues,
   });
 
   const { handleSubmit, reset, watch } = methods;
@@ -60,8 +71,8 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
   const selectedRequirements = watch("requirements") as InspectionRequirement[];
 
   useEffect(() => {
-    reset(initFormData);
-  }, [reset]);
+    reset(defaultValues);
+  }, [reset, defaultValues]);
 
   const onSuccess = (data: InspectionOrder) => {
     onSubmit(`Order ${data.order_number} created`);

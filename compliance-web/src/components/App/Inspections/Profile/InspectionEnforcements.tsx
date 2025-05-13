@@ -52,42 +52,38 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     }
   }, [inspectionRequirementsData]);
 
+  const openEnforcementModal = (
+    isEnforcementOrder: boolean,
+    requirement?: InspectionRequirement
+  ) => {
+    setOpen({
+      content: (
+        <EnforcementModal
+          inspectionId={inspectionData.id}
+          enforcementType={
+            isEnforcementOrder
+              ? EnforcementActionEnum.ORDER
+              : EnforcementActionEnum.WARNING_LETTER
+          }
+          requirementsList={requirementEnforcements}
+          requirement={requirement}
+          onSubmit={(message) => {
+            notify.success(message);
+            setClose();
+          }}
+        />
+      ),
+    });
+  };
+
   const actionsList = [
     {
       text: "Warning Letter",
-      onClick: () => {
-        setOpen({
-          content: (
-            <EnforcementModal
-              inspectionId={inspectionData.id}
-              enforcementType={EnforcementActionEnum.WARNING_LETTER}
-              requirementsList={requirementEnforcements}
-              onSubmit={(message) => {
-                notify.success(message);
-                setClose();
-              }}
-            />
-          ),
-        });
-      },
+      onClick: () => openEnforcementModal(false),
     },
     {
       text: "Order",
-      onClick: () => {
-        setOpen({
-          content: (
-            <EnforcementModal
-              inspectionId={inspectionData.id}
-              enforcementType={EnforcementActionEnum.ORDER}
-              requirementsList={requirementEnforcements}
-              onSubmit={(message) => {
-                notify.success(message);
-                setClose();
-              }}
-            />
-          ),
-        });
-      },
+      onClick: () => openEnforcementModal(true),
     },
     {
       text: "Administrative Penalty Recommendation",
@@ -124,6 +120,9 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           <EnforcementNotificationCard
             key={requirement.id}
             requirement={requirement}
+            openEnforcementModal={(isEnforcementOrder) =>
+              openEnforcementModal(isEnforcementOrder, requirement)
+            }
           />
         ))
       )}

@@ -7,15 +7,15 @@ import { EnforcementActionEnum } from "@/utils/constants";
 
 const EnforcementNotificationCard = ({
   requirement,
+  openEnforcementModal,
 }: {
   requirement: InspectionRequirement;
+  openEnforcementModal: (isEnforcementOrder: boolean) => void;
 }) => {
   const [isClosed, setIsClosed] = useState(false);
-  const enforcementType = requirement.enforcement_action_data.some(
+  const isEnforcementOrder = requirement.enforcement_action_data.some(
     (enforcement) => enforcement.id === EnforcementActionEnum.ORDER
-  )
-    ? "Order"
-    : "Warning Letter";
+  );
 
   return (
     !isClosed && (
@@ -37,18 +37,19 @@ const EnforcementNotificationCard = ({
         <InfoOutlined sx={{ fontSize: "1.25rem", mt: 0.5 }} />
         <Box flexGrow={1}>
           <Typography variant="body1" fontWeight={"bold"}>
-            {enforcementType}
+            {isEnforcementOrder ? "Order" : "Warning Letter"}
           </Typography>
           <Typography variant="body1">
-            You have selected {enforcementType} as an Enforcement Action for{" "}
-            <strong>{requirement.summary}</strong>. Please proceed to create it.
+            You have selected {isEnforcementOrder ? "order" : "warning letter"}{" "}
+            as an enforcement action for <strong>{requirement.summary}</strong>.
+            Please proceed to create it.
           </Typography>
           <Box sx={{ mt: 1, display: "flex", justifyContent: "flex-end" }}>
             <Button
               variant="contained"
               color="secondary"
               size="small"
-              onClick={() => {}}
+              onClick={() => openEnforcementModal(isEnforcementOrder)}
             >
               Proceed
             </Button>
