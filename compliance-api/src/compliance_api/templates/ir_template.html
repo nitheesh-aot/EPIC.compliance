@@ -538,6 +538,31 @@
                     <td colspan="2">None at this time</td>
                 </tr>
                 {% endif %}
+                <tr>
+                    <th colspan="2" class="com-ir-header-background">Inspection Record Version Dates</th>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <strong>Date Preliminary</strong></br>
+                        {% if version_date_info.preliminary_dates %}
+                        {% for date in version_date_info.preliminary_dates %}
+                        <strong>{{ date }}</strong></br>
+                        {% endfor %}
+                        {% else %}
+                        <strong>n/a</strong>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <strong>Date Finalized</strong></br>
+                        {% if version_date_info.final_date %}
+                        <strong>{{ version_date_info.final_date }}</strong>
+                        {% else %}
+                        </br>
+                        {% endif %}
+                    </td>
+                </tr>
                 {% if appendices %}
                 <tr>
                     <th colspan="2" class="com-ir-header-background">Appendices:</th>
