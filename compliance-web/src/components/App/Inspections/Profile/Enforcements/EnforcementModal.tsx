@@ -1,10 +1,10 @@
-import { Box, DialogContent, Typography } from "@mui/material";
+import { Box, Collapse, DialogContent, Typography } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
-import { FC, useCallback, useEffect, useMemo } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { EnforcementActionEnum } from "@/utils/constants";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
@@ -15,7 +15,8 @@ import {
 } from "@/models/InspectionOrder";
 import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbox";
 import { BCDesignTokens } from "epic.theme";
-import { WarningAmberOutlined } from "@mui/icons-material";
+import { ExpandMoreRounded, WarningAmberOutlined } from "@mui/icons-material";
+import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 
 type EnforcementModalProps = {
   inspectionId: number;
@@ -33,6 +34,14 @@ const enforcementSchema = yup.object().shape({
     .min(1, "At least one Requirement is required")
     .required("Requirement is required"),
   isHistoricalRecord: yup.boolean().nullable(),
+  manualOrderNumber: yup
+    .string()
+    .nullable()
+    .when("isHistoricalRecord", {
+      is: (value: boolean) => value === true,
+      then: (schema) => schema.required("Manual Order # is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
 });
 
 type EnforcementFormType = yup.InferType<typeof enforcementSchema>;
@@ -40,6 +49,37 @@ type EnforcementFormType = yup.InferType<typeof enforcementSchema>;
 const initFormData = {
   requirements: undefined,
   isHistoricalRecord: false,
+  manualOrderNumber: undefined,
+};
+
+const ManualOrderNumberInfo = () => {
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
+
+  return (
+    <Box
+      sx={{ display: "flex", gap: 1, ml: 3, cursor: "pointer" }}
+      onClick={() => setIsInfoExpanded(!isInfoExpanded)}
+    >
+      <ExpandMoreRounded
+        sx={{
+          marginTop: "-0.125rem",
+          fontSize: "1.25rem",
+          transform: isInfoExpanded ? "rotate(180deg)" : "rotate(270deg)",
+        }}
+      />
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Typography variant="caption">Why enter a manual Order #?</Typography>
+        <Collapse in={isInfoExpanded}>
+          <Typography variant="caption">
+            If you are entering an order that was previously created outside
+            this system, check this box and enter the existing Order #. If this
+            is a new order, leave the box unchecked, and the system will
+            generate a number for you.
+          </Typography>
+        </Collapse>
+      </Box>
+    </Box>
+  );
 };
 
 const EnforcementModal: FC<EnforcementModalProps> = ({
@@ -88,6 +128,9 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
           data.requirements as InspectionRequirement[]
         ).map((requirement) => requirement.id),
       };
+      if (data.isHistoricalRecord) {
+        orderData.order_number = data.manualOrderNumber ?? "";
+      }
       createInspectionOrder({
         inspectionId,
         inspectionOrder: orderData,
@@ -139,11 +182,21 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
               </Box>
             ))}
             {isEnforcementOrder && (
-              <ControlledCheckbox
-                name="isHistoricalRecord"
-                label="Check this box to enter an existing Order # for historical records."
-                fontSize="small"
-              />
+              <>
+                <ControlledCheckbox
+                  name="isHistoricalRecord"
+                  label="Check this box to enter an existing Order # for historical records."
+                  fontSize="small"
+                />
+                <ManualOrderNumberInfo />
+                <ControlledTextField
+                  name="manualOrderNumber"
+                  label="Manual Order #"
+                  placeholder="Enter existing order number"
+                  sx={{ mt: 2 }}
+                  fullWidth
+                />
+              </>
             )}
           </Box>
           {selectedRequirements?.length > 1 && (
