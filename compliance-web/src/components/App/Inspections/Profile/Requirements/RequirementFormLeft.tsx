@@ -11,7 +11,6 @@ import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbo
 import { useFormContext, useWatch } from "react-hook-form";
 import {
   ComplianceFindingEnum,
-  EnforcementActionEnum,
   formatImagesToMentionList,
 } from "./RequirementUtils";
 import { EditOutlined } from "@mui/icons-material";
@@ -19,6 +18,7 @@ import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 import { useRequirementStore } from "./requirementStore";
 import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
+import { EnforcementActionEnum } from "@/utils/constants";
 
 type RequirementFormLeftProps = {
   enforcementActionsList: EnforcementAction[];

@@ -2,8 +2,9 @@ import { Close, InfoOutlined } from "@mui/icons-material";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
-import { EnforcementActionEnum } from "../Requirements/RequirementUtils";
 import { useState } from "react";
+import { EnforcementActionEnum } from "@/utils/constants";
+
 const EnforcementNotificationCard = ({
   requirement,
 }: {

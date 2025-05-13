@@ -6,7 +6,10 @@ import RequirementLoading from "./Requirements/RequirementLoading";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
 import EnforcementNotificationCard from "./Enforcements/EnforcementNotificationCard";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
-import { EnforcementActionEnum } from "./Requirements/RequirementUtils";
+import { EnforcementActionEnum } from "@/utils/constants";
+import { useModal } from "@/store/modalStore";
+import EnforcementModal from "./Enforcements/EnforcementModal";
+import { notify } from "@/store/snackbarStore";
 interface InspectionEnforcementsProps {
   inspectionData: Inspection;
 }
@@ -14,6 +17,7 @@ interface InspectionEnforcementsProps {
 const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
   inspectionData,
 }) => {
+  const { setOpen, setClose } = useModal();
   const [isDataLoading, setIsDataLoading] = React.useState<boolean>(true);
   const [requirementEnforcements, setRequirementEnforcements] = React.useState<
     InspectionRequirement[]
@@ -51,11 +55,39 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
   const actionsList = [
     {
       text: "Warning Letter",
-      onClick: () => {},
+      onClick: () => {
+        setOpen({
+          content: (
+            <EnforcementModal
+              inspectionId={inspectionData.id}
+              enforcementType={EnforcementActionEnum.WARNING_LETTER}
+              requirementsList={requirementEnforcements}
+              onSubmit={(message) => {
+                notify.success(message);
+                setClose();
+              }}
+            />
+          ),
+        });
+      },
     },
     {
       text: "Order",
-      onClick: () => {},
+      onClick: () => {
+        setOpen({
+          content: (
+            <EnforcementModal
+              inspectionId={inspectionData.id}
+              enforcementType={EnforcementActionEnum.ORDER}
+              requirementsList={requirementEnforcements}
+              onSubmit={(message) => {
+                notify.success(message);
+                setClose();
+              }}
+            />
+          ),
+        });
+      },
     },
     {
       text: "Administrative Penalty Recommendation",
