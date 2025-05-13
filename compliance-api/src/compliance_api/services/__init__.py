@@ -32,3 +32,4 @@ from .project_status import ProjectStatusService
 from .requirement_source import RequirementSourceService
 from .staff_user import StaffUserService
 from .topic import TopicService
+from .warning_letter.warning_letter import WarningLetterService
