@@ -38,6 +38,7 @@ class InspectionRecordDataBuilder:
         self.inspection = inspection
         self.ir_status = ir_status
         self.requirements = []
+        self.approvals = []
         self.existing_ir = existing_ir
         self.data = {
             "ir_status": IRStatusOptionModel.find_by_id(self.ir_status).name,
@@ -249,20 +250,21 @@ class InspectionRecordDataBuilder:
             )
             if inspection_record is None:
                 return self
-            approvals = InspectionRecordApprovalModel.get_approvals_by_ir(
-                inspection_record.id
-            )
+            if not self.approvals:
+                self.approvals = InspectionRecordApprovalModel.get_approvals_by_ir(
+                    inspection_record.id
+                )
             # Build comma separated dates from the approval requests
-            if approvals:
+            if self.approvals:
                 data = {
                     "date_report_sent": ", ".join(
                         approval.date_report_sent.strftime("%B %d, %Y")
-                        for approval in approvals
+                        for approval in self.approvals
                         if approval.date_report_sent is not None
                     ),
                     "date_response": ", ".join(
                         approval.date_response.strftime("%B %d, %Y")
-                        for approval in approvals
+                        for approval in self.approvals
                         if approval.date_response is not None
                     ),
                 }
@@ -277,6 +279,34 @@ class InspectionRecordDataBuilder:
                     "PRELIMINARY_REVIEW_DETAILS", PRELIMINARY_REVIEW_DETAILS, data
                 )
                 self.data["preliminary_review_details"] = preliminary_review_details
+        return self
+
+    def build_version_date_info(self):
+        """Build the version date info for the inspection record."""
+        inspection_record = self.existing_ir
+        if inspection_record is None:
+            inspection_record = InspectionRecordModel.find_by_inspection_id(
+                self.inspection.id
+            )
+        if inspection_record:
+            approvals = self.approvals or InspectionRecordApprovalModel.get_approvals_by_ir(
+                inspection_record.id
+            )
+            preliminary_dates = []
+            if approvals:
+                for approval in approvals:
+                    if approval.date_report_sent is not None:
+                        preliminary_dates.append(
+                            approval.date_report_sent.strftime("%B %d, %Y")
+                        )
+            self.data["version_date_info"] = {
+                "preliminary_dates": preliminary_dates,
+                "final_date": (
+                    inspection_record.date_issued.strftime("%B %d, %Y")
+                    if inspection_record.date_issued
+                    else None
+                ),
+            }
         return self
 
     def build_finding_statement(self):

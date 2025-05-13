@@ -1,9 +1,9 @@
 """Service for appendix management."""
 
-from compliance_api.exceptions import ResourceExistsError, ResourceNotFoundError
+from compliance_api.exceptions import ResourceExistsError
 from compliance_api.models import db
 from compliance_api.models.appendix import Appendix as AppendixModel
-from compliance_api.models.inspection import Inspection as InspectionModel
+from compliance_api.services.service_utils import ServiceUtils
 
 
 class AppendixService:
@@ -32,7 +32,8 @@ class AppendixService:
         """Create appendix."""
         inspection_id = appendix_data.get("inspection_id")
         _check_existence_by_no(appendix_data.get("appendix_no"), inspection_id, None)
-        _inspection_check(inspection_id)
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
+        ServiceUtils.access_check_update_for_inspection(inspection)
         appendix = AppendixModel(**appendix_data)
         appendix.flush()
         if commit:
@@ -48,7 +49,8 @@ class AppendixService:
             inspection_id,
             appendix_id,
         )
-        _inspection_check(appendix_data.get("inspection_id"))
+        inspection = ServiceUtils.inspection_exist_check(appendix_data.get("inspection_id"))
+        ServiceUtils.access_check_update_for_inspection(inspection)
         appendix = AppendixModel.find_by_id(appendix_id)
         if not appendix:
             return None
@@ -62,6 +64,8 @@ class AppendixService:
     def delete(cls, agency_id, commit=True):
         """Delete the appendix entity permenantly from database."""
         appendix = AppendixModel.find_by_id(agency_id)
+        inspection = ServiceUtils.inspection_exist_check(appendix.inspection_id)
+        ServiceUtils.access_check_update_for_inspection(inspection)
         if not appendix:
             return None
         appendix.is_deleted = True
@@ -81,13 +85,3 @@ def _check_existence_by_no(
     )
     if existing_appendix and (not appendix_id or existing_appendix.id != appendix_id):
         raise ResourceExistsError(f"Appendix with the number {appendix_no} exists")
-
-
-def _inspection_check(inspection_id):
-    """Check if the inspection and requirement exists."""
-    inspection = InspectionModel.find_by_id(inspection_id)
-    if not inspection:
-        raise ResourceNotFoundError(
-            f"Inspection with given ID {inspection_id} not found"
-        )
-    return inspection

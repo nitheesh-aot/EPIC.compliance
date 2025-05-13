@@ -13,7 +13,6 @@ from compliance_api.schemas import (
     InspectionRecordSchema, ResetInspectionRecordFieldSchema, UpdateInspectionRecordApprovalSchema,
     UpdateInspectionRecordApprovalStatusSchema, UpdateInspectionRecordSchema)
 from compliance_api.services import InspectionRecordApprovalService, InspectionRecordService
-from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
 
 from .apihelper import Api as ApiHelper
@@ -72,7 +71,6 @@ class InspectionRecords(Resource):
     @API.expect(ir_create_request_model)
     @API.response(code=201, model=ir_list_model, description="IRCreated")
     @API.response(400, "Bad Request")
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def post(inspection_id):
         """Create a agency."""
         ir_create_request = InspectionRecordCreateSchema().load(API.payload)
