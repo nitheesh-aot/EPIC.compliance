@@ -500,10 +500,10 @@
                     <td colspan="2">{{ enforcement_summary | safe | replace('style="white-space: pre-wrap;"', '') }}
                     </td>
                 </tr>
-                {% if regulatory_consideration %}
                 <tr>
                     <th colspan="2" class="com-ir-header-background">Regulatory Considerations</th>
                 </tr>
+                {% if regulatory_consideration %}
                 <tr>
                     <td colspan="2">
                         {{ regulatory_consideration.findings | safe | replace('style="white-space: pre-wrap;"',
@@ -532,6 +532,10 @@
                         {% endfor %}
                         {% endif %}
                     </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="2">None at this time</td>
                 </tr>
                 {% endif %}
                 {% if appendices %}
