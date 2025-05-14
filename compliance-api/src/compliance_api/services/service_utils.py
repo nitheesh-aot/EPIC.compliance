@@ -236,40 +236,38 @@ class ServiceUtils:
                 == ComplianceFindingOptionEnum.IN.value
             ):
                 return "Not Applicable"
-            else:
-                return "Not Determined"
+            return "Not Determined"
         if ir_status == IRStatusEnum.FINAL.value:
             if (
                 requirement.compliance_finding_id
                 == ComplianceFindingOptionEnum.IN.value
             ):
                 return enforcement_actions[0].name
-            else:
-                if any(
-                    action.id
-                    in [
-                        EnforcementActionOptionEnum.ORDER.value,
-                        EnforcementActionOptionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY.value,
-                        EnforcementActionOptionEnum.WARNING_LETTER.value,
-                    ]
-                    for action in enforcement_actions
-                ):
-                    return (
-                        " - ".join([action.name for action in enforcement_actions])
-                        + " - Refer to Enforcement Summary"
-                    )
-                if any(
-                    action.id
-                    == EnforcementActionOptionEnum.REFERRAL_TO_ANOTHER_AGENCY.value
-                    for action in enforcement_actions
-                ):
-                    return (
-                        " - ".join([action.name for action in enforcement_actions])
-                        + " - "
-                        + requirement.agency.name
-                        + " - Refer to Enforcement Summary"
-                    )
-                return "".join([action.name for action in enforcement_actions])
+            if any(
+                action.id
+                in [
+                    EnforcementActionOptionEnum.ORDER.value,
+                    EnforcementActionOptionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY.value,
+                    EnforcementActionOptionEnum.WARNING_LETTER.value,
+                ]
+                for action in enforcement_actions
+            ):
+                return (
+                    " - ".join([action.name for action in enforcement_actions])
+                    + " - Refer to Enforcement Summary"
+                )
+            if any(
+                action.id
+                == EnforcementActionOptionEnum.REFERRAL_TO_ANOTHER_AGENCY.value
+                for action in enforcement_actions
+            ):
+                return (
+                    " - ".join([action.name for action in enforcement_actions])
+                    + " - "
+                    + requirement.agency.name
+                    + " - Refer to Enforcement Summary"
+                )
+            return "".join([action.name for action in enforcement_actions])
 
     @staticmethod
     def get_requirement_source_number_field(detail_obj: InspectionReqSourceDetailModel):

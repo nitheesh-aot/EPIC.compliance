@@ -70,6 +70,25 @@ class InspectionRecordDataBuilder:
                 else IRProgressEnum.FINALIZING_RECORD
             )
 
+    def build_approval_info(self):
+        """Build the approval information for the inspection record."""
+        self.approvals, inspection_record = self._get_approval()
+        if len(self.approvals) > 0:
+            latest_approval = self.approvals[-1]
+            if inspection_record.ir_progress in [
+                IRProgressEnum.PRELIMINARY_APPROVED,
+                IRProgressEnum.HOLDER_PRELIMINARY_REVIEW,
+                IRProgressEnum.FINAL_APPROVED,
+                IRProgressEnum.ISSUED,
+            ]:
+                self.data["approval_info"] = {
+                    "approved_by": latest_approval.approved_by.first_name
+                    + " "
+                    + latest_approval.approved_by.last_name,
+                    "approved_by_position": latest_approval.approved_by.position.name,
+                }
+        return self
+
     def build_officer_details(self):
         """Build the officer details for the inspection record."""
         self.data["officer_details"] = {
@@ -245,15 +264,7 @@ class InspectionRecordDataBuilder:
         if self.ir_status == IRStatusEnum.PRELIMINARY.value:
             preliminary_review_details = None
         elif self.ir_status == IRStatusEnum.FINAL.value:
-            inspection_record = InspectionRecordModel.get_by_inspection_id(
-                self.inspection.id
-            )
-            if inspection_record is None:
-                return self
-            if not self.approvals:
-                self.approvals = InspectionRecordApprovalModel.get_approvals_by_ir(
-                    inspection_record.id
-                )
+            self.approvals, _ = self._get_approval()
             # Build comma separated dates from the approval requests
             if self.approvals:
                 data = {
@@ -283,25 +294,14 @@ class InspectionRecordDataBuilder:
 
     def build_version_date_info(self):
         """Build the version date info for the inspection record."""
-        inspection_record = self.existing_ir
-        if inspection_record is None:
-            inspection_record = InspectionRecordModel.find_by_inspection_id(
-                self.inspection.id
-            )
-        if inspection_record:
-            approvals = (
-                self.approvals
-                or InspectionRecordApprovalModel.get_approvals_by_ir(
-                    inspection_record.id
-                )
-            )
-            preliminary_dates = []
-            if approvals:
-                for approval in approvals:
-                    if approval.date_report_sent is not None:
-                        preliminary_dates.append(
-                            approval.date_report_sent.strftime("%B %d, %Y")
-                        )
+        self.approvals, inspection_record = self._get_approval()
+        preliminary_dates = []
+        if self.approvals:
+            for approval in self.approvals:
+                if approval.date_report_sent is not None:
+                    preliminary_dates.append(
+                        approval.date_report_sent.strftime("%B %d, %Y")
+                    )
             self.data["version_date_info"] = {
                 "preliminary_dates": preliminary_dates,
                 "final_date": (
@@ -463,6 +463,23 @@ class InspectionRecordDataBuilder:
     def build(self):
         """Return the final object."""
         return self.data
+
+    def _get_approval(self):
+        """Get the latest approval for the inspection record and the inspection record."""
+        inspection_record = self.existing_ir
+        if inspection_record is None:
+            inspection_record = InspectionRecordModel.find_by_inspection_id(
+                self.inspection.id
+            )
+        if inspection_record:
+            approvals = (
+                self.approvals
+                or InspectionRecordApprovalModel.get_approvals_by_ir(
+                    inspection_record.id
+                )
+            )
+            return approvals, inspection_record
+        return [], None
 
     def _generate_enforcement_summary_lines(
         self,

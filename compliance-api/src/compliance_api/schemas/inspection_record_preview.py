@@ -129,3 +129,4 @@ class InspectionRecordPreviewSchema(Schema):
     # Appendices
     appendices = fields.List(fields.Nested(AppendixSchema))
     version_date_info = fields.Raw()
+    approval_info = fields.Raw()
