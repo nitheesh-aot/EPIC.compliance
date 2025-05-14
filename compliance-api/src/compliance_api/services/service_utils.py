@@ -268,6 +268,7 @@ class ServiceUtils:
                     + " - Refer to Enforcement Summary"
                 )
             return "".join([action.name for action in enforcement_actions])
+        return ""
 
     @staticmethod
     def get_requirement_source_number_field(detail_obj: InspectionReqSourceDetailModel):
