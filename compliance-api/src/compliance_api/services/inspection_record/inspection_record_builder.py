@@ -289,8 +289,11 @@ class InspectionRecordDataBuilder:
                 self.inspection.id
             )
         if inspection_record:
-            approvals = self.approvals or InspectionRecordApprovalModel.get_approvals_by_ir(
-                inspection_record.id
+            approvals = (
+                self.approvals
+                or InspectionRecordApprovalModel.get_approvals_by_ir(
+                    inspection_record.id
+                )
             )
             preliminary_dates = []
             if approvals:
@@ -424,7 +427,7 @@ class InspectionRecordDataBuilder:
                 self.inspection.id
             )
         result = ServiceUtils.get_formatted_requirement_details(
-            self.requirements, photo_required=True
+            self.requirements, self.ir_status, photo_required=True
         )
         self.data["requirement_details"] = result
         return self

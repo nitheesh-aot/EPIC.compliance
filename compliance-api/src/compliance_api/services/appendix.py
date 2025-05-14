@@ -49,7 +49,9 @@ class AppendixService:
             inspection_id,
             appendix_id,
         )
-        inspection = ServiceUtils.inspection_exist_check(appendix_data.get("inspection_id"))
+        inspection = ServiceUtils.inspection_exist_check(
+            appendix_data.get("inspection_id")
+        )
         ServiceUtils.access_check_update_for_inspection(inspection)
         appendix = AppendixModel.find_by_id(appendix_id)
         if not appendix:

@@ -11,9 +11,11 @@ from compliance_api.models import InspectionRecord as InspectionRecordModel
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models import InspectionRequirementImage as InspectionRequirementImageModel
 from compliance_api.models.compliance_finding import ComplianceFindingOptionEnum
+from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.models.inspection import InspectionReqSourceDetail as InspectionReqSourceDetailModel
 from compliance_api.models.inspection.inspection_req_image import ImageTypeEnum
 from compliance_api.models.inspection.inspection_requirement import InspectionRequirementTypeEnum
+from compliance_api.models.inspection_record import IRStatusEnum
 from compliance_api.models.requirement_source import RequirementSourceEnum
 from compliance_api.models.unapproved_project import UnapprovedProject as UnapprovedProjectModel
 from compliance_api.utils.enum import PermissionEnum
@@ -108,7 +110,9 @@ class ServiceUtils:
 
     @staticmethod
     def get_formatted_requirement_details(
-        requirements: [InspectionRequirementModel], photo_required: bool = False
+        requirements: [InspectionRequirementModel],
+        ir_status: int,
+        photo_required: bool = False,
     ):
         """
         Get requirement details.
@@ -131,11 +135,8 @@ class ServiceUtils:
                     if requirement.compliance_finding
                     else None
                 ),
-                "enforcement_action": (
-                    "Not Applicable"
-                    if requirement.compliance_finding_id
-                    == ComplianceFindingOptionEnum.IN.value
-                    else "Not Determined"
+                "enforcement_action": ServiceUtils.get_enforcement_action(
+                    requirement, ir_status
                 ),
                 "requirement_source_details": [],
                 "requirement_photos": [],
@@ -222,6 +223,53 @@ class ServiceUtils:
                 }
             )
         return photo_list, figure_list
+
+    @staticmethod
+    def get_enforcement_action(requirement: InspectionRequirementModel, ir_status: int):
+        """Get the enforcement action based on the compliance finding and ir status."""
+        enforcement_actions = [
+            action.enforcement_action for action in requirement.enforcement_actions
+        ]
+        if ir_status == IRStatusEnum.PRELIMINARY.value:
+            if (
+                requirement.compliance_finding_id
+                == ComplianceFindingOptionEnum.IN.value
+            ):
+                return "Not Applicable"
+            else:
+                return "Not Determined"
+        if ir_status == IRStatusEnum.FINAL.value:
+            if (
+                requirement.compliance_finding_id
+                == ComplianceFindingOptionEnum.IN.value
+            ):
+                return enforcement_actions[0].name
+            else:
+                if any(
+                    action.id
+                    in [
+                        EnforcementActionOptionEnum.ORDER.value,
+                        EnforcementActionOptionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY.value,
+                        EnforcementActionOptionEnum.WARNING_LETTER.value,
+                    ]
+                    for action in enforcement_actions
+                ):
+                    return (
+                        " - ".join([action.name for action in enforcement_actions])
+                        + " - Refer to Enforcement Summary"
+                    )
+                if any(
+                    action.id
+                    == EnforcementActionOptionEnum.REFERRAL_TO_ANOTHER_AGENCY.value
+                    for action in enforcement_actions
+                ):
+                    return (
+                        " - ".join([action.name for action in enforcement_actions])
+                        + " - "
+                        + requirement.agency.name
+                        + " - Refer to Enforcement Summary"
+                    )
+                return "".join([action.name for action in enforcement_actions])
 
     @staticmethod
     def get_requirement_source_number_field(detail_obj: InspectionReqSourceDetailModel):
