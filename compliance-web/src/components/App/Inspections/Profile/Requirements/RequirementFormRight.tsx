@@ -19,6 +19,7 @@ import { useModal } from "@/store/modalStore";
 import { AddRounded } from "@mui/icons-material";
 import { Box, Button } from "@mui/material";
 import { FC, useEffect, useMemo, useState } from "react";
+import { useRequirementStore } from "./requirementStore";
 
 interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
@@ -40,14 +41,20 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
     RequirementSourceFormData[]
   >(requirementSourceFormDataList);
   const { data: appendixList } = useAppendicesData(inspectionId);
+  const { setIsDataChanged } = useRequirementStore();
 
   useEffect(() => {
     onDataChange(requirementSourceFormData);
   }, [requirementSourceFormData, onDataChange]);
 
+  const closeModal = () => {
+    setClose();
+    setIsDataChanged(true);
+  };
+
   const handleOnAddSubmit = (data: RequirementSourceFormData) => {
     setRequirementSourceFormData((prevData) => [...prevData, data]);
-    setClose();
+    closeModal();
   };
 
   const handleOnEditSubmit = (data: RequirementSourceFormData) => {
@@ -56,14 +63,14 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         item.id === data.id ? { ...item, ...data } : item
       )
     );
-    setClose();
+    closeModal();
   };
 
   const handleOnDeleteSubmit = (data: RequirementSourceFormData) => {
     setRequirementSourceFormData((prevData) =>
       prevData.filter((item) => item.id !== data.id)
     );
-    setClose();
+    closeModal();
   };
 
   const handleOnAddRelatedDocumentSubmit = (
@@ -93,7 +100,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       });
       return updatedData;
     });
-    setClose();
+    closeModal();
   };
 
   const handleOnDeleteRelatedDocumentSectionSubmit = (
@@ -122,7 +129,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         return item;
       })
     );
-    setClose();
+    closeModal();
   };
 
   const handleAddRequirementSource = () => {

@@ -16,7 +16,7 @@ from ..utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
 
-API = Namespace("warning_letters", description="Endpoints for Warning Letters")
+API = Namespace("warning-letters", description="Endpoints for Warning Letters")
 
 warning_letter_create_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, WarningLetterCreateSchema(), "WarningLetterCreate"

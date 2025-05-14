@@ -3,7 +3,7 @@ import { ComplianceFinding } from "@/models/ComplianceFinding";
 import { EnforcementAction } from "@/models/EnforcementAction";
 import { InspectionRequirement, InspectionRequirementAPIData, InspectionRequirementBatchAPIData, InspectionRequirementBatchImageAPIData, InspectionRequirementFormData, InspectionRequirementSourceAPIData, InspectionRequirementSourceDocumentAPIData, RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData, RequirementSourceFormData } from "@/models/InspectionRequirement";
 import { Topic } from "@/models/Topic";
-import { RequirementSourceEnum } from "@/utils/constants";
+import { EnforcementActionEnum, RequirementSourceEnum } from "@/utils/constants";
 import * as yup from "yup";
 import { RequirementImage, ImageAPIData } from "@/models/Image";
 import dateUtils from "@/utils/dateUtils";
@@ -13,13 +13,6 @@ import { mergeMapsWithArrayConcat } from "@/utils/appUtils";
 
 export const REQUIREMENT_TYPE_ID = "REQ";
 export const REGULATORY_CONSIDERATION_TYPE_ID = "REG";
-
-export enum EnforcementActionEnum {
-  NOT_APPLICABLE = "2",
-  ORDER = "5",
-  REFERRAL_TO_ADMINISTRATIVE_PENALTY = "6",
-  REFER_TO_ANOTHER_AGENCY = "7",
-}
 
 export enum ComplianceFindingEnum {
   IN = "1",

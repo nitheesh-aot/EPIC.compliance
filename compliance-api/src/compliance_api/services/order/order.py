@@ -6,6 +6,7 @@ from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntity
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import session_scope
 from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
+from compliance_api.models.inspection_record import InspectionRecord as InspectionRecordModel
 from compliance_api.models.order import Order as OrderModel
 from compliance_api.models.order import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
 from compliance_api.models.order import OrderProgressEnum, OrderStatusEnum
@@ -228,8 +229,11 @@ def _create_where_as_and_now_therefore(inspection, order_number, section_id):
             "section": section.name,
         },
     }
+    inspection_record = InspectionRecordModel.get_by_inspection_id(inspection.id)
     requirements = InspectionRequirementModel.get_by_inspection_id(inspection.id)
-    requirement_details = ServiceUtils.get_formatted_requirement_details(requirements)
+    requirement_details = ServiceUtils.get_formatted_requirement_details(
+        requirements, inspection_record.ir_status_id
+    )
     requirement_numbers = []
     requirement_summaries = []
     requirement_sources = []
