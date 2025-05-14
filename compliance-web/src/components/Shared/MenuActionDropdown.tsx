@@ -11,11 +11,13 @@ interface MenuAction {
 
 interface MenuActionDropdownProps {
   buttonText?: string;
+  menuWidth?: number | "auto";
   actions: MenuAction[];
 }
 
 const MenuActionDropdown: React.FC<MenuActionDropdownProps> = ({
   buttonText = "Actions",
+  menuWidth = 200,
   actions,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -54,7 +56,7 @@ const MenuActionDropdown: React.FC<MenuActionDropdownProps> = ({
         }}
         sx={{
           "& .MuiPaper-root": {
-            width: 200,
+            width: menuWidth,
           },
         }}
       >

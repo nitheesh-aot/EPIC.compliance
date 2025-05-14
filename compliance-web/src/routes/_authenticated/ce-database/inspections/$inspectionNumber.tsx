@@ -13,14 +13,18 @@ import InspectionDrawer from "@/components/App/Inspections/InspectionDrawer";
 import InspectionGeneralInformation from "@/components/App/Inspections/Profile/InspectionGeneralInformation";
 import InspectionReports from "@/components/App/Inspections/Profile/InspectionReports";
 import InspectionRequirements from "@/components/App/Inspections/Profile/InspectionRequirements";
-import ComingSoon from "@/components/Shared/ComingSoon";
 import ErrorPage from "@/components/Shared/ErrorPage";
 import LoadingPage from "@/components/Shared/LoadingPage";
 import TabPanel from "@/components/Shared/TabPanel";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
 import { useTab } from "@/store/tabStore";
-import { CR_CONTEXT_TYPE, DRAWER_WIDTHS, FILE_PROFILE_CONTEXT } from "@/utils/constants";
+import {
+  CR_CONTEXT_TYPE,
+  DRAWER_WIDTHS,
+  FILE_PROFILE_CONTEXT,
+} from "@/utils/constants";
+import InspectionEnforcements from "@/components/App/Inspections/Profile/InspectionEnforcements";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/$inspectionNumber"
@@ -51,10 +55,11 @@ function InspectionProfilePage() {
     inspectionData?.primary_officer ? [inspectionData?.primary_officer] : []
   );
 
-  const showCreateCREntryButton = useIsRolesAllowed(
-    [KC_USER_GROUPS.SUPERUSER],
-    inspectionData?.primary_officer ? [inspectionData?.primary_officer] : []
-  ) && caseFileData?.case_file_status === "Open";
+  const showCreateCREntryButton =
+    useIsRolesAllowed(
+      [KC_USER_GROUPS.SUPERUSER],
+      inspectionData?.primary_officer ? [inspectionData?.primary_officer] : []
+    ) && caseFileData?.case_file_status === "Open";
 
   // Event handlers
   const handleOnSubmit = useCallback(
@@ -115,7 +120,7 @@ function InspectionProfilePage() {
           <InspectionRequirements inspectionData={inspectionData} />
         </TabPanel>
         <TabPanel value={currentTab} index={2} id="inspection-enforcement">
-          <ComingSoon />
+          <InspectionEnforcements inspectionData={inspectionData} />
         </TabPanel>
         <TabPanel value={currentTab} index={3} id="inspection-report">
           <InspectionReports inspectionData={inspectionData} />
