@@ -68,8 +68,6 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const [requirementSourceList, setRequirementSourceList] = useState<
     RequirementSourceFormData[]
   >([]);
-  const [isRequirementSourceListDirty, setIsRequirementSourceListDirty] =
-    useState(false);
 
   const {
     requirementsList,
@@ -124,7 +122,6 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
 
   const onUpdateSuccess = useCallback(() => {
     onSubmit("Changes saved successfully!", false);
-    setIsRequirementSourceListDirty(false);
     setIsImageChanged(false);
   }, [onSubmit, setIsImageChanged]);
 
@@ -166,12 +163,6 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     resetRequirementStoreFlags,
     createRequirementStoreSnapshot,
   ]);
-
-  useEffect(() => {
-    if (isDataChanged) {
-      setIsRequirementSourceListDirty(true);
-    }
-  }, [isDataChanged]);
 
   useEffect(() => {
     if (inspectionRequirementUpdateData) {
@@ -300,7 +291,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
     const isDifferent =
       JSON.stringify(data) !== JSON.stringify(requirementSourceList);
     if (isDifferent) {
-      setIsRequirementSourceListDirty(true);
+      // setIsDataChanged(true);
       setRequirementSourceList(data);
     }
   };
@@ -326,7 +317,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
         <DrawerTitleBar
           title={getDrawerTitle()}
           isFormDirtyCheck
-          isDirtyManual={isRequirementSourceListDirty}
+          isDirtyManual={isDataChanged}
           customCloseFn={handleClearData}
         />
         <DrawerActionBarTop isShowActionBar={!inspectionRequirementData} />
@@ -358,7 +349,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           onDeleteAction={onDeleteRequirement}
           onDeleteTitle="Delete Requirement"
           onDeleteDescription="You are about to delete this Requirement. Are you sure?"
-          isDirtyManual={isRequirementSourceListDirty}
+          isDirtyManual={isDataChanged}
           customCancelFn={handleClearData}
         />
       </form>
