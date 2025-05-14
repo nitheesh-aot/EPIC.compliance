@@ -72,7 +72,6 @@ class Appendices(Resource):
     @API.expect(appendix_request_model)
     @API.response(code=201, model=appendix_list_model, description="AppendixCreated")
     @API.response(400, "Bad Request")
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def post():
         """Create a Appendix."""
         appendix_data = AppendixCreateSchema().load(API.payload)

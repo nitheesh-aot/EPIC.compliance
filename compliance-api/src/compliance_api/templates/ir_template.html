@@ -366,7 +366,14 @@
             </tr>
             <tr>
                 <th>Record Approved By</th>
-                <td colspan="3">{{ record_approved_by if record_approved_by else 'N/A' }}</td>
+                <td colspan="3">
+                    {% if approval_info %}
+                    {{ approval_info.approved_by }}</br>
+                    {{ approval_info.approved_by_position }}
+                    {% else %}
+                    </br>
+                    {% endif %}
+                </td>
             </tr>
         </table>
 
@@ -544,7 +551,7 @@
                 <tr>
                     <td colspan="2">
                         <strong>Date Preliminary</strong></br>
-                        {% if version_date_info.preliminary_dates %}
+                        {% if version_date_info and version_date_info.preliminary_dates %}
                         {% for date in version_date_info.preliminary_dates %}
                         <strong>{{ date }}</strong></br>
                         {% endfor %}
@@ -556,7 +563,7 @@
                 <tr>
                     <td colspan="2">
                         <strong>Date Finalized</strong></br>
-                        {% if version_date_info.final_date %}
+                        {% if version_date_info and version_date_info.final_date %}
                         <strong>{{ version_date_info.final_date }}</strong>
                         {% else %}
                         </br>

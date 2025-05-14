@@ -216,6 +216,7 @@ class InspectionRecordService:
             .build_requirement_details()
             .build_regulatory_considerations()
             .build_version_date_info()
+            .build_approval_info()
             .build()
         )
         preview_data = InspectionRecordPreviewSchema().dump(ir_data)
