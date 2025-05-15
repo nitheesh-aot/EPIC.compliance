@@ -1,7 +1,7 @@
 import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
 import { Inspection } from "@/models/Inspection";
 import { Box, Typography } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import RequirementLoading from "./Requirements/RequirementLoading";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
 import EnforcementNotificationCard from "./Enforcements/EnforcementNotificationCard";
@@ -45,20 +45,32 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
   useEffect(() => {
     if (inspectionRequirementsData) {
       // filter requirements with enforcement actions as order or warning letter
-      setRequirementEnforcements(
-        inspectionRequirementsData.filter(
-          (requirement) =>
-            requirement.enforcement_action_data?.length &&
-            requirement.enforcement_action_data.some((enforcement) =>
-              [
-                EnforcementActionEnum.WARNING_LETTER,
-                EnforcementActionEnum.ORDER,
-              ].includes(enforcement.id as EnforcementActionEnum)
-            )
-        )
+      const filteredRequirements = inspectionRequirementsData.filter(
+        (requirement) =>
+          requirement.enforcement_action_data?.length &&
+          requirement.enforcement_action_data.some((enforcement) =>
+            [
+              EnforcementActionEnum.WARNING_LETTER,
+              EnforcementActionEnum.ORDER,
+            ].includes(enforcement.id as EnforcementActionEnum)
+          )
       );
+      setRequirementEnforcements(filteredRequirements);
     }
   }, [inspectionRequirementsData]);
+
+  const nonProceededRequirements = useMemo(() => {
+    if (!requirementEnforcements) return [];
+    const orderReqIds = inspectionOrdersData?.map((order) =>
+      order.order_requirement_maps?.map((map) => map.inspection_requirement_id)
+    );
+    // Flatten the nested arrays of requirement IDs
+    const flattenedOrderReqIds = orderReqIds?.flat() || [];
+    const nonProceededRequirements = requirementEnforcements.filter(
+      (requirement) => !flattenedOrderReqIds.includes(requirement.id)
+    );
+    return nonProceededRequirements;
+  }, [requirementEnforcements, inspectionOrdersData]);
 
   const openEnforcementModal = (
     isEnforcementOrder: boolean,
@@ -73,7 +85,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
               ? EnforcementActionEnum.ORDER
               : EnforcementActionEnum.WARNING_LETTER
           }
-          requirementsList={requirementEnforcements}
+          requirementsList={nonProceededRequirements}
           requirement={requirement}
           onSubmit={(message) => {
             notify.success(message);
@@ -126,7 +138,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
         <RequirementLoading />
       ) : (
         <>
-          {requirementEnforcements.map((requirement) => (
+          {nonProceededRequirements.map((requirement) => (
             <EnforcementNotificationCard
               key={requirement.id}
               requirement={requirement}
