@@ -109,6 +109,7 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
   const { handleSubmit, reset, watch } = methods;
 
   const selectedRequirements = watch("requirements") as InspectionRequirement[];
+  const isHistoricalRecord = watch("isHistoricalRecord");
 
   useEffect(() => {
     reset(defaultValues);
@@ -189,13 +190,15 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
                   fontSize="small"
                 />
                 <ManualOrderNumberInfo />
-                <ControlledTextField
-                  name="manualOrderNumber"
-                  label="Manual Order #"
-                  placeholder="Enter existing order number"
-                  sx={{ mt: 2 }}
-                  fullWidth
-                />
+                {isHistoricalRecord && (
+                  <ControlledTextField
+                    name="manualOrderNumber"
+                    label="Manual Order #"
+                    placeholder="Enter existing order number"
+                    sx={{ mt: 2 }}
+                    fullWidth
+                  />
+                )}
               </>
             )}
           </Box>

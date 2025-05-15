@@ -16,7 +16,17 @@ export interface InspectionOrder {
   intended_issuance_date?: string;
   inspection_id?: number;
   issuing_officer_id?: number;
+  order_requirement_maps?: OrderRequirementMap[];
   is_active?: boolean;
+}
+
+interface OrderRequirementMap {
+  id: number;
+  inspection_requirement_id: number;
+  inspection_requirement: {
+    id: number;
+    summary: string;
+  };
 }
 
 export interface InspectionOrderAPIData {

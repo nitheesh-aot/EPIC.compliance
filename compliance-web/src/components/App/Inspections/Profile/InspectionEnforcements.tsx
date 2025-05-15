@@ -10,6 +10,8 @@ import { EnforcementActionEnum } from "@/utils/constants";
 import { useModal } from "@/store/modalStore";
 import EnforcementModal from "./Enforcements/EnforcementModal";
 import { notify } from "@/store/snackbarStore";
+import EnforcementCard from "./Enforcements/EnforcementCard";
+import { useInspectionOrdersData } from "@/hooks/useInspectionOrders";
 interface InspectionEnforcementsProps {
   inspectionData: Inspection;
 }
@@ -28,11 +30,17 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     isLoading: isInspectionRequirementsLoading,
   } = useInspectionRequirementsData(inspectionData.id);
 
+  const {
+    data: inspectionOrdersData,
+    isLoading: isInspectionOrdersLoading,
+    refetch: refetchInspectionOrders,
+  } = useInspectionOrdersData(inspectionData.id);
+
   useEffect(() => {
-    if (!isInspectionRequirementsLoading) {
+    if (!isInspectionRequirementsLoading && !isInspectionOrdersLoading) {
       setIsDataLoading(false);
     }
-  }, [isInspectionRequirementsLoading, inspectionRequirementsData]);
+  }, [isInspectionRequirementsLoading, isInspectionOrdersLoading]);
 
   useEffect(() => {
     if (inspectionRequirementsData) {
@@ -69,6 +77,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           requirement={requirement}
           onSubmit={(message) => {
             notify.success(message);
+            refetchInspectionOrders();
             setClose();
           }}
         />
@@ -116,15 +125,24 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
         // TODO: change to enforcement loading
         <RequirementLoading />
       ) : (
-        requirementEnforcements.map((requirement) => (
-          <EnforcementNotificationCard
-            key={requirement.id}
-            requirement={requirement}
-            openEnforcementModal={(isEnforcementOrder) =>
-              openEnforcementModal(isEnforcementOrder, requirement)
-            }
-          />
-        ))
+        <>
+          {requirementEnforcements.map((requirement) => (
+            <EnforcementNotificationCard
+              key={requirement.id}
+              requirement={requirement}
+              openEnforcementModal={(isEnforcementOrder) =>
+                openEnforcementModal(isEnforcementOrder, requirement)
+              }
+            />
+          ))}
+          {inspectionOrdersData?.map((order) => (
+            <EnforcementCard
+              key={order.id}
+              order={order}
+              requirementEnforcements={requirementEnforcements}
+            />
+          ))}
+        </>
       )}
     </Box>
   );
