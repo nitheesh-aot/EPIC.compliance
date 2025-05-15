@@ -5,8 +5,9 @@ from marshmallow_enum import EnumField
 
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
-from ..models.warning_letter import WarningLetter, WarningLetterStatusEnum
+from ..models.warning_letter import WarningLetter, WarningLetterInspectionRequirementMap, WarningLetterStatusEnum
 from .base_schema import AutoSchemaBase, BaseSchema
+from .inspection_requirement import InspectionRequirementSchema
 from .staff_user import StaffUserSchema
 
 
@@ -44,6 +45,22 @@ class WarningLetterCreateSchema(
     )
 
 
+class WarningLetterInspectionRequirementMapSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
+    """Schema for warning letter inspection requirement map model."""
+
+    class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
+        """Meta."""
+
+        unknown = EXCLUDE
+        model = WarningLetterInspectionRequirementMap
+        include_fk = True
+
+    inspection_requirement = fields.Nested(
+        InspectionRequirementSchema(),
+        only=("id", "summary"),
+    )
+
+
 class WarningLetterSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     """Schema for warning letter model."""
 
@@ -57,6 +74,11 @@ class WarningLetterSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     issuing_officer = fields.Nested(
         StaffUserSchema(),
         only=("id", "first_name", "last_name", "name", "auth_user_guid"),
+    )
+    warning_letter_requirement_map = fields.Nested(
+        WarningLetterInspectionRequirementMapSchema(),
+        many=True,
+        only=("id", "inspection_requirement_id", "inspection_requirement"),
     )
 
     @post_dump

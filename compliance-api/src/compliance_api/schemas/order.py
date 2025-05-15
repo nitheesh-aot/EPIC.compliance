@@ -5,8 +5,9 @@ from marshmallow_enum import EnumField
 
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
-from ..models.order import Order, OrderProgressEnum, OrderStatusEnum
+from ..models.order import Order, OrderInspectionRequirementMap, OrderProgressEnum, OrderStatusEnum
 from .base_schema import AutoSchemaBase, BaseSchema
+from .inspection_requirement import InspectionRequirementSchema
 from .section import SectionSchema
 from .staff_user import StaffUserSchema
 
@@ -49,6 +50,22 @@ class OrderCreateSchema(OrderUpdateSchema):  # pylint: disable=too-many-ancestor
     )
 
 
+class OrderInspectionRequirementMapSchema(AutoSchemaBase):  
+    """Schema for order inspection requirement map model."""
+
+    class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
+        """Meta."""
+
+        unknown = EXCLUDE
+        model = OrderInspectionRequirementMap
+        include_fk = True
+
+    inspection_requirement = fields.Nested(
+        InspectionRequirementSchema(),
+        only=("id", "summary"),
+    )
+
+
 class OrderSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     """Schema for order model."""
 
@@ -64,6 +81,11 @@ class OrderSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         only=("id", "first_name", "last_name", "name", "auth_user_guid"),
     )
     section = fields.Nested(SectionSchema, only=("id", "name"))
+    order_requirement_maps = fields.Nested(
+        OrderInspectionRequirementMapSchema(),
+        many=True,
+        only=("id", "inspection_requirement_id", "inspection_requirement"),
+    )
 
     @post_dump
     def post_dump_actions(

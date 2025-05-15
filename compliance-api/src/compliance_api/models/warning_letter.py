@@ -128,6 +128,14 @@ class WarningLetter(BaseModelVersioned):
 
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="joined")
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
+    warning_letter_requirement_map = relationship(
+        "WarningLetterInspectionRequirementMap",
+        back_populates="warning_letter",
+        lazy="select",
+        primaryjoin="and_(WarningLetterInspectionRequirementMap.warning_letter_id == WarningLetter.id, "
+        "WarningLetterInspectionRequirementMap.is_active == True, "
+        "WarningLetterInspectionRequirementMap.is_deleted == False)",
+    )
     __table_args__ = (
         Index(
             "unique_non_deleted_warning_letter_number",  # Index name
@@ -184,9 +192,7 @@ class WarningLetter(BaseModelVersioned):
             .with_entities(
                 InspectionModel.case_file_id,
                 CaseFileModel.project_id,
-                func.count(cls.id).label(
-                    "warning_letter_count"
-                ),  # pylint: disable=not-callable
+                func.count(cls.id).label("warning_letter_count"),  # pylint: disable=not-callable
             )
             .filter(
                 CaseFileModel.project_id == project_id,

@@ -117,6 +117,14 @@ class Order(BaseModelVersioned):
     order_status = Column(Enum(OrderStatusEnum), nullable=True)
     order_progress = Column(Enum(OrderProgressEnum), nullable=True)
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
+    order_requirement_maps = relationship(
+        "OrderInspectionRequirementMap",
+        back_populates="order",
+        lazy="select",
+        primaryjoin="and_(OrderInspectionRequirementMap.order_id == Order.id, "
+        "OrderInspectionRequirementMap.is_active == True, "
+        "OrderInspectionRequirementMap.is_deleted == False)",
+    )
     __table_args__ = (
         Index(
             "unique_non_deleted_order_number",  # Index name
