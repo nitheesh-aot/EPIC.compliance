@@ -50,7 +50,7 @@ class OrderCreateSchema(OrderUpdateSchema):  # pylint: disable=too-many-ancestor
     )
 
 
-class OrderInspectionRequirementMapSchema(AutoSchemaBase):  
+class OrderInspectionRequirementMapSchema(AutoSchemaBase):
     """Schema for order inspection requirement map model."""
 
     class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods

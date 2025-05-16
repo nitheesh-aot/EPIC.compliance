@@ -5,18 +5,20 @@ from typing import List
 from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import session_scope
+from compliance_api.models.department_detail import DepartmentDetail as DepartmentDetailModel
 from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models.inspection_record import InspectionRecord as InspectionRecordModel
 from compliance_api.models.order import Order as OrderModel
 from compliance_api.models.order import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
 from compliance_api.models.order import OrderProgressEnum, OrderStatusEnum
 from compliance_api.models.section import Section as SectionModel
+from compliance_api.services.docgen_service.docgen_service import DocGenService
 from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils
-from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE
+from compliance_api.utils.constant import OFFICE_BRANCH, OFFICE_NAME, UNAPPROVED_PROJECT_CODE
 from compliance_api.utils.template_renderer import render_template_with_data
 
-from .order_constant import DEFAULT_ACT, DEFAULT_SECTION
+from .order_constant import DEFAULT_ACT, DEFAULT_CHAPTER, DEFAULT_SECTION
 from .order_template_constant import NOW_THEREFORE, WHERE_AS
 
 
@@ -164,6 +166,64 @@ class OrderService:
             },
         )
         return order
+
+    @classmethod
+    def render(cls, inspection_id, order_id, output_format):
+        """Preview order."""
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
+        order = cls.get_order(inspection_id, order_id)
+        if order is None:
+            raise ResourceNotFoundError(f"Order with ID {order_id} not found")
+        if inspection.id != order.inspection_id:
+            raise UnprocessableEntityError(
+                "Inspection and inspection record do not match"
+            )
+        order_data = _create_order_data(inspection, order)
+        response = DocGenService.render_template(
+            "ORDER_TEMPLATE", order_data, output_format
+        )
+        return response
+
+
+def _create_order_data(inspection, order):
+    """Create order data."""
+    section = SectionModel.find_by_id(order.section_id)
+    project_details = ServiceUtils.get_project_details(
+        inspection.case_file.project_id, inspection.case_file.id
+    )
+    department_details = DepartmentDetailModel.query.filter_by(
+        is_active=True, is_deleted=False
+    ).first()
+    return {
+        "order_details": {
+            "order_number": order.order_number,
+            "section": section.name,
+            "chapter": DEFAULT_CHAPTER,
+            "act": section.act,
+            "ea_certificate": project_details.get("eac_certificate", ""),
+            "where_as": order.where_as,
+            "now_therefore": order.now_therefore,
+            "issued_date": (
+                order.date_issued.strftime("%Y-%m-%d") if order.date_issued else None
+            ),
+        },
+        "officer_details": {
+            "officer_name": inspection.primary_officer.first_name
+            + " "
+            + inspection.primary_officer.last_name,
+            "officer_position": inspection.primary_officer.position.name,
+        },
+        "department_details": {
+            "logo_url": department_details.logo_url,
+            "email": department_details.email,
+            "address_line1": department_details.address_line1,
+            "address_line2": department_details.address_line2,
+            "phone": department_details.phone,
+            "website": department_details.website,
+            "office_name": OFFICE_NAME,
+            "office_branch": OFFICE_BRANCH,
+        },
+    }
 
 
 def _create_order_obj(inspection, order_data: dict) -> dict:

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Document</title>
+    <style>
+        /* Base styles */
+        @font-face {
+            font-family: 'Calibri';
+            src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Calibri';
+            src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-italic.ttf') format('truetype');
+            font-weight: normal;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'Calibri';
+            src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-bold.ttf') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Calibri';
+            src: url('https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-bold-italic.ttf') format('truetype');
+            font-weight: bold;
+            font-style: italic;
+        }
+        body {
+            font-family: 'Calibri', 'BC Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            font-size: 11pt;
+            line-height: 12.75pt;
+            color: #000000;
+        }
+        .com-order-title {
+            font-weight: bold;
+            font-size: 14pt;
+            text-align: center;
+        }
+
+        strong {
+            font-weight: bold;
+            font-size: 14pt;
+        }
+        h1, h2 {
+            text-align: center;
+            font-weight: bold;
+        }
+        .section {
+            margin-top: 1em;
+        }
+        .signature {
+            margin-top: 3em;
+        }
+        /* Print-specific styles */
+        @media print {
+            @page {
+                size: letter;
+                margin-top: 1.25in;
+                margin-right: 0.5in;
+                margin-bottom: 1in;
+                margin-left: 0.75in;
+
+                @top-left {
+                    content: element(header);
+                }
+
+                @bottom-right {
+                    content: element(footer);
+                }
+
+                counter-increment: page;
+            }
+            .com-order-footer {
+                position: running(footer);
+                width: auto;
+                text-align: center;
+                padding: 8px 32px;
+                font-size: 11pt;
+            }
+            /* Page numbering */
+            .pageNumber:before {
+                content: counter(page);
+            }
+
+            .totalPages:before {
+                content: counter(pages);
+            }
+        }
+    </style>
+    <script>
+        function stripStyles(html) {
+            return html.replace(/style="[^"]*"/g, '');
+        }
+    </script>
+</head>
+<body>
+<div class="com-order-footer">
+    <span class="pageNumber"></span>
+</div>
+<div class="com-order-content">
+<div class="com-order-title">
+    IN THE MATTER OF THE ENVIRONMENTAL ASSESSMENT ACT S.B.C. {{order_details.act}}, c.{{order_details.chapter}}<br>
+    (ACT)<br>
+    AND<br>
+    NON-COMPLIANCES<br>WITH ENVIRONMENTAL ASSESSMENT CERTIFICATE {{order_details.ea_certificate}}<br>
+    <u>ORDER UNDER SECTION {{order_details.section}}</u>
+</div>
+</div>
+
+<div class="section">
+    {{order_details.where_as  | safe | replace('style="white-space: pre-wrap;"',
+    '')}}
+</div>
+
+<div class="section">
+    {{order_details.now_therefore | safe | replace('style="white-space: pre-wrap;"',
+    '')}}
+</div>
+<div class="signature">
+</br>
+</br>
+    <p>{{officer_details.officer_name}}<br>
+    {{officer_details.officer_position}}<br>
+    {{department_details.office_name}}</p>
+
+    <p>Dated {{order_details.issued_date}}<br>
+    Order Ref: {{order_details.order_number}}</p>
+</div>
+
+</body>
+</html>
