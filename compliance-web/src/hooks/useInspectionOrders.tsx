@@ -25,6 +25,22 @@ const createInspectionOrder = ({
   });
 };
 
+const updateInspectionOrder = ({
+  inspectionId,
+  inspectionOrderId,
+  inspectionOrder,
+}: {
+  inspectionId: number;
+  inspectionOrderId: number;
+  inspectionOrder: InspectionOrderAPIData;
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/orders/${inspectionOrderId}`,
+    method: "patch",
+    data: inspectionOrder,
+  });
+};
+
 export const useInspectionOrdersData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-orders", inspectionId],
@@ -36,4 +52,8 @@ export const useInspectionOrdersData = (inspectionId: number) => {
 
 export const useCreateInspectionOrder = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: createInspectionOrder, onSuccess });
+};
+
+export const useUpdateInspectionOrder = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: updateInspectionOrder, onSuccess });
 };

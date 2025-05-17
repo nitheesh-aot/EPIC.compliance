@@ -6,12 +6,17 @@ import RequirementLoading from "./Requirements/RequirementLoading";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
 import EnforcementNotificationCard from "./Enforcements/EnforcementNotificationCard";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
-import { EnforcementActionEnum } from "@/utils/constants";
+import { DRAWER_WIDTHS, EnforcementActionEnum } from "@/utils/constants";
 import { useModal } from "@/store/modalStore";
 import EnforcementModal from "./Enforcements/EnforcementModal";
 import { notify } from "@/store/snackbarStore";
 import EnforcementCard from "./Enforcements/EnforcementCard";
 import { useInspectionOrdersData } from "@/hooks/useInspectionOrders";
+import EnforcementOrderDrawer from "./Enforcements/EnforcementOrderDrawer";
+import { InspectionOrder } from "@/models/InspectionOrder";
+import { useStaffUsersData } from "@/hooks/useStaff";
+import { useDrawer } from "@/store/drawerStore";
+
 interface InspectionEnforcementsProps {
   inspectionData: Inspection;
 }
@@ -19,7 +24,9 @@ interface InspectionEnforcementsProps {
 const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
   inspectionData,
 }) => {
-  const { setOpen, setClose } = useModal();
+  const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
+  const { setOpen: setDrawerOpen, setClose: setDrawerClose } = useDrawer();
+  const { data: staffUsersList } = useStaffUsersData();
   const [isDataLoading, setIsDataLoading] = React.useState<boolean>(true);
   const [requirementEnforcements, setRequirementEnforcements] = React.useState<
     InspectionRequirement[]
@@ -76,7 +83,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     isEnforcementOrder: boolean,
     requirement?: InspectionRequirement
   ) => {
-    setOpen({
+    setModalOpen({
       content: (
         <EnforcementModal
           inspectionId={inspectionData.id}
@@ -90,7 +97,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           onSubmit={(message) => {
             notify.success(message);
             refetchInspectionOrders();
-            setClose();
+            setModalClose();
           }}
         />
       ),
@@ -115,6 +122,24 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
       onClick: () => {},
     },
   ];
+
+  const openEnforcementOrderDrawer = (order: InspectionOrder) => {
+    setDrawerOpen({
+      content: (
+        <EnforcementOrderDrawer
+          onSubmit={(message) => {
+            notify.success(message);
+            refetchInspectionOrders();
+            setDrawerClose();
+          }}
+          inspection={inspectionData}
+          enforcementOrder={order}
+          staffUsersList={staffUsersList || []}
+        />
+      ),
+      width: DRAWER_WIDTHS.ENFORCEMENT_DRAWER,
+    });
+  };
 
   return (
     <Box
@@ -148,11 +173,15 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             />
           ))}
           {inspectionOrdersData?.map((order) => (
-            <EnforcementCard
+            <Box
               key={order.id}
-              order={order}
-              requirementEnforcements={requirementEnforcements}
-            />
+              onClick={() => openEnforcementOrderDrawer(order)}
+            >
+              <EnforcementCard
+                order={order}
+                requirementEnforcements={requirementEnforcements}
+              />
+            </Box>
           ))}
         </>
       )}
