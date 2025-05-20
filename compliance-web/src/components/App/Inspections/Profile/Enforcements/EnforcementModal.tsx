@@ -17,6 +17,11 @@ import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbo
 import { BCDesignTokens } from "epic.theme";
 import { ExpandMoreRounded, WarningAmberOutlined } from "@mui/icons-material";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
+import { useCreateInspectionWarningLetter } from "@/hooks/useInspectionWarningLetters";
+import {
+  InspectionWarningLetter,
+  InspectionWarningLetterAPIData,
+} from "@/models/InspectionWarningLetter";
 
 type EnforcementModalProps = {
   inspectionId: number;
@@ -115,29 +120,57 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
     reset(defaultValues);
   }, [reset, defaultValues]);
 
-  const onSuccess = (data: InspectionOrder) => {
-    onSubmit(`Order ${data.order_number} created`);
+  const onSuccess = (data: InspectionOrder | InspectionWarningLetter) => {
+    if (isEnforcementOrder) {
+      onSubmit(`Order ${(data as InspectionOrder).order_number} created`);
+    } else {
+      onSubmit(
+        `Warning Letter ${(data as InspectionWarningLetter).warning_letter_number} created`
+      );
+    }
   };
 
-  const { mutate: createInspectionOrder, isPending } =
+  const { mutate: createInspectionOrder, isPending: isPendingOrder } =
     useCreateInspectionOrder(onSuccess);
+
+  const {
+    mutate: createInspectionWarningLetter,
+    isPending: isPendingWarningLetter,
+  } = useCreateInspectionWarningLetter(onSuccess);
 
   const onSubmitHandler = useCallback(
     (data: EnforcementFormType) => {
-      const orderData: InspectionOrderAPIData = {
-        inspection_requirement_ids: (
-          data.requirements as InspectionRequirement[]
-        ).map((requirement) => requirement.id),
-      };
-      if (data.isHistoricalRecord) {
-        orderData.order_number = data.manualOrderNumber ?? "";
+      if (isEnforcementOrder) {
+        const orderData: InspectionOrderAPIData = {
+          inspection_requirement_ids: (
+            data.requirements as InspectionRequirement[]
+          ).map((requirement) => requirement.id),
+        };
+        if (data.isHistoricalRecord) {
+          orderData.order_number = data.manualOrderNumber ?? "";
+        }
+        createInspectionOrder({
+          inspectionId,
+          inspectionOrder: orderData,
+        });
+      } else {
+        const warningLetterData: InspectionWarningLetterAPIData = {
+          inspection_requirement_ids: (
+            data.requirements as InspectionRequirement[]
+          ).map((requirement) => requirement.id),
+        };
+        createInspectionWarningLetter({
+          inspectionId,
+          inspectionWarningLetter: warningLetterData,
+        });
       }
-      createInspectionOrder({
-        inspectionId,
-        inspectionOrder: orderData,
-      });
     },
-    [createInspectionOrder, inspectionId]
+    [
+      createInspectionOrder,
+      createInspectionWarningLetter,
+      inspectionId,
+      isEnforcementOrder,
+    ]
   );
 
   return (
@@ -227,7 +260,7 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
         <ModalActions
           primaryActionButtonText="Create"
           isButtonValidation
-          isLoading={isPending}
+          isLoading={isPendingOrder || isPendingWarningLetter}
         />
       </form>
     </FormProvider>
