@@ -87,12 +87,12 @@
 </head>
 <body>
     <div class="header">
-        <p class="letterhead">{{office_name}}<br>
-            {{office_branch}}</p>
+        <p class="letterhead">{{department_details.office_name}}<br>
+            {{department_details.office_branch}}</p>
         <p>
             Mailing Address:<br>
-            {{address_line1}}<br>
-            {{address_line2}}
+            {{department_details.address_line1}}<br>
+            {{department_details.address_line2}}
         </p>
         <p>
             Location:<br>
@@ -101,13 +101,13 @@
         </p>
     </div>
     <div class="ref">
-        <p><strong>Ref:</strong> {{ warning_letter_number }}<br>
-            {{ issue_date }}<br>
+        <p><strong>Ref:</strong> {{ warning_letter.warning_letter_number }}<br>
+            {{ warning_letter.issue_date }}<br>
             <strong>SENT VIA EMAIL</strong>
         </p>
     </div>
     <div class="content">
-        {{content}}
+        {{warning_letter.content}}
     </div>
 </body>
 </html>

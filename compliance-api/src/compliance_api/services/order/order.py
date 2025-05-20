@@ -171,7 +171,7 @@ class OrderService:
     def render(cls, inspection_id, order_id, output_format):
         """Preview order."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        order = cls.get_order(inspection_id, order_id)
+        order = OrderModel.find_by_id(order_id)
         if order is None:
             raise ResourceNotFoundError(f"Order with ID {order_id} not found")
         if inspection.id != order.inspection_id:

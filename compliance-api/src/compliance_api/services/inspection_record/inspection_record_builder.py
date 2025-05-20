@@ -468,7 +468,7 @@ class InspectionRecordDataBuilder:
         """Get the latest approval for the inspection record and the inspection record."""
         inspection_record = self.existing_ir
         if inspection_record is None:
-            inspection_record = InspectionRecordModel.find_by_inspection_id(
+            inspection_record = InspectionRecordModel.get_by_inspection_id(
                 self.inspection.id
             )
         if inspection_record:

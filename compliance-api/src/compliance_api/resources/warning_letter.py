@@ -1,7 +1,8 @@
 """Warning Letter Resource."""
 
+from io import BytesIO
 from http import HTTPStatus
-
+from flask import request, send_file
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
@@ -172,3 +173,39 @@ class WarningLetterIssue(Resource):
             inspection_id, warning_letter_id, issue
         )
         return {}, HTTPStatus.NO_CONTENT
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/<int:warning_letter_id>/render", methods=["GET", "OPTIONS"])
+class WarningLetterPreview(Resource):
+    """Resource for managing warning letter preview and pdf."""
+
+    @staticmethod
+    @API.response(code=200, description="Success")
+    @API.response(404, "Not Found")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Preview warning letter")
+    @API.doc(
+        params={
+            "output_format": {
+                "description": "The output format of the warning letter report",
+                "type": "string",
+                "required": False,
+                "default": "html",
+                "enum": ["html", "pdf"],
+            }
+        }
+    )
+    @auth.require
+    def get(inspection_id, warning_letter_id):  # pylint: disable=no-self-use, unused-argument
+        """Preview warning letter."""
+        output_format = request.args.get("output_format", "html")
+        response = WarningLetterService.render(inspection_id, warning_letter_id, output_format)
+        if output_format == "pdf":
+            return send_file(
+                BytesIO(response.content),
+                mimetype="application/pdf",
+                as_attachment=True,
+                download_name=f"{order_id}.pdf",
+            )
+        return response.json(), HTTPStatus.OK
+
