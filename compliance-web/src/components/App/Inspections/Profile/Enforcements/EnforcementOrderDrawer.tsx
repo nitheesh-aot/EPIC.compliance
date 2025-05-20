@@ -109,7 +109,10 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
     (formData: EnforcementFormType) => {
       if (enforcementOrder) {
         const orderData: InspectionOrderAPIData = {
-          inspection_requirement_ids: [],
+          inspection_requirement_ids:
+            enforcementOrder.order_requirement_maps?.map(
+              (map) => map.inspection_requirement_id
+            ) || [],
           where_as: formData.whereAs?.html || undefined,
           now_therefore: formData.nowTherefore?.html || undefined,
           issuing_officer_id: (formData.issuingOfficer as StaffUser).id,
