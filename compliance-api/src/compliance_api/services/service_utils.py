@@ -230,13 +230,15 @@ class ServiceUtils:
         enforcement_actions = [
             action.enforcement_action for action in requirement.enforcement_actions
         ]
+        result = ""
         if ir_status == IRStatusEnum.PRELIMINARY.value:
             if (
                 requirement.compliance_finding_id
                 == ComplianceFindingOptionEnum.IN.value
             ):
-                return "Not Applicable"
-            return "Not Determined"
+                result = "Not Applicable"
+            else:
+                result = "Not Determined"
         if ir_status == IRStatusEnum.FINAL.value:
             if (
                 requirement.compliance_finding_id
@@ -252,7 +254,7 @@ class ServiceUtils:
                 ]
                 for action in enforcement_actions
             ):
-                return (
+                result = (
                     " - ".join([action.name for action in enforcement_actions])
                     + " - Refer to Enforcement Summary"
                 )
@@ -261,14 +263,14 @@ class ServiceUtils:
                 == EnforcementActionOptionEnum.REFERRAL_TO_ANOTHER_AGENCY.value
                 for action in enforcement_actions
             ):
-                return (
+                result = (
                     " - ".join([action.name for action in enforcement_actions])
                     + " - "
                     + requirement.agency.name
                     + " - Refer to Enforcement Summary"
                 )
-            return "".join([action.name for action in enforcement_actions])
-        return ""
+            result = "".join([action.name for action in enforcement_actions])
+        return result
 
     @staticmethod
     def get_requirement_source_number_field(detail_obj: InspectionReqSourceDetailModel):

@@ -11,13 +11,12 @@ from compliance_api.models.warning_letter import WarningLetter as WarningLetterM
 from compliance_api.models.warning_letter import \
     WarningLetterInspectionRequirementMap as WarningLetterInspectionRequirementMapModel
 from compliance_api.models.warning_letter import WarningLetterStatusEnum
+from compliance_api.services.docgen_service.docgen_service import DocGenService
 from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils
 from compliance_api.services.warning_letter.warning_letter_template_constant import WARNING_LETTER_CONTENT
-from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE
+from compliance_api.utils.constant import OFFICE_BRANCH, OFFICE_NAME, UNAPPROVED_PROJECT_CODE
 from compliance_api.utils.template_renderer import render_template_with_data
-from compliance_api.services.docgen_service.docgen_service import DocGenService
-from compliance_api.utils.constant import OFFICE_BRANCH, OFFICE_NAME
 
 
 class WarningLetterService:
@@ -161,7 +160,9 @@ class WarningLetterService:
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
         warning_letter = WarningLetterModel.find_by_id(warning_letter_id)
         if warning_letter is None:
-            raise ResourceNotFoundError(f"Warning letter with ID {warning_letter_id} not found")
+            raise ResourceNotFoundError(
+                f"Warning letter with ID {warning_letter_id} not found"
+            )
         if inspection.id != warning_letter.inspection_id:
             raise UnprocessableEntityError(
                 "Inspection and inspection record do not match"
@@ -181,7 +182,11 @@ def _create_warning_letter_data(inspection, warning_letter):
     return {
         "warning_letter": {
             "warning_letter_number": warning_letter.warning_letter_number,
-            "issue_date": warning_letter.issue_date.strftime("%Y-%m-%d") if warning_letter.issue_date else None,
+            "issue_date": (
+                warning_letter.date_issued.strftime("%Y-%m-%d")
+                if warning_letter.date_issued
+                else None
+            ),
             "content": warning_letter.content,
         },
         "department_details": {

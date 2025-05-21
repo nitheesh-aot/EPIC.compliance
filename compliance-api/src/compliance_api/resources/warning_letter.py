@@ -1,7 +1,8 @@
 """Warning Letter Resource."""
 
-from io import BytesIO
 from http import HTTPStatus
+from io import BytesIO
+
 from flask import request, send_file
 from flask_restx import Namespace, Resource
 
@@ -196,16 +197,19 @@ class WarningLetterPreview(Resource):
         }
     )
     @auth.require
-    def get(inspection_id, warning_letter_id):  # pylint: disable=no-self-use, unused-argument
+    def get(
+        inspection_id, warning_letter_id
+    ):  # pylint: disable=no-self-use, unused-argument
         """Preview warning letter."""
         output_format = request.args.get("output_format", "html")
-        response = WarningLetterService.render(inspection_id, warning_letter_id, output_format)
+        response = WarningLetterService.render(
+            inspection_id, warning_letter_id, output_format
+        )
         if output_format == "pdf":
             return send_file(
                 BytesIO(response.content),
                 mimetype="application/pdf",
                 as_attachment=True,
-                download_name=f"{order_id}.pdf",
+                download_name=f"{warning_letter_id}.pdf",
             )
         return response.json(), HTTPStatus.OK
-
