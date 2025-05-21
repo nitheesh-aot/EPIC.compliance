@@ -16,6 +16,9 @@ import EnforcementOrderDrawer from "./Enforcements/EnforcementOrderDrawer";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useDrawer } from "@/store/drawerStore";
+import { useInspectionWarningLettersData } from "@/hooks/useInspectionWarningLetters";
+import EnforcementWarningLetterDrawer from "./Enforcements/EnforcementWarningLetterDrawer";
+import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
 
 interface InspectionEnforcementsProps {
   inspectionData: Inspection;
@@ -43,11 +46,25 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     refetch: refetchInspectionOrders,
   } = useInspectionOrdersData(inspectionData.id);
 
+  const {
+    data: inspectionWarningLettersData,
+    isLoading: isInspectionWarningLettersLoading,
+    refetch: refetchInspectionWarningLetters,
+  } = useInspectionWarningLettersData(inspectionData.id);
+
   useEffect(() => {
-    if (!isInspectionRequirementsLoading && !isInspectionOrdersLoading) {
+    if (
+      !isInspectionRequirementsLoading &&
+      !isInspectionOrdersLoading &&
+      !isInspectionWarningLettersLoading
+    ) {
       setIsDataLoading(false);
     }
-  }, [isInspectionRequirementsLoading, isInspectionOrdersLoading]);
+  }, [
+    isInspectionRequirementsLoading,
+    isInspectionOrdersLoading,
+    isInspectionWarningLettersLoading,
+  ]);
 
   useEffect(() => {
     if (inspectionRequirementsData) {
@@ -71,32 +88,45 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     const orderReqIds = inspectionOrdersData?.map((order) =>
       order.order_requirement_maps?.map((map) => map.inspection_requirement_id)
     );
+    const warningLetterReqIds = inspectionWarningLettersData?.map(
+      (warningLetter) =>
+        warningLetter.warning_letter_requirement_map?.map(
+          (map) => map.inspection_requirement_id
+        )
+    );
     // Flatten the nested arrays of requirement IDs
-    const flattenedOrderReqIds = orderReqIds?.flat() || [];
+    const flattenedOrderReqIds = [
+      ...(orderReqIds?.flat() || []),
+      ...(warningLetterReqIds?.flat() || []),
+    ];
     const nonProceededRequirements = requirementEnforcements.filter(
       (requirement) => !flattenedOrderReqIds.includes(requirement.id)
     );
     return nonProceededRequirements;
-  }, [requirementEnforcements, inspectionOrdersData]);
+  }, [
+    requirementEnforcements,
+    inspectionOrdersData,
+    inspectionWarningLettersData,
+  ]);
 
   const openEnforcementModal = (
-    isEnforcementOrder: boolean,
+    modelType: EnforcementActionEnum,
     requirement?: InspectionRequirement
   ) => {
     setModalOpen({
       content: (
         <EnforcementModal
           inspectionId={inspectionData.id}
-          enforcementType={
-            isEnforcementOrder
-              ? EnforcementActionEnum.ORDER
-              : EnforcementActionEnum.WARNING_LETTER
-          }
+          enforcementType={modelType}
           requirementsList={nonProceededRequirements}
           requirement={requirement}
           onSubmit={(message) => {
             notify.success(message);
-            refetchInspectionOrders();
+            if (modelType === EnforcementActionEnum.ORDER) {
+              refetchInspectionOrders();
+            } else {
+              refetchInspectionWarningLetters();
+            }
             setModalClose();
           }}
         />
@@ -107,11 +137,11 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
   const actionsList = [
     {
       text: "Warning Letter",
-      onClick: () => openEnforcementModal(false),
+      onClick: () => openEnforcementModal(EnforcementActionEnum.WARNING_LETTER),
     },
     {
       text: "Order",
-      onClick: () => openEnforcementModal(true),
+      onClick: () => openEnforcementModal(EnforcementActionEnum.ORDER),
     },
     {
       text: "Administrative Penalty Recommendation",
@@ -134,6 +164,26 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           }}
           inspection={inspectionData}
           enforcementOrder={order}
+          staffUsersList={staffUsersList || []}
+        />
+      ),
+      width: DRAWER_WIDTHS.ENFORCEMENT_DRAWER,
+    });
+  };
+
+  const openEnforcementWarningLetterDrawer = (
+    warningLetter: InspectionWarningLetter
+  ) => {
+    setDrawerOpen({
+      content: (
+        <EnforcementWarningLetterDrawer
+          onSubmit={(message) => {
+            notify.success(message);
+            refetchInspectionWarningLetters();
+            setDrawerClose();
+          }}
+          inspection={inspectionData}
+          warningLetter={warningLetter}
           staffUsersList={staffUsersList || []}
         />
       ),
@@ -167,8 +217,8 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             <EnforcementNotificationCard
               key={requirement.id}
               requirement={requirement}
-              openEnforcementModal={(isEnforcementOrder) =>
-                openEnforcementModal(isEnforcementOrder, requirement)
+              openEnforcementModal={(modelType) =>
+                openEnforcementModal(modelType, requirement)
               }
             />
           ))}
@@ -179,6 +229,19 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             >
               <EnforcementCard
                 order={order}
+                requirementEnforcements={requirementEnforcements}
+              />
+            </Box>
+          ))}
+          {inspectionWarningLettersData?.map((warningLetter) => (
+            <Box
+              key={warningLetter.id}
+              onClick={() =>
+                openEnforcementWarningLetterDrawer(warningLetter)
+              }
+            >
+              <EnforcementCard
+                warningLetter={warningLetter}
                 requirementEnforcements={requirementEnforcements}
               />
             </Box>

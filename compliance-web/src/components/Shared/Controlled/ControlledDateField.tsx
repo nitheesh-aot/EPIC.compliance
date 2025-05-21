@@ -63,6 +63,7 @@ const ControlledDateField: FC<IFormDateInputProps> = ({
                     },
                   },
                 },
+                width: "100%",
               },
             } as TextFieldProps,
           }}

@@ -1,35 +1,50 @@
 import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
+import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
 import { Box, Grid, Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useMemo } from "react";
 
 const EnforcementCard = ({
   order,
+  warningLetter,
   requirementEnforcements,
 }: {
-  order: InspectionOrder;
+  order?: InspectionOrder;
+  warningLetter?: InspectionWarningLetter;
   requirementEnforcements: InspectionRequirement[];
 }) => {
   const requirementSummaryFormatted = useMemo(() => {
-    if (order.order_requirement_maps) {
+    if (order?.order_requirement_maps) {
       return order.order_requirement_maps
         .map((map) => map.inspection_requirement.summary)
         .join(", ");
     }
+    if (warningLetter?.warning_letter_requirement_map) {
+      return warningLetter.warning_letter_requirement_map
+        .map((map) => map.inspection_requirement.summary)
+        .join(", ");
+    }
     return "No requirement summary available";
-  }, [order.order_requirement_maps]);
+  }, [order, warningLetter]);
 
   const requirementSourcesFormatted = useMemo(() => {
-    if (!order.order_requirement_maps) return [];
-
-    const requirementIds = order.order_requirement_maps.map(
+    const orderRequirementIds = order?.order_requirement_maps?.map(
       (map) => map.inspection_requirement_id
     );
+    const warningLetterRequirementIds =
+      warningLetter?.warning_letter_requirement_map?.map(
+        (map) => map.inspection_requirement_id
+      );
+
+    const requirementIds = [
+      ...(orderRequirementIds || []),
+      ...(warningLetterRequirementIds || []),
+    ];
 
     const requirements = requirementEnforcements.filter((requirement) =>
-      requirementIds.includes(requirement.id)
+      requirementIds?.includes(requirement.id)
     );
 
     // Flatten and transform all sources into the required format
@@ -61,7 +76,7 @@ const EnforcementCard = ({
       });
     });
     return result;
-  }, [order.order_requirement_maps, requirementEnforcements]);
+  }, [order, warningLetter, requirementEnforcements]);
 
   return (
     <Box
@@ -86,7 +101,7 @@ const EnforcementCard = ({
         }}
       >
         <Typography variant="body1" color={BCDesignTokens.typographyColorLink}>
-          {order.order_number}
+          {order?.order_number ?? warningLetter?.warning_letter_number}
         </Typography>
         <Stack>
           {requirementSourcesFormatted?.map((source, index) => {
@@ -111,7 +126,7 @@ const EnforcementCard = ({
           />
           <GridLabelValuePair
             label="Deputy Director, Compliance & Enforcement Operations"
-            value={order.issuing_officer?.name ?? ""}
+            value={(order || warningLetter)?.issuing_officer?.name ?? ""}
           />
           <GridLabelValuePair
             label="Sent for Review"
