@@ -28,7 +28,10 @@ type EnforcementModalProps = {
   enforcementType: EnforcementActionEnum;
   requirementsList: InspectionRequirement[];
   requirement?: InspectionRequirement;
-  onSubmit: (message: string) => void;
+  onSubmit: (
+    message: string,
+    data: InspectionOrder | InspectionWarningLetter
+  ) => void;
 };
 
 const enforcementSchema = yup.object().shape({
@@ -122,10 +125,11 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
 
   const onSuccess = (data: InspectionOrder | InspectionWarningLetter) => {
     if (isEnforcementOrder) {
-      onSubmit(`Order ${(data as InspectionOrder).order_number} created`);
+      onSubmit(`Order ${(data as InspectionOrder).order_number} created`, data);
     } else {
       onSubmit(
-        `Warning Letter ${(data as InspectionWarningLetter).warning_letter_number} created`
+        `Warning Letter ${(data as InspectionWarningLetter).warning_letter_number} created`,
+        data
       );
     }
   };

@@ -120,12 +120,16 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           enforcementType={modelType}
           requirementsList={nonProceededRequirements}
           requirement={requirement}
-          onSubmit={(message) => {
+          onSubmit={(message, data) => {
             notify.success(message);
             if (modelType === EnforcementActionEnum.ORDER) {
               refetchInspectionOrders();
+              openEnforcementOrderDrawer(data as InspectionOrder);
             } else {
               refetchInspectionWarningLetters();
+              openEnforcementWarningLetterDrawer(
+                data as InspectionWarningLetter
+              );
             }
             setModalClose();
           }}
@@ -236,9 +240,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           {inspectionWarningLettersData?.map((warningLetter) => (
             <Box
               key={warningLetter.id}
-              onClick={() =>
-                openEnforcementWarningLetterDrawer(warningLetter)
-              }
+              onClick={() => openEnforcementWarningLetterDrawer(warningLetter)}
             >
               <EnforcementCard
                 warningLetter={warningLetter}
