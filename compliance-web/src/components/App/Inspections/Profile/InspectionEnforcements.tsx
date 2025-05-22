@@ -1,7 +1,7 @@
 import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
 import { Inspection } from "@/models/Inspection";
 import { Box, Typography } from "@mui/material";
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import RequirementLoading from "./Requirements/RequirementLoading";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
 import EnforcementNotificationCard from "./Enforcements/EnforcementNotificationCard";
@@ -19,6 +19,7 @@ import { useDrawer } from "@/store/drawerStore";
 import { useInspectionWarningLettersData } from "@/hooks/useInspectionWarningLetters";
 import EnforcementWarningLetterDrawer from "./Enforcements/EnforcementWarningLetterDrawer";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
+import { AddRounded } from "@mui/icons-material";
 
 interface InspectionEnforcementsProps {
   inspectionData: Inspection;
@@ -83,30 +84,55 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     }
   }, [inspectionRequirementsData]);
 
-  const nonProceededRequirements = useMemo(() => {
+  const prepNonProceededRequirements = useCallback(
+    (
+      orderReqIds: (number[] | undefined)[] | undefined,
+      enforcementAction: EnforcementActionEnum
+    ) => {
+      const flattenedOrderReqIds = orderReqIds?.flat() || [];
+      const nonProceededRequirements = requirementEnforcements.filter(
+        (requirement) =>
+          !flattenedOrderReqIds.includes(requirement.id) &&
+          requirement.enforcement_action_data?.some(
+            (enforcement) => enforcement.id === enforcementAction
+          )
+      );
+      return nonProceededRequirements;
+    },
+    [requirementEnforcements]
+  );
+
+  const nonProceededOrderRequirements = useMemo(() => {
     if (!requirementEnforcements) return [];
     const orderReqIds = inspectionOrdersData?.map((order) =>
       order.order_requirement_maps?.map((map) => map.inspection_requirement_id)
     );
+    return prepNonProceededRequirements(
+      orderReqIds,
+      EnforcementActionEnum.ORDER
+    );
+  }, [
+    requirementEnforcements,
+    inspectionOrdersData,
+    prepNonProceededRequirements,
+  ]);
+
+  const nonProceededWarningLetterRequirements = useMemo(() => {
+    if (!requirementEnforcements) return [];
     const warningLetterReqIds = inspectionWarningLettersData?.map(
       (warningLetter) =>
         warningLetter.warning_letter_requirement_map?.map(
           (map) => map.inspection_requirement_id
         )
     );
-    // Flatten the nested arrays of requirement IDs
-    const flattenedOrderReqIds = [
-      ...(orderReqIds?.flat() || []),
-      ...(warningLetterReqIds?.flat() || []),
-    ];
-    const nonProceededRequirements = requirementEnforcements.filter(
-      (requirement) => !flattenedOrderReqIds.includes(requirement.id)
+    return prepNonProceededRequirements(
+      warningLetterReqIds,
+      EnforcementActionEnum.WARNING_LETTER
     );
-    return nonProceededRequirements;
   }, [
     requirementEnforcements,
-    inspectionOrdersData,
     inspectionWarningLettersData,
+    prepNonProceededRequirements,
   ]);
 
   const openEnforcementModal = (
@@ -118,7 +144,11 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
         <EnforcementModal
           inspectionId={inspectionData.id}
           enforcementType={modelType}
-          requirementsList={nonProceededRequirements}
+          requirementsList={
+            modelType === EnforcementActionEnum.ORDER
+              ? nonProceededOrderRequirements
+              : nonProceededWarningLetterRequirements
+          }
           requirement={requirement}
           onSubmit={(message, data) => {
             notify.success(message);
@@ -209,6 +239,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             buttonText="New Enforcement"
             actions={actionsList}
             menuWidth="auto"
+            menuIcon={<AddRounded />}
           />
         )}
       </Box>
@@ -217,7 +248,10 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
         <RequirementLoading />
       ) : (
         <>
-          {nonProceededRequirements.map((requirement) => (
+          {[
+            ...nonProceededOrderRequirements,
+            ...nonProceededWarningLetterRequirements,
+          ].map((requirement) => (
             <EnforcementNotificationCard
               key={requirement.id}
               requirement={requirement}
