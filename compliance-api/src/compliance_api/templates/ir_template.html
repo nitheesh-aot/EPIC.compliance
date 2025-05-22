@@ -497,14 +497,14 @@
                     </th>
                 </tr>
                 <tr>
-                    <td colspan="2">{% if action_required_by_rp %}{{ action_required_by_rp | safe | replace('style="white-space: pre-wrap;"', '') }}{% else %}None at this time{% endif %}
+                    <td colspan="2">{% if action_required_by_rp %}{{ action_required_by_rp | safe | replace('style="white-space: pre-wrap;"', '') }}{% else %}None at this time.{% endif %}
                     </td>
                 </tr>
                 <tr>
                     <th colspan="2" class="com-ir-header-background">Enforcement Summary</th>
                 </tr>
                 <tr>
-                    <td colspan="2">{{ enforcement_summary | safe | replace('style="white-space: pre-wrap;"', '') }}
+                    <td colspan="2">{% if enforcement_summary %}{{ enforcement_summary | safe | replace('style="white-space: pre-wrap;"', '') }}{% else %}None at this time.{% endif %}
                     </td>
                 </tr>
                 <tr>
@@ -542,7 +542,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="2">None at this time</td>
+                    <td colspan="2">None at this time.</td>
                 </tr>
                 {% endif %}
                 <tr>
