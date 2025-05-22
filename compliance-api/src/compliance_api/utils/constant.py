@@ -14,3 +14,5 @@ GROUP_MAP = {
     PermissionEnum.ADMIN: "/COMPLIANCE/ADMIN",
 }
 DELETE_DIC_PARAMS = {"is_active": False, "is_deleted": True}
+OFFICE_NAME = "Environmental Assessment Office"
+OFFICE_BRANCH = "Compliance and Enforcement Branch"

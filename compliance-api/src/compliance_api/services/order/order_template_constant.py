@@ -4,7 +4,7 @@ WHERE_AS = """<p class="editor-paragraph" dir="ltr" style="text-align: left;"><b
             style="white-space: pre-wrap;">WHEREAS:</strong></b></p>
 <p class="editor-paragraph" style="text-align: left;"><br></p>
 <p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">
-A. {{project_details.project_name}} (Project) is a reviewable project under the </span><i>
+A. {{project_details.name}} (Project) is a reviewable project under the </span><i>
 <em class="editor-text-italic" style="white-space: pre-wrap;">Environmental Assessment Act</em></i>
 <span style="white-space: pre-wrap;"> (the Act).</span></p>
 <p class="editor-paragraph" style="text-align: left;"><br></p>

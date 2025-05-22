@@ -45,7 +45,9 @@ class WarningLetterCreateSchema(
     )
 
 
-class WarningLetterInspectionRequirementMapSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
+class WarningLetterInspectionRequirementMapSchema(
+    AutoSchemaBase
+):  # pylint: disable=too-many-ancestors
     """Schema for warning letter inspection requirement map model."""
 
     class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
