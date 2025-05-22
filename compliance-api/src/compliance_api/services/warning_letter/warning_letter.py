@@ -11,10 +11,11 @@ from compliance_api.models.warning_letter import WarningLetter as WarningLetterM
 from compliance_api.models.warning_letter import \
     WarningLetterInspectionRequirementMap as WarningLetterInspectionRequirementMapModel
 from compliance_api.models.warning_letter import WarningLetterStatusEnum
+from compliance_api.services.docgen_service.docgen_service import DocGenService
 from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils
 from compliance_api.services.warning_letter.warning_letter_template_constant import WARNING_LETTER_CONTENT
-from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE
+from compliance_api.utils.constant import OFFICE_BRANCH, OFFICE_NAME, UNAPPROVED_PROJECT_CODE
 from compliance_api.utils.template_renderer import render_template_with_data
 
 
@@ -152,6 +153,53 @@ class WarningLetterService:
             },
         )
         return updated_warning_letter
+
+    @classmethod
+    def render(cls, inspection_id, warning_letter_id, output_format):
+        """Preview warning letter."""
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
+        warning_letter = WarningLetterModel.find_by_id(warning_letter_id)
+        if warning_letter is None:
+            raise ResourceNotFoundError(
+                f"Warning letter with ID {warning_letter_id} not found"
+            )
+        if inspection.id != warning_letter.inspection_id:
+            raise UnprocessableEntityError(
+                "Inspection and inspection record do not match"
+            )
+        warning_letter_data = _create_warning_letter_data(inspection, warning_letter)
+        response = DocGenService.render_template(
+            "WARNING_LETTER_TEMPLATE", warning_letter_data, output_format
+        )
+        return response
+
+
+def _create_warning_letter_data(inspection, warning_letter):
+    """Create warning letter data."""
+    department_details = DepartmentDetailModel.query.filter_by(
+        is_active=True, is_deleted=False
+    ).first()
+    return {
+        "warning_letter": {
+            "warning_letter_number": warning_letter.warning_letter_number,
+            "issue_date": (
+                warning_letter.date_issued.strftime("%Y-%m-%d")
+                if warning_letter.date_issued
+                else None
+            ),
+            "content": warning_letter.content,
+        },
+        "department_details": {
+            "logo_url": department_details.logo_url,
+            "email": department_details.email,
+            "address_line1": department_details.address_line1,
+            "address_line2": department_details.address_line2,
+            "phone": department_details.phone,
+            "website": department_details.website,
+            "office_name": OFFICE_NAME,
+            "office_branch": OFFICE_BRANCH,
+        },
+    }
 
 
 def _create_warning_letter_obj(inspection, warning_letter_data: dict) -> dict:

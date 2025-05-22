@@ -32,8 +32,7 @@ WARNING_LETTER_CONTENT = """<p class='editor-paragraph' dir='ltr'>
     The inspection findings are documented in Inspection Record {{ inspection_details.ir_number }}.
 </p>
 <p>
-    The Holder is hereby <strong>WARNED</strong> that the Project is not compliant with {{condition_numbers}} of the
-     {{requirement_sources}}.
+    The Holder is hereby <strong>WARNED</strong> that the Project is not compliant with {{condition_lines}}.
     The maximum penalty for failure to comply with an Environmental Assessment Certificate is $1,000,000 and, on each
     subsequent conviction, a fine of not more than $2,000,000.
 </p>

@@ -1,7 +1,9 @@
 """Orders Resource."""
 
 from http import HTTPStatus
+from io import BytesIO
 
+from flask import request, send_file
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
@@ -162,3 +164,38 @@ class OrderIssue(Resource):
         issue = OrderIssueSchema().load(API.payload)
         OrderService.issue_order(inspection_id, order_id, issue)
         return {}, HTTPStatus.NO_CONTENT
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/<int:order_id>/render", methods=["GET", "OPTIONS"])
+class OrderPreview(Resource):
+    """Resource for managing order preview and pdf."""
+
+    @staticmethod
+    @API.response(code=200, description="Success")
+    @API.response(404, "Not Found")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Preview order")
+    @API.doc(
+        params={
+            "output_format": {
+                "description": "The output format of the order report",
+                "type": "string",
+                "required": False,
+                "default": "html",
+                "enum": ["html", "pdf"],
+            }
+        }
+    )
+    @auth.require
+    def get(inspection_id, order_id):  # pylint: disable=no-self-use, unused-argument
+        """Preview order."""
+        output_format = request.args.get("output_format", "html")
+        response = OrderService.render(inspection_id, order_id, output_format)
+        if output_format == "pdf":
+            return send_file(
+                BytesIO(response.content),
+                mimetype="application/pdf",
+                as_attachment=True,
+                download_name=f"{order_id}.pdf",
+            )
+        return response.json(), HTTPStatus.OK
