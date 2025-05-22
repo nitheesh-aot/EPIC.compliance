@@ -371,6 +371,8 @@ class InspectionRecordDataBuilder:
                     "<p>See Regulatory Considerations Section for additional information.</p>"
                 )
             if len(enforcement_summary_lines) > 0:
+                if not self.data.get("project_details"):
+                    self.build_project_details()
                 enforcement_summary_lines.append(
                     render_template_with_data(
                         "ENFORCEMENT_SUMMARY.DEFAULT",
