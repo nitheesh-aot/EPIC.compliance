@@ -300,12 +300,12 @@ class InspectionRecordDataBuilder:
             for approval in self.approvals:
                 if approval.date_report_sent is not None:
                     preliminary_dates.append(
-                        approval.date_report_sent.strftime("%B %d, %Y")
+                        approval.date_report_sent.strftime("%Y-%m-%d")
                     )
             self.data["version_date_info"] = {
                 "preliminary_dates": preliminary_dates,
                 "final_date": (
-                    inspection_record.date_issued.strftime("%B %d, %Y")
+                    inspection_record.date_issued.strftime("%Y-%m-%d")
                     if inspection_record.date_issued
                     else None
                 ),
