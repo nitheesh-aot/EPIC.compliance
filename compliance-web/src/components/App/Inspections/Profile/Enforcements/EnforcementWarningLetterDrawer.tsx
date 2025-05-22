@@ -13,12 +13,14 @@ import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLe
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
 import { BCDesignTokens } from "epic.theme";
-import { PictureAsPdfOutlined, SendOutlined } from "@mui/icons-material";
+import { SendOutlined } from "@mui/icons-material";
 import {
   InspectionWarningLetter,
   InspectionWarningLetterAPIData,
 } from "@/models/InspectionWarningLetter";
 import { useUpdateInspectionWarningLetter } from "@/hooks/useInspectionWarningLetters";
+import EnforcementDownloadPDFButton from "./EnforcementDownloadPDFButton";
+import { EnforcementActionEnum } from "@/utils/constants";
 
 type EnforcementWarningLetterDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -128,10 +130,12 @@ const EnforcementWarningLetterDrawer: React.FC<
             <SendOutlined sx={{ mr: 1, fontSize: 20 }} />
             Send for Approval
           </Button>
-          <Button variant="text">
-            <PictureAsPdfOutlined sx={{ mr: 1, fontSize: 20 }} />
-            Preview PDF
-          </Button>
+          <EnforcementDownloadPDFButton
+            inspectionId={inspection.id}
+            enforcementId={warningLetter.id || 0}
+            fileNumber={warningLetter.warning_letter_number || ""}
+            enforcementType={EnforcementActionEnum.WARNING_LETTER}
+          />
         </Box>
         <Stack
           /** 64px (DrawerTitleBar height) + 65px (DrawerActionBar height) + 64px (DrawerActionBarTop preview height) */

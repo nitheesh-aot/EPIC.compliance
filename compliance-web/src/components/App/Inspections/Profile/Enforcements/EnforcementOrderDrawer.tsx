@@ -20,7 +20,9 @@ import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAut
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
 import { useEnforcementSectionsData } from "@/hooks/useEnforcementSections";
 import { BCDesignTokens } from "epic.theme";
-import { PictureAsPdfOutlined, SendOutlined } from "@mui/icons-material";
+import { SendOutlined } from "@mui/icons-material";
+import EnforcementDownloadPDFButton from "./EnforcementDownloadPDFButton";
+import { EnforcementActionEnum } from "@/utils/constants";
 
 type EnforcementOrderDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -149,10 +151,12 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
             <SendOutlined sx={{ mr: 1, fontSize: 20 }} />
             Send for Approval
           </Button>
-          <Button variant="text">
-            <PictureAsPdfOutlined sx={{ mr: 1, fontSize: 20 }} />
-            Preview PDF
-          </Button>
+          <EnforcementDownloadPDFButton
+            inspectionId={inspection.id}
+            enforcementId={enforcementOrder.id || 0}
+            fileNumber={enforcementOrder.order_number || ""}
+            enforcementType={EnforcementActionEnum.ORDER}
+          />
         </Box>
         <Stack
           /** 64px (DrawerTitleBar height) + 65px (DrawerActionBar height) + 64px (DrawerActionBarTop preview height) */

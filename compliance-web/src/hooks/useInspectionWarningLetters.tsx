@@ -41,6 +41,26 @@ const updateInspectionWarningLetter = ({
   });
 };
 
+export const inspectionWarningLetterRender = async ({
+  inspectionId,
+  inspectionWarningLetterId,
+  format,
+}: {
+  inspectionId: number;
+  inspectionWarningLetterId: number;
+  format: "html" | "pdf";
+}) => {
+  // If requesting PDF, specify responseType as 'blob'
+  const responseType = format === "pdf" ? "blob" : "json";
+
+  return request({
+    method: "GET",
+    url: `/inspections/${inspectionId}/warning-letters/${inspectionWarningLetterId}/render`,
+    params: { output_format: format },
+    responseType: responseType,
+  });
+};
+
 export const useInspectionWarningLettersData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-warning-letters", inspectionId],
@@ -56,4 +76,28 @@ export const useCreateInspectionWarningLetter = (onSuccess: OnSuccessType) => {
 
 export const useUpdateInspectionWarningLetter = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateInspectionWarningLetter, onSuccess });
+};
+
+export const useInspectionWarningLetterRendered = (
+  inspectionId: number,
+  inspectionWarningLetterId: number,
+  format: "html" | "pdf",
+  isEnabled: boolean = true
+) => {
+  return useQuery({
+    queryKey: [
+      "inspection-warning-letter-rendered",
+      inspectionId,
+      inspectionWarningLetterId,
+      format,
+    ],
+    queryFn: () =>
+      inspectionWarningLetterRender({
+        inspectionId,
+        inspectionWarningLetterId,
+        format,
+      }),
+    enabled: !!inspectionId && !!inspectionWarningLetterId && isEnabled,
+    refetchOnWindowFocus: false,
+  });
 };
