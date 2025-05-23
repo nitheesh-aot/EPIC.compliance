@@ -10,7 +10,7 @@ const EnforcementNotificationCard = ({
   openEnforcementModal,
 }: {
   requirement: InspectionRequirement;
-  openEnforcementModal: (isEnforcementOrder: boolean) => void;
+  openEnforcementModal: (modelType: EnforcementActionEnum) => void;
 }) => {
   const [isClosed, setIsClosed] = useState(false);
   const isEnforcementOrder = requirement.enforcement_action_data.some(
@@ -49,7 +49,13 @@ const EnforcementNotificationCard = ({
               variant="contained"
               color="secondary"
               size="small"
-              onClick={() => openEnforcementModal(isEnforcementOrder)}
+              onClick={() =>
+                openEnforcementModal(
+                  isEnforcementOrder
+                    ? EnforcementActionEnum.ORDER
+                    : EnforcementActionEnum.WARNING_LETTER
+                )
+              }
             >
               Proceed
             </Button>

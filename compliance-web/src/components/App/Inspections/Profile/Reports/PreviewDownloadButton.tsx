@@ -1,5 +1,5 @@
 import { downloadFile } from "@/utils/appUtils";
-import { DownloadRounded, PictureAsPdfOutlined } from "@mui/icons-material";
+import { ArrowDropDownRounded, DownloadRounded, PictureAsPdfOutlined } from "@mui/icons-material";
 import {
   Button,
   ClickAwayListener,
@@ -16,7 +16,6 @@ import { useModal } from "@/store/modalStore";
 import { useReportStore } from "./reportStore";
 import ReportPreviewModal from "./ReportPreviewModal";
 import { notify } from "@/store/snackbarStore";
-import { ArrowDropDownIcon } from "@mui/x-date-pickers/icons";
 import { BCDesignTokens } from "epic.theme";
 
 const PreviewDownloadButton = () => {
@@ -121,7 +120,7 @@ const PreviewDownloadButton = () => {
             minWidth: "2rem !important",
           }}
         >
-          <ArrowDropDownIcon />
+          <ArrowDropDownRounded />
         </Button>
       </ButtonGroup>
       <Popper

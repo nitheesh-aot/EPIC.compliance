@@ -13,12 +13,14 @@ interface MenuActionDropdownProps {
   buttonText?: string;
   menuWidth?: number | "auto";
   actions: MenuAction[];
+  menuIcon?: React.ReactNode;
 }
 
 const MenuActionDropdown: React.FC<MenuActionDropdownProps> = ({
   buttonText = "Actions",
   menuWidth = 200,
   actions,
+  menuIcon,
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -37,7 +39,7 @@ const MenuActionDropdown: React.FC<MenuActionDropdownProps> = ({
         variant="text"
         size="small"
         onClick={handleClick}
-        startIcon={<ExpandMoreRounded />}
+        startIcon={menuIcon || <ExpandMoreRounded />}
       >
         {buttonText}
       </Button>

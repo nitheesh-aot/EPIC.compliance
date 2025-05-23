@@ -1,26 +1,20 @@
 
 import { StaffUser } from "./Staff";
 
-export interface InspectionOrder {
+export interface InspectionWarningLetter {
   issuing_officer?: StaffUser;
-  section?: {
-    id: number;
-    name: string;
-  };
   id?: number;
-  where_as?: string;
-  now_therefore?: string;
-  order_number?: string;
-  section_id?: number;
+  content?: string;
+  warning_letter_number?: string;
   date_issued?: string;
   intended_issuance_date?: string;
   inspection_id?: number;
   issuing_officer_id?: number;
-  order_requirement_maps?: OrderRequirementMap[];
+  warning_letter_requirement_map?: WarningLetterRequirementMap[];
   is_active?: boolean;
 }
 
-interface OrderRequirementMap {
+interface WarningLetterRequirementMap {
   id: number;
   inspection_requirement_id: number;
   inspection_requirement: {
@@ -29,12 +23,10 @@ interface OrderRequirementMap {
   };
 }
 
-export interface InspectionOrderAPIData {
-  section_id?: number;
+export interface InspectionWarningLetterAPIData {
   issuing_officer_id?: number;
   intended_issuance_date?: string;
-  where_as?: string;
-  now_therefore?: string;
+  content?: string;
   inspection_requirement_ids: number[];
-  order_number?: string;
+  warning_letter_number?: string;
 }

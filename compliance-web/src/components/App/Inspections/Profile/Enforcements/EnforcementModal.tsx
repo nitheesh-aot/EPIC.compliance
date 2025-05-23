@@ -17,13 +17,21 @@ import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbo
 import { BCDesignTokens } from "epic.theme";
 import { ExpandMoreRounded, WarningAmberOutlined } from "@mui/icons-material";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
+import { useCreateInspectionWarningLetter } from "@/hooks/useInspectionWarningLetters";
+import {
+  InspectionWarningLetter,
+  InspectionWarningLetterAPIData,
+} from "@/models/InspectionWarningLetter";
 
 type EnforcementModalProps = {
   inspectionId: number;
   enforcementType: EnforcementActionEnum;
   requirementsList: InspectionRequirement[];
   requirement?: InspectionRequirement;
-  onSubmit: (message: string) => void;
+  onSubmit: (
+    message: string,
+    data: InspectionOrder | InspectionWarningLetter
+  ) => void;
 };
 
 const enforcementSchema = yup.object().shape({
@@ -109,34 +117,64 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
   const { handleSubmit, reset, watch } = methods;
 
   const selectedRequirements = watch("requirements") as InspectionRequirement[];
+  const isHistoricalRecord = watch("isHistoricalRecord");
 
   useEffect(() => {
     reset(defaultValues);
   }, [reset, defaultValues]);
 
-  const onSuccess = (data: InspectionOrder) => {
-    onSubmit(`Order ${data.order_number} created`);
+  const onSuccess = (data: InspectionOrder | InspectionWarningLetter) => {
+    if (isEnforcementOrder) {
+      onSubmit(`Order ${(data as InspectionOrder).order_number} created`, data);
+    } else {
+      onSubmit(
+        `Warning Letter ${(data as InspectionWarningLetter).warning_letter_number} created`,
+        data
+      );
+    }
   };
 
-  const { mutate: createInspectionOrder, isPending } =
+  const { mutate: createInspectionOrder, isPending: isPendingOrder } =
     useCreateInspectionOrder(onSuccess);
+
+  const {
+    mutate: createInspectionWarningLetter,
+    isPending: isPendingWarningLetter,
+  } = useCreateInspectionWarningLetter(onSuccess);
 
   const onSubmitHandler = useCallback(
     (data: EnforcementFormType) => {
-      const orderData: InspectionOrderAPIData = {
-        inspection_requirement_ids: (
-          data.requirements as InspectionRequirement[]
-        ).map((requirement) => requirement.id),
-      };
-      if (data.isHistoricalRecord) {
-        orderData.order_number = data.manualOrderNumber ?? "";
+      if (isEnforcementOrder) {
+        const orderData: InspectionOrderAPIData = {
+          inspection_requirement_ids: (
+            data.requirements as InspectionRequirement[]
+          ).map((requirement) => requirement.id),
+        };
+        if (data.isHistoricalRecord) {
+          orderData.order_number = data.manualOrderNumber ?? "";
+        }
+        createInspectionOrder({
+          inspectionId,
+          inspectionOrder: orderData,
+        });
+      } else {
+        const warningLetterData: InspectionWarningLetterAPIData = {
+          inspection_requirement_ids: (
+            data.requirements as InspectionRequirement[]
+          ).map((requirement) => requirement.id),
+        };
+        createInspectionWarningLetter({
+          inspectionId,
+          inspectionWarningLetter: warningLetterData,
+        });
       }
-      createInspectionOrder({
-        inspectionId,
-        inspectionOrder: orderData,
-      });
     },
-    [createInspectionOrder, inspectionId]
+    [
+      createInspectionOrder,
+      createInspectionWarningLetter,
+      inspectionId,
+      isEnforcementOrder,
+    ]
   );
 
   return (
@@ -189,13 +227,15 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
                   fontSize="small"
                 />
                 <ManualOrderNumberInfo />
-                <ControlledTextField
-                  name="manualOrderNumber"
-                  label="Manual Order #"
-                  placeholder="Enter existing order number"
-                  sx={{ mt: 2 }}
-                  fullWidth
-                />
+                {isHistoricalRecord && (
+                  <ControlledTextField
+                    name="manualOrderNumber"
+                    label="Manual Order #"
+                    placeholder="Enter existing order number"
+                    sx={{ mt: 2 }}
+                    fullWidth
+                  />
+                )}
               </>
             )}
           </Box>
@@ -224,7 +264,7 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
         <ModalActions
           primaryActionButtonText="Create"
           isButtonValidation
-          isLoading={isPending}
+          isLoading={isPendingOrder || isPendingWarningLetter}
         />
       </form>
     </FormProvider>
