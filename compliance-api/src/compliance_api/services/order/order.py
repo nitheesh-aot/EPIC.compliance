@@ -6,6 +6,7 @@ from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntity
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import session_scope
 from compliance_api.models.department_detail import DepartmentDetail as DepartmentDetailModel
+from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models.inspection_record import InspectionRecord as InspectionRecordModel
 from compliance_api.models.order import Order as OrderModel
@@ -38,6 +39,9 @@ class OrderService:
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         requirement_ids = order_data.get("inspection_requirement_ids", [])
+        ServiceUtils.check_requirement_for_enforcement_action(
+            requirement_ids, EnforcementActionOptionEnum.ORDER.value
+        )
         if OrderModel.does_order_exists_by_requirement_ids(requirement_ids):
             raise UnprocessableEntityError(
                 "Order already exists for these requirements."
@@ -74,6 +78,9 @@ class OrderService:
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         requirement_ids = update_data.get("inspection_requirement_ids", [])
+        ServiceUtils.check_requirement_for_enforcement_action(
+            requirement_ids, EnforcementActionOptionEnum.ORDER.value
+        )
         if OrderModel.does_order_exists_by_requirement_ids(requirement_ids, order_id):
             raise UnprocessableEntityError(
                 "Order already exists for these requirements."
