@@ -11,6 +11,7 @@ type IFormDateInputProps = {
   placeHolder?: string;
   isRequired?: boolean;
   height?: string;
+  width?: string;
 } & DatePickerProps<Dayjs>;
 
 const ControlledDateField: FC<IFormDateInputProps> = ({
@@ -19,6 +20,7 @@ const ControlledDateField: FC<IFormDateInputProps> = ({
   placeHolder = DATE_FORMAT,
   isRequired = false,
   height = "40px",
+  width = "100%",
   ...otherProps
 }) => {
   const {
@@ -40,32 +42,35 @@ const ControlledDateField: FC<IFormDateInputProps> = ({
             field.onChange(date);
           }}
           slotProps={{
-            textField: {
-              error: !!errors[name],
-              helperText: errors[name] ? String(errors[name]?.message) : "",
-              placeholder: placeHolder,
-              InputLabelProps: {
-                shrink: true, // for always display the placeholder
-                sx: {
-                  fontWeight: isRequired ? "bold" : "normal",
-                },
-              },
-              sx: {
-                "& .MuiOutlinedInput-root": {
-                  paddingRight: "0",
-                  height: height,
-                  "& .MuiOutlinedInput-input": {
-                    paddingRight: "0",
+            ...{
+              textField: {
+                error: !!errors[name],
+                helperText: errors[name] ? String(errors[name]?.message) : "",
+                placeholder: placeHolder,
+                InputLabelProps: {
+                  shrink: true, // for always display the placeholder
+                  sx: {
+                    fontWeight: isRequired ? "bold" : "normal",
                   },
-                  "& .MuiInputAdornment-positionEnd": {
-                    "& .MuiIconButton-root": {
-                      marginRight: "0",
+                },
+                sx: {
+                  "& .MuiOutlinedInput-root": {
+                    paddingRight: "0",
+                    height: height,
+                    width: width,
+                    "& .MuiOutlinedInput-input": {
+                      paddingRight: "0",
+                    },
+                    "& .MuiInputAdornment-positionEnd": {
+                      "& .MuiIconButton-root": {
+                        marginRight: "0",
+                      },
                     },
                   },
+                  width: "100%",
                 },
-                width: "100%",
-              },
-            } as TextFieldProps,
+              } as TextFieldProps,
+            },
           }}
           {...otherProps}
         />

@@ -125,6 +125,7 @@ const RegPartyResponse: React.FC<RegPartyResponseProps> = ({
               name="responseDate"
               label="Preliminary IR Response Date"
               height="2rem"
+              width="40%"
             />
           )}
           <Box

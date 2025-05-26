@@ -95,6 +95,7 @@ const IssuanceDate: React.FC = () => {
             name="issuanceDate"
             label="Intended Issuance Date"
             height="2rem"
+            width="40%"
           />
           <Box
             sx={{
