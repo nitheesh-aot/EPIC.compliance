@@ -51,7 +51,7 @@
       }
 
       .com-ref {
-        margin-top: 0.5em;
+        margin-top: -0.25em;
         margin-bottom: 0.5em;
         text-align: end;
         font-size: 8.5pt;
@@ -67,12 +67,12 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 80px;
+        height: 120px;
         width: 100%;
       }
 
       .com-wl-header-logo {
-        height: 60px;
+        height: 180px;
         width: auto;
       }
 
@@ -197,14 +197,14 @@
     </div>
     <div class="com-wl-header-container">
       <img
-        src="https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/images/EAO_Compliance_IR_Report_Logo.png"
+        src="https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/images/BCID_V_RGB_pos.png"
         class="com-wl-header-logo"
         alt="EAO Logo"
       />
     </div>
     <div>
       <p class="com-ref">
-        <strong>Ref:</strong> {{ warning_letter.warning_letter_number }}
+        Ref: {{ warning_letter.warning_letter_number }}
       </p>
       <p class="com-date-issued">{{ warning_letter.date_issued }}</p>
     </div>
