@@ -76,6 +76,10 @@
         width: auto;
       }
 
+      .com-wl-content p{
+        margin: 0;
+      }
+
       @media print {
         @page: first {
           size: letter;
@@ -209,7 +213,7 @@
       <p class="com-date-issued">{{ warning_letter.date_issued }}</p>
     </div>
     <!-- Content -->
-    <div class="content">
+    <div class="com-wl-content">
       {{warning_letter.content | safe | replace('style="white-space:
       pre-wrap;"', '')}}
     </div>

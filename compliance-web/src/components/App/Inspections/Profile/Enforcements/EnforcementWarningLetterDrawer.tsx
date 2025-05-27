@@ -13,7 +13,7 @@ import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLe
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
 import { BCDesignTokens } from "epic.theme";
-import { SendOutlined } from "@mui/icons-material";
+import { SendRounded } from "@mui/icons-material";
 import {
   InspectionWarningLetter,
   InspectionWarningLetterAPIData,
@@ -127,7 +127,7 @@ const EnforcementWarningLetterDrawer: React.FC<
           }}
         >
           <Button variant="text">
-            <SendOutlined sx={{ mr: 1, fontSize: 20 }} />
+            <SendRounded sx={{ mr: 1, fontSize: 20 }} />
             Send for Approval
           </Button>
           <EnforcementDownloadPDFButton
