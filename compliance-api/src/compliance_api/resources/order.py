@@ -13,8 +13,8 @@ from compliance_api.services.order.order_approval import OrderApprovalService
 from compliance_api.utils.constant import PermissionEnum
 
 from ..schemas import (
-    OrderApprovalSchema, OrderCreateSchema, OrderIssueSchema, OrderSchema, OrderStatusSchema, OrderUpdateSchema,
-    CreateOrderApprovalSchema, UpdateOrderApprovalStatusSchema)
+    CreateOrderApprovalSchema, OrderApprovalSchema, OrderCreateSchema, OrderIssueSchema, OrderSchema, OrderStatusSchema,
+    OrderUpdateSchema, UpdateOrderApprovalStatusSchema)
 from ..utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
@@ -212,33 +212,27 @@ class OrderPreview(Resource):
             )
         return response.json(), HTTPStatus.OK
 
+
 @cors_preflight("GET, OPTIONS, POST, PATCH")
 @API.route("/<int:order_id>/approvals", methods=["POST", "GET", "OPTIONS"])
 class OrderApprovals(Resource):
     """Resource for managing order approvals."""
 
     @staticmethod
+    @API.response(404, "Not Found")
     @API.response(code=200, description="Success", model=[order_approval_model])
-    @ApiHelper.swagger_decorators(
-        API, endpoint_description="Fetch all order approvals"
-    )
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all order approvals")
     @auth.require
-    def get(
-        inspection_id, order_id
-    ):  # pylint: disable=no-self-use, unused-argument
+    def get(inspection_id, order_id):  # pylint: disable=no-self-use, unused-argument
         """Fetch all order approvals."""
-        approvals = OrderApprovalService.get_all_approvals(
-            order_id
-        )
+        approvals = OrderApprovalService.get_all_approvals(inspection_id, order_id)
         approval_schema = OrderApprovalSchema(many=True)
         return approval_schema.dump(approvals), HTTPStatus.OK
 
     @staticmethod
     @auth.require
-    @ApiHelper.swagger_decorators(
-        API, endpoint_description="Create an order approval"
-    )
-    @API.expect(order_approval_create_request)
+    @ApiHelper.swagger_decorators(API, endpoint_description="Create an order approval")
+    @API.expect(order_approval_create_model)
     @API.response(
         code=201, model=order_approval_model, description="OrderApprovalRequestCreated"
     )
@@ -257,32 +251,6 @@ class OrderApprovals(Resource):
 
 @cors_preflight("OPTIONS, PATCH, GET")
 @API.route(
-    "/<int:order_id>/approvals/<int:approval_id>",
-    methods=["PATCH", "GET", "OPTIONS"],
-)
-# class OrderApproval(Resource):
-#     """Resource for managing order approval."""
-
-#     @staticmethod
-#     @API.response(code=200, description="Sucess", model=order_approval_schema)
-#     @API.expect(order_approval_update_request)
-#     @ApiHelper.swagger_decorators(
-#         API, endpoint_description="Update order approval"
-#     )
-#     @API.response(404, "Not Found")
-#     @API.response(400, "Bad Request")
-#     @auth.require
-#     def patch(inspection_id, order_id, approval_id):
-#         """Update order approval."""
-#         approval_update_data = UpdateOrderApprovalSchema().load(API.payload)
-#         updated_approval = OrderApprovalService.update_approval(
-#             inspection_id, order_id, approval_id, approval_update_data
-#         )
-#         return OrderApprovalSchema().dump(updated_approval), HTTPStatus.OK
-
-
-@cors_preflight("OPTIONS, PATCH, GET")
-@API.route(
     "/<int:order_id>/approvals/<int:approval_id>/status",
     methods=["PATCH", "OPTIONS"],
 )
@@ -290,8 +258,8 @@ class OrderApprovalStatus(Resource):
     """Resource for managing order approval status."""
 
     @staticmethod
-    @API.response(code=200, description="Sucess", model=order_approval_schema)
-    @API.expect(order_approval_status_update_request)
+    @API.response(code=200, description="Sucess", model=order_approval_model)
+    @API.expect(order_approval_status_update_model)
     @ApiHelper.swagger_decorators(
         API, endpoint_description="Update order approval status"
     )
@@ -300,9 +268,7 @@ class OrderApprovalStatus(Resource):
     @auth.require
     def patch(inspection_id, order_id, approval_id):
         """Update order approval."""
-        approval_update_data = UpdateOrderApprovalStatusSchema().load(
-            API.payload
-        )
+        approval_update_data = UpdateOrderApprovalStatusSchema().load(API.payload)
         updated_approval = OrderApprovalService.update_approval_status(
             inspection_id, order_id, approval_id, approval_update_data
         )

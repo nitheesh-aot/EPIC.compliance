@@ -2,13 +2,14 @@
 
 from enum import Enum
 
-from sqlalchemy import Boolean, Column, DateTime
+from sqlalchemy import Column
 from sqlalchemy import Enum as SqlEnum
 from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModelVersioned
 from .utils import with_session
+from .warning_letter import WarningLetterStatusEnum
 
 
 class WarningLetterApprovalStatusEnum(Enum):
@@ -29,7 +30,9 @@ class WarningLetterApproval(BaseModelVersioned):
     )
     warning_letter_id = Column(
         Integer,
-        ForeignKey("warning_letters.id", name="warning_letter_approvals_warning_letter_id_fkey"),
+        ForeignKey(
+            "warning_letters.id", name="warning_letter_approvals_warning_letter_id_fkey"
+        ),
         nullable=False,
         comment="The unique identifier of the warning letter",
     )
@@ -41,10 +44,9 @@ class WarningLetterApproval(BaseModelVersioned):
         nullable=True,
         comment="Person who approved the inspection record",
     )
-    warning_letter_status_id = Column(
-        Integer,
-        ForeignKey("warning_letter_status_options.id", name="warning_letter_status_id_status_options_fkey"),
-        nullable=False,
+    warning_letter_status = Column(
+        SqlEnum(WarningLetterStatusEnum),
+        nullable=True,
         comment="Status of the warning letter",
     )
     approval_status = Column(
@@ -62,13 +64,9 @@ class WarningLetterApproval(BaseModelVersioned):
 
     @classmethod
     @with_session
-    def create_warning_letter_approval(
-        cls, warning_letter_approval_data, session=None
-    ):
+    def create_warning_letter_approval(cls, warning_letter_approval_data, session=None):
         """Persist warning letter approval data in database."""
-        warning_letter_approval = WarningLetterApproval(
-            **warning_letter_approval_data
-        )
+        warning_letter_approval = WarningLetterApproval(**warning_letter_approval_data)
         session.add(warning_letter_approval)
         session.flush()
         return warning_letter_approval

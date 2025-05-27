@@ -217,6 +217,7 @@ def _create_warning_letter_obj(inspection, warning_letter_data: dict) -> dict:
     If issuing_officer_id is not provided, it will be set to the primary officer of the inspection.
     If section_id is not provided, it will be set to the default section.
     """
+    requirement_ids = warning_letter_data.get("inspection_requirement_ids", None)
     warning_letter_number = warning_letter_data.get("warning_letter_number", None)
     if not warning_letter_number:
         warning_letter_number = _create_warning_letter_number(
@@ -224,7 +225,9 @@ def _create_warning_letter_obj(inspection, warning_letter_data: dict) -> dict:
         )
     content = warning_letter_data.get("content")
     if not content:
-        generated_content = _create_content(inspection, warning_letter_number)
+        generated_content = _create_content(
+            inspection, warning_letter_number, requirement_ids
+        )
         content = content or generated_content
     return {
         "warning_letter_number": warning_letter_number,
@@ -238,12 +241,12 @@ def _create_warning_letter_obj(inspection, warning_letter_data: dict) -> dict:
     }
 
 
-def _create_content(inspection, warning_letter_number):
+def _create_content(inspection, warning_letter_number, requirement_ids):
     """Create where_as and now_therefore."""
     department_details = DepartmentDetailModel.query.filter_by(
         is_active=True, is_deleted=False
     ).first()
-    requirements = InspectionRequirementModel.get_by_inspection_id(inspection.id)
+    requirements = InspectionRequirementModel.get_requirement_by_ids(requirement_ids)
     requirement_details = ServiceUtils.get_formatted_requirement_details(requirements)
     requirements = []
     for requirement in requirement_details:
@@ -298,7 +301,10 @@ def _create_content(inspection, warning_letter_number):
             "phone": department_details.phone,
         },
         "requirement_details": requirements,
-        "condition_lines": " ,".join(condition_lines),
+        "requirement_sources": ", ".join(
+            [requirement["requirement_source_name"] for requirement in requirements]
+        ),
+        "condition_lines": condition_lines,
     }
 
     content = render_template_with_data(
@@ -320,7 +326,7 @@ def _create_warning_letter_number(project_id: int, case_file_id: int) -> str:
         project_id, case_file_id
     )
     serial_number = f"{count + 1:04}"
-    return f"{project_code}_{case_file.case_file_number}_WL{serial_number}"
+    return f"{project_code}_{case_file.case_file_number}_WN{serial_number}"
 
 
 def _get_project_abbreviation(

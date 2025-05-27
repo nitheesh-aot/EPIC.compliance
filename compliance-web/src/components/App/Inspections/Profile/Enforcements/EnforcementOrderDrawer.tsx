@@ -20,7 +20,7 @@ import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAut
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
 import { useEnforcementSectionsData } from "@/hooks/useEnforcementSections";
 import { BCDesignTokens } from "epic.theme";
-import { SendOutlined } from "@mui/icons-material";
+import { SendRounded } from "@mui/icons-material";
 import EnforcementDownloadPDFButton from "./EnforcementDownloadPDFButton";
 import { EnforcementActionEnum } from "@/utils/constants";
 
@@ -148,7 +148,7 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
           }}
         >
           <Button variant="text">
-            <SendOutlined sx={{ mr: 1, fontSize: 20 }} />
+            <SendRounded sx={{ mr: 1, fontSize: 20 }} />
             Send for Approval
           </Button>
           <EnforcementDownloadPDFButton

@@ -2,12 +2,13 @@
 
 from enum import Enum
 
-from sqlalchemy import Boolean, Column, DateTime
+from sqlalchemy import Column
 from sqlalchemy import Enum as SqlEnum
 from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModelVersioned
+from .order import OrderStatusEnum
 from .utils import with_session
 
 
@@ -41,12 +42,7 @@ class OrderApproval(BaseModelVersioned):
         nullable=True,
         comment="Person who approved the inspection record",
     )
-    order_status_id = Column(
-        Integer,
-        ForeignKey("order_status_options.id", name="order_status_id_status_options_fkey"),
-        nullable=False,
-        comment="Status of the order",
-    )
+    order_status = Column(SqlEnum(OrderStatusEnum), nullable=True)
     approval_status = Column(
         SqlEnum(OrderApprovalStatusEnum),
         nullable=True,
@@ -56,19 +52,13 @@ class OrderApproval(BaseModelVersioned):
     approved_by = relationship(
         "StaffUser", foreign_keys=[approved_by_id], lazy="joined"
     )
-    order = relationship(
-        "Order", foreign_keys=[order_id], lazy="joined"
-    )
+    order = relationship("Order", foreign_keys=[order_id], lazy="joined")
 
     @classmethod
     @with_session
-    def create_order_approval(
-        cls, order_approval_data, session=None
-    ):
+    def create_order_approval(cls, order_approval_data, session=None):
         """Persist order approval data in database."""
-        order_approval = OrderApproval(
-            **order_approval_data
-        )
+        order_approval = OrderApproval(**order_approval_data)
         session.add(order_approval)
         session.flush()
         return order_approval

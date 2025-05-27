@@ -1,19 +1,16 @@
 """Schema for WarningLetter Approval."""
 
-from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load, validate
+from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load
 from marshmallow_enum import EnumField
 
 from compliance_api.models.warning_letter_approval import WarningLetterApproval as WarningLetterApprovalModel
 from compliance_api.models.warning_letter_approval import WarningLetterApprovalStatusEnum
-from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .staff_user import StaffUserSchema
 
 
-class WarningLetterApprovalSchema(
-    AutoSchemaBase
-):  # pylint: disable=too-many-ancestors
+class WarningLetterApprovalSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     """WarningLetterApprovalSchema."""
 
     class Meta:  # pylint: disable=too-few-public-methods
@@ -66,4 +63,3 @@ class UpdateWarningLetterApprovalStatusSchema(BaseSchema):
             raise ValidationError(f"Invalid status: {status}")
 
         return data
-

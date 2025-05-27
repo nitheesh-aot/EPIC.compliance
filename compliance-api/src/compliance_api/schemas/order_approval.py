@@ -1,19 +1,16 @@
 """Schema for Order Approval."""
 
-from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load, validate
+from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load
 from marshmallow_enum import EnumField
 
 from compliance_api.models.order_approval import OrderApproval as OrderApprovalModel
 from compliance_api.models.order_approval import OrderApprovalStatusEnum
-from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from .base_schema import AutoSchemaBase, BaseSchema
 from .staff_user import StaffUserSchema
 
 
-class OrderApprovalSchema(
-    AutoSchemaBase
-):  # pylint: disable=too-many-ancestors
+class OrderApprovalSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     """OrderApprovalSchema."""
 
     class Meta:  # pylint: disable=too-few-public-methods
@@ -30,6 +27,11 @@ class OrderApprovalSchema(
         self, data, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
         """Convert enum to key value schema."""
+        if "order_status" in data and data["order_status"] is not None:
+            data["order_status"] = {
+                "id": data["order_status"].name,
+                "name": data["order_status"].value,
+            }
         if "approval_status" in data and data["approval_status"] is not None:
             data["approval_status"] = {
                 "id": data["approval_status"].name,
@@ -66,4 +68,3 @@ class UpdateOrderApprovalStatusSchema(BaseSchema):
             raise ValidationError(f"Invalid status: {status}")
 
         return data
-

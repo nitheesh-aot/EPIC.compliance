@@ -26,6 +26,7 @@ from .inspection_record.inspection_record_approval import InspectionRecordApprov
 from .inspection_requirement import InspectionRequirementService
 from .inspection_requirement_type import InspectionRequirementTypeService
 from .order.order import OrderService
+from .order.order_approval import OrderApprovalService
 from .position import PositionService
 from .project import ProjectService
 from .project_status import ProjectStatusService
@@ -33,4 +34,3 @@ from .requirement_source import RequirementSourceService
 from .staff_user import StaffUserService
 from .topic import TopicService
 from .warning_letter.warning_letter import WarningLetterService
-from .order.order_approval import OrderApprovalService
