@@ -46,9 +46,9 @@ class InspectionRecordApproval(BaseModelVersioned):
         nullable=True,
         comment="Date when the response was received",
     )
-    response_provided = Column(
-        Boolean, default=False, comment="Indicate if the proponent has responded or not"
-    )
+    # response_provided = Column(
+    #     Boolean, default=False, comment="Indicate if the proponent has responded or not"
+    # )
     approved_by_id = Column(
         Integer,
         ForeignKey(
@@ -58,6 +58,7 @@ class InspectionRecordApproval(BaseModelVersioned):
         comment="Person who approved the inspection record",
     )
     ir_status_id = Column(
+        Integer,
         ForeignKey("ir_status_options.id", name="ir_status_id_status_options_fkey"),
         nullable=False,
         comment="Status of the inspection record",
@@ -68,11 +69,11 @@ class InspectionRecordApproval(BaseModelVersioned):
         comment="State of the inspection record",
         default=IRApprovalStatusEnum.DECISION_PENDING,
     )
-    approved_date = Column(
-        DateTime(timezone=True),
-        nullable=True,
-        comment="The approved date",
-    )
+    # approved_date = Column(
+    #     DateTime(timezone=True),
+    #     nullable=True,
+    #     comment="The approved date",
+    # )
     approved_by = relationship(
         "StaffUser", foreign_keys=[approved_by_id], lazy="joined"
     )

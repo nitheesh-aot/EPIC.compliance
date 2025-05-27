@@ -9,9 +9,12 @@ from flask_restx import Namespace, Resource
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.services.order.order import OrderService
+from compliance_api.services.order.order_approval import OrderApprovalService
 from compliance_api.utils.constant import PermissionEnum
 
-from ..schemas import OrderCreateSchema, OrderIssueSchema, OrderSchema, OrderStatusSchema, OrderUpdateSchema
+from ..schemas import (
+    OrderApprovalSchema, OrderCreateSchema, OrderIssueSchema, OrderSchema, OrderStatusSchema, OrderUpdateSchema,
+    CreateOrderApprovalSchema, UpdateOrderApprovalStatusSchema)
 from ..utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
@@ -33,6 +36,15 @@ order_status_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 order_issue_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, OrderIssueSchema(), "OrderIssue"
+)
+order_approval_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, OrderApprovalSchema(), "OrderApproval"
+)
+order_approval_create_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, CreateOrderApprovalSchema(), "OrderApprovalCreate"
+)
+order_approval_status_update_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, UpdateOrderApprovalStatusSchema(), "OrderApprovalStatusUpdate"
 )
 
 
@@ -199,3 +211,99 @@ class OrderPreview(Resource):
                 download_name=f"{order_id}.pdf",
             )
         return response.json(), HTTPStatus.OK
+
+@cors_preflight("GET, OPTIONS, POST, PATCH")
+@API.route("/<int:order_id>/approvals", methods=["POST", "GET", "OPTIONS"])
+class OrderApprovals(Resource):
+    """Resource for managing order approvals."""
+
+    @staticmethod
+    @API.response(code=200, description="Success", model=[order_approval_model])
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Fetch all order approvals"
+    )
+    @auth.require
+    def get(
+        inspection_id, order_id
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Fetch all order approvals."""
+        approvals = OrderApprovalService.get_all_approvals(
+            order_id
+        )
+        approval_schema = OrderApprovalSchema(many=True)
+        return approval_schema.dump(approvals), HTTPStatus.OK
+
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Create an order approval"
+    )
+    @API.expect(order_approval_create_request)
+    @API.response(
+        code=201, model=order_approval_model, description="OrderApprovalRequestCreated"
+    )
+    @API.response(400, "Bad Request")
+    def post(inspection_id, order_id):
+        """Create a agency."""
+        order_approval_request = CreateOrderApprovalSchema().load(API.payload)
+        created_aproval = OrderApprovalService.create_approval(
+            order_approval_request, inspection_id, order_id
+        )
+        return (
+            OrderApprovalSchema().dump(created_aproval),
+            HTTPStatus.CREATED,
+        )
+
+
+@cors_preflight("OPTIONS, PATCH, GET")
+@API.route(
+    "/<int:order_id>/approvals/<int:approval_id>",
+    methods=["PATCH", "GET", "OPTIONS"],
+)
+# class OrderApproval(Resource):
+#     """Resource for managing order approval."""
+
+#     @staticmethod
+#     @API.response(code=200, description="Sucess", model=order_approval_schema)
+#     @API.expect(order_approval_update_request)
+#     @ApiHelper.swagger_decorators(
+#         API, endpoint_description="Update order approval"
+#     )
+#     @API.response(404, "Not Found")
+#     @API.response(400, "Bad Request")
+#     @auth.require
+#     def patch(inspection_id, order_id, approval_id):
+#         """Update order approval."""
+#         approval_update_data = UpdateOrderApprovalSchema().load(API.payload)
+#         updated_approval = OrderApprovalService.update_approval(
+#             inspection_id, order_id, approval_id, approval_update_data
+#         )
+#         return OrderApprovalSchema().dump(updated_approval), HTTPStatus.OK
+
+
+@cors_preflight("OPTIONS, PATCH, GET")
+@API.route(
+    "/<int:order_id>/approvals/<int:approval_id>/status",
+    methods=["PATCH", "OPTIONS"],
+)
+class OrderApprovalStatus(Resource):
+    """Resource for managing order approval status."""
+
+    @staticmethod
+    @API.response(code=200, description="Sucess", model=order_approval_schema)
+    @API.expect(order_approval_status_update_request)
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Update order approval status"
+    )
+    @API.response(404, "Not Found")
+    @API.response(400, "Bad Request")
+    @auth.require
+    def patch(inspection_id, order_id, approval_id):
+        """Update order approval."""
+        approval_update_data = UpdateOrderApprovalStatusSchema().load(
+            API.payload
+        )
+        updated_approval = OrderApprovalService.update_approval_status(
+            inspection_id, order_id, approval_id, approval_update_data
+        )
+        return OrderApprovalSchema().dump(updated_approval), HTTPStatus.OK
