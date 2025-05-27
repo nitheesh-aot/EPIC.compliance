@@ -111,7 +111,7 @@ class ServiceUtils:
     @staticmethod
     def get_formatted_requirement_details(
         requirements: [InspectionRequirementModel],
-        ir_status: int,
+        ir_status: int = None,
         photo_required: bool = False,
     ):
         """
@@ -225,12 +225,16 @@ class ServiceUtils:
         return photo_list, figure_list
 
     @staticmethod
-    def get_enforcement_action(requirement: InspectionRequirementModel, ir_status: int):
+    def get_enforcement_action(
+        requirement: InspectionRequirementModel, ir_status: int = None
+    ):
         """Get the enforcement action based on the compliance finding and ir status."""
         enforcement_actions = [
             action.enforcement_action for action in requirement.enforcement_actions
         ]
         result = ""
+        if not ir_status:
+            return result
         if ir_status == IRStatusEnum.PRELIMINARY.value:
             if (
                 requirement.compliance_finding_id

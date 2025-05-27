@@ -50,7 +50,9 @@ class OrderCreateSchema(OrderUpdateSchema):  # pylint: disable=too-many-ancestor
     )
 
 
-class OrderInspectionRequirementMapSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
+class OrderInspectionRequirementMapSchema(
+    AutoSchemaBase
+):  # pylint: disable=too-many-ancestors
     """Schema for order inspection requirement map model."""
 
     class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods

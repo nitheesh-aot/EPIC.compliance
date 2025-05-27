@@ -7,7 +7,6 @@ from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import session_scope
 from compliance_api.models.department_detail import DepartmentDetail as DepartmentDetailModel
 from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
-from compliance_api.models.inspection_record import InspectionRecord as InspectionRecordModel
 from compliance_api.models.order import Order as OrderModel
 from compliance_api.models.order import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
 from compliance_api.models.order import OrderProgressEnum, OrderStatusEnum
@@ -235,6 +234,7 @@ def _create_order_obj(inspection, order_data: dict) -> dict:
     If section_id is not provided, it will be set to the default section.
     """
     section_id = order_data.get("section_id", None)
+    requirement_ids = order_data.get("inspection_requirement_ids", None)
     if not section_id:
         default_section = SectionModel.get_by_name_act(DEFAULT_SECTION, DEFAULT_ACT)
         section_id = default_section.id
@@ -247,7 +247,9 @@ def _create_order_obj(inspection, order_data: dict) -> dict:
     now_therefore = order_data.get("now_therefore")
     if not where_as or not now_therefore:
         generated_where_as, generated_now_therefore = (
-            _create_where_as_and_now_therefore(inspection, order_number, section_id)
+            _create_where_as_and_now_therefore(
+                inspection, order_number, section_id, requirement_ids
+            )
         )
         where_as = where_as or generated_where_as
         now_therefore = now_therefore or generated_now_therefore
@@ -266,7 +268,9 @@ def _create_order_obj(inspection, order_data: dict) -> dict:
     }
 
 
-def _create_where_as_and_now_therefore(inspection, order_number, section_id):
+def _create_where_as_and_now_therefore(
+    inspection, order_number, section_id, requirement_ids
+):
     """Create where_as and now_therefore."""
     section = SectionModel.find_by_id(section_id)
     whereas_data = {
@@ -289,11 +293,8 @@ def _create_where_as_and_now_therefore(inspection, order_number, section_id):
             "section": section.name,
         },
     }
-    inspection_record = InspectionRecordModel.get_by_inspection_id(inspection.id)
-    requirements = InspectionRequirementModel.get_by_inspection_id(inspection.id)
-    requirement_details = ServiceUtils.get_formatted_requirement_details(
-        requirements, inspection_record.ir_status_id
-    )
+    requirements = InspectionRequirementModel.get_requirement_by_ids(requirement_ids)
+    requirement_details = ServiceUtils.get_formatted_requirement_details(requirements)
     requirement_numbers = []
     requirement_summaries = []
     requirement_sources = []
