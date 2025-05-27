@@ -9,8 +9,8 @@ A. {{project_details.name}} (Project) is a reviewable project under the </span><
 <span style="white-space: pre-wrap;"> (the Act).</span></p>
 <p class="editor-paragraph" style="text-align: left;"><br></p>
 <p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">
-B. Environmental Assessment (EA) Certificate {{project_details.ea_certificate}} held by
- {{project_details.proponent_name}} ({{project_details.proponent_label}}) for the Project has
+B. Environmental Assessment (EA) Certificate {{project_details.eac_certificate}} held by
+ {{project_details.proponent}} ({{project_details.proponent_label}}) for the Project has
  requirements in {{requirement_details.requirement_numbers}} of {{requirement_details.requirement_sources}}
   with respect to {{requirement_details.requirement_summaries}}.</span>
 </p>
@@ -45,7 +45,7 @@ Pursuant to Section {{order_details.section}} of the Act, I order that the {{pro
     <li value="1" class="editor-listitem"><span style="white-space: pre-wrap;">XX</span></li>
     <li value="2" class="editor-listitem"><span style="white-space: pre-wrap;">XX</span></li>
     <li value="3" class="editor-listitem"><span style="white-space: pre-wrap;">XX</span></li>
-    <li value="4" class="editor-listitem"><span style="white-space: pre-wrap;">Complete the measures in clauses 1, 2 and
-            3 above to the satisfaction of, and unless otherwise authorized by, the EAO Compliance and Enforcement
-            Branch.</span></li>
+    <li value="4" class="editor-listitem"><span style="white-space: pre-wrap;">Complete the measures in clauses 1, 2
+     and 3 above to the satisfaction of, and unless otherwise authorized by, the EAO Compliance and Enforcement Branch.
+  </span></li>
 </ol>"""
