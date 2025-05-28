@@ -156,5 +156,7 @@ class InspectionRequirement(BaseModelVersioned):
     def get_requirement_by_ids(cls, requirement_ids):
         """Get requirements by ids."""
         return cls.query.filter(
-            cls.id.in_(requirement_ids), cls.is_deleted.is_(False), cls.is_active.is_(True)
+            cls.id.in_(requirement_ids),
+            cls.is_deleted.is_(False),
+            cls.is_active.is_(True),
         ).all()
