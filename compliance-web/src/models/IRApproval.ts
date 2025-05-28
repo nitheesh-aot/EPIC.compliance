@@ -9,10 +9,8 @@ export interface IRApproval {
   date_report_sent: string;
   date_expected_return: string;
   date_response: string;
-  response_provided: boolean;
   approved_by_id: number;
   ir_status_id: number;
-  approved_date: string;
   is_active: boolean;
 }
 

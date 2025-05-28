@@ -23,10 +23,11 @@ class InspectionRecordApprovalService:
         inspection_record_id: int,
     ):
         """Create approval for the inspection record."""
-        ServiceUtils.inspection_exist_check(inspection_id)
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
         inspection_record = ServiceUtils.inspection_record_exist_check(
             inspection_record_id
         )
+        ServiceUtils.access_check_update_for_inspection(inspection)
         approval_data = {
             "inspection_record_id": inspection_record_id,
             "approved_by_id": ir_approval_request_data.get("approved_by_id"),

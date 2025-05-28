@@ -5,7 +5,7 @@ import re
 from flask import g
 
 from compliance_api.auth import auth
-from compliance_api.exceptions import PermissionDeniedError, ResourceNotFoundError
+from compliance_api.exceptions import PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionRecord as InspectionRecordModel
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
@@ -13,6 +13,8 @@ from compliance_api.models import InspectionRequirementImage as InspectionRequir
 from compliance_api.models.compliance_finding import ComplianceFindingOptionEnum
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.models.inspection import InspectionReqSourceDetail as InspectionReqSourceDetailModel
+from compliance_api.models.inspection.inspection_req_enforcement_map import \
+    InspectionReqEnforcementMap as InspectionReqEnforcementMapModel
 from compliance_api.models.inspection.inspection_req_image import ImageTypeEnum
 from compliance_api.models.inspection.inspection_requirement import InspectionRequirementTypeEnum
 from compliance_api.models.inspection_record import IRStatusEnum
@@ -299,3 +301,37 @@ class ServiceUtils:
         if requirement_source == RequirementSourceEnum.ORDER:
             return f"Order {getattr(detail_obj, 'order_number')}"
         return None
+
+    @staticmethod
+    def check_requirement_for_enforcement_action(
+        requirement_ids: list[int], enforcement_action_id: int
+    ) -> None:
+        """Check if all requirements have a given enforcement action.
+
+        Args:
+            requirement_ids (List[int]): List of requirement IDs to check
+            enforcement_action_id (int): Enforcement action ID to check
+
+        Raises:
+            UnprocessableEntityError: If any requirement doesn't have the given enforcement action
+        """
+        invalid_reqs = []
+        for req_id in requirement_ids:
+            # Get enforcement mapping for this requirement
+            enforcement_maps = (
+                InspectionReqEnforcementMapModel.get_all_by_requirement_id(req_id)
+            )
+
+            # Check if any of the enforcement actions is ORDER
+            has_order = any(
+                map.enforcement_action_id == enforcement_action_id
+                for map in enforcement_maps
+            )
+
+            if not has_order:
+                invalid_reqs.append(req_id)
+
+        if invalid_reqs:
+            raise UnprocessableEntityError(
+                f"Requirements {', '.join(map(str, invalid_reqs))} do not have enforcement action as order"
+            )

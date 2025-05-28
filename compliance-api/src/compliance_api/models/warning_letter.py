@@ -21,6 +21,15 @@ class WarningLetterStatusEnum(Enum):
     ISSUED = "Issued"
 
 
+class WarningLetterProgressEnum(Enum):
+    """Enum for Warning Letter Progress."""
+
+    DRAFTING = "Drafting"
+    DEPUTY_REVIEW = "Deputy Review"
+    APPROVED = "Approved"
+    ISSUED = "Issued"
+
+
 class WarningLetterInspectionRequirementMap(BaseModelVersioned):
     """WarningLetterInspectionRequirementMap Model."""
 
@@ -125,6 +134,12 @@ class WarningLetter(BaseModelVersioned):
         comment="Status of the warning letter",
         default=WarningLetterStatusEnum.CREATED,
     )
+    progress = Column(
+        SqlEnum(WarningLetterProgressEnum),
+        nullable=True,
+        comment="Progress of the warning letter",
+        default=WarningLetterProgressEnum.DRAFTING,
+    )
 
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="joined")
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
@@ -192,9 +207,7 @@ class WarningLetter(BaseModelVersioned):
             .with_entities(
                 InspectionModel.case_file_id,
                 CaseFileModel.project_id,
-                func.count(cls.id).label(
-                    "warning_letter_count"
-                ),  # pylint: disable=not-callable
+                func.count(cls.id).label("warning_letter_count"),  # pylint: disable=not-callable
             )
             .filter(
                 CaseFileModel.project_id == project_id,
