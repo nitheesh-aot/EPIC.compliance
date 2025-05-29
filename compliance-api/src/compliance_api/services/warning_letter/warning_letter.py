@@ -11,7 +11,7 @@ from compliance_api.models.inspection import InspectionRequirement as Inspection
 from compliance_api.models.warning_letter import WarningLetter as WarningLetterModel
 from compliance_api.models.warning_letter import \
     WarningLetterInspectionRequirementMap as WarningLetterInspectionRequirementMapModel
-from compliance_api.models.warning_letter import WarningLetterStatusEnum
+from compliance_api.models.warning_letter import WarningLetterProgressEnum, WarningLetterStatusEnum
 from compliance_api.services.docgen_service.docgen_service import DocGenService
 from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils
@@ -152,13 +152,16 @@ class WarningLetterService:
             )
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
-        updated_warning_letter = WarningLetterModel.update_warning_letter(
-            warning_letter_id,
-            {
-                "status": WarningLetterStatusEnum.ISSUED,
-                "date_issued": issue.get("date_issued"),
-            },
-        )
+        with session_scope() as session:
+            updated_warning_letter = WarningLetterModel.update_warning_letter(
+                warning_letter_id,
+                {
+                    "status": WarningLetterStatusEnum.ISSUED,
+                    "date_issued": issue.get("date_issued"),
+                    "progress": WarningLetterProgressEnum.ISSUED,
+                },
+                session,
+            )
         return updated_warning_letter
 
     @classmethod
@@ -238,6 +241,7 @@ def _create_warning_letter_obj(inspection, warning_letter_data: dict) -> dict:
         "content": content,
         "intended_issuance_date": warning_letter_data.get("intended_issuance_date"),
         "status": WarningLetterStatusEnum.CREATED,
+        "progress": WarningLetterProgressEnum.DRAFTING,
     }
 
 

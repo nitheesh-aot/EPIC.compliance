@@ -21,6 +21,15 @@ class WarningLetterStatusEnum(Enum):
     ISSUED = "Issued"
 
 
+class WarningLetterProgressEnum(Enum):
+    """Enum for Warning Letter Progress."""
+
+    DRAFTING = "Drafting"
+    DEPUTY_REVIEW = "Deputy Review"
+    APPROVED = "Approved"
+    ISSUED = "Issued"
+
+
 class WarningLetterInspectionRequirementMap(BaseModelVersioned):
     """WarningLetterInspectionRequirementMap Model."""
 
@@ -124,6 +133,12 @@ class WarningLetter(BaseModelVersioned):
         nullable=True,
         comment="Status of the warning letter",
         default=WarningLetterStatusEnum.CREATED,
+    )
+    progress = Column(
+        SqlEnum(WarningLetterProgressEnum),
+        nullable=True,
+        comment="Progress of the warning letter",
+        default=WarningLetterProgressEnum.DRAFTING,
     )
 
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="joined")

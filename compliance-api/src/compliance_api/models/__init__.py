@@ -45,4 +45,6 @@ from .section import Section
 from .staff_user import StaffUser
 from .topic import Topic
 from .unapproved_project import UnapprovedProject
-from .warning_letter import WarningLetter, WarningLetterInspectionRequirementMap, WarningLetterStatusEnum
+from .warning_letter import (
+    WarningLetter, WarningLetterInspectionRequirementMap, WarningLetterProgressEnum, WarningLetterStatusEnum)
+from .warning_letter_approval import WarningLetterApproval, WarningLetterApprovalStatusEnum

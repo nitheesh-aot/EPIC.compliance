@@ -3,6 +3,7 @@
 from marshmallow import EXCLUDE, fields, post_dump, post_load
 from marshmallow_enum import EnumField
 
+from compliance_api.models.warning_letter import WarningLetterProgressEnum
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from ..models.warning_letter import WarningLetter, WarningLetterInspectionRequirementMap, WarningLetterStatusEnum
@@ -88,6 +89,10 @@ class WarningLetterSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         self, data, many, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of the inspection status enum."""
+        if "progress" in data and data["progress"] is not None:
+            data["progress"] = WarningLetterProgressEnum(data["progress"]).value
+        else:
+            data["progress"] = ""
         if "status" in data and data["status"] is not None:
             data["status"] = WarningLetterStatusEnum(data["status"]).value
         else:

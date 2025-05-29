@@ -11,7 +11,10 @@ from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas.warning_letter import (
     WarningLetterCreateSchema, WarningLetterIssueSchema, WarningLetterSchema, WarningLetterStatusSchema,
     WarningLetterUpdateSchema)
+from compliance_api.schemas.warning_letter_approval import (
+    CreateWarningLetterApprovalSchema, UpdateWarningLetterApprovalStatusSchema, WarningLetterApprovalSchema)
 from compliance_api.services.warning_letter.warning_letter import WarningLetterService
+from compliance_api.services.warning_letter.warning_letter_approval import WarningLetterApprovalService
 from compliance_api.utils.constant import PermissionEnum
 
 from ..utils.util import cors_preflight
@@ -35,6 +38,19 @@ warning_letter_status_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 warning_letter_issue_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, WarningLetterIssueSchema(), "WarningLetterIssue"
+)
+warning_letter_approval_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, WarningLetterApprovalSchema(), "WarningLetterApproval"
+)
+warning_letter_approval_create_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, CreateWarningLetterApprovalSchema(), "WarningLetterApprovalCreate"
+)
+warning_letter_approval_status_update_model = (
+    ApiHelper.convert_ma_schema_to_restx_model(
+        API,
+        UpdateWarningLetterApprovalStatusSchema(),
+        "WarningLetterApprovalStatusUpdate",
+    )
 )
 
 
@@ -213,3 +229,81 @@ class WarningLetterPreview(Resource):
                 download_name=f"{warning_letter_id}.pdf",
             )
         return response.json(), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS, POST, PATCH")
+@API.route("/<int:warning_letter_id>/approvals", methods=["POST", "GET", "OPTIONS"])
+class WarningLetterApprovals(Resource):
+    """Resource for managing warning letter approvals."""
+
+    @staticmethod
+    @API.response(404, "Not Found")
+    @API.response(
+        code=200, description="Success", model=[warning_letter_approval_model]
+    )
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Fetch all warning letter approvals"
+    )
+    @auth.require
+    def get(
+        inspection_id, warning_letter_id
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Fetch all warning letter approvals."""
+        approvals = WarningLetterApprovalService.get_all_approvals(
+            inspection_id, warning_letter_id
+        )
+        approval_schema = WarningLetterApprovalSchema(many=True)
+        return approval_schema.dump(approvals), HTTPStatus.OK
+
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Create an warning letter approval"
+    )
+    @API.expect(warning_letter_approval_create_model)
+    @API.response(
+        code=201,
+        model=warning_letter_approval_model,
+        description="WarningLetterApprovalRequestCreated",
+    )
+    @API.response(400, "Bad Request")
+    def post(inspection_id, warning_letter_id):
+        """Create a agency."""
+        warning_letter_approval_request = CreateWarningLetterApprovalSchema().load(
+            API.payload
+        )
+        created_aproval = WarningLetterApprovalService.create_approval(
+            warning_letter_approval_request, inspection_id, warning_letter_id
+        )
+        return (
+            WarningLetterApprovalSchema().dump(created_aproval),
+            HTTPStatus.CREATED,
+        )
+
+
+@cors_preflight("OPTIONS, PATCH, GET")
+@API.route(
+    "/<int:warning_letter_id>/approvals/<int:approval_id>/status",
+    methods=["PATCH", "OPTIONS"],
+)
+class WarningLetterApprovalStatus(Resource):
+    """Resource for managing warning letter approval status."""
+
+    @staticmethod
+    @API.response(code=200, description="Sucess", model=warning_letter_approval_model)
+    @API.expect(warning_letter_approval_status_update_model)
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Update warning letter approval status"
+    )
+    @API.response(404, "Not Found")
+    @API.response(400, "Bad Request")
+    @auth.require
+    def patch(inspection_id, warning_letter_id, approval_id):
+        """Update warning letter approval."""
+        approval_update_data = UpdateWarningLetterApprovalStatusSchema().load(
+            API.payload
+        )
+        updated_approval = WarningLetterApprovalService.update_approval_status(
+            inspection_id, warning_letter_id, approval_id, approval_update_data
+        )
+        return WarningLetterApprovalSchema().dump(updated_approval), HTTPStatus.OK
