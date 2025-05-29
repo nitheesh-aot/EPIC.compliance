@@ -5,7 +5,7 @@ from compliance_api.models import WarningLetter as WarningLetterModel
 from compliance_api.models import WarningLetterApproval as WarningLetterApprovalModel
 from compliance_api.models import WarningLetterApprovalStatusEnum
 from compliance_api.models.db import session_scope
-from compliance_api.models.warning_letter import WarningLetterProgressEnum, WarningLetterStatusEnum
+from compliance_api.models.warning_letter import WarningLetterProgressEnum
 
 from ..service_utils import ServiceUtils
 
@@ -22,14 +22,14 @@ class WarningLetterApprovalService:
     ):
         """Create approval for the warning letter."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        _warning_letter_exist_check(warning_letter_id)
+        warning_letter = _warning_letter_exist_check(warning_letter_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         approval_data = {
             "warning_letter_id": warning_letter_id,
             "approved_by_id": warning_letter_approval_request_data.get(
                 "approved_by_id"
             ),
-            "warning_letter_status": WarningLetterStatusEnum.CREATED,  # default status
+            "warning_letter_status": warning_letter.status,  # default status
             "approval_status": WarningLetterApprovalStatusEnum.DECISION_PENDING,  # default status
         }
         latest_approval = (
@@ -55,7 +55,7 @@ class WarningLetterApprovalService:
             # # Update order_progress to either PRELIMINARY_DEPUTY_REVIEW or FINAL_DEPUTY_REVIEW
             WarningLetterModel.update_warning_letter(
                 warning_letter_id=warning_letter_id,
-                warning_letter_data={
+                warning_letter_update_data={
                     "progress": WarningLetterProgressEnum.DEPUTY_REVIEW
                 },
                 session=session,
@@ -103,7 +103,7 @@ class WarningLetterApprovalService:
             )
             WarningLetterModel.update_warning_letter(
                 warning_letter_id=warning_letter_id,
-                warning_letter_data={
+                warning_letter_update_data={
                     "progress": (
                         WarningLetterProgressEnum.APPROVED
                         if status_to_be_updated

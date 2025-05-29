@@ -26,7 +26,7 @@ def upgrade():
     with op.batch_alter_table('warning_letters_version', schema=None) as batch_op:
         batch_op.add_column(sa.Column('progress', sa.Enum('DRAFTING', 'DEPUTY_REVIEW', 'APPROVED', 'ISSUED', name='warningletterprogressenum'), autoincrement=False, nullable=True, comment='Progress of the warning letter'))
         batch_op.add_column(sa.Column('progress_mod', sa.Boolean(), server_default=sa.text('false'), nullable=False))
-
+    op.execute("UPDATE positions SET name='Executive Director, Compliance & Enforcement' WHERE name='Director, Compliance & Enforcement'")
     # ### end Alembic commands ###
 
 
@@ -39,5 +39,6 @@ def downgrade():
     with op.batch_alter_table('warning_letters', schema=None) as batch_op:
         batch_op.drop_column('progress')
     op.execute('DROP TYPE warningletterprogressenum')
+    op.execute("UPDATE positions SET name='Director, Compliance & Enforcement' WHERE name='Executive Director, Compliance & Enforcement'")
 
     # ### end Alembic commands ###

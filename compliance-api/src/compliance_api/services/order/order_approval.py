@@ -5,7 +5,6 @@ from compliance_api.models import Order as OrderModel
 from compliance_api.models import OrderApproval as OrderApprovalModel
 from compliance_api.models import OrderApprovalStatusEnum, OrderProgressEnum
 from compliance_api.models.db import session_scope
-from compliance_api.models.order import OrderStatusEnum
 
 from ..service_utils import ServiceUtils
 
@@ -27,7 +26,7 @@ class OrderApprovalService:
         approval_data = {
             "order_id": order_id,
             "approved_by_id": order_approval_request_data.get("approved_by_id"),
-            "order_status": OrderStatusEnum.CREATED,  # default status
+            "order_status": order.order_status,  # default status
             "approval_status": OrderApprovalStatusEnum.DECISION_PENDING,  # default status
         }
         # No more approval request can be made if the order is in the following statuses

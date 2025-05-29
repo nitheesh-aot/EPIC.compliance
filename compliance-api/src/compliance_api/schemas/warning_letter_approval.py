@@ -27,6 +27,14 @@ class WarningLetterApprovalSchema(AutoSchemaBase):  # pylint: disable=too-many-a
         self, data, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
         """Convert enum to key value schema."""
+        if (
+            "warning_letter_status" in data
+            and data["warning_letter_status"] is not None
+        ):
+            data["warning_letter_status"] = {
+                "id": data["warning_letter_status"].name,
+                "name": data["warning_letter_status"].value,
+            }
         if "approval_status" in data and data["approval_status"] is not None:
             data["approval_status"] = {
                 "id": data["approval_status"].name,
