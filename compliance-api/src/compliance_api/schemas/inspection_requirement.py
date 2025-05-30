@@ -129,6 +129,12 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
             "rquirement sources(Schedule B, EAC Certificate, EAC Amendment)"
         }
     )
+    order_id = fields.Int(
+        metadata={
+            "description": "The optional order id associated with"
+            "rquirement sources(Order)"
+        }
+    )
     amendment_number = fields.Str(
         metadata={
             "description": "The amendment number if the requirement source is EAC Amendment"
@@ -198,6 +204,22 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
             raise ValidationError(
                 "Invalid requirement source for the given condition number",
                 field_name="condition_number",
+            )
+
+    @validates_schema
+    def validate_order_id(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Ensure the correct requirement is selected for the order id."""
+        order_id = data.get("order_id", [])
+        requirement_source_id = data.get("requirement_source_id", None)
+        if (
+            RequirementSourceEnum(requirement_source_id) == RequirementSourceEnum.ORDER
+            and not order_id
+        ):
+            raise ValidationError(
+                "Order id is mandatory when the requirement source is ORDER",
+                field_name="order_id",
             )
 
 

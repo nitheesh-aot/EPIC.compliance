@@ -16,6 +16,7 @@ from compliance_api.models import InspectionRequirement as InspectionRequirement
 from compliance_api.models import InspectionRequirementImage as InspectionRequirementImageModel
 from compliance_api.models import InspectionStatusEnum
 from compliance_api.models.db import db, session_scope
+from compliance_api.models.order import Order as OrderModel
 from compliance_api.services.document_service.doc_service import DocService
 from compliance_api.services.document_service.doc_service_enum import ActionOnFileEnum
 
@@ -49,7 +50,7 @@ class InspectionRequirementService:
                 requirement_obj, session
             )
             _create_update_source_details_nd_docs(
-                inspection_id, created_requirement.id, requirement_data, session
+                inspection, created_requirement.id, requirement_data, session
             )
             cls.insert_or_update_enforcements(
                 created_requirement.id,
@@ -449,7 +450,7 @@ def _requirement_check(requirement_id):
 
 
 def _create_update_source_details_nd_docs(
-    inspection_id, requirement_id, requirement_data, session=None
+    inspection, requirement_id, requirement_data, session=None
 ):
     """
     Persist the source details and related document details.
@@ -466,12 +467,12 @@ def _create_update_source_details_nd_docs(
                 raise ResourceNotFoundError(
                     f"Appendix with given ID {source_detail_data.get('appendix_id')} not found"
                 )
-            if appendix.inspection_id != inspection_id:
+            if appendix.inspection_id != inspection.id:
                 raise ResourceNotFoundError(
                     f"Appendix with given ID {source_detail_data.get('appendix_id')} does not belong to this inspection"
                 )
         source_detail_obj = _create_requirement_source_detail_obj(
-            requirement_id, source_detail_data
+            requirement_id, source_detail_data, inspection
         )
         if not req_detail_id:
             created_source_detail = InspectionReqSourceDetailModel.create_source_detail(
@@ -491,7 +492,7 @@ def _create_update_source_details_nd_docs(
                     raise ResourceNotFoundError(
                         f"Appendix with given ID {doc_detail_data.get('appendix_id')} not found"
                     )
-                if appendix.inspection_id != inspection_id:
+                if appendix.inspection_id != inspection.id:
                     raise ResourceNotFoundError(
                         f"Appendix with given ID {doc_detail_data.get('appendix_id')} not belong to this inspection"
                     )
@@ -559,18 +560,52 @@ def _create_requirement_obj(inspection_id, requirement_data):
     }
 
 
-def _create_requirement_source_detail_obj(requirement_id, requirement_source_data):
+def _create_requirement_source_detail_obj(
+    requirement_id, requirement_source_data, inspection
+):
     """Create requirement source details object."""
+    #  Check to see if the project is the same for the order and inspection
+    _validate_order(requirement_source_data.get("order_id", None), inspection)
     return {
         "requirement_id": requirement_id,
         "requirement_source_id": requirement_source_data.get("requirement_source_id"),
         "appendix_id": requirement_source_data.get("appendix_id", None),
         "section_number": requirement_source_data.get("section_number", None),
         "condition_number": requirement_source_data.get("condition_number", None),
+        "order_id": requirement_source_data.get("order_id", None),
         "amendment_number": requirement_source_data.get("amendment_number", None),
         "title": requirement_source_data.get("title", None),
         "description": requirement_source_data.get("description"),
     }
+
+
+def _validate_order(order_id, inspection):
+    """Validate order."""
+    if order_id:
+        order = OrderModel.find_by_id(order_id)
+        inspection_on_order = ServiceUtils.inspection_exist_check(order.inspection_id)
+        project_details_on_order = ServiceUtils.get_project_by_case_file_id(
+            inspection_on_order.case_file_id
+        )
+        project_details_on_inspection = ServiceUtils.get_project_by_case_file_id(
+            inspection.case_file_id
+        )
+        if project_details_on_order.get("project"):
+            if (
+                project_details_on_order.get("project").id
+                != project_details_on_inspection.get("project").id
+            ):
+                raise UnprocessableEntityError(
+                    "Project on order and inspection are different"
+                )
+        if project_details_on_order.get("unapproved_project"):
+            if (
+                project_details_on_order.get("unapproved_project").id
+                != project_details_on_inspection.get("unapproved_project").id
+            ):
+                raise UnprocessableEntityError(
+                    "Unapproved project on order and inspection are different"
+                )
 
 
 def _create_requirement_source_doc_obj(

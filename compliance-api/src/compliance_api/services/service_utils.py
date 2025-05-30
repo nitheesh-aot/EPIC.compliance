@@ -10,6 +10,7 @@ from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionRecord as InspectionRecordModel
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models import InspectionRequirementImage as InspectionRequirementImageModel
+from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.compliance_finding import ComplianceFindingOptionEnum
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.models.inspection import InspectionReqSourceDetail as InspectionReqSourceDetailModel
@@ -18,6 +19,7 @@ from compliance_api.models.inspection.inspection_req_enforcement_map import \
 from compliance_api.models.inspection.inspection_req_image import ImageTypeEnum
 from compliance_api.models.inspection.inspection_requirement import InspectionRequirementTypeEnum
 from compliance_api.models.inspection_record import IRStatusEnum
+from compliance_api.models.project import Project as ProjectModel
 from compliance_api.models.requirement_source import RequirementSourceEnum
 from compliance_api.models.unapproved_project import UnapprovedProject as UnapprovedProjectModel
 from compliance_api.utils.enum import PermissionEnum
@@ -335,3 +337,16 @@ class ServiceUtils:
             raise UnprocessableEntityError(
                 f"Requirements {', '.join(map(str, invalid_reqs))} do not have enforcement action as order"
             )
+
+    @staticmethod
+    def get_project_by_case_file_id(case_file_id: int):
+        """Get project by case file id."""
+        result = {"project": None, "unapproved_project": None}
+        case_file = CaseFileModel.find_by_id(case_file_id)
+        if case_file.project_id:
+            result["project"] = ProjectModel.find_by_id(case_file.project_id)
+        else:
+            result["unapproved_project"] = UnapprovedProjectModel.get_by_case_file_id(
+                case_file_id
+            )
+        return result
