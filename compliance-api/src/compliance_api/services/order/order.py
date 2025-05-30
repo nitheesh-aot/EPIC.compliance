@@ -12,7 +12,6 @@ from compliance_api.models.order import Order as OrderModel
 from compliance_api.models.order import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
 from compliance_api.models.order import OrderProgressEnum, OrderStatusEnum
 from compliance_api.models.section import Section as SectionModel
-from compliance_api.models.unapproved_project import UnapprovedProject
 from compliance_api.services.docgen_service.docgen_service import DocGenService
 from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils
@@ -37,6 +36,7 @@ class OrderService:
     def get_projectwise_orders(cls, inspection_id: int) -> List[OrderModel]:
         """
         Get all orders with OPEN status for the project associated to the inspection's case file.
+
         param inspection_id: int
         return List[OrderModel]
         """
@@ -52,7 +52,7 @@ class OrderService:
             case_file_ids_to_be_queried = [
                 case_file.id
                 for case_file in case_files
-                if case_file.is_active == True and case_file.is_deleted == False
+                if case_file.is_active and not case_file.is_deleted
             ]
         return OrderModel.get_orders_by_case_files(case_file_ids_to_be_queried)
 
