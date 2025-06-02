@@ -26,8 +26,10 @@ class OrderService:
     """Service layer for Order operations."""
 
     @classmethod
-    def get_all(cls, inspection_id: int) -> List[OrderModel]:
+    def get_all(cls, inspection_id: int=None) -> List[OrderModel]:
         """Get all orders for an inspection."""
+        if inspection_id is None:
+            return OrderModel.get_all()
         return OrderModel.get_by_params(
             {"inspection_id": inspection_id}, default_filters=False
         )
@@ -57,8 +59,9 @@ class OrderService:
         return OrderModel.get_orders_by_case_files(case_file_ids_to_be_queried)
 
     @classmethod
-    def create_order(cls, inspection_id: int, order_data: dict) -> OrderModel:
+    def create_order(cls, order_data: dict) -> OrderModel:
         """Create a new order."""
+        inspection_id = order_data.get("inspection_id")
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         requirement_ids = order_data.get("inspection_requirement_ids", [])
@@ -80,9 +83,8 @@ class OrderService:
         return created_order
 
     @classmethod
-    def get_order(cls, inspection_id: int, order_id: int) -> OrderModel:
+    def get_order(cls, order_id: int) -> OrderModel:
         """Retrieve an order by ID."""
-        ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         return OrderModel.find_by_id(order_id)
 
     @classmethod
@@ -95,9 +97,10 @@ class OrderService:
 
     @classmethod
     def update_order(
-        cls, inspection_id: int, order_id: int, update_data: dict
+        cls, order_id: int, update_data: dict
     ) -> OrderModel:
         """Update an existing order."""
+        order = ServiceUtils.order
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         requirement_ids = update_data.get("inspection_requirement_ids", [])
