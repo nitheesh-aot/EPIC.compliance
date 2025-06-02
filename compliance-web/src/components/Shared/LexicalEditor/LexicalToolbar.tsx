@@ -31,10 +31,12 @@ import {
   INSERT_ORDERED_LIST_COMMAND,
   INSERT_UNORDERED_LIST_COMMAND,
 } from "@lexical/list";
-import { INSERT_TABLE_COMMAND } from "@lexical/table";
+import { $isTableSelection, INSERT_TABLE_COMMAND } from "@lexical/table";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Box, IconButton, Tooltip } from "@mui/material";
 import LexicalToolbarAlign from "./LexicalToolbarAlign";
+import LexicalFontSize from "./LexicalFontSize";
+import { $getSelectionStyleValueForProperty } from "@lexical/selection";
 
 const LowPriority = 1;
 
@@ -82,6 +84,7 @@ export default function ToolbarPlugin({ isAdvanced }: { isAdvanced: boolean }) {
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isStrikethrough, setIsStrikethrough] = useState(false);
+  const [fontSize, setFontSize] = useState("16");
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -91,6 +94,14 @@ export default function ToolbarPlugin({ isAdvanced }: { isAdvanced: boolean }) {
       setIsItalic(selection.hasFormat("italic"));
       setIsUnderline(selection.hasFormat("underline"));
       setIsStrikethrough(selection.hasFormat("strikethrough"));
+    }
+    if ($isRangeSelection(selection) || $isTableSelection(selection)) {
+      const fontSize = $getSelectionStyleValueForProperty(
+        selection,
+        "font-size",
+        "16"
+      );
+      setFontSize(fontSize);
     }
   }, []);
 
@@ -147,6 +158,11 @@ export default function ToolbarPlugin({ isAdvanced }: { isAdvanced: boolean }) {
         icon={RedoRounded}
       />
       <Divider />
+      <LexicalFontSize
+        selectionFontSize={fontSize}
+        editor={editor}
+        disabled={!editor.isEditable()}
+      />
       <ToolbarIconButton
         onClick={() => editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold")}
         isActive={isBold}
