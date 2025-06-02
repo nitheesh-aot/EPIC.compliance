@@ -21,6 +21,13 @@ export const LexicalTheme = {
       listitem: "editor-nested-listitem",
     },
     ol: "editor-list-ol",
+    olDepth: [
+      "editor-list-ol1",
+      "editor-list-ol2",
+      "editor-list-ol3",
+      "editor-list-ol4",
+      "editor-list-ol5",
+    ],
     ul: "editor-list-ul",
   },
   ltr: "ltr",
