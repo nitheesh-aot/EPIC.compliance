@@ -1,0 +1,27 @@
+name: OWASP ZAP Scan
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+    inputs:
+      url:
+        description: "Target URL to scan"
+        required: true
+        type: string
+
+  push:  # Runs on push events to the development branch
+    branches:
+      - develop
+
+jobs:
+  owasp-zap:
+    name: OWASP ZAP Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run Scan
+        uses: zaproxy/action-full-scan@v0.12.0
+        with:
+          allow_issue_writing: false
+          artifact_name: OWASP ZAP Scan
+          cmd_options: "-a -d"
+          target: ${{ secrets.ZAP_SCAN_URL || 'https://your-default-url.com' }}  # Uses a secret or default URL

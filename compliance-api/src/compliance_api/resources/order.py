@@ -76,6 +76,22 @@ class Orders(Resource):
         return OrderSchema().dump(created_order), HTTPStatus.CREATED
 
 
+@cors_preflight("GET, OPTIONS")
+@API.route("/projectwise", methods=["GET", "OPTIONS"])
+class ProjectwiseOrders(Resource):
+    """Resource for managing projectwise orders."""
+
+    @staticmethod
+    @auth.require
+    @API.response(code=200, description="Success", model=[order_list_model])
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all orders")
+    def get(inspection_id):
+        """Fetch all OPEN orders."""
+        orders = OrderService.get_projectwise_orders(inspection_id)
+        order_list_schema = OrderSchema(many=True)
+        return order_list_schema.dump(orders), HTTPStatus.OK
+
+
 @cors_preflight("GET, PATCH, DELETE, OPTIONS")
 @API.route("/<int:order_id>", methods=["OPTIONS", "GET", "PATCH", "DELETE"])
 @API.doc(params={"order_id": "The unique identifier for the order"})

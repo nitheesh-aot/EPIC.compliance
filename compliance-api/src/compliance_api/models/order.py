@@ -199,3 +199,13 @@ class Order(BaseModelVersioned):
     def get_by_order_number(cls, order_number: str):
         """Find an order by order number."""
         return cls.query.filter_by(order_number=order_number, is_deleted=False).first()
+
+    @classmethod
+    def get_orders_by_case_files(cls, case_file_ids: list[int]):
+        """Get orders by case file ids."""
+        return (
+            cls.query.join(InspectionModel, InspectionModel.id == cls.inspection_id)
+            .join(CaseFileModel, CaseFileModel.id == InspectionModel.case_file_id)
+            .filter(CaseFileModel.id.in_(case_file_ids), cls.is_deleted.is_(False))
+            .all()
+        )

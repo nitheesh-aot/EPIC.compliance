@@ -71,6 +71,12 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         lazy="select",
         uselist=False,
     )
+    order_id = Column(
+        Integer,
+        ForeignKey("orders.id", name="inspection_req_detail_order_id_fkey"),
+        nullable=True,
+        comment="The order id associated with selected order as requirement source",
+    )
     requirement_source = relationship(
         "RequirementSource", foreign_keys=[requirement_source_id], lazy="joined"
     )
@@ -83,6 +89,7 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         "InspectionReqDetailDocument.is_deleted == False)",
     )
     appendix = relationship("Appendix", foreign_keys=[appendix_id], lazy="joined")
+    order = relationship("Order", foreign_keys=[order_id], lazy="joined")
 
     @classmethod
     @with_session
