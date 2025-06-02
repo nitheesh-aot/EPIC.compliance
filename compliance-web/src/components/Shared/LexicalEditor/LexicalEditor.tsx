@@ -7,7 +7,7 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
 import { Box, InputLabel } from "@mui/material";
 import LexicalToolbar from "./LexicalToolbar";
-import { EditorState, LexicalEditor as Editor } from "lexical";
+import { EditorState, LexicalEditor as Editor, $isTextNode } from "lexical";
 import { $getRoot, $createParagraphNode, $createTextNode } from "lexical";
 import { $generateNodesFromDOM } from "@lexical/html";
 import { BCDesignTokens } from "epic.theme";
@@ -23,6 +23,8 @@ import { MentionNode } from "./MentionPlugins/MentionNode";
 import MentionsPlugin from "./MentionPlugins/Mentions";
 import { LexicalTheme, MentionData } from "./LexicalUtils";
 import { PopoverManager } from "./MentionPlugins/PopoverManager";
+import { TextNode, DOMConversionMap } from "lexical";
+import { parseAllowedFontSize, parseAllowedColor } from "./LexicalUtils";
 
 export type TextEditorValue = {
   html: string;
@@ -41,6 +43,67 @@ type LexicalEditorProps = {
   onChange: (editorState: EditorState, editor: Editor) => void;
   isRequired?: boolean;
 };
+
+function getExtraStyles(element: HTMLElement): string {
+  let extraStyles = '';
+  const fontSize = parseAllowedFontSize(element.style.fontSize);
+  const backgroundColor = parseAllowedColor(element.style.backgroundColor);
+  const color = parseAllowedColor(element.style.color);
+  
+  if (fontSize !== '' && fontSize !== '15px') {
+    extraStyles += `font-size: ${fontSize};`;
+  }
+  if (backgroundColor !== '' && backgroundColor !== 'rgb(255, 255, 255)') {
+    extraStyles += `background-color: ${backgroundColor};`;
+  }
+  if (color !== '' && color !== 'rgb(0, 0, 0)') {
+    extraStyles += `color: ${color};`;
+  }
+  return extraStyles;
+}
+
+function buildImportMap(): DOMConversionMap {
+  const importMap: DOMConversionMap = {};
+  
+  for (const [tag, fn] of Object.entries(TextNode.importDOM() || {})) {
+    importMap[tag] = (importNode) => {
+      const importer = fn(importNode);
+      if (!importer) {
+        return null;
+      }
+      return {
+        ...importer,
+        conversion: (element) => {
+          const output = importer.conversion(element);
+          if (
+            output === null ||
+            output.forChild === undefined ||
+            output.after !== undefined ||
+            output.node !== null
+          ) {
+            return output;
+          }
+          const extraStyles = getExtraStyles(element);
+          if (extraStyles) {
+            const {forChild} = output;
+            return {
+              ...output,
+              forChild: (child, parent) => {
+                const textNode = forChild(child, parent);
+                if ($isTextNode(textNode)) {
+                  textNode.setStyle(textNode.getStyle() + extraStyles);
+                }
+                return textNode;
+              },
+            };
+          }
+          return output;
+        },
+      };
+    };
+  }
+  return importMap;
+}
 
 const LexicalEditor = ({
   errorMsg,
@@ -69,6 +132,9 @@ const LexicalEditor = ({
     onError(error: unknown) {
       // eslint-disable-next-line no-console
       console.error(error);
+    },
+    html: {
+      import: buildImportMap(),
     },
     editorState: (editor: Editor) => {
       const parser = new DOMParser();
