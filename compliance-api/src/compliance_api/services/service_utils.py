@@ -19,9 +19,11 @@ from compliance_api.models.inspection.inspection_req_enforcement_map import \
 from compliance_api.models.inspection.inspection_req_image import ImageTypeEnum
 from compliance_api.models.inspection.inspection_requirement import InspectionRequirementTypeEnum
 from compliance_api.models.inspection_record import IRStatusEnum
+from compliance_api.models.order import Order as OrderModel
 from compliance_api.models.project import Project as ProjectModel
 from compliance_api.models.requirement_source import RequirementSourceEnum
 from compliance_api.models.unapproved_project import UnapprovedProject as UnapprovedProjectModel
+from compliance_api.models.warning_letter import WarningLetter as WarningLetterModel
 from compliance_api.utils.enum import PermissionEnum
 
 from .document_service.doc_service import DocService
@@ -350,3 +352,21 @@ class ServiceUtils:
                 case_file_id
             )
         return result
+
+    @staticmethod
+    def order_exist_check(order_id):
+        """Check if order exists."""
+        order = OrderModel.find_by_id(order_id)
+        if not order:
+            raise ResourceNotFoundError(f"Order with ID {order_id} not found")
+        return order
+
+    @staticmethod
+    def warning_letter_exist_check(warning_letter_id):
+        """Check if warning letter exists."""
+        warning_letter = WarningLetterModel.find_by_id(warning_letter_id)
+        if not warning_letter:
+            raise ResourceNotFoundError(
+                f"Warning letter with ID {warning_letter_id} not found"
+            )
+        return warning_letter

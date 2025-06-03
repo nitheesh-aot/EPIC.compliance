@@ -26,29 +26,28 @@ class OrderService:
     """Service layer for Order operations."""
 
     @classmethod
-    def get_all(cls, inspection_id: int) -> List[OrderModel]:
+    def get_all(cls, inspection_id: int = None) -> List[OrderModel]:
         """Get all orders for an inspection."""
+        if inspection_id is None:
+            return OrderModel.get_all()
         return OrderModel.get_by_params(
             {"inspection_id": inspection_id}, default_filters=False
         )
 
     @classmethod
-    def get_projectwise_orders(cls, inspection_id: int) -> List[OrderModel]:
+    def get_projectwise_orders(cls, case_file_id: int) -> List[OrderModel]:
         """
-        Get all orders with OPEN status for the project associated to the inspection's case file.
+        Get all orders with OPEN status for the project associated to the case file.
 
-        param inspection_id: int
+        param case_file_id: int
         return List[OrderModel]
         """
-        #  Find the associated inspection
-        inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
-        # Find the case file associated with the inspection
-        case_file = inspection.case_file
-        # Find the project associated with the case file
-        project_id = case_file.project_id
+        case_file = CaseFileModel.find_by_id(case_file_id)
+        if case_file is None:
+            raise ResourceNotFoundError(f"Case file with ID {case_file_id} not found")
         case_file_ids_to_be_queried = [case_file.id]
-        if project_id is not None:
-            case_files = CaseFileModel.get_by_project(project_id)
+        if case_file.project_id is not None:
+            case_files = CaseFileModel.get_by_project(case_file.project_id)
             case_file_ids_to_be_queried = [
                 case_file.id
                 for case_file in case_files
@@ -57,8 +56,9 @@ class OrderService:
         return OrderModel.get_orders_by_case_files(case_file_ids_to_be_queried)
 
     @classmethod
-    def create_order(cls, inspection_id: int, order_data: dict) -> OrderModel:
+    def create_order(cls, order_data: dict) -> OrderModel:
         """Create a new order."""
+        inspection_id = order_data.get("inspection_id")
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         requirement_ids = order_data.get("inspection_requirement_ids", [])
@@ -80,25 +80,22 @@ class OrderService:
         return created_order
 
     @classmethod
-    def get_order(cls, inspection_id: int, order_id: int) -> OrderModel:
+    def get_order(cls, order_id: int) -> OrderModel:
         """Retrieve an order by ID."""
-        ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
-        return OrderModel.find_by_id(order_id)
+        return ServiceUtils.order_exist_check(order_id)
 
     @classmethod
-    def get_order_by_order_number(
-        cls, inspection_id: int, order_number: str
-    ) -> OrderModel:
+    def get_order_by_order_number(cls, order_number: str) -> OrderModel:
         """Retrieve an order by order number."""
-        ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         return OrderModel.get_by_order_number(order_number)
 
     @classmethod
-    def update_order(
-        cls, inspection_id: int, order_id: int, update_data: dict
-    ) -> OrderModel:
+    def update_order(cls, order_id: int, update_data: dict) -> OrderModel:
         """Update an existing order."""
-        inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
+        ServiceUtils.order_exist_check(order_id)
+        inspection = ServiceUtils.inspection_exist_check(
+            inspection_id=update_data.get("inspection_id")
+        )
         ServiceUtils.access_check_update_for_inspection(inspection)
         requirement_ids = update_data.get("inspection_requirement_ids", [])
         ServiceUtils.check_requirement_for_enforcement_action(
@@ -118,11 +115,27 @@ class OrderService:
         return updated_order
 
     @classmethod
-    def delete_order(cls, inspection_id: int, order_id: int) -> None:
+    def delete_order(cls, order_id: int) -> OrderModel:
         """Delete an order by ID."""
-        order = cls.get_order(inspection_id, order_id)
-        if order:
-            order.delete()
+        order = ServiceUtils.order_exist_check(order_id)
+        if order.order_status == OrderStatusEnum.OPEN:
+            raise UnprocessableEntityError(
+                "Order cannot be deleted as it is in OPEN status"
+            )
+        if order.order_progress in [
+            OrderProgressEnum.ISSUED,
+            OrderProgressEnum.DEPUTY_REVIEW,
+            OrderProgressEnum.APPROVED,
+        ]:
+            raise UnprocessableEntityError(
+                f"Order cannot be deleted as it is in {order.order_progress.value} progress"
+            )
+        with session_scope() as session:
+            OrderModel.update_order(
+                order_id, {"is_deleted": True, "is_active": False}, session
+            )
+            OrderInspectionRequirementMapModel.delete_by_order(order_id, session)
+        return order
 
     @classmethod
     def insert_or_update_inspection_requirements(
@@ -155,13 +168,10 @@ class OrderService:
                 )
 
     @classmethod
-    def change_status(cls, inspection_id, order_id, status):
+    def change_status(cls, order_id, status):
         """Close the order."""
-        order = OrderModel.find_by_id(order_id)
-        if not order:
-            raise ResourceNotFoundError(f"Order with ID {order_id} not found")
-        inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
-        ServiceUtils.access_check_update_for_inspection(inspection)
+        order = ServiceUtils.order_exist_check(order_id)
+        ServiceUtils.access_check_update_for_inspection(order.inspection)
         status_enum = OrderStatusEnum(status.get("status"))
         if order.order_status == status_enum:
             raise UnprocessableEntityError(
@@ -180,12 +190,12 @@ class OrderService:
         return updated_order
 
     @classmethod
-    def issue_order(cls, inspection_id, order_id, issue):
+    def issue_order(cls, order_id, issue):
         """Issue an order."""
-        order = OrderModel.find_by_id(order_id)
-        if not order:
-            raise ResourceNotFoundError(f"Order with ID {order_id} not found")
-        inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
+        order = ServiceUtils.order_exist_check(order_id)
+        inspection = ServiceUtils.inspection_exist_check(
+            inspection_id=order.inspection_id
+        )
         ServiceUtils.access_check_update_for_inspection(inspection)
         OrderModel.update_order(
             order_id,
@@ -198,17 +208,10 @@ class OrderService:
         return order
 
     @classmethod
-    def render(cls, inspection_id, order_id, output_format):
+    def render(cls, order_id, output_format):
         """Preview order."""
-        inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        order = OrderModel.find_by_id(order_id)
-        if order is None:
-            raise ResourceNotFoundError(f"Order with ID {order_id} not found")
-        if inspection.id != order.inspection_id:
-            raise UnprocessableEntityError(
-                "Inspection and inspection record do not match"
-            )
-        order_data = _create_order_data(inspection, order)
+        order = ServiceUtils.order_exist_check(order_id)
+        order_data = _create_order_data(order.inspection, order)
         response = DocGenService.render_template(
             "ORDER_TEMPLATE", order_data, output_format
         )
