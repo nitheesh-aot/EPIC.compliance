@@ -55,10 +55,20 @@ class Orders(Resource):
 
     @staticmethod
     @auth.require
+    @API.doc(
+        params={
+            "inspection_id": {
+                "description": "The unique identifier of the inspection",
+                "type": "integer",
+                "required": True,
+            }
+        }
+    )
     @API.response(code=200, description="Success", model=[order_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all orders")
-    def get(inspection_id):
+    def get():
         """Fetch all orders."""
+        inspection_id = request.args.get("inspection_id")
         orders = OrderService.get_all(inspection_id)
         order_list_schema = OrderSchema(many=True)
         return order_list_schema.dump(orders), HTTPStatus.OK
@@ -69,10 +79,10 @@ class Orders(Resource):
     @API.expect(order_create_model)
     @API.response(code=201, model=order_list_model, description="OrderCreated")
     @API.response(400, "Bad Request")
-    def post(inspection_id):
+    def post():
         """Create an order."""
         order_data = OrderCreateSchema().load(API.payload)
-        created_order = OrderService.create_order(inspection_id, order_data)
+        created_order = OrderService.create_order(order_data)
         return OrderSchema().dump(created_order), HTTPStatus.CREATED
 
 
@@ -85,9 +95,19 @@ class ProjectwiseOrders(Resource):
     @auth.require
     @API.response(code=200, description="Success", model=[order_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all orders")
-    def get(inspection_id):
+    @API.doc(
+        params={
+            "case_file_id": {
+                "description": "The unique identifier of the case file",
+                "type": "integer",
+                "required": True,
+            }
+        }
+    )
+    def get():
         """Fetch all OPEN orders."""
-        orders = OrderService.get_projectwise_orders(inspection_id)
+        case_file_id = request.args.get("case_file_id")
+        orders = OrderService.get_projectwise_orders(case_file_id)
         order_list_schema = OrderSchema(many=True)
         return order_list_schema.dump(orders), HTTPStatus.OK
 
@@ -103,9 +123,9 @@ class Order(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch an order by id")
     @API.response(code=200, model=order_list_model, description="Success")
     @API.response(404, "Not Found")
-    def get(inspection_id, order_id):
+    def get(order_id):
         """Fetch an order by id."""
-        order = OrderService.get_order(inspection_id, order_id)
+        order = OrderService.get_order(order_id)
         if not order:
             raise ResourceNotFoundError(f"Order with {order_id} not found")
         return OrderSchema().dump(order), HTTPStatus.OK
@@ -117,10 +137,10 @@ class Order(Resource):
     @API.response(404, "Not Found")
     @API.expect(order_update_model)
     @ApiHelper.swagger_decorators(API, endpoint_description="Update order")
-    def patch(inspection_id, order_id):
+    def patch(order_id):
         """Update order."""
         order_data = OrderUpdateSchema().load(API.payload)
-        updated_order = OrderService.update_order(inspection_id, order_id, order_data)
+        updated_order = OrderService.update_order(order_id, order_data)
         return OrderSchema().dump(updated_order), HTTPStatus.OK
 
     @staticmethod
@@ -129,9 +149,9 @@ class Order(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Delete an Order by id")
     @API.response(code=204, description="Success")
     @API.response(404, "Not Found")
-    def delete(inspection_id, order_id):
+    def delete(order_id):
         """Delete order."""
-        OrderService.delete_order(inspection_id, order_id)
+        OrderService.delete_order(order_id)
         return {}, HTTPStatus.NO_CONTENT
 
 
@@ -146,9 +166,9 @@ class OrderByOrderNumber(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch an order by id")
     @API.response(code=200, model=order_list_model, description="Success")
     @API.response(404, "Not Found")
-    def get(inspection_id, order_number):
+    def get(order_number):
         """Fetch an order by id."""
-        order = OrderService.get_order_by_order_number(inspection_id, order_number)
+        order = OrderService.get_order_by_order_number(order_number)
         if not order:
             raise ResourceNotFoundError(f"Order with {order_number} not found")
         return OrderSchema().dump(order), HTTPStatus.OK
@@ -167,10 +187,10 @@ class OrderStatus(Resource):
     @API.response(404, "Not Found")
     @ApiHelper.swagger_decorators(API, endpoint_description="Change order status")
     @API.response(code=204, description="Order status changed")
-    def patch(inspection_id, order_id):
+    def patch(order_id):
         """Change Order Status."""
         status = OrderStatusSchema().load(API.payload)
-        OrderService.change_status(inspection_id, order_id, status)
+        OrderService.change_status(order_id, status)
         return {}, HTTPStatus.NO_CONTENT
 
 
@@ -187,10 +207,10 @@ class OrderIssue(Resource):
     @API.response(404, "Not Found")
     @ApiHelper.swagger_decorators(API, endpoint_description="Issue order")
     @API.response(code=204, description="Order issued")
-    def patch(inspection_id, order_id):
+    def patch(order_id):
         """Issue Order."""
         issue = OrderIssueSchema().load(API.payload)
-        OrderService.issue_order(inspection_id, order_id, issue)
+        OrderService.issue_order(order_id, issue)
         return {}, HTTPStatus.NO_CONTENT
 
 
@@ -215,10 +235,10 @@ class OrderPreview(Resource):
         }
     )
     @auth.require
-    def get(inspection_id, order_id):  # pylint: disable=no-self-use, unused-argument
+    def get(order_id):  # pylint: disable=no-self-use, unused-argument
         """Preview order."""
         output_format = request.args.get("output_format", "html")
-        response = OrderService.render(inspection_id, order_id, output_format)
+        response = OrderService.render(order_id, output_format)
         if output_format == "pdf":
             return send_file(
                 BytesIO(response.content),
@@ -239,9 +259,9 @@ class OrderApprovals(Resource):
     @API.response(code=200, description="Success", model=[order_approval_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all order approvals")
     @auth.require
-    def get(inspection_id, order_id):  # pylint: disable=no-self-use, unused-argument
+    def get(order_id):  # pylint: disable=no-self-use, unused-argument
         """Fetch all order approvals."""
-        approvals = OrderApprovalService.get_all_approvals(inspection_id, order_id)
+        approvals = OrderApprovalService.get_all_approvals(order_id)
         approval_schema = OrderApprovalSchema(many=True)
         return approval_schema.dump(approvals), HTTPStatus.OK
 
@@ -253,11 +273,11 @@ class OrderApprovals(Resource):
         code=201, model=order_approval_model, description="OrderApprovalRequestCreated"
     )
     @API.response(400, "Bad Request")
-    def post(inspection_id, order_id):
+    def post(order_id):
         """Create a agency."""
         order_approval_request = CreateOrderApprovalSchema().load(API.payload)
         created_aproval = OrderApprovalService.create_approval(
-            order_approval_request, inspection_id, order_id
+            order_approval_request, order_id
         )
         return (
             OrderApprovalSchema().dump(created_aproval),
@@ -282,10 +302,10 @@ class OrderApprovalStatus(Resource):
     @API.response(404, "Not Found")
     @API.response(400, "Bad Request")
     @auth.require
-    def patch(inspection_id, order_id, approval_id):
+    def patch(order_id, approval_id):
         """Update order approval."""
         approval_update_data = UpdateOrderApprovalStatusSchema().load(API.payload)
         updated_approval = OrderApprovalService.update_approval_status(
-            inspection_id, order_id, approval_id, approval_update_data
+            order_id, approval_id, approval_update_data
         )
         return OrderApprovalSchema().dump(updated_approval), HTTPStatus.OK

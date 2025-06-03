@@ -77,6 +77,17 @@ class OrderInspectionRequirementMap(BaseModelVersioned):
         session.flush()
 
     @classmethod
+    def delete_by_order(cls, order_id: int, session=None):
+        """Delete an order by ID."""
+        query = session.query(cls) if session else cls.query
+        maps = query.filter(
+            cls.order_id == order_id, cls.is_deleted.is_(False), cls.is_active.is_(True)
+        )
+        for map_item in maps:
+            map_item.update(DELETE_DIC_PARAMS, commit=not session)
+        session.flush()
+
+    @classmethod
     @with_session
     def bulk_insert(
         cls, order_id: int, inspection_requirement_ids: list[int], session=None

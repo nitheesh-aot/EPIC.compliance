@@ -102,6 +102,4 @@ API.add_namespace(APPENDIX_API)
 API.add_namespace(IR_API, path="inspections/<int:inspection_id>/inspection-records")
 API.add_namespace(ORDER_API, path="orders")
 API.add_namespace(SECTION_API)
-API.add_namespace(
-    WARNING_LETTER_API, path="warning-letters"
-)
+API.add_namespace(WARNING_LETTER_API, path="warning-letters")

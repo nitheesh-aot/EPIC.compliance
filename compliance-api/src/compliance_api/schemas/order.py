@@ -14,6 +14,7 @@ from .staff_user import StaffUserSchema
 
 class OrderUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     """Schema for order model."""
+
     inspection_id = fields.Integer(
         required=True, metadata={"description": "The inspection id"}
     )
@@ -46,6 +47,7 @@ class OrderUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
 
 class OrderCreateSchema(OrderUpdateSchema):  # pylint: disable=too-many-ancestors
     """Schema for order model."""
+
     order_number = fields.String(
         allow_none=True, metadata={"description": "The unique order number."}
     )
