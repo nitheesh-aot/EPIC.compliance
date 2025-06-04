@@ -63,8 +63,18 @@ class WarningLetters(Resource):
     @auth.require
     @API.response(code=200, description="Success", model=[warning_letter_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all warning letters")
-    def get(inspection_id):
+    @API.doc(
+        params={
+            "inspection_id": {
+                "description": "The unique identifier of the inspection",
+                "type": "integer",
+                "required": True,
+            }
+        }
+    )
+    def get():
         """Fetch all warning letters."""
+        inspection_id = request.args.get("inspection_id")
         warning_letters = WarningLetterService.get_all(inspection_id)
         warning_letter_list_schema = WarningLetterSchema(many=True)
         return warning_letter_list_schema.dump(warning_letters), HTTPStatus.OK
@@ -77,11 +87,11 @@ class WarningLetters(Resource):
         code=201, model=warning_letter_list_model, description="WarningLetterCreated"
     )
     @API.response(400, "Bad Request")
-    def post(inspection_id):
+    def post():
         """Create a warning letter."""
         warning_letter_data = WarningLetterCreateSchema().load(API.payload)
         created_warning_letter = WarningLetterService.create_warning_letter(
-            inspection_id, warning_letter_data
+            warning_letter_data
         )
         return WarningLetterSchema().dump(created_warning_letter), HTTPStatus.CREATED
 
@@ -99,11 +109,9 @@ class WarningLetter(Resource):
     )
     @API.response(code=200, model=warning_letter_list_model, description="Success")
     @API.response(404, "Not Found")
-    def get(inspection_id, warning_letter_id):
+    def get(warning_letter_id):
         """Fetch a warning letter by id."""
-        warning_letter = WarningLetterService.get_warning_letter(
-            inspection_id, warning_letter_id
-        )
+        warning_letter = WarningLetterService.get_warning_letter(warning_letter_id)
         if not warning_letter:
             raise ResourceNotFoundError(
                 f"Warning letter with {warning_letter_id} not found"
@@ -117,11 +125,11 @@ class WarningLetter(Resource):
     @API.response(404, "Not Found")
     @API.expect(warning_letter_update_model)
     @ApiHelper.swagger_decorators(API, endpoint_description="Update warning letter")
-    def patch(inspection_id, warning_letter_id):
+    def patch(warning_letter_id):
         """Update warning letter."""
         warning_letter_data = WarningLetterUpdateSchema().load(API.payload)
         updated_warning_letter = WarningLetterService.update_warning_letter(
-            inspection_id, warning_letter_id, warning_letter_data
+            warning_letter_id, warning_letter_data
         )
         return WarningLetterSchema().dump(updated_warning_letter), HTTPStatus.OK
 
@@ -133,9 +141,9 @@ class WarningLetter(Resource):
     )
     @API.response(code=204, description="Success")
     @API.response(404, "Not Found")
-    def delete(inspection_id, warning_letter_id):
+    def delete(warning_letter_id):
         """Delete warning letter."""
-        WarningLetterService.delete_warning_letter(inspection_id, warning_letter_id)
+        WarningLetterService.delete_warning_letter(warning_letter_id)
         return {}, HTTPStatus.NO_CONTENT
 
 
@@ -156,11 +164,11 @@ class WarningLetterByWarningLetterNumber(Resource):
     )
     @API.response(code=200, model=warning_letter_list_model, description="Success")
     @API.response(404, "Not Found")
-    def get(inspection_id, warning_letter_number):
+    def get(warning_letter_number):
         """Fetch a warning letter by id."""
         warning_letter = (
             WarningLetterService.get_warning_letter_by_warning_letter_number(
-                inspection_id, warning_letter_number
+                warning_letter_number
             )
         )
         if not warning_letter:
@@ -183,12 +191,10 @@ class WarningLetterIssue(Resource):
     @API.response(404, "Not Found")
     @ApiHelper.swagger_decorators(API, endpoint_description="Issue warning letter")
     @API.response(code=204, description="Warning letter issued")
-    def patch(inspection_id, warning_letter_id):
+    def patch(warning_letter_id):
         """Issue Warning Letter."""
         issue = WarningLetterIssueSchema().load(API.payload)
-        WarningLetterService.issue_warning_letter(
-            inspection_id, warning_letter_id, issue
-        )
+        WarningLetterService.issue_warning_letter(warning_letter_id, issue)
         return {}, HTTPStatus.NO_CONTENT
 
 
@@ -213,14 +219,10 @@ class WarningLetterPreview(Resource):
         }
     )
     @auth.require
-    def get(
-        inspection_id, warning_letter_id
-    ):  # pylint: disable=no-self-use, unused-argument
+    def get(warning_letter_id):  # pylint: disable=no-self-use, unused-argument
         """Preview warning letter."""
         output_format = request.args.get("output_format", "html")
-        response = WarningLetterService.render(
-            inspection_id, warning_letter_id, output_format
-        )
+        response = WarningLetterService.render(warning_letter_id, output_format)
         if output_format == "pdf":
             return send_file(
                 BytesIO(response.content),
@@ -245,13 +247,9 @@ class WarningLetterApprovals(Resource):
         API, endpoint_description="Fetch all warning letter approvals"
     )
     @auth.require
-    def get(
-        inspection_id, warning_letter_id
-    ):  # pylint: disable=no-self-use, unused-argument
+    def get(warning_letter_id):  # pylint: disable=no-self-use, unused-argument
         """Fetch all warning letter approvals."""
-        approvals = WarningLetterApprovalService.get_all_approvals(
-            inspection_id, warning_letter_id
-        )
+        approvals = WarningLetterApprovalService.get_all_approvals(warning_letter_id)
         approval_schema = WarningLetterApprovalSchema(many=True)
         return approval_schema.dump(approvals), HTTPStatus.OK
 
@@ -267,13 +265,13 @@ class WarningLetterApprovals(Resource):
         description="WarningLetterApprovalRequestCreated",
     )
     @API.response(400, "Bad Request")
-    def post(inspection_id, warning_letter_id):
+    def post(warning_letter_id):
         """Create a agency."""
         warning_letter_approval_request = CreateWarningLetterApprovalSchema().load(
             API.payload
         )
         created_aproval = WarningLetterApprovalService.create_approval(
-            warning_letter_approval_request, inspection_id, warning_letter_id
+            warning_letter_approval_request, warning_letter_id
         )
         return (
             WarningLetterApprovalSchema().dump(created_aproval),
@@ -298,12 +296,12 @@ class WarningLetterApprovalStatus(Resource):
     @API.response(404, "Not Found")
     @API.response(400, "Bad Request")
     @auth.require
-    def patch(inspection_id, warning_letter_id, approval_id):
+    def patch(warning_letter_id, approval_id):
         """Update warning letter approval."""
         approval_update_data = UpdateWarningLetterApprovalStatusSchema().load(
             API.payload
         )
         updated_approval = WarningLetterApprovalService.update_approval_status(
-            inspection_id, warning_letter_id, approval_id, approval_update_data
+            warning_letter_id, approval_id, approval_update_data
         )
         return WarningLetterApprovalSchema().dump(updated_approval), HTTPStatus.OK

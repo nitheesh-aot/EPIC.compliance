@@ -17,13 +17,11 @@ class WarningLetterApprovalService:
     def create_approval(
         cls,
         warning_letter_approval_request_data: dict,
-        inspection_id: int,
         warning_letter_id: int,
     ):
         """Create approval for the warning letter."""
-        inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        warning_letter = _warning_letter_exist_check(warning_letter_id)
-        ServiceUtils.access_check_update_for_inspection(inspection)
+        warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
+        ServiceUtils.access_check_update_for_inspection(warning_letter.inspection)
         approval_data = {
             "warning_letter_id": warning_letter_id,
             "approved_by_id": warning_letter_approval_request_data.get(
@@ -63,22 +61,20 @@ class WarningLetterApprovalService:
         return created_approval
 
     @classmethod
-    def get_all_approvals(cls, inspection_id: int, warning_letter_id: int):
+    def get_all_approvals(cls, warning_letter_id: int):
         """Find all order approvals by warning_letter_id."""
-        ServiceUtils.inspection_exist_check(inspection_id)
-        _warning_letter_exist_check(warning_letter_id)
+        ServiceUtils.warning_letter_exist_check(warning_letter_id)
         return WarningLetterApprovalModel.get_approvals_by_warning_letter(
             warning_letter_id
         )
 
     @classmethod
     def update_approval_status(
-        cls, inspection_id, warning_letter_id, approval_id, approval_status_data
+        cls, warning_letter_id, approval_id, approval_status_data
     ):
         """Update approval status."""
-        inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        _warning_letter_exist_check(warning_letter_id)
-        ServiceUtils.access_check_update_for_inspection(inspection)
+        warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
+        ServiceUtils.access_check_update_for_inspection(warning_letter.inspection)
         latest_approval = (
             WarningLetterApprovalModel.get_latest_approval_by_warning_letter(
                 warning_letter_id

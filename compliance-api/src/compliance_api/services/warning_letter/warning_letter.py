@@ -24,17 +24,18 @@ class WarningLetterService:
     """Service layer for Warning Letter operations."""
 
     @classmethod
-    def get_all(cls, inspection_id: int) -> List[WarningLetterModel]:
+    def get_all(cls, inspection_id: int = None) -> List[WarningLetterModel]:
         """Get all warning letters for an inspection."""
+        if inspection_id is None:
+            return WarningLetterModel.get_all()
         return WarningLetterModel.get_by_params(
             {"inspection_id": inspection_id}, default_filters=False
         )
 
     @classmethod
-    def create_warning_letter(
-        cls, inspection_id: int, warning_letter_data: dict
-    ) -> WarningLetterModel:
+    def create_warning_letter(cls, warning_letter_data: dict) -> WarningLetterModel:
         """Create a new warning letter."""
+        inspection_id = warning_letter_data.get("inspection_id")
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         requirement_ids = warning_letter_data.get("inspection_requirement_ids", [])
@@ -60,28 +61,24 @@ class WarningLetterService:
         return created_warning_letter
 
     @classmethod
-    def get_warning_letter(
-        cls, inspection_id: int, warning_letter_id: int
-    ) -> WarningLetterModel:
+    def get_warning_letter(cls, warning_letter_id: int) -> WarningLetterModel:
         """Retrieve a warning letter by ID."""
-        ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         return WarningLetterModel.find_by_id(warning_letter_id)
 
     @classmethod
     def get_warning_letter_by_warning_letter_number(
-        cls, inspection_id: int, warning_letter_number: str
+        cls, warning_letter_number: str
     ) -> WarningLetterModel:
         """Retrieve a warning letter by warning letter number."""
-        ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         return WarningLetterModel.get_by_warning_letter_number(warning_letter_number)
 
     @classmethod
     def update_warning_letter(
-        cls, inspection_id: int, warning_letter_id: int, update_data: dict
+        cls, warning_letter_id: int, update_data: dict
     ) -> WarningLetterModel:
         """Update an existing warning letter."""
-        inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
-        ServiceUtils.access_check_update_for_inspection(inspection)
+        warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
+        ServiceUtils.access_check_update_for_inspection(warning_letter.inspection)
         requirement_ids = update_data.get("inspection_requirement_ids", [])
         ServiceUtils.check_requirement_for_enforcement_action(
             requirement_ids, EnforcementActionOptionEnum.WARNING_LETTER.value
@@ -104,11 +101,28 @@ class WarningLetterService:
         return updated_warning_letter
 
     @classmethod
-    def delete_warning_letter(cls, inspection_id: int, warning_letter_id: int) -> None:
+    def delete_warning_letter(cls, warning_letter_id: int) -> None:
         """Delete a warning letter by ID."""
-        warning_letter = cls.get_warning_letter(inspection_id, warning_letter_id)
-        if warning_letter:
-            warning_letter.delete()
+        warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
+        if warning_letter.status == WarningLetterStatusEnum.ISSUED:
+            raise UnprocessableEntityError("Warning letter is in ISSUED status.")
+        if warning_letter.progress in [
+            WarningLetterProgressEnum.ISSUED,
+            WarningLetterProgressEnum.DEPUTY_REVIEW,
+            WarningLetterProgressEnum.APPROVED,
+        ]:
+            raise UnprocessableEntityError(
+                f"Warning letter is in {warning_letter.progress.value} progress."
+            )
+        with session_scope() as session:
+            WarningLetterModel.update_warning_letter(
+                warning_letter_id,
+                {"is_active": False, "is_deleted": True},
+                session,
+            )
+            WarningLetterInspectionRequirementMapModel.delete_by_warning_letter(
+                warning_letter_id, session
+            )
 
     @classmethod
     def insert_or_update_inspection_requirements(
@@ -143,15 +157,10 @@ class WarningLetterService:
                 )
 
     @classmethod
-    def issue_warning_letter(cls, inspection_id, warning_letter_id, issue):
+    def issue_warning_letter(cls, warning_letter_id, issue):
         """Issue a warning letter."""
-        warning_letter = WarningLetterModel.find_by_id(warning_letter_id)
-        if not warning_letter:
-            raise ResourceNotFoundError(
-                f"Warning letter with ID {warning_letter_id} not found"
-            )
-        inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
-        ServiceUtils.access_check_update_for_inspection(inspection)
+        warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
+        ServiceUtils.access_check_update_for_inspection(warning_letter.inspection)
         with session_scope() as session:
             updated_warning_letter = WarningLetterModel.update_warning_letter(
                 warning_letter_id,
@@ -165,26 +174,17 @@ class WarningLetterService:
         return updated_warning_letter
 
     @classmethod
-    def render(cls, inspection_id, warning_letter_id, output_format):
+    def render(cls, warning_letter_id, output_format):
         """Preview warning letter."""
-        inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        warning_letter = WarningLetterModel.find_by_id(warning_letter_id)
-        if warning_letter is None:
-            raise ResourceNotFoundError(
-                f"Warning letter with ID {warning_letter_id} not found"
-            )
-        if inspection.id != warning_letter.inspection_id:
-            raise UnprocessableEntityError(
-                "Inspection and inspection record do not match"
-            )
-        warning_letter_data = _create_warning_letter_data(inspection, warning_letter)
+        warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
+        warning_letter_data = _create_warning_letter_data(warning_letter)
         response = DocGenService.render_template(
             "WARNING_LETTER_TEMPLATE", warning_letter_data, output_format
         )
         return response
 
 
-def _create_warning_letter_data(inspection, warning_letter):
+def _create_warning_letter_data(warning_letter):
     """Create warning letter data."""
     department_details = DepartmentDetailModel.query.filter_by(
         is_active=True, is_deleted=False
@@ -228,9 +228,7 @@ def _create_warning_letter_obj(inspection, warning_letter_data: dict) -> dict:
         )
     content = warning_letter_data.get("content")
     if not content:
-        generated_content = _create_content(
-            inspection, warning_letter_number, requirement_ids
-        )
+        generated_content = _create_content(inspection, requirement_ids)
         content = content or generated_content
     return {
         "warning_letter_number": warning_letter_number,
@@ -245,7 +243,7 @@ def _create_warning_letter_obj(inspection, warning_letter_data: dict) -> dict:
     }
 
 
-def _create_content(inspection, warning_letter_number, requirement_ids):
+def _create_content(inspection, requirement_ids):
     """Create where_as and now_therefore."""
     department_details = DepartmentDetailModel.query.filter_by(
         is_active=True, is_deleted=False
@@ -266,6 +264,8 @@ def _create_content(inspection, warning_letter_number, requirement_ids):
                     ][0]["requirement_source_name"],
                 }
             )
+    if len(requirements) == 0:
+        raise UnprocessableEntityError("No requirement details found.")
     # Create condition_line by grouping requirements by source name
     condition_lines = []
     grouped_requirements = {}

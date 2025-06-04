@@ -15,6 +15,9 @@ from .staff_user import StaffUserSchema
 class WarningLetterUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     """Schema for warning letter model."""
 
+    inspection_id = fields.Integer(
+        required=True, metadata={"description": "The inspection id"}
+    )
     issuing_officer_id = fields.Integer(
         allow_none=True, metadata={"description": "The issuing officer id"}
     )

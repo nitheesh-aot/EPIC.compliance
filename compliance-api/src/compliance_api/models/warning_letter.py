@@ -82,6 +82,16 @@ class WarningLetterInspectionRequirementMap(BaseModelVersioned):
 
     @classmethod
     @with_session
+    def delete_by_warning_letter(cls, warning_letter_id: int, session=None):
+        """Delete warning letter."""
+        query = session.query(cls) if session else cls.query
+        maps = query.filter_by(warning_letter_id=warning_letter_id).all()
+        for map_item in maps:
+            map_item.update(DELETE_DIC_PARAMS, commit=not session)
+        session.flush()
+
+    @classmethod
+    @with_session
     def bulk_insert(
         cls, warning_letter_id: int, inspection_requirement_ids: list[int], session=None
     ):

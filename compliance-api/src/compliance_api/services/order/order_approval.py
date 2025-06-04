@@ -1,6 +1,6 @@
 """Service method to handle order approval."""
 
-from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
+from compliance_api.exceptions import UnprocessableEntityError
 from compliance_api.models import Order as OrderModel
 from compliance_api.models import OrderApproval as OrderApprovalModel
 from compliance_api.models import OrderApprovalStatusEnum, OrderProgressEnum
@@ -16,13 +16,11 @@ class OrderApprovalService:
     def create_approval(
         cls,
         order_approval_request_data: dict,
-        inspection_id: int,
         order_id: int,
     ):
         """Create approval for the order."""
-        inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        order = _order_exist_check(order_id)
-        ServiceUtils.access_check_update_for_inspection(inspection)
+        order = ServiceUtils.order_exist_check(order_id)
+        ServiceUtils.access_check_update_for_inspection(order.inspection)
         approval_data = {
             "order_id": order_id,
             "approved_by_id": order_approval_request_data.get("approved_by_id"),
@@ -60,20 +58,16 @@ class OrderApprovalService:
         return created_approval
 
     @classmethod
-    def get_all_approvals(cls, inspection_id: int, order_id: int):
+    def get_all_approvals(cls, order_id: int):
         """Find all order approvals by order_id."""
-        ServiceUtils.inspection_exist_check(inspection_id)
-        _order_exist_check(order_id)
+        ServiceUtils.order_exist_check(order_id)
         return OrderApprovalModel.get_approvals_by_order(order_id)
 
     @classmethod
-    def update_approval_status(
-        cls, inspection_id, order_id, approval_id, approval_status_data
-    ):
+    def update_approval_status(cls, order_id, approval_id, approval_status_data):
         """Update approval status."""
-        inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        _order_exist_check(order_id)
-        ServiceUtils.access_check_update_for_inspection(inspection)
+        order = ServiceUtils.order_exist_check(order_id)
+        ServiceUtils.access_check_update_for_inspection(order.inspection)
         latest_approval = OrderApprovalModel.get_latest_approval_by_order(order_id)
         # Check if the update request for the approval is not the latest approval request
         if latest_approval.id != approval_id:
@@ -105,10 +99,3 @@ class OrderApprovalService:
             )
 
         return updated_approval
-
-
-def _order_exist_check(order_id):
-    order = OrderModel.find_by_id(order_id)
-    if not order:
-        raise ResourceNotFoundError(f"Order with ID {order_id} not found")
-    return order
