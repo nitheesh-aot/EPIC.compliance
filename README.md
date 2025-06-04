@@ -241,7 +241,7 @@ you have to add a some dev dependencies and set them up in the app and then you 
 
 
 ## Application Overview
-![alt text](https://github.com/bcgov/EPIC.compliance/blob/develop/docs/app_architecture.png?raw=true)
+![alt text](https://github.com/bcgov/EPIC.compliance/blob/develop/docs/application_overview.png?raw=true)
 **EPIC.compliance** is a comprehensive digital platform developed to support Compliance and Enforcement (C&E) officers at the Environmental Assessment Office (EAO). It replaces manual processes—currently managed through Excel spreadsheets, emails, and MS Teams boards—with a centralized, reliable, and efficient solution for managing compliance data.
 
 With EPIC.compliance, C&E officers can:
