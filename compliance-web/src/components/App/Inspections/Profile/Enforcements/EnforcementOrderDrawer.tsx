@@ -111,6 +111,7 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
     (formData: EnforcementFormType) => {
       if (enforcementOrder) {
         const orderData: InspectionOrderAPIData = {
+          inspection_id: inspection.id,
           inspection_requirement_ids:
             enforcementOrder.order_requirement_maps?.map(
               (map) => map.inspection_requirement_id
@@ -124,7 +125,6 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
         };
 
         updateInspectionOrder({
-          inspectionId: inspection.id,
           inspectionOrderId: enforcementOrder.id || 0,
           inspectionOrder: orderData,
         });
@@ -150,12 +150,8 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
             gap: 0.5,
           }}
         >
-          <EnforcementApprovalButton
-            inspectionId={inspection.id}
-            inspectionOrder={enforcementOrder}
-          />
+          <EnforcementApprovalButton inspectionOrder={enforcementOrder} />
           <EnforcementDownloadPDFButton
-            inspectionId={inspection.id}
             enforcementId={enforcementOrder.id || 0}
             fileNumber={enforcementOrder.order_number || ""}
             enforcementType={EnforcementActionEnum.ORDER}

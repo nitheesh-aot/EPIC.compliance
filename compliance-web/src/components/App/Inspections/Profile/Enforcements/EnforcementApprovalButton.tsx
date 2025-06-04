@@ -19,10 +19,8 @@ import { InspectionOrder } from "@/models/InspectionOrder";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 const EnforcementApprovalButton = ({
-  inspectionId,
   inspectionOrder,
 }: {
-  inspectionId: number;
   inspectionOrder: InspectionOrder;
 }) => {
   const { setOpen, setClose } = useModal();
@@ -30,7 +28,7 @@ const EnforcementApprovalButton = ({
   const currentUser = useCurrentLoggedInUser();
 
   const { data: orderApprovalsData, refetch: refetchOrderApprovals } =
-    useFetchOrderApprovals(inspectionId, inspectionOrder.id ?? 0);
+    useFetchOrderApprovals(inspectionOrder.id ?? 0);
 
   // Memoize the current user's staff ID
   const currentUserStaffId = useMemo(
@@ -55,7 +53,7 @@ const EnforcementApprovalButton = ({
 
   const onSuccess = (data: OrderApproval) => {
     // eslint-disable-next-line no-console
-    console.log(data);
+    console.log(data, orderApprovalsData);
     notify.success("Approval request sent");
     setClose();
     refetchOrderApprovals();
@@ -68,14 +66,13 @@ const EnforcementApprovalButton = ({
     (data: SendForApprovalFormType) => {
       const directorId = (data.director as StaffUser).id;
       createOrderApproval({
-        inspectionId,
         inspectionOrderId: inspectionOrder.id ?? 0,
         approvalPayload: {
           approved_by_id: directorId,
         },
       });
     },
-    [createOrderApproval, inspectionId, inspectionOrder.id]
+    [createOrderApproval, inspectionOrder.id]
   );
 
   // Modal handlers

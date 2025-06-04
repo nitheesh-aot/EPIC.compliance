@@ -8,45 +8,42 @@ import {
 const fetchInspectionWarningLetters = (
   inspectionId: number
 ): Promise<InspectionWarningLetter[]> => {
-  return request({ url: `/inspections/${inspectionId}/warning-letters` });
+  return request({
+    url: `/warning-letters`,
+    params: { inspection_id: inspectionId },
+  });
 };
 
 const createInspectionWarningLetter = ({
-  inspectionId,
   inspectionWarningLetter,
 }: {
-  inspectionId: number;
   inspectionWarningLetter: InspectionWarningLetterAPIData;
 }) => {
   return request({
-    url: `/inspections/${inspectionId}/warning-letters`,
+    url: `/warning-letters`,
     method: "post",
     data: inspectionWarningLetter,
   });
 };
 
 const updateInspectionWarningLetter = ({
-  inspectionId,
   inspectionWarningLetterId,
   inspectionWarningLetter,
 }: {
-  inspectionId: number;
   inspectionWarningLetterId: number;
   inspectionWarningLetter: InspectionWarningLetterAPIData;
 }) => {
   return request({
-    url: `/inspections/${inspectionId}/warning-letters/${inspectionWarningLetterId}`,
+    url: `/warning-letters/${inspectionWarningLetterId}`,
     method: "patch",
     data: inspectionWarningLetter,
   });
 };
 
 export const inspectionWarningLetterRender = async ({
-  inspectionId,
   inspectionWarningLetterId,
   format,
 }: {
-  inspectionId: number;
   inspectionWarningLetterId: number;
   format: "html" | "pdf";
 }) => {
@@ -55,7 +52,7 @@ export const inspectionWarningLetterRender = async ({
 
   return request({
     method: "GET",
-    url: `/inspections/${inspectionId}/warning-letters/${inspectionWarningLetterId}/render`,
+    url: `/warning-letters/${inspectionWarningLetterId}/render`,
     params: { output_format: format },
     responseType: responseType,
   });
@@ -79,7 +76,6 @@ export const useUpdateInspectionWarningLetter = (onSuccess: OnSuccessType) => {
 };
 
 export const useInspectionWarningLetterRendered = (
-  inspectionId: number,
   inspectionWarningLetterId: number,
   format: "html" | "pdf",
   isEnabled: boolean = true
@@ -87,17 +83,15 @@ export const useInspectionWarningLetterRendered = (
   return useQuery({
     queryKey: [
       "inspection-warning-letter-rendered",
-      inspectionId,
       inspectionWarningLetterId,
       format,
     ],
     queryFn: () =>
       inspectionWarningLetterRender({
-        inspectionId,
         inspectionWarningLetterId,
         format,
       }),
-    enabled: !!inspectionId && !!inspectionWarningLetterId && isEnabled,
+    enabled: !!inspectionWarningLetterId && isEnabled,
     refetchOnWindowFocus: false,
   });
 };
