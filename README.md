@@ -240,3 +240,98 @@ you have to add a some dev dependencies and set them up in the app and then you 
               directory: ./app-web/coverage
 
 
+## Application Overview
+![alt text](https://github.com/bcgov/EPIC.compliance/blob/develop/docs/app_architecture.png?raw=true)
+**EPIC.compliance** is a comprehensive digital platform developed to support Compliance and Enforcement (C&E) officers at the Environmental Assessment Office (EAO). It replaces manual processes—currently managed through Excel spreadsheets, emails, and MS Teams boards—with a centralized, reliable, and efficient solution for managing compliance data.
+
+With EPIC.compliance, C&E officers can:
+
+* Input and manage data related to complaints and inspections in a structured and secure manner.
+
+* Automatically generate case file numbers, enabling seamless linkage between related inspections and enforcement actions.
+
+* Maintain a continuous case history, providing visibility into previous actions and enabling easier handovers and follow-ups by other officers.
+
+* Generate official reports (e.g., inspection records, orders, warning letters) with system-populated fields, ensuring consistency and reducing administrative overhead.
+
+By digitizing and streamlining C&E workflows, EPIC.compliance enhances data integrity, improves collaboration, and enables more effective enforcement across projects regulated by the EAO.
+
+### 👤 Compliance Users
+* **Role** : End users (typically C&E officers at the Environmental Assessment Office).
+* **Action** : Log in using IDIR credentials (a common BC Government identity management service).
+### 🔐 IDIR Login via Keycloak
+* **Function** : Handles authentication using Keycloak as the identity provider.
+
+* **Mechanism** : Users are authenticated via IDIR and receive a JSON Web Token (JWT) for secure access.
+### 🖥️ Epic.Compliance Web
+* **Type** : Frontend application.
+
+* **Built With** :
+  
+  - **React** (JS library for building user interfaces)
+
+  - **TypeScript**  (adds type safety to JavaScript)
+
+  - **Material UI** (for consistent, accessible UI components)
+
+* **Purpose** : Provides a user interface for Compliance officers to:
+
+  - Enter and manage data for complaints, inspections, orders, and warning letters.
+
+  - View case file history and generate reports.
+### ⚙️ Compliance API
+
+* **Backend Framework** : Flask (Python-based web framework).
+
+* **Responsibilities** :
+
+  - Handles requests from the frontend.
+
+  - Processes business logic and validation.
+
+  - Manages authentication/authorization via Keycloak JWT.
+
+  - Communicates with the database and external services.
+### 🗄️ Database (PostgreSQL)
+* **Role** : Stores structured compliance data.
+
+* **Technology** : PostgreSQL (relational database).
+
+* **Usage** :
+
+  - Stores data about case files, inspections, orders, warning letters, etc.
+
+  - Accessed by the Compliance API and Epic.Cron job.
+### ⏱️ Epic.Cron
+
+* **Type** : Background job or scheduled task.
+
+* **Purpose** : Periodically synchronizes project names and other metadata from Epic.Track to the Compliance Database.
+
+* **Ensures** : Up-to-date and consistent reference data for inspections and case file linkage.
+### 📦 EXTERNAL Services
+These are separate systems that **EPIC.compliance** interacts with:
+
+**📁 Epic.Track – Project Information**
+
+* **Purpose** : Source of truth for project data.
+
+* **Use** : Compliance API queries this system to fetch project-related metadata (e.g., project name, type, status).
+
+**🧾 Epic.DocGen – Document Generation**
+
+* **Function** : Generates formatted documents (e.g., warning letters, orders) using templates and populated data.
+
+* **Integration** : Triggered by the Compliance API when an enforcement document needs to be created.
+**📂 Epic.Documents – Document Processing**
+* **Role** : Processes documents (e.g., stamping, validation, transformation).
+
+* **Use** : Acts as a middle layer between document generation and storage.
+
+**☁️ NRS (Object Storage)**
+
+* **Full Form**: Networked Resource Storage.
+
+* **Use** : Stores finalized documents securely (e.g., PDFs of inspection reports or letters).
+
+* **Accessed by** : Epic.Documents and the Compliance API.
