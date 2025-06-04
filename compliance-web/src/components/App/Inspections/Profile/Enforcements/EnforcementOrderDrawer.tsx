@@ -147,10 +147,13 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
             display: "flex",
             justifyContent: "flex-end",
             alignItems: "center",
-            gap: 0.5,
+            gap: 1,
           }}
         >
-          <EnforcementApprovalButton inspectionOrder={enforcementOrder} />
+          <EnforcementApprovalButton
+            inspectionOrder={enforcementOrder}
+            inspectionId={inspection.id}
+          />
           <EnforcementDownloadPDFButton
             enforcementId={enforcementOrder.id || 0}
             fileNumber={enforcementOrder.order_number || ""}
