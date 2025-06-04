@@ -1,6 +1,5 @@
 
 import { StaffUser } from "./Staff";
-
 export interface InspectionOrder {
   issuing_officer?: StaffUser;
   section?: {
@@ -17,7 +16,19 @@ export interface InspectionOrder {
   inspection_id?: number;
   issuing_officer_id?: number;
   order_requirement_maps?: OrderRequirementMap[];
+  order_progress?: OrderProgress;
+  order_status?: OrderStatus;
   is_active?: boolean;
+}
+
+export interface OrderStatus {
+  id: string;
+  name: string;
+}
+
+export interface OrderProgress {
+  id: string;
+  name: string;
 }
 
 interface OrderRequirementMap {
@@ -30,6 +41,7 @@ interface OrderRequirementMap {
 }
 
 export interface InspectionOrderAPIData {
+  inspection_id: number;
   section_id?: number;
   issuing_officer_id?: number;
   intended_issuance_date?: string;

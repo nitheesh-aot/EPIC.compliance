@@ -24,6 +24,7 @@ interface WarningLetterRequirementMap {
 }
 
 export interface InspectionWarningLetterAPIData {
+  inspection_id: number;
   issuing_officer_id?: number;
   intended_issuance_date?: string;
   content?: string;

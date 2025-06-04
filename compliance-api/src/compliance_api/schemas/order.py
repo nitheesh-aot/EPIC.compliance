@@ -98,13 +98,15 @@ class OrderSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of the inspection status enum."""
         if "order_status" in data and data["order_status"] is not None:
-            data["order_status"] = OrderStatusEnum(data["order_status"]).value
-        else:
-            data["order_status"] = ""
+            data["order_status"] = {
+                "id": data["order_status"].name,
+                "name": data["order_status"].value,
+            }
         if "order_progress" in data and data["order_progress"] is not None:
-            data["order_progress"] = OrderProgressEnum(data["order_progress"]).value
-        else:
-            data["order_progress"] = ""
+            data["order_progress"] = {
+                "id": data["order_progress"].name,
+                "name": data["order_progress"].value,
+            }
         return data
 
 

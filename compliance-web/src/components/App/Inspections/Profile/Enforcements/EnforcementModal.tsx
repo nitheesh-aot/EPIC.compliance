@@ -146,6 +146,7 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
     (data: EnforcementFormType) => {
       if (isEnforcementOrder) {
         const orderData: InspectionOrderAPIData = {
+          inspection_id: inspectionId,
           inspection_requirement_ids: (
             data.requirements as InspectionRequirement[]
           ).map((requirement) => requirement.id),
@@ -154,17 +155,16 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
           orderData.order_number = data.manualOrderNumber ?? "";
         }
         createInspectionOrder({
-          inspectionId,
           inspectionOrder: orderData,
         });
       } else {
         const warningLetterData: InspectionWarningLetterAPIData = {
+          inspection_id: inspectionId,
           inspection_requirement_ids: (
             data.requirements as InspectionRequirement[]
           ).map((requirement) => requirement.id),
         };
         createInspectionWarningLetter({
-          inspectionId,
           inspectionWarningLetter: warningLetterData,
         });
       }

@@ -7,7 +7,7 @@ import {
 import { Inspection } from "@/models/Inspection";
 import { useMenuStore } from "@/store/menuStore";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, Button, Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { useCallback, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -20,9 +20,9 @@ import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAut
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
 import { useEnforcementSectionsData } from "@/hooks/useEnforcementSections";
 import { BCDesignTokens } from "epic.theme";
-import { SendRounded } from "@mui/icons-material";
 import EnforcementDownloadPDFButton from "./EnforcementDownloadPDFButton";
 import { EnforcementActionEnum } from "@/utils/constants";
+import EnforcementApprovalButton from "./EnforcementApprovalButton";
 
 type EnforcementOrderDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -111,6 +111,7 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
     (formData: EnforcementFormType) => {
       if (enforcementOrder) {
         const orderData: InspectionOrderAPIData = {
+          inspection_id: inspection.id,
           inspection_requirement_ids:
             enforcementOrder.order_requirement_maps?.map(
               (map) => map.inspection_requirement_id
@@ -124,7 +125,6 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
         };
 
         updateInspectionOrder({
-          inspectionId: inspection.id,
           inspectionOrderId: enforcementOrder.id || 0,
           inspectionOrder: orderData,
         });
@@ -144,15 +144,14 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
           sx={{
             backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
             padding: "0.75rem 2rem",
-            textAlign: "right",
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            gap: 0.5,
           }}
         >
-          <Button variant="text">
-            <SendRounded sx={{ mr: 1, fontSize: 20 }} />
-            Send for Approval
-          </Button>
+          <EnforcementApprovalButton inspectionOrder={enforcementOrder} />
           <EnforcementDownloadPDFButton
-            inspectionId={inspection.id}
             enforcementId={enforcementOrder.id || 0}
             fileNumber={enforcementOrder.order_number || ""}
             enforcementType={EnforcementActionEnum.ORDER}

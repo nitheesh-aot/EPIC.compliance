@@ -92,6 +92,7 @@ const EnforcementWarningLetterDrawer: React.FC<
     (formData: EnforcementFormType) => {
       if (warningLetter) {
         const warningLetterData: InspectionWarningLetterAPIData = {
+          inspection_id: inspection.id,
           inspection_requirement_ids:
             warningLetter.warning_letter_requirement_map?.map(
               (map) => map.inspection_requirement_id
@@ -103,7 +104,6 @@ const EnforcementWarningLetterDrawer: React.FC<
         };
 
         updateInspectionWarningLetter({
-          inspectionId: inspection.id,
           inspectionWarningLetterId: warningLetter.id || 0,
           inspectionWarningLetter: warningLetterData,
         });
@@ -131,7 +131,6 @@ const EnforcementWarningLetterDrawer: React.FC<
             Send for Approval
           </Button>
           <EnforcementDownloadPDFButton
-            inspectionId={inspection.id}
             enforcementId={warningLetter.id || 0}
             fileNumber={warningLetter.warning_letter_number || ""}
             enforcementType={EnforcementActionEnum.WARNING_LETTER}

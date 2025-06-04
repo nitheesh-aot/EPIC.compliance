@@ -8,14 +8,12 @@ import { EnforcementActionEnum } from "@/utils/constants";
 import { useInspectionWarningLetterRendered } from "@/hooks/useInspectionWarningLetters";
 
 interface EnforcementDownloadPDFButtonProps {
-  inspectionId: number;
   enforcementId: number;
   fileNumber: string;
   enforcementType: EnforcementActionEnum;
 }
 
 const EnforcementDownloadPDFButton = ({
-  inspectionId,
   enforcementId,
   fileNumber,
   enforcementType,
@@ -23,7 +21,6 @@ const EnforcementDownloadPDFButton = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const { refetch: refetchOrderPDFData } = useInspectionOrderRendered(
-    inspectionId,
     enforcementId,
     "pdf",
     false
@@ -31,7 +28,6 @@ const EnforcementDownloadPDFButton = ({
 
   const { refetch: refetchWarningLetterPDFData } =
     useInspectionWarningLetterRendered(
-      inspectionId,
       enforcementId,
       "pdf",
       false

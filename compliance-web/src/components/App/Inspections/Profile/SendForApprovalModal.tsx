@@ -4,17 +4,15 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { StaffUser } from "@/models/Staff";
 import { STAFF_USER_POSITION } from "@/utils/constants";
-import { useCreateIRApproval } from "@/hooks/useInspectionReports";
-import { useReportStore } from "./reportStore";
-import { IRApproval } from "@/models/IRApproval";
 
 type SendForApprovalModalProps = {
   staffUsers: StaffUser[];
-  onSubmit: (message: string) => void;
+  onSubmitHandler: (data: SendForApprovalFormType) => void;
+  isPending: boolean;
 };
 
 const sendForApprovalSchema = yup.object().shape({
@@ -24,19 +22,18 @@ const sendForApprovalSchema = yup.object().shape({
     .required("Please select a director"),
 });
 
-type SendForApprovalFormType = yup.InferType<typeof sendForApprovalSchema>;
+export type SendForApprovalFormType = yup.InferType<typeof sendForApprovalSchema>;
 
 const initFormData = {
   director: undefined,
 };
 
 const SendForApprovalModal: FC<SendForApprovalModalProps> = ({
-  onSubmit,
   staffUsers,
+  onSubmitHandler,
+  isPending,
 }) => {
   const [directorsList, setDirectorsList] = useState<StaffUser[]>([]);
-  const { inspectionData, inspectionReportsData, setIRApprovalsData } =
-    useReportStore();
 
   useEffect(() => {
     setDirectorsList(
@@ -60,28 +57,6 @@ const SendForApprovalModal: FC<SendForApprovalModalProps> = ({
   useEffect(() => {
     reset(initFormData);
   }, [reset]);
-
-  const onSuccess = (data: IRApproval) => {
-    setIRApprovalsData([data]);
-    onSubmit("Approval request sent");
-  };
-
-  const { mutate: createIRApproval, isPending } =
-    useCreateIRApproval(onSuccess);
-
-  const onSubmitHandler = useCallback(
-    (data: SendForApprovalFormType) => {
-      const directorId = (data.director as StaffUser).id;
-      createIRApproval({
-        inspectionId: inspectionData?.id ?? 0,
-        inspectionRecordId: inspectionReportsData?.id ?? 0,
-        approvalPayload: {
-          approved_by_id: directorId,
-        },
-      });
-    },
-    [createIRApproval, inspectionData, inspectionReportsData]
-  );
 
   return (
     <FormProvider {...methods}>

@@ -4,49 +4,44 @@ import {
   InspectionOrder,
   InspectionOrderAPIData,
 } from "@/models/InspectionOrder";
+import { OrderApproval } from "@/models/OrderApproval";
 
 const fetchInspectionOrders = (
   inspectionId: number
 ): Promise<InspectionOrder[]> => {
-  return request({ url: `/inspections/${inspectionId}/orders` });
+  return request({ url: `/orders`, params: { inspection_id: inspectionId } });
 };
 
 const createInspectionOrder = ({
-  inspectionId,
   inspectionOrder,
 }: {
-  inspectionId: number;
   inspectionOrder: InspectionOrderAPIData;
 }) => {
   return request({
-    url: `/inspections/${inspectionId}/orders`,
+    url: `/orders`,
     method: "post",
     data: inspectionOrder,
   });
 };
 
 const updateInspectionOrder = ({
-  inspectionId,
   inspectionOrderId,
   inspectionOrder,
 }: {
-  inspectionId: number;
   inspectionOrderId: number;
   inspectionOrder: InspectionOrderAPIData;
 }) => {
   return request({
-    url: `/inspections/${inspectionId}/orders/${inspectionOrderId}`,
+    url: `/orders/${inspectionOrderId}`,
     method: "patch",
     data: inspectionOrder,
   });
 };
 
 export const inspectionOrderRender = async ({
-  inspectionId,
   inspectionOrderId,
   format,
 }: {
-  inspectionId: number;
   inspectionOrderId: number;
   format: "html" | "pdf";
 }) => {
@@ -55,9 +50,54 @@ export const inspectionOrderRender = async ({
 
   return request({
     method: "GET",
-    url: `/inspections/${inspectionId}/orders/${inspectionOrderId}/render`,
+    url: `/orders/${inspectionOrderId}/render`,
     params: { output_format: format },
     responseType: responseType,
+  });
+};
+
+const createOrderApproval = ({
+  inspectionOrderId,
+  approvalPayload,
+}: {
+  inspectionOrderId: number;
+  approvalPayload: {
+    approved_by_id: number;
+  };
+}) => {
+  return request({
+    url: `/orders/${inspectionOrderId}/approvals`,
+    method: "post",
+    data: approvalPayload,
+  });
+};
+
+const fetchOrderApprovals = ({
+  inspectionOrderId,
+}: {
+  inspectionOrderId: number;
+}): Promise<OrderApproval[]> => {
+  return request({
+    url: `/orders/${inspectionOrderId}/approvals`,
+  });
+};
+
+const updateOrderApprovalStatus = ({
+  inspectionOrderId,
+  approvalId,
+  statusPayload,
+}: {
+  inspectionOrderId: number;
+  approvalId: number;
+  statusPayload: {
+    approval_status: string;
+    approved_by_id: number;
+  };
+}) => {
+  return request({
+    url: `/orders/${inspectionOrderId}/approvals/${approvalId}/status`,
+    method: "patch",
+    data: statusPayload,
   });
 };
 
@@ -79,25 +119,42 @@ export const useUpdateInspectionOrder = (onSuccess: OnSuccessType) => {
 };
 
 export const useInspectionOrderRendered = (
-  inspectionId: number,
   inspectionOrderId: number,
   format: "html" | "pdf",
   isEnabled: boolean = true
 ) => {
   return useQuery({
-    queryKey: [
-      "inspection-order-rendered",
-      inspectionId,
-      inspectionOrderId,
-      format,
-    ],
+    queryKey: ["inspection-order-rendered", inspectionOrderId, format],
     queryFn: () =>
       inspectionOrderRender({
-        inspectionId,
         inspectionOrderId,
         format,
       }),
-    enabled: !!inspectionId && !!inspectionOrderId && isEnabled,
+      enabled: !!inspectionOrderId && isEnabled,
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useCreateOrderApproval = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: createOrderApproval,
+    onSuccess,
+  });
+};
+
+export const useFetchOrderApprovals = (
+  inspectionOrderId: number
+) => {
+  return useQuery({
+    queryKey: ["order-approvals", inspectionOrderId],
+    queryFn: () => fetchOrderApprovals({ inspectionOrderId }),
+    enabled: !!inspectionOrderId,
+  });
+};
+
+export const useUpdateOrderApprovalStatus = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: updateOrderApprovalStatus,
+    onSuccess,
   });
 };
