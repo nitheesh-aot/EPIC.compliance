@@ -90,13 +90,15 @@ class WarningLetterSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of the inspection status enum."""
         if "progress" in data and data["progress"] is not None:
-            data["progress"] = WarningLetterProgressEnum(data["progress"]).value
-        else:
-            data["progress"] = ""
+            data["progress"] = {
+                "id": data["progress"].name,
+                "name": data["progress"].value,
+            }
         if "status" in data and data["status"] is not None:
-            data["status"] = WarningLetterStatusEnum(data["status"]).value
-        else:
-            data["status"] = ""
+            data["status"] = {
+                "id": data["status"].name,
+                "name": data["status"].value,
+            }
         return data
 
 

@@ -1,22 +1,28 @@
 import { Box, Typography, Button, Chip } from "@mui/material";
 import { SendRounded } from "@mui/icons-material";
 import {
-  IR_APPROVAL_STATUS,
+  APPROVAL_STATUS,
   IRProgressEnum,
   STAFF_USER_POSITION,
 } from "@/utils/constants";
 import { useMemo, useState, useEffect, useCallback } from "react";
-import { useUpdateIRApprovalStatus } from "@/hooks/useInspectionReports";
+import {
+  useCreateIRApproval,
+  useUpdateIRApprovalStatus,
+} from "@/hooks/useInspectionReports";
 import { notify } from "@/store/snackbarStore";
 import { useReportStore } from "./reportStore";
 import { IRApproval } from "@/models/IRApproval";
 import { useCurrentLoggedInUser } from "@/hooks/useAuthorization";
 import { useStaffUsersData } from "@/hooks/useStaff";
-import SendForApprovalModal from "./SendForApprovalModal";
+import SendForApprovalModal, {
+  SendForApprovalFormType,
+} from "@/components/App/Inspections/Profile/SendForApprovalModal";
 import { useModal } from "@/store/modalStore";
 import OfficerStepper from "./OfficerSteppr/OfficerStepper";
 import PreviewDownloadButton from "./PreviewDownloadButton";
 import IssueIRModal from "./IssueIRModal";
+import { StaffUser } from "@/models/Staff";
 
 // Status badge configurations
 const STATUS_BADGE_CONFIG = {
@@ -136,21 +142,42 @@ export default function ReportTopSection() {
     [irProgressId, inspectionReportsData?.intended_issuance_date]
   );
 
+  const onSuccess = (data: IRApproval) => {
+    setIRApprovalsData([data]);
+    notify.success("Approval request sent");
+    setClose();
+    refetchInspectionReportsData();
+  };
+
+  const { mutate: createIRApproval, isPending } =
+    useCreateIRApproval(onSuccess);
+
+  const onSendForApprovalSubmitHandler = useCallback(
+    (data: SendForApprovalFormType) => {
+      const directorId = (data.director as StaffUser).id;
+      createIRApproval({
+        inspectionId: inspectionData?.id ?? 0,
+        inspectionRecordId: inspectionReportsData?.id ?? 0,
+        approvalPayload: {
+          approved_by_id: directorId,
+        },
+      });
+    },
+    [createIRApproval, inspectionData, inspectionReportsData]
+  );
+
   // Modal handlers
   const handleSendForApproval = useCallback(() => {
     setOpen({
       content: (
         <SendForApprovalModal
           staffUsers={staffData ?? []}
-          onSubmit={(message) => {
-            notify.success(message);
-            setClose();
-            refetchInspectionReportsData();
-          }}
+          onSubmitHandler={onSendForApprovalSubmitHandler}
+          isPending={isPending}
         />
       ),
     });
-  }, [setOpen, setClose, staffData, refetchInspectionReportsData]);
+  }, [setOpen, staffData, onSendForApprovalSubmitHandler, isPending]);
 
   const handleIssueIR = useCallback(() => {
     setOpen({
@@ -174,8 +201,8 @@ export default function ReportTopSection() {
         approvalId: irApprovalsData?.[0]?.id ?? 0,
         statusPayload: {
           approval_status: isApprove
-            ? IR_APPROVAL_STATUS.APPROVED
-            : IR_APPROVAL_STATUS.NOT_APPROVED,
+            ? APPROVAL_STATUS.APPROVED
+            : APPROVAL_STATUS.NOT_APPROVED,
           approved_by_id: currentUserStaffId,
         },
       });
@@ -198,7 +225,7 @@ export default function ReportTopSection() {
     } else if (
       isInDraftingOrFinalizing &&
       irApprovalsData?.[0]?.approval_status?.id ===
-        IR_APPROVAL_STATUS.NOT_APPROVED
+        APPROVAL_STATUS.NOT_APPROVED
     ) {
       setIrApprStatusBadge(STATUS_BADGE_CONFIG.NOT_APPROVED);
     } else if (irProgressId === IRProgressEnum.ISSUED) {

@@ -4,6 +4,7 @@ import {
   InspectionOrder,
   InspectionOrderAPIData,
 } from "@/models/InspectionOrder";
+import { OrderApproval } from "@/models/OrderApproval";
 
 const fetchInspectionOrders = (
   inspectionId: number
@@ -61,6 +62,57 @@ export const inspectionOrderRender = async ({
   });
 };
 
+const createOrderApproval = ({
+  inspectionId,
+  inspectionOrderId,
+  approvalPayload,
+}: {
+  inspectionId: number;
+  inspectionOrderId: number;
+  approvalPayload: {
+    approved_by_id: number;
+  };
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/orders/${inspectionOrderId}/approvals`,
+    method: "post",
+    data: approvalPayload,
+  });
+};
+
+const fetchOrderApprovals = ({
+  inspectionId,
+  inspectionOrderId,
+}: {
+  inspectionId: number;
+  inspectionOrderId: number;
+}): Promise<OrderApproval[]> => {
+  return request({
+    url: `/inspections/${inspectionId}/orders/${inspectionOrderId}/approvals`,
+  });
+};
+
+const updateOrderApprovalStatus = ({
+  inspectionId,
+  inspectionOrderId,
+  approvalId,
+  statusPayload,
+}: {
+  inspectionId: number;
+  inspectionOrderId: number;
+  approvalId: number;
+  statusPayload: {
+    approval_status: string;
+    approved_by_id: number;
+  };
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/orders/${inspectionOrderId}/approvals/${approvalId}/status`,
+    method: "patch",
+    data: statusPayload,
+  });
+};
+
 export const useInspectionOrdersData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-orders", inspectionId],
@@ -99,5 +151,30 @@ export const useInspectionOrderRendered = (
       }),
     enabled: !!inspectionId && !!inspectionOrderId && isEnabled,
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useCreateOrderApproval = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: createOrderApproval,
+    onSuccess,
+  });
+};
+
+export const useFetchOrderApprovals = (
+  inspectionId: number,
+  inspectionOrderId: number
+) => {
+  return useQuery({
+    queryKey: ["order-approvals", inspectionId, inspectionOrderId],
+    queryFn: () => fetchOrderApprovals({ inspectionId, inspectionOrderId }),
+    enabled: !!inspectionId && !!inspectionOrderId,
+  });
+};
+
+export const useUpdateOrderApprovalStatus = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: updateOrderApprovalStatus,
+    onSuccess,
   });
 };
