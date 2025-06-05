@@ -11,7 +11,10 @@ import { Box, Stack } from "@mui/material";
 import { useCallback, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
-import { useUpdateInspectionOrder } from "@/hooks/useInspectionOrders";
+import {
+  useDeleteInspectionOrder,
+  useUpdateInspectionOrder,
+} from "@/hooks/useInspectionOrders";
 import { StaffUser } from "@/models/Staff";
 import dayjs, { Dayjs } from "dayjs";
 import { EnforcementSection } from "@/models/EnforcementSection";
@@ -133,6 +136,20 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
     [enforcementOrder, inspection.id, updateInspectionOrder]
   );
 
+  const onDeleteSuccess = useCallback(() => {
+    onSubmit("Order deleted successfully!");
+    reset();
+  }, [onSubmit, reset]);
+
+  const { mutate: deleteInspectionOrder } =
+    useDeleteInspectionOrder(onDeleteSuccess);
+
+  const onDeleteOrder = useCallback(() => {
+    deleteInspectionOrder({
+      inspectionOrderId: enforcementOrder.id || 0,
+    });
+  }, [deleteInspectionOrder, enforcementOrder.id]);
+
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
@@ -224,7 +241,12 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
             />
           </Box>
         </Stack>
-        <DrawerActionBarBottom isShowActionBar={!!enforcementOrder} />
+        <DrawerActionBarBottom
+          isShowActionBar={!!enforcementOrder}
+          onDeleteAction={onDeleteOrder}
+          onDeleteTitle="Delete Order"
+          onDeleteDescription={`You are about to delete Order ${enforcementOrder.order_number}. Are you sure?`}
+        />
       </form>
     </FormProvider>
   );

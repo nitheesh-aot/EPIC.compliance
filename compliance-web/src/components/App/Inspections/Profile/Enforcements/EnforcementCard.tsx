@@ -2,7 +2,9 @@ import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
-import { Box, Grid, Stack, Typography } from "@mui/material";
+import { OrderStatusEnum } from "@/utils/constants";
+import dateUtils from "@/utils/dateUtils";
+import { Box, Chip, Grid, Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useMemo } from "react";
 
@@ -100,9 +102,23 @@ const EnforcementCard = ({
           backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
         }}
       >
-        <Typography variant="body1" color={BCDesignTokens.typographyColorLink}>
-          {order?.order_number ?? warningLetter?.warning_letter_number}
-        </Typography>
+        <Stack direction="row" alignItems="center" gap={1}>
+          <Typography
+            variant="body1"
+            color={BCDesignTokens.typographyColorLink}
+          >
+            {order?.order_number ?? warningLetter?.warning_letter_number}
+          </Typography>
+          {order?.order_status &&
+            order.order_status.id === OrderStatusEnum.OPEN && (
+              <Chip
+                label={order?.order_status?.name ?? ""}
+                color="success"
+                size="small"
+                variant="outlined"
+              />
+            )}
+        </Stack>
         <Stack>
           {requirementSourcesFormatted?.map((source, index) => {
             return (
@@ -142,9 +158,15 @@ const EnforcementCard = ({
           />
           <GridLabelValuePair
             label="Date Issued"
-            value="Not Started"
+            value={
+              (order || warningLetter)?.date_issued
+                ? dateUtils.formatDate(
+                    (order || warningLetter)?.date_issued ?? ""
+                  )
+                : "Not Started"
+            }
             gridProps={{ xs: 6 }}
-            isChip
+            isChip={!(order || warningLetter)?.date_issued}
           />
         </Grid>
       </Box>

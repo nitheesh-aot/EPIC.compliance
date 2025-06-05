@@ -117,6 +117,17 @@ const issueOrder = ({
   });
 };
 
+const deleteInspectionOrder = ({
+  inspectionOrderId,
+}: {
+  inspectionOrderId: number;
+}) => {
+  return request({
+    url: `/orders/${inspectionOrderId}`,
+    method: "delete",
+  });
+};
+
 export const useInspectionOrdersData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-orders", inspectionId],
@@ -177,6 +188,13 @@ export const useUpdateOrderApprovalStatus = (onSuccess: OnSuccessType) => {
 export const useIssueOrder = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: issueOrder,
+    onSuccess,
+  });
+};
+
+export const useDeleteInspectionOrder = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: deleteInspectionOrder,
     onSuccess,
   });
 };
