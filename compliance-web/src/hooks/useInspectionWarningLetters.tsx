@@ -58,6 +58,17 @@ export const inspectionWarningLetterRender = async ({
   });
 };
 
+const deleteInspectionWarningLetter = ({
+  inspectionWarningLetterId,
+}: {
+  inspectionWarningLetterId: number;
+}) => {
+  return request({
+    url: `/warning-letters/${inspectionWarningLetterId}`,
+    method: "delete",
+  });
+};
+
 export const useInspectionWarningLettersData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-warning-letters", inspectionId],
@@ -93,5 +104,12 @@ export const useInspectionWarningLetterRendered = (
       }),
     enabled: !!inspectionWarningLetterId && isEnabled,
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useDeleteInspectionWarningLetter = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: deleteInspectionWarningLetter,
+    onSuccess,
   });
 };

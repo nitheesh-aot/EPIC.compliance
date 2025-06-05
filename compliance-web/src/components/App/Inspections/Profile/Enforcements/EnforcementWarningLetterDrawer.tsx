@@ -18,7 +18,10 @@ import {
   InspectionWarningLetter,
   InspectionWarningLetterAPIData,
 } from "@/models/InspectionWarningLetter";
-import { useUpdateInspectionWarningLetter } from "@/hooks/useInspectionWarningLetters";
+import {
+  useDeleteInspectionWarningLetter,
+  useUpdateInspectionWarningLetter,
+} from "@/hooks/useInspectionWarningLetters";
 import EnforcementDownloadPDFButton from "./EnforcementDownloadPDFButton";
 import { EnforcementActionEnum } from "@/utils/constants";
 
@@ -112,6 +115,20 @@ const EnforcementWarningLetterDrawer: React.FC<
     [inspection.id, updateInspectionWarningLetter, warningLetter]
   );
 
+  const onDeleteSuccess = useCallback(() => {
+    onSubmit("Warning letter deleted successfully!");
+    reset();
+  }, [onSubmit, reset]);
+
+  const { mutate: deleteInspectionWarningLetter } =
+    useDeleteInspectionWarningLetter(onDeleteSuccess);
+
+  const onDeleteWarningLetter = useCallback(() => {
+    deleteInspectionWarningLetter({
+      inspectionWarningLetterId: warningLetter.id || 0,
+    });
+  }, [deleteInspectionWarningLetter, warningLetter.id]);
+
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
@@ -183,7 +200,12 @@ const EnforcementWarningLetterDrawer: React.FC<
             />
           </Box>
         </Stack>
-        <DrawerActionBarBottom isShowActionBar={!!warningLetter} />
+        <DrawerActionBarBottom
+          isShowActionBar={!!warningLetter}
+          onDeleteAction={onDeleteWarningLetter}
+          onDeleteTitle="Delete Warning Letter"
+          onDeleteDescription={`You are about to delete Warning Letter ${warningLetter.warning_letter_number}. Are you sure?`}
+        />
       </form>
     </FormProvider>
   );
