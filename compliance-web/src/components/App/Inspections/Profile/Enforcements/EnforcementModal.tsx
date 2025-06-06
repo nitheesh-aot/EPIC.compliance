@@ -17,7 +17,7 @@ import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbo
 import { BCDesignTokens } from "epic.theme";
 import { ExpandMoreRounded, WarningAmberOutlined } from "@mui/icons-material";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
-import { useCreateInspectionWarningLetter } from "@/hooks/useInspectionWarningLetters";
+import { useCreateWarningLetter } from "@/hooks/useInspectionWarningLetters";
 import {
   InspectionWarningLetter,
   InspectionWarningLetterAPIData,
@@ -140,7 +140,7 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
   const {
     mutate: createInspectionWarningLetter,
     isPending: isPendingWarningLetter,
-  } = useCreateInspectionWarningLetter(onSuccess);
+  } = useCreateWarningLetter(onSuccess);
 
   const onSubmitHandler = useCallback(
     (data: EnforcementFormType) => {

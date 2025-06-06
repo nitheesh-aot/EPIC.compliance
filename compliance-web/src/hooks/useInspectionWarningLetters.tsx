@@ -4,8 +4,9 @@ import {
   InspectionWarningLetter,
   InspectionWarningLetterAPIData,
 } from "@/models/InspectionWarningLetter";
+import { WarningLetterApproval } from "@/models/WarningLetterApproval";
 
-const fetchInspectionWarningLetters = (
+const fetchWarningLetters = (
   inspectionId: number
 ): Promise<InspectionWarningLetter[]> => {
   return request({
@@ -14,7 +15,7 @@ const fetchInspectionWarningLetters = (
   });
 };
 
-const createInspectionWarningLetter = ({
+const createWarningLetter = ({
   inspectionWarningLetter,
 }: {
   inspectionWarningLetter: InspectionWarningLetterAPIData;
@@ -26,7 +27,7 @@ const createInspectionWarningLetter = ({
   });
 };
 
-const updateInspectionWarningLetter = ({
+const updateWarningLetter = ({
   inspectionWarningLetterId,
   inspectionWarningLetter,
 }: {
@@ -40,7 +41,7 @@ const updateInspectionWarningLetter = ({
   });
 };
 
-export const inspectionWarningLetterRender = async ({
+export const warningLetterRender = async ({
   inspectionWarningLetterId,
   format,
 }: {
@@ -58,24 +59,96 @@ export const inspectionWarningLetterRender = async ({
   });
 };
 
+const createWarningLetterApproval = ({
+  inspectionWarningLetterId,
+  approvalPayload,
+}: {
+  inspectionWarningLetterId: number;
+  approvalPayload: {
+    approved_by_id: number;
+  };
+}) => {
+  return request({
+    url: `/warning-letters/${inspectionWarningLetterId}/approvals`,
+    method: "post",
+    data: approvalPayload,
+  });
+};
+
+const fetchWarningLetterApprovals = ({
+  inspectionWarningLetterId,
+}: {
+  inspectionWarningLetterId: number;
+}): Promise<WarningLetterApproval[]> => {
+  return request({
+    url: `/warning-letters/${inspectionWarningLetterId}/approvals`,
+  });
+};
+
+const updateWarningLetterApprovalStatus = ({
+  inspectionWarningLetterId,
+  approvalId,
+  statusPayload,
+}: {
+  inspectionWarningLetterId: number;
+  approvalId: number;
+  statusPayload: {
+    approval_status: string;
+    approved_by_id: number;
+  };
+}) => {
+  return request({
+    url: `/warning-letters/${inspectionWarningLetterId}/approvals/${approvalId}/status`,
+    method: "patch",
+    data: statusPayload,
+  });
+};
+
+const issueWarningLetter = ({
+  inspectionWarningLetterId,
+  issuePayload,
+}: {
+  inspectionWarningLetterId: number;
+  issuePayload: {
+    date_issued: string;
+  };
+}) => {
+  return request({
+    url: `/warning-letters/${inspectionWarningLetterId}/issue`,
+    method: "patch",
+    data: issuePayload,
+  });
+};
+
+const deleteInspectionWarningLetter = ({
+  inspectionWarningLetterId,
+}: {
+  inspectionWarningLetterId: number;
+}) => {
+  return request({
+    url: `/warning-letters/${inspectionWarningLetterId}`,
+    method: "delete",
+  });
+};
+
 export const useInspectionWarningLettersData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-warning-letters", inspectionId],
-    queryFn: () => fetchInspectionWarningLetters(inspectionId),
+    queryFn: () => fetchWarningLetters(inspectionId),
     enabled: !!inspectionId,
     staleTime: Infinity,
   });
 };
 
-export const useCreateInspectionWarningLetter = (onSuccess: OnSuccessType) => {
-  return useMutation({ mutationFn: createInspectionWarningLetter, onSuccess });
+export const useCreateWarningLetter = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: createWarningLetter, onSuccess });
 };
 
-export const useUpdateInspectionWarningLetter = (onSuccess: OnSuccessType) => {
-  return useMutation({ mutationFn: updateInspectionWarningLetter, onSuccess });
+export const useUpdateWarningLetter = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: updateWarningLetter, onSuccess });
 };
 
-export const useInspectionWarningLetterRendered = (
+export const useWarningLetterRendered = (
   inspectionWarningLetterId: number,
   format: "html" | "pdf",
   isEnabled: boolean = true
@@ -87,11 +160,46 @@ export const useInspectionWarningLetterRendered = (
       format,
     ],
     queryFn: () =>
-      inspectionWarningLetterRender({
+      warningLetterRender({
         inspectionWarningLetterId,
         format,
       }),
     enabled: !!inspectionWarningLetterId && isEnabled,
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useCreateWarningLetterApproval = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: createWarningLetterApproval, onSuccess });
+};
+
+export const useFetchWarningLetterApprovals = (
+  inspectionWarningLetterId: number
+) => {
+  return useQuery({
+    queryKey: ["warning-letter-approvals", inspectionWarningLetterId],
+    queryFn: () => fetchWarningLetterApprovals({ inspectionWarningLetterId }),
+    enabled: !!inspectionWarningLetterId,
+    staleTime: Infinity,
+  });
+};
+
+export const useUpdateWarningLetterApprovalStatus = (
+  onSuccess: OnSuccessType
+) => {
+  return useMutation({
+    mutationFn: updateWarningLetterApprovalStatus,
+    onSuccess,
+  });
+};
+
+export const useIssueWarningLetter = (onSuccess: OnSuccessType) => {
+  return useMutation({ mutationFn: issueWarningLetter, onSuccess });
+};
+
+export const useDeleteWarningLetter = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: deleteInspectionWarningLetter,
+    onSuccess,
   });
 };

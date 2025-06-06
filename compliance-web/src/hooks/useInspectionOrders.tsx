@@ -101,6 +101,33 @@ const updateOrderApprovalStatus = ({
   });
 };
 
+const issueOrder = ({
+  inspectionOrderId,
+  issuePayload,
+}: {
+  inspectionOrderId: number;
+  issuePayload: {
+    date_issued: string;
+  };
+}) => {
+  return request({
+    url: `/orders/${inspectionOrderId}/issue`,
+    method: "patch",
+    data: issuePayload,
+  });
+};
+
+const deleteInspectionOrder = ({
+  inspectionOrderId,
+}: {
+  inspectionOrderId: number;
+}) => {
+  return request({
+    url: `/orders/${inspectionOrderId}`,
+    method: "delete",
+  });
+};
+
 export const useInspectionOrdersData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-orders", inspectionId],
@@ -130,7 +157,7 @@ export const useInspectionOrderRendered = (
         inspectionOrderId,
         format,
       }),
-      enabled: !!inspectionOrderId && isEnabled,
+    enabled: !!inspectionOrderId && isEnabled,
     refetchOnWindowFocus: false,
   });
 };
@@ -142,19 +169,32 @@ export const useCreateOrderApproval = (onSuccess: OnSuccessType) => {
   });
 };
 
-export const useFetchOrderApprovals = (
-  inspectionOrderId: number
-) => {
+export const useFetchOrderApprovals = (inspectionOrderId: number) => {
   return useQuery({
     queryKey: ["order-approvals", inspectionOrderId],
     queryFn: () => fetchOrderApprovals({ inspectionOrderId }),
     enabled: !!inspectionOrderId,
+    staleTime: Infinity,
   });
 };
 
 export const useUpdateOrderApprovalStatus = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: updateOrderApprovalStatus,
+    onSuccess,
+  });
+};
+
+export const useIssueOrder = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: issueOrder,
+    onSuccess,
+  });
+};
+
+export const useDeleteInspectionOrder = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: deleteInspectionOrder,
     onSuccess,
   });
 };
