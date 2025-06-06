@@ -25,7 +25,7 @@ import { useEnforcementSectionsData } from "@/hooks/useEnforcementSections";
 import { BCDesignTokens } from "epic.theme";
 import EnforcementDownloadPDFButton from "./EnforcementDownloadPDFButton";
 import { EnforcementActionEnum } from "@/utils/constants";
-import EnforcementApprovalButton from "./EnforcementApprovalButton";
+import OrderApprovalButtons from "./OrderApprovalButtons";
 
 type EnforcementOrderDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -167,7 +167,7 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
             gap: 1,
           }}
         >
-          <EnforcementApprovalButton
+          <OrderApprovalButtons
             inspectionOrder={enforcementOrder}
             inspectionId={inspection.id}
           />

@@ -5,7 +5,7 @@ import { notify } from "@/store/snackbarStore";
 import { downloadFile } from "@/utils/appUtils";
 import { useInspectionOrderRendered } from "@/hooks/useInspectionOrders";
 import { EnforcementActionEnum } from "@/utils/constants";
-import { useInspectionWarningLetterRendered } from "@/hooks/useInspectionWarningLetters";
+import { useWarningLetterRendered } from "@/hooks/useInspectionWarningLetters";
 
 interface EnforcementDownloadPDFButtonProps {
   enforcementId: number;
@@ -27,7 +27,7 @@ const EnforcementDownloadPDFButton = ({
   );
 
   const { refetch: refetchWarningLetterPDFData } =
-    useInspectionWarningLetterRendered(
+    useWarningLetterRendered(
       enforcementId,
       "pdf",
       false

@@ -19,8 +19,8 @@ import {
   InspectionWarningLetterAPIData,
 } from "@/models/InspectionWarningLetter";
 import {
-  useDeleteInspectionWarningLetter,
-  useUpdateInspectionWarningLetter,
+  useDeleteWarningLetter,
+  useUpdateWarningLetter,
 } from "@/hooks/useInspectionWarningLetters";
 import EnforcementDownloadPDFButton from "./EnforcementDownloadPDFButton";
 import { EnforcementActionEnum } from "@/utils/constants";
@@ -88,8 +88,7 @@ const EnforcementWarningLetterDrawer: React.FC<
     reset();
   }, [onSubmit, reset]);
 
-  const { mutate: updateInspectionWarningLetter } =
-    useUpdateInspectionWarningLetter(onSuccess);
+  const { mutate: updateWarningLetter } = useUpdateWarningLetter(onSuccess);
 
   const onSubmitHandler = useCallback(
     (formData: EnforcementFormType) => {
@@ -106,13 +105,13 @@ const EnforcementWarningLetterDrawer: React.FC<
             formData.intendedIssuanceDate?.toISOString() || undefined,
         };
 
-        updateInspectionWarningLetter({
+        updateWarningLetter({
           inspectionWarningLetterId: warningLetter.id || 0,
           inspectionWarningLetter: warningLetterData,
         });
       }
     },
-    [inspection.id, updateInspectionWarningLetter, warningLetter]
+    [inspection.id, updateWarningLetter, warningLetter]
   );
 
   const onDeleteSuccess = useCallback(() => {
@@ -120,14 +119,13 @@ const EnforcementWarningLetterDrawer: React.FC<
     reset();
   }, [onSubmit, reset]);
 
-  const { mutate: deleteInspectionWarningLetter } =
-    useDeleteInspectionWarningLetter(onDeleteSuccess);
+  const { mutate: deleteWarningLetter } = useDeleteWarningLetter(onDeleteSuccess);
 
   const onDeleteWarningLetter = useCallback(() => {
-    deleteInspectionWarningLetter({
+    deleteWarningLetter({
       inspectionWarningLetterId: warningLetter.id || 0,
     });
-  }, [deleteInspectionWarningLetter, warningLetter.id]);
+  }, [deleteWarningLetter, warningLetter.id]);
 
   return (
     <FormProvider {...methods}>

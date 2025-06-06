@@ -22,7 +22,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import IssueEnforcementModal from "./IssueEnforcementModal";
 import { useDrawer } from "@/store/drawerStore";
 
-const EnforcementApprovalButton = ({
+const OrderApprovalButtons = ({
   inspectionOrder,
   inspectionId,
 }: {
@@ -253,4 +253,4 @@ const EnforcementApprovalButton = ({
   );
 };
 
-export default EnforcementApprovalButton;
+export default OrderApprovalButtons;
