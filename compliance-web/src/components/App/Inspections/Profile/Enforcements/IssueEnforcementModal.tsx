@@ -10,10 +10,13 @@ import dateUtils from "@/utils/dateUtils";
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import { useIssueOrder } from "@/hooks/useInspectionOrders";
+import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
+import { useIssueWarningLetter } from "@/hooks/useInspectionWarningLetters";
 
 type IssueEnforcementModalProps = {
   onSubmit: (message: string) => void;
-  inspectionOrder: InspectionOrder;
+  inspectionOrder?: InspectionOrder;
+  warningLetter?: InspectionWarningLetter;
 };
 
 const issueEnforcementSchema = yup.object().shape({
@@ -29,15 +32,18 @@ const initFormData = {
 const IssueEnforcementModal: FC<IssueEnforcementModalProps> = ({
   onSubmit,
   inspectionOrder,
+  warningLetter,
 }) => {
   const defaultValues = useMemo<IssueEnforcementFormType>(() => {
-    if (inspectionOrder?.intended_issuance_date) {
+    if ((inspectionOrder || warningLetter)?.intended_issuance_date) {
       return {
-        issueDate: dayjs(inspectionOrder?.intended_issuance_date),
+        issueDate: dayjs(
+          (inspectionOrder || warningLetter)?.intended_issuance_date
+        ),
       };
     }
     return initFormData;
-  }, [inspectionOrder?.intended_issuance_date]);
+  }, [inspectionOrder, warningLetter]);
 
   const methods = useForm<IssueEnforcementFormType>({
     resolver: yupResolver(issueEnforcementSchema),
@@ -52,18 +58,34 @@ const IssueEnforcementModal: FC<IssueEnforcementModalProps> = ({
   }, [reset, defaultValues]);
 
   const onSuccess = () => {
-    onSubmit("Order issued");
+    if (inspectionOrder) {
+      onSubmit("Order issued");
+    } else {
+      onSubmit("Warning letter issued");
+    }
   };
 
-  const { mutate: issueOrder, isPending } = useIssueOrder(onSuccess);
+  const { mutate: issueOrder, isPending: isOrderPending } = useIssueOrder(onSuccess);
+
+  const { mutate: issueWarningLetter, isPending: isWarningLetterPending } =
+    useIssueWarningLetter(onSuccess);
 
   const onSubmitHandler = (data: IssueEnforcementFormType) => {
-    issueOrder({
-      inspectionOrderId: inspectionOrder?.id ?? 0,
-      issuePayload: {
-        date_issued: dateUtils.dateToISO(data.issueDate),
-      },
-    });
+    if (inspectionOrder) {
+      issueOrder({
+        inspectionOrderId: inspectionOrder?.id ?? 0,
+        issuePayload: {
+          date_issued: dateUtils.dateToISO(data.issueDate),
+        },
+      });
+    } else {
+      issueWarningLetter({
+        inspectionWarningLetterId: warningLetter?.id ?? 0,
+        issuePayload: {
+          date_issued: dateUtils.dateToISO(data.issueDate),
+        },
+      });
+    }
   };
 
   return (
@@ -72,7 +94,8 @@ const IssueEnforcementModal: FC<IssueEnforcementModalProps> = ({
         <ModalTitleBar title={"Issue Order?"} />
         <DialogContent dividers>
           <Typography variant="body1" mb={2}>
-            You are about to issue Order: <b>{inspectionOrder?.order_number}</b>
+            You are about to issue {inspectionOrder ? "Order" : "Warning Letter"}:{" "}
+            <b>{inspectionOrder?.order_number || warningLetter?.warning_letter_number}</b>
           </Typography>
           <Typography variant="body2" mb={1.5}>
             If actual issue date is different from the intended issuance date,
@@ -83,7 +106,7 @@ const IssueEnforcementModal: FC<IssueEnforcementModalProps> = ({
         <ModalActions
           primaryActionButtonText={"Issue"}
           isButtonValidation
-          isLoading={isPending}
+          isLoading={isOrderPending || isWarningLetterPending}
         />
       </form>
     </FormProvider>

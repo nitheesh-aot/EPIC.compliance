@@ -1,5 +1,14 @@
-
 import { StaffUser } from "./Staff";
+
+export interface WarningLetterStatus {
+  id: string;
+  name: string;
+}
+
+export interface WarningLetterProgress {
+  id: string;
+  name: string;
+}
 
 export interface InspectionWarningLetter {
   issuing_officer?: StaffUser;
@@ -12,6 +21,8 @@ export interface InspectionWarningLetter {
   issuing_officer_id?: number;
   warning_letter_requirement_map?: WarningLetterRequirementMap[];
   is_active?: boolean;
+  progress?: WarningLetterProgress;
+  status?: WarningLetterStatus;
 }
 
 interface WarningLetterRequirementMap {

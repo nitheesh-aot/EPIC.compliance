@@ -3,7 +3,7 @@ import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
 import { Inspection } from "@/models/Inspection";
 import { useMenuStore } from "@/store/menuStore";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, Button, Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { useCallback, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -13,7 +13,6 @@ import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLe
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
 import { BCDesignTokens } from "epic.theme";
-import { SendRounded } from "@mui/icons-material";
 import {
   InspectionWarningLetter,
   InspectionWarningLetterAPIData,
@@ -24,6 +23,7 @@ import {
 } from "@/hooks/useInspectionWarningLetters";
 import EnforcementDownloadPDFButton from "./EnforcementDownloadPDFButton";
 import { EnforcementActionEnum } from "@/utils/constants";
+import WarningLetterApprovalButtons from "./WarningLetterApprovalButtons";
 
 type EnforcementWarningLetterDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -141,10 +141,10 @@ const EnforcementWarningLetterDrawer: React.FC<
             textAlign: "right",
           }}
         >
-          <Button variant="text">
-            <SendRounded sx={{ mr: 1, fontSize: 20 }} />
-            Send for Approval
-          </Button>
+          <WarningLetterApprovalButtons
+            warningLetter={warningLetter}
+            inspectionId={inspection.id}
+          />
           <EnforcementDownloadPDFButton
             enforcementId={warningLetter.id || 0}
             fileNumber={warningLetter.warning_letter_number || ""}
