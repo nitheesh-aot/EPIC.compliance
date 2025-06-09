@@ -161,6 +161,15 @@ class WarningLetter(BaseModelVersioned):
         "WarningLetterInspectionRequirementMap.is_active == True, "
         "WarningLetterInspectionRequirementMap.is_deleted == False)",
     )
+    warning_letter_approvals = relationship(
+        "WarningLetterApproval",
+        back_populates="warning_letter",
+        lazy="select",
+        primaryjoin="and_(WarningLetterApproval.warning_letter_id == WarningLetter.id, "
+        "WarningLetterApproval.is_active == True, "
+        "WarningLetterApproval.is_deleted == False)",
+        order_by="desc(WarningLetterApproval.created_date)",
+    )
     __table_args__ = (
         Index(
             "unique_non_deleted_warning_letter_number",  # Index name

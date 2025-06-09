@@ -136,6 +136,15 @@ class Order(BaseModelVersioned):
         "OrderInspectionRequirementMap.is_active == True, "
         "OrderInspectionRequirementMap.is_deleted == False)",
     )
+    order_approvals = relationship(
+        "OrderApproval",
+        back_populates="order",
+        lazy="select",
+        primaryjoin="and_(OrderApproval.order_id == Order.id, "
+        "OrderApproval.is_active == True, "
+        "OrderApproval.is_deleted == False)",
+        order_by="desc(OrderApproval.created_date)",
+    )
     __table_args__ = (
         Index(
             "unique_non_deleted_order_number",  # Index name

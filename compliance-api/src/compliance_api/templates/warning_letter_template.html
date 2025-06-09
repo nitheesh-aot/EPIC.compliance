@@ -1,223 +1,234 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Warning Letter</title>
-    <style>
-      /* Base styles */
-      @font-face {
-        font-family: "Calibri";
-        src: url("https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-regular.ttf")
-          format("truetype");
-        font-weight: normal;
-        font-style: normal;
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Warning Letter</title>
+  <style>
+    {% raw %}
+    /* Base styles */
+    @font-face {
+      font-family: "Calibri";
+      src: url("https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-regular.ttf") format("truetype");
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: "Calibri";
+      src: url("https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-italic.ttf") format("truetype");
+      font-weight: normal;
+      font-style: italic;
+    }
+
+    @font-face {
+      font-family: "Calibri";
+      src: url("https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-bold.ttf") format("truetype");
+      font-weight: bold;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: "Calibri";
+      src: url("https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-bold-italic.ttf") format("truetype");
+      font-weight: bold;
+      font-style: italic;
+    }
+
+    @page: first {
+      size: letter;
+      margin: 0.5in 1in 1.25in 1in;
+
+      @bottom-center {
+        content: element(footer-first-page);
       }
 
-      @font-face {
-        font-family: "Calibri";
-        src: url("https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-italic.ttf")
-          format("truetype");
-        font-weight: normal;
+      @top-center {
+        content: "";
+      }
+    }
+    {% endraw %}
+    {% if total_pages > 1 %}
+    {{ '@' }}page :first {
+      {{ '@' }}bottom-right {
+        content: "... 2";
         font-style: italic;
+        font-size: 10pt;
+      }
+    }
+    {% endif %}
+    {% raw %}
+    @page {
+      size: letter;
+      margin: 0.75in 1in 1.25in 1in;
+
+      @top-center {
+        content: element(header);
       }
 
-      @font-face {
-        font-family: "Calibri";
-        src: url("https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-bold.ttf")
-          format("truetype");
-        font-weight: bold;
-        font-style: normal;
+      @bottom-center {
+        content: "";
       }
 
-      @font-face {
-        font-family: "Calibri";
-        src: url("https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/fonts/calibri-bold-italic.ttf")
-          format("truetype");
-        font-weight: bold;
+      counter-increment: page;
+    }
+
+    {% endraw %}
+    /* ✅ Each of these must be at top-level — not inside @page! */
+    {% for i in range(2, total_pages) %}
+    {{ '@' }}page :nth({{ i }}) {
+      {{ '@' }}bottom-right {
+        content: "... {{ i + 1 }}";
         font-style: italic;
+        font-size: 10pt;
       }
+    }
+    {% endfor %}
+    {% raw %}
 
-      body {
-        font-family: "Calibri", "BC Sans", sans-serif;
-        margin: 0;
-        padding: 0;
-        font-size: 13.5pt;
-        line-height: 15pt;
-        color: #000000;
-      }
+    body {
+      font-family: "Calibri", "BC Sans", sans-serif;
+      margin: 0;
+      padding: 0;
+      font-size: 13.5pt;
+      line-height: 15pt;
+      color: #000000;
+    }
 
-      .letterhead {
-        font-weight: bold;
-      }
+    .letterhead {
+      font-weight: bold;
+    }
 
-      .com-ref {
-        margin-top: -0.25em;
-        margin-bottom: 0.5em;
-        text-align: end;
-        font-size: 8.5pt;
-        font-style: italic;
-      }
+    .com-ref {
+      margin-top: -0.25em;
+      margin-bottom: 0.5em;
+      text-align: end;
+      font-size: 8.5pt;
+      font-style: italic;
+    }
 
-      .com-date-issued {
-        margin-top: 1em;
-        margin-bottom: 1em;
-      }
+    .com-date-issued {
+      margin-top: 1em;
+      margin-bottom: 1em;
+    }
 
-      .com-wl-header-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 120px;
-        width: 100%;
-      }
+    .com-wl-header-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 120px;
+      width: 100%;
+    }
 
-      .com-wl-header-logo {
-        height: 180px;
-        width: auto;
-      }
+    .com-wl-header-logo {
+      height: 180px;
+      width: auto;
+    }
 
-      .com-wl-content p{
-        margin: 0;
-      }
+    .com-wl-content p {
+      margin: 0;
+    }
 
-      @media print {
-        @page: first {
-          size: letter;
-          margin: 0.5in 1in 1.25in 1in;
+    @media print {
 
-          @bottom-center {
-            content: element(footer-first-page);
-          }
-
-          @top-center {
-            content: "";
-          }
-
-          @bottom-right {
-            content: element(continuation);
-          }
-        }
-
-        @page {
-          size: letter;
-          margin: 0.75in 1in 1.25in 1in;
-
-          @bottom-right {
-            content: element(continuation);
-          }
-
-          @top-center {
-            content: element(header);
-          }
-
-          @bottom-center {
-            content: "";
-          }
-
-          counter-increment: page;
-        }
-
-        .continuation {
+      /* .continuation {
           position: running(continuation);
           text-align: right;
           font-style: italic;
           margin-top: 1em;
           font-size: 11pt;
-        }
+        } */
 
-        .header {
-          position: running(header);
-          text-align: center;
-          font-size: 10pt;
-        }
-
-        .footer-first-page {
-          display: flex;
-          flex-direction: row;
-          position: running(footer-first-page);
-          bottom: 0;
-          left: 0.5em;
-          right: 0.5em;
-          font-size: 8.5pt;
-          line-height: 10pt;
-          border-top: 1px solid #000;
-          padding-top: 0.5em;
-          text-align: left;
-        }
-
-        .footer-first-page td {
-          padding-right: 0.5em;
-          padding-left: 0.5em;
-          vertical-align: top;
-          width: 25%;
-        }
-
-        /* Page numbering */
-        .pageNumber:before {
-          content: "- " counter(page) " -";
-        }
-
-        .continuation:before {
-          content: "..." counter(page);
-        }
-
-        .totalPages:before {
-          content: counter(pages);
-        }
+      .header {
+        position: running(header);
+        text-align: center;
+        font-size: 10pt;
       }
-    </style>
-  </head>
 
-  <body>
-    <!-- First-page-only footer -->
-    <div class="footer-first-page" id="footer-first-page">
-      <table
-        style="width: 100%; table-layout: fixed; border-collapse: collapse"
-      >
-        <tr>
-          <td>
-            <strong>{{ department_details.office_name }}</strong>
-          </td>
-          <td>
-            {{ department_details.office_branch }}
-          </td>
-          <td>
-            Mailing Address: <br />
-            {{ department_details.address_line1 }}<br />
-            {{ department_details.address_line2 }}
-          </td>
-          <td>
-            Location:<br />
-            2nd Fl – 836 Yates St<br />
-            Victoria BC V8W 1L8
-          </td>
-        </tr>
-      </table>
-    </div>
+      .footer-first-page {
+        display: flex;
+        flex-direction: row;
+        position: running(footer-first-page);
+        bottom: 0;
+        left: 0.5em;
+        right: 0.5em;
+        font-size: 8.5pt;
+        line-height: 10pt;
+        border-top: 1px solid #000;
+        padding-top: 0.5em;
+        text-align: left;
+      }
 
-    <!-- Header for 2nd+ pages -->
-    <div class="header" id="header">
-      <span class="pageNumber"></span>
-    </div>
-    <div class="com-wl-header-container">
-      <img
-        src="https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/images/BCID_V_RGB_pos.png"
-        class="com-wl-header-logo"
-        alt="EAO Logo"
-      />
-    </div>
-    <div>
-      <p class="com-ref">
-        Ref: {{ warning_letter.warning_letter_number }}
-      </p>
-      <p class="com-date-issued">{{ warning_letter.date_issued }}</p>
-    </div>
-    <!-- Content -->
-    <div class="com-wl-content">
-      {{warning_letter.content | safe | replace('style="white-space:
-      pre-wrap;"', '')}}
-    </div>
-    <!-- Continuation marker for 2nd+ pages -->
-    <div class="continuation"></div>
-  </body>
+      .footer-first-page td {
+        padding-right: 0.5em;
+        padding-left: 0.5em;
+        vertical-align: top;
+        width: 25%;
+      }
+
+      /* Page numbering */
+      .pageNumber:before {
+        content: "- " counter(page) " -";
+      }
+
+      /* .continuation:before {
+        content: "..." counter(page);
+      } */
+
+      .totalPages:before {
+        content: counter(pages);
+      }
+    }
+    {% endraw %}
+  </style>
+</head>
+
+<body>
+  <!-- First-page-only footer -->
+  <div class="footer-first-page" id="footer-first-page">
+    <table style="width: 100%; table-layout: fixed; border-collapse: collapse">
+      <tr>
+        <td>
+          <strong>{{ department_details.office_name }}</strong>
+        </td>
+        <td>
+          {{ department_details.office_branch }}
+        </td>
+        <td>
+          Mailing Address: <br />
+          {{ department_details.address_line1 }}<br />
+          {{ department_details.address_line2 }}
+        </td>
+        <td>
+          Location:<br />
+          2nd Fl – 836 Yates St<br />
+          Victoria BC V8W 1L8
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Header for 2nd+ pages -->
+  <div class="header" id="header">
+    <span class="pageNumber"></span>
+  </div>
+  <div class="com-wl-header-container">
+    <img src="https://nrs.objectstore.gov.bc.ca/epic-static-assets/compliance-assets/images/BCID_V_RGB_pos.png"
+      class="com-wl-header-logo" alt="EAO Logo" />
+  </div>
+  <div>
+    <p class="com-ref">
+      Ref: {{ warning_letter.warning_letter_number }}
+    </p>
+    <p class="com-date-issued">{{ warning_letter.date_issued }}</p>
+  </div>
+  <!-- Content -->
+  <div class="com-wl-content">
+    {{warning_letter.content | safe | replace('style="white-space:
+    pre-wrap;"', '')}}
+  </div>
+  <!-- Continuation marker for 2nd+ pages -->
+  <!-- <div class="continuation"></div> -->
+</body>
+
 </html>

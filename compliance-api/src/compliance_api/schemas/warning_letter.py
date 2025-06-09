@@ -3,13 +3,13 @@
 from marshmallow import EXCLUDE, fields, post_dump, post_load
 from marshmallow_enum import EnumField
 
-from compliance_api.models.warning_letter import WarningLetterProgressEnum
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from ..models.warning_letter import WarningLetter, WarningLetterInspectionRequirementMap, WarningLetterStatusEnum
 from .base_schema import AutoSchemaBase, BaseSchema
 from .inspection_requirement import InspectionRequirementSchema
 from .staff_user import StaffUserSchema
+from .warning_letter_approval import WarningLetterApprovalSchema
 
 
 class WarningLetterUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
@@ -85,6 +85,20 @@ class WarningLetterSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         WarningLetterInspectionRequirementMapSchema(),
         many=True,
         only=("id", "inspection_requirement_id", "inspection_requirement"),
+    )
+    warning_letter_approvals = fields.Nested(
+        WarningLetterApprovalSchema(),
+        many=True,
+        only=(
+            "id",
+            "warning_letter_id",
+            "approved_by_id",
+            "warning_letter_status",
+            "approval_status",
+            "approved_date",
+            "created_date",
+            "approved_by",
+        ),
     )
 
     @post_dump

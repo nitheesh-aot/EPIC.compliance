@@ -1,5 +1,7 @@
 """Service method to handle order approval."""
 
+from datetime import datetime, timezone
+
 from compliance_api.exceptions import UnprocessableEntityError
 from compliance_api.models import Order as OrderModel
 from compliance_api.models import OrderApproval as OrderApprovalModel
@@ -80,6 +82,8 @@ class OrderApprovalService:
             raise UnprocessableEntityError(
                 f"Approval already in {status_to_be_updated.value} status"
             )
+        if status_to_be_updated == OrderApprovalStatusEnum.APPROVED:
+            approval_status_data["approved_date"] = datetime.now(timezone.utc)
         with session_scope() as session:
             updated_approval = OrderApprovalModel.update_approval(
                 approval_id=approval_id,
