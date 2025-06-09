@@ -5,9 +5,10 @@ from marshmallow_enum import EnumField
 
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
-from ..models.order import Order, OrderInspectionRequirementMap, OrderProgressEnum, OrderStatusEnum
+from ..models.order import Order, OrderInspectionRequirementMap, OrderStatusEnum
 from .base_schema import AutoSchemaBase, BaseSchema
 from .inspection_requirement import InspectionRequirementSchema
+from .order_approval import OrderApprovalSchema
 from .section import SectionSchema
 from .staff_user import StaffUserSchema
 
@@ -90,6 +91,20 @@ class OrderSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         OrderInspectionRequirementMapSchema(),
         many=True,
         only=("id", "inspection_requirement_id", "inspection_requirement"),
+    )
+    order_approvals = fields.Nested(
+        OrderApprovalSchema(),
+        many=True,
+        only=(
+            "id",
+            "order_id",
+            "approved_by_id",
+            "order_status",
+            "approval_status",
+            "approved_date",
+            "created_date",
+            "approved_by",
+        ),
     )
 
     @post_dump

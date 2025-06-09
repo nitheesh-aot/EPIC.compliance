@@ -208,7 +208,7 @@ def _create_warning_letter_data(warning_letter):
             "website": department_details.website,
             "office_name": OFFICE_NAME,
             "office_branch": OFFICE_BRANCH,
-        },
+        }
     }
 
 

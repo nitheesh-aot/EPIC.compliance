@@ -18,7 +18,7 @@ class DocGenService:
     ) -> str:
         """Render a template with the given context."""
         response = _request_docgen_service(
-            "templates/render",
+            "templates/render?use_total_pages=true",
             HttpMethod.POST,
             {
                 "template_key": template_key,
