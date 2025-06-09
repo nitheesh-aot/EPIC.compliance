@@ -166,6 +166,11 @@ const OrderApprovalButtons = ({
     [inspectionOrder]
   );
 
+  const isShowRescindButton = useMemo(
+    () => inspectionOrder?.order_progress?.id === OrderProgressEnum.ISSUED,
+    [inspectionOrder]
+  );
+
   const handleApprovalsButtonClick = useCallback(
     (isApprove: boolean) => {
       setOpen({
@@ -248,6 +253,19 @@ const OrderApprovalButtons = ({
       )}
       {isShowIssueButton && (
         <Button onClick={handleIssueButtonClick}>Issue Order</Button>
+      )}
+      {isShowRescindButton && (
+        <Box sx={{ display: "inline-flex", gap: 2 }}>
+          <Button
+            color="secondary"
+            onClick={() => handleApprovalsButtonClick(true)}
+          >
+            Rescind Order
+          </Button>
+          <Button onClick={() => handleApprovalsButtonClick(false)}>
+            Close Order
+          </Button>
+        </Box>
       )}
     </>
   );

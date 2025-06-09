@@ -22,8 +22,12 @@ import {
   useUpdateWarningLetter,
 } from "@/hooks/useInspectionWarningLetters";
 import EnforcementDownloadPDFButton from "./EnforcementDownloadPDFButton";
-import { EnforcementActionEnum } from "@/utils/constants";
+import {
+  EnforcementActionEnum,
+  WarningLetterStatusEnum,
+} from "@/utils/constants";
 import WarningLetterApprovalButtons from "./WarningLetterApprovalButtons";
+import EnforcementStatusFlag from "./EnforcementStatusFlag";
 
 type EnforcementWarningLetterDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -58,6 +62,12 @@ const EnforcementWarningLetterDrawer: React.FC<
   EnforcementWarningLetterDrawerProps
 > = ({ onSubmit, inspection, warningLetter, staffUsersList }) => {
   const { appHeaderHeight } = useMenuStore();
+
+  const isReadonly =
+    useMemo(
+      () => warningLetter.status?.id === WarningLetterStatusEnum.ISSUED,
+      [warningLetter.status]
+    ) || false;
 
   const defaultValues = useMemo<EnforcementFormType>(() => {
     if (warningLetter) {
@@ -119,7 +129,8 @@ const EnforcementWarningLetterDrawer: React.FC<
     reset();
   }, [onSubmit, reset]);
 
-  const { mutate: deleteWarningLetter } = useDeleteWarningLetter(onDeleteSuccess);
+  const { mutate: deleteWarningLetter } =
+    useDeleteWarningLetter(onDeleteSuccess);
 
   const onDeleteWarningLetter = useCallback(() => {
     deleteWarningLetter({
@@ -133,6 +144,7 @@ const EnforcementWarningLetterDrawer: React.FC<
         <DrawerTitleBar
           title={warningLetter.warning_letter_number || "Edit Warning Letter"}
           isFormDirtyCheck
+          statusFlag={<EnforcementStatusFlag warningLetter={warningLetter} />}
         />
         <Box
           sx={{
@@ -153,7 +165,7 @@ const EnforcementWarningLetterDrawer: React.FC<
         </Box>
         <Stack
           /** 64px (DrawerTitleBar height) + 65px (DrawerActionBar height) + 64px (DrawerActionBarTop preview height) */
-          height={`calc(100vh - ${appHeaderHeight + 193}px)`}
+          height={`calc(100vh - ${appHeaderHeight + 193 - (isReadonly ? 65 : 0)}px)`}
           direction={"row"}
         >
           <Box
@@ -199,7 +211,7 @@ const EnforcementWarningLetterDrawer: React.FC<
           </Box>
         </Stack>
         <DrawerActionBarBottom
-          isShowActionBar={!!warningLetter}
+          isShowActionBar={!!warningLetter && !isReadonly}
           onDeleteAction={onDeleteWarningLetter}
           onDeleteTitle="Delete Warning Letter"
           onDeleteDescription={`You are about to delete Warning Letter ${warningLetter.warning_letter_number}. Are you sure?`}

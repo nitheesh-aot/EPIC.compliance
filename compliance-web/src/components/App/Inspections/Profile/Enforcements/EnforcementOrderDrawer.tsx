@@ -24,8 +24,9 @@ import ControlledDateField from "@/components/Shared/Controlled/ControlledDateFi
 import { useEnforcementSectionsData } from "@/hooks/useEnforcementSections";
 import { BCDesignTokens } from "epic.theme";
 import EnforcementDownloadPDFButton from "./EnforcementDownloadPDFButton";
-import { EnforcementActionEnum } from "@/utils/constants";
+import { EnforcementActionEnum, OrderProgressEnum } from "@/utils/constants";
 import OrderApprovalButtons from "./OrderApprovalButtons";
+import EnforcementStatusFlag from "./EnforcementStatusFlag";
 
 type EnforcementOrderDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -73,6 +74,11 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
 }) => {
   const { appHeaderHeight } = useMenuStore();
   const { data: enforcementSections } = useEnforcementSectionsData();
+
+  const isReadonly = useMemo(
+    () => enforcementOrder.order_progress?.id === OrderProgressEnum.ISSUED,
+    [enforcementOrder.order_progress]
+  );
 
   const defaultValues = useMemo<EnforcementFormType>(() => {
     if (enforcementOrder) {
@@ -156,6 +162,7 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
         <DrawerTitleBar
           title={enforcementOrder.order_number || "Edit Order"}
           isFormDirtyCheck
+          statusFlag={<EnforcementStatusFlag order={enforcementOrder} />}
         />
         <Box
           sx={{
@@ -179,7 +186,7 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
         </Box>
         <Stack
           /** 64px (DrawerTitleBar height) + 65px (DrawerActionBar height) + 64px (DrawerActionBarTop preview height) */
-          height={`calc(100vh - ${appHeaderHeight + 193}px)`}
+          height={`calc(100vh - ${appHeaderHeight + 193 - (isReadonly ? 65 : 0)}px)`}
           direction={"row"}
         >
           <Box
@@ -242,7 +249,7 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
           </Box>
         </Stack>
         <DrawerActionBarBottom
-          isShowActionBar={!!enforcementOrder}
+          isShowActionBar={!!enforcementOrder && !isReadonly}
           onDeleteAction={onDeleteOrder}
           onDeleteTitle="Delete Order"
           onDeleteDescription={`You are about to delete Order ${enforcementOrder.order_number}. Are you sure?`}

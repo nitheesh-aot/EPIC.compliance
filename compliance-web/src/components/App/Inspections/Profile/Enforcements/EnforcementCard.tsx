@@ -2,11 +2,11 @@ import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
-import { OrderStatusEnum } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
-import { Box, Chip, Grid, Stack, Typography } from "@mui/material";
+import { Box, Grid, Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useMemo } from "react";
+import EnforcementStatusFlag from "./EnforcementStatusFlag";
 
 const EnforcementCard = ({
   order,
@@ -109,15 +109,7 @@ const EnforcementCard = ({
           >
             {order?.order_number ?? warningLetter?.warning_letter_number}
           </Typography>
-          {order?.order_status &&
-            order.order_status.id === OrderStatusEnum.OPEN && (
-              <Chip
-                label={order?.order_status?.name ?? ""}
-                color="success"
-                size="small"
-                variant="outlined"
-              />
-            )}
+          <EnforcementStatusFlag order={order} warningLetter={warningLetter} />
         </Stack>
         <Stack>
           {requirementSourcesFormatted?.map((source, index) => {
