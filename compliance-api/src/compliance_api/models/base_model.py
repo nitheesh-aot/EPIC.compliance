@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Super class to handle all operations related to base model."""
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, Column, DateTime, String, asc
 from sqlalchemy.exc import DBAPIError, SQLAlchemyError
@@ -25,9 +25,12 @@ class BaseModel(db.Model):
 
     __abstract__ = True
 
-    created_date = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_date = Column(DateTime, default=datetime.now(timezone.utc), nullable=False)
     updated_date = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=True
+        DateTime,
+        default=datetime.now(timezone.utc),
+        onupdate=datetime.now(timezone.utc),
+        nullable=True,
     )
     created_by = Column(String(100), nullable=False)
     updated_by = Column(String(100), nullable=True)

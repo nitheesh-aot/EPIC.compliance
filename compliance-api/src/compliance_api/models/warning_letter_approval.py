@@ -2,7 +2,7 @@
 
 from enum import Enum
 
-from sqlalchemy import Column
+from sqlalchemy import Column, DateTime
 from sqlalchemy import Enum as SqlEnum
 from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import relationship
@@ -49,6 +49,7 @@ class WarningLetterApproval(BaseModelVersioned):
         nullable=True,
         comment="Status of the warning letter",
     )
+    approved_date = Column(DateTime(timezone=True), nullable=True)
     approval_status = Column(
         SqlEnum(WarningLetterApprovalStatusEnum),
         nullable=True,

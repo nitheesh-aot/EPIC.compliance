@@ -209,6 +209,7 @@ def _create_warning_letter_data(warning_letter):
             "office_name": OFFICE_NAME,
             "office_branch": OFFICE_BRANCH,
         },
+        "total_pages": 2,
     }
 
 
