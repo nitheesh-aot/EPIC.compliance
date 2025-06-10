@@ -41,10 +41,6 @@ export default function RouteItemsList() {
           path: "/admin/staff",
         },
         {
-          routeName: "Proponents",
-          path: "/admin/proponents",
-        },
-        {
           routeName: "Agencies",
           path: "/admin/agencies",
         },
