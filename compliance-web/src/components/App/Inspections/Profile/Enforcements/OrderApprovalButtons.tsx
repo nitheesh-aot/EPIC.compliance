@@ -10,11 +10,16 @@ import {
   useCreateOrderApproval,
   useFetchOrderApprovals,
   useUpdateOrderApprovalStatus,
+  useUpdateOrderStatus,
 } from "@/hooks/useInspectionOrders";
 import { StaffUser } from "@/models/Staff";
 import { OrderApproval } from "@/models/OrderApproval";
 import { useCurrentLoggedInUser } from "@/hooks/useAuthorization";
-import { APPROVAL_STATUS, STAFF_USER_POSITION } from "@/utils/constants";
+import {
+  APPROVAL_STATUS,
+  OrderStatusEnum,
+  STAFF_USER_POSITION,
+} from "@/utils/constants";
 import { OrderProgressEnum } from "@/utils/constants";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
@@ -133,6 +138,9 @@ const OrderApprovalButtons = ({
     });
   }, [setOpen, staffData, onSendForApprovalSubmitHandler, isPending]);
 
+  const { mutate: updateOrderStatus } =
+    useUpdateOrderStatus(refetchDataAndClose);
+
   const isInDeputyReview = useMemo(
     () =>
       inspectionOrder.order_progress?.id === OrderProgressEnum.DEPUTY_REVIEW,
@@ -166,9 +174,18 @@ const OrderApprovalButtons = ({
     [inspectionOrder]
   );
 
-  const isShowRescindButton = useMemo(
-    () => inspectionOrder?.order_progress?.id === OrderProgressEnum.ISSUED,
+  const isShowRescindCloseButton = useMemo(
+    () =>
+      inspectionOrder?.order_progress?.id === OrderProgressEnum.ISSUED &&
+      inspectionOrder.order_status?.id === OrderStatusEnum.OPEN,
     [inspectionOrder]
+  );
+
+  const isShowReopenButton = useMemo(
+    () =>
+      inspectionOrder?.order_status?.id === OrderStatusEnum.CLOSED &&
+      !isShowRescindCloseButton,
+    [inspectionOrder, isShowRescindCloseButton]
   );
 
   const handleApprovalsButtonClick = useCallback(
@@ -221,6 +238,52 @@ const OrderApprovalButtons = ({
     });
   }, [setOpen, inspectionOrder, refetchDataAndClose]);
 
+  const handleStatusButtonClick = useCallback(
+    (status: OrderStatusEnum) => {
+      let title, description, confirmButtonText: string | undefined;
+
+      if (status === OrderStatusEnum.CLOSED) {
+        title = "Close Order";
+        description = `You are about to close this Order ${inspectionOrder.order_number}.
+          Once closed, you can’t inspect against it. In order to inspect, you need to reopen it again.
+          Are you sure?`;
+        confirmButtonText = "Close Order";
+      } else if (status === OrderStatusEnum.RESCINDED) {
+        title = "Rescind Order";
+        description = `You are about to rescind this Order ${inspectionOrder.order_number}. Are you sure?`;
+        confirmButtonText = "Rescind Order";
+      } else if (status === OrderStatusEnum.OPEN) {
+        title = "Reopen Order";
+        description = `You are about to reopen Order ${inspectionOrder.order_number}. Once reopened, you can inspect against it. 
+          Are you sure?`;
+        confirmButtonText = "Reopen Order";
+      }
+      setOpen({
+        content: (
+          <ConfirmationModal
+            title={title ?? ""}
+            description={description ?? ""}
+            confirmButtonText={confirmButtonText}
+            onConfirm={() => {
+              updateOrderStatus({
+                inspectionOrderId: inspectionOrder.id ?? 0,
+                statusPayload: {
+                  status: status,
+                },
+              });
+            }}
+          />
+        ),
+      });
+    },
+    [
+      setOpen,
+      inspectionOrder.order_number,
+      inspectionOrder.id,
+      updateOrderStatus,
+    ]
+  );
+
   return (
     <>
       {isShowSendForApprovalButton && (
@@ -254,18 +317,28 @@ const OrderApprovalButtons = ({
       {isShowIssueButton && (
         <Button onClick={handleIssueButtonClick}>Issue Order</Button>
       )}
-      {isShowRescindButton && (
+      {isShowRescindCloseButton && (
         <Box sx={{ display: "inline-flex", gap: 2 }}>
           <Button
             color="secondary"
-            onClick={() => handleApprovalsButtonClick(true)}
+            onClick={() => handleStatusButtonClick(OrderStatusEnum.RESCINDED)}
           >
             Rescind Order
           </Button>
-          <Button onClick={() => handleApprovalsButtonClick(false)}>
+          <Button
+            onClick={() => handleStatusButtonClick(OrderStatusEnum.CLOSED)}
+          >
             Close Order
           </Button>
         </Box>
+      )}
+      {isShowReopenButton && (
+        <Button
+          color="secondary"
+          onClick={() => handleStatusButtonClick(OrderStatusEnum.OPEN)}
+        >
+          Reopen
+        </Button>
       )}
     </>
   );
