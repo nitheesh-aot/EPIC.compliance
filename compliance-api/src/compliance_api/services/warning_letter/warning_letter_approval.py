@@ -1,5 +1,7 @@
 """Service method to handle warning letter approval."""
 
+from datetime import datetime, timezone
+
 from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import WarningLetter as WarningLetterModel
 from compliance_api.models import WarningLetterApproval as WarningLetterApprovalModel
@@ -91,6 +93,8 @@ class WarningLetterApprovalService:
             raise UnprocessableEntityError(
                 f"Approval already in {status_to_be_updated.value} status"
             )
+        if status_to_be_updated == WarningLetterApprovalStatusEnum.APPROVED:
+            approval_status_data["approved_date"] = datetime.now(timezone.utc)
         with session_scope() as session:
             updated_approval = WarningLetterApprovalModel.update_approval(
                 approval_id=approval_id,
