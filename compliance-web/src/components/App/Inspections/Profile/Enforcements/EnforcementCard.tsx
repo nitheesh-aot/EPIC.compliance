@@ -2,11 +2,11 @@ import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
-import { OrderStatusEnum } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
-import { Box, Chip, Grid, Stack, Typography } from "@mui/material";
+import { Box, Grid, Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
+import EnforcementStatusFlag from "./EnforcementStatusFlag";
 
 const EnforcementCard = ({
   order,
@@ -80,6 +80,30 @@ const EnforcementCard = ({
     return result;
   }, [order, warningLetter, requirementEnforcements]);
 
+  const getSentForReviewDate = useCallback(() => {
+    let sentForReviewDate: string = "";
+    if (order?.order_approvals) {
+      sentForReviewDate = order.order_approvals?.[0]?.created_date ?? "";
+    }
+    if (warningLetter?.warning_letter_approvals) {
+      sentForReviewDate =
+        warningLetter.warning_letter_approvals?.[0]?.created_date ?? "";
+    }
+    return sentForReviewDate ? dateUtils.formatDate(sentForReviewDate) : "";
+  }, [order, warningLetter]);
+
+  const getApprovedByDate = useCallback(() => {
+    let approvedByDate: string = "";
+    if (order?.order_approvals) {
+      approvedByDate = order.order_approvals?.[0]?.approved_date ?? "";
+    }
+    if (warningLetter?.warning_letter_approvals) {
+      approvedByDate =
+        warningLetter.warning_letter_approvals?.[0]?.approved_date ?? "";
+    }
+    return approvedByDate ? dateUtils.formatDate(approvedByDate) : "";
+  }, [order, warningLetter]);
+
   return (
     <Box
       sx={{
@@ -109,15 +133,7 @@ const EnforcementCard = ({
           >
             {order?.order_number ?? warningLetter?.warning_letter_number}
           </Typography>
-          {order?.order_status &&
-            order.order_status.id === OrderStatusEnum.OPEN && (
-              <Chip
-                label={order?.order_status?.name ?? ""}
-                color="success"
-                size="small"
-                variant="outlined"
-              />
-            )}
+          <EnforcementStatusFlag order={order} warningLetter={warningLetter} />
         </Stack>
         <Stack>
           {requirementSourcesFormatted?.map((source, index) => {
@@ -146,15 +162,13 @@ const EnforcementCard = ({
           />
           <GridLabelValuePair
             label="Sent for Review"
-            value="Not Started"
+            value={getSentForReviewDate()}
             gridProps={{ xs: 3 }}
-            isChip
           />
           <GridLabelValuePair
             label="Approved by Deputy"
-            value="Not Started"
+            value={getApprovedByDate()}
             gridProps={{ xs: 3 }}
-            isChip
           />
           <GridLabelValuePair
             label="Date Issued"
@@ -163,10 +177,9 @@ const EnforcementCard = ({
                 ? dateUtils.formatDate(
                     (order || warningLetter)?.date_issued ?? ""
                   )
-                : "Not Started"
+                : ""
             }
             gridProps={{ xs: 6 }}
-            isChip={!(order || warningLetter)?.date_issued}
           />
         </Grid>
       </Box>

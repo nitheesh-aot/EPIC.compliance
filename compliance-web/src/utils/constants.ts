@@ -101,6 +101,11 @@ export enum OrderProgressEnum {
   ISSUED = "ISSUED",
 }
 
+export enum WarningLetterStatusEnum {
+  CREATED = "CREATED",
+  ISSUED = "ISSUED",
+}
+
 export enum WarningLetterProgressEnum {
   DRAFTING = "DRAFTING",
   DEPUTY_REVIEW = "DEPUTY_REVIEW",

@@ -9,4 +9,6 @@ export interface OrderApproval {
   order_id: number;
   order_status: OrderStatus;
   approved_by_id: number;
+  approved_date: string;
+  created_date: string;
 }

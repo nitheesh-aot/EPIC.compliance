@@ -41,6 +41,7 @@ describe("InspectionFileActions Component", () => {
       ir_status: undefined,
       case_file: undefined,
       project_status: undefined,
+      debrief_date: "2023-01-03",
     };
 
     // Set the mock inspection data in the query client

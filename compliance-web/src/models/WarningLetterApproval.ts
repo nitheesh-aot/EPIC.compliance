@@ -7,4 +7,6 @@ export interface WarningLetterApproval {
   id: number;
   warning_letter_id: number;
   approved_by_id: number;
+  approved_date: string;
+  created_date: string;
 }

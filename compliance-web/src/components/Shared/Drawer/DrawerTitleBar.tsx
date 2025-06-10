@@ -1,6 +1,6 @@
 import { theme } from "@/styles/theme";
 import { Close } from "@mui/icons-material";
-import { Box, Typography, IconButton } from "@mui/material";
+import { Box, Typography, IconButton, Stack } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
@@ -13,6 +13,7 @@ type DrawerTitleBarProps = {
   isFormDirtyCheck?: boolean;
   isDirtyManual?: boolean;
   customCloseFn?: () => void;
+  statusFlag?: React.ReactNode;
 };
 
 const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
@@ -20,6 +21,7 @@ const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
   isFormDirtyCheck,
   isDirtyManual,
   customCloseFn,
+  statusFlag,
 }) => {
   const { isOpen, setClose } = useDrawer();
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
@@ -73,9 +75,12 @@ const DrawerTitleBar: FC<DrawerTitleBarProps> = ({
         borderBottom: `1px solid ${BCDesignTokens.supportBorderColorInfo}`,
       }}
     >
-      <Typography variant="subtitle1" color="primary">
-        {title}
-      </Typography>
+      <Stack direction="row" alignItems="center" gap={1}>
+        <Typography variant="subtitle1" color="primary">
+          {title}
+        </Typography>
+        {statusFlag}
+      </Stack>
       <IconButton
         aria-label="close"
         onClick={handleClose}

@@ -128,6 +128,22 @@ const deleteInspectionOrder = ({
   });
 };
 
+const updateOrderStatus = ({
+  inspectionOrderId,
+  statusPayload,
+}: {
+  inspectionOrderId: number;
+  statusPayload: {
+    status: string;
+  };
+}) => {
+  return request({
+    url: `/orders/${inspectionOrderId}/status`,
+    method: "patch",
+    data: statusPayload,
+  });
+};
+
 export const useInspectionOrdersData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-orders", inspectionId],
@@ -195,6 +211,13 @@ export const useIssueOrder = (onSuccess: OnSuccessType) => {
 export const useDeleteInspectionOrder = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: deleteInspectionOrder,
+    onSuccess,
+  });
+};
+
+export const useUpdateOrderStatus = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: updateOrderStatus,
     onSuccess,
   });
 };
