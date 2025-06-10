@@ -16,7 +16,12 @@ B. Environmental Assessment (EA) Certificate {{project_details.eac_certificate}}
 </p>
 <p class="editor-paragraph" style="text-align: left;"><br></p>
 <p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">
-C. On {{inspection_details.start_date}} and {{inspection_details.end_date}}, the Environmental Assessment
+C. On
+{% if inspection_details.start_date == inspection_details.end_date %}
+ {{inspection_details.start_date}}
+{% else %}
+ {{inspection_details.start_date}} and {{inspection_details.end_date}}
+{% endif %}, the Environmental Assessment
  Office Compliance and Enforcement Branch (EAO CEB) conducted a {{inspection_details.inspection_type}}
   inspection of the Project. The inspection found that the {{project_details.proponent_label}} was not compliant
  with {{requirement_details.requirement_numbers}} with respect to {{requirement_details.requirement_summaries}}.
