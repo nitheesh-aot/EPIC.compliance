@@ -228,7 +228,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                         >
                           Title:
                         </Typography>
-                        <Typography variant="body2">
+                        <Typography variant="body2" fontWeight={700}>
                           {item.sourceTitle}
                         </Typography>
                       </Box>

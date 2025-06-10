@@ -191,6 +191,8 @@ class InspectionRecordService:
     def render(cls, inspection_id, inspection_record_id, output_format):
         """Preview inspection record."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
+        if output_format == "pdf":
+            ServiceUtils.access_check_update_for_inspection(inspection)
         inspection_record = ServiceUtils.inspection_record_exist_check(
             inspection_record_id
         )
@@ -223,7 +225,7 @@ class InspectionRecordService:
         response = DocGenService.render_template(
             "IR_TEMPLATE", preview_data, output_format
         )
-        return response
+        return response, inspection
 
 
 def _create_ir_object(ir_data, ir_status, inspection_id):

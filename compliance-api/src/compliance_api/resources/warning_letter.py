@@ -222,13 +222,15 @@ class WarningLetterPreview(Resource):
     def get(warning_letter_id):  # pylint: disable=no-self-use, unused-argument
         """Preview warning letter."""
         output_format = request.args.get("output_format", "html")
-        response = WarningLetterService.render(warning_letter_id, output_format)
+        response, warning_letter = WarningLetterService.render(
+            warning_letter_id, output_format
+        )
         if output_format == "pdf":
             return send_file(
                 BytesIO(response.content),
                 mimetype="application/pdf",
                 as_attachment=True,
-                download_name=f"{warning_letter_id}.pdf",
+                download_name=f"{warning_letter.warning_letter_number}.pdf",
             )
         return response.json(), HTTPStatus.OK
 

@@ -177,11 +177,13 @@ class WarningLetterService:
     def render(cls, warning_letter_id, output_format):
         """Preview warning letter."""
         warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
+        if output_format == "pdf":
+            ServiceUtils.access_check_update_for_inspection(warning_letter.inspection)
         warning_letter_data = _create_warning_letter_data(warning_letter)
         response = DocGenService.render_template(
             "WARNING_LETTER_TEMPLATE", warning_letter_data, output_format
         )
-        return response
+        return response, warning_letter
 
 
 def _create_warning_letter_data(warning_letter):
@@ -208,7 +210,7 @@ def _create_warning_letter_data(warning_letter):
             "website": department_details.website,
             "office_name": OFFICE_NAME,
             "office_branch": OFFICE_BRANCH,
-        }
+        },
     }
 
 
@@ -329,7 +331,7 @@ def _create_warning_letter_number(project_id: int, case_file_id: int) -> str:
     count = WarningLetterModel.get_count_by_project_nd_case_file_id(
         project_id, case_file_id
     )
-    serial_number = f"{count + 1:04}"
+    serial_number = f"{count + 1:03}"
     return f"{project_code}_{case_file.case_file_number}_WN{serial_number}"
 
 

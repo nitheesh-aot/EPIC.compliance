@@ -79,7 +79,7 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
       hidden: ["canceled", "closed"].includes(status?.toLowerCase()),
     },
     {
-      text: "Closed as note to file",
+      text: "Close as note to file",
       onClick: () => {
         // Handle closing inspection
         setOpen({
@@ -105,7 +105,7 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
       hidden: ["canceled", "closed"].includes(status?.toLowerCase()),
     },
     {
-      text: "Closed",
+      text: "Close",
       onClick: () => {
         // Handle closing inspection
         setOpen({
