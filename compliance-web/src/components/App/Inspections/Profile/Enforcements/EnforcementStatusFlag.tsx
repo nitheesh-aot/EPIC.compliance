@@ -10,14 +10,24 @@ const EnforcementStatusFlag = ({
   order?: InspectionOrder;
   warningLetter?: InspectionWarningLetter;
 }) => {
-  return order?.order_status &&
-  order.order_status.id === OrderStatusEnum.OPEN ? (
-    <Chip
-      label={order?.order_status?.name ?? ""}
-      color="success"
-      size="small"
-      variant="outlined"
-    />
+  return order?.order_status ? (
+    (order.order_status.id === OrderStatusEnum.OPEN && (
+      <Chip
+        label={order?.order_status?.name ?? ""}
+        color="success"
+        size="small"
+        variant="outlined"
+      />
+    )) ||
+      ((order.order_status.id === OrderStatusEnum.CLOSED ||
+        order.order_status.id === OrderStatusEnum.RESCINDED) && (
+        <Chip
+          label={order?.order_status?.name ?? ""}
+          color="error"
+          size="small"
+          variant="outlined"
+        />
+      ))
   ) : warningLetter?.status &&
     warningLetter.status.id === WarningLetterStatusEnum.ISSUED ? (
     <Chip
