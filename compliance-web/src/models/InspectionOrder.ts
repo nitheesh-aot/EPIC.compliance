@@ -1,4 +1,5 @@
 
+import { OrderApproval } from "./OrderApproval";
 import { StaffUser } from "./Staff";
 export interface InspectionOrder {
   issuing_officer?: StaffUser;
@@ -18,6 +19,7 @@ export interface InspectionOrder {
   order_requirement_maps?: OrderRequirementMap[];
   order_progress?: OrderProgress;
   order_status?: OrderStatus;
+  order_approvals?: OrderApproval[];
   is_active?: boolean;
 }
 

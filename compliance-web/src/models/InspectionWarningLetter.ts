@@ -1,4 +1,5 @@
 import { StaffUser } from "./Staff";
+import { WarningLetterApproval } from "./WarningLetterApproval";
 
 export interface WarningLetterStatus {
   id: string;
@@ -23,6 +24,7 @@ export interface InspectionWarningLetter {
   is_active?: boolean;
   progress?: WarningLetterProgress;
   status?: WarningLetterStatus;
+  warning_letter_approvals?: WarningLetterApproval[];
 }
 
 interface WarningLetterRequirementMap {
