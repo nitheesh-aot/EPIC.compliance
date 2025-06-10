@@ -47,17 +47,6 @@
         content: "";
       }
     }
-    {% endraw %}
-    {% if total_pages > 1 %}
-    {{ '@' }}page :first {
-      {{ '@' }}bottom-right {
-        content: "... 2";
-        font-style: italic;
-        font-size: 10pt;
-      }
-    }
-    {% endif %}
-    {% raw %}
     @page {
       size: letter;
       margin: 0.75in 1in 1.25in 1in;
@@ -75,15 +64,15 @@
 
     {% endraw %}
     /* ✅ Each of these must be at top-level — not inside @page! */
+    {% if total_pages and total_pages > 1 %}
     {% for i in range(2, total_pages) %}
     {{ '@' }}page :nth({{ i }}) {
       {{ '@' }}bottom-right {
         content: "... {{ i + 1 }}";
-        font-style: italic;
-        font-size: 10pt;
       }
     }
     {% endfor %}
+    {% endif %}
     {% raw %}
 
     body {
@@ -130,15 +119,6 @@
     }
 
     @media print {
-
-      /* .continuation {
-          position: running(continuation);
-          text-align: right;
-          font-style: italic;
-          margin-top: 1em;
-          font-size: 11pt;
-        } */
-
       .header {
         position: running(header);
         text-align: center;
@@ -165,6 +145,12 @@
         vertical-align: top;
         width: 25%;
       }
+      .first-page-continuation {
+        position: absolute;
+        bottom: 0.5em;
+        right: 0.5em;
+        z-index: 1;
+      }
 
       /* Page numbering */
       .pageNumber:before {
@@ -179,12 +165,16 @@
         content: counter(pages);
       }
     }
-    {% endraw %}
+    {% endraw %}`
   </style>
 </head>
 
 <body>
   <!-- First-page-only footer -->
+   {% if total_pages and total_pages > 1 %}
+   <div class="first-page-continuation">...2</div>
+   {% endif %}
+
   <div class="footer-first-page" id="footer-first-page">
     <table style="width: 100%; table-layout: fixed; border-collapse: collapse">
       <tr>
@@ -227,8 +217,6 @@
     {{warning_letter.content | safe | replace('style="white-space:
     pre-wrap;"', '')}}
   </div>
-  <!-- Continuation marker for 2nd+ pages -->
-  <!-- <div class="continuation"></div> -->
 </body>
 
 </html>
