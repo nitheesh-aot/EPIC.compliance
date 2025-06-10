@@ -280,7 +280,7 @@ class InspectionRecordPreview(Resource):
     ):  # pylint: disable=no-self-use, unused-argument
         """Preview inspection record."""
         output_format = request.args.get("output_format", "html")
-        response = InspectionRecordService.render(
+        response, inspection = InspectionRecordService.render(
             inspection_id, inspection_record_id, output_format
         )
         if output_format == "pdf":
@@ -288,6 +288,6 @@ class InspectionRecordPreview(Resource):
                 BytesIO(response.content),
                 mimetype="application/pdf",
                 as_attachment=True,
-                download_name=f"{inspection_record_id}.pdf",
+                download_name=f"{inspection.ir_number}.pdf",
             )
         return response.json(), HTTPStatus.OK

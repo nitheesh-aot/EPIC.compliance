@@ -41,7 +41,7 @@ const EnforcementDownloadPDFButton = ({
           ? await refetchOrderPDFData()
           : await refetchWarningLetterPDFData();
       if (result.data) {
-        downloadFile(result.data, `${fileNumber}-${Date.now()}.pdf`);
+        downloadFile(result.data, `${fileNumber}.pdf`);
       }
     } catch (error) {
       notify.error("Failed to download PDF");

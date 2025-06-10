@@ -211,11 +211,13 @@ class OrderService:
     def render(cls, order_id, output_format):
         """Preview order."""
         order = ServiceUtils.order_exist_check(order_id)
+        if output_format == "pdf":
+            ServiceUtils.access_check_update_for_inspection(order.inspection)
         order_data = _create_order_data(order.inspection, order)
         response = DocGenService.render_template(
             "ORDER_TEMPLATE", order_data, output_format
         )
-        return response
+        return response, order
 
 
 def _create_order_data(inspection, order):
@@ -362,7 +364,7 @@ def _create_order_number(project_id: int, case_file_id: int) -> str:
         raise UnprocessableEntityError("Given project and case file don't match")
 
     count = OrderModel.get_count_by_project_nd_case_file_id(project_id, case_file_id)
-    serial_number = f"{count + 1:04}"
+    serial_number = f"{count + 1:03}"
     return f"{project_code}_{case_file.case_file_number}_OR{serial_number}"
 
 

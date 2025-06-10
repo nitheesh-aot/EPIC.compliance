@@ -238,13 +238,13 @@ class OrderPreview(Resource):
     def get(order_id):  # pylint: disable=no-self-use, unused-argument
         """Preview order."""
         output_format = request.args.get("output_format", "html")
-        response = OrderService.render(order_id, output_format)
+        response, order = OrderService.render(order_id, output_format)
         if output_format == "pdf":
             return send_file(
                 BytesIO(response.content),
                 mimetype="application/pdf",
                 as_attachment=True,
-                download_name=f"{order_id}.pdf",
+                download_name=f"{order.order_number}.pdf",
             )
         return response.json(), HTTPStatus.OK
 

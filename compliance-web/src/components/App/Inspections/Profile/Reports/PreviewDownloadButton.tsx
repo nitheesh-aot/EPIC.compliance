@@ -67,7 +67,7 @@ const PreviewDownloadButton = () => {
       if (result.data) {
         downloadFile(
           result.data,
-          `IR-${inspectionData?.ir_number || "inspection"}-${Date.now()}.pdf`
+          `${inspectionData?.ir_number}.pdf`
         );
       }
     } catch (error) {
