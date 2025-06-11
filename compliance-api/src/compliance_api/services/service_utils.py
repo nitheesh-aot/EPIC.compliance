@@ -112,6 +112,7 @@ class ServiceUtils:
                 if re.match(r"^E\d{1,3}-\d{1,3}$", eac_certicate)
                 else "Regulated Party"
             ),
+            "has_certificate": bool(re.match(r"^E\d{1,3}-\d{1,3}$", eac_certicate)),
         }
 
     @staticmethod

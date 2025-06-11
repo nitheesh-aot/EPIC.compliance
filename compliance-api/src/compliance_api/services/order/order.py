@@ -236,6 +236,7 @@ def _create_order_data(inspection, order):
             "chapter": DEFAULT_CHAPTER,
             "act": section.act,
             "ea_certificate": project_details.get("eac_certificate", ""),
+            "has_certificate": project_details.get("has_certificate", False),
             "where_as": order.where_as,
             "now_therefore": order.now_therefore,
             "issued_date": (

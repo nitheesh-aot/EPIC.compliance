@@ -116,7 +116,7 @@
         (ACT)<br />
         AND<br />
         NON-COMPLIANCES<br />
-        WITH ENVIRONMENTAL ASSESSMENT CERTIFICATE {{order_details.ea_certificate}}<br />
+        WITH {% if order_details.has_certificate %}ENVIRONMENTAL ASSESSMENT CERTIFICATE {{order_details.ea_certificate}}{%else%}(reference Act or Exemption Order, as appropriate){% endif %}<br />
         <u>ORDER UNDER SECTION {{order_details.section}}</u>
     </div>
 
