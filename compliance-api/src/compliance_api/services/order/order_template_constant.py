@@ -4,6 +4,7 @@ WHERE_AS = """<p class="editor-paragraph" dir="ltr" style="text-align: left;"><b
             style="white-space: pre-wrap;">WHEREAS:</strong></b></p>
 <p class="editor-paragraph" style="text-align: left;"><br></p>
 <p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">
+{% if project_details.has_certificate %}
 A. {{project_details.name}} (Project) is a reviewable project under the </span><i>
 <em class="editor-text-italic" style="white-space: pre-wrap;">Environmental Assessment Act</em></i>
 <span style="white-space: pre-wrap;"> (the Act).</span></p>
@@ -15,8 +16,10 @@ B. Environmental Assessment (EA) Certificate {{project_details.eac_certificate}}
   with respect to {{requirement_details.requirement_summaries}}.</span>
 </p>
 <p class="editor-paragraph" style="text-align: left;"><br></p>
+{% endif %}
 <p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">
-C. On
+{% if project_details.has_certificate %}
+C. {% else %}A.{% endif %}. On
 {% if inspection_details.start_date == inspection_details.end_date %}
  {{inspection_details.start_date}}
 {% else %}
@@ -27,7 +30,7 @@ C. On
  with {{requirement_details.requirement_numbers}} with respect to {{requirement_details.requirement_summaries}}.
   The inspection findings are documented in Inspection Record {{inspection_details.ir_number}}.</span></p>
 <p class="editor-paragraph" style="text-align: left;"><br></p>
-<p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">D. Section
+<p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">{% if project_details.has_certificate %}D.{% else %}B.{% endif %}. Section
  {{order_details.section}} of the Act specifies that the Chief Executive Assessment Officer may order the
   {{project_details.proponent_label}} to</span></p><p class="editor-paragraph" style="text-align: left;"><br></p>
 <p class="editor-paragraph" dir="ltr" style="text-align: left;"><i><em class="editor-text-italic"
