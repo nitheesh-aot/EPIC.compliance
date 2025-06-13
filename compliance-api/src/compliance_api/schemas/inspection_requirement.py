@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inspection requirement Schema Schema."""
-from marshmallow import EXCLUDE, ValidationError, fields, post_dump, pre_dump, validates_schema
+from marshmallow import EXCLUDE, Schema, ValidationError, fields, post_dump, pre_dump, validates_schema
 from marshmallow_enum import EnumField
-from marshmallow import Schema
 
 from compliance_api.models import (
     EnforcementActionOptionEnum, ImageTypeEnum, InspectionReqDetailDocument, InspectionReqSourceDetail,
@@ -337,7 +336,6 @@ class InspectionReqDetailDocSchema(
 
 class OrderSchema(Schema):
     """OrderSchema."""
-    
     order_number = fields.Str(metadata={"description": "The order number"})
     id = fields.Int(metadata={"description": "The order id"})
     now_therefore = fields.Str(metadata={"description": "The now therefore"})
