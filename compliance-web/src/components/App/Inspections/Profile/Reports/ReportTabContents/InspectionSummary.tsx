@@ -83,7 +83,6 @@ const InspectionSummary = () => {
       },
     });
   };
-
   return (
     <>
       <IRBoxContainer
@@ -102,7 +101,7 @@ const InspectionSummary = () => {
           dangerouslySetInnerHTML={{ __html: inspectionScope || "" }}
         />
       </IRBoxContainer>
-      {isFinalReport && (
+      {isFinalReport && preliminaryReviewDetails && (
         <IRBoxContainer
           title="Preliminary Review Details"
           sx={{ mb: 1 }}

@@ -229,3 +229,10 @@ class Order(BaseModelVersioned):
             .filter(CaseFileModel.id.in_(case_file_ids), cls.is_deleted.is_(False))
             .all()
         )
+
+    @classmethod
+    def get_by_inspection_id(cls, inspection_id):
+        """Find all orders by inspection id."""
+        return cls.query.filter_by(
+            inspection_id=inspection_id, is_deleted=False, is_active=True
+        ).all()

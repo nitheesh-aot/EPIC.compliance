@@ -109,7 +109,7 @@ describe("InspectionFileActions Component", () => {
   it("handles Closed as note to file click", () => {
     mountComponent("open");
     cy.contains("button", "Actions").click();
-    cy.get("li[id='Closed as note to file']").click();
+    cy.get("li[id='Close as note to file']").click();
 
     // Verify the confirmation dialog opens
     cy.contains("Close Inspection as Note to File?").should("exist");
@@ -123,7 +123,7 @@ describe("InspectionFileActions Component", () => {
   it("handles Closed click", () => {
     mountComponent("open");
     cy.contains("button", "Actions").click();
-    cy.get("li[id='Closed']").last().click();
+    cy.get("li[id='Close']").last().click();
 
     // Verify the confirmation dialog opens
     cy.contains("Close Inspection?").should("exist");

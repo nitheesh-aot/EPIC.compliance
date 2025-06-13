@@ -1,5 +1,6 @@
 """Inspection Record Data Builder."""
 
+from compliance_api.exceptions import UnprocessableEntityError
 from compliance_api.models.appendix import Appendix as AppendixModel
 from compliance_api.models.department_detail import DepartmentDetail as DepartmentDetailModel
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
@@ -11,6 +12,12 @@ from compliance_api.models.inspection import IRStatusOption as IRStatusOptionMod
 from compliance_api.models.inspection_record import InspectionRecord as InspectionRecordModel
 from compliance_api.models.inspection_record import IRProgressEnum, IRStatusEnum
 from compliance_api.models.inspection_record_approval import InspectionRecordApproval as InspectionRecordApprovalModel
+from compliance_api.models.order import Order as OrderModel
+from compliance_api.models.order import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
+from compliance_api.models.order import OrderStatusEnum
+from compliance_api.models.warning_letter import WarningLetter as WarningLetterModel
+from compliance_api.models.warning_letter import \
+    WarningLetterInspectionRequirementMap as WarningLetterInspectionRequirementMapModel
 from compliance_api.services.inspection_record.ir_template_constant import (
     ACTION_REQUIRED_BY_RP, ENFORCEMENT_SUMMARY, FINDING_STATEMENT, INSPECTION_SCOPE, PRELIMINARY_REVIEW_DETAILS)
 from compliance_api.utils.template_renderer import render_template_with_data
@@ -335,8 +342,17 @@ class InspectionRecordDataBuilder:
         ):
             self.data["enforcement_summary"] = self.existing_ir.enforcement_summary
             return self
+        #  Only Issued Orders are required to be shown in the enforcement summary at Preliminary level
         if self.ir_status == IRStatusEnum.PRELIMINARY.value:
-            self.data["enforcement_summary"] = None
+            summary_lines = (
+                self._generate_enforcement_summary_lines_for_special_actions(
+                    EnforcementActionOptionEnum.ORDER, IRStatusEnum.PRELIMINARY.value
+                )
+            )
+            if summary_lines:
+                self.data["enforcement_summary"] = (
+                    f"<p class='editor-paragraph' dir='ltr'>{'</br>'.join(summary_lines)}</p>"
+                )
             #  Order needs to be checked and returned from here
         elif self.ir_status == IRStatusEnum.FINAL.value:
             if not self.requirements:
@@ -346,22 +362,38 @@ class InspectionRecordDataBuilder:
             grouped_enforcementactions = self._get_requirements_by_enforcement_action(
                 self.requirements
             )
-            valid_actions = {
+            #  Actions that can be applied to individual requirements
+            valid_actions_for_individual_requirements = {
                 EnforcementActionOptionEnum.NOTICE_OF_NON_COMPLIANCE,
-                EnforcementActionOptionEnum.ORDER,
                 EnforcementActionOptionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY,
                 EnforcementActionOptionEnum.REFERRAL_TO_ANOTHER_AGENCY,
+            }
+            #  Actions that are mapped to multiple requirements
+            special_actions = {
                 EnforcementActionOptionEnum.WARNING_LETTER,
+                EnforcementActionOptionEnum.ORDER,
             }
             enforcement_summary_lines = []
             for action_id, requirements in grouped_enforcementactions.items():
                 for requirement in requirements:
-                    if EnforcementActionOptionEnum(action_id) in valid_actions:
+                    if (
+                        EnforcementActionOptionEnum(action_id)
+                        in valid_actions_for_individual_requirements
+                    ):
                         summary_line = self._generate_enforcement_summary_lines(
                             EnforcementActionOptionEnum(action_id), requirement
                         )
                         if summary_line:
                             enforcement_summary_lines.append(summary_line)
+                for action_id in special_actions:
+                    summary_lines = (
+                        self._generate_enforcement_summary_lines_for_special_actions(
+                            EnforcementActionOptionEnum(action_id),
+                            IRStatusEnum.FINAL.value,
+                        )
+                    )
+                    if summary_lines:
+                        enforcement_summary_lines.extend(summary_lines)
             # Add a line for Regulatory Considerations in the requirements
             if any(
                 req.req_type == InspectionRequirementTypeEnum.REG
@@ -466,6 +498,97 @@ class InspectionRecordDataBuilder:
         """Return the final object."""
         return self.data
 
+    def _generate_enforcement_summary_lines_for_special_actions(
+        self, action, ir_status_id
+    ):
+        """Generate enforcement summary lines for special actions."""
+        #  Object map to handle both Orders and Warning letters using single method
+        object_map = {
+            EnforcementActionOptionEnum.ORDER: {
+                "template": "ENFORCEMENT_SUMMARY.ORDER",
+                "template_data": ENFORCEMENT_SUMMARY.get("ORDER"),
+                "get_map_method": OrderInspectionRequirementMapModel.get_by_order_id,
+            },
+            EnforcementActionOptionEnum.WARNING_LETTER: {
+                "template": "ENFORCEMENT_SUMMARY.WARNING_LETTER",
+                "template_data": ENFORCEMENT_SUMMARY.get("WARNING_LETTER"),
+                "get_map_method": WarningLetterInspectionRequirementMapModel.get_by_warning_letter_id,
+            },
+        }
+        results = []
+        if action == EnforcementActionOptionEnum.ORDER:
+            items = OrderModel.get_by_inspection_id(self.inspection.id)
+            if ir_status_id == IRStatusEnum.PRELIMINARY.value:
+                items = [
+                    item
+                    for item in items
+                    if item.order_status == OrderStatusEnum.ISSUED
+                ]
+        if action == EnforcementActionOptionEnum.WARNING_LETTER:
+            items = WarningLetterModel.get_by_inspection_id(self.inspection.id)
+        if len(items) == 0:
+            return None
+        for item in items:
+            requirement_maps = object_map[action]["get_map_method"](item.id)
+            requirements = [
+                requirement_map.inspection_requirement
+                for requirement_map in requirement_maps
+            ]
+            grouped_requirements = {}
+            for requirement in requirements:
+                condition_lines = []
+                if len(requirement.requirement_source_details) == 0:
+                    raise UnprocessableEntityError(
+                        f"Requirement {requirement.sort_order} doesn't have any requirement source details"
+                    )
+                data_to_be_rendered = self._get_basic_data_for_enforcement_summary(
+                    requirement
+                )
+                req_source_name = data_to_be_rendered["req_source_name"]
+                number = data_to_be_rendered["number"]
+                if req_source_name not in grouped_requirements:
+                    grouped_requirements[req_source_name] = []
+                grouped_requirements[req_source_name].append({"number": number})
+            for source_name, reqs in grouped_requirements.items():
+                numbers = ", ".join(req["number"] for req in reqs)
+                condition_lines.append(f"{numbers} of {source_name}")
+                data_to_be_rendered["condition_lines"] = condition_lines
+                if action == EnforcementActionOptionEnum.ORDER:
+                    data_to_be_rendered["order_no"] = item.order_number
+                    data_to_be_rendered["section_no"] = item.section.name
+                if action == EnforcementActionOptionEnum.WARNING_LETTER:
+                    data_to_be_rendered["warning_letter_no"] = (
+                        item.warning_letter_number
+                    )
+                results.append(
+                    render_template_with_data(
+                        object_map[action]["template"],
+                        object_map[action]["template_data"],
+                        data_to_be_rendered,
+                    )
+                )
+            return results
+
+    def _get_basic_data_for_enforcement_summary(self, requirement):
+        """Get the basic data for enforcement summary."""
+        first_req_detail = requirement.requirement_source_details[0]
+        number = ServiceUtils.get_requirement_source_number_field(first_req_detail)
+        req_source_name = first_req_detail.requirement_source.name
+        #  Build the project details if not already built
+        if self.data.get("project_details", None) is None:
+            self.build_project_details()
+        regulated_party = self.data["project_details"].get("proponent")
+        eac = self.data["project_details"].get("eac_certificate")
+        data_to_be_rendered = {
+            "regulated_party": regulated_party,
+            "number": number,
+            "req_source_name": req_source_name,
+            "eac": eac,
+            "req_sort_order": requirement.sort_order,
+            "act": "Environmental Assessment Act (2018)",
+        }
+        return data_to_be_rendered
+
     def _get_approval(self):
         """Get the latest approval for the inspection record and the inspection record."""
         inspection_record = self.existing_ir
@@ -496,23 +619,9 @@ class InspectionRecordDataBuilder:
                 {"req_sort_order": requirement.sort_order},
             )
         if requirement.requirement_source_details:
-            #  Identify the first requirement source detail
-            first_rq_detail = requirement.requirement_source_details[0]
-            number = ServiceUtils.get_requirement_source_number_field(first_rq_detail)
-            req_source_name = first_rq_detail.requirement_source.name
-            #  Build the project details if not already built
-            if self.data.get("project_details", None) is None:
-                self.build_project_details()
-            regulated_party = self.data["project_details"].get("proponent")
-            eac = self.data["project_details"].get("eac_certificate")
-            data_to_be_rendered = {
-                "regulated_party": regulated_party,
-                "number": number,
-                "req_source_name": req_source_name,
-                "eac": eac,
-                "req_sort_order": requirement.sort_order,
-                "act": "Environmental Assessment Act (2018)",
-            }
+            data_to_be_rendered = self._get_basic_data_for_enforcement_summary(
+                requirement
+            )
             if action == EnforcementActionOptionEnum.NOTICE_OF_NON_COMPLIANCE:
                 return render_template_with_data(
                     "ENFORCEMENT_SUMMARY.NOTICE_OF_NON_COMPLIANCE",

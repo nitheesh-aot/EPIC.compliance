@@ -68,10 +68,10 @@ ENFORCEMENT_SUMMARY = {
     "NOTICE_OF_NON_COMPLIANCE": """<span>{{ regulated_party }} is not compliant with {{ number }} of
      {{ req_source_name }} of {{ eac }}. {{ regulated_party }} has been issued a Notice of Non-Compliance. See
      Requirement {{ req_sort_order }} for further information.</span>""",
-    "WARNING_LETTER": """<span>{{ regulated_party }} is not compliant with {{ number }} of
-     {{ req_source_name }} of {{ eac }}. See Appendix X for a Letter of Warning for the non-compliances
+    "WARNING_LETTER": """<span>{{ regulated_party }} is not compliant with {{ ','.join(condition_lines)}}
+     of {{ eac }}. See Appendix X for a Letter of Warning for the non-compliances
       {{ warning_letter_no }}. See Requirement {{ req_sort_order }} for further information.</span>""",
-    "ORDER": """<span>In Addition, {{ regulated_party }} is not compliant with {{ number }} of {{ req_source_name }}
+    "ORDER": """<span>In Addition, {{ regulated_party }} is not compliant with {{ ','.join(condition_lines)}}
      of {{ eac }}. See Appendix X for an Order {{ order_no }} issued under {{ section_no }} of the {{ act }}.
      See Requirement {{ req_sort_order }} for further information</span>""",
     "ADMINISTRATIVE_PENALTY": """<span>In Addition, the findings for Requirement {{ req_sort_order }}

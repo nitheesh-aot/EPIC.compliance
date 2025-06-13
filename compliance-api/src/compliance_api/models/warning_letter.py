@@ -206,7 +206,7 @@ class WarningLetter(BaseModelVersioned):
         """Find all warning letters by inspection id."""
         return cls.query.filter_by(
             inspection_id=inspection_id, is_deleted=False, is_active=True
-        ).first()
+        ).all()
 
     @classmethod
     def get_by_warning_letter_number(cls, warning_letter_number):
