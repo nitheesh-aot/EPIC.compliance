@@ -334,8 +334,10 @@ class InspectionReqDetailDocSchema(
     document_type = fields.Nested(KeyValueSchema)
     appendix = fields.Nested(AppendixSchema)
 
+
 class OrderSchema(Schema):
     """OrderSchema."""
+
     order_number = fields.Str(metadata={"description": "The order number"})
     id = fields.Int(metadata={"description": "The order id"})
     now_therefore = fields.Str(metadata={"description": "The now therefore"})
