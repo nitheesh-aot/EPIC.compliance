@@ -104,7 +104,6 @@ class Appendix(Resource):
     @API.response(code=200, model=appendix_list_model, description="Success")
     @API.response(400, "Bad Request")
     @API.response(404, "Not Found")
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def patch(appendix_id):
         """Update an Appendix by id."""
         appendix_data = AppendixCreateSchema().load(API.payload)
@@ -118,7 +117,6 @@ class Appendix(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Delete an appendix by id")
     @API.response(code=200, model=appendix_list_model, description="Deleted")
     @API.response(404, "Not Found")
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER, PermissionEnum.ADMIN])
     def delete(appendix_id):
         """Delete an appendix by id."""
         deleted_appendix = AppendixService.delete(appendix_id)

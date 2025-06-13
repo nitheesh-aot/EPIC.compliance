@@ -119,7 +119,6 @@ class InspectionRequirement(Resource):
 
     @staticmethod
     @auth.require
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER])
     @ApiHelper.swagger_decorators(
         API, endpoint_description="Delete a Inspection requirement by id"
     )

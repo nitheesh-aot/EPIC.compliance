@@ -14,7 +14,7 @@ from compliance_api.models.inspection_record import IRProgressEnum, IRStatusEnum
 from compliance_api.models.inspection_record_approval import InspectionRecordApproval as InspectionRecordApprovalModel
 from compliance_api.models.order import Order as OrderModel
 from compliance_api.models.order import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
-from compliance_api.models.order import OrderStatusEnum
+from compliance_api.models.order import OrderProgressEnum
 from compliance_api.models.warning_letter import WarningLetter as WarningLetterModel
 from compliance_api.models.warning_letter import \
     WarningLetterInspectionRequirementMap as WarningLetterInspectionRequirementMapModel
@@ -342,17 +342,14 @@ class InspectionRecordDataBuilder:
         ):
             self.data["enforcement_summary"] = self.existing_ir.enforcement_summary
             return self
+        enforcement_summary_lines = []
         #  Only Issued Orders are required to be shown in the enforcement summary at Preliminary level
         if self.ir_status == IRStatusEnum.PRELIMINARY.value:
-            summary_lines = (
+            enforcement_summary_lines = (
                 self._generate_enforcement_summary_lines_for_special_actions(
                     EnforcementActionOptionEnum.ORDER, IRStatusEnum.PRELIMINARY.value
                 )
             )
-            if summary_lines:
-                self.data["enforcement_summary"] = (
-                    f"<p class='editor-paragraph' dir='ltr'>{'</br>'.join(summary_lines)}</p>"
-                )
             #  Order needs to be checked and returned from here
         elif self.ir_status == IRStatusEnum.FINAL.value:
             if not self.requirements:
@@ -373,7 +370,6 @@ class InspectionRecordDataBuilder:
                 EnforcementActionOptionEnum.WARNING_LETTER,
                 EnforcementActionOptionEnum.ORDER,
             }
-            enforcement_summary_lines = []
             for action_id, requirements in grouped_enforcementactions.items():
                 for requirement in requirements:
                     if (
@@ -402,22 +398,22 @@ class InspectionRecordDataBuilder:
                 enforcement_summary_lines.append(
                     "<p>See Regulatory Considerations Section for additional information.</p>"
                 )
-            if len(enforcement_summary_lines) > 0:
-                if not self.data.get("project_details"):
-                    self.build_project_details()
-                enforcement_summary_lines.append(
-                    render_template_with_data(
-                        "ENFORCEMENT_SUMMARY.DEFAULT",
-                        ENFORCEMENT_SUMMARY.get("DEFAULT"),
-                        {
-                            "project_name": self.data["project_details"].get("name"),
-                            "act": "Environmental Assessment Act (2018)",
-                        },
-                    )
+        if len(enforcement_summary_lines) > 0:
+            if not self.data.get("project_details"):
+                self.build_project_details()
+            enforcement_summary_lines.append(
+                render_template_with_data(
+                    "ENFORCEMENT_SUMMARY.DEFAULT",
+                    ENFORCEMENT_SUMMARY.get("DEFAULT"),
+                    {
+                        "project_name": self.data["project_details"].get("name"),
+                        "act": "Environmental Assessment Act (2018)",
+                    },
                 )
-                self.data["enforcement_summary"] = (
-                    f"<p class='editor-paragraph' dir='ltr'>{'</br>'.join(enforcement_summary_lines)}</p>"
-                )
+            )
+            self.data["enforcement_summary"] = (
+                f"<p class='editor-paragraph' dir='ltr'>{'</br>'.join(enforcement_summary_lines)}</p>"
+            )
         return self
 
     def build_action_required_by_rp(self):
@@ -522,7 +518,7 @@ class InspectionRecordDataBuilder:
                 items = [
                     item
                     for item in items
-                    if item.order_status == OrderStatusEnum.ISSUED
+                    if item.order_progress == OrderProgressEnum.ISSUED
                 ]
         if action == EnforcementActionOptionEnum.WARNING_LETTER:
             items = WarningLetterModel.get_by_inspection_id(self.inspection.id)

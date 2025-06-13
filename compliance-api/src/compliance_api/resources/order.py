@@ -145,7 +145,6 @@ class Order(Resource):
 
     @staticmethod
     @auth.require
-    @auth.has_one_of_roles([PermissionEnum.SUPERUSER])
     @ApiHelper.swagger_decorators(API, endpoint_description="Delete an Order by id")
     @API.response(code=204, description="Success")
     @API.response(404, "Not Found")

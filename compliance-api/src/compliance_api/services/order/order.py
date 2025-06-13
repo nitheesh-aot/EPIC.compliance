@@ -118,6 +118,7 @@ class OrderService:
     def delete_order(cls, order_id: int) -> OrderModel:
         """Delete an order by ID."""
         order = ServiceUtils.order_exist_check(order_id)
+        ServiceUtils.access_check_update_for_inspection(order.inspection)
         if order.order_status == OrderStatusEnum.OPEN:
             raise UnprocessableEntityError(
                 "Order cannot be deleted as it is in OPEN status"
