@@ -74,7 +74,9 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
   appendixList,
 }) => {
   const { data: requirementSourceList } = useRequirementSourcesData();
-  const { data: orderList } = useInspectionOrdersData(inspectionId);
+  const { data: orderList } = useInspectionOrdersData(inspectionId, {
+    filterOpenOrders: true,
+  });
 
   const defaultValues = useMemo<RequirementSourceFormData>(() => {
     return (
