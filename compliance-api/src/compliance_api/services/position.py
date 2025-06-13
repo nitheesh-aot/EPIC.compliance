@@ -9,4 +9,4 @@ class PositionService:
     @classmethod
     def get_all_positions(cls):
         """Get all positions."""
-        return PositionModel.get_all()
+        return PositionModel.get_all(sort_by="sort_order")

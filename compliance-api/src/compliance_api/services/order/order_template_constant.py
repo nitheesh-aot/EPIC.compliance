@@ -30,7 +30,8 @@ C. {% else %}A.{% endif %}. On
  with {{requirement_details.requirement_numbers}} with respect to {{requirement_details.requirement_summaries}}.
   The inspection findings are documented in Inspection Record {{inspection_details.ir_number}}.</span></p>
 <p class="editor-paragraph" style="text-align: left;"><br></p>
-<p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">{% if project_details.has_certificate %}D.{% else %}B.{% endif %}. Section
+<p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">
+{% if project_details.has_certificate %}D.{% else %}B.{% endif %}. Section
  {{order_details.section}} of the Act specifies that the Chief Executive Assessment Officer may order the
   {{project_details.proponent_label}} to</span></p><p class="editor-paragraph" style="text-align: left;"><br></p>
 <p class="editor-paragraph" dir="ltr" style="text-align: left;"><i><em class="editor-text-italic"
