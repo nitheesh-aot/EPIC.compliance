@@ -31,6 +31,7 @@ export const REGEX_PHONE_NUMBER = /^\(\d{3}\) \d{3}-\d{4}$/;
 
 export enum RequirementSourceEnum {
   SCHEDULE_B = "1",
+  ORDER = "2",
   EAC = "3",
   CPD = "4",
   ACT2018 = "5",

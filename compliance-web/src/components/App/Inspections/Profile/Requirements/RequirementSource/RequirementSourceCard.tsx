@@ -66,6 +66,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
     const isCondition = isRequirementSourceCondition(
       requirementSource?.id ?? ""
     );
+    const isOrder = requirementSource?.id === RequirementSourceEnum.ORDER;
 
     return (
       <Accordion
@@ -107,6 +108,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
             <Typography variant="body2">
               <strong>
                 {requirementSource?.name}
+                {isOrder && ` — ${data[0].order?.order_number ?? ""}`}
                 {requirementSource?.id === RequirementSourceEnum.EACA &&
                   ` #${data[0].sourceAmendmentNumber}`}
               </strong>
@@ -179,7 +181,9 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                         </Tooltip>
                       </Box>
                       <Tooltip
-                        title="Add an extract from a management plan or other referenced document to support this requirement"
+                        title={`Add an extract from ${
+                          !isOrder ? "a management plan or" : ""
+                        } other document to support this requirement`}
                         arrow
                       >
                         <Button
@@ -198,42 +202,45 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                             },
                           }}
                         >
-                          Management Plan / Other Document
+                          {isOrder
+                            ? "Other Document"
+                            : "Management Plan / Other Document"}
                         </Button>
                       </Tooltip>
                     </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: "1rem",
-                        marginBottom: ".5rem",
-                      }}
-                    >
-                      <Box>
-                        <Typography
-                          variant="subtitle2"
-                          color={BCDesignTokens.typographyColorPlaceholder}
-                        >
-                          {isCondition ? "Condition #:" : "Section #:"}
-                        </Typography>
-                        <Typography variant="body2" fontWeight={700}>
-                          {item.sourceNumber}
-                        </Typography>
+                    {!isOrder && (
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          gap: "1rem",
+                        }}
+                      >
+                        <Box>
+                          <Typography
+                            variant="subtitle2"
+                            color={BCDesignTokens.typographyColorPlaceholder}
+                          >
+                            {isCondition ? "Condition #:" : "Section #:"}
+                          </Typography>
+                          <Typography variant="body2" fontWeight={700}>
+                            {item.sourceNumber}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography
+                            variant="subtitle2"
+                            color={BCDesignTokens.typographyColorPlaceholder}
+                          >
+                            Title:
+                          </Typography>
+                          <Typography variant="body2" fontWeight={700}>
+                            {item.sourceTitle}
+                          </Typography>
+                        </Box>
                       </Box>
-                      <Box>
-                        <Typography
-                          variant="subtitle2"
-                          color={BCDesignTokens.typographyColorPlaceholder}
-                        >
-                          Title:
-                        </Typography>
-                        <Typography variant="body2" fontWeight={700}>
-                          {item.sourceTitle}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box>
+                    )}
+                    <Box sx={{ marginTop: ".5rem" }}>
                       <Typography
                         variant="subtitle2"
                         color={BCDesignTokens.typographyColorPlaceholder}

@@ -5,6 +5,7 @@ import {
   InspectionOrderAPIData,
 } from "@/models/InspectionOrder";
 import { OrderApproval } from "@/models/OrderApproval";
+import { OrderStatusEnum } from "@/utils/constants";
 
 const fetchInspectionOrders = (
   inspectionId: number
@@ -144,10 +145,21 @@ const updateOrderStatus = ({
   });
 };
 
-export const useInspectionOrdersData = (inspectionId: number) => {
+export const useInspectionOrdersData = (
+  inspectionId: number,
+  { filterOpenOrders = false }: { filterOpenOrders?: boolean } = {}
+) => {
   return useQuery({
     queryKey: ["inspection-orders", inspectionId],
     queryFn: () => fetchInspectionOrders(inspectionId),
+    select: (data) => {
+      if (filterOpenOrders) {
+        return data.filter(
+          (order) => order.order_status?.id === OrderStatusEnum.OPEN
+        );
+      }
+      return data;
+    },
     enabled: !!inspectionId,
     staleTime: Infinity,
   });

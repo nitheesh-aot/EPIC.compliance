@@ -33,6 +33,7 @@ describe("RequirementSourceModal", () => {
       <QueryClientProvider client={queryClient}>
         <RequirementSourceModal
           onSubmit={cy.stub().as("onSubmit")}
+          inspectionId={1}
           requirementSourceFormData={formData}
           requirementSource={requirementSource ?? mockRequirementSourceList[0]}
         />

@@ -111,6 +111,7 @@ export const formatRequirementAPIData = (
           title: item.sourceTitle ?? "",
           description: item.description?.html ?? "",
           appendix_id: item.appendix?.id ?? undefined,
+          order_id: item.order?.id ?? undefined,
           documents: [],
         };
         if (item.dbId) {
@@ -199,6 +200,7 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
       sourceNumber: item.section_number ?? item.condition_number,
       sourceTitle: item.title,
       sourceAmendmentNumber: item.amendment_number,
+      order: item.order,
       description: { html: item.description, text: item.description },
       relatedDocuments: relatedDocuments,
     };

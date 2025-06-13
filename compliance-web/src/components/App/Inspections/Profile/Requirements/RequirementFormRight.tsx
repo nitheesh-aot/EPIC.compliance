@@ -137,6 +137,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       content: (
         <RequirementSourceModal
           onSubmit={handleOnAddSubmit}
+          inspectionId={inspectionId}
           appendixList={appendixList}
         />
       ),
@@ -149,6 +150,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       content: (
         <RequirementSourceModal
           onSubmit={handleOnEditSubmit}
+          inspectionId={inspectionId}
           requirementSourceFormData={data}
           appendixList={appendixList}
         />
@@ -199,7 +201,9 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       content: (
         <RequirementSourceModal
           onSubmit={handleOnAddSubmit}
+          inspectionId={inspectionId}
           requirementSource={data.requirementSource}
+          order={data.order}
           appendixList={appendixList}
         />
       ),
