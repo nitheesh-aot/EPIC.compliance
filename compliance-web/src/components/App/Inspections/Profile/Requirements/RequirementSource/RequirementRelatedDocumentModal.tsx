@@ -70,6 +70,9 @@ const RequirementRelatedDocumentModal: React.FC<
     requirementSourceData.requirementSource?.id ===
     RequirementSourceEnum.SCHEDULE_B;
 
+  const isOrder =
+    requirementSourceData.requirementSource?.id === RequirementSourceEnum.ORDER;
+
   const defaultValues =
     useMemo<RequirementRelatedDocumentSectionFormData>(() => {
       const defaultData: RequirementRelatedDocumentSectionFormData = {
@@ -177,22 +180,31 @@ const RequirementRelatedDocumentModal: React.FC<
               borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
             }}
           >
-            <Box width="40%" display="flex" flexDirection="column" gap={0.5}>
+            <Box
+              width={isOrder ? "100%" : "40%"}
+              display="flex"
+              flexDirection="column"
+              gap={0.5}
+            >
               <Typography variant="caption" fontWeight={700}>
                 Title:
               </Typography>
               <Typography variant="body2">
                 {requirementSourceData.requirementSource?.name}
+                {isOrder &&
+                  ` — ${requirementSourceData.order?.order_number ?? ""}`}
               </Typography>
             </Box>
-            <Box display="flex" flexDirection="column" gap={0.5}>
-              <Typography variant="caption" fontWeight={700}>
-                Condition #:
-              </Typography>
-              <Typography variant="body2">
-                {requirementSourceData.sourceNumber}
-              </Typography>
-            </Box>
+            {!isOrder && (
+              <Box display="flex" flexDirection="column" gap={0.5}>
+                <Typography variant="caption" fontWeight={700}>
+                  Condition #:
+                </Typography>
+                <Typography variant="body2">
+                  {requirementSourceData.sourceNumber}
+                </Typography>
+              </Box>
+            )}
           </Box>
           <ControlledAutoComplete
             name="relatedDocument"

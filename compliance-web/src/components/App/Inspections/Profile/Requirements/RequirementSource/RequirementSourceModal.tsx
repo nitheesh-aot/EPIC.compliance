@@ -14,11 +14,15 @@ import { RequirementSourceEnum } from "@/utils/constants";
 import { isRequirementSourceCondition } from "../RequirementUtils";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 import { Appendix } from "@/models/Appendix";
+import { InspectionOrder } from "@/models/InspectionOrder";
+import { useInspectionOrdersData } from "@/hooks/useInspectionOrders";
 
 type RequirementSourceModalProps = {
   onSubmit: (data: RequirementSourceFormData) => void;
+  inspectionId: number;
   requirementSourceFormData?: RequirementSourceFormData;
   requirementSource?: RequirementSource;
+  order?: InspectionOrder;
   appendixList?: Appendix[];
 };
 
@@ -30,6 +34,15 @@ const requirementSourceFormSchema = yup.object().shape({
   appendix: yup.object<Appendix>().nullable(),
   sourceTitle: yup.string().nullable(),
   sourceAmendmentNumber: yup.string().nullable(),
+  order: yup
+    .object<InspectionOrder>()
+    .nullable()
+    .when("requirementSource", {
+      is: (source: RequirementSource) =>
+        source?.id === RequirementSourceEnum.ORDER,
+      then: (schema) => schema.required("Order is required"),
+      otherwise: (schema) => schema.nullable(),
+    }),
   description: yup
     .object({
       html: yup.string().required("Description is required"),
@@ -54,21 +67,24 @@ const initFormData: RequirementSourceFormData = {
 
 const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
   onSubmit,
+  inspectionId,
   requirementSourceFormData,
   requirementSource,
+  order,
   appendixList,
 }) => {
   const { data: requirementSourceList } = useRequirementSourcesData();
+  const { data: orderList } = useInspectionOrdersData(inspectionId);
 
   const defaultValues = useMemo<RequirementSourceFormData>(() => {
-    if (requirementSource) {
-      return {
+    return (
+      requirementSourceFormData ?? {
         ...initFormData,
-        requirementSource,
-      };
-    }
-    return requirementSourceFormData ?? initFormData;
-  }, [requirementSourceFormData, requirementSource]);
+        requirementSource: requirementSource ?? undefined,
+        order: order ?? undefined,
+      }
+    );
+  }, [requirementSourceFormData, requirementSource, order]);
 
   const methods = useForm<RequirementSourceSchemaType>({
     resolver: yupResolver(requirementSourceFormSchema),
@@ -83,6 +99,22 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
     name: "requirementSource",
     defaultValue: getValues("requirementSource") ?? undefined,
   }) as RequirementSource;
+
+  const selectedOrder = useWatch({
+    control,
+    name: "order",
+    defaultValue: getValues("order") ?? undefined,
+  }) as InspectionOrder;
+
+  useEffect(() => {
+    if (selectedOrder?.now_therefore) {
+      const newValue = {
+        html: selectedOrder.now_therefore,
+        text: selectedOrder.now_therefore,
+      };
+      methods.setValue("description", newValue);
+    }
+  }, [selectedOrder, methods]);
 
   useEffect(() => {
     reset(defaultValues);
@@ -118,6 +150,18 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
               disabled={!!requirementSourceFormData || !!requirementSource}
               isRequired={true}
             />
+            {selectedRequirementSource?.id === RequirementSourceEnum.ORDER && (
+              <ControlledAutoComplete
+                name="order"
+                label="Order Number"
+                options={orderList ?? []}
+                getOptionLabel={(option) => option.order_number ?? ""}
+                getOptionKey={(option) => option.id ?? ""}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                disabled={!!requirementSourceFormData || !!order}
+                isRequired={true}
+              />
+            )}
             <ControlledAutoComplete
               name="appendix"
               label="Appendix"
@@ -135,20 +179,26 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
                 fullWidth
               />
             )}
-            <Stack direction={"row"} gap={2}>
-              <ControlledTextField
-                name="sourceNumber"
-                label={
-                  isRequirementSourceCondition(
-                    selectedRequirementSource?.id ?? ""
-                  )
-                    ? "Condition #"
-                    : "Section #"
-                }
-                fullWidth
-              />
-              <ControlledTextField name="sourceTitle" label="Title" fullWidth />
-            </Stack>
+            {selectedRequirementSource?.id !== RequirementSourceEnum.ORDER && (
+              <Stack direction={"row"} gap={2}>
+                <ControlledTextField
+                  name="sourceNumber"
+                  label={
+                    isRequirementSourceCondition(
+                      selectedRequirementSource?.id ?? ""
+                    )
+                      ? "Condition #"
+                      : "Section #"
+                  }
+                  fullWidth
+                />
+                <ControlledTextField
+                  name="sourceTitle"
+                  label="Title"
+                  fullWidth
+                />
+              </Stack>
+            )}
             <ControlledLexicalEditor
               label="Description"
               name="description"
