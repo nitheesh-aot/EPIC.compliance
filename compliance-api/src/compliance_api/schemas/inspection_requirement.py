@@ -14,6 +14,7 @@
 """Inspection requirement Schema Schema."""
 from marshmallow import EXCLUDE, ValidationError, fields, post_dump, pre_dump, validates_schema
 from marshmallow_enum import EnumField
+from marshmallow import Schema
 
 from compliance_api.models import (
     EnforcementActionOptionEnum, ImageTypeEnum, InspectionReqDetailDocument, InspectionReqSourceDetail,
@@ -334,6 +335,13 @@ class InspectionReqDetailDocSchema(
     document_type = fields.Nested(KeyValueSchema)
     appendix = fields.Nested(AppendixSchema)
 
+class OrderSchema(Schema):
+    """OrderSchema."""
+    
+    order_number = fields.Str(metadata={"description": "The order number"})
+    id = fields.Int(metadata={"description": "The order id"})
+    now_therefore = fields.Str(metadata={"description": "The now therefore"})
+
 
 class InspectionReqSourceDetailSchema(
     AutoSchemaBase
@@ -350,6 +358,7 @@ class InspectionReqSourceDetailSchema(
     documents = fields.List(fields.Nested(InspectionReqDetailDocSchema))
     requirement_source = fields.Nested(KeyValueSchema)
     appendix = fields.Nested(AppendixSchema)
+    order = fields.Nested(OrderSchema)
 
 
 class InspectionRequirementSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
