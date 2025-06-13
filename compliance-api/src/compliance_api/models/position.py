@@ -24,4 +24,5 @@ class Position(BaseModelVersioned):
     __tablename__ = "positions"
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     name = Column(db.String(100), nullable=True)
+    sort_order = Column(db.Integer, nullable=True)
     description = Column(db.String(500), nullable=True)
