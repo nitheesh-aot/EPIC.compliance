@@ -43,7 +43,7 @@ class ServiceUtils:
             and not inspection.primary_officer.auth_user_guid == auth_user_guid
         ):
             raise PermissionDeniedError(
-                "You don't have the correct permission to perform this operation."
+                "Only the Superuser or the Primary officer on this inspection can perform this operation."
             )
 
     @staticmethod
@@ -304,7 +304,7 @@ class ServiceUtils:
         if requirement_source in condition_sources:
             return f"Condition {getattr(detail_obj, 'condition_number')}"
         if requirement_source == RequirementSourceEnum.ORDER:
-            return f"Order {getattr(detail_obj, 'order_number')}"
+            return f"Order {getattr(detail_obj.order, 'order_number')}"
         return None
 
     @staticmethod

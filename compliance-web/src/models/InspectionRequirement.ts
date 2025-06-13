@@ -7,6 +7,7 @@ import { RequirementSource } from "./RequirementSource";
 import { Topic } from "./Topic";
 import { RequirementImage } from "./Image";
 import { Appendix } from "./Appendix";
+import { InspectionOrder } from "./InspectionOrder";
 
 export interface InspectionRequirement {
   id: number;
@@ -35,6 +36,8 @@ export interface InspectionRequirement {
       amendment_number: string,
       appendix_id: number,
       appendix: Appendix,
+      order_id: number,
+      order: InspectionOrder,
       title: string,
       description: string,
       is_active: boolean,
@@ -82,6 +85,7 @@ export interface RequirementSourceFormData {
   sourceNumber?: string;
   sourceTitle?: string,
   sourceAmendmentNumber?: string,
+  order?: InspectionOrder,
   description?: {
     html: string;
     text: string;
@@ -146,6 +150,7 @@ export interface InspectionRequirementSourceAPIData {
   condition_number?: string,
   amendment_number?: string,
   appendix_id?: number,
+  order_id?: number,
   title: string,
   description: string,
   documents: InspectionRequirementSourceDocumentAPIData[]

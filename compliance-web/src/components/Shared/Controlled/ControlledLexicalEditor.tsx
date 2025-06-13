@@ -3,7 +3,7 @@ import LexicalEditor from "@/components/Shared/LexicalEditor/LexicalEditor";
 import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { $getRoot } from "lexical";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect, useState, useRef } from "react";
 import { FormControl, FormHelperText } from "@mui/material";
 
 interface ExtendedFieldErrors {
@@ -39,10 +39,14 @@ export default function ControlledLexicalEditor({
   const {
     control,
     formState: { errors },
+    watch,
   } = useFormContext();
 
   // Add a memoized key that changes when the mentionsList changes
   const [mentionsKey, setMentionsKey] = useState<number>(0);
+  const [editorKey, setEditorKey] = useState<number>(0);
+  const isUserTyping = useRef(false);
+  const fieldValue = watch(name);
 
   useEffect(() => {
     // Update the mentions key whenever the mentionsList changes
@@ -50,6 +54,13 @@ export default function ControlledLexicalEditor({
       setMentionsKey((prev) => prev + 1);
     }
   }, [mentionsList]);
+
+  // Effect to handle programmatic updates
+  useEffect(() => {
+    if (!isUserTyping.current && fieldValue?.html) {
+      setEditorKey(prev => prev + 1);
+    }
+  }, [fieldValue?.html]);
 
   const errorMessage = useMemo(() => {
     const error = errors[name] as unknown as ExtendedFieldErrors;
@@ -72,8 +83,9 @@ export default function ControlledLexicalEditor({
               defaultHtml={field.value?.html}
               height={height}
               mentionsList={mentionsList}
-              key={`lexical-editor-mentions-${mentionsKey}`}
+              key={`lexical-editor-${name}-${mentionsKey}-${editorKey}`}
               onChange={(editorState, editor) => {
+                isUserTyping.current = true;
                 editorState.read(() => {
                   const editorStateHtmlString = $generateHtmlFromNodes(editor);
                   const editorStateTextString = $getRoot()
@@ -84,6 +96,10 @@ export default function ControlledLexicalEditor({
                     text: editorStateTextString,
                   });
                 });
+                // Reset the typing flag after a short delay
+                setTimeout(() => {
+                  isUserTyping.current = false;
+                }, 100);
               }}
               isRequired={isRequired}
             />
