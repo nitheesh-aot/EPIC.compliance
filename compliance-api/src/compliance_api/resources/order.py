@@ -10,7 +10,6 @@ from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.services.order.order import OrderService
 from compliance_api.services.order.order_approval import OrderApprovalService
-from compliance_api.utils.constant import PermissionEnum
 
 from ..schemas import (
     CreateOrderApprovalSchema, OrderApprovalSchema, OrderCreateSchema, OrderIssueSchema, OrderSchema, OrderStatusSchema,
