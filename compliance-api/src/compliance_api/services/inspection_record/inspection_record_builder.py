@@ -449,7 +449,9 @@ class InspectionRecordDataBuilder:
                 self.existing_ir.id
             )
             if latest_approval:
-                date_expected_return = latest_approval.date_expected_return.strftime("%Y-%m-%d")
+                date_expected_return = latest_approval.date_expected_return.strftime(
+                    "%Y-%m-%d"
+                )
                 data["date_expected_return"] = date_expected_return
         action_required_by_rp = render_template_with_data(
             "ACTION_REQUIRED_BY_RP",

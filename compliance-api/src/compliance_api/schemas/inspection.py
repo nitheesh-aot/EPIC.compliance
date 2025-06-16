@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inspection Schema Schema."""
-from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load, pre_load, validates_schema
+from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load, pre_dump, pre_load, validates_schema
 from marshmallow_enum import EnumField
 
 from compliance_api.models.inspection import (
     Inspection, InspectionAttendance, InspectionAttendanceOptionEnum, InspectionOfficer, InspectionStatusEnum)
+from compliance_api.models.inspection_record import IRProgressEnum
+from compliance_api.models.inspection_record_approval import IRApprovalStatusEnum
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from .base_schema import AutoSchemaBase, BaseSchema
@@ -331,6 +333,25 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     types = fields.Method("get_inspection_types")
     types_text = fields.Method("get_inspection_type_names")
     project_status = fields.Nested(KeyValueSchema)
+    ir_progress = fields.Str(
+        metadata={"description": "The progress status of the inspection record"},
+        allow_none=True,
+    )
+    approval_status = fields.Str(
+        metadata={"description": "The approval status of the inspection record"},
+        allow_none=True,
+    )
+
+    @pre_dump
+    def pre_dump_actions(
+        self, data, many, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Extract the value of the inspection status enum."""
+        if hasattr(data, "ir_progress") and data.ir_progress is not None:
+            data.ir_progress = IRProgressEnum(data.ir_progress).value
+        if hasattr(data, "approval_status") and data.approval_status is not None:
+            data.approval_status = IRApprovalStatusEnum(data.approval_status).value
+        return data
 
     @post_dump
     def post_dump_actions(

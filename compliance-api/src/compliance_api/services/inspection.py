@@ -53,9 +53,9 @@ class InspectionService:
         return IRStatusOptionModel.get_all(sort_by="sort_order")
 
     @classmethod
-    def get_all(cls):
+    def get_all_inspections(cls):
         """Get all inspections."""
-        return InspectionModel.get_all(default_filters=False)
+        return InspectionModel.get_all_inspections()
 
     @classmethod
     def get_by_case_file_id(cls, case_file_id):
