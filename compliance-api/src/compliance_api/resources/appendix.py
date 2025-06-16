@@ -22,7 +22,6 @@ from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import AppendixCreateSchema, AppendixSchema
 from compliance_api.services import AppendixService
-from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
 
 from .apihelper import Api as ApiHelper

@@ -416,13 +416,20 @@ class InspectionRecordDataBuilder:
             )
         return self
 
-    def build_action_required_by_rp(self):
+    def build_action_required_by_rp(self, hard_reset=False):
         """Build the action required by proponent."""
+        """
+        Parameters
+        ----------
+        hard_reset : bool
+            If True, the action_required_by_rp will be reset.
+        """
         #  if there is an existing ir and we are building the same ir,
         # then the action_required_by_rp should not be built
         if (
             self.existing_ir is not None
             and self.existing_ir.ir_status.id == self.ir_status
+            and not hard_reset
         ):
             self.data["action_required_by_rp"] = self.existing_ir.action_required_by_rp
             return self
@@ -432,21 +439,24 @@ class InspectionRecordDataBuilder:
         # Check if officer_details are populated
         if not self.data["officer_details"].get("primary_officer"):
             self.build_officer_details()
-
+        data = {
+            "primary_officer": self.data["officer_details"]
+            .get("primary_officer")
+            .get("name")
+        }
+        if self.existing_ir:
+            latest_approval = InspectionRecordApprovalModel.get_latest_approval_by_ir(
+                self.existing_ir.id
+            )
+            if latest_approval:
+                date_expected_return = latest_approval.date_expected_return.strftime("%Y-%m-%d")
+                data["date_expected_return"] = date_expected_return
         action_required_by_rp = render_template_with_data(
             "ACTION_REQUIRED_BY_RP",
             ACTION_REQUIRED_BY_RP,
-            {
-                "primary_officer": self.data["officer_details"]
-                .get("primary_officer")
-                .get("name")
-            },
+            data,
         )
-        self.data["action_required_by_rp"] = (
-            self.existing_ir.action_required_by_rp
-            if self.existing_ir
-            else action_required_by_rp
-        )
+        self.data["action_required_by_rp"] = action_required_by_rp
         return self
 
     def build_requirement_details(self):

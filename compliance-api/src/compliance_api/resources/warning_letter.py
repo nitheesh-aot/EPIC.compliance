@@ -15,7 +15,6 @@ from compliance_api.schemas.warning_letter_approval import (
     CreateWarningLetterApprovalSchema, UpdateWarningLetterApprovalStatusSchema, WarningLetterApprovalSchema)
 from compliance_api.services.warning_letter.warning_letter import WarningLetterService
 from compliance_api.services.warning_letter.warning_letter_approval import WarningLetterApprovalService
-from compliance_api.utils.constant import PermissionEnum
 
 from ..utils.util import cors_preflight
 from .apihelper import Api as ApiHelper

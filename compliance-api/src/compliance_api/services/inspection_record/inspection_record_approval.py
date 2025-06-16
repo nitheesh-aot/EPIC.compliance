@@ -8,6 +8,7 @@ from compliance_api.models import InspectionRecordApproval as InspectionRecordAp
 from compliance_api.models import IRApprovalStatusEnum, IRProgressEnum
 from compliance_api.models.db import session_scope
 from compliance_api.models.inspection_record import IRStatusEnum
+from compliance_api.services.inspection_record.inspection_record_builder import InspectionRecordDataBuilder
 
 from ..service_utils import ServiceUtils
 
@@ -90,7 +91,7 @@ class InspectionRecordApprovalService:
         value = approval_update_data.get("value", None)
         approval_update_data = {field_name: value}
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        ServiceUtils.inspection_record_exist_check(inspection_record_id)
+        inspection_record = ServiceUtils.inspection_record_exist_check(inspection_record_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         latest_approval = InspectionRecordApprovalModel.get_latest_approval_by_ir(
             inspection_record_id
@@ -115,13 +116,21 @@ class InspectionRecordApprovalService:
             )
             if not updated_approval:
                 raise ResourceNotFoundError("Approval not found")
-
+            if field_name in ["date_report_sent", "date_expected_return"]:
+                ir_builder = InspectionRecordDataBuilder(
+                    inspection=inspection,
+                    ir_status=inspection_record.ir_status_id,
+                    existing_ir=inspection_record,
+                )
+                ir_data = ir_builder.build_action_required_by_rp(hard_reset=True).build()
+                ir_update_data = {
+                    "action_required_by_rp": ir_data.get("action_required_by_rp")
+                }
+            ir_update_data["ir_progress"] = IRProgressEnum.HOLDER_PRELIMINARY_REVIEW
             # Update ir_progress to HOLDER_PRELIMINARY_REVIEW
             InspectionRecordModel.update_inspection_record(
                 inspection_record_id=inspection_record_id,
-                ir_update_data={
-                    "ir_progress": IRProgressEnum.HOLDER_PRELIMINARY_REVIEW
-                },
+                ir_update_data=ir_update_data,
                 session=session,
             )
 
