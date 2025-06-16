@@ -30,9 +30,11 @@ import { useDrawer } from "@/store/drawerStore";
 const OrderApprovalButtons = ({
   inspectionOrder,
   inspectionId,
+  caseFileId,
 }: {
   inspectionOrder: InspectionOrder;
   inspectionId: number;
+  caseFileId: number;
 }) => {
   const { setOpen, setClose } = useModal();
   const { setClose: setDrawerClose } = useDrawer();
@@ -71,10 +73,13 @@ const OrderApprovalButtons = ({
       queryClient.invalidateQueries({
         queryKey: ["inspection-orders", inspectionId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["inspection-orders-projectwise", caseFileId],
+      });
       setClose();
       setDrawerClose();
     },
-    [queryClient, inspectionId, setClose, setDrawerClose]
+    [queryClient, inspectionId, setClose, setDrawerClose, caseFileId]
   );
 
   const onSuccess = useCallback(

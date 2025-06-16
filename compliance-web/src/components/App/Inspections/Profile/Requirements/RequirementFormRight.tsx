@@ -25,6 +25,7 @@ interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
   requirementSourceFormDataList: RequirementSourceFormData[];
   inspectionId: number;
+  caseFileId: number;
   requirementId: number;
   isRegulatoryConsideration: boolean;
 }
@@ -33,6 +34,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   onDataChange,
   requirementSourceFormDataList,
   inspectionId,
+  caseFileId,
   requirementId,
   isRegulatoryConsideration,
 }) => {
@@ -137,7 +139,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       content: (
         <RequirementSourceModal
           onSubmit={handleOnAddSubmit}
-          inspectionId={inspectionId}
+          caseFileId={caseFileId}
           appendixList={appendixList}
         />
       ),
@@ -150,7 +152,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       content: (
         <RequirementSourceModal
           onSubmit={handleOnEditSubmit}
-          inspectionId={inspectionId}
+          caseFileId={caseFileId}
           requirementSourceFormData={data}
           appendixList={appendixList}
         />
@@ -201,7 +203,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       content: (
         <RequirementSourceModal
           onSubmit={handleOnAddSubmit}
-          inspectionId={inspectionId}
+          caseFileId={caseFileId}
           requirementSource={data.requirementSource}
           order={data.order}
           appendixList={appendixList}

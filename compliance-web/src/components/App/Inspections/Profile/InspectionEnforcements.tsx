@@ -20,6 +20,7 @@ import { useInspectionWarningLettersData } from "@/hooks/useInspectionWarningLet
 import EnforcementWarningLetterDrawer from "./Enforcements/EnforcementWarningLetterDrawer";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
 import { AddRounded } from "@mui/icons-material";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface InspectionEnforcementsProps {
   inspectionData: Inspection;
@@ -28,6 +29,7 @@ interface InspectionEnforcementsProps {
 const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
   inspectionData,
 }) => {
+  const queryClient = useQueryClient();
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
   const { setOpen: setDrawerOpen, setClose: setDrawerClose } = useDrawer();
   const { data: staffUsersList } = useStaffUsersData();
@@ -194,6 +196,9 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           onSubmit={(message) => {
             notify.success(message);
             refetchInspectionOrders();
+            queryClient.invalidateQueries({
+              queryKey: ["inspection-orders-projectwise", inspectionData.case_file_id],
+            });
             setDrawerClose();
           }}
           inspection={inspectionData}
