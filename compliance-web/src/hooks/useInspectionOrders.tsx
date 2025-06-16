@@ -13,6 +13,15 @@ const fetchInspectionOrders = (
   return request({ url: `/orders`, params: { inspection_id: inspectionId } });
 };
 
+const fetchInspectionOrdersProjectwise = (
+  caseFileId: number
+): Promise<InspectionOrder[]> => {
+  return request({
+    url: `/orders/projectwise`,
+    params: { case_file_id: caseFileId },
+  });
+};
+
 const createInspectionOrder = ({
   inspectionOrder,
 }: {
@@ -161,6 +170,22 @@ export const useInspectionOrdersData = (
       return data;
     },
     enabled: !!inspectionId,
+    staleTime: Infinity,
+  });
+};
+
+export const useInspectionOrdersProjectwiseData = (
+  caseFileId: number
+) => {
+  return useQuery({
+    queryKey: ["inspection-orders-projectwise", caseFileId],
+    queryFn: () => fetchInspectionOrdersProjectwise(caseFileId),
+    select: (data) => {
+      return data.filter(
+        (order) => order.order_status?.id === OrderStatusEnum.OPEN
+      );
+    },
+    enabled: !!caseFileId,
     staleTime: Infinity,
   });
 };

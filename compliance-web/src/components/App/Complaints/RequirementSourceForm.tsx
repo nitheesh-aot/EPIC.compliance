@@ -3,6 +3,7 @@ import DynamicInputField, {
 } from "@/components/App/DynamicInputField";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import { InspectionOrder } from "@/models/InspectionOrder";
 import { RequirementSource } from "@/models/RequirementSource";
 import { Topic } from "@/models/Topic";
 import { useDrawer } from "@/store/drawerStore";
@@ -16,6 +17,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 type RequirementSourceFormProps = {
   requirementSourceList: RequirementSource[];
   topicsList: Topic[];
+  orderList: InspectionOrder[];
 };
 
 const sectionPadding = "1rem 2rem 0rem 1rem";
@@ -23,6 +25,7 @@ const sectionPadding = "1rem 2rem 0rem 1rem";
 const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
   requirementSourceList,
   topicsList,
+  orderList,
 }) => {
   const { isOpen } = useDrawer();
   const { setOpen, setClose } = useModal();
@@ -152,6 +155,7 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
       sharedRequirementSourceField("description", "Description"),
     ],
     [RequirementSourceEnum.EACA]: [sharedRequirementSourceField()],
+    [RequirementSourceEnum.ORDER]: [],
   };
 
   const isRequirementSourceSelected = Object.values(
@@ -184,6 +188,20 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
             <DynamicInputField key={config.name} config={config} />
           ))}
 
+          {selectedRequirementSource.id === RequirementSourceEnum.ORDER && (
+            <ControlledAutoComplete
+              name="order"
+              label="Order"
+              options={orderList ?? []}
+              getOptionLabel={(option) => option.order_number ?? ""}
+              getOptionKey={(option) => option.id ?? ""}
+              isOptionEqualToValue={(option, value) =>
+                option.id?.toString() === value.id?.toString()
+              }
+              fullWidth
+              isRequired={true}
+            />
+          )}
           <ControlledAutoComplete
             name="topic"
             label="Topic"
