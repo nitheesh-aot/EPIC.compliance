@@ -340,6 +340,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
             onDataChange={onRequirementSourceListDataChange}
             requirementSourceFormDataList={requirementSourceList}
             inspectionId={inspectionData.id}
+            caseFileId={inspectionData.case_file_id ?? 0}
             isRegulatoryConsideration={isRegulatoryConsideration}
             requirementId={requirement?.id ?? 0}
           />

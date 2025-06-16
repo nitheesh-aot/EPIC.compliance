@@ -177,6 +177,7 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
           <OrderApprovalButtons
             inspectionOrder={enforcementOrder}
             inspectionId={inspection.id}
+            caseFileId={inspection.case_file_id ?? 0}
           />
           <EnforcementDownloadPDFButton
             enforcementId={enforcementOrder.id || 0}

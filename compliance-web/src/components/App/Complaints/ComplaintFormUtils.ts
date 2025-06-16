@@ -2,6 +2,7 @@ import { Agency } from "@/models/Agency";
 import { ComplaintAPIData } from "@/models/Complaint";
 import { ComplaintSource } from "@/models/ComplaintSource";
 import { FirstNation } from "@/models/FirstNation";
+import { InspectionOrder } from "@/models/InspectionOrder";
 import { RequirementSource } from "@/models/RequirementSource";
 import { StaffUser } from "@/models/Staff";
 import { Topic } from "@/models/Topic";
@@ -77,6 +78,12 @@ export const ComplaintFormSchema = yup.object().shape({
   }),
   amendmentNumber: yup.string().nullable(),
   amendmentConditionNumber: yup.string().nullable(),
+  order: yup.object<InspectionOrder>().when("requirementSource", {
+    is: (reqSource: RequirementSource) =>
+      reqSource?.id === RequirementSourceEnum.ORDER,
+    then: (schema) => schema.required("Order is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   description: yup.string().nullable(),
   conditionDescription: yup.string().nullable(),
   topic: yup
@@ -145,6 +152,10 @@ export const formatComplaintData = (
           formData.amendmentNumber ?? "";
         complaintData.requirement_source_details.description =
           formData.conditionDescription ?? "";
+        break;
+      case RequirementSourceEnum.ORDER:
+        complaintData.requirement_source_details.order_number =
+          (formData.order as InspectionOrder)?.order_number ?? "";
         break;
       case RequirementSourceEnum.NOT_EA_ACT:
       case RequirementSourceEnum.OTHER:

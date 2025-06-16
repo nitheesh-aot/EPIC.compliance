@@ -15,11 +15,11 @@ import { isRequirementSourceCondition } from "../RequirementUtils";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 import { Appendix } from "@/models/Appendix";
 import { InspectionOrder } from "@/models/InspectionOrder";
-import { useInspectionOrdersData } from "@/hooks/useInspectionOrders";
+import { useInspectionOrdersProjectwiseData } from "@/hooks/useInspectionOrders";
 
 type RequirementSourceModalProps = {
   onSubmit: (data: RequirementSourceFormData) => void;
-  inspectionId: number;
+  caseFileId: number;
   requirementSourceFormData?: RequirementSourceFormData;
   requirementSource?: RequirementSource;
   order?: InspectionOrder;
@@ -67,16 +67,14 @@ const initFormData: RequirementSourceFormData = {
 
 const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
   onSubmit,
-  inspectionId,
+  caseFileId,
   requirementSourceFormData,
   requirementSource,
   order,
   appendixList,
 }) => {
   const { data: requirementSourceList } = useRequirementSourcesData();
-  const { data: orderList } = useInspectionOrdersData(inspectionId, {
-    filterOpenOrders: true,
-  });
+  const { data: orderList } = useInspectionOrdersProjectwiseData(caseFileId);
 
   const defaultValues = useMemo<RequirementSourceFormData>(() => {
     return (
@@ -94,7 +92,7 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
     defaultValues,
   });
 
-  const { handleSubmit, reset, control, getValues } = methods;
+  const { handleSubmit, reset, control, getValues, setValue } = methods;
 
   const selectedRequirementSource = useWatch({
     control,
@@ -109,14 +107,14 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
   }) as InspectionOrder;
 
   useEffect(() => {
-    if (selectedOrder?.now_therefore) {
+    if (!requirementSourceFormData && selectedOrder?.now_therefore) {
       const newValue = {
         html: selectedOrder.now_therefore,
         text: selectedOrder.now_therefore,
       };
-      methods.setValue("description", newValue);
+      setValue("description", newValue);
     }
-  }, [selectedOrder, methods]);
+  }, [selectedOrder, setValue, requirementSourceFormData]);
 
   useEffect(() => {
     reset(defaultValues);

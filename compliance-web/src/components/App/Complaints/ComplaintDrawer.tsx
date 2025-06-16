@@ -32,6 +32,7 @@ import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
 import { CaseFile } from "@/models/CaseFile";
 import { useCurrentLoggedInUser } from "@/hooks/useAuthorization";
+import { useInspectionOrdersProjectwiseData } from "@/hooks/useInspectionOrders";
 
 type ComplaintDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -58,6 +59,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
   const { data: agenciesList } = useAgenciesData();
   const { data: firstNationsList } = useFirstNationsData();
   const { data: topicsList } = useTopicsData();
+  const { data: orderList } = useInspectionOrdersProjectwiseData(caseFile.id);
   const currentUser = useCurrentLoggedInUser();
 
   const staffUserList = Array.from(
@@ -104,6 +106,11 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
         amendmentConditionNumber:
           complaint.requirement_detail?.additional_details
             ?.amendment_condition_number ?? "",
+        order: orderList?.find(
+          (order) =>
+            order.order_number ===
+            complaint.requirement_detail?.additional_details?.order_number
+        ),
       };
     }
     const selectedOfficer = staffUserList.find(
@@ -121,6 +128,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
     caseFile,
     staffUserList,
     currentUser,
+    orderList,
   ]);
 
   const methods = useForm<ComplaintSchemaType>({
@@ -192,6 +200,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
             <RequirementSourceForm
               requirementSourceList={requirementSourceList ?? []}
               topicsList={topicsList ?? []}
+              orderList={orderList ?? []}
             />
           </Box>
         </Stack>

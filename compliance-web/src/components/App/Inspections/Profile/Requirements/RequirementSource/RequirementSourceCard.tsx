@@ -115,7 +115,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
               {appendix && ` (Appendix ${appendix.appendix_no})`}
             </Typography>
           </Box>
-          {isExpanded && (
+          {isExpanded && !isOrder && (
             <Button
               variant="text"
               color="secondary"

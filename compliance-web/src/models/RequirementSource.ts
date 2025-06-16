@@ -15,5 +15,6 @@ export interface RequirementDetails {
     amendment_condition_number?: string;
     amendment_number?: string;
     req_id?: number;
+    order_number?: string;
   }
 }
