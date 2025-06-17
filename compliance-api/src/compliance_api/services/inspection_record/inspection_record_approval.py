@@ -91,7 +91,9 @@ class InspectionRecordApprovalService:
         value = approval_update_data.get("value", None)
         approval_update_data = {field_name: value}
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        inspection_record = ServiceUtils.inspection_record_exist_check(inspection_record_id)
+        inspection_record = ServiceUtils.inspection_record_exist_check(
+            inspection_record_id
+        )
         ServiceUtils.access_check_update_for_inspection(inspection)
         latest_approval = InspectionRecordApprovalModel.get_latest_approval_by_ir(
             inspection_record_id
@@ -122,7 +124,9 @@ class InspectionRecordApprovalService:
                     ir_status=inspection_record.ir_status_id,
                     existing_ir=inspection_record,
                 )
-                ir_data = ir_builder.build_action_required_by_rp(hard_reset=True).build()
+                ir_data = ir_builder.build_action_required_by_rp(
+                    hard_reset=True
+                ).build()
                 ir_update_data = {
                     "action_required_by_rp": ir_data.get("action_required_by_rp")
                 }

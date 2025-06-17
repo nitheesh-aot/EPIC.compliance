@@ -62,6 +62,13 @@ class OrderInspectionRequirementMap(BaseModelVersioned):
         ).all()
 
     @classmethod
+    def get_by_requirement_id(cls, requirement_id):
+        """Get inspection requirements by requirement id."""
+        return cls.query.filter_by(
+            inspection_requirement_id=requirement_id, is_deleted=False, is_active=True
+        ).all()
+
+    @classmethod
     @with_session
     def bulk_delete(
         cls, order_id: int, inspection_requirement_ids: list[int], session=None
