@@ -255,8 +255,8 @@ class InspectionRecordReset(Resource):
         return InspectionRecordSchema().dump(updated_ir), HTTPStatus.OK
 
 
-@cors_preflight("GET, OPTIONS")
-@API.route("/<int:inspection_record_id>/render", methods=["GET", "OPTIONS"])
+@cors_preflight("POST, OPTIONS")
+@API.route("/<int:inspection_record_id>/render", methods=["POST", "OPTIONS"])
 class InspectionRecordPreview(Resource):
     """Resource for managing inspection records."""
 
@@ -275,11 +275,11 @@ class InspectionRecordPreview(Resource):
         }
     )
     @auth.require
-    def get(
+    def post(
         inspection_id, inspection_record_id
     ):  # pylint: disable=no-self-use, unused-argument
         """Preview inspection record."""
-        output_format = request.args.get("output_format", "html")
+        output_format = request.json.get("output_format", "html")
         response, inspection = InspectionRecordService.render(
             inspection_id, inspection_record_id, output_format
         )

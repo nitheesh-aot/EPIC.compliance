@@ -1,5 +1,9 @@
 import { downloadFile } from "@/utils/appUtils";
-import { ArrowDropDownRounded, DownloadRounded, PictureAsPdfOutlined } from "@mui/icons-material";
+import {
+  ArrowDropDownRounded,
+  DownloadRounded,
+  PictureAsPdfOutlined,
+} from "@mui/icons-material";
 import {
   Button,
   ClickAwayListener,
@@ -15,7 +19,6 @@ import { useInspectionRecordRender } from "@/hooks/useInspectionReports";
 import { useModal } from "@/store/modalStore";
 import { useReportStore } from "./reportStore";
 import ReportPreviewModal from "./ReportPreviewModal";
-import { notify } from "@/store/snackbarStore";
 import { BCDesignTokens } from "epic.theme";
 
 const PreviewDownloadButton = () => {
@@ -25,55 +28,37 @@ const PreviewDownloadButton = () => {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
 
-  const { refetch: refetchIrPreviewData } = useInspectionRecordRender(
-    inspectionData?.id ?? 0,
-    inspectionReportsData?.id ?? 0,
-    "html",
-    false
-  );
+  const onSuccess = (data: { html: string } | Blob) => {
+    if ("html" in data) {
+      setModalOpen({
+        content: <ReportPreviewModal previewHtml={data.html ?? ""} />,
+        width: "660px",
+      });
+    } else {
+      downloadFile(data, `${inspectionData?.ir_number}.pdf`);
+    }
+    setPreviewClicked(false);
+  };
 
-  const { refetch: refetchIrPDFData } = useInspectionRecordRender(
-    inspectionData?.id ?? 0,
-    inspectionReportsData?.id ?? 0,
-    "pdf",
-    false
-  );
+  const { mutate: mutateIrPreviewData } = useInspectionRecordRender(onSuccess);
 
   const handlePreviewClick = async () => {
     setPreviewClicked(true);
-    try {
-      const result = await refetchIrPreviewData();
-      setPreviewClicked(false);
-      if (result.data) {
-        // Handle HTML preview
-        const html = result.data.html ?? "";
-        setModalOpen({
-          content: <ReportPreviewModal previewHtml={html} />,
-          width: "660px",
-        });
-      }
-    } catch (error) {
-      notify.error("Failed to generate PDF preview");
-      setPreviewClicked(false);
-    }
+    mutateIrPreviewData({
+      inspectionId: inspectionData?.id ?? 0,
+      inspectionRecordId: inspectionReportsData?.id ?? 0,
+      outputFormat: "html",
+    });
   };
 
   const handleDownloadClick = async (event: MouseEvent) => {
     setPreviewClicked(true);
     handleClose(event);
-    try {
-      const result = await refetchIrPDFData();
-      setPreviewClicked(false);
-      if (result.data) {
-        downloadFile(
-          result.data,
-          `${inspectionData?.ir_number}.pdf`
-        );
-      }
-    } catch (error) {
-      notify.error("Failed to generate PDF preview");
-      setPreviewClicked(false);
-    }
+    mutateIrPreviewData({
+      inspectionId: inspectionData?.id ?? 0,
+      inspectionRecordId: inspectionReportsData?.id ?? 0,
+      outputFormat: "pdf",
+    });
   };
 
   const handleToggle = () => {
