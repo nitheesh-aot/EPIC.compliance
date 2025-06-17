@@ -41,7 +41,7 @@ const updateWarningLetter = ({
   });
 };
 
-export const warningLetterRender = async ({
+const warningLetterRender = ({
   inspectionWarningLetterId,
   format,
 }: {
@@ -52,9 +52,9 @@ export const warningLetterRender = async ({
   const responseType = format === "pdf" ? "blob" : "json";
 
   return request({
-    method: "GET",
+    method: "POST",
     url: `/warning-letters/${inspectionWarningLetterId}/render`,
-    params: { output_format: format },
+    data: { output_format: format },
     responseType: responseType,
   });
 };
@@ -148,24 +148,10 @@ export const useUpdateWarningLetter = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateWarningLetter, onSuccess });
 };
 
-export const useWarningLetterRendered = (
-  inspectionWarningLetterId: number,
-  format: "html" | "pdf",
-  isEnabled: boolean = true
-) => {
-  return useQuery({
-    queryKey: [
-      "inspection-warning-letter-rendered",
-      inspectionWarningLetterId,
-      format,
-    ],
-    queryFn: () =>
-      warningLetterRender({
-        inspectionWarningLetterId,
-        format,
-      }),
-    enabled: !!inspectionWarningLetterId && isEnabled,
-    refetchOnWindowFocus: false,
+export const useWarningLetterRendered = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: warningLetterRender,
+    onSuccess,
   });
 };
 

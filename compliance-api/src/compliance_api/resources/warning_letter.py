@@ -196,8 +196,8 @@ class WarningLetterIssue(Resource):
         return {}, HTTPStatus.NO_CONTENT
 
 
-@cors_preflight("GET, OPTIONS")
-@API.route("/<int:warning_letter_id>/render", methods=["GET", "OPTIONS"])
+@cors_preflight("POST, OPTIONS")
+@API.route("/<int:warning_letter_id>/render", methods=["POST", "OPTIONS"])
 class WarningLetterPreview(Resource):
     """Resource for managing warning letter preview and pdf."""
 
@@ -217,9 +217,9 @@ class WarningLetterPreview(Resource):
         }
     )
     @auth.require
-    def get(warning_letter_id):  # pylint: disable=no-self-use, unused-argument
+    def post(warning_letter_id):  # pylint: disable=no-self-use, unused-argument
         """Preview warning letter."""
-        output_format = request.args.get("output_format", "html")
+        output_format = request.json.get("output_format", "html")
         response, warning_letter = WarningLetterService.render(
             warning_letter_id, output_format
         )
