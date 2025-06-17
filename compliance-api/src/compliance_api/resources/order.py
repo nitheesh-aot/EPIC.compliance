@@ -212,8 +212,8 @@ class OrderIssue(Resource):
         return {}, HTTPStatus.NO_CONTENT
 
 
-@cors_preflight("GET, OPTIONS")
-@API.route("/<int:order_id>/render", methods=["GET", "OPTIONS"])
+@cors_preflight("POST, OPTIONS")
+@API.route("/<int:order_id>/render", methods=["POST", "OPTIONS"])
 class OrderPreview(Resource):
     """Resource for managing order preview and pdf."""
 
@@ -233,9 +233,9 @@ class OrderPreview(Resource):
         }
     )
     @auth.require
-    def get(order_id):  # pylint: disable=no-self-use, unused-argument
+    def post(order_id):  # pylint: disable=no-self-use, unused-argument
         """Preview order."""
-        output_format = request.args.get("output_format", "html")
+        output_format = request.json.get("output_format", "html")
         response, order = OrderService.render(order_id, output_format)
         if output_format == "pdf":
             return send_file(
