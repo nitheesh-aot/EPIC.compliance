@@ -48,7 +48,7 @@ const updateInspectionOrder = ({
   });
 };
 
-export const inspectionOrderRender = async ({
+const inspectionOrderRender = ({
   inspectionOrderId,
   format,
 }: {
@@ -59,9 +59,9 @@ export const inspectionOrderRender = async ({
   const responseType = format === "pdf" ? "blob" : "json";
 
   return request({
-    method: "GET",
+    method: "POST",
     url: `/orders/${inspectionOrderId}/render`,
-    params: { output_format: format },
+    data: { output_format: format },
     responseType: responseType,
   });
 };
@@ -174,9 +174,7 @@ export const useInspectionOrdersData = (
   });
 };
 
-export const useInspectionOrdersProjectwiseData = (
-  caseFileId: number
-) => {
+export const useInspectionOrdersProjectwiseData = (caseFileId: number) => {
   return useQuery({
     queryKey: ["inspection-orders-projectwise", caseFileId],
     queryFn: () => fetchInspectionOrdersProjectwise(caseFileId),
@@ -198,20 +196,10 @@ export const useUpdateInspectionOrder = (onSuccess: OnSuccessType) => {
   return useMutation({ mutationFn: updateInspectionOrder, onSuccess });
 };
 
-export const useInspectionOrderRendered = (
-  inspectionOrderId: number,
-  format: "html" | "pdf",
-  isEnabled: boolean = true
-) => {
-  return useQuery({
-    queryKey: ["inspection-order-rendered", inspectionOrderId, format],
-    queryFn: () =>
-      inspectionOrderRender({
-        inspectionOrderId,
-        format,
-      }),
-    enabled: !!inspectionOrderId && isEnabled,
-    refetchOnWindowFocus: false,
+export const useInspectionOrderRendered = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: inspectionOrderRender,
+    onSuccess,
   });
 };
 

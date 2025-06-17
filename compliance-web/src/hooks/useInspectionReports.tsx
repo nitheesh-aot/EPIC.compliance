@@ -147,22 +147,22 @@ const updateIRReportToFinal = ({
   });
 };
 
-export const inspectionRecordRender = async ({
+const inspectionRecordRender = ({
   inspectionId,
   inspectionRecordId,
-  format,
+  outputFormat,
 }: {
   inspectionId: number;
   inspectionRecordId: number;
-  format: "html" | "pdf";
+  outputFormat: "html" | "pdf";
 }) => {
   // If requesting PDF, specify responseType as 'blob'
-  const responseType = format === "pdf" ? "blob" : "json";
+  const responseType = outputFormat === "pdf" ? "blob" : "json";
 
   return request({
-    method: "GET",
+    method: "POST",
     url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/render`,
-    params: { output_format: format },
+    data: { output_format: outputFormat },
     responseType: responseType,
   });
 };
@@ -237,17 +237,9 @@ export const useUpdateIRReportToFinal = (onSuccess: OnSuccessType) => {
   });
 };
 
-export const useInspectionRecordRender = (
-  inspectionId: number,
-  inspectionRecordId: number,
-  format: "html" | "pdf",
-  isEnabled: boolean = true
-) => {
-  return useQuery({
-    queryKey: ["ir-render", inspectionId, inspectionRecordId, format],
-    queryFn: () =>
-      inspectionRecordRender({ inspectionId, inspectionRecordId, format }),
-    enabled: !!inspectionId && !!inspectionRecordId && isEnabled,
-    refetchOnWindowFocus: false,
+export const useInspectionRecordRender = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: inspectionRecordRender,
+    onSuccess,
   });
 };
