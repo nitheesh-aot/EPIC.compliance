@@ -159,7 +159,7 @@ class Inspections(Resource):
         if case_file_id:
             inspections = InspectionService.get_by_case_file_id(case_file_id)
         else:
-            inspections = InspectionService.get_all()
+            inspections = InspectionService.get_all_inspections()
         inspection_list_schema = InspectionSchema(many=True)
         return inspection_list_schema.dump(inspections), HTTPStatus.OK
 

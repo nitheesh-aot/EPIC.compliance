@@ -17,8 +17,10 @@ from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
-from ..base_model import BaseModelVersioned
+from ..base_model import BaseModelVersioned, db
 from ..case_file import CaseFile as CaseFileModel
+from ..inspection_record import InspectionRecord
+from ..inspection_record_approval import InspectionRecordApproval
 from ..utils import with_session
 from .inspection_enum import InspectionStatusEnum
 
@@ -203,3 +205,52 @@ class Inspection(BaseModelVersioned):
     def get_by_ir_number(cls, ir_number):
         """Retrieve inspection by ir number."""
         return cls.query.filter_by(ir_number=ir_number, is_deleted=False).first()
+
+    @classmethod
+    def get_all_inspections(cls):
+        """Retrieve all inspections with their latest approval status and ir_progress."""
+        # Subquery to get the latest approval record for each inspection record
+        latest_approval_subquery = (
+            db.session.query(
+                InspectionRecordApproval.inspection_record_id,
+                func.max(InspectionRecordApproval.created_date).label("latest_date"),
+            )
+            .filter(
+                InspectionRecordApproval.is_active.is_(True),
+                InspectionRecordApproval.is_deleted.is_(False),
+            )
+            .group_by(InspectionRecordApproval.inspection_record_id)
+            .subquery()
+        )
+
+        # Main query with filters for active and non-deleted records
+        query = (
+            db.session.query(cls)
+            .filter(cls.is_deleted.is_(False), cls.is_active.is_(True))
+            .outerjoin(InspectionRecord, cls.id == InspectionRecord.inspection_id)
+            .outerjoin(
+                latest_approval_subquery,
+                latest_approval_subquery.c.inspection_record_id == InspectionRecord.id,
+            )
+            .outerjoin(
+                InspectionRecordApproval,
+                (InspectionRecordApproval.inspection_record_id == InspectionRecord.id)
+                & (
+                    InspectionRecordApproval.created_date
+                    == latest_approval_subquery.c.latest_date
+                ),
+            )
+            .add_columns(
+                InspectionRecord.ir_progress, InspectionRecordApproval.approval_status
+            )
+        )
+
+        # Convert results to list of dictionaries
+        results = []
+        for result in query.all():
+            inspection = result[0]
+            inspection.ir_progress = result[1]
+            inspection.approval_status = result[2]
+            results.append(inspection)
+
+        return results

@@ -381,15 +381,20 @@ class InspectionRecordDataBuilder:
                         )
                         if summary_line:
                             enforcement_summary_lines.append(summary_line)
-                for action_id in special_actions:
-                    summary_lines = (
-                        self._generate_enforcement_summary_lines_for_special_actions(
-                            EnforcementActionOptionEnum(action_id),
-                            IRStatusEnum.FINAL.value,
-                        )
+            actions = [
+                item[0]
+                for item in grouped_enforcementactions.items()
+                if EnforcementActionOptionEnum(item[0]) in special_actions
+            ]
+            for action_id in actions:
+                summary_lines = (
+                    self._generate_enforcement_summary_lines_for_special_actions(
+                        EnforcementActionOptionEnum(action_id),
+                        IRStatusEnum.FINAL.value,
                     )
-                    if summary_lines:
-                        enforcement_summary_lines.extend(summary_lines)
+                )
+                if summary_lines:
+                    enforcement_summary_lines.extend(summary_lines)
             # Add a line for Regulatory Considerations in the requirements
             if any(
                 req.req_type == InspectionRequirementTypeEnum.REG
@@ -560,22 +565,20 @@ class InspectionRecordDataBuilder:
             for source_name, reqs in grouped_requirements.items():
                 numbers = ", ".join(req["number"] for req in reqs)
                 condition_lines.append(f"{numbers} of {source_name}")
-                data_to_be_rendered["condition_lines"] = condition_lines
-                if action == EnforcementActionOptionEnum.ORDER:
-                    data_to_be_rendered["order_no"] = item.order_number
-                    data_to_be_rendered["section_no"] = item.section.name
-                if action == EnforcementActionOptionEnum.WARNING_LETTER:
-                    data_to_be_rendered["warning_letter_no"] = (
-                        item.warning_letter_number
-                    )
-                results.append(
-                    render_template_with_data(
-                        object_map[action]["template"],
-                        object_map[action]["template_data"],
-                        data_to_be_rendered,
-                    )
+            data_to_be_rendered["condition_lines"] = condition_lines
+            if action == EnforcementActionOptionEnum.ORDER:
+                data_to_be_rendered["order_no"] = item.order_number
+                data_to_be_rendered["section_no"] = item.section.name
+            if action == EnforcementActionOptionEnum.WARNING_LETTER:
+                data_to_be_rendered["warning_letter_no"] = item.warning_letter_number
+            results.append(
+                render_template_with_data(
+                    object_map[action]["template"],
+                    object_map[action]["template_data"],
+                    data_to_be_rendered,
                 )
-            return results
+            )
+        return results
 
     def _get_basic_data_for_enforcement_summary(self, requirement):
         """Get the basic data for enforcement summary."""
