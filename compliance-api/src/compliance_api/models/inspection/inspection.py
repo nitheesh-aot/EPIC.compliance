@@ -207,7 +207,7 @@ class Inspection(BaseModelVersioned):
         return cls.query.filter_by(ir_number=ir_number, is_deleted=False).first()
 
     @classmethod
-    def get_all_inspections(cls, session=None):
+    def get_all_inspections(cls):
         """Retrieve all inspections with their latest approval status and ir_progress."""
         # Subquery to get the latest approval record for each inspection record
         latest_approval_subquery = (

@@ -20,6 +20,8 @@ from compliance_api.models.inspection.inspection_req_image import ImageTypeEnum
 from compliance_api.models.inspection.inspection_requirement import InspectionRequirementTypeEnum
 from compliance_api.models.inspection_record import IRStatusEnum
 from compliance_api.models.order import Order as OrderModel
+from compliance_api.models.order import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
+from compliance_api.models.order import OrderProgressEnum
 from compliance_api.models.project import Project as ProjectModel
 from compliance_api.models.requirement_source import RequirementSourceEnum
 from compliance_api.models.unapproved_project import UnapprovedProject as UnapprovedProjectModel
@@ -249,7 +251,23 @@ class ServiceUtils:
             ):
                 result = "Not Applicable"
             else:
-                result = "Not Determined"
+                if EnforcementActionOptionEnum.ORDER.value in [
+                    action.id for action in enforcement_actions
+                ]:
+                    order_maps = (
+                        OrderInspectionRequirementMapModel.get_by_requirement_id(
+                            requirement.id
+                        )
+                    )
+                    if any(
+                        order_map.order.order_progress == OrderProgressEnum.ISSUED
+                        for order_map in order_maps
+                    ):
+                        result = "Order"
+                    else:
+                        result = "Not Determined"
+                else:
+                    result = "Not Determined"
         if ir_status == IRStatusEnum.FINAL.value:
             if (
                 requirement.compliance_finding_id
