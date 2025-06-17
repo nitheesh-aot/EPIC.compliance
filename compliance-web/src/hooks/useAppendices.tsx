@@ -28,6 +28,9 @@ export const useAppendicesData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["appendices", inspectionId],
     queryFn: () => fetchAppendices(inspectionId),
+    select: (data) => {
+      return data.sort((a, b) => Number(a.appendix_no) - Number(b.appendix_no));
+    },
     staleTime: Infinity,
   });
 };
