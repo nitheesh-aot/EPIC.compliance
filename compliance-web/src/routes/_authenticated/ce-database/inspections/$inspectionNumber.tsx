@@ -5,7 +5,7 @@ import { notify } from "@/store/snackbarStore";
 import { Box } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import ContinuationReport from "@/components/App/ContinuationReports/ContinuationReport";
 import FileProfileHeader from "@/components/App/FileProfileHeader";
@@ -37,7 +37,14 @@ function InspectionProfilePage() {
   const queryClient = useQueryClient();
   const { inspectionNumber } = useParams({ strict: false });
   const { setOpen, setClose } = useDrawer();
-  const { currentTab } = useTab();
+  const { currentTab, resetTab } = useTab();
+
+  useEffect(() => {
+    if (inspectionNumber) {
+      resetTab();
+    }
+  }, [resetTab, inspectionNumber]);
+
   const {
     status,
     data: inspectionData,

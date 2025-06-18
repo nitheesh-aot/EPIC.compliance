@@ -18,6 +18,7 @@ import { notify } from "@/store/snackbarStore";
 import { InspectionRecord } from "@/models/InspectionRecord";
 import { IRProgressEnum } from "@/utils/constants";
 import IssuanceDate from "./IssuanceDate";
+import { useQueryClient } from "@tanstack/react-query";
 
 const preliminarySteps = [
   "Preliminary Review",
@@ -36,6 +37,7 @@ export default function OfficerStepper() {
     setInspectionReportsData,
   } = useReportStore();
   const [activeStep, setActiveStep] = useState(0);
+  const queryClient = useQueryClient();
 
   const isFinalReportStep = useMemo(() => {
     return (
@@ -43,11 +45,14 @@ export default function OfficerStepper() {
     );
   }, [inspectionReportsData]);
 
-  const handleNext = () => {
-    if (activeStep === preliminarySteps.length - 1) {
-      // TODO: Submit form and remove the stepper
-    } else {
+  const handleNext = (isRefreshReport: boolean = false) => {
+    if (activeStep !== preliminarySteps.length - 1) {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+    if (inspectionData?.id && isRefreshReport) {
+      queryClient.invalidateQueries({
+        queryKey: ["inspection-reports", inspectionData.id],
+      });
     }
   };
 
@@ -87,7 +92,7 @@ export default function OfficerStepper() {
       });
     }
     // doing this to avoid going to the next step before all the updates are done
-    handleNext();
+    handleNext(true);
   };
 
   const onUpdateIRReport = (type: "final" | "preliminary") => {

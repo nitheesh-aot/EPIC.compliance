@@ -1,7 +1,6 @@
 import { PictureAsPdfOutlined } from "@mui/icons-material";
 import { Button } from "@mui/material";
 import { useState } from "react";
-import { notify } from "@/store/snackbarStore";
 import { downloadFile } from "@/utils/appUtils";
 import { useInspectionOrderRendered } from "@/hooks/useInspectionOrders";
 import { EnforcementActionEnum } from "@/utils/constants";
@@ -20,33 +19,30 @@ const EnforcementDownloadPDFButton = ({
 }: EnforcementDownloadPDFButtonProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const { refetch: refetchOrderPDFData } = useInspectionOrderRendered(
-    enforcementId,
-    "pdf",
-    false
+  const { mutate: mutateOrderPDFData } = useInspectionOrderRendered((data) => {
+    downloadFile(data, `${fileNumber}.pdf`);
+    setIsLoading(false);
+  });
+
+  const { mutate: mutateWarningLetterPDFData } = useWarningLetterRendered(
+    (data) => {
+      downloadFile(data, `${fileNumber}.pdf`);
+      setIsLoading(false);
+    }
   );
 
-  const { refetch: refetchWarningLetterPDFData } =
-    useWarningLetterRendered(
-      enforcementId,
-      "pdf",
-      false
-    );
-
-  const handleDownloadClick = async () => {
+  const handleDownloadClick = () => {
     setIsLoading(true);
-    try {
-      const result =
-        enforcementType === EnforcementActionEnum.ORDER
-          ? await refetchOrderPDFData()
-          : await refetchWarningLetterPDFData();
-      if (result.data) {
-        downloadFile(result.data, `${fileNumber}.pdf`);
-      }
-    } catch (error) {
-      notify.error("Failed to download PDF");
-    } finally {
-      setIsLoading(false);
+    if (enforcementType === EnforcementActionEnum.ORDER) {
+      mutateOrderPDFData({
+        inspectionOrderId: enforcementId,
+        format: "pdf",
+      });
+    } else {
+      mutateWarningLetterPDFData({
+        inspectionWarningLetterId: enforcementId,
+        format: "pdf",
+      });
     }
   };
 

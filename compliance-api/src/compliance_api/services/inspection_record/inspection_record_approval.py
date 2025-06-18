@@ -1,6 +1,6 @@
 """Service method to handle inspection record approval."""
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import InspectionRecord as InspectionRecordModel

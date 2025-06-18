@@ -540,7 +540,7 @@ class InspectionRecordDataBuilder:
         if action == EnforcementActionOptionEnum.WARNING_LETTER:
             items = WarningLetterModel.get_by_inspection_id(self.inspection.id)
         if len(items) == 0:
-            return None
+            return []
         for item in items:
             requirement_maps = object_map[action]["get_map_method"](item.id)
             requirements = [
