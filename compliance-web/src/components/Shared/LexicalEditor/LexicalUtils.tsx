@@ -177,25 +177,3 @@ export enum UpdateFontSizeType {
   increment = 1,
   decrement,
 }
-
-export function parseAllowedFontSize(fontSize: string): string {
-  if (!fontSize) return '';
-  // Add your font size validation logic here
-  // Example: only allow px values between 8px and 48px
-  const size = parseInt(fontSize);
-  if (isNaN(size)) return '';
-  if (size < 8 || size > 48) return '';
-  return fontSize;
-}
-
-export function parseAllowedColor(color: string): string {
-  if (!color) return '';
-  // Add your color validation logic here
-  // Example: only allow rgb values
-  if (color.startsWith('rgb(') && color.endsWith(')')) {
-    return color;
-  }
-  return '';
-}
-
-
