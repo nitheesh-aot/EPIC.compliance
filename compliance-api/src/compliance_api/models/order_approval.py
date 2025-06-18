@@ -15,7 +15,7 @@ from .utils import with_session
 class OrderApprovalStatusEnum(Enum):
     """OrderApprovalStatusEnum."""
 
-    DECISION_PENDING = "Decision Pending"
+    APPROVAL_PENDING = "Approval Pending"
     APPROVED = "Approved"
     NOT_APPROVED = "Not Approved"
 
@@ -47,7 +47,7 @@ class OrderApproval(BaseModelVersioned):
         SqlEnum(OrderApprovalStatusEnum),
         nullable=True,
         comment="State of the order",
-        default=OrderApprovalStatusEnum.DECISION_PENDING,
+        default=OrderApprovalStatusEnum.APPROVAL_PENDING,
     )
     approved_by = relationship(
         "StaffUser", foreign_keys=[approved_by_id], lazy="joined"

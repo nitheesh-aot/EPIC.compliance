@@ -30,7 +30,7 @@ class WarningLetterApprovalService:
                 "approved_by_id"
             ),
             "warning_letter_status": warning_letter.status,  # default status
-            "approval_status": WarningLetterApprovalStatusEnum.DECISION_PENDING,  # default status
+            "approval_status": WarningLetterApprovalStatusEnum.APPROVAL_PENDING,  # default status
         }
         latest_approval = (
             WarningLetterApprovalModel.get_latest_approval_by_warning_letter(
@@ -41,7 +41,7 @@ class WarningLetterApprovalService:
         if (
             latest_approval
             and latest_approval.approval_status
-            == WarningLetterApprovalStatusEnum.DECISION_PENDING
+            == WarningLetterApprovalStatusEnum.APPROVAL_PENDING
         ):
             raise UnprocessableEntityError(
                 "New request cannot be made as the existing one is in progress"

@@ -14,7 +14,7 @@ from .utils import with_session
 class IRApprovalStatusEnum(Enum):
     """IRApprovalStatusEnum."""
 
-    DECISION_PENDING = "Decision Pending"
+    APPROVAL_PENDING = "Approval Pending"
     APPROVED = "Approved"
     NOT_APPROVED = "Not Approved"
 
@@ -54,6 +54,7 @@ class InspectionRecordApproval(BaseModelVersioned):
         nullable=True,
         comment="Person who approved the inspection record",
     )
+    approved_date = Column(DateTime(timezone=True), nullable=True)
     ir_status_id = Column(
         Integer,
         ForeignKey("ir_status_options.id", name="ir_status_id_status_options_fkey"),
@@ -64,7 +65,7 @@ class InspectionRecordApproval(BaseModelVersioned):
         SqlEnum(IRApprovalStatusEnum),
         nullable=True,
         comment="State of the inspection record",
-        default=IRApprovalStatusEnum.DECISION_PENDING,
+        default=IRApprovalStatusEnum.APPROVAL_PENDING,
     )
     approved_by = relationship(
         "StaffUser", foreign_keys=[approved_by_id], lazy="joined"

@@ -67,7 +67,7 @@ class UpdateWarningLetterApprovalStatusSchema(BaseSchema):
     ):  # pylint: disable=no-self-use, unused-argument
         """Perform custom validation for allowed fields."""
         status = data["approval_status"]
-        if status == WarningLetterApprovalStatusEnum.DECISION_PENDING:
+        if status == WarningLetterApprovalStatusEnum.APPROVAL_PENDING:
             raise ValidationError(f"Invalid status: {status}")
 
         return data
