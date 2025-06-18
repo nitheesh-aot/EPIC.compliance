@@ -38,6 +38,7 @@ class WarningLetterService:
         inspection_id = warning_letter_data.get("inspection_id")
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
+        ServiceUtils.officer_check(warning_letter_data.get("issuing_officer_id"), inspection)
         requirement_ids = warning_letter_data.get("inspection_requirement_ids", [])
         ServiceUtils.check_requirement_for_enforcement_action(
             requirement_ids, EnforcementActionOptionEnum.WARNING_LETTER.value
@@ -79,6 +80,7 @@ class WarningLetterService:
         """Update an existing warning letter."""
         warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
         ServiceUtils.access_check_update_for_inspection(warning_letter.inspection)
+        ServiceUtils.officer_check(update_data.get("issuing_officer_id"), warning_letter.inspection)
         requirement_ids = update_data.get("inspection_requirement_ids", [])
         ServiceUtils.check_requirement_for_enforcement_action(
             requirement_ids, EnforcementActionOptionEnum.WARNING_LETTER.value

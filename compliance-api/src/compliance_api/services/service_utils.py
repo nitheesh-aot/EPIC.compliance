@@ -11,6 +11,7 @@ from compliance_api.models import InspectionRecord as InspectionRecordModel
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models import InspectionRequirementImage as InspectionRequirementImageModel
 from compliance_api.models.case_file import CaseFile as CaseFileModel
+from compliance_api.models.case_file import CaseFileOfficer as CaseFileOfficerModel
 from compliance_api.models.compliance_finding import ComplianceFindingOptionEnum
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.models.inspection import InspectionReqSourceDetail as InspectionReqSourceDetailModel
@@ -389,3 +390,16 @@ class ServiceUtils:
                 f"Warning letter with ID {warning_letter_id} not found"
             )
         return warning_letter
+
+    @staticmethod
+    def officer_check(officer_id, inspection: InspectionModel):
+        """Check to see if the officer belong to the list of possible officers."""
+        # This check is mainly for order and warning letters
+        if not officer_id:
+            return
+        possible_officers = [inspection.primary_officer_id]
+        case_file_officers = CaseFileOfficerModel.get_all_by_case_file_id(inspection.case_file_id)
+        possible_officers.extend([officer.officer_id for officer in case_file_officers])
+        possible_officers.extend([inspection.case_file.primary_officer_id])
+        if officer_id not in possible_officers:
+            raise UnprocessableEntityError("Given officer doesn't belong to the list of possible officers")

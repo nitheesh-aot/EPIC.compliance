@@ -61,6 +61,7 @@ class OrderService:
         inspection_id = order_data.get("inspection_id")
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
+        ServiceUtils.officer_check(order_data.get("issuing_officer_id"), inspection)
         requirement_ids = order_data.get("inspection_requirement_ids", [])
         ServiceUtils.check_requirement_for_enforcement_action(
             requirement_ids, EnforcementActionOptionEnum.ORDER.value
@@ -97,6 +98,7 @@ class OrderService:
             inspection_id=update_data.get("inspection_id")
         )
         ServiceUtils.access_check_update_for_inspection(inspection)
+        ServiceUtils.officer_check(update_data.get("issuing_officer_id"), inspection)
         requirement_ids = update_data.get("inspection_requirement_ids", [])
         ServiceUtils.check_requirement_for_enforcement_action(
             requirement_ids, EnforcementActionOptionEnum.ORDER.value
