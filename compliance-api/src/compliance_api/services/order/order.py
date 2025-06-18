@@ -225,26 +225,16 @@ class OrderService:
 
 def _create_order_data(inspection, order):
     """Create order data."""
-    section = SectionModel.find_by_id(order.section_id)
-    project_details = ServiceUtils.get_project_details(
-        inspection.case_file.project_id, inspection.case_file.id
-    )
     department_details = DepartmentDetailModel.query.filter_by(
         is_active=True, is_deleted=False
     ).first()
+    order_date = order.date_issued if order.date_issued else order.intended_issuance_date
     return {
         "order_details": {
             "order_number": order.order_number,
-            "section": section.name,
-            "chapter": DEFAULT_CHAPTER,
-            "act": section.act,
-            "ea_certificate": project_details.get("eac_certificate", ""),
-            "has_certificate": project_details.get("has_certificate", False),
             "where_as": order.where_as,
             "now_therefore": order.now_therefore,
-            "issued_date": (
-                order.date_issued.strftime("%Y-%m-%d") if order.date_issued else None
-            ),
+            "issued_date": order_date.strftime("%Y-%m-%d") if order_date else None,
         },
         "officer_details": {
             "officer_name": inspection.primary_officer.first_name
@@ -313,10 +303,11 @@ def _create_where_as_and_now_therefore(
 ):
     """Create where_as and now_therefore."""
     section = SectionModel.find_by_id(section_id)
+    project_details = ServiceUtils.get_project_details(
+        inspection.case_file.project_id, inspection.case_file.id
+    )
     whereas_data = {
-        "project_details": ServiceUtils.get_project_details(
-            inspection.case_file.project_id, inspection.case_file.id
-        ),
+        "project_details": project_details,
         "inspection_details": {
             "id": inspection.id,
             "inspection_type": " and ".join(
@@ -331,6 +322,10 @@ def _create_where_as_and_now_therefore(
         "order_details": {
             "order_number": order_number,
             "section": section.name,
+            "chapter": DEFAULT_CHAPTER,
+            "act": section.act,
+            "ea_certificate": project_details.get("eac_certificate", ""),
+            "has_certificate": project_details.get("has_certificate", False),
         },
     }
     requirements = InspectionRequirementModel.get_requirement_by_ids(requirement_ids)
