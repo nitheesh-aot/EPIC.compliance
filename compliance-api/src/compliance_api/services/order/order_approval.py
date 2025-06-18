@@ -27,7 +27,7 @@ class OrderApprovalService:
             "order_id": order_id,
             "approved_by_id": order_approval_request_data.get("approved_by_id"),
             "order_status": order.order_status,  # default status
-            "approval_status": OrderApprovalStatusEnum.DECISION_PENDING,  # default status
+            "approval_status": OrderApprovalStatusEnum.APPROVAL_PENDING,  # default status
         }
         # No more approval request can be made if the order is in the following statuses
         if order.order_progress in {
@@ -42,7 +42,7 @@ class OrderApprovalService:
         if (
             latest_approval
             and latest_approval.approval_status
-            == OrderApprovalStatusEnum.DECISION_PENDING
+            == OrderApprovalStatusEnum.APPROVAL_PENDING
         ):
             raise UnprocessableEntityError(
                 "New request cannot be made as the existing one is in progress"

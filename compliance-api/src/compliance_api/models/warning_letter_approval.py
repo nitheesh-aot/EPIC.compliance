@@ -15,7 +15,7 @@ from .warning_letter import WarningLetterStatusEnum
 class WarningLetterApprovalStatusEnum(Enum):
     """WarningLetterApprovalStatusEnum."""
 
-    DECISION_PENDING = "Decision Pending"
+    APPROVAL_PENDING = "Approval Pending"
     APPROVED = "Approved"
     NOT_APPROVED = "Not Approved"
 
@@ -54,7 +54,7 @@ class WarningLetterApproval(BaseModelVersioned):
         SqlEnum(WarningLetterApprovalStatusEnum),
         nullable=True,
         comment="State of the warning letter",
-        default=WarningLetterApprovalStatusEnum.DECISION_PENDING,
+        default=WarningLetterApprovalStatusEnum.APPROVAL_PENDING,
     )
     approved_by = relationship(
         "StaffUser", foreign_keys=[approved_by_id], lazy="joined"

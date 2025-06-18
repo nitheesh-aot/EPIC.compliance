@@ -1,6 +1,6 @@
 """Service method to handle inspection record approval."""
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import InspectionRecord as InspectionRecordModel
@@ -33,7 +33,7 @@ class InspectionRecordApprovalService:
             "inspection_record_id": inspection_record_id,
             "approved_by_id": ir_approval_request_data.get("approved_by_id"),
             "ir_status_id": inspection_record.ir_status_id,
-            "approval_status": IRApprovalStatusEnum.DECISION_PENDING,  # default status
+            "approval_status": IRApprovalStatusEnum.APPROVAL_PENDING,  # default status
         }
         # No more approval request can be made if the IR is in the following statuses
         if inspection_record.ir_progress in {
@@ -51,7 +51,7 @@ class InspectionRecordApprovalService:
         # No more approval request can be made if the latest approval is in progress
         if (
             latest_approval
-            and latest_approval.approval_status == IRApprovalStatusEnum.DECISION_PENDING
+            and latest_approval.approval_status == IRApprovalStatusEnum.APPROVAL_PENDING
         ):
             raise UnprocessableEntityError(
                 "New request cannot be made as the existing one is in progress"
@@ -162,26 +162,27 @@ class InspectionRecordApprovalService:
             raise UnprocessableEntityError(
                 f"Approval already in {status_to_be_updated.value} status"
             )
+        # Set approved_date if the approval status is approved and update ir_progress
+        if status_to_be_updated == IRApprovalStatusEnum.APPROVED:
+            approval_status_data["approved_date"] = datetime.now(timezone.utc)
+            ir_progress = (
+                IRProgressEnum.PRELIMINARY_APPROVED
+                if latest_approval.ir_status_id == IRStatusEnum.PRELIMINARY.value
+                else IRProgressEnum.FINAL_APPROVED
+            )
+        # If not approved, the IR progress is set to the drafting status
+        if status_to_be_updated == IRApprovalStatusEnum.NOT_APPROVED:
+            ir_progress = (
+                IRProgressEnum.PRELIMINARY_DRAFTING
+                if latest_approval.ir_status_id == IRStatusEnum.PRELIMINARY.value
+                else IRProgressEnum.FINALIZING_RECORD
+            )
         with session_scope() as session:
             updated_approval = InspectionRecordApprovalModel.update_approval(
                 approval_id=approval_id,
                 approval_update_data=approval_status_data,
                 session=session,
             )
-            # Update the IR progress to PRELIMINARY_APPROVED or FINAL_APPROVED
-            if status_to_be_updated == IRApprovalStatusEnum.APPROVED:
-                ir_progress = (
-                    IRProgressEnum.PRELIMINARY_APPROVED
-                    if latest_approval.ir_status_id == IRStatusEnum.PRELIMINARY.value
-                    else IRProgressEnum.FINAL_APPROVED
-                )
-            # If not approved, the IR progress is set to the drafting status
-            if status_to_be_updated == IRApprovalStatusEnum.NOT_APPROVED:
-                ir_progress = (
-                    IRProgressEnum.PRELIMINARY_DRAFTING
-                    if latest_approval.ir_status_id == IRStatusEnum.PRELIMINARY.value
-                    else IRProgressEnum.FINALIZING_RECORD
-                )
             InspectionRecordModel.update_inspection_record(
                 inspection_record_id=inspection_record_id,
                 ir_update_data={"ir_progress": ir_progress},

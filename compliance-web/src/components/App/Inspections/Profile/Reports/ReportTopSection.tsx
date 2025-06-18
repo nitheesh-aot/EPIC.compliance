@@ -26,7 +26,7 @@ import { StaffUser } from "@/models/Staff";
 
 // Status badge configurations
 const STATUS_BADGE_CONFIG = {
-  PENDING: { text: "Decision Pending", color: "warning" },
+  PENDING: { text: "Approval Pending", color: "warning" },
   APPROVED: { text: "Approved", color: "success" },
   NOT_APPROVED: { text: "Not Approved", color: "error" },
   ISSUED: { text: "Issued", color: "success" },
