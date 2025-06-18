@@ -31,7 +31,7 @@ B. Environmental Assessment (EA) Certificate {{project_details.eac_certificate}}
 {% endif %}
 <p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">
 {% if project_details.has_certificate %}
-C. {% else %}A.{% endif %}. On
+C. {% else %}A. {% endif %}On
 {% if inspection_details.start_date == inspection_details.end_date %}
  {{inspection_details.start_date}}
 {% else %}
@@ -43,7 +43,7 @@ C. {% else %}A.{% endif %}. On
   The inspection findings are documented in Inspection Record {{inspection_details.ir_number}}.</span></p>
 <p class="editor-paragraph" style="text-align: left;"><br></p>
 <p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">
-{% if project_details.has_certificate %}D.{% else %}B.{% endif %}. Section
+{% if project_details.has_certificate %}D. {% else %}B. {% endif %}Section
  {{order_details.section}} of the Act specifies that the Chief Executive Assessment Officer may order the
   {{project_details.proponent_label}} to</span></p><p class="editor-paragraph" style="text-align: left;"><br></p>
 <p class="editor-paragraph" dir="ltr" style="text-align: left;"><i><em class="editor-text-italic"
