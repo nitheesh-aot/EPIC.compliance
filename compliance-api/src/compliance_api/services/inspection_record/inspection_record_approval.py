@@ -111,6 +111,7 @@ class InspectionRecordApprovalService:
             ) + timedelta(days=5)
             approval_update_data["date_expected_return"] = date_expected_return
         with session_scope() as session:
+            ir_update_data = {}
             updated_approval = InspectionRecordApprovalModel.update_approval(
                 approval_id=approval_id,
                 approval_update_data=approval_update_data,
@@ -127,9 +128,7 @@ class InspectionRecordApprovalService:
                 ir_data = ir_builder.build_action_required_by_rp(
                     hard_reset=True
                 ).build()
-                ir_update_data = {
-                    "action_required_by_rp": ir_data.get("action_required_by_rp")
-                }
+                ir_update_data["action_required_by_rp"] = ir_data.get("action_required_by_rp")
             ir_update_data["ir_progress"] = IRProgressEnum.HOLDER_PRELIMINARY_REVIEW
             # Update ir_progress to HOLDER_PRELIMINARY_REVIEW
             InspectionRecordModel.update_inspection_record(

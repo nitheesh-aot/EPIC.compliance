@@ -1,6 +1,18 @@
 """Order template constants."""
 
-WHERE_AS = """<p class="editor-paragraph" dir="ltr" style="text-align: left;"><b><strong class="editor-text-bold"
+WHERE_AS = """<p class="com-order-title" style="text-align: center;font-weight: bold"><strong class="editor-text-bold"
+            style="white-space: pre-wrap;">
+IN THE MATTER OF THE ENVIRONMENTAL ASSESSMENT ACT S.B.C. {{order_details.act}}, c.{{order_details.chapter}}
+<br />
+(ACT)<br />
+AND<br />
+NON-COMPLIANCES<br />
+WITH {% if order_details.has_certificate %}ENVIRONMENTAL ASSESSMENT CERTIFICATE
+ {{order_details.ea_certificate}}{%else%}(reference Act or Exemption Order, as appropriate){% endif %}<br />
+<u>ORDER UNDER SECTION {{order_details.section}}</u>
+    </strong></p>
+<p class="editor-paragraph" style="text-align: left;"><br></p>
+<p class="editor-paragraph" dir="ltr" style="text-align: left;"><b><strong class="editor-text-bold"
             style="white-space: pre-wrap;">WHEREAS:</strong></b></p>
 <p class="editor-paragraph" style="text-align: left;"><br></p>
 <p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">

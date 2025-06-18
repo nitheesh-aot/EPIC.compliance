@@ -111,15 +111,6 @@
     <span class="pageNumber"></span>
 </div>
 <div class="com-order-content">
-    <div class="com-order-title">
-        IN THE MATTER OF THE ENVIRONMENTAL ASSESSMENT ACT S.B.C. {{order_details.act}}, c.{{order_details.chapter}}<br />
-        (ACT)<br />
-        AND<br />
-        NON-COMPLIANCES<br />
-        WITH {% if order_details.has_certificate %}ENVIRONMENTAL ASSESSMENT CERTIFICATE {{order_details.ea_certificate}}{%else%}(reference Act or Exemption Order, as appropriate){% endif %}<br />
-        <u>ORDER UNDER SECTION {{order_details.section}}</u>
-    </div>
-
     <div class="section">
         {{order_details.where_as  | safe | replace('style="white-space: pre-wrap;"',
         '')}}
@@ -135,8 +126,7 @@
         <p>{{officer_details.officer_name}}<br>
         {{officer_details.officer_position}}<br>
         {{department_details.office_name}}</p>
-
-        <p>Dated {{order_details.issued_date}}<br>
+        <p>Dated {% if order_details.issued_date %}{{order_details.issued_date}}{% endif %}<br>
         Order Ref: {{order_details.order_number}}</p>
     </div>
 </div>
