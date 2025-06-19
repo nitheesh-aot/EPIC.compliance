@@ -1,4 +1,4 @@
-import { ComponentType, FC, useCallback, useEffect, useMemo } from "react";
+import { ComponentType, FC, useCallback, useMemo, memo } from "react";
 
 import FilterSelect from "./FilterSelect";
 import { TableFilterProps } from "./type";
@@ -7,29 +7,30 @@ const makeTableFilter =
   <SelectProps extends object>(
     Component: ComponentType<SelectProps>
   ): FC<TableFilterProps> =>
-  ({ header, column, ...props }: TableFilterProps) => {
+  memo(({ header, column, ...props }: TableFilterProps) => {
     const filterAppliedCallback = useCallback(
       (selectedOptions: string[] | string) => {
         header.column.setFilterValue(selectedOptions);
       },
-      [header]
+      [header.column]
     );
 
     const filterClearedCallback = useCallback(
       (value: [] | string) => {
         header.column.setFilterValue(value);
       },
-      [header]
+      [header.column]
     );
 
-    const toOptionType = (
+    const toOptionType = useCallback((
       option: string | { text: string; value: unknown }
     ) => {
       if (typeof option === "object") {
         return { label: option.text, value: option.value };
       }
       return { label: option, value: option };
-    };
+    }, []);
+
     const options = useMemo(() => {
       let filterOptions = column.columnDef.filterSelectOptions;
       filterOptions = filterOptions.map(
@@ -43,9 +44,9 @@ const makeTableFilter =
         ) => toOptionType(option)
       );
       return filterOptions;
-    }, [column]);
+    }, [column.columnDef.filterSelectOptions, toOptionType]);
 
-    const handleValues = (value: string | string[]) => {
+    const handleValues = useCallback((value: string | string[]) => {
       if (!value) return value;
       if (Array.isArray(value)) {
         return value.map((val) => {
@@ -53,11 +54,7 @@ const makeTableFilter =
         });
       }
       return toOptionType(value);
-    };
-
-    useEffect(() => {
-      column.setFilterValue(column.getFilterValue());
-    }, [column]);
+    }, [toOptionType]);
 
     return (
       <Component
@@ -68,7 +65,8 @@ const makeTableFilter =
         defaultValue={handleValues(column.getFilterValue())}
       />
     );
-  };
+  });
 
 const TableFilter = makeTableFilter(FilterSelect);
+TableFilter.displayName = 'TableFilter';
 export default TableFilter;

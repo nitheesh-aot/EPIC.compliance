@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, memo, useCallback } from "react";
 import Select from "react-select";
 import Menu from "./components/Menu";
 import Option from "./components/Option";
@@ -10,7 +10,7 @@ import DropdownIndicator from "./components/DropDownIndicator";
 import { useTheme } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 
-const FilterSelect = (props: SelectProps) => {
+const FilterSelect = memo((props: SelectProps) => {
   const theme = useTheme();
   const { name, isMulti, defaultValue } = props;
   const standardDefault = isMulti ? [] : "";
@@ -32,47 +32,62 @@ const FilterSelect = (props: SelectProps) => {
     []
   );
 
-  const isSelectAllSelected = () =>
-    selectedOptions.includes(selectAllOption.value);
+  const isSelectAllSelected = useCallback(
+    () => selectedOptions.includes(selectAllOption.value),
+    [selectedOptions, selectAllOption.value]
+  );
 
-  const isOptionSelected = (o: OptionType) =>
-    isMulti ? selectedOptions.includes(o.value) : selectedOptions === o.value;
+  const isOptionSelected = useCallback(
+    (o: OptionType) =>
+      isMulti ? selectedOptions.includes(o.value) : selectedOptions === o.value,
+    [isMulti, selectedOptions]
+  );
 
-  const handleChange = (newValue: any, actionMeta: any) => {
-    if (!isMulti) {
-      if (isOptionSelected(newValue)) {
-        setSelectedOptions("");
-      } else {
-        setSelectedOptions(newValue.value);
+  const handleChange = useCallback(
+    (newValue: any, actionMeta: any) => {
+      if (!isMulti) {
+        if (isOptionSelected(newValue)) {
+          setSelectedOptions("");
+        } else {
+          setSelectedOptions(newValue.value);
+        }
+        return;
       }
-      return;
-    }
-    const { option } = actionMeta;
-    if (option === undefined) return;
+      const { option } = actionMeta;
+      if (option === undefined) return;
 
-    if (option.value === selectAllOption.value) {
-      if (isSelectAllSelected()) {
-        setSelectedOptions([]);
+      if (option.value === selectAllOption.value) {
+        if (isSelectAllSelected()) {
+          setSelectedOptions([]);
+        } else {
+          const options = [...(props.options?.map((o: any) => o.value) || [])];
+          setSelectedOptions([selectAllOption.value, ...options]);
+        }
       } else {
-        const options = [...(props.options?.map((o: any) => o.value) || [])];
-        setSelectedOptions([selectAllOption.value, ...options]);
+        if (isOptionSelected(option)) {
+          setSelectedOptions(
+            selectedOptions.filter(
+              (o: string) => o !== option.value && o !== selectAllOption.value
+            )
+          );
+        } else {
+          let value = [...selectedOptions, option.value];
+          value = Array.from(new Set<string>(value));
+          setSelectedOptions(value || []);
+        }
       }
-    } else {
-      if (isOptionSelected(option)) {
-        setSelectedOptions(
-          selectedOptions.filter(
-            (o: string) => o !== option.value && o !== selectAllOption.value
-          )
-        );
-      } else {
-        let value = [...selectedOptions, option.value];
-        value = Array.from(new Set<string>(value));
-        setSelectedOptions(value || []);
-      }
-    }
-  };
+    },
+    [
+      isMulti,
+      isOptionSelected,
+      selectAllOption.value,
+      props,
+      selectedOptions,
+      isSelectAllSelected,
+    ]
+  );
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     if (props.filterAppliedCallback) {
       const options = isMulti
         ? (selectedOptions as string[]).filter(
@@ -97,27 +112,27 @@ const FilterSelect = (props: SelectProps) => {
     }
     setMenuIsOpen(false);
     selectRef.current?.blur();
-  };
+  }, [props, selectedOptions, isMulti, selectAllOption.value, options]);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSelectedOptions([]);
     setSelectValue(isMulti ? [] : "");
     if (props.filterClearedCallback) {
       props.filterClearedCallback(isMulti ? [] : "");
     }
     selectRef.current?.clearValue();
-  };
+  }, [isMulti, props]);
 
-  const onCancel = () => {
+  const onCancel = useCallback(() => {
     const currentValues = isMulti
       ? selectValue.map((v: OptionType) => v.value)
       : selectValue.value;
     setSelectedOptions(currentValues || isMulti ? [] : "");
     setMenuIsOpen(false);
     selectRef.current?.blur();
-  };
+  }, [isMulti, selectValue]);
 
-  const adjustDropdownPosition = () => {
+  const adjustDropdownPosition = useCallback(() => {
     if (menuRef?.current) {
       const menuRect = menuRef.current.getBoundingClientRect();
       const windowWidth = window.innerWidth - 50;
@@ -133,7 +148,7 @@ const FilterSelect = (props: SelectProps) => {
         setMenuStyle({});
       }
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (menuIsOpen) {
@@ -143,7 +158,7 @@ const FilterSelect = (props: SelectProps) => {
         : selectValue.value;
       setSelectedOptions(currentValues);
     }
-  }, [isMulti, menuIsOpen, selectValue]);
+  }, [menuIsOpen, isMulti, selectValue, adjustDropdownPosition]);
 
   useEffect(() => {
     let filterOptions = props.options as OptionType[];
@@ -151,7 +166,7 @@ const FilterSelect = (props: SelectProps) => {
     setOptions(filterOptions);
   }, [isMulti, props.options, selectAllOption]);
 
-  const isSearchable = () => {
+  const isSearchable = useCallback(() => {
     if (props.isSearchable !== undefined) return props.isSearchable;
 
     if (selectValue instanceof Array) {
@@ -159,7 +174,7 @@ const FilterSelect = (props: SelectProps) => {
     }
 
     return !selectValue;
-  };
+  }, [props.isSearchable, selectValue]);
 
   useEffect(() => {
     if (
@@ -283,6 +298,8 @@ const FilterSelect = (props: SelectProps) => {
       />
     </div>
   );
-};
+});
+
+FilterSelect.displayName = "FilterSelect";
 
 export default FilterSelect;
