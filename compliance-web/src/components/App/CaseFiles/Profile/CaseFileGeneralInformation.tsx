@@ -103,8 +103,8 @@ const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
           size="small"
         />
       )}
-      <CaseFileComplaintsTable caseFileId={caseFileData.id} />
-      <CaseFileInspectionsTable caseFileId={caseFileData.id} />
+      <CaseFileComplaintsTable caseFile={caseFileData} />
+      <CaseFileInspectionsTable caseFile={caseFileData} />
     </Box>
   );
 };
