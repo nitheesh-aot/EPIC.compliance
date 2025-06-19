@@ -103,6 +103,7 @@ const CaseFileComplaintsTable = ({ caseFile }: { caseFile: CaseFile }) => {
                     </Link>
                     <Chip
                       label={complaint.status}
+                      data-testid="status-chip"
                       color={
                         complaint.status?.toLowerCase() === "open"
                           ? "success"

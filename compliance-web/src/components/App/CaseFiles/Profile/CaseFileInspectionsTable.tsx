@@ -103,6 +103,7 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
                     </Link>
                     <Chip
                       label={inspection.inspection_status}
+                      data-testid="status-chip"
                       color={
                         inspection.inspection_status?.toLowerCase() === "open"
                           ? "success"
