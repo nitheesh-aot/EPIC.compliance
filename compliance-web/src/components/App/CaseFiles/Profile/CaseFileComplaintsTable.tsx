@@ -1,144 +1,161 @@
-import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
-import { searchFilter } from "@/components/Shared/MasterDataTable/utils";
+import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 import { useComplaintsByCaseFileId } from "@/hooks/useComplaints";
-import { Complaint } from "@/models/Complaint";
-import { Link, Chip } from "@mui/material";
+import { CaseFile } from "@/models/CaseFile";
+import { INITIATION } from "@/utils/constants";
+import dateUtils from "@/utils/dateUtils";
+import { ChevronRight, ExpandLessRounded } from "@mui/icons-material";
+import {
+  Link,
+  Chip,
+  Accordion,
+  AccordionSummary,
+  Box,
+  Typography,
+  AccordionDetails,
+  Grid,
+} from "@mui/material";
 import { Link as RouterLink } from "@tanstack/react-router";
-import { MRT_ColumnDef } from "material-react-table";
-import { useState, useEffect, useMemo } from "react";
+import { BCDesignTokens } from "epic.theme";
+import { useState } from "react";
 
-const CaseFileComplaintsTable = ({ caseFileId }: { caseFileId: number }) => {
-  const { data: complaints, isLoading } = useComplaintsByCaseFileId(caseFileId);
+const CaseFileComplaintsTable = ({ caseFile }: { caseFile: CaseFile }) => {
+  const { data: complaints } = useComplaintsByCaseFileId(caseFile.id);
 
-  const [staffUserList, setStaffUserList] = useState<string[]>([]);
-  const [complaintStatusList, setComplaintStatusList] = useState<string[]>([]);
-  const [topicList, setTopicList] = useState<string[]>([]);
-  const [complaintSourceList, setComplaintSourceList] = useState<string[]>([]);
-
-  useEffect(() => {
-    setStaffUserList(
-      [
-        ...new Set(
-          complaints?.map((complaint) => complaint.primary_officer?.name ?? "")
-        ),
-      ].filter(Boolean)
-    );
-    setComplaintStatusList(
-      [
-        ...new Set(complaints?.map((complaint) => complaint.status ?? "")),
-      ].filter(Boolean)
-    );
-    setTopicList(
-      [
-        ...new Set(
-          complaints?.map(
-            (complaint) => complaint.requirement_detail?.topic?.name ?? ""
-          )
-        ),
-      ].filter(Boolean)
-    );
-    setComplaintSourceList(
-      [
-        ...new Set(
-          complaints?.map((complaint) => complaint.source_type?.name ?? "")
-        ),
-      ].filter(Boolean)
-    );
-  }, [complaints]);
-
-  const columns = useMemo<MRT_ColumnDef<Complaint>[]>(
-    () => [
-      {
-        accessorKey: "complaint_number",
-        header: "Complaint #",
-        filterFn: searchFilter,
-        Cell: ({ row }) => {
-          return (
-            <Link
-              component={RouterLink}
-              to={`/ce-database/complaints/${row.original.complaint_number}`}
-              underline="hover"
-            >
-              {row.original.complaint_number?.split("_").pop()}
-            </Link>
-          );
-        },
-        size: 100,
-      },
-      {
-        accessorKey: "status",
-        header: "Status",
-        Cell: ({ row }) => {
-          return row.original.status ? (
-            <Chip
-              label={row.original.status}
-              color={
-                row.original.status?.toLowerCase() === "open"
-                  ? "success"
-                  : "error"
-              }
-              variant="outlined"
-              size="small"
-            />
-          ) : (
-            <></>
-          );
-        },
-        filterVariant: "multi-select",
-        filterSelectOptions: complaintStatusList,
-        size: 100,
-      },
-      {
-        accessorFn: (row) => row.requirement_detail?.topic?.name,
-        header: "Topic",
-        filterVariant: "multi-select",
-        filterSelectOptions: topicList,
-        size: 120,
-      },
-      {
-        accessorKey: "source_type.name",
-        header: "Source",
-        filterVariant: "multi-select",
-        filterSelectOptions: complaintSourceList,
-        size: 120,
-      },
-      {
-        accessorFn: (row) => row.primary_officer?.name,
-        id: "primary_officer.name",
-        header: "Primary",
-        filterVariant: "multi-select",
-        filterSelectOptions: staffUserList,
-        size: 120,
-      },
-    ],
-    [complaintStatusList, staffUserList, topicList, complaintSourceList]
+  const [expandedComplaints, setExpandedComplaints] = useState<Set<number>>(
+    new Set()
   );
 
-  return complaints && complaints.length > 0 ? (
-    <MasterDataTable
-      data-testid="case-file-complaints-table"
-      columns={columns}
-      data={complaints}
-      initialState={{
-        sorting: [
-          {
-            id: "complaint_number",
-            desc: false,
-          },
-        ],
-      }}
-      state={{
-        isLoading: isLoading,
-        showGlobalFilter: true,
-      }}
-      enableTopToolbar={false}
-      muiTableProps={{
-        id: "case-file-complaints-table",
-      }}
-      isStackedTables
-    />
-  ) : (
-    <></>
+  const handleAccordionChange = (complaintId: number, expanded: boolean) => {
+    setExpandedComplaints((prev) => {
+      const newSet = new Set(prev);
+      if (expanded) {
+        newSet.add(complaintId);
+      } else {
+        newSet.delete(complaintId);
+      }
+      return newSet;
+    });
+  };
+
+  return (
+    (caseFile.initiation.id === INITIATION.COMPLAINTS_ID ||
+      (complaints && complaints?.length > 0)) && (
+      <>
+        <Typography variant="h6" mt={2} mb={1}>
+          Complaints
+        </Typography>
+        {complaints && complaints.length > 0 ? (
+          complaints.map((complaint, index) => {
+            const isExpanded = expandedComplaints.has(complaint.id);
+
+            return (
+              <Accordion
+                key={complaint.id}
+                expanded={isExpanded}
+                onChange={(_, expanded) => {
+                  handleAccordionChange(complaint.id, expanded);
+                }}
+                sx={{
+                  marginY: "0.5rem",
+                  border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+                  borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
+                  "&.Mui-expanded": {
+                    marginY: "0.5rem",
+                  },
+                  "&:before": {
+                    display: "none",
+                  },
+                }}
+              >
+                <AccordionSummary
+                  aria-controls={`panel${index}-content`}
+                  id={`requirement-source-panel${index}-header`}
+                  sx={{
+                    backgroundColor:
+                      BCDesignTokens.surfaceColorBackgroundLightGray,
+                    borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
+                    "&.Mui-expanded": {
+                      minHeight: "48px",
+                      padding: "0.875rem 1rem",
+                      borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+                      "& .MuiAccordionSummary-content": {
+                        margin: "0",
+                      },
+                    },
+                    "& .MuiAccordionSummary-content": {
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: "1rem",
+                    },
+                  }}
+                >
+                  <Box display={"flex"} alignItems={"center"} gap={0.5}>
+                    {isExpanded ? <ExpandLessRounded /> : <ChevronRight />}
+                    <Link
+                      component={RouterLink}
+                      to="/ce-database/complaints/$complaintNumber"
+                      params={{
+                        complaintNumber: complaint.complaint_number,
+                      }}
+                      underline="hover"
+                    >
+                      {complaint.complaint_number}
+                    </Link>
+                    <Chip
+                      label={complaint.status}
+                      data-testid="status-chip"
+                      color={
+                        complaint.status?.toLowerCase() === "open"
+                          ? "success"
+                          : "error"
+                      }
+                      variant="outlined"
+                      size="small"
+                    />
+                  </Box>
+                  <Box display={"flex"} alignItems={"center"} gap={0.5}>
+                    <Typography
+                      variant="body2"
+                      color={BCDesignTokens.typographyColorPlaceholder}
+                      mr={0.25}
+                    >
+                      Primary:
+                    </Typography>
+                    <Typography variant="body2">Christie Lombardi</Typography>
+                  </Box>
+                </AccordionSummary>
+                <AccordionDetails sx={{ padding: "1rem" }}>
+                  <Grid container spacing={2}>
+                    <GridLabelValuePair
+                      label="Concern Description"
+                      value={complaint.concern_description}
+                      gridProps={{ xs: 8 }}
+                    />
+                    <GridLabelValuePair
+                      label="Source"
+                      value={complaint.source_type?.name}
+                      gridProps={{ xs: 2 }}
+                    />
+                    <GridLabelValuePair
+                      label="Date Received"
+                      value={dateUtils.formatDate(complaint.date_received)}
+                      gridProps={{ xs: 2 }}
+                    />
+                  </Grid>
+                </AccordionDetails>
+              </Accordion>
+            );
+          })
+        ) : (
+          <Typography
+            variant="body2"
+            color={BCDesignTokens.typographyColorPlaceholder}
+          >
+            You do not have any created complaints on this file.
+          </Typography>
+        )}
+      </>
+    )
   );
 };
 
