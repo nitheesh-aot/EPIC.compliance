@@ -228,7 +228,9 @@ def _create_order_data(inspection, order):
     department_details = DepartmentDetailModel.query.filter_by(
         is_active=True, is_deleted=False
     ).first()
-    order_date = order.date_issued if order.date_issued else order.intended_issuance_date
+    order_date = (
+        order.date_issued if order.date_issued else order.intended_issuance_date
+    )
     return {
         "order_details": {
             "order_number": order.order_number,

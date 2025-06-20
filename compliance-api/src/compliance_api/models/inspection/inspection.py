@@ -124,6 +124,15 @@ class Inspection(BaseModelVersioned):
         "InspectionType.is_active == True, "
         "InspectionType.is_deleted == False)",
     )
+    inspection_requirements = relationship(
+        "InspectionRequirement",
+        back_populates="inspection",
+        lazy="select",
+        primaryjoin="and_(InspectionRequirement.inspection_id == Inspection.id, "
+        "InspectionRequirement.is_active == True, "
+        "InspectionRequirement.is_deleted == False)",
+        order_by="InspectionRequirement.sort_order",
+    )
     project = relationship("Project", foreign_keys=[project_id], lazy="joined")
     primary_officer = relationship(
         "StaffUser", foreign_keys=[primary_officer_id], lazy="joined"

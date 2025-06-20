@@ -124,6 +124,7 @@ class InspectionRequirementService:
     @classmethod
     def delete(cls, inspection_id, requirement_id):
         """Delete the requirement."""
+        # TODO: CHECK ORDERS AND WARNING LETTERS BEFORE DELETING THE REUQIREMENT
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
         _inspection_status_check(inspection)
         _requirement_check(requirement_id)

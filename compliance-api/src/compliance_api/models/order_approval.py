@@ -53,7 +53,7 @@ class OrderApproval(BaseModelVersioned):
         "StaffUser", foreign_keys=[approved_by_id], lazy="joined"
     )
     approved_date = Column(DateTime(timezone=True), nullable=True)
-    order = relationship("Order", foreign_keys=[order_id], lazy="joined")
+    order = relationship("Order", back_populates="order_approvals", lazy="joined")
 
     @classmethod
     @with_session

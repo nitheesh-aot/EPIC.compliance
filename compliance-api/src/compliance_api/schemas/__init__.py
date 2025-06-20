@@ -26,8 +26,8 @@ from .continuation_report import (
     ContinuationReportSchema, ContinuationReportUpdateSchema, CRGetQueryParamSchema)
 from .department_detail import DepartmentDetailsSchema
 from .inspection import (
-    InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionSchema,
-    InspectionStatusSchema, InspectionUpdateSchema)
+    InspectionAttendanceSchema, InspectionCreateSchema, InspectionMoreDetailsSchema, InspectionOfficerSchema,
+    InspectionSchema, InspectionStatusSchema, InspectionUpdateSchema)
 from .inspection_approval import (
     CreateInspectionRecordApprovalSchema, InspectionRecordApprovalSchema, UpdateInspectionRecordApprovalSchema,
     UpdateInspectionRecordApprovalStatusSchema)

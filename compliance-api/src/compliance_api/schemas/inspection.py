@@ -63,7 +63,7 @@ class InspectionOfficerSchema(AutoSchemaBase):  # pylint: disable=too-many-ances
     officer = fields.Nested(StaffUserSchema, dump_only=True)
 
 
-class InspectionUpdateSchema(BaseSchema):
+class InspectionUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     """InspectionUpdateSchema."""
 
     project_description = fields.Str(
@@ -312,6 +312,77 @@ class InspectionCreateSchema(InspectionUpdateSchema):
     )
 
 
+class InspectionEnforcementActionSchema(BaseSchema):  # pylint: disable=too-many-ancestors
+    """InspectionEnforcementActionSchema."""
+
+    id = fields.Str(
+        metadata={
+            "description": "The unique identifier of the enforcement action",
+            "type": "string",
+            "required": True,
+        }
+    )
+    name = fields.Str(
+        metadata={
+            "description": "The name of the enforcement action",
+            "type": "string",
+            "required": True,
+        }
+    )
+    approval_status = fields.Nested(
+        KeyValueSchema,
+        metadata={
+            "description": "The approval status of the enforcement action",
+            "type": "object",
+        },
+    )
+    progress = fields.Nested(
+        KeyValueSchema,
+        metadata={
+            "description": "The progress of the enforcement action",
+            "type": "object",
+        },
+    )
+
+
+class InspectionRequirementDetails(BaseSchema):  # pylint: disable=too-many-ancestors
+    """InspectionRequirementDetails."""
+
+    requirement_id = fields.Int(
+        metadata={
+            "description": "The unique identifier of the requirement",
+            "type": "integer",
+            "required": True,
+        }
+    )
+    requirement_summary = fields.Str(
+        metadata={
+            "description": "The summary of the requirement",
+            "type": "string",
+            "required": True,
+        }
+    )
+    enforcement_action = fields.Nested(
+        InspectionEnforcementActionSchema,
+        metadata={
+            "description": "The enforcement action associated with the requirement",
+            "type": "object",
+        },
+    )
+    requirement_number = fields.Str(
+        metadata={
+            "description": "The number of the requirement",
+            "type": "string",
+        }
+    )
+    requirement_source_name = fields.Str(
+        metadata={
+            "description": "The name of the requirement source",
+            "type": "string",
+        }
+    )
+
+
 class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     """Schema for inspection model."""
 
@@ -341,6 +412,7 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         metadata={"description": "The approval status of the inspection record"},
         allow_none=True,
     )
+    requirement_details = fields.Nested(InspectionRequirementDetails, many=True)
 
     @pre_dump
     def pre_dump_actions(
@@ -379,6 +451,12 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         if obj.types:
             return ", ".join([o.type.name for o in obj.types])
         return []
+
+
+class InspectionMoreDetailsSchema(InspectionSchema):  # pylint: disable=too-many-ancestors
+    """InspectionMoreDetailsSchema."""
+
+    requirement_details = fields.Nested(InspectionRequirementDetails, many=True)
 
 
 class InspectionStatusSchema(BaseSchema):

@@ -398,8 +398,12 @@ class ServiceUtils:
         if not officer_id:
             return
         possible_officers = [inspection.primary_officer_id]
-        case_file_officers = CaseFileOfficerModel.get_all_by_case_file_id(inspection.case_file_id)
+        case_file_officers = CaseFileOfficerModel.get_all_by_case_file_id(
+            inspection.case_file_id
+        )
         possible_officers.extend([officer.officer_id for officer in case_file_officers])
         possible_officers.extend([inspection.case_file.primary_officer_id])
         if officer_id not in possible_officers:
-            raise UnprocessableEntityError("Given officer doesn't belong to the list of possible officers")
+            raise UnprocessableEntityError(
+                "Given officer doesn't belong to the list of possible officers"
+            )
