@@ -21,9 +21,9 @@ from flask_restx import Namespace, Resource
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas import (
-    InspectionAttendanceSchema, InspectionCreateSchema, InspectionOfficerSchema, InspectionReqImageSchema,
-    InspectionRequirementBulkUpdateSchema, InspectionSchema, InspectionStatusSchema, InspectionUpdateSchema,
-    KeyValueSchema, StaffUserSchema)
+    InspectionAttendanceSchema, InspectionCreateSchema, InspectionMoreDetailsSchema, InspectionOfficerSchema,
+    InspectionReqImageSchema, InspectionRequirementBulkUpdateSchema, InspectionSchema, InspectionStatusSchema,
+    InspectionUpdateSchema, KeyValueSchema, StaffUserSchema)
 from compliance_api.services import InspectionRequirementService, InspectionService
 from compliance_api.utils.enum import PermissionEnum
 from compliance_api.utils.util import cors_preflight
@@ -60,6 +60,9 @@ inspesction_req_image_schema = ApiHelper.convert_ma_schema_to_restx_model(
 )
 inspection_requirement_bulk_update_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, InspectionRequirementBulkUpdateSchema(), "InspectionRequirementBulkUpdate"
+)
+inspection_more_details_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, InspectionMoreDetailsSchema(), "InspectionMoreDetails"
 )
 
 
@@ -177,6 +180,34 @@ class Inspections(Resource):
         inspection_data = InspectionCreateSchema().load(API.payload)
         created_inspection = InspectionService.create(inspection_data)
         return InspectionSchema().dump(created_inspection), HTTPStatus.CREATED
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/more-details", methods=["POST", "GET", "OPTIONS"])
+class InspectionDetails(Resource):
+    """Resource for managing inspections."""
+
+    @staticmethod
+    @API.response(
+        code=200, description="Success", model=[inspection_more_details_model]
+    )
+    @API.doc(
+        params={
+            "case_file_id": {
+                "description": "The unique identifier of the case file",
+                "type": "integer",
+                "required": False,
+            }
+        }
+    )
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all inspections")
+    @auth.require
+    def get():
+        """Fetch all inspections."""
+        case_file_id = request.args.get("case_file_id")
+        inspections = InspectionService.get_inspection_details(case_file_id)
+        inspection_more_details_schema = InspectionMoreDetailsSchema(many=True)
+        return inspection_more_details_schema.dump(inspections), HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS, POST")

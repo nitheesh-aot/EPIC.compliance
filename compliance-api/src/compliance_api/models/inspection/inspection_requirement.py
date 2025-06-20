@@ -66,7 +66,11 @@ class InspectionRequirement(BaseModelVersioned):
     sort_order = Column(Integer, nullable=False, comment="The order of requirements")
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
 
-    inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="select")
+    inspection = relationship(
+        "Inspection",
+        back_populates="inspection_requirements",
+        lazy="joined",
+    )
     topic = relationship("Topic", foreign_keys=[topic_id], lazy="joined")
     compliance_finding = relationship(
         "ComplianceFindingOption", foreign_keys=[compliance_finding_id], lazy="joined"
