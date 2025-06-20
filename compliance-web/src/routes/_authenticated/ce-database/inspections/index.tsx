@@ -2,6 +2,7 @@ import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable
 import PageLink from "@/components/Shared/PageLink";
 import { useInspectionsData } from "@/hooks/useInspections";
 import { Inspection } from "@/models/Inspection";
+import dateUtils from "@/utils/dateUtils";
 import { Chip } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import { MRT_ColumnDef } from "material-react-table";
@@ -53,12 +54,16 @@ export function Inspections() {
     () => createUniqueFilterList("primary_officer", "name"),
     [createUniqueFilterList]
   );
-  const irTypeList = useMemo(
-    () => createUniqueFilterList("types_text"),
-    [createUniqueFilterList]
-  );
   const inspectionStatusList = useMemo(
     () => createUniqueFilterList("inspection_status"),
+    [createUniqueFilterList]
+  );
+  const irProgressList = useMemo(
+    () => createUniqueFilterList("ir_progress"),
+    [createUniqueFilterList]
+  );
+  const approvalStatusList = useMemo(
+    () => createUniqueFilterList("approval_status"),
     [createUniqueFilterList]
   );
 
@@ -82,10 +87,10 @@ export function Inspections() {
         filterSelectOptions: projectList,
       },
       {
-        accessorKey: "types_text",
-        header: "Type",
-        filterVariant: "multi-select",
-        filterSelectOptions: irTypeList,
+        accessorFn: (row) => dateUtils.formatDate(row.start_date),
+        id: "start_date",
+        header: "Start Date",
+        filterFn: "contains",
         size: 120,
       },
       {
@@ -93,6 +98,47 @@ export function Inspections() {
         header: "Initiation",
         filterVariant: "multi-select",
         filterSelectOptions: initiationList,
+        size: 120,
+      },
+      {
+        accessorKey: "ir_progress",
+        header: "IR Progress",
+        filterVariant: "multi-select",
+        filterSelectOptions: irProgressList,
+        size: 120,
+      },
+      {
+        accessorKey: "approval_status",
+        header: "Approval Status",
+        Cell: ({ row }) => {
+          return row.original.approval_status ? (
+            <Chip
+              label={row.original.approval_status}
+              color={
+                row.original.approval_status?.toLowerCase().includes("pending")
+                  ? "warning"
+                  : row.original.approval_status?.toLowerCase() === "approved"
+                    ? "success"
+                    : "error"
+              }
+              variant="outlined"
+              size="small"
+            />
+          ) : (
+            <></>
+          );
+        },
+        filterVariant: "multi-select",
+        filterSelectOptions: approvalStatusList,
+        size: 120,
+      },
+      {
+        accessorFn: (row) => row.primary_officer?.name,
+        id: "primary_officer.name",
+        header: "Primary",
+        filterVariant: "multi-select",
+        filterSelectOptions: staffUserList,
+        size: 120,
       },
       {
         accessorKey: "inspection_status",
@@ -115,14 +161,7 @@ export function Inspections() {
         },
         filterVariant: "multi-select",
         filterSelectOptions: inspectionStatusList,
-        size: 120,
-      },
-      {
-        accessorFn: (row) => row.primary_officer?.name,
-        id: "primary_officer.name",
-        header: "Primary",
-        filterVariant: "multi-select",
-        filterSelectOptions: staffUserList,
+        size: 80,
       },
       {
         accessorKey: "case_file.case_file_number",
@@ -141,8 +180,9 @@ export function Inspections() {
     [
       projectList,
       initiationList,
+      irProgressList,
+      approvalStatusList,
       staffUserList,
-      irTypeList,
       inspectionStatusList,
     ]
   );
