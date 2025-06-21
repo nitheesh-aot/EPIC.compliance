@@ -34,6 +34,9 @@ export interface MaterialReactTableProps<TData extends MRT_RowData>
   tableName?: string;
   titleToolbarProps?: MRT_EAO_TitleToolbarProps;
   isStackedTables?: boolean;
+  renderExternalFilter?: (props: {
+    table: MRT_TableInstance<TData>;
+  }) => React.ReactNode;
 }
 
 const MasterDataTable = <TData extends MRT_RowData>({
@@ -46,70 +49,83 @@ const MasterDataTable = <TData extends MRT_RowData>({
   enableExport,
   renderTopToolbarCustomActions,
   isStackedTables,
+  renderExternalFilter,
   ...rest
 }: MaterialReactTableProps<TData>) => {
   const { initialState, state, ...otherProps } = rest;
-  
+
   // Use useMemo instead of useState and useEffect to prevent unnecessary re-renders
   const otherPropsData = useMemo(() => otherProps, [otherProps]);
 
-  const checkBoxStyle = useMemo(() => ({
-    width: "2.75rem !important",
-    height: "2rem",
-    padding: "8px !important",
-    borderRadius: "4px",
-  }), []);
+  const checkBoxStyle = useMemo(
+    () => ({
+      width: "2.75rem !important",
+      height: "2rem",
+      padding: "8px !important",
+      borderRadius: "4px",
+    }),
+    []
+  );
 
   // Memoize the Filter component to prevent recreation on every render
-  const createFilterComponent = useCallback((props: {
-    column: MRT_Column<TData>;
-    header: MRT_Header<TData>;
-  }) => (
-    <TableFilter
-      isMulti
-      header={props.header}
-      column={props.column}
-      variant="inline"
-      name={`${props.column.id}Filter`}
-      placeholder={"Filter"}
-    />
-  ), []);
+  const createFilterComponent = useCallback(
+    (props: { column: MRT_Column<TData>; header: MRT_Header<TData> }) => (
+      <TableFilter
+        isMulti
+        header={props.header}
+        column={props.column}
+        variant="inline"
+        name={`${props.column.id}Filter`}
+        placeholder={"Filter"}
+      />
+    ),
+    []
+  );
 
   // Memoize the columns mapping to prevent recreation on every render
-  const mappedColumns = useMemo(() => 
-    columns.map((column) => ({
-      ...column,
-      ...(column.filterSelectOptions &&
-        column.filterVariant === "multi-select" && {
-          Filter: createFilterComponent,
-        }),
-    })), [columns, createFilterComponent]);
+  const mappedColumns = useMemo(
+    () =>
+      columns.map((column) => ({
+        ...column,
+        ...(column.filterSelectOptions &&
+          column.filterVariant === "multi-select" && {
+            Filter: createFilterComponent,
+          }),
+      })),
+    [columns, createFilterComponent]
+  );
 
   // Memoize the table body cell props to prevent recreation on every render
-  const muiTableBodyCellProps = useCallback(() => ({
-    disabled: true,
-    sx: {
-      padding: "0",
-      paddingLeft: "1rem",
-      height: "3rem",
-      "& .MuiCheckbox-root": {
-        ...checkBoxStyle,
-        "&.Mui-disabled": {
-          svg: {
-            fill: BCDesignTokens.surfaceColorFormsDisabled,
+  const muiTableBodyCellProps = useCallback(
+    () => ({
+      disabled: true,
+      sx: {
+        padding: "0",
+        paddingLeft: "1rem",
+        height: "3rem",
+        "& .MuiCheckbox-root": {
+          ...checkBoxStyle,
+          "&.Mui-disabled": {
+            svg: {
+              fill: BCDesignTokens.surfaceColorFormsDisabled,
+            },
           },
         },
       },
-    },
-  }), [checkBoxStyle]);
+    }),
+    [checkBoxStyle]
+  );
 
   // Memoize the table container props to prevent recreation on every render
-  const muiTableContainerProps = useCallback(() => ({
-    sx: {
-      maxHeight: "100%",
-      marginTop: "1.5rem",
-    },
-  }), []);
+  const muiTableContainerProps = useCallback(
+    () => ({
+      sx: {
+        maxHeight: "100%",
+        marginTop: "1.5rem",
+      },
+    }),
+    []
+  );
 
   const table = useMaterialReactTable({
     columns: mappedColumns,
@@ -234,7 +250,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
                   width: "100%",
                   display: "flex",
                   justifyContent: "space-between",
-                  alignItems: "center",
+                  alignItems: "flex-end",
                 }}
               >
                 <Typography
@@ -243,15 +259,18 @@ const MasterDataTable = <TData extends MRT_RowData>({
                 >
                   {titleToolbarProps?.tableTitle}
                 </Typography>
-                {titleToolbarProps?.tableAddRecordButtonVisibility && (
-                  <Button
-                    id="addActionButton"
-                    startIcon={<AddRounded />}
-                    onClick={titleToolbarProps?.tableAddRecordFunction}
-                  >
-                    {titleToolbarProps?.tableAddRecordButtonText}
-                  </Button>
-                )}
+                <Box display="flex" alignItems="center" gap={1}>
+                  {renderExternalFilter && renderExternalFilter({ table })}
+                  {titleToolbarProps?.tableAddRecordButtonVisibility && (
+                    <Button
+                      id="addActionButton"
+                      startIcon={<AddRounded />}
+                      onClick={titleToolbarProps?.tableAddRecordFunction}
+                    >
+                      {titleToolbarProps?.tableAddRecordButtonText}
+                    </Button>
+                  )}
+                </Box>
               </Box>
             )}
           {renderTopToolbarCustomActions && // custom title toolbar

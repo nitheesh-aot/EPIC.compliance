@@ -1,12 +1,20 @@
+import CustomSwitch from "@/components/Shared/Controlled/CustomSwitch";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import PageLink from "@/components/Shared/PageLink";
 import { useInspectionsData } from "@/hooks/useInspections";
 import { Inspection } from "@/models/Inspection";
 import dateUtils from "@/utils/dateUtils";
-import { Chip } from "@mui/material";
+import {
+  Box,
+  Chip,
+  CircularProgress,
+  FormControlLabel,
+  Typography,
+} from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
-import { MRT_ColumnDef } from "material-react-table";
-import { useCallback, useMemo } from "react";
+import { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/"
@@ -14,6 +22,11 @@ export const Route = createFileRoute(
 
 export function Inspections() {
   const { data: inspectionsList, isLoading } = useInspectionsData();
+  const { user: currentUser, isLoading: authLoading } = useAuth();
+  const [showOnlyMyInspections, setShowOnlyMyInspections] = useState(false);
+  const [tableInstance, setTableInstance] = useState<
+    MRT_TableInstance<Inspection> | undefined
+  >();
 
   const createUniqueFilterList = useCallback(
     (key: keyof Inspection, subKey?: string): string[] => {
@@ -187,10 +200,78 @@ export function Inspections() {
     ]
   );
 
-  return (
+  useEffect(() => {
+    const isCurrentUserHasPrimary = inspectionsList?.some(
+      (inspection) =>
+        inspection.primary_officer?.auth_user_guid ===
+        currentUser?.profile?.preferred_username
+    );
+
+    if (isCurrentUserHasPrimary) {
+      setShowOnlyMyInspections(true);
+      // Apply the filter when the table instance is available
+      if (tableInstance) {
+        tableInstance.setColumnFilters([
+          {
+            id: "primary_officer.name",
+            value: [currentUser?.profile?.name],
+          },
+        ]);
+      }
+    }
+  }, [inspectionsList, currentUser, tableInstance]);
+
+  const renderExternalFilter = useCallback(
+    ({ table }: { table: MRT_TableInstance<Inspection> }) => {
+      return (
+        <FormControlLabel
+          control={
+            <CustomSwitch
+              checked={showOnlyMyInspections}
+              onChange={(e) => {
+                setShowOnlyMyInspections(e.target.checked);
+                // Clear existing filters when toggling
+                if (e.target.checked) {
+                  table.setColumnFilters([
+                    {
+                      id: "primary_officer.name",
+                      value: [currentUser?.profile?.name],
+                    },
+                  ]);
+                } else {
+                  table.setColumnFilters([]);
+                }
+              }}
+              size="small"
+            />
+          }
+          label={
+            <Typography variant="body1" mr={1}>
+              <strong>{currentUser?.profile?.given_name}'s </strong>
+              Files
+            </Typography>
+          }
+          labelPlacement="start"
+        />
+      );
+    },
+    [showOnlyMyInspections, currentUser?.profile]
+  );
+
+  return authLoading ? (
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      height="100%"
+    >
+      <CircularProgress size={60} />
+    </Box>
+  ) : (
     <MasterDataTable
       columns={columns}
       data={inspectionsList ?? []}
+      setTableInstance={setTableInstance}
       initialState={{
         sorting: [{ id: "ir_number", desc: false }],
       }}
@@ -201,6 +282,7 @@ export function Inspections() {
       titleToolbarProps={{
         tableTitle: "Inspections",
       }}
+      renderExternalFilter={renderExternalFilter}
     />
   );
 }
