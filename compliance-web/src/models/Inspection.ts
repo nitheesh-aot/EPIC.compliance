@@ -42,6 +42,8 @@ export interface Inspection {
   subtopic?: string;
   source?: string;
   enforcement?: string;
+  approval_status?: string;
+  ir_progress?: string;
 }
 
 export interface InspectionFormData {
