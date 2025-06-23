@@ -275,11 +275,7 @@ class InspectionService:
             raise UnprocessableEntityError("Case file doesn't exist")
         if case_file.case_file_status == CaseFileStatusEnum.CLOSED:
             raise UnprocessableEntityError(
-                "Inspection cannot be created with closed case file."
-            )
-        if case_file.is_active is False or case_file.is_deleted is True:
-            raise UnprocessableEntityError(
-                "Inspection cannot be created on deleted or inactive case file."
+                "Inspection cannot be created with closed case file"
             )
         _access_check_create(inspection_data)
         inspection_obj = _create_inspection_object(inspection_data, case_file)
