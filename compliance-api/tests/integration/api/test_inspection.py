@@ -10,6 +10,7 @@ import pytest
 from faker import Faker
 
 from compliance_api.models import CaseFile as CaseFileModel
+from compliance_api.models import CaseFileStatusEnum
 from compliance_api.models.inspection import InspectionStatusEnum
 from tests.utilities.factory_scenario import CasefileScenario, InspectionScenario, StaffScenario
 
@@ -161,6 +162,46 @@ def test_create_inspection(
     assert result.json["ir_number"] == expected_ir_number
     assert result.json["inspection_status"] == InspectionStatusEnum.OPEN.value
 
+
+def test_create_inspection_with_invalid_case_file(
+    client, auth_header_super_user, created_staff, created_case_file, mock_track_service
+):
+    """Create inspection with basic fields."""
+    url = urljoin(API_BASE_URL, "inspections")
+    inspection_data = copy.copy(InspectionScenario.default_value.value)
+    # Invalid case file id
+    inspection_data.update(
+        {
+            "case_file_id": 123,
+            "primary_officer_id": created_staff.id,
+            "initiation_id": 1,
+        }
+    )
+
+    result = client.post(
+        url,
+        data=json.dumps(inspection_data),
+        headers=auth_header_super_user,
+    )
+    print(result.json)
+    assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+    assert result.json["message"] == "Case file doesn't exist"
+    #  CLOSED case file
+    inspection_data.update(
+        {
+            "case_file_id": created_case_file.id,
+            "primary_officer_id": created_staff.id,
+            "initiation_id": 1,
+        }
+    )
+    CaseFileModel.update_case_file(created_case_file.id, {"case_file_status": CaseFileStatusEnum.CLOSED})
+    result = client.post(
+        url,
+        data=json.dumps(inspection_data),
+        headers=auth_header_super_user,
+    )
+    assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+    assert result.json["message"] == "Inspection cannot be created with closed case file"
 
 # def test_create_inspection_with_non_superuser(client, auth_header, created_staff, created_case_file):
 #     """Create inspection with non super user."""

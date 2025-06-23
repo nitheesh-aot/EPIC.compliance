@@ -250,7 +250,9 @@ class Inspection(BaseModelVersioned):
                 ),
             )
             .add_columns(
-                InspectionRecord.ir_progress, InspectionRecordApproval.approval_status
+                InspectionRecord.ir_progress,
+                InspectionRecordApproval.approval_status,
+                InspectionRecordApproval.approved_by_id,
             )
         )
 
@@ -260,6 +262,7 @@ class Inspection(BaseModelVersioned):
             inspection = result[0]
             inspection.ir_progress = result[1]
             inspection.approval_status = result[2]
+            inspection.approved_by_id = result[3]
             results.append(inspection)
 
         return results
