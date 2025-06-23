@@ -1,4 +1,5 @@
 import CaseFileDrawer from "@/components/App/CaseFiles/CaseFileDrawer";
+import CustomSwitch from "@/components/Shared/Controlled/CustomSwitch";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import PageLink from "@/components/Shared/PageLink";
 import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
@@ -8,11 +9,12 @@ import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
 import { DRAWER_WIDTHS } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
-import { Chip } from "@mui/material";
+import { Chip, FormControlLabel, Typography } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { MRT_ColumnDef } from "material-react-table";
-import { useMemo, useCallback } from "react";
+import { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
+import { useMemo, useCallback, useState, useEffect } from "react";
+import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/_authenticated/ce-database/case-files/")(
   {
@@ -24,10 +26,44 @@ export function CaseFiles() {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
   const { data: caseFilesList, isLoading } = useCaseFilesData();
+  const { user: currentUser, isLoading: authLoading } = useAuth();
+  const [showOnlyMyCaseFiles, setShowOnlyMyCaseFiles] = useState(false);
+  const [tableInstance, setTableInstance] = useState<
+    MRT_TableInstance<CaseFile> | undefined
+  >();
   const showCreateCaseFileButton = useIsRolesAllowed([
     KC_USER_GROUPS.USER,
     KC_USER_GROUPS.SUPERUSER,
   ]);
+
+  // Check if current user has primary case files
+  const isCurrentUserHasPrimary = useMemo(() => {
+    return caseFilesList?.some(
+      (caseFile) =>
+        caseFile.primary_officer?.auth_user_guid ===
+        currentUser?.profile?.preferred_username
+    );
+  }, [caseFilesList, currentUser?.profile?.preferred_username]);
+
+  // Helper function to apply filters based on user role
+  const applyUserSpecificFilters = useCallback(
+    (table: MRT_TableInstance<CaseFile>) => {
+      if (isCurrentUserHasPrimary) {
+        table.setColumnFilters([
+          {
+            id: "primary_officer.name",
+            value: [currentUser?.profile?.name],
+          },
+        ]);
+      }
+    },
+    [isCurrentUserHasPrimary, currentUser?.profile?.name]
+  );
+
+  // Helper function to clear all filters
+  const clearAllFilters = useCallback((table: MRT_TableInstance<CaseFile>) => {
+    table.setColumnFilters([]);
+  }, []);
 
   const createUniqueFilterList = useCallback(
     (key: keyof CaseFile, subKey?: string): string[] => {
@@ -155,11 +191,68 @@ export function CaseFiles() {
     [initiationList, projectList, staffUserList, statusList]
   );
 
+  useEffect(() => {
+    if (isCurrentUserHasPrimary) {
+      setShowOnlyMyCaseFiles(true);
+      if (tableInstance) {
+        applyUserSpecificFilters(tableInstance);
+      }
+    } else {
+      setShowOnlyMyCaseFiles(false);
+      if (tableInstance) {
+        clearAllFilters(tableInstance);
+      }
+    }
+  }, [
+    caseFilesList,
+    currentUser,
+    tableInstance,
+    isCurrentUserHasPrimary,
+    applyUserSpecificFilters,
+    clearAllFilters,
+  ]);
+
+  const renderExternalFilter = useCallback(
+    ({ table }: { table: MRT_TableInstance<CaseFile> }) => {
+      return (
+        <FormControlLabel
+          control={
+            <CustomSwitch
+              checked={showOnlyMyCaseFiles}
+              onChange={(e) => {
+                setShowOnlyMyCaseFiles(e.target.checked);
+                if (e.target.checked) {
+                  applyUserSpecificFilters(table);
+                } else {
+                  clearAllFilters(table);
+                }
+              }}
+              size="small"
+            />
+          }
+          label={
+            <Typography variant="body1" mr={1}>
+              <strong>{currentUser?.profile?.given_name}</strong>'s Files
+            </Typography>
+          }
+          labelPlacement="start"
+        />
+      );
+    },
+    [
+      showOnlyMyCaseFiles,
+      currentUser?.profile?.given_name,
+      applyUserSpecificFilters,
+      clearAllFilters,
+    ]
+  );
+
   return (
     <>
       <MasterDataTable
         columns={columns}
         data={caseFilesList ?? []}
+        setTableInstance={setTableInstance}
         initialState={{
           sorting: [
             {
@@ -169,7 +262,7 @@ export function CaseFiles() {
           ],
         }}
         state={{
-          isLoading: isLoading,
+          isLoading: isLoading || authLoading,
           showGlobalFilter: true,
         }}
         titleToolbarProps={{
@@ -178,6 +271,9 @@ export function CaseFiles() {
           tableAddRecordFunction: handleOpenModal,
           tableAddRecordButtonVisibility: showCreateCaseFileButton,
         }}
+        renderExternalFilter={
+          isCurrentUserHasPrimary ? renderExternalFilter : undefined
+        }
       />
     </>
   );
