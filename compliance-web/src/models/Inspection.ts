@@ -43,6 +43,7 @@ export interface Inspection {
   source?: string;
   enforcement?: string;
   approval_status?: string;
+  approved_by_id?: number;
   ir_progress?: string;
 }
 
