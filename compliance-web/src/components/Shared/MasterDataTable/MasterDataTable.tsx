@@ -259,7 +259,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
                 >
                   {titleToolbarProps?.tableTitle}
                 </Typography>
-                <Box display="flex" alignItems="center" gap={1}>
+                <Box display="flex" alignItems="center" gap={2}>
                   {renderExternalFilter && renderExternalFilter({ table })}
                   {titleToolbarProps?.tableAddRecordButtonVisibility && (
                     <Button

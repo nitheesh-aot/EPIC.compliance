@@ -2,7 +2,9 @@ import CustomSwitch from "@/components/Shared/Controlled/CustomSwitch";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import PageLink from "@/components/Shared/PageLink";
 import { useInspectionsData } from "@/hooks/useInspections";
+import { useStaffUsersData } from "@/hooks/useStaff";
 import { Inspection } from "@/models/Inspection";
+import { APPROVAL_STATUS_TEXT, STAFF_USER_POSITION } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import {
   Box,
@@ -22,11 +24,81 @@ export const Route = createFileRoute(
 
 export function Inspections() {
   const { data: inspectionsList, isLoading } = useInspectionsData();
+  const { data: staffList, isLoading: staffLoading } = useStaffUsersData(true);
   const { user: currentUser, isLoading: authLoading } = useAuth();
   const [showOnlyMyInspections, setShowOnlyMyInspections] = useState(false);
   const [tableInstance, setTableInstance] = useState<
     MRT_TableInstance<Inspection> | undefined
   >();
+
+  // Find current user from staff list
+  const currentUserStaff = useMemo(() => {
+    return staffList?.find(
+      (staff) =>
+        staff.auth_user_guid === currentUser?.profile?.preferred_username
+    );
+  }, [staffList, currentUser?.profile?.preferred_username]);
+
+  // Check if current user is a deputy director
+  const isCurrentUserDeputy = useMemo(() => {
+    return (
+      currentUserStaff?.position_id === STAFF_USER_POSITION.DEPUTY_DIRECTOR
+    );
+  }, [currentUserStaff?.position_id]);
+
+  // Check if current user has primary inspections
+  const isCurrentUserHasPrimary = useMemo(() => {
+    return inspectionsList?.some(
+      (inspection) =>
+        inspection.primary_officer?.auth_user_guid ===
+        currentUser?.profile?.preferred_username
+    );
+  }, [inspectionsList, currentUser?.profile?.preferred_username]);
+
+  // Check if deputy has pending approvals
+  const isDeputyReviewPending = useMemo(() => {
+    if (!isCurrentUserDeputy) return false;
+    return inspectionsList?.some(
+      (inspection) =>
+        inspection.approval_status === APPROVAL_STATUS_TEXT.APPROVAL_PENDING &&
+        inspection.approved_by_id === currentUserStaff?.id
+    );
+  }, [inspectionsList, isCurrentUserDeputy, currentUserStaff?.id]);
+
+  // Helper function to apply filters based on user role
+  const applyUserSpecificFilters = useCallback(
+    (table: MRT_TableInstance<Inspection>) => {
+      if (isCurrentUserDeputy && isDeputyReviewPending) {
+        table.setColumnFilters([
+          {
+            id: "approval_status",
+            value: [APPROVAL_STATUS_TEXT.APPROVAL_PENDING],
+          },
+        ]);
+      } else if (isCurrentUserHasPrimary) {
+        table.setColumnFilters([
+          {
+            id: "primary_officer.name",
+            value: [currentUser?.profile?.name],
+          },
+        ]);
+      }
+    },
+    [
+      isCurrentUserDeputy,
+      isDeputyReviewPending,
+      isCurrentUserHasPrimary,
+      currentUser?.profile?.name,
+    ]
+  );
+
+  // Helper function to clear all filters
+  const clearAllFilters = useCallback(
+    (table: MRT_TableInstance<Inspection>) => {
+      table.setColumnFilters([]);
+    },
+    []
+  );
 
   const createUniqueFilterList = useCallback(
     (key: keyof Inspection, subKey?: string): string[] => {
@@ -201,25 +273,27 @@ export function Inspections() {
   );
 
   useEffect(() => {
-    const isCurrentUserHasPrimary = inspectionsList?.some(
-      (inspection) =>
-        inspection.primary_officer?.auth_user_guid ===
-        currentUser?.profile?.preferred_username
-    );
-
-    if (isCurrentUserHasPrimary) {
+    if (isCurrentUserDeputy && isDeputyReviewPending) {
       setShowOnlyMyInspections(true);
-      // Apply the filter when the table instance is available
       if (tableInstance) {
-        tableInstance.setColumnFilters([
-          {
-            id: "primary_officer.name",
-            value: [currentUser?.profile?.name],
-          },
-        ]);
+        applyUserSpecificFilters(tableInstance);
+      }
+    } else if (isCurrentUserHasPrimary) {
+      setShowOnlyMyInspections(true);
+      if (tableInstance) {
+        applyUserSpecificFilters(tableInstance);
       }
     }
-  }, [inspectionsList, currentUser, tableInstance]);
+  }, [
+    inspectionsList,
+    currentUser,
+    tableInstance,
+    currentUserStaff,
+    isCurrentUserDeputy,
+    isDeputyReviewPending,
+    isCurrentUserHasPrimary,
+    applyUserSpecificFilters,
+  ]);
 
   const renderExternalFilter = useCallback(
     ({ table }: { table: MRT_TableInstance<Inspection> }) => {
@@ -230,16 +304,10 @@ export function Inspections() {
               checked={showOnlyMyInspections}
               onChange={(e) => {
                 setShowOnlyMyInspections(e.target.checked);
-                // Clear existing filters when toggling
                 if (e.target.checked) {
-                  table.setColumnFilters([
-                    {
-                      id: "primary_officer.name",
-                      value: [currentUser?.profile?.name],
-                    },
-                  ]);
+                  applyUserSpecificFilters(table);
                 } else {
-                  table.setColumnFilters([]);
+                  clearAllFilters(table);
                 }
               }}
               size="small"
@@ -247,18 +315,24 @@ export function Inspections() {
           }
           label={
             <Typography variant="body1" mr={1}>
-              <strong>{currentUser?.profile?.given_name}'s </strong>
-              Files
+              <strong>{currentUser?.profile?.given_name}</strong>'s Files
+              {isCurrentUserDeputy && " for Review"}
             </Typography>
           }
           labelPlacement="start"
         />
       );
     },
-    [showOnlyMyInspections, currentUser?.profile]
+    [
+      showOnlyMyInspections,
+      currentUser?.profile?.given_name,
+      isCurrentUserDeputy,
+      applyUserSpecificFilters,
+      clearAllFilters,
+    ]
   );
 
-  return authLoading ? (
+  return authLoading || staffLoading ? (
     <Box
       display="flex"
       justifyContent="center"
