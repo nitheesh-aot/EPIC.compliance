@@ -96,6 +96,33 @@ class InspectionRecordService:
         return updated_inspection_record
 
     @classmethod
+    def delete_inspection_record(cls, inspection_id, inspection_record_id):
+        """Delete inspection record."""
+        inspection = ServiceUtils.inspection_exist_check(inspection_id)
+        inspection_record = ServiceUtils.inspection_record_exist_check(
+            inspection_record_id
+        )
+        ServiceUtils.access_check_update_for_inspection(inspection)
+        if inspection_record.ir_progress == IRProgressEnum.ISSUED:
+            raise UnprocessableEntityError("Issued IR cannot be deleted")
+        approvals = InspectionRecordApprovalModel.get_approvals_by_ir(
+            inspection_record_id=inspection_record_id
+        )
+        with session_scope() as session:
+            if approvals:
+                for approval in approvals:
+                    InspectionRecordApprovalModel.update_approval(
+                        approval_id=approval.id,
+                        approval_update_data={"is_deleted": True, "is_active": False},
+                        session=session,
+                    )
+            InspectionRecordModel.update_inspection_record(
+                inspection_record_id=inspection_record_id,
+                ir_update_data={"is_deleted": True, "is_active": False},
+                session=session,
+            )
+
+    @classmethod
     def switch_to_final(cls, inspection_id, inspection_record_id):
         """Update the IR status to FINAL."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
