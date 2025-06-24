@@ -81,7 +81,7 @@ class WarningLetterApproval(BaseModelVersioned):
                 cls.is_active.is_(True),
                 cls.is_deleted.is_(False),
             )
-            .order_by(cls.created_date.desc())
+            .order_by(cls.id.desc())
             .all()
         )
 
@@ -94,7 +94,7 @@ class WarningLetterApproval(BaseModelVersioned):
                 cls.is_active.is_(True),
                 cls.is_deleted.is_(False),
             )
-            .order_by(cls.created_date.desc())
+            .order_by(cls.id.desc())
             .first()
         )
 
