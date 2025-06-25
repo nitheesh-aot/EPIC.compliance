@@ -23,7 +23,7 @@ from compliance_api.models import IRStatusOption as IRStatusOptionModel
 from compliance_api.models import Order as OrderModel
 from compliance_api.models import WarningLetter as WarningLetterModel
 from compliance_api.models.db import session_scope
-from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
+from compliance_api.models.enforcement_action import EnforcementActionOptionEnum, EnforcementActionOption as EnforcementActionOptionModel
 from compliance_api.services.case_file import CaseFileService
 from compliance_api.services.service_utils import ServiceUtils
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE
@@ -76,13 +76,14 @@ class InspectionService:
                             item = {
                                 "requirement_id": requirement.id,
                                 "requirement_summary": requirement.summary,
+                                "requirement_sort_order": requirement.sort_order,
                                 "enforcement_action": {
-                                    "id": EnforcementActionOptionEnum(
+                                    "id": EnforcementActionOptionModel.find_by_id(
+                                        action.enforcement_action_id
+                                    ).id,
+                                    "name": EnforcementActionOptionModel.find_by_id(
                                         action.enforcement_action_id
                                     ).name,
-                                    "name": EnforcementActionOptionEnum(
-                                        action.enforcement_action_id
-                                    ).value,
                                 },
                             }
                             first_requirement_details = (
@@ -114,16 +115,16 @@ class InspectionService:
                                 ]
                                 if (
                                     len(requirement_orders) > 0
-                                    and requirement_orders[0].order_approvals
                                 ):
-                                    item["enforcement_action"]["approval_status"] = {
-                                        "id": requirement_orders[0]
-                                        .order_approvals[0]
-                                        .approval_status.name,
-                                        "name": requirement_orders[0]
-                                        .order_approvals[0]
-                                        .approval_status.value,
-                                    }
+                                    if requirement_orders[0].order_approvals:
+                                        item["enforcement_action"]["approval_status"] = {
+                                            "id": requirement_orders[0]
+                                            .order_approvals[0]
+                                            .approval_status.name,
+                                            "name": requirement_orders[0]
+                                            .order_approvals[0]
+                                            .approval_status.value,
+                                        }
                                     item["enforcement_action"]["progress"] = {
                                         "id": requirement_orders[0].order_progress.name,
                                         "name": requirement_orders[
@@ -142,31 +143,33 @@ class InspectionService:
                                     if requirement.id
                                     in [
                                         req_map.inspection_requirement_id
-                                        for req_map in warning_letter.warning_letter_requirement_maps
+                                        for req_map in warning_letter.warning_letter_requirement_map
                                     ]
                                 ]
                                 if (
                                     len(requirement_warning_letters) > 0
-                                    and requirement_warning_letters[
-                                        0
-                                    ].warning_letter_approvals
                                 ):
-                                    item["enforcement_action"]["approval_status"] = {
-                                        "id": requirement_warning_letters[0]
-                                        .warning_letter_approvals[0]
-                                        .approval_status.name,
-                                        "name": requirement_warning_letters[0]
-                                        .warning_letter_approvals[0]
-                                        .approval_status.value,
-                                    }
-                                    item["enforcement_action"]["progress"] = {
-                                        "id": requirement_warning_letters[
-                                            0
-                                        ].warning_letter_progress.name,
-                                        "name": requirement_warning_letters[
-                                            0
-                                        ].warning_letter_progress.value,
-                                    }
+                                    if (
+                                        requirement_warning_letters[0]
+                                        .warning_letter_approvals
+                                    ):
+                                        item["enforcement_action"]["approval_status"] = {
+                                            "id": requirement_warning_letters[0]
+                                            .warning_letter_approvals[0]
+                                            .approval_status.name,
+                                            "name": requirement_warning_letters[0]
+                                            .warning_letter_approvals[0]
+                                            .approval_status.value,
+                                        }
+                                    if requirement_warning_letters[0].progress:
+                                        item["enforcement_action"]["progress"] = {
+                                            "id": requirement_warning_letters[
+                                                0
+                                            ].progress.name,
+                                            "name": requirement_warning_letters[
+                                                0
+                                            ].progress.value,
+                                        }
                             requirement_details.append(item)
             setattr(inspection, "requirement_details", requirement_details)
         return inspections

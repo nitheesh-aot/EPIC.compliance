@@ -381,6 +381,12 @@ class InspectionRequirementDetails(BaseSchema):  # pylint: disable=too-many-ance
             "type": "string",
         }
     )
+    requirement_sort_order = fields.Int(
+        metadata={
+            "description": "The sort order of the requirement",
+            "type": "integer",
+        }
+    )
 
 
 class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors

@@ -1,8 +1,6 @@
-import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
-import { useInspectionsByCaseFileId } from "@/hooks/useInspections";
+import { useInspectionsMoreDetailsByCaseFileId } from "@/hooks/useInspections";
 import { CaseFile } from "@/models/CaseFile";
 import { INITIATION } from "@/utils/constants";
-import dateUtils from "@/utils/dateUtils";
 import { ChevronRight, ExpandLessRounded } from "@mui/icons-material";
 import {
   Link,
@@ -16,10 +14,12 @@ import {
 } from "@mui/material";
 import { Link as RouterLink } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
-  const { data: inspections } = useInspectionsByCaseFileId(caseFile.id);
+  const { data: inspections } = useInspectionsMoreDetailsByCaseFileId(
+    caseFile.id
+  );
 
   const [expandedInspections, setExpandedInspections] = useState<Set<number>>(
     new Set()
@@ -127,22 +127,85 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
                   </Box>
                 </AccordionSummary>
                 <AccordionDetails sx={{ padding: "1rem" }}>
-                  <Grid container spacing={2}>
-                    <GridLabelValuePair
-                      label="Location"
-                      value={inspection.location_description || "N/A"}
-                      gridProps={{ xs: 8 }}
-                    />
-                    <GridLabelValuePair
-                      label="Date"
-                      value={dateUtils.formatDate(inspection.start_date)}
-                      gridProps={{ xs: 2 }}
-                    />
-                    <GridLabelValuePair
-                      label="Status"
-                      value={inspection.inspection_status || "N/A"}
-                      gridProps={{ xs: 2 }}
-                    />
+                  <Grid container spacing={1}>
+                    <Grid item xs={5}>
+                      <Typography
+                        variant="body2"
+                        color={BCDesignTokens.typographyColorPlaceholder}
+                      >
+                        Requirement Summary
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={1}>
+                      <Typography
+                        variant="body2"
+                        color={BCDesignTokens.typographyColorPlaceholder}
+                      >
+                        #
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Typography
+                        variant="body2"
+                        color={BCDesignTokens.typographyColorPlaceholder}
+                      >
+                        Source
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          whiteSpace: "nowrap",
+                          textOverflow: "ellipsis",
+                          overflow: "hidden",
+                          color: BCDesignTokens.typographyColorPlaceholder,
+                        }}
+                      >
+                        Enforcement Action
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Typography
+                        variant="body2"
+                        color={BCDesignTokens.typographyColorPlaceholder}
+                      >
+                        Enf. Status
+                      </Typography>
+                    </Grid>
+                    {inspection.requirement_details?.map((requirement, index) => (
+                      <Fragment key={index}>
+                        <Grid item xs={5}>
+                          <Typography variant="body2">
+                            #{requirement.requirement_sort_order}.{" "}
+                            {requirement.requirement_summary}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={1}>
+                          <Typography variant="body2">
+                            {requirement.requirement_number}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={2}>
+                          <Typography variant="body2">
+                            {requirement.requirement_source_name}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={2}>
+                          <Typography variant="body2">
+                            {requirement.enforcement_action?.name || ""}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={2}>
+                          <Typography variant="body2">
+                            {
+                              requirement.enforcement_action?.approval_status
+                                ?.name
+                            }
+                          </Typography>
+                        </Grid>
+                      </Fragment>
+                    ))}
                   </Grid>
                 </AccordionDetails>
               </Accordion>

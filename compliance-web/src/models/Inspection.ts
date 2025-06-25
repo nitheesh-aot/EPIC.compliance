@@ -7,6 +7,7 @@ import { IRType } from "./IRType";
 import { Project } from "./Project";
 import { ProjectStatus } from "./ProjectStatus";
 import { StaffUser } from "./Staff";
+import { ApprovalStatus } from "./ApprovalStatus";
 
 export interface Inspection {
   id: number;
@@ -45,6 +46,25 @@ export interface Inspection {
   approval_status?: string;
   approved_by_id?: number;
   ir_progress?: string;
+}
+
+export interface InspectionMoreDetails extends Inspection {
+  requirement_details?: {
+    requirement_id: number;
+    requirement_summary: string;
+    requirement_sort_order: number;
+    enforcement_action?: {
+      id: string;
+      name: string;
+      approval_status?: ApprovalStatus;
+      progress?: {
+        id: string;
+        name: string;
+      } | null;
+    };
+    requirement_number: string;
+    requirement_source_name: string;
+  }[];
 }
 
 export interface InspectionFormData {
