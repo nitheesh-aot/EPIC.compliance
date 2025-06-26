@@ -1,15 +1,17 @@
 """Common fixture for all test."""
+
 import copy
-import json
-import pytest
 from datetime import datetime
-from http import HTTPStatus
-from urllib.parse import urljoin
-from tests.utilities.factory_scenario import CasefileScenario, StaffScenario
-from compliance_api.models import CaseFile as CaseFileModel
+
+import pytest
 from faker import Faker
 
+from compliance_api.models import CaseFile as CaseFileModel
+from tests.utilities.factory_scenario import CasefileScenario, StaffScenario
+
+
 fake = Faker()
+
 
 @pytest.fixture
 def mock_auth_service(mocker):
@@ -59,7 +61,12 @@ def mock_track_service(mocker):
         "compliance_api.services.epic_track_service.track_service.TrackService.get_project_statuses"
     )
     mock_get_project_statuses.return_value = [
-        {"id": 13, "name": "Preconstruction", "component": "COMPLIANCE", "is_active": True}
+        {
+            "id": 13,
+            "name": "Preconstruction",
+            "component": "COMPLIANCE",
+            "is_active": True,
+        }
     ]
 
     yield mock_get_project_by_id, mock_get_project_statuses

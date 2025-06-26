@@ -6,15 +6,15 @@ from datetime import datetime
 from http import HTTPStatus
 from urllib.parse import urljoin
 
-import pytest
 from faker import Faker
 
-from compliance_api.models import CaseFileStatusEnum
-from compliance_api.models.inspection import InspectionStatusEnum
-from compliance_api.services import InspectionService
-from tests.integration.api.common_fixture import created_case_file, created_staff, mock_track_service
-from tests.utilities.factory_scenario import InspectionScenario
 from compliance_api.models import CaseFile as CaseFileModel
+from compliance_api.models import CaseFileStatusEnum
+from compliance_api.models.inspection import InspectionAttendanceOptionEnum, InspectionStatusEnum
+from compliance_api.services import InspectionService
+from tests.utilities.factory_scenario import InspectionScenario, StaffScenario, TokenJWTClaims
+from tests.utilities.factory_utils import factory_auth_header
+
 
 API_BASE_URL = "/api/"
 fake = Faker()
@@ -108,51 +108,64 @@ def test_create_inspection_with_invalid_case_file(
             "initiation_id": 1,
         }
     )
-    CaseFileModel.update_case_file(created_case_file.id, {"case_file_status": CaseFileStatusEnum.CLOSED})
+    CaseFileModel.update_case_file(
+        created_case_file.id, {"case_file_status": CaseFileStatusEnum.CLOSED}
+    )
     result = client.post(
         url,
         data=json.dumps(inspection_data),
         headers=auth_header_super_user,
     )
     assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-    assert result.json["message"] == "Inspection cannot be created with closed case file"
+    assert (
+        result.json["message"] == "Inspection cannot be created with closed case file"
+    )
 
-def test_create_inspection_with_non_superuser(client, auth_header, created_staff, created_case_file):
+
+def test_create_inspection_with_non_superuser(
+    client, auth_header, created_staff, created_case_file
+):
     """Create inspection with non super user."""
     url = urljoin(API_BASE_URL, "inspections")
     inspection_data = copy.copy(InspectionScenario.default_value.value)
-    inspection_data.update({
-        "case_file_id": created_case_file.id,
-        "primary_officer_id": created_staff.id,
-        "initiation_id": 1,
-        "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-        "end_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-    })
-    result = client.post(
-        url, data=json.dumps(inspection_data), headers=auth_header
+    inspection_data.update(
+        {
+            "case_file_id": created_case_file.id,
+            "primary_officer_id": created_staff.id,
+            "initiation_id": 1,
+            "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "end_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+        }
     )
+    result = client.post(url, data=json.dumps(inspection_data), headers=auth_header)
     assert result.status_code == HTTPStatus.FORBIDDEN
 
-def test_get_inspections_by_case_file_id(client, auth_header, created_case_file, mocker, mock_track_service):
+
+def test_get_inspections_by_case_file_id(
+    client, auth_header, created_case_file, mocker, mock_track_service
+):
     """Get inspections by case file id."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
     contains_role.return_value = True
     inspection_data = copy.copy(InspectionScenario.default_value.value)
-    inspection_data.update({
-        "case_file_id": created_case_file.id,
-        "initiation_id": 1,
-        "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-    })
-    created_inspection = InspectionService.create(inspection_data)
-    url = urljoin(
-        API_BASE_URL, f"inspections?case_file_id={created_case_file.id}")
+    inspection_data.update(
+        {
+            "case_file_id": created_case_file.id,
+            "initiation_id": 1,
+            "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+        }
+    )
+    InspectionService.create(inspection_data)
+    url = urljoin(API_BASE_URL, f"inspections?case_file_id={created_case_file.id}")
     result = client.get(url, headers=auth_header)
 
     assert result.status_code == HTTPStatus.OK
     assert len(result.json) == 1
 
 
-def test_get_inspections(client, auth_header, mocker, created_case_file, mock_track_service):
+def test_get_inspections(
+    client, auth_header, mocker, created_case_file, mock_track_service
+):
     """Get all inspections."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
     contains_role.return_value = True
@@ -164,24 +177,32 @@ def test_get_inspections(client, auth_header, mocker, created_case_file, mock_tr
 
     assert result.status_code == HTTPStatus.OK
     filtered_inspection = next(
-        (inspection for inspection in result.json if inspection["id"]
-         == created_inspection.id), None
+        (
+            inspection
+            for inspection in result.json
+            if inspection["id"] == created_inspection.id
+        ),
+        None,
     )
     assert filtered_inspection is not None
 
 
-def test_get_inspection_by_id(client, auth_header, created_case_file, mocker, mock_track_service):
+def test_get_inspection_by_id(
+    client, auth_header, created_case_file, mocker, mock_track_service
+):
     """Test inspection by id."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
     contains_role.return_value = True
     inspection_data = copy.copy(InspectionScenario.default_value.value)
-    inspection_data.update({
-        "case_file_id": created_case_file.id,
-        "inspection_status": InspectionStatusEnum.OPEN,
-        "initiation_id": 1,
-        "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-        "end_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-    })
+    inspection_data.update(
+        {
+            "case_file_id": created_case_file.id,
+            "inspection_status": InspectionStatusEnum.OPEN,
+            "initiation_id": 1,
+            "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "end_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+        }
+    )
     created_inspection = InspectionService.create(inspection_data)
     url = urljoin(API_BASE_URL, f"inspections/{created_inspection.id}")
     result = client.get(url, headers=auth_header)
@@ -191,142 +212,200 @@ def test_get_inspection_by_id(client, auth_header, created_case_file, mocker, mo
     assert result.json["inspection_status"] == InspectionStatusEnum.OPEN.value
 
 
-def test_get_inspection_by_ir_number(client, auth_header_super_user, created_case_file, mocker, mock_track_service):
+def test_get_inspection_by_ir_number(
+    client, auth_header_super_user, created_case_file, mocker, mock_track_service
+):
     """Get inspection by IR number."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
     contains_role.return_value = True
     inspection_data = copy.copy(InspectionScenario.default_value.value)
-    inspection_data.update({
-        "case_file_id": created_case_file.id,
-        "initiation_id": 1,
-        "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-        "end_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-    })
-    result = InspectionService.create(inspection_data)
+    inspection_data.update(
+        {
+            "case_file_id": created_case_file.id,
+            "initiation_id": 1,
+            "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "end_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+        }
+    )
+    created_inspection = InspectionService.create(inspection_data)
     url = urljoin(
         API_BASE_URL,
-        f"inspections/ir-numbers/{result.ir_number}",
+        f"inspections/ir-numbers/{created_inspection.ir_number}",
     )
     result = client.get(url, headers=auth_header_super_user)
-
     assert result.status_code == HTTPStatus.OK
-    assert result.json["id"] == result.json.get("id")
-    assert result.json["ir_number"] == result.ir_number
+    assert result.json["id"] == created_inspection.id
+    assert result.json["ir_number"] == created_inspection.ir_number
 
 
-# def test_inspection_update(client, auth_header_super_user, created_staff, created_case_file, mock_track_service):
-#     """Update inspection."""
-#     # Creating inspection with required fields
-#     inspection_data = copy.copy(InspectionScenario.default_value.value)
-#     inspection_data.update({
-#         "case_file_id": created_case_file.id,
-#         "primary_officer_id": created_staff.id,
-#         "initiation_id": 1,
-#         "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-#         "project_description": "sample description",
-#     })
-#     created_result = InspectionService.create(inspection_data)
+def test_inspection_update(
+    client,
+    auth_header_super_user,
+    mocker,
+    created_staff,
+    created_case_file,
+    mock_track_service,
+):
+    """Update inspection."""
+    # Creating inspection with required fields
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
+    inspection_data = copy.copy(InspectionScenario.default_value.value)
+    inspection_data.update(
+        {
+            "primary_officer_id": created_staff.id,
+            "initiation_id": 1,
+            "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "end_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "project_description": "sample description",
+        }
+    )
+    inspection_data["case_file_id"] = created_case_file.id
+    created_result = InspectionService.create(inspection_data)
 
-#     # Create a new user for update
-#     user_data = StaffScenario.default_data.value
-#     auth_user_guid = fake.word()
-#     user_data["auth_user_guid"] = auth_user_guid
-#     new_user = StaffScenario.create(user_data)
+    # Create a new user for update
+    user_data = StaffScenario.default_data.value
+    auth_user_guid = fake.word()
+    user_data["auth_user_guid"] = auth_user_guid
+    new_user = StaffScenario.create(user_data)
 
-#     # Update with required fields
-#     update_data = copy.copy(inspection_data)
-#     update_data.update({
-#         "primary_officer_id": new_user.id,
-#         "attending_officer_ids": [new_user.id],
-#         "project_description": "changed description",
-#         "attendance_option_ids": [
-#             InspectionAttendanceOptionEnum.ATTENDING_OFFICERS.value
-#         ]
-#     })
+    # Update with required fields
+    update_data = copy.copy(inspection_data)
+    update_data.pop("case_file_id")
+    update_data.update(
+        {
+            "primary_officer_id": new_user.id,
+            "attending_officer_ids": [new_user.id],
+            "project_description": "changed description",
+            "attendance_option_ids": [
+                InspectionAttendanceOptionEnum.ATTENDING_OFFICERS.value
+            ],
+        }
+    )
 
-#     url = urljoin(API_BASE_URL, f"inspections/{created_result.id}")
-#     result = client.patch(
-#         url,
-#         data=json.dumps(update_data),
-#         headers=auth_header_super_user
-#     )
-
-#     assert result.status_code == HTTPStatus.OK
-#     assert result.json["primary_officer_id"] == new_user.id
-#     assert result.json["project_description"] == "changed description"
-#     officers = InspectionService.get_other_officers(result.json["id"])
-#     assert len(officers) == 1
-#     assert officers[0].id == new_user.id
-
-
-# def test_inspection_update_viewer_fails(client, auth_header, created_staff, created_case_file):
-#     """Update as Viewer."""
-#     inspection_data = copy.copy(InspectionScenario.default_value.value)
-#     inspection_data.update({
-#         "case_file_id": created_case_file.id,
-#         "primary_officer_id": created_staff.id,
-#         "initiation_id": 1,
-#         "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-#     })
-#     created_result = InspectionService.create(inspection_data)
-#     url = urljoin(API_BASE_URL, f"inspections/{created_result.id}")
-#     result = client.patch(url, data=json.dumps(
-#         inspection_data), headers=auth_header)
-#     assert result.status_code == HTTPStatus.FORBIDDEN
+    url = urljoin(API_BASE_URL, f"inspections/{created_result.id}")
+    result = client.patch(
+        url, data=json.dumps(update_data), headers=auth_header_super_user
+    )
+    print(result.json)
+    assert result.status_code == HTTPStatus.OK
+    assert result.json["primary_officer_id"] == new_user.id
+    assert result.json["project_description"] == "changed description"
+    officers = InspectionService.get_other_officers(result.json["id"])
+    assert len(officers) == 1
+    assert officers[0].id == new_user.id
 
 
-# def test_inspection_update_with_primary(
-#     client, jwt, created_staff, auth_header_super_user, created_case_file
-# ):
-#     """Update as primary."""
-#     inspection_data = copy.copy(InspectionScenario.default_value.value)
-#     inspection_data.update({
-#         "case_file_id": created_case_file.id,
-#         "primary_officer_id": created_staff.id,
-#         "initiation_id": 1,
-#         "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-#     })
-#     created_result = InspectionService.create(inspection_data)
-#     header = TokenJWTClaims.default.value
-#     header["preferred_username"] = created_staff.auth_user_guid
-#     headers = factory_auth_header(jwt=jwt, claims=header)
+def test_inspection_update_viewer_fails(
+    client,
+    auth_header,
+    auth_header_super_user,
+    created_staff,
+    created_case_file,
+    mocker,
+    mock_track_service,
+):
+    """Update as Viewer."""
+    inspection_data = copy.copy(InspectionScenario.default_value.value)
+    inspection_data.update(
+        {
+            "case_file_id": created_case_file.id,
+            "primary_officer_id": created_staff.id,
+            "initiation_id": 1,
+            "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "end_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+        }
+    )
+    #  create the inspection first using super user credentials
+    created_inspection = client.post(
+        urljoin(API_BASE_URL, "inspections"),
+        data=json.dumps(inspection_data),
+        headers=auth_header_super_user,
+    )
+    created_inspection = created_inspection.json
+    inspection_data.pop("case_file_id")
+    url = urljoin(API_BASE_URL, f"inspections/{created_inspection['id']}")
+    result = client.patch(url, data=json.dumps(inspection_data), headers=auth_header)
+    print(created_staff.auth_user_guid)
+    print(auth_header)
+    assert result.status_code == HTTPStatus.FORBIDDEN
 
-#     url = urljoin(API_BASE_URL, f"inspections/{created_result.id}")
-#     result = client.patch(url, data=json.dumps(
-#         inspection_data), headers=headers)
-#     assert result.status_code == HTTPStatus.OK
+
+def test_inspection_update_with_primary(
+    client,
+    jwt,
+    created_staff,
+    auth_header_super_user,
+    created_case_file,
+    mocker,
+    mock_track_service,
+):
+    """Update as primary."""
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
+    inspection_data = copy.copy(InspectionScenario.default_value.value)
+    # set the created staff as the primary
+    inspection_data.update(
+        {
+            "case_file_id": created_case_file.id,
+            "primary_officer_id": created_staff.id,
+            "initiation_id": 1,
+            "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "end_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+        }
+    )
+    created_result = InspectionService.create(inspection_data)
+    #  Set the created staff as the requesting user
+    header = TokenJWTClaims.default.value
+    header["preferred_username"] = created_staff.auth_user_guid
+    headers = factory_auth_header(jwt=jwt, claims=header)
+
+    url = urljoin(API_BASE_URL, f"inspections/{created_result.id}")
+    inspection_data.pop("case_file_id")
+    result = client.patch(url, data=json.dumps(inspection_data), headers=headers)
+    print(result.json)
+    assert result.status_code == HTTPStatus.OK
 
 
-# def test_inspection_close(client, jwt, created_staff, mocker, created_case_file):
-#     """Update as primary."""
-#     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
-#     contains_role.return_value = True
-#     inspection_data = copy.copy(InspectionScenario.default_value.value)
-#     inspection_data.update({
-#         "case_file_id": created_case_file.id,
-#         "primary_officer_id": created_staff.id,
-#         "initiation_id": 1,
-#         "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-#     })
-#     created_result = InspectionService.create(inspection_data)
-#     inspection_id = created_result.id
-#     ir_number = created_result.ir_number
-#     header = TokenJWTClaims.default.value
-#     header["preferred_username"] = created_staff.auth_user_guid
-#     headers = factory_auth_header(jwt=jwt, claims=header)
-#     url = urljoin(API_BASE_URL, f"inspections/{created_result.id}/status")
-#     result = client.patch(url, data=json.dumps(
-#         {"status": "OPEN"}), headers=headers)
-#     assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-#     result = client.patch(url, data=json.dumps(
-#         {"status": "CLOSED"}), headers=headers)
-#     assert result.status_code == HTTPStatus.NO_CONTENT
-#     result = client.patch(url, data=json.dumps(
-#         {"status": "CLOSED"}), headers=headers)
-#     assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
-#     result = client.patch(url, data=json.dumps(
-#         {"status": "OPEN"}), headers=headers)
-#     assert result.status_code == HTTPStatus.NO_CONTENT
+def test_inspection_close(
+    client,
+    jwt,
+    created_staff,
+    mocker,
+    created_case_file,
+    auth_header_super_user,
+    mock_track_service,
+):
+    """Update as primary."""
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
+    inspection_data = copy.copy(InspectionScenario.default_value.value)
+    inspection_data.update(
+        {
+            "case_file_id": created_case_file.id,
+            "primary_officer_id": created_staff.id,
+            "initiation_id": 1,
+            "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+        }
+    )
+    created_result = InspectionService.create(inspection_data)
+    url = urljoin(API_BASE_URL, f"inspections/{created_result.id}/status")
+    result = client.patch(
+        url, data=json.dumps({"status": "OPEN"}), headers=auth_header_super_user
+    )
+    assert result.status_code == HTTPStatus.NO_CONTENT
+    result = client.patch(
+        url, data=json.dumps({"status": "CLOSED"}), headers=auth_header_super_user
+    )
+    assert result.status_code == HTTPStatus.NO_CONTENT
+    result = client.patch(
+        url, data=json.dumps({"status": "CANCELED"}), headers=auth_header_super_user
+    )
+    assert result.status_code == HTTPStatus.NO_CONTENT
+    result = client.patch(
+        url, data=json.dumps({"status": "OPEN"}), headers=auth_header_super_user
+    )
+    assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
 # def test_inspection_delete(client, jwt, created_staff, mocker, auth_header_super_user, created_case_file):

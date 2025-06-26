@@ -8,13 +8,11 @@ from bs4 import BeautifulSoup
 from compliance_api.exceptions import BadRequestError, ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import Appendix as AppendixModel
 from compliance_api.models import ImageTypeEnum
-from compliance_api.models import Inspection as InspectionModel
 from compliance_api.models import InspectionReqDetailDocument as InspectionReqDetailDocumentModel
 from compliance_api.models import InspectionReqEnforcementMap as InspectionReqEnforcementMapModel
 from compliance_api.models import InspectionReqSourceDetail as InspectionReqSourceDetailModel
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models import InspectionRequirementImage as InspectionRequirementImageModel
-from compliance_api.models import InspectionStatusEnum
 from compliance_api.models.db import db, session_scope
 from compliance_api.models.order import Order as OrderModel
 from compliance_api.services.document_service.doc_service import DocService
@@ -40,7 +38,7 @@ class InspectionRequirementService:
     def create(cls, inspection_id, requirement_data):
         """Create inspection requirement."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        _inspection_status_check(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         ServiceUtils.access_check_update_for_inspection(inspection)
         requirements = InspectionRequirementModel.get_by_inspection_id(inspection_id)
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
@@ -82,7 +80,7 @@ class InspectionRequirementService:
     def update(cls, inspection_id, requirement_id, requirement_data):
         """Update inspection requirement."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        _inspection_status_check(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         _requirement_check(requirement_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
@@ -126,7 +124,7 @@ class InspectionRequirementService:
         """Delete the requirement."""
         # TODO: CHECK ORDERS AND WARNING LETTERS BEFORE DELETING THE REUQIREMENT
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        _inspection_status_check(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         _requirement_check(requirement_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         with session_scope() as session:
@@ -150,7 +148,7 @@ class InspectionRequirementService:
     def update_sort_order(cls, inspection_id, requirement_id, sort_order_data):
         """Update the sort order of the inspection requirement."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        _inspection_status_check(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         requirement = _requirement_check(requirement_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
 
@@ -215,7 +213,7 @@ class InspectionRequirementService:
     def delete_image(cls, inspection_id, requirement_id, relative_url, image_type):
         """Delete image."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
-        _inspection_status_check(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         _requirement_check(requirement_id)
         image = InspectionRequirementImageModel.find_image_by_url(
             requirement_id, relative_url, image_type
@@ -428,16 +426,6 @@ def _update_sort_order_subsequent(requirements, commit=False):
     """Update the new sort order for the requirement."""
     for index, req in enumerate(requirements):
         req.update({"sort_order": index + 1}, commit=commit)
-
-
-def _inspection_status_check(inspection: InspectionModel):
-    """Check the inspection status."""
-    invalid_statuses = {InspectionStatusEnum.CANCELED, InspectionStatusEnum.CLOSED}
-    if inspection.inspection_status in invalid_statuses:
-        raise UnprocessableEntityError(
-            f"No changes to the requirements can be made to  {inspection.inspection_status.name} inspection"
-        )
-    return inspection
 
 
 def _requirement_check(requirement_id):

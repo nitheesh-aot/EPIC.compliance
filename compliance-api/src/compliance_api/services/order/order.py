@@ -61,6 +61,7 @@ class OrderService:
         inspection_id = order_data.get("inspection_id")
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         ServiceUtils.officer_check(order_data.get("issuing_officer_id"), inspection)
         requirement_ids = order_data.get("inspection_requirement_ids", [])
         ServiceUtils.check_requirement_for_enforcement_action(
@@ -98,6 +99,7 @@ class OrderService:
             inspection_id=update_data.get("inspection_id")
         )
         ServiceUtils.access_check_update_for_inspection(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         ServiceUtils.officer_check(update_data.get("issuing_officer_id"), inspection)
         requirement_ids = update_data.get("inspection_requirement_ids", [])
         ServiceUtils.check_requirement_for_enforcement_action(
@@ -121,6 +123,7 @@ class OrderService:
         """Delete an order by ID."""
         order = ServiceUtils.order_exist_check(order_id)
         ServiceUtils.access_check_update_for_inspection(order.inspection)
+        ServiceUtils.inspection_status_check(order.inspection)
         if order.order_status == OrderStatusEnum.OPEN:
             raise UnprocessableEntityError(
                 "Order cannot be deleted as it is in OPEN status"
@@ -175,6 +178,7 @@ class OrderService:
         """Close the order."""
         order = ServiceUtils.order_exist_check(order_id)
         ServiceUtils.access_check_update_for_inspection(order.inspection)
+        ServiceUtils.inspection_status_check(order.inspection)
         status_enum = OrderStatusEnum(status.get("status"))
         if order.order_status == status_enum:
             raise UnprocessableEntityError(
@@ -200,6 +204,7 @@ class OrderService:
             inspection_id=order.inspection_id
         )
         ServiceUtils.access_check_update_for_inspection(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         OrderModel.update_order(
             order_id,
             {
@@ -216,6 +221,7 @@ class OrderService:
         order = ServiceUtils.order_exist_check(order_id)
         if output_format == "pdf":
             ServiceUtils.access_check_update_for_inspection(order.inspection)
+            ServiceUtils.inspection_status_check(order.inspection)
         order_data = _create_order_data(order.inspection, order)
         response = DocGenService.render_template(
             "ORDER_TEMPLATE", order_data, output_format
