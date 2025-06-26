@@ -4,41 +4,30 @@ from datetime import datetime
 
 from compliance_api.auth import auth
 from compliance_api.exceptions import (
-    BusinessError,
-    PermissionDeniedError,
-    ResourceNotFoundError,
-    UnprocessableEntityError,
-)
-from compliance_api.models import (
-    CaseFile as CaseFileModel,
-    CaseFileStatusEnum,
-    Inspection as InspectionModel,
-    InspectionAgency as InspectionAgencyModel,
-    InspectionAttendance as InspectionAttendanceModel,
-    InspectionAttendanceOption as InspectionAttendanceOptionModel,
-    InspectionAttendanceOptionEnum,
-    InspectionFirstnation as InspectionFirstnationModel,
-    InspectionInitiationOption as InspectionInitiationOptionModel,
-    InspectionOfficer as InspectionOfficerModel,
-    InspectionOtherAttendance as InspectionOtherAttendanceModel,
-    InspectionStatusEnum,
-    InspectionType as InspectionTypeModel,
-    InspectionTypeOption as InspectionTypeOptionModel,
-    IRStatusOption as IRStatusOptionModel,
-    Order as OrderModel,
-    WarningLetter as WarningLetterModel,
-)
+    BusinessError, PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError)
+from compliance_api.models import CaseFile as CaseFileModel
+from compliance_api.models import CaseFileStatusEnum
+from compliance_api.models import Inspection as InspectionModel
+from compliance_api.models import InspectionAgency as InspectionAgencyModel
+from compliance_api.models import InspectionAttendance as InspectionAttendanceModel
+from compliance_api.models import InspectionAttendanceOption as InspectionAttendanceOptionModel
+from compliance_api.models import InspectionAttendanceOptionEnum
+from compliance_api.models import InspectionFirstnation as InspectionFirstnationModel
+from compliance_api.models import InspectionInitiationOption as InspectionInitiationOptionModel
+from compliance_api.models import InspectionOfficer as InspectionOfficerModel
+from compliance_api.models import InspectionOtherAttendance as InspectionOtherAttendanceModel
+from compliance_api.models import InspectionStatusEnum
+from compliance_api.models import InspectionType as InspectionTypeModel
+from compliance_api.models import InspectionTypeOption as InspectionTypeOptionModel
+from compliance_api.models import IRStatusOption as IRStatusOptionModel
+from compliance_api.models import Order as OrderModel
+from compliance_api.models import WarningLetter as WarningLetterModel
 from compliance_api.models.db import session_scope
-from compliance_api.models.enforcement_action import (
-    EnforcementActionOption as EnforcementActionOptionModel,
-    EnforcementActionOptionEnum,
-)
+from compliance_api.models.enforcement_action import EnforcementActionOption as EnforcementActionOptionModel
+from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.services.case_file import CaseFileService
 from compliance_api.services.service_utils import ServiceUtils
-from compliance_api.utils.constant import (
-    INPUT_DATE_TIME_FORMAT,
-    UNAPPROVED_PROJECT_CODE,
-)
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE
 from compliance_api.utils.enum import ContextEnum, PermissionEnum
 
 from .epic_track_service.track_service import TrackService
