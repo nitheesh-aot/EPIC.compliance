@@ -15,6 +15,7 @@ from compliance_api.models.case_file import CaseFileOfficer as CaseFileOfficerMo
 from compliance_api.models.compliance_finding import ComplianceFindingOptionEnum
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.models.inspection import InspectionReqSourceDetail as InspectionReqSourceDetailModel
+from compliance_api.models.inspection import InspectionStatusEnum
 from compliance_api.models.inspection.inspection_req_enforcement_map import \
     InspectionReqEnforcementMap as InspectionReqEnforcementMapModel
 from compliance_api.models.inspection.inspection_req_image import ImageTypeEnum
@@ -424,3 +425,13 @@ class ServiceUtils:
             raise UnprocessableEntityError(
                 "Given officer doesn't belong to the list of possible officers"
             )
+
+    @staticmethod
+    def inspection_status_check(inspection: InspectionModel):
+        """Check the inspection status."""
+        invalid_statuses = {InspectionStatusEnum.CANCELED, InspectionStatusEnum.CLOSED}
+        if inspection.inspection_status in invalid_statuses:
+            raise UnprocessableEntityError(
+                f"You cannot make changes to  {inspection.inspection_status.name} inspection"
+            )
+        return inspection
