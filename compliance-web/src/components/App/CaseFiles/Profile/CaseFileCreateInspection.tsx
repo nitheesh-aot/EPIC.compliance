@@ -26,7 +26,7 @@ const CaseFileCreateInspection = ({
   const handleOnSubmit = useCallback(
     (submitMsg: string) => {
       queryClient.invalidateQueries({
-        queryKey: ["inspections-by-caseFileId", caseFileData?.id],
+        queryKey: ["inspections-details-by-caseFileId", caseFileData?.id],
       });
       queryClient.invalidateQueries({
         queryKey: ["continuation-reports", caseFileData?.id],

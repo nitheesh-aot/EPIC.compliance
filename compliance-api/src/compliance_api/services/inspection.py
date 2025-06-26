@@ -23,6 +23,7 @@ from compliance_api.models import IRStatusOption as IRStatusOptionModel
 from compliance_api.models import Order as OrderModel
 from compliance_api.models import WarningLetter as WarningLetterModel
 from compliance_api.models.db import session_scope
+from compliance_api.models.enforcement_action import EnforcementActionOption as EnforcementActionOptionModel
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.services.case_file import CaseFileService
 from compliance_api.services.service_utils import ServiceUtils
@@ -77,26 +78,27 @@ class InspectionService:
                     item = {
                         "requirement_id": requirement.id,
                         "requirement_summary": requirement.summary,
+                        "requirement_sort_order": requirement.sort_order,
                         "enforcement_action": {
-                            "id": EnforcementActionOptionEnum(
+                            "id": EnforcementActionOptionModel.find_by_id(
                                 action.enforcement_action_id
-                            ).value,
-                            "name": EnforcementActionOptionEnum(
+                            ).id,
+                            "name": EnforcementActionOptionModel.find_by_id(
                                 action.enforcement_action_id
                             ).name,
                         },
                     }
-
-                    first_requirement_details = requirement.requirement_source_details[
-                        0
-                    ]
-                    number_field = ServiceUtils.get_requirement_source_number_field(
-                        first_requirement_details
-                    )
-                    item["requirement_number"] = number_field.split(" ")[1]
-                    item["requirement_source_name"] = (
-                        first_requirement_details.requirement_source.name
-                    )
+                    if requirement.requirement_source_details:
+                        first_requirement_details = (
+                            requirement.requirement_source_details[0]
+                        )
+                        number_field = ServiceUtils.get_requirement_source_number_field(
+                            first_requirement_details
+                        )
+                        item["requirement_number"] = number_field.split(" ")[1]
+                        item["requirement_source_name"] = (
+                            first_requirement_details.requirement_source.name
+                        )
 
                     action_type = EnforcementActionOptionEnum(
                         action.enforcement_action_id
@@ -113,10 +115,13 @@ class InspectionService:
                         ]
                         if requirement_orders and requirement_orders[0].order_approvals:
                             order = requirement_orders[0]
-                            item["enforcement_action"]["approval_status"] = {
-                                "id": order.order_approvals[0].approval_status.name,
-                                "name": order.order_approvals[0].approval_status.value,
-                            }
+                            if order.order_approvals:
+                                item["enforcement_action"]["approval_status"] = {
+                                    "id": order.order_approvals[0].approval_status.name,
+                                    "name": order.order_approvals[
+                                        0
+                                    ].approval_status.value,
+                                }
                             item["enforcement_action"]["progress"] = {
                                 "id": order.order_progress.name,
                                 "name": order.order_progress.value,
@@ -130,25 +135,23 @@ class InspectionService:
                             if requirement.id
                             in [
                                 req_map.inspection_requirement_id
-                                for req_map in warning_letter.warning_letter_requirement_maps
+                                for req_map in warning_letter.warning_letter_requirement_map
                             ]
                         ]
-                        if (
-                            requirement_warning_letters
-                            and requirement_warning_letters[0].warning_letter_approvals
-                        ):
+                        if requirement_warning_letters:
                             warning_letter = requirement_warning_letters[0]
-                            item["enforcement_action"]["approval_status"] = {
-                                "id": warning_letter.warning_letter_approvals[
-                                    0
-                                ].approval_status.name,
-                                "name": warning_letter.warning_letter_approvals[
-                                    0
-                                ].approval_status.value,
-                            }
+                            if warning_letter.warning_letter_approvals:
+                                item["enforcement_action"]["approval_status"] = {
+                                    "id": warning_letter.warning_letter_approvals[
+                                        0
+                                    ].approval_status.name,
+                                    "name": warning_letter.warning_letter_approvals[
+                                        0
+                                    ].approval_status.value,
+                                }
                             item["enforcement_action"]["progress"] = {
-                                "id": warning_letter.warning_letter_progress.name,
-                                "name": warning_letter.warning_letter_progress.value,
+                                "id": warning_letter.progress.name,
+                                "name": warning_letter.progress.value,
                             }
                             item["enforcement_action"][
                                 "number"

@@ -15,6 +15,14 @@ const fetchWarningLetters = (
   });
 };
 
+const fetchWarningLetterByNumber = (
+  warningLetterNumber: string
+): Promise<InspectionWarningLetter[]> => {
+  return request({
+    url: `/warning-letters/warning-letter-numbers/${warningLetterNumber}`,
+  });
+};
+
 const createWarningLetter = ({
   inspectionWarningLetter,
 }: {
@@ -137,6 +145,13 @@ export const useInspectionWarningLettersData = (inspectionId: number) => {
     queryFn: () => fetchWarningLetters(inspectionId),
     enabled: !!inspectionId,
     staleTime: Infinity,
+  });
+};
+
+export const useFetchWarningLetterByNumber = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: fetchWarningLetterByNumber,
+    onSuccess,
   });
 };
 

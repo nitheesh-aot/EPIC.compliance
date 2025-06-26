@@ -34,6 +34,7 @@ type EnforcementWarningLetterDrawerProps = {
   inspection: Inspection;
   warningLetter: InspectionWarningLetter;
   staffUsersList: StaffUser[];
+  isReadonlyMode?: boolean;
 };
 
 const warningLetterFormSchema = yup.object().shape({
@@ -60,13 +61,21 @@ const initFormData = {
 
 const EnforcementWarningLetterDrawer: React.FC<
   EnforcementWarningLetterDrawerProps
-> = ({ onSubmit, inspection, warningLetter, staffUsersList }) => {
+> = ({
+  onSubmit,
+  inspection,
+  warningLetter,
+  staffUsersList,
+  isReadonlyMode,
+}) => {
   const { appHeaderHeight } = useMenuStore();
 
   const isReadonly =
     useMemo(
-      () => warningLetter.status?.id === WarningLetterStatusEnum.ISSUED,
-      [warningLetter.status]
+      () =>
+        warningLetter.status?.id === WarningLetterStatusEnum.ISSUED ||
+        isReadonlyMode,
+      [warningLetter.status, isReadonlyMode]
     ) || false;
 
   const defaultValues = useMemo<EnforcementFormType>(() => {
@@ -153,10 +162,12 @@ const EnforcementWarningLetterDrawer: React.FC<
             textAlign: "right",
           }}
         >
-          <WarningLetterApprovalButtons
-            warningLetter={warningLetter}
-            inspectionId={inspection.id}
-          />
+          {!isReadonlyMode && (
+            <WarningLetterApprovalButtons
+              warningLetter={warningLetter}
+              inspectionId={inspection.id}
+            />
+          )}
           <EnforcementDownloadPDFButton
             enforcementId={warningLetter.id || 0}
             fileNumber={warningLetter.warning_letter_number || ""}
@@ -181,6 +192,7 @@ const EnforcementWarningLetterDrawer: React.FC<
               label=""
               name="content"
               height={`calc(100vh - ${appHeaderHeight + 235}px)`}
+              disabled={isReadonlyMode}
             />
           </Box>
           <Box
@@ -201,12 +213,14 @@ const EnforcementWarningLetterDrawer: React.FC<
               fullWidth
               isSortOptions
               isRequired={true}
+              disabled={isReadonlyMode}
             />
             <ControlledDateField
               className="cy-intended-issuance-date"
               name="intendedIssuanceDate"
               label="Intended Issuance Date"
               sx={{ width: "100%" }}
+              disabled={isReadonlyMode}
             />
           </Box>
         </Stack>
