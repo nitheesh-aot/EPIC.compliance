@@ -131,6 +131,9 @@ class InspectionService:
                                             0
                                         ].order_progress.value,
                                     }
+                                    item["enforcement_action"]["number"] = requirement_orders[
+                                        0
+                                    ].order_number
                             if (
                                 EnforcementActionOptionEnum(
                                     action.enforcement_action_id
@@ -169,7 +172,10 @@ class InspectionService:
                                             "name": requirement_warning_letters[
                                                 0
                                             ].progress.value,
-                                        }
+                                    },
+                                    item["enforcement_action"]["number"] = requirement_warning_letters[
+                                        0
+                                    ].warning_letter_number
                             requirement_details.append(item)
             setattr(inspection, "requirement_details", requirement_details)
         return inspections

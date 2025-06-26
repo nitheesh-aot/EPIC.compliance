@@ -78,8 +78,8 @@ class InspectionRecords(Resource):
         return InspectionRecordSchema().dump(created_ir), HTTPStatus.CREATED
 
 
-@cors_preflight("PATCH, OPTIONS")
-@API.route("/<int:inspection_record_id>", methods=["PATCH", "OPTIONS"])
+@cors_preflight("PATCH,GET,DELETE, OPTIONS")
+@API.route("/<int:inspection_record_id>", methods=["PATCH", "GET", "DELETE", "OPTIONS"])
 class InspectionRecord(Resource):
     """InspectionRecord resource."""
 
@@ -113,6 +113,17 @@ class InspectionRecord(Resource):
             inspection_id, inspection_record_id, ir_update_data
         )
         return InspectionRecordSchema().dump(updated_ir), HTTPStatus.OK
+
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(API, endpoint_description="Delete an inspection record by id")
+    @API.response(code=204, description="Success")
+    @API.response(404, "Not Found")
+    @API.response(422, "Unprocessable Entity")
+    def delete(inspection_id, inspection_record_id):
+        """Delete inspection record."""
+        InspectionRecordService.delete_inspection_record(inspection_id, inspection_record_id)
+        return {}, HTTPStatus.NO_CONTENT
 
 
 @cors_preflight("PATCH, OPTIONS")

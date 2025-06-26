@@ -343,6 +343,12 @@ class InspectionEnforcementActionSchema(BaseSchema):  # pylint: disable=too-many
             "type": "object",
         },
     )
+    number = fields.Str(
+        metadata={
+            "description": "The number of the enforcement action",
+            "type": "string",
+        }
+    )
 
 
 class InspectionRequirementDetails(BaseSchema):  # pylint: disable=too-many-ancestors
