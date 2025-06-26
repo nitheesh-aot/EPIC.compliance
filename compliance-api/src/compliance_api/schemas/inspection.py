@@ -312,7 +312,9 @@ class InspectionCreateSchema(InspectionUpdateSchema):
     )
 
 
-class InspectionEnforcementActionSchema(BaseSchema):  # pylint: disable=too-many-ancestors
+class InspectionEnforcementActionSchema(
+    BaseSchema
+):  # pylint: disable=too-many-ancestors
     """InspectionEnforcementActionSchema."""
 
     id = fields.Str(
@@ -419,7 +421,9 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         allow_none=True,
     )
     approved_by_id = fields.Int(
-        metadata={"description": "The ID of the user who approved the inspection record"},
+        metadata={
+            "description": "The ID of the user who approved the inspection record"
+        },
         allow_none=True,
     )
     requirement_details = fields.Nested(InspectionRequirementDetails, many=True)
@@ -463,7 +467,9 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         return []
 
 
-class InspectionMoreDetailsSchema(InspectionSchema):  # pylint: disable=too-many-ancestors
+class InspectionMoreDetailsSchema(
+    InspectionSchema
+):  # pylint: disable=too-many-ancestors
     """InspectionMoreDetailsSchema."""
 
     requirement_details = fields.Nested(InspectionRequirementDetails, many=True)
