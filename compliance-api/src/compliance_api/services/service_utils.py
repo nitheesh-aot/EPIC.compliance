@@ -15,6 +15,7 @@ from compliance_api.models.case_file import CaseFileOfficer as CaseFileOfficerMo
 from compliance_api.models.compliance_finding import ComplianceFindingOptionEnum
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.models.inspection import InspectionReqSourceDetail as InspectionReqSourceDetailModel
+from compliance_api.models.inspection import InspectionStatusEnum
 from compliance_api.models.inspection.inspection_req_enforcement_map import \
     InspectionReqEnforcementMap as InspectionReqEnforcementMapModel
 from compliance_api.models.inspection.inspection_req_image import ImageTypeEnum
@@ -41,6 +42,7 @@ class ServiceUtils:
     def access_check_update_for_inspection(inspection: dict):
         """Access check for update an inspection."""
         auth_user_guid = g.token_info["preferred_username"]
+        print(auth_user_guid)
         if (
             not auth.has_permission([PermissionEnum.SUPERUSER])
             and not inspection.primary_officer.auth_user_guid == auth_user_guid
@@ -424,3 +426,13 @@ class ServiceUtils:
             raise UnprocessableEntityError(
                 "Given officer doesn't belong to the list of possible officers"
             )
+
+    @staticmethod
+    def inspection_status_check(inspection: InspectionModel):
+        """Check the inspection status."""
+        invalid_statuses = {InspectionStatusEnum.CANCELED, InspectionStatusEnum.CLOSED}
+        if inspection.inspection_status in invalid_statuses:
+            raise UnprocessableEntityError(
+                f"You cannot make changes to  {inspection.inspection_status.name} inspection"
+            )
+        return inspection

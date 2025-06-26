@@ -32,6 +32,7 @@ class InspectionRecordService:
         """Create inspection record."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         existing_ir = InspectionRecordModel.get_by_inspection_id(inspection_id)
         #  Raise error, if ir exists and the request is to create another ir of the same status
         if existing_ir:
@@ -63,6 +64,7 @@ class InspectionRecordService:
             inspection_record_id
         )
         ServiceUtils.access_check_update_for_inspection(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         change_track_required_fields = {
             "inspection_scope",
             "preliminary_review_details",
@@ -103,6 +105,7 @@ class InspectionRecordService:
             inspection_record_id
         )
         ServiceUtils.access_check_update_for_inspection(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         if inspection_record.ir_progress == IRProgressEnum.ISSUED:
             raise UnprocessableEntityError("Issued IR cannot be deleted")
         approvals = InspectionRecordApprovalModel.get_approvals_by_ir(
@@ -130,6 +133,7 @@ class InspectionRecordService:
             inspection_record_id
         )
         ServiceUtils.access_check_update_for_inspection(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         approvals = InspectionRecordApprovalModel.get_approvals_by_ir(
             inspection_record_id=inspection_record_id
         )
@@ -184,6 +188,7 @@ class InspectionRecordService:
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
         # Check user permissions
         ServiceUtils.access_check_update_for_inspection(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         inspection_record = ServiceUtils.inspection_record_exist_check(
             inspection_record_id
         )

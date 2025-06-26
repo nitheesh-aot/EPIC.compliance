@@ -116,13 +116,17 @@ class InspectionRecord(Resource):
 
     @staticmethod
     @auth.require
-    @ApiHelper.swagger_decorators(API, endpoint_description="Delete an inspection record by id")
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Delete an inspection record by id"
+    )
     @API.response(code=204, description="Success")
     @API.response(404, "Not Found")
     @API.response(422, "Unprocessable Entity")
     def delete(inspection_id, inspection_record_id):
         """Delete inspection record."""
-        InspectionRecordService.delete_inspection_record(inspection_id, inspection_record_id)
+        InspectionRecordService.delete_inspection_record(
+            inspection_id, inspection_record_id
+        )
         return {}, HTTPStatus.NO_CONTENT
 
 
