@@ -209,7 +209,7 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
               label="WHEREAS & DEFINITIONS"
               name="whereAs"
               height={`calc(100vh - ${appHeaderHeight + 235}px)`}
-              isDisabled={isReadonlyMode}
+              disabled={isReadonlyMode}
             />
           </Box>
           <Box
@@ -256,7 +256,7 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
               label="NOW THEREFORE"
               name="nowTherefore"
               height={`calc(100vh - ${appHeaderHeight + 428}px)`}
-              isDisabled={isReadonlyMode}
+              disabled={isReadonlyMode}
             />
           </Box>
         </Stack>

@@ -27,7 +27,7 @@ export default function ControlledLexicalEditor({
   height,
   mentionsList,
   isRequired = false,
-  isDisabled = false,
+  disabled = false,
 }: {
   name: string;
   label: string;
@@ -36,7 +36,7 @@ export default function ControlledLexicalEditor({
   height?: string;
   mentionsList?: MentionData[];
   isRequired?: boolean;
-  isDisabled?: boolean;
+  disabled?: boolean;
 }) {
   const {
     control,
@@ -104,7 +104,7 @@ export default function ControlledLexicalEditor({
                 }, 100);
               }}
               isRequired={isRequired}
-              isDisabled={isDisabled}
+              disabled={disabled}
             />
             {errorMessage && (
               <FormHelperText

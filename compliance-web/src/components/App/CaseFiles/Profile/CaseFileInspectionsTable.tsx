@@ -30,6 +30,9 @@ import { Fragment, useState } from "react";
 import EnforcementOrderDrawer from "../../Inspections/Profile/Enforcements/EnforcementOrderDrawer";
 import { useDrawer } from "@/store/drawerStore";
 import { useStaffUsersData } from "@/hooks/useStaff";
+import { useFetchWarningLetterByNumber } from "@/hooks/useInspectionWarningLetters";
+import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
+import EnforcementWarningLetterDrawer from "../../Inspections/Profile/Enforcements/EnforcementWarningLetterDrawer";
 
 const styleOverFlowClipped = {
   whiteSpace: "nowrap",
@@ -111,15 +114,42 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
     });
   };
 
-  const { mutate: refetchInspectionOrder } = useInspectionOrderByNumber(
-    onOrderSuccess
+  const { mutate: fetchInspectionOrder } =
+    useInspectionOrderByNumber(onOrderSuccess);
+
+  const onWarningLetterSuccess = (warningLetter: InspectionWarningLetter) => {
+    const inspection = inspections?.find(
+      (inspection) => inspection.id === warningLetter.inspection_id
+    );
+    setOpen({
+      content: (
+        <EnforcementWarningLetterDrawer
+          onSubmit={() => {
+            setClose();
+          }}
+          inspection={inspection as Inspection}
+          warningLetter={warningLetter}
+          staffUsersList={staffUsersList || []}
+          isReadonlyMode={true}
+        />
+      ),
+      width: DRAWER_WIDTHS.ENFORCEMENT_DRAWER,
+    });
+  };
+
+  const { mutate: fetchWarningLetter } = useFetchWarningLetterByNumber(
+    onWarningLetterSuccess
   );
 
   const handleEnforcementActionClick = async (
     enforcementAction: InspectionMoreDetailsEnforcementAction | undefined
   ) => {
     if (!enforcementAction?.number) return;
-    refetchInspectionOrder(enforcementAction.number);
+    if (enforcementAction.id === EnforcementActionEnum.ORDER) {
+      fetchInspectionOrder(enforcementAction.number);
+    } else if (enforcementAction.id === EnforcementActionEnum.WARNING_LETTER) {
+      fetchWarningLetter(enforcementAction.number);
+    }
   };
 
   return (
@@ -274,6 +304,11 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
                               <Link
                                 underline="hover"
                                 sx={{ cursor: "pointer" }}
+                                onClick={() =>
+                                  fetchInspectionOrder(
+                                    requirement.requirement_number
+                                  )
+                                }
                               >
                                 {(requirement.requirement_number ?? "")
                                   .split("_")
