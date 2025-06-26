@@ -112,11 +112,28 @@ class ServiceUtils:
             ),
             "proponent_label": (
                 "Certificate Holder"
-                if re.match(r"^E\d{1,3}-\d{1,3}$", eac_certicate)
+                if ServiceUtils.is_valid_certificate(eac_certicate)
                 else "Regulated Party"
             ),
-            "has_certificate": bool(re.match(r"^E\d{1,3}-\d{1,3}$", eac_certicate)),
+            "has_certificate": ServiceUtils.is_valid_certificate(eac_certicate),
         }
+
+    @staticmethod
+    def is_valid_certificate(eac_certificate: str) -> bool:
+        """Check if the given certificate is valid according to the expected format and rules."""
+        if not isinstance(eac_certificate, str):
+            return False
+        # Normalize input to uppercase for consistent checking
+        cert = eac_certificate.upper()
+        # Match the general format: 1–4 uppercase letters + 2 digits + '-' + 2 digits
+        match = re.match(r"^([A-Z]{1,4})\d{2}-\d{2}$", cert)
+        if not match:
+            return False
+        prefix = match.group(1)
+        # Reject if the prefix is exactly 'X' (indicates exemption number)
+        if prefix == "X":
+            return False
+        return True
 
     @staticmethod
     def get_formatted_requirement_details(
