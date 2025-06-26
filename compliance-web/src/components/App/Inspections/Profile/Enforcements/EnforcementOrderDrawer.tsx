@@ -33,6 +33,7 @@ type EnforcementOrderDrawerProps = {
   inspection: Inspection;
   enforcementOrder: InspectionOrder;
   staffUsersList: StaffUser[];
+  isReadonlyMode?: boolean;
 };
 
 const enforcementSchema = yup.object().shape({
@@ -71,13 +72,16 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
   inspection,
   enforcementOrder,
   staffUsersList,
+  isReadonlyMode = false,
 }) => {
   const { appHeaderHeight } = useMenuStore();
   const { data: enforcementSections } = useEnforcementSectionsData();
 
   const isReadonly = useMemo(
-    () => enforcementOrder.order_progress?.id === OrderProgressEnum.ISSUED,
-    [enforcementOrder.order_progress]
+    () =>
+      enforcementOrder.order_progress?.id === OrderProgressEnum.ISSUED ||
+      isReadonlyMode,
+    [enforcementOrder.order_progress, isReadonlyMode]
   );
 
   const defaultValues = useMemo<EnforcementFormType>(() => {
@@ -174,11 +178,13 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
             gap: 1,
           }}
         >
-          <OrderApprovalButtons
-            inspectionOrder={enforcementOrder}
-            inspectionId={inspection.id}
-            caseFileId={inspection.case_file_id ?? 0}
-          />
+          {!isReadonlyMode && (
+            <OrderApprovalButtons
+              inspectionOrder={enforcementOrder}
+              inspectionId={inspection.id}
+              caseFileId={inspection.case_file_id ?? 0}
+            />
+          )}
           <EnforcementDownloadPDFButton
             enforcementId={enforcementOrder.id || 0}
             fileNumber={enforcementOrder.order_number || ""}
@@ -203,6 +209,7 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
               label="WHEREAS & DEFINITIONS"
               name="whereAs"
               height={`calc(100vh - ${appHeaderHeight + 235}px)`}
+              isDisabled={isReadonlyMode}
             />
           </Box>
           <Box
@@ -223,6 +230,7 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
               fullWidth
               isSortOptions
               isRequired={true}
+              disabled={isReadonlyMode}
             />
             <Stack direction={"row"} gap={2}>
               <ControlledAutoComplete
@@ -234,18 +242,21 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 fullWidth
                 isRequired={true}
+                disabled={isReadonlyMode}
               />
               <ControlledDateField
                 className="cy-intended-issuance-date"
                 name="intendedIssuanceDate"
                 label="Intended Issuance Date"
                 sx={{ width: "100%" }}
+                disabled={isReadonlyMode}
               />
             </Stack>
             <ControlledLexicalEditor
               label="NOW THEREFORE"
               name="nowTherefore"
               height={`calc(100vh - ${appHeaderHeight + 428}px)`}
+              isDisabled={isReadonlyMode}
             />
           </Box>
         </Stack>

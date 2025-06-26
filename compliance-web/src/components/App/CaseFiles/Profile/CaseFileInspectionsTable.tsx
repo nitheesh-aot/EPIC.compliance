@@ -1,7 +1,13 @@
+import { useInspectionOrderByNumber } from "@/hooks/useInspectionOrders";
 import { useInspectionsMoreDetailsByCaseFileId } from "@/hooks/useInspections";
 import { CaseFile } from "@/models/CaseFile";
-import { InspectionMoreDetailsEnforcementAction } from "@/models/Inspection";
 import {
+  Inspection,
+  InspectionMoreDetailsEnforcementAction,
+} from "@/models/Inspection";
+import { InspectionOrder } from "@/models/InspectionOrder";
+import {
+  DRAWER_WIDTHS,
   EnforcementActionEnum,
   INITIATION,
   OrderProgressEnum,
@@ -21,6 +27,9 @@ import {
 import { Link as RouterLink } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { Fragment, useState } from "react";
+import EnforcementOrderDrawer from "../../Inspections/Profile/Enforcements/EnforcementOrderDrawer";
+import { useDrawer } from "@/store/drawerStore";
+import { useStaffUsersData } from "@/hooks/useStaff";
 
 const styleOverFlowClipped = {
   whiteSpace: "nowrap",
@@ -29,9 +38,11 @@ const styleOverFlowClipped = {
 };
 
 const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
+  const { setOpen, setClose } = useDrawer();
   const { data: inspections } = useInspectionsMoreDetailsByCaseFileId(
     caseFile.id
   );
+  const { data: staffUsersList } = useStaffUsersData();
 
   const [expandedInspections, setExpandedInspections] = useState<Set<number>>(
     new Set()
@@ -78,6 +89,37 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
       default:
         return false;
     }
+  };
+
+  const onOrderSuccess = (order: InspectionOrder) => {
+    const inspection = inspections?.find(
+      (inspection) => inspection.id === order.inspection_id
+    );
+    setOpen({
+      content: (
+        <EnforcementOrderDrawer
+          onSubmit={() => {
+            setClose();
+          }}
+          inspection={inspection as Inspection}
+          enforcementOrder={order}
+          staffUsersList={staffUsersList || []}
+          isReadonlyMode={true}
+        />
+      ),
+      width: DRAWER_WIDTHS.ENFORCEMENT_DRAWER,
+    });
+  };
+
+  const { mutate: refetchInspectionOrder } = useInspectionOrderByNumber(
+    onOrderSuccess
+  );
+
+  const handleEnforcementActionClick = async (
+    enforcementAction: InspectionMoreDetailsEnforcementAction | undefined
+  ) => {
+    if (!enforcementAction?.number) return;
+    refetchInspectionOrder(enforcementAction.number);
   };
 
   return (
@@ -259,6 +301,11 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
                               <Link
                                 underline="hover"
                                 sx={{ cursor: "pointer" }}
+                                onClick={() =>
+                                  handleEnforcementActionClick(
+                                    requirement.enforcement_action
+                                  )
+                                }
                               >
                                 {requirement.enforcement_action?.name}
                               </Link>

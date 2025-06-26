@@ -40,6 +40,7 @@ type LexicalEditorProps = {
   mentionsList?: MentionData[];
   onChange: (editorState: EditorState, editor: Editor) => void;
   isRequired?: boolean;
+  isDisabled?: boolean;
 };
 
 const LexicalEditor = ({
@@ -53,6 +54,7 @@ const LexicalEditor = ({
   onChange,
   isAdvanced = false,
   isRequired = false,
+  isDisabled = false,
 }: LexicalEditorProps) => {
   // Lexical Editor Configuration
   const editorConfig = {
@@ -91,6 +93,7 @@ const LexicalEditor = ({
         }
       });
     },
+    editable: !isDisabled,
   };
 
   const [floatingAnchorElem, setFloatingAnchorElem] =
@@ -134,7 +137,7 @@ const LexicalEditor = ({
         >
           {label}
         </InputLabel>
-        <LexicalToolbar isAdvanced={isAdvanced} />
+        {!isDisabled && <LexicalToolbar isAdvanced={isAdvanced} />}
       </Box>
       <Box
         className="editor-container"
@@ -144,6 +147,9 @@ const LexicalEditor = ({
             : `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
           height: height ? height : "auto",
           overflowY: "auto",
+          backgroundColor: isDisabled
+            ? BCDesignTokens.surfaceColorFormsDisabled
+            : "transparent",
         }}
       >
         <Box className="editor-inner editor-content">
@@ -156,6 +162,7 @@ const LexicalEditor = ({
                   placeholder={
                     <div className="editor-placeholder">{placeholder}</div>
                   }
+                  disabled={isDisabled}
                 />
               </div>
             }
