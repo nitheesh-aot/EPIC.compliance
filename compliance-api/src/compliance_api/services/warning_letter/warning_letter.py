@@ -38,6 +38,7 @@ class WarningLetterService:
         inspection_id = warning_letter_data.get("inspection_id")
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
+        ServiceUtils.inspection_status_check(inspection)
         ServiceUtils.officer_check(
             warning_letter_data.get("issuing_officer_id"), inspection
         )
@@ -82,6 +83,7 @@ class WarningLetterService:
         """Update an existing warning letter."""
         warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
         ServiceUtils.access_check_update_for_inspection(warning_letter.inspection)
+        ServiceUtils.inspection_status_check(warning_letter.inspection)
         ServiceUtils.officer_check(
             update_data.get("issuing_officer_id"), warning_letter.inspection
         )
@@ -110,6 +112,8 @@ class WarningLetterService:
     def delete_warning_letter(cls, warning_letter_id: int) -> None:
         """Delete a warning letter by ID."""
         warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
+        ServiceUtils.access_check_update_for_inspection(warning_letter.inspection)
+        ServiceUtils.inspection_status_check(warning_letter.inspection)
         if warning_letter.status == WarningLetterStatusEnum.ISSUED:
             raise UnprocessableEntityError("Warning letter is in ISSUED status.")
         if warning_letter.progress in [
@@ -167,6 +171,7 @@ class WarningLetterService:
         """Issue a warning letter."""
         warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
         ServiceUtils.access_check_update_for_inspection(warning_letter.inspection)
+        ServiceUtils.inspection_status_check(warning_letter.inspection)
         with session_scope() as session:
             updated_warning_letter = WarningLetterModel.update_warning_letter(
                 warning_letter_id,
