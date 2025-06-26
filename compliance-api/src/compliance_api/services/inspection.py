@@ -86,18 +86,19 @@ class InspectionService:
                                     ).name,
                                 },
                             }
-                            first_requirement_details = (
-                                requirement.requirement_source_details[0]
-                            )
-                            number_field = (
-                                ServiceUtils.get_requirement_source_number_field(
-                                    first_requirement_details
+                            if requirement.requirement_source_details:
+                                first_requirement_details = (
+                                    requirement.requirement_source_details[0]
                                 )
-                            )
-                            item["requirement_number"] = number_field.split(" ")[1]
-                            item["requirement_source_name"] = (
-                                first_requirement_details.requirement_source.name
-                            )
+                                number_field = (
+                                    ServiceUtils.get_requirement_source_number_field(
+                                        first_requirement_details
+                                    )
+                                )
+                                item["requirement_number"] = number_field.split(" ")[1]
+                                item["requirement_source_name"] = (
+                                    first_requirement_details.requirement_source.name
+                                )
                             if (
                                 EnforcementActionOptionEnum(
                                     action.enforcement_action_id
@@ -164,14 +165,13 @@ class InspectionService:
                                             .warning_letter_approvals[0]
                                             .approval_status.value,
                                         }
-                                    if requirement_warning_letters[0].progress:
-                                        item["enforcement_action"]["progress"] = {
-                                            "id": requirement_warning_letters[
-                                                0
-                                            ].progress.name,
-                                            "name": requirement_warning_letters[
-                                                0
-                                            ].progress.value,
+                                    item["enforcement_action"]["progress"] = {
+                                        "id": requirement_warning_letters[
+                                            0
+                                        ].progress.name,
+                                        "name": requirement_warning_letters[
+                                            0
+                                        ].progress.value,
                                     },
                                     item["enforcement_action"]["number"] = requirement_warning_letters[
                                         0

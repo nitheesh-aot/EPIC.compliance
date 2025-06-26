@@ -1,6 +1,12 @@
 import { useInspectionsMoreDetailsByCaseFileId } from "@/hooks/useInspections";
 import { CaseFile } from "@/models/CaseFile";
-import { INITIATION } from "@/utils/constants";
+import { InspectionMoreDetailsEnforcementAction } from "@/models/Inspection";
+import {
+  EnforcementActionEnum,
+  INITIATION,
+  OrderProgressEnum,
+  WarningLetterProgressEnum,
+} from "@/utils/constants";
 import { ChevronRight, ExpandLessRounded } from "@mui/icons-material";
 import {
   Link,
@@ -15,6 +21,12 @@ import {
 import { Link as RouterLink } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { Fragment, useState } from "react";
+
+const styleOverFlowClipped = {
+  whiteSpace: "nowrap",
+  textOverflow: "ellipsis",
+  overflow: "hidden",
+};
 
 const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
   const { data: inspections } = useInspectionsMoreDetailsByCaseFileId(
@@ -35,6 +47,37 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
       }
       return newSet;
     });
+  };
+
+  const getStatusFlagColor = (progress: { id: string; name: string }) => {
+    switch (progress.id) {
+      case OrderProgressEnum.DRAFTING:
+        return "default";
+      case OrderProgressEnum.DEPUTY_REVIEW:
+        return "warning";
+      case OrderProgressEnum.APPROVED:
+      case OrderProgressEnum.ISSUED:
+        return "success";
+      default:
+        return "default";
+    }
+  };
+
+  const isEnforcementActionLink = (
+    enforcementAction: InspectionMoreDetailsEnforcementAction | undefined
+  ): boolean => {
+    if (!enforcementAction?.number) return false;
+
+    const progressId = enforcementAction.progress?.id;
+
+    switch (enforcementAction.id) {
+      case EnforcementActionEnum.ORDER:
+        return progressId === OrderProgressEnum.ISSUED;
+      case EnforcementActionEnum.WARNING_LETTER:
+        return progressId === WarningLetterProgressEnum.ISSUED;
+      default:
+        return false;
+    }
   };
 
   return (
@@ -128,7 +171,7 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
                 </AccordionSummary>
                 <AccordionDetails sx={{ padding: "1rem" }}>
                   <Grid container spacing={1}>
-                    <Grid item xs={5}>
+                    <Grid item xs={4}>
                       <Typography
                         variant="body2"
                         color={BCDesignTokens.typographyColorPlaceholder}
@@ -136,7 +179,7 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
                         Requirement Summary
                       </Typography>
                     </Grid>
-                    <Grid item xs={1}>
+                    <Grid item xs={2}>
                       <Typography
                         variant="body2"
                         color={BCDesignTokens.typographyColorPlaceholder}
@@ -156,9 +199,7 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
                       <Typography
                         variant="body2"
                         sx={{
-                          whiteSpace: "nowrap",
-                          textOverflow: "ellipsis",
-                          overflow: "hidden",
+                          ...styleOverFlowClipped,
                           color: BCDesignTokens.typographyColorPlaceholder,
                         }}
                       >
@@ -173,39 +214,80 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
                         Enf. Status
                       </Typography>
                     </Grid>
-                    {inspection.requirement_details?.map((requirement, index) => (
-                      <Fragment key={index}>
-                        <Grid item xs={5}>
-                          <Typography variant="body2">
-                            #{requirement.requirement_sort_order}.{" "}
-                            {requirement.requirement_summary}
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={1}>
-                          <Typography variant="body2">
-                            {requirement.requirement_number}
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={2}>
-                          <Typography variant="body2">
-                            {requirement.requirement_source_name}
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={2}>
-                          <Typography variant="body2">
-                            {requirement.enforcement_action?.name || ""}
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={2}>
-                          <Typography variant="body2">
-                            {
-                              requirement.enforcement_action?.approval_status
-                                ?.name
-                            }
-                          </Typography>
-                        </Grid>
-                      </Fragment>
-                    ))}
+                    {inspection.requirement_details?.map(
+                      (requirement, index) => (
+                        <Fragment key={index}>
+                          <Grid item xs={4}>
+                            <Typography
+                              variant="body2"
+                              sx={{ ...styleOverFlowClipped }}
+                            >
+                              #{requirement.requirement_sort_order}.{" "}
+                              {requirement.requirement_summary}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={2} sx={{ ...styleOverFlowClipped }}>
+                            {requirement.requirement_source_name?.toLowerCase() ===
+                            "order" ? (
+                              <Link
+                                underline="hover"
+                                sx={{ cursor: "pointer" }}
+                              >
+                                {(requirement.requirement_number ?? "")
+                                  .split("_")
+                                  .slice(1)
+                                  .join("_")}
+                              </Link>
+                            ) : (
+                              <Typography variant="body2">
+                                {requirement.requirement_number}
+                              </Typography>
+                            )}
+                          </Grid>
+                          <Grid item xs={2}>
+                            <Typography
+                              variant="body2"
+                              sx={{ ...styleOverFlowClipped }}
+                            >
+                              {requirement.requirement_source_name}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={2} sx={{ ...styleOverFlowClipped }}>
+                            {isEnforcementActionLink(
+                              requirement.enforcement_action
+                            ) ? (
+                              <Link
+                                underline="hover"
+                                sx={{ cursor: "pointer" }}
+                              >
+                                {requirement.enforcement_action?.name}
+                              </Link>
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                sx={{ ...styleOverFlowClipped }}
+                              >
+                                {requirement.enforcement_action?.name}
+                              </Typography>
+                            )}
+                          </Grid>
+                          <Grid item xs={2}>
+                            {requirement.enforcement_action?.progress && (
+                              <Chip
+                                label={
+                                  requirement.enforcement_action?.progress?.name
+                                }
+                                color={getStatusFlagColor(
+                                  requirement.enforcement_action?.progress
+                                )}
+                                variant="outlined"
+                                size="small"
+                              />
+                            )}
+                          </Grid>
+                        </Fragment>
+                      )
+                    )}
                   </Grid>
                 </AccordionDetails>
               </Accordion>

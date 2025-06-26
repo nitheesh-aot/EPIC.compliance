@@ -8,6 +8,7 @@ import { Project } from "./Project";
 import { ProjectStatus } from "./ProjectStatus";
 import { StaffUser } from "./Staff";
 import { ApprovalStatus } from "./ApprovalStatus";
+import { IRProgress } from "./IRProgress";
 
 export interface Inspection {
   id: number;
@@ -43,9 +44,9 @@ export interface Inspection {
   subtopic?: string;
   source?: string;
   enforcement?: string;
-  approval_status?: string;
+  approval_status?: ApprovalStatus;
   approved_by_id?: number;
-  ir_progress?: string;
+  ir_progress?: IRProgress;
 }
 
 export interface InspectionMoreDetails extends Inspection {
@@ -53,18 +54,21 @@ export interface InspectionMoreDetails extends Inspection {
     requirement_id: number;
     requirement_summary: string;
     requirement_sort_order: number;
-    enforcement_action?: {
-      id: string;
-      name: string;
-      approval_status?: ApprovalStatus;
-      progress?: {
-        id: string;
-        name: string;
-      } | null;
-    };
+    enforcement_action?: InspectionMoreDetailsEnforcementAction;
     requirement_number: string;
     requirement_source_name: string;
   }[];
+}
+
+export interface InspectionMoreDetailsEnforcementAction {
+  id: string;
+  name: string;
+  number?: string;
+  approval_status?: ApprovalStatus;
+  progress?: {
+    id: string;
+    name: string;
+  } | null;
 }
 
 export interface InspectionFormData {
