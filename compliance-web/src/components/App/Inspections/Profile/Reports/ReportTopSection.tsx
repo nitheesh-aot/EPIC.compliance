@@ -1,4 +1,4 @@
-import { Box, Typography, Button, Chip } from "@mui/material";
+import { Box, Typography, Button, Chip, Link } from "@mui/material";
 import { SendRounded } from "@mui/icons-material";
 import {
   APPROVAL_STATUS,
@@ -8,6 +8,7 @@ import {
 import { useMemo, useState, useEffect, useCallback } from "react";
 import {
   useCreateIRApproval,
+  useDeleteInspectionRecord,
   useUpdateIRApprovalStatus,
 } from "@/hooks/useInspectionReports";
 import { notify } from "@/store/snackbarStore";
@@ -23,6 +24,7 @@ import OfficerStepper from "./OfficerSteppr/OfficerStepper";
 import PreviewDownloadButton from "./PreviewDownloadButton";
 import IssueIRModal from "./IssueIRModal";
 import { StaffUser } from "@/models/Staff";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 // Status badge configurations
 const STATUS_BADGE_CONFIG = {
@@ -224,8 +226,7 @@ export default function ReportTopSection() {
       setIrApprStatusBadge(STATUS_BADGE_CONFIG.APPROVED);
     } else if (
       isInDraftingOrFinalizing &&
-      irApprovalsData?.[0]?.approval_status?.id ===
-        APPROVAL_STATUS.NOT_APPROVED
+      irApprovalsData?.[0]?.approval_status?.id === APPROVAL_STATUS.NOT_APPROVED
     ) {
       setIrApprStatusBadge(STATUS_BADGE_CONFIG.NOT_APPROVED);
     } else if (irProgressId === IRProgressEnum.ISSUED) {
@@ -241,6 +242,33 @@ export default function ReportTopSection() {
     irApprovalsData,
   ]);
 
+  const onDeleteInspectionRecordSuccess = useCallback(() => {
+    setClose();
+    refetchInspectionReportsData();
+  }, [setClose, refetchInspectionReportsData]);
+
+  const { mutate: deleteInspectionRecord } = useDeleteInspectionRecord(
+    onDeleteInspectionRecordSuccess
+  );
+
+  const handleChangeIRVersion = useCallback(() => {
+    setOpen({
+      content: (
+        <ConfirmationModal
+          title="Change the Report Version?"
+          description="Changing will delete the current version and return you to the version selection screen. This action cannot be undone."
+          onConfirm={() => {
+            deleteInspectionRecord({
+              inspectionId: inspectionData?.id ?? 0,
+              inspectionRecordId: inspectionReportsData?.id ?? 0,
+            });
+          }}
+          confirmButtonText="Change"
+        />
+      ),
+    });
+  }, [setOpen, deleteInspectionRecord, inspectionData, inspectionReportsData]);
+
   return (
     <>
       <Box
@@ -251,24 +279,36 @@ export default function ReportTopSection() {
           alignItems: "center",
         }}
       >
-        <Box display={"flex"} gap={1} alignItems={"center"}>
-          <Typography variant="h6">
-            {inspectionReportsData?.ir_status?.name} IR
-          </Typography>
-          {irApprStatusBadge.text && (
-            <Chip
-              label={irApprStatusBadge.text}
-              color={
-                irApprStatusBadge.color as
-                  | "default"
-                  | "error"
-                  | "success"
-                  | "warning"
-              }
-              variant="outlined"
-              size="small"
-            />
-          )}
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          <Box display={"flex"} gap={1} alignItems={"center"}>
+            <Typography variant="h6">
+              {inspectionReportsData?.ir_status?.name} IR
+            </Typography>
+            {irApprStatusBadge.text && (
+              <Chip
+                label={irApprStatusBadge.text}
+                color={
+                  irApprStatusBadge.color as
+                    | "default"
+                    | "error"
+                    | "success"
+                    | "warning"
+                }
+                variant="outlined"
+                size="small"
+              />
+            )}
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+            <Typography variant="body2">Wrong Version?</Typography>
+            <Link
+              underline="hover"
+              sx={{ cursor: "pointer" }}
+              onClick={handleChangeIRVersion}
+            >
+              Change
+            </Link>
+          </Box>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           {isShowSendForApprovalButton && (

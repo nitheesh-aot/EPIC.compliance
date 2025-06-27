@@ -167,6 +167,19 @@ const inspectionRecordRender = ({
   });
 };
 
+const deleteInspectionRecord = ({
+  inspectionId,
+  inspectionRecordId,
+}: {
+  inspectionId: number;
+  inspectionRecordId: number;
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}`,
+    method: "delete",
+  });
+};
+
 export const useInspectionReportsData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-reports", inspectionId],
@@ -240,6 +253,13 @@ export const useUpdateIRReportToFinal = (onSuccess: OnSuccessType) => {
 export const useInspectionRecordRender = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: inspectionRecordRender,
+    onSuccess,
+  });
+};
+
+export const useDeleteInspectionRecord = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: deleteInspectionRecord,
     onSuccess,
   });
 };
