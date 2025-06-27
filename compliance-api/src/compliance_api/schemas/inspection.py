@@ -389,6 +389,12 @@ class InspectionRequirementDetails(BaseSchema):  # pylint: disable=too-many-ance
             "type": "string",
         }
     )
+    requirement_sort_order = fields.Int(
+        metadata={
+            "description": "The sort order of the requirement",
+            "type": "integer",
+        }
+    )
 
 
 class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
@@ -412,11 +418,13 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     types = fields.Method("get_inspection_types")
     types_text = fields.Method("get_inspection_type_names")
     project_status = fields.Nested(KeyValueSchema)
-    ir_progress = fields.Str(
+    ir_progress = fields.Nested(
+        KeyValueSchema,
         metadata={"description": "The progress status of the inspection record"},
         allow_none=True,
     )
-    approval_status = fields.Str(
+    approval_status = fields.Nested(
+        KeyValueSchema,
         metadata={"description": "The approval status of the inspection record"},
         allow_none=True,
     )
@@ -434,9 +442,17 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     ):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of the inspection status enum."""
         if hasattr(data, "ir_progress") and data.ir_progress is not None:
-            data.ir_progress = IRProgressEnum(data.ir_progress).value
+            if not isinstance(data.ir_progress, dict):
+                data.ir_progress = {
+                    "id": IRProgressEnum(data.ir_progress).name,
+                    "name": IRProgressEnum(data.ir_progress).value,
+                }
         if hasattr(data, "approval_status") and data.approval_status is not None:
-            data.approval_status = IRApprovalStatusEnum(data.approval_status).value
+            if not isinstance(data.approval_status, dict):
+                data.approval_status = {
+                    "id": IRApprovalStatusEnum(data.approval_status).name,
+                    "name": IRApprovalStatusEnum(data.approval_status).value,
+                }
         return data
 
     @post_dump

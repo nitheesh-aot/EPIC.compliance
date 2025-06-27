@@ -3,6 +3,7 @@ import { Initiation } from "@/models/Initiation";
 import {
   Inspection,
   InspectionAPIData,
+  InspectionMoreDetails,
   InspectionStatusAPIData,
 } from "@/models/Inspection";
 import { IRStatus } from "@/models/IRStatus";
@@ -34,6 +35,15 @@ const fetchProjectStatuses = (): Promise<ProjectStatus[]> => {
 
 const fetchInspections = (caseFileId?: number): Promise<Inspection[]> => {
   return request({ url: "/inspections", params: { case_file_id: caseFileId } });
+};
+
+const fetchInspectionsMoreDetails = (
+  caseFileId: number
+): Promise<InspectionMoreDetails[]> => {
+  return request({
+    url: `/inspections/more-details`,
+    params: { case_file_id: caseFileId },
+  });
 };
 
 const fetchInspection = (inspectionNumber: string): Promise<Inspection> => {
@@ -143,6 +153,14 @@ export const useInspectionsByCaseFileId = (caseFileId: number) => {
   return useQuery({
     queryKey: ["inspections-by-caseFileId", caseFileId],
     queryFn: () => fetchInspections(caseFileId),
+    enabled: !!caseFileId,
+  });
+};
+
+export const useInspectionsMoreDetailsByCaseFileId = (caseFileId: number) => {
+  return useQuery({
+    queryKey: ["inspections-details-by-caseFileId", caseFileId],
+    queryFn: () => fetchInspectionsMoreDetails(caseFileId),
     enabled: !!caseFileId,
   });
 };

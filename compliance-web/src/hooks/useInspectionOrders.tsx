@@ -22,6 +22,14 @@ const fetchInspectionOrdersProjectwise = (
   });
 };
 
+const fetchInspectionOrderByNumber = (
+  orderNumber: string
+): Promise<InspectionOrder> => {
+  return request({
+    url: `orders/order-numbers/${orderNumber}`,
+  });
+};
+
 const createInspectionOrder = ({
   inspectionOrder,
 }: {
@@ -185,6 +193,13 @@ export const useInspectionOrdersProjectwiseData = (caseFileId: number) => {
     },
     enabled: !!caseFileId,
     staleTime: Infinity,
+  });
+};
+
+export const useInspectionOrderByNumber = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: fetchInspectionOrderByNumber,
+    onSuccess,
   });
 };
 
