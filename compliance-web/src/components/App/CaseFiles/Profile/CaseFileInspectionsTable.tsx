@@ -1,5 +1,8 @@
 import { useInspectionOrderByNumber } from "@/hooks/useInspectionOrders";
-import { useInspectionsMoreDetailsByCaseFileId } from "@/hooks/useInspections";
+import {
+  useInspectionsData,
+  useInspectionsMoreDetailsByCaseFileId,
+} from "@/hooks/useInspections";
 import { CaseFile } from "@/models/CaseFile";
 import {
   Inspection,
@@ -23,6 +26,7 @@ import {
   Typography,
   AccordionDetails,
   Grid,
+  Tooltip,
 } from "@mui/material";
 import { Link as RouterLink } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
@@ -42,9 +46,10 @@ const styleOverFlowClipped = {
 
 const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
   const { setOpen, setClose } = useDrawer();
-  const { data: inspections } = useInspectionsMoreDetailsByCaseFileId(
+  const { data: detailedInspections } = useInspectionsMoreDetailsByCaseFileId(
     caseFile.id
   );
+  const { data: inspectionsList } = useInspectionsData();
   const { data: staffUsersList } = useStaffUsersData();
 
   const [expandedInspections, setExpandedInspections] = useState<Set<number>>(
@@ -95,7 +100,7 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
   };
 
   const onOrderSuccess = (order: InspectionOrder) => {
-    const inspection = inspections?.find(
+    const inspection = inspectionsList?.find(
       (inspection) => inspection.id === order.inspection_id
     );
     setOpen({
@@ -118,7 +123,7 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
     useInspectionOrderByNumber(onOrderSuccess);
 
   const onWarningLetterSuccess = (warningLetter: InspectionWarningLetter) => {
-    const inspection = inspections?.find(
+    const inspection = detailedInspections?.find(
       (inspection) => inspection.id === warningLetter.inspection_id
     );
     setOpen({
@@ -154,13 +159,13 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
 
   return (
     (caseFile.initiation.id === INITIATION.INSPECTION_ID ||
-      (inspections && inspections?.length > 0)) && (
+      (detailedInspections && detailedInspections?.length > 0)) && (
       <>
         <Typography variant="h6" mt={2} mb={1}>
           Inspections
         </Typography>
-        {inspections && inspections.length > 0 ? (
-          inspections.map((inspection, index) => {
+        {detailedInspections && detailedInspections.length > 0 ? (
+          detailedInspections.map((inspection, index) => {
             const isExpanded = expandedInspections.has(inspection.id);
 
             return (
@@ -290,31 +295,35 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
                       (requirement, index) => (
                         <Fragment key={index}>
                           <Grid item xs={4}>
-                            <Typography
-                              variant="body2"
-                              sx={{ ...styleOverFlowClipped }}
-                            >
-                              #{requirement.requirement_sort_order}.{" "}
-                              {requirement.requirement_summary}
-                            </Typography>
+                            <Tooltip title={requirement.requirement_summary}>
+                              <Typography
+                                variant="body2"
+                                sx={{ ...styleOverFlowClipped }}
+                              >
+                                #{requirement.requirement_sort_order}.{" "}
+                                {requirement.requirement_summary}
+                              </Typography>
+                            </Tooltip>
                           </Grid>
                           <Grid item xs={2} sx={{ ...styleOverFlowClipped }}>
                             {requirement.requirement_source_name?.toLowerCase() ===
                             "order" ? (
-                              <Link
-                                underline="hover"
-                                sx={{ cursor: "pointer" }}
-                                onClick={() =>
-                                  fetchInspectionOrder(
-                                    requirement.requirement_number
-                                  )
-                                }
-                              >
-                                {(requirement.requirement_number ?? "")
-                                  .split("_")
-                                  .slice(1)
-                                  .join("_")}
-                              </Link>
+                              <Tooltip title={requirement.requirement_number}>
+                                <Link
+                                  underline="hover"
+                                  sx={{ cursor: "pointer" }}
+                                  onClick={() =>
+                                    fetchInspectionOrder(
+                                      requirement.requirement_number
+                                    )
+                                  }
+                                >
+                                  {(requirement.requirement_number ?? "")
+                                    .split("_")
+                                    .slice(1)
+                                    .join("_")}
+                                </Link>
+                              </Tooltip>
                             ) : (
                               <Typography variant="body2">
                                 {requirement.requirement_number}
