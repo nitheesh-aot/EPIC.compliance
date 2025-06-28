@@ -12,7 +12,7 @@ from compliance_api.models import CaseFile as CaseFileModel
 from compliance_api.models import CaseFileStatusEnum
 from compliance_api.models.inspection import InspectionAttendanceOptionEnum, InspectionStatusEnum
 from compliance_api.services import InspectionService
-from tests.utilities.factory_scenario import InspectionScenario, StaffScenario, TokenJWTClaims
+from tests.utilities.factory_scenario import AgencyScenario, InspectionScenario, StaffScenario, TokenJWTClaims
 from tests.utilities.factory_utils import factory_auth_header
 
 
@@ -408,67 +408,47 @@ def test_inspection_close(
     assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-# def test_inspection_delete(client, jwt, created_staff, mocker, auth_header_super_user, created_case_file):
-#     """Update as primary."""
-#     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
-#     contains_role.return_value = True
-#     inspection_data = copy.copy(InspectionScenario.default_value.value)
-#     inspection_data.update({
-#         "case_file_id": created_case_file.id,
-#         "primary_officer_id": created_staff.id,
-#         "initiation_id": 1,
-#         "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-#     })
-#     created_result = InspectionService.create(inspection_data)
+def test_inspection_delete(
+    client,
+    jwt,
+    created_staff,
+    mocker,
+    auth_header_super_user,
+    created_case_file,
+    mock_track_service,
+):
+    """Update as primary."""
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
+    agency1 = AgencyScenario.create(AgencyScenario.agency1.value)
+    agency2 = AgencyScenario.create(AgencyScenario.agency2.value)
+    inspection_data = copy.copy(InspectionScenario.default_value.value)
+    inspection_data.update(
+        {
+            "case_file_id": created_case_file.id,
+            "primary_officer_id": created_staff.id,
+            "initiation_id": 1,
+            "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "end_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "attendance_option_ids": [
+                InspectionAttendanceOptionEnum.ATTENDING_OFFICERS.value,
+                InspectionAttendanceOptionEnum.FIRSTNATIONS.value,
+                InspectionAttendanceOptionEnum.MUNICIPAL.value,
+                InspectionAttendanceOptionEnum.AGENCIES.value,
+                InspectionAttendanceOptionEnum.OTHER.value,
+            ],
+            "agency_attendance_ids": [agency1.id, agency2.id],
+            "firstnation_attendance_ids": [1],
+            "attending_officer_ids": [created_staff.id],
+            "attendance_municipal": "municipal",
+            "attendance_other": "other",
+        }
+    )
+    created_result = InspectionService.create(inspection_data)
 
-#     url = urljoin(API_BASE_URL, f"inspections/{created_result.id}")
-#     result = client.delete(url, headers=auth_header_super_user)
-#     assert result.status_code == HTTPStatus.NO_CONTENT
-#     url = urljoin(API_BASE_URL, f"inspections/{created_result.id}")
-#     result = client.get(url, headers=auth_header_super_user)
-#     assert result.status_code == HTTPStatus.NOT_FOUND
-
-
-# def test_update_inspection_requirements(client, auth_header_super_user, created_staff, created_case_file):
-#     """Test updating inspection requirements."""
-#     # Create an inspection
-#     inspection_data = copy.copy(InspectionScenario.default_value.value)
-#     inspection_data.update({
-#         "case_file_id": created_case_file.id,
-#         "primary_officer_id": created_staff.id,
-#         "initiation_id": 1,
-#         "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-#     })
-#     created_inspection = InspectionService.create(inspection_data)
-
-#     # Create a requirement
-#     requirement_data = {
-#         "requirement_id": 1,
-#         "findings": "Test findings",
-#         "images": [
-#             {
-#                 "image_id": 1,
-#                 "sort_order": 1
-#             }
-#         ]
-#     }
-
-#     url = urljoin(
-#         API_BASE_URL, f"inspections/{created_inspection.id}/requirements")
-#     result = client.patch(
-#         url,
-#         data=json.dumps({"requirements": [requirement_data]}),
-#         headers=auth_header_super_user
-#     )
-#     assert result.status_code == HTTPStatus.NO_CONTENT
-
-#     # Verify the updates
-#     updated_requirement = InspectionRequirementService.get_by_id(
-#         requirement_data["requirement_id"])
-#     assert updated_requirement.findings == requirement_data["findings"]
-#     updated_image = InspectionRequirementService.get_all_images(
-#         created_inspection.id,
-#         requirement_data["requirement_id"],
-#         "PHOTO"
-#     )[0]
-#     assert updated_image.sort_order == requirement_data["images"][0]["sort_order"]
+    url = urljoin(API_BASE_URL, f"inspections/{created_result.id}")
+    result = client.delete(url, headers=auth_header_super_user)
+    assert result.status_code == HTTPStatus.NO_CONTENT
+    url = urljoin(API_BASE_URL, f"inspections/{created_result.id}")
+    result = client.get(url, headers=auth_header_super_user)
+    assert result.status_code == HTTPStatus.NOT_FOUND
