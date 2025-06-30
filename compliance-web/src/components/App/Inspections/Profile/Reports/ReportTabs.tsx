@@ -141,7 +141,7 @@ export default function ReportTabs() {
   }, [inspectionRequirementsData, value, tabItems]);
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", pt: 3 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", pt: 2 }}>
       <ReportTopSection />
       <Box
         ref={tabsContainerRef}

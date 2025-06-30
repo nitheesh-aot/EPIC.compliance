@@ -1,8 +1,21 @@
-import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
-import { useInspectionsByCaseFileId } from "@/hooks/useInspections";
+import { useInspectionOrderByNumber } from "@/hooks/useInspectionOrders";
+import {
+  useInspectionsData,
+  useInspectionsMoreDetailsByCaseFileId,
+} from "@/hooks/useInspections";
 import { CaseFile } from "@/models/CaseFile";
-import { INITIATION } from "@/utils/constants";
-import dateUtils from "@/utils/dateUtils";
+import {
+  Inspection,
+  InspectionMoreDetailsEnforcementAction,
+} from "@/models/Inspection";
+import { InspectionOrder } from "@/models/InspectionOrder";
+import {
+  DRAWER_WIDTHS,
+  EnforcementActionEnum,
+  INITIATION,
+  OrderProgressEnum,
+  WarningLetterProgressEnum,
+} from "@/utils/constants";
 import { ChevronRight, ExpandLessRounded } from "@mui/icons-material";
 import {
   Link,
@@ -13,13 +26,31 @@ import {
   Typography,
   AccordionDetails,
   Grid,
+  Tooltip,
 } from "@mui/material";
 import { Link as RouterLink } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
-import { useState } from "react";
+import { Fragment, useState } from "react";
+import EnforcementOrderDrawer from "@/components/App/Inspections/Profile/Enforcements/EnforcementOrderDrawer";
+import { useDrawer } from "@/store/drawerStore";
+import { useStaffUsersData } from "@/hooks/useStaff";
+import { useFetchWarningLetterByNumber } from "@/hooks/useInspectionWarningLetters";
+import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
+import EnforcementWarningLetterDrawer from "@/components/App/Inspections/Profile/Enforcements/EnforcementWarningLetterDrawer";
+
+const styleOverFlowClipped = {
+  whiteSpace: "nowrap",
+  textOverflow: "ellipsis",
+  overflow: "hidden",
+};
 
 const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
-  const { data: inspections } = useInspectionsByCaseFileId(caseFile.id);
+  const { setOpen, setClose } = useDrawer();
+  const { data: detailedInspections } = useInspectionsMoreDetailsByCaseFileId(
+    caseFile.id
+  );
+  const { data: inspectionsList } = useInspectionsData();
+  const { data: staffUsersList } = useStaffUsersData();
 
   const [expandedInspections, setExpandedInspections] = useState<Set<number>>(
     new Set()
@@ -37,15 +68,104 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
     });
   };
 
+  const getStatusFlagColor = (progress: { id: string; name: string }) => {
+    switch (progress.id) {
+      case OrderProgressEnum.DRAFTING:
+        return "default";
+      case OrderProgressEnum.DEPUTY_REVIEW:
+        return "warning";
+      case OrderProgressEnum.APPROVED:
+      case OrderProgressEnum.ISSUED:
+        return "success";
+      default:
+        return "default";
+    }
+  };
+
+  const isEnforcementActionLink = (
+    enforcementAction: InspectionMoreDetailsEnforcementAction | undefined
+  ): boolean => {
+    if (!enforcementAction?.number) return false;
+
+    const progressId = enforcementAction.progress?.id;
+
+    switch (enforcementAction.id) {
+      case EnforcementActionEnum.ORDER:
+        return progressId === OrderProgressEnum.ISSUED;
+      case EnforcementActionEnum.WARNING_LETTER:
+        return progressId === WarningLetterProgressEnum.ISSUED;
+      default:
+        return false;
+    }
+  };
+
+  const onOrderSuccess = (order: InspectionOrder) => {
+    const inspection = inspectionsList?.find(
+      (inspection) => inspection.id === order.inspection_id
+    );
+    setOpen({
+      content: (
+        <EnforcementOrderDrawer
+          onSubmit={() => {
+            setClose();
+          }}
+          inspection={inspection as Inspection}
+          enforcementOrder={order}
+          staffUsersList={staffUsersList || []}
+          isReadonlyMode={true}
+        />
+      ),
+      width: DRAWER_WIDTHS.ENFORCEMENT_DRAWER,
+    });
+  };
+
+  const { mutate: fetchInspectionOrder } =
+    useInspectionOrderByNumber(onOrderSuccess);
+
+  const onWarningLetterSuccess = (warningLetter: InspectionWarningLetter) => {
+    const inspection = detailedInspections?.find(
+      (inspection) => inspection.id === warningLetter.inspection_id
+    );
+    setOpen({
+      content: (
+        <EnforcementWarningLetterDrawer
+          onSubmit={() => {
+            setClose();
+          }}
+          inspection={inspection as Inspection}
+          warningLetter={warningLetter}
+          staffUsersList={staffUsersList || []}
+          isReadonlyMode={true}
+        />
+      ),
+      width: DRAWER_WIDTHS.ENFORCEMENT_DRAWER,
+    });
+  };
+
+  const { mutate: fetchWarningLetter } = useFetchWarningLetterByNumber(
+    onWarningLetterSuccess
+  );
+
+  const handleEnforcementActionClick = async (
+    enforcementAction: InspectionMoreDetailsEnforcementAction | undefined
+  ) => {
+    if (!enforcementAction?.number) return;
+    if (enforcementAction.id === EnforcementActionEnum.ORDER) {
+      fetchInspectionOrder(enforcementAction.number);
+    } else if (enforcementAction.id === EnforcementActionEnum.WARNING_LETTER) {
+      fetchWarningLetter(enforcementAction.number);
+    }
+  };
+
   return (
     (caseFile.initiation.id === INITIATION.INSPECTION_ID ||
-      (inspections && inspections?.length > 0)) && (
+      (detailedInspections && detailedInspections?.length > 0)) && (
       <>
         <Typography variant="h6" mt={2} mb={1}>
           Inspections
         </Typography>
-        {inspections && inspections.length > 0 ? (
-          inspections.map((inspection, index) => {
+        {detailedInspections && detailedInspections.length > 0 ? (
+          detailedInspections.map((inspection, index) => {
             const isExpanded = expandedInspections.has(inspection.id);
 
             return (
@@ -127,22 +247,138 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
                   </Box>
                 </AccordionSummary>
                 <AccordionDetails sx={{ padding: "1rem" }}>
-                  <Grid container spacing={2}>
-                    <GridLabelValuePair
-                      label="Location"
-                      value={inspection.location_description || "N/A"}
-                      gridProps={{ xs: 8 }}
-                    />
-                    <GridLabelValuePair
-                      label="Date"
-                      value={dateUtils.formatDate(inspection.start_date)}
-                      gridProps={{ xs: 2 }}
-                    />
-                    <GridLabelValuePair
-                      label="Status"
-                      value={inspection.inspection_status || "N/A"}
-                      gridProps={{ xs: 2 }}
-                    />
+                  <Grid container spacing={1}>
+                    <Grid item xs={4}>
+                      <Typography
+                        variant="body2"
+                        color={BCDesignTokens.typographyColorPlaceholder}
+                      >
+                        Requirement Summary
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Typography
+                        variant="body2"
+                        color={BCDesignTokens.typographyColorPlaceholder}
+                      >
+                        #
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Typography
+                        variant="body2"
+                        color={BCDesignTokens.typographyColorPlaceholder}
+                      >
+                        Source
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          ...styleOverFlowClipped,
+                          color: BCDesignTokens.typographyColorPlaceholder,
+                        }}
+                      >
+                        Enforcement Action
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Typography
+                        variant="body2"
+                        color={BCDesignTokens.typographyColorPlaceholder}
+                      >
+                        Enf. Status
+                      </Typography>
+                    </Grid>
+                    {inspection.requirement_details?.map(
+                      (requirement, index) => (
+                        <Fragment key={index}>
+                          <Grid item xs={4}>
+                            <Tooltip title={requirement.requirement_summary}>
+                              <Typography
+                                variant="body2"
+                                sx={{ ...styleOverFlowClipped }}
+                              >
+                                #{requirement.requirement_sort_order}.{" "}
+                                {requirement.requirement_summary}
+                              </Typography>
+                            </Tooltip>
+                          </Grid>
+                          <Grid item xs={2} sx={{ ...styleOverFlowClipped }}>
+                            {requirement.requirement_source_name?.toLowerCase() ===
+                            "order" ? (
+                              <Tooltip title={requirement.requirement_number}>
+                                <Link
+                                  underline="hover"
+                                  sx={{ cursor: "pointer" }}
+                                  onClick={() =>
+                                    fetchInspectionOrder(
+                                      requirement.requirement_number
+                                    )
+                                  }
+                                >
+                                  {(requirement.requirement_number ?? "")
+                                    .split("_")
+                                    .slice(1)
+                                    .join("_")}
+                                </Link>
+                              </Tooltip>
+                            ) : (
+                              <Typography variant="body2">
+                                {requirement.requirement_number}
+                              </Typography>
+                            )}
+                          </Grid>
+                          <Grid item xs={2}>
+                            <Typography
+                              variant="body2"
+                              sx={{ ...styleOverFlowClipped }}
+                            >
+                              {requirement.requirement_source_name}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={2} sx={{ ...styleOverFlowClipped }}>
+                            {isEnforcementActionLink(
+                              requirement.enforcement_action
+                            ) ? (
+                              <Link
+                                underline="hover"
+                                sx={{ cursor: "pointer" }}
+                                onClick={() =>
+                                  handleEnforcementActionClick(
+                                    requirement.enforcement_action
+                                  )
+                                }
+                              >
+                                {requirement.enforcement_action?.name}
+                              </Link>
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                sx={{ ...styleOverFlowClipped }}
+                              >
+                                {requirement.enforcement_action?.name}
+                              </Typography>
+                            )}
+                          </Grid>
+                          <Grid item xs={2}>
+                            {requirement.enforcement_action?.progress && (
+                              <Chip
+                                label={
+                                  requirement.enforcement_action?.progress?.name
+                                }
+                                color={getStatusFlagColor(
+                                  requirement.enforcement_action?.progress
+                                )}
+                                variant="outlined"
+                                size="small"
+                              />
+                            )}
+                          </Grid>
+                        </Fragment>
+                      )
+                    )}
                   </Grid>
                 </AccordionDetails>
               </Accordion>

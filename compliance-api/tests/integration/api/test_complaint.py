@@ -1,22 +1,21 @@
 """test suit for complaint."""
 
-import uuid
 from datetime import datetime
 from http import HTTPStatus
 from urllib.parse import urljoin
 
-import pytest
 from faker import Faker
 from flask import json
 
 from compliance_api.models.complaint import ComplaintSourceEnum, ComplaintStatusEnum
 from compliance_api.services import CaseFileService, ComplaintService
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
-from tests.utilities.factory_scenario import CasefileScenario, ComplaintScenario, StaffScenario
-from tests.integration.api.common_fixture import created_case_file, created_staff, mock_track_service
+from tests.utilities.factory_scenario import CasefileScenario, ComplaintScenario
+
 
 API_BASE_URL = "/api/"
 fake = Faker()
+
 
 def test_get_complaint_sources(client, auth_header):
     """Get complaint sources."""
@@ -84,7 +83,7 @@ def test_get_case_files_with_case_file_id_passed(
 
 
 def test_create_complaint_by_non_super_user_fail(
-    client, auth_header, created_staff, created_case_file
+    client, auth_header, created_staff, created_case_file, mock_track_service
 ):
     """Create case file by non-super user should fail."""
     complaint_data = ComplaintScenario.complaint_default.value
@@ -99,7 +98,12 @@ def test_create_complaint_by_non_super_user_fail(
 
 
 def test_create_complaint_by_super_user(
-    client, auth_header_super_user, created_staff, created_case_file, mocker
+    client,
+    auth_header_super_user,
+    created_staff,
+    created_case_file,
+    mocker,
+    mock_track_service,
 ):
     """Create case file by non-super user should fail."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
@@ -128,7 +132,7 @@ def test_get_complaint_by_not_found(
 
 
 def test_get_complaint_by_id(
-    client, auth_header, created_staff, created_case_file, mocker
+    client, auth_header, created_staff, created_case_file, mocker, mock_track_service
 ):
     """Get complaint which doesn't exist."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
@@ -146,7 +150,12 @@ def test_get_complaint_by_id(
 
 
 def test_update_complaint_by_super_user(
-    client, auth_header_super_user, created_staff, created_case_file, mocker
+    client,
+    auth_header_super_user,
+    created_staff,
+    created_case_file,
+    mocker,
+    mock_track_service,
 ):
     """Create case file by non-super user should fail."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
@@ -185,7 +194,7 @@ def test_update_complaint_by_super_user(
 
 
 def test_complaint_delete_by_non_super_user(
-    client, auth_header, created_staff, created_case_file, mocker
+    client, auth_header, created_staff, created_case_file, mocker, mock_track_service
 ):
     """Delete complaint by non-superuser."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
@@ -203,7 +212,12 @@ def test_complaint_delete_by_non_super_user(
 
 
 def test_complaint_delete_by_super_user(
-    client, auth_header_super_user, created_staff, created_case_file, mocker
+    client,
+    auth_header_super_user,
+    created_staff,
+    created_case_file,
+    mocker,
+    mock_track_service,
 ):
     """Delete complaint by non-superuser."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
@@ -228,7 +242,7 @@ def test_complaint_delete_by_super_user(
 
 
 def test_complaint_get_requirement_details(
-    client, auth_header, created_staff, created_case_file, mocker
+    client, auth_header, created_staff, created_case_file, mocker, mock_track_service
 ):
     """Delete complaint by non-superuser."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
@@ -252,7 +266,7 @@ def test_complaint_get_requirement_details(
 
 
 def test_complaint_get_source_contact_details(
-    client, auth_header, created_staff, created_case_file, mocker
+    client, auth_header, created_staff, created_case_file, mocker, mock_track_service
 ):
     """Delete complaint by non-superuser."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")

@@ -4,7 +4,11 @@ import PageLink from "@/components/Shared/PageLink";
 import { useInspectionsData } from "@/hooks/useInspections";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { Inspection } from "@/models/Inspection";
-import { APPROVAL_STATUS_TEXT, STAFF_USER_POSITION } from "@/utils/constants";
+import {
+  APPROVAL_STATUS,
+  APPROVAL_STATUS_TEXT,
+  STAFF_USER_POSITION,
+} from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import {
   Box,
@@ -60,7 +64,7 @@ export function Inspections() {
     if (!isCurrentUserDeputy) return false;
     return inspectionsList?.some(
       (inspection) =>
-        inspection.approval_status === APPROVAL_STATUS_TEXT.APPROVAL_PENDING &&
+        inspection.approval_status?.id === APPROVAL_STATUS.APPROVAL_PENDING &&
         inspection.approved_by_id === currentUserStaff?.id
     );
   }, [inspectionsList, isCurrentUserDeputy, currentUserStaff?.id]);
@@ -144,11 +148,11 @@ export function Inspections() {
     [createUniqueFilterList]
   );
   const irProgressList = useMemo(
-    () => createUniqueFilterList("ir_progress"),
+    () => createUniqueFilterList("ir_progress", "name"),
     [createUniqueFilterList]
   );
   const approvalStatusList = useMemo(
-    () => createUniqueFilterList("approval_status"),
+    () => createUniqueFilterList("approval_status", "name"),
     [createUniqueFilterList]
   );
 
@@ -179,30 +183,33 @@ export function Inspections() {
         size: 120,
       },
       {
-        accessorKey: "initiation.name",
+        accessorFn: (row) => row.initiation?.name,
+        id: "initiation",
         header: "Initiation",
         filterVariant: "multi-select",
         filterSelectOptions: initiationList,
         size: 120,
       },
       {
-        accessorKey: "ir_progress",
+        accessorFn: (row) => row.ir_progress?.name,
+        id: "ir_progress",
         header: "IR Progress",
         filterVariant: "multi-select",
         filterSelectOptions: irProgressList,
         size: 120,
       },
       {
-        accessorKey: "approval_status",
+        accessorFn: (row) => row.approval_status?.name,
+        id: "approval_status",
         header: "Approval Status",
         Cell: ({ row }) => {
           return row.original.approval_status ? (
             <Chip
-              label={row.original.approval_status}
+              label={row.original.approval_status?.name}
               color={
-                row.original.approval_status?.toLowerCase().includes("pending")
+                row.original.approval_status?.id === APPROVAL_STATUS.APPROVAL_PENDING
                   ? "warning"
-                  : row.original.approval_status?.toLowerCase() === "approved"
+                  : row.original.approval_status?.id === APPROVAL_STATUS.APPROVED
                     ? "success"
                     : "error"
               }
@@ -249,7 +256,7 @@ export function Inspections() {
         size: 80,
       },
       {
-        accessorKey: "case_file.case_file_number",
+        accessorFn: (row) => row.case_file?.case_file_number,
         header: "Case File #",
         filterFn: "contains",
         Cell: ({ row }) => (

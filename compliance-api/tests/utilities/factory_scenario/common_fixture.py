@@ -1,15 +1,18 @@
 """Common fixture for all test."""
+
 import copy
-import json
-import pytest
 from datetime import datetime
-from http import HTTPStatus
-from urllib.parse import urljoin
-from tests.utilities.factory_scenario import CasefileScenario, StaffScenario
-from compliance_api.models import CaseFile as CaseFileModel
+
+import pytest
 from faker import Faker
 
+from compliance_api.models import CaseFile as CaseFileModel
+from compliance_api.services import InspectionService
+from tests.utilities.factory_scenario import CasefileScenario, InspectionScenario, StaffScenario
+
+
 fake = Faker()
+
 
 @pytest.fixture
 def mock_auth_service(mocker):
@@ -59,7 +62,12 @@ def mock_track_service(mocker):
         "compliance_api.services.epic_track_service.track_service.TrackService.get_project_statuses"
     )
     mock_get_project_statuses.return_value = [
-        {"id": 13, "name": "Preconstruction", "component": "COMPLIANCE", "is_active": True}
+        {
+            "id": 13,
+            "name": "Preconstruction",
+            "component": "COMPLIANCE",
+            "is_active": True,
+        }
     ]
 
     yield mock_get_project_by_id, mock_get_project_statuses
@@ -105,3 +113,19 @@ def created_case_file(created_staff):
     case_file_data["case_file_number"] = f"CF{fake.random_number(digits=4)}"
     case_file = CaseFileModel.create_case_file(case_file_data)
     return case_file
+
+
+@pytest.fixture
+def created_inspection(
+    app, created_case_file, created_staff, mocker, mock_track_service
+):
+    """Create an inspection for testing."""
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
+    inspection_data = copy.copy(InspectionScenario.default_value.value)
+    inspection_data["case_file_id"] = created_case_file.id
+    inspection_data["primary_officer_id"] = created_staff.id
+    inspection_data["initiation_id"] = 1
+    inspection_data["start_date"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    inspection = InspectionService.create(inspection_data)
+    return inspection

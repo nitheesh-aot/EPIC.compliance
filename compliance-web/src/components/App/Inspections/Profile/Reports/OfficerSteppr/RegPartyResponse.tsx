@@ -105,7 +105,7 @@ const RegPartyResponse: React.FC<RegPartyResponseProps> = ({
         <ControlledRadioButtonGroup
           name="responseReceived"
           options={[
-            { id: "yes", name: "Yes, PR provided response" },
+            { id: "yes", name: "Yes, RP provided response" },
             { id: "no", name: "No, RP didn’t provide a response" },
           ]}
         />

@@ -16,6 +16,7 @@ from compliance_api.models import InspectionFirstnation as InspectionFirstnation
 from compliance_api.models import InspectionInitiationOption as InspectionInitiationOptionModel
 from compliance_api.models import InspectionOfficer as InspectionOfficerModel
 from compliance_api.models import InspectionOtherAttendance as InspectionOtherAttendanceModel
+from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models import InspectionStatusEnum
 from compliance_api.models import InspectionType as InspectionTypeModel
 from compliance_api.models import InspectionTypeOption as InspectionTypeOptionModel
@@ -23,6 +24,7 @@ from compliance_api.models import IRStatusOption as IRStatusOptionModel
 from compliance_api.models import Order as OrderModel
 from compliance_api.models import WarningLetter as WarningLetterModel
 from compliance_api.models.db import session_scope
+from compliance_api.models.enforcement_action import EnforcementActionOption as EnforcementActionOptionModel
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.services.case_file import CaseFileService
 from compliance_api.services.service_utils import ServiceUtils
@@ -69,92 +71,9 @@ class InspectionService:
             orders = OrderModel.get_by_inspection_id(inspection.id)
             warning_letters = WarningLetterModel.get_by_inspection_id(inspection.id)
             requirements = inspection.inspection_requirements or []
-            for requirement in requirements:
-                if not requirement.enforcement_actions:
-                    continue
-
-                for action in requirement.enforcement_actions:
-                    item = {
-                        "requirement_id": requirement.id,
-                        "requirement_summary": requirement.summary,
-                        "enforcement_action": {
-                            "id": EnforcementActionOptionEnum(
-                                action.enforcement_action_id
-                            ).value,
-                            "name": EnforcementActionOptionEnum(
-                                action.enforcement_action_id
-                            ).name,
-                        },
-                    }
-                    if requirement.requirement_source_details:
-                        first_requirement_details = requirement.requirement_source_details[
-                            0
-                        ]
-                        number_field = ServiceUtils.get_requirement_source_number_field(
-                            first_requirement_details
-                        )
-                        item["requirement_number"] = number_field.split(" ")[1]
-                        item["requirement_source_name"] = (
-                            first_requirement_details.requirement_source.name
-                        )
-
-                    action_type = EnforcementActionOptionEnum(
-                        action.enforcement_action_id
-                    )
-                    if action_type == EnforcementActionOptionEnum.ORDER:
-                        requirement_orders = [
-                            order
-                            for order in orders
-                            if requirement.id
-                            in [
-                                req_map.inspection_requirement_id
-                                for req_map in order.order_requirement_maps
-                            ]
-                        ]
-                        if requirement_orders and requirement_orders[0].order_approvals:
-                            order = requirement_orders[0]
-                            item["enforcement_action"]["approval_status"] = {
-                                "id": order.order_approvals[0].approval_status.name,
-                                "name": order.order_approvals[0].approval_status.value,
-                            }
-                            item["enforcement_action"]["progress"] = {
-                                "id": order.order_progress.name,
-                                "name": order.order_progress.value,
-                            }
-                            item["enforcement_action"]["number"] = order.order_number
-
-                    elif action_type == EnforcementActionOptionEnum.WARNING_LETTER:
-                        requirement_warning_letters = [
-                            warning_letter
-                            for warning_letter in warning_letters
-                            if requirement.id
-                            in [
-                                req_map.inspection_requirement_id
-                                for req_map in warning_letter.warning_letter_requirement_map
-                            ]
-                        ]
-                        if (
-                            requirement_warning_letters
-                            and requirement_warning_letters[0].warning_letter_approvals
-                        ):
-                            warning_letter = requirement_warning_letters[0]
-                            item["enforcement_action"]["approval_status"] = {
-                                "id": warning_letter.warning_letter_approvals[
-                                    0
-                                ].approval_status.name,
-                                "name": warning_letter.warning_letter_approvals[
-                                    0
-                                ].approval_status.value,
-                            }
-                            item["enforcement_action"]["progress"] = {
-                                "id": warning_letter.progress.name,
-                                "name": warning_letter.progress.value,
-                            }
-                            item["enforcement_action"][
-                                "number"
-                            ] = warning_letter.warning_letter_number
-
-                    requirement_details.append(item)
+            requirement_details = _make_requirement_detail_object(
+                requirements, orders, warning_letters
+            )
             setattr(inspection, "requirement_details", requirement_details)
         return inspections
 
@@ -442,6 +361,115 @@ class InspectionService:
                 inspection_id, session
             )
             InspectionAgencyModel.delete_inspection_agency(inspection_id)
+
+
+def _make_requirement_detail_object(
+    requirements: list, orders: list, warning_letters: list
+):
+    """Make requirement detail object."""
+    requirement_details = []
+    for requirement in requirements:
+        if not requirement.enforcement_actions:
+            continue
+
+        for action in requirement.enforcement_actions:
+            item = {
+                "requirement_id": requirement.id,
+                "requirement_summary": requirement.summary,
+                "requirement_sort_order": requirement.sort_order,
+                "enforcement_action": {
+                    "id": EnforcementActionOptionModel.find_by_id(
+                        action.enforcement_action_id
+                    ).id,
+                    "name": EnforcementActionOptionModel.find_by_id(
+                        action.enforcement_action_id
+                    ).name,
+                },
+            }
+            if requirement.requirement_source_details:
+                first_requirement_details = requirement.requirement_source_details[0]
+                number_field = ServiceUtils.get_requirement_source_number_field(
+                    first_requirement_details
+                )
+                item["requirement_number"] = number_field.split(" ")[1]
+                item["requirement_source_name"] = (
+                    first_requirement_details.requirement_source.name
+                )
+
+            action_type = EnforcementActionOptionEnum(action.enforcement_action_id)
+            if action_type == EnforcementActionOptionEnum.ORDER:
+                item["enforcement_action"] = _set_order_enforcement_action_object(
+                    item["enforcement_action"], orders, requirement
+                )
+
+            elif action_type == EnforcementActionOptionEnum.WARNING_LETTER:
+                item["enforcement_action"] = (
+                    _set_warning_letter_enforcement_action_object(
+                        item["enforcement_action"], warning_letters, requirement
+                    )
+                )
+            requirement_details.append(item)
+    return requirement_details
+
+
+def _set_warning_letter_enforcement_action_object(
+    enforcement_action: dict,
+    warning_letters: list,
+    requirement: InspectionRequirementModel,
+):
+    """Make warning letter detail object."""
+    requirement_warning_letters = [
+        warning_letter
+        for warning_letter in warning_letters
+        if requirement.id
+        in [
+            req_map.inspection_requirement_id
+            for req_map in warning_letter.warning_letter_requirement_map
+        ]
+    ]
+    if requirement_warning_letters:
+        warning_letter = requirement_warning_letters[0]
+        if warning_letter.warning_letter_approvals:
+            approval_status = warning_letter.warning_letter_approvals[0].approval_status
+            enforcement_action["approval_status"] = {
+                "id": approval_status.name,
+                "name": approval_status.value,
+            }
+            enforcement_action["progress"] = {
+                "id": warning_letter.progress.name,
+                "name": warning_letter.progress.value,
+            }
+            enforcement_action["number"] = warning_letter.warning_letter_number
+    return enforcement_action
+
+
+def _set_order_enforcement_action_object(
+    enforcement_action: dict, orders: list, requirement: InspectionRequirementModel
+):
+    """Make order detail object."""
+    requirement_orders = [
+        order
+        for order in orders
+        if requirement.id
+        in [
+            req_map.inspection_requirement_id
+            for req_map in order.order_requirement_maps
+        ]
+    ]
+    if requirement_orders and requirement_orders[0].order_approvals:
+        order = requirement_orders[0]
+        if order.order_approvals:
+            approval_status = order.order_approvals[0].approval_status
+            enforcement_action["approval_status"] = {
+                "id": approval_status.name,
+                "name": approval_status.value,
+            }
+            enforcement_action["progress"] = {
+                "id": order.order_progress.name,
+                "name": order.order_progress.value,
+            }
+            enforcement_action["number"] = order.order_number
+    return enforcement_action
 
 
 def _access_check_create(inspection_data: dict):

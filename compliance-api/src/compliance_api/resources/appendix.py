@@ -94,7 +94,7 @@ class Appendix(Resource):
         appendix = AppendixService.get_by_id(appendix_id)
         if not appendix:
             raise ResourceNotFoundError(f"Appendix with {appendix_id} not found")
-        return AppendixSchema().dump(Appendix), HTTPStatus.OK
+        return AppendixSchema().dump(appendix), HTTPStatus.OK
 
     @staticmethod
     @auth.require
