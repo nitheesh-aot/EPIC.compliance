@@ -5,7 +5,6 @@ from datetime import datetime
 from http import HTTPStatus
 from urllib.parse import urljoin
 
-import pytest
 from faker import Faker
 
 from tests.utilities.factory_scenario import StaffScenario
@@ -15,32 +14,8 @@ API_BASE_URL = "/api/"
 fake = Faker()
 
 
-@pytest.fixture
-def mock_auth_service(mocker):
-    """Fixture to mock AuthService methods."""
-    mock_get_user_by_guid = mocker.patch(
-        "compliance_api.services.authorize_service.auth_service.AuthService.get_epic_user_by_guid"
-    )
-    mock_get_user_by_guid.return_value = {
-        "first_name": fake.word(),
-        "last_name": fake.word(),
-        "username": fake.word(),  # Fixed the key to "username"
-    }
-
-    mock_update_user_group = mocker.patch(
-        "compliance_api.services.authorize_service.auth_service.AuthService.update_user_group"
-    )
-    mock_update_user_group.return_value = {}
-    mock_update_user_group = mocker.patch(
-        "compliance_api.services.authorize_service.auth_service.AuthService.delete_user_group"
-    )
-    mock_update_user_group.return_value = {}
-
-    yield mock_get_user_by_guid, mock_update_user_group
-
-
 def test_create_staff_user_mandatory(
-    mock_auth_service, mocker, client, auth_header_super_user
+    mocker, client, auth_header_super_user, mock_auth_service
 ):
     """Create staff user."""
     url = urljoin(API_BASE_URL, "staff-users")

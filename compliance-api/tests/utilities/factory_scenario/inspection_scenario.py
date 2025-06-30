@@ -13,7 +13,6 @@ class InspectionScenario(Enum):
 
     default_value = {
         "location_description": "test location description",
-        "case_file_id": 1,
         "project_description": "project description",
         "utm": "utm",
         "primary_officer_id": 1,

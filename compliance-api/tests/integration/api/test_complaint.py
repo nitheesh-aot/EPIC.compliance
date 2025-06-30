@@ -1,61 +1,20 @@
 """test suit for complaint."""
 
-import uuid
 from datetime import datetime
 from http import HTTPStatus
 from urllib.parse import urljoin
 
-import pytest
 from faker import Faker
 from flask import json
 
 from compliance_api.models.complaint import ComplaintSourceEnum, ComplaintStatusEnum
 from compliance_api.services import CaseFileService, ComplaintService
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
-from tests.utilities.factory_scenario import CasefileScenario, ComplaintScenario, StaffScenario
+from tests.utilities.factory_scenario import CasefileScenario, ComplaintScenario
 
 
 API_BASE_URL = "/api/"
 fake = Faker()
-
-
-@pytest.fixture
-def mock_track_service(mocker):
-    """Fixture to mock TrackService methods."""
-    mock_get_project_by_id = mocker.patch(
-        "compliance_api.services.epic_track_service.track_service.TrackService.get_project_by_id"
-    )
-    mock_get_project_by_id.return_value = {
-        "abbreviation": fake.word(),
-        "ea_certificate": "",
-        "type": {"name": ""},
-        "sub_type": {"name": ""},
-        "proponent": {"name": ""},
-    }
-
-    yield mock_get_project_by_id
-
-
-@pytest.fixture
-def created_staff(mocker):
-    """Create staff."""
-    user_data = StaffScenario.default_data.value
-    auth_user_guid = str(uuid.uuid4())
-    user_data["auth_user_guid"] = auth_user_guid
-    new_user = StaffScenario.create(user_data)
-    return new_user
-
-
-@pytest.fixture
-def created_case_file(mocker, created_staff, mock_track_service):
-    """Create case file."""
-    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
-    contains_role.return_value = True
-    case_file_data = CasefileScenario.default_value.value
-    case_file_data["primary_officer_id"] = created_staff.id
-    created_case_file = CaseFileService.create(case_file_data)
-    mocker.stop(contains_role)
-    return created_case_file
 
 
 def test_get_complaint_sources(client, auth_header):
@@ -124,7 +83,7 @@ def test_get_case_files_with_case_file_id_passed(
 
 
 def test_create_complaint_by_non_super_user_fail(
-    client, auth_header, created_staff, created_case_file
+    client, auth_header, created_staff, created_case_file, mock_track_service
 ):
     """Create case file by non-super user should fail."""
     complaint_data = ComplaintScenario.complaint_default.value
@@ -139,7 +98,12 @@ def test_create_complaint_by_non_super_user_fail(
 
 
 def test_create_complaint_by_super_user(
-    client, auth_header_super_user, created_staff, created_case_file, mocker
+    client,
+    auth_header_super_user,
+    created_staff,
+    created_case_file,
+    mocker,
+    mock_track_service,
 ):
     """Create case file by non-super user should fail."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
@@ -168,7 +132,7 @@ def test_get_complaint_by_not_found(
 
 
 def test_get_complaint_by_id(
-    client, auth_header, created_staff, created_case_file, mocker
+    client, auth_header, created_staff, created_case_file, mocker, mock_track_service
 ):
     """Get complaint which doesn't exist."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
@@ -186,7 +150,12 @@ def test_get_complaint_by_id(
 
 
 def test_update_complaint_by_super_user(
-    client, auth_header_super_user, created_staff, created_case_file, mocker
+    client,
+    auth_header_super_user,
+    created_staff,
+    created_case_file,
+    mocker,
+    mock_track_service,
 ):
     """Create case file by non-super user should fail."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
@@ -225,7 +194,7 @@ def test_update_complaint_by_super_user(
 
 
 def test_complaint_delete_by_non_super_user(
-    client, auth_header, created_staff, created_case_file, mocker
+    client, auth_header, created_staff, created_case_file, mocker, mock_track_service
 ):
     """Delete complaint by non-superuser."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
@@ -243,7 +212,12 @@ def test_complaint_delete_by_non_super_user(
 
 
 def test_complaint_delete_by_super_user(
-    client, auth_header_super_user, created_staff, created_case_file, mocker
+    client,
+    auth_header_super_user,
+    created_staff,
+    created_case_file,
+    mocker,
+    mock_track_service,
 ):
     """Delete complaint by non-superuser."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
@@ -268,7 +242,7 @@ def test_complaint_delete_by_super_user(
 
 
 def test_complaint_get_requirement_details(
-    client, auth_header, created_staff, created_case_file, mocker
+    client, auth_header, created_staff, created_case_file, mocker, mock_track_service
 ):
     """Delete complaint by non-superuser."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
@@ -292,7 +266,7 @@ def test_complaint_get_requirement_details(
 
 
 def test_complaint_get_source_contact_details(
-    client, auth_header, created_staff, created_case_file, mocker
+    client, auth_header, created_staff, created_case_file, mocker, mock_track_service
 ):
     """Delete complaint by non-superuser."""
     contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
