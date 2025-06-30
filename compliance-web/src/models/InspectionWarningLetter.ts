@@ -20,7 +20,7 @@ export interface InspectionWarningLetter {
   intended_issuance_date?: string;
   inspection_id?: number;
   issuing_officer_id?: number;
-  warning_letter_requirement_map?: WarningLetterRequirementMap[];
+  warning_letter_requirement_maps?: WarningLetterRequirementMap[];
   is_active?: boolean;
   progress?: WarningLetterProgress;
   status?: WarningLetterStatus;

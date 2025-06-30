@@ -123,7 +123,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     if (!requirementEnforcements) return [];
     const warningLetterReqIds = inspectionWarningLettersData?.map(
       (warningLetter) =>
-        warningLetter.warning_letter_requirement_map?.map(
+        warningLetter.warning_letter_requirement_maps?.map(
           (map) => map.inspection_requirement_id
         )
     );

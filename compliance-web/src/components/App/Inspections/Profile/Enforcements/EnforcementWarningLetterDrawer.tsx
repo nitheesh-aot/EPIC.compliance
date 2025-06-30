@@ -115,7 +115,7 @@ const EnforcementWarningLetterDrawer: React.FC<
         const warningLetterData: InspectionWarningLetterAPIData = {
           inspection_id: inspection.id,
           inspection_requirement_ids:
-            warningLetter.warning_letter_requirement_map?.map(
+            warningLetter.warning_letter_requirement_maps?.map(
               (map) => map.inspection_requirement_id
             ) || [],
           content: formData.content?.html || undefined,

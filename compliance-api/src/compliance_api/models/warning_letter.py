@@ -153,7 +153,7 @@ class WarningLetter(BaseModelVersioned):
 
     inspection = relationship("Inspection", foreign_keys=[inspection_id], lazy="joined")
     is_deleted = Column(Boolean, default=False, server_default="f", nullable=False)
-    warning_letter_requirement_map = relationship(
+    warning_letter_requirement_maps = relationship(
         "WarningLetterInspectionRequirementMap",
         back_populates="warning_letter",
         lazy="select",

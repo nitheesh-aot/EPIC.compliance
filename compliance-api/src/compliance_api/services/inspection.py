@@ -1,7 +1,5 @@
 """Service for managing Inspection."""
 
-from datetime import datetime
-
 from compliance_api.auth import auth
 from compliance_api.exceptions import (
     BusinessError, PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError)
@@ -28,8 +26,8 @@ from compliance_api.models.enforcement_action import EnforcementActionOption as 
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.services.case_file import CaseFileService
 from compliance_api.services.service_utils import ServiceUtils
-from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE
-from compliance_api.utils.enum import ContextEnum, PermissionEnum
+from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE
+from compliance_api.utils.enum import PermissionEnum
 
 from .epic_track_service.track_service import TrackService
 
@@ -424,7 +422,7 @@ def _set_warning_letter_enforcement_action_object(
         if requirement.id
         in [
             req_map.inspection_requirement_id
-            for req_map in warning_letter.warning_letter_requirement_map
+            for req_map in warning_letter.warning_letter_requirement_maps
         ]
     ]
     if requirement_warning_letters:
@@ -626,19 +624,4 @@ def _create_inspection_other_attendance_object(
         "municipal": inspection_data.get("attendance_municipal"),
         "other": inspection_data.get("attendance_other"),
         "inspection_id": inspection_id,
-    }
-
-
-def _create_cr_entry(inspection_id, ir_no, case_file_id, text):
-    """Create the continuation report entry."""
-    if text == "open":
-        text = "reopened"
-    return {
-        "case_file_id": case_file_id,
-        "text": f"{ir_no} is {text}",
-        "rich_text": f"<p>{ir_no} is {text}</p>",
-        "date_created": datetime.utcnow().strftime(INPUT_DATE_TIME_FORMAT),
-        "context_type": ContextEnum.INSPECTION,
-        "context_id": inspection_id,
-        "keys": [{"key": ir_no, "key_context": ContextEnum.INSPECTION}],
     }

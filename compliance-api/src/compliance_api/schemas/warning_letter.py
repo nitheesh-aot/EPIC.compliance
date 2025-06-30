@@ -81,7 +81,7 @@ class WarningLetterSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         StaffUserSchema(),
         only=("id", "first_name", "last_name", "name", "auth_user_guid"),
     )
-    warning_letter_requirement_map = fields.Nested(
+    warning_letter_requirement_maps = fields.Nested(
         WarningLetterInspectionRequirementMapSchema(),
         many=True,
         only=("id", "inspection_requirement_id", "inspection_requirement"),
