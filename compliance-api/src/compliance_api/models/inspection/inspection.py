@@ -235,7 +235,6 @@ class Inspection(BaseModelVersioned):
         # Main query with filters for active and non-deleted records
         query = (
             db.session.query(cls)
-            .filter(cls.is_deleted.is_(False), cls.is_active.is_(True))
             .outerjoin(InspectionRecord, cls.id == InspectionRecord.inspection_id)
             .outerjoin(
                 latest_approval_subquery,
@@ -249,6 +248,7 @@ class Inspection(BaseModelVersioned):
                     == latest_approval_subquery.c.latest_date
                 ),
             )
+            .filter(cls.is_deleted.is_(False), cls.is_active.is_(True), InspectionRecord.is_active.is_(True), InspectionRecord.is_deleted.is_(False))
             .add_columns(
                 InspectionRecord.ir_progress,
                 InspectionRecordApproval.approval_status,
