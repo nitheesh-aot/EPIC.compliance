@@ -75,6 +75,10 @@ export function Inspections() {
       if (isCurrentUserDeputy && isDeputyReviewPending) {
         table.setColumnFilters([
           {
+            id: "primary_officer.name",
+            value: [currentUser?.profile?.name],
+          },
+          {
             id: "approval_status",
             value: [APPROVAL_STATUS_TEXT.APPROVAL_PENDING],
           },
