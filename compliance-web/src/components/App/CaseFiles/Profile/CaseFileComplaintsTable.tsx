@@ -121,7 +121,9 @@ const CaseFileComplaintsTable = ({ caseFile }: { caseFile: CaseFile }) => {
                     >
                       Primary:
                     </Typography>
-                    <Typography variant="body2">Christie Lombardi</Typography>
+                    <Typography variant="body2">
+                      {complaint.primary_officer?.name || "N/A"}
+                    </Typography>
                   </Box>
                 </AccordionSummary>
                 <AccordionDetails sx={{ padding: "1rem" }}>

@@ -149,7 +149,7 @@ const LexicalEditor = ({
           overflowY: "auto",
           backgroundColor: disabled
             ? BCDesignTokens.surfaceColorFormsDisabled
-            : "transparent",
+            : BCDesignTokens.surfaceColorFormsDefault,
         }}
       >
         <Box className="editor-inner editor-content">

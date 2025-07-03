@@ -13,8 +13,12 @@ from compliance_api.models import InspectionReqEnforcementMap as InspectionReqEn
 from compliance_api.models import InspectionReqSourceDetail as InspectionReqSourceDetailModel
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models import InspectionRequirementImage as InspectionRequirementImageModel
-from compliance_api.models.db import db, session_scope
+from compliance_api.models import WarningLetter as WarningLetterModel
+from compliance_api.models import WarningLetterProgressEnum
+from compliance_api.models.db import session_scope
+from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.models.order import Order as OrderModel
+from compliance_api.models.order import OrderProgressEnum
 from compliance_api.services.document_service.doc_service import DocService
 from compliance_api.services.document_service.doc_service_enum import ActionOnFileEnum
 
@@ -30,8 +34,9 @@ class InspectionRequirementService:
         return InspectionRequirementModel.get_by_inspection_id(inspection_id)
 
     @classmethod
-    def get_by_id(cls, requirement_id):
+    def get_by_id(cls, inspection_id, requirement_id):
         """Get inspection requirement by id."""
+        ServiceUtils.inspection_exist_check(inspection_id)
         return InspectionRequirementModel.find_by_id(requirement_id)
 
     @classmethod
@@ -85,6 +90,12 @@ class InspectionRequirementService:
         ServiceUtils.access_check_update_for_inspection(inspection)
         requirement_obj = _create_requirement_obj(inspection_id, requirement_data)
         with session_scope() as session:
+            _check_enforcement_action_existennce(
+                requirement_data.get("enforcement_action_ids", []),
+                requirement_id,
+                inspection_id,
+                session,
+            )
             updated_requirement = InspectionRequirementModel.update_requirement(
                 requirement_id, requirement_obj, session
             )
@@ -289,7 +300,77 @@ class InspectionRequirementService:
                         session,
                     )
 
-        db.session.flush()
+
+def _check_enforcement_action_existennce(
+    new_enforcement_ids, requirement_id, inspection_id, session
+):
+    """
+    Check if the corresponding enforcement action such as Order, Warning Letter etc.
+
+    are created. This method throws validation error when these actions are not in DRAFTING status.
+    @param new_enforcement_ids: List of new enforcement action ids
+    @param requirement_id: Requirement id
+    @param inspection_id: Inspection id
+    @param session: Database session
+    """
+    existing_enforcement_maps = (
+        InspectionReqEnforcementMapModel.get_all_by_requirement_id(requirement_id)
+    )
+    existing_enforcement_ids = [
+        map.enforcement_action_id for map in existing_enforcement_maps
+    ]
+    removed_action_ids = set(existing_enforcement_ids).difference(
+        set(new_enforcement_ids)
+    )
+    if removed_action_ids:
+        # If the removed enforcement action is either ORDER or WARNING LETTER, then check if
+        # the order or warning letter is in DRAFTING status. If not, throw validation error.
+        # If the order or warning letter is in DRAFTING status, then delete the order or warning letter.
+        if EnforcementActionOptionEnum.ORDER.value in removed_action_ids:
+            orders = OrderModel.get_by_inspection_id(inspection_id)
+            requirement_orders = [
+                order
+                for order in orders
+                if requirement_id
+                in [
+                    order_map.inspection_requirement_id
+                    for order_map in order.order_requirement_maps
+                ]
+            ]
+            if any(
+                order.order_progress != OrderProgressEnum.DRAFTING
+                for order in requirement_orders
+            ):
+                raise UnprocessableEntityError(
+                    "You cannot change enforcement action as order exists and is not in DRAFTING status."
+                )
+            for order in requirement_orders:
+                OrderModel.update_order(
+                    order.id, {"is_deleted": True, "is_active": False}, session
+                )
+        if EnforcementActionOptionEnum.WARNING_LETTER.value in removed_action_ids:
+            warnings = WarningLetterModel.get_by_inspection_id(inspection_id)
+            requirement_warnings = [
+                warning
+                for warning in warnings
+                if requirement_id
+                in [
+                    warning_map.inspection_requirement_id
+                    for warning_map in warning.warning_letter_requirement_maps
+                ]
+            ]
+            if any(
+                warning.progress != WarningLetterProgressEnum.DRAFTING
+                for warning in requirement_warnings
+            ):
+                raise UnprocessableEntityError(
+                    "You cannot change enforcement action as warning letter exists and is not in DRAFTING status."
+                )
+
+            for warning in requirement_warnings:
+                WarningLetterModel.update_warning_letter(
+                    warning.id, {"is_deleted": True, "is_active": False}, session
+                )
 
 
 def _update_the_findigs_by_images(

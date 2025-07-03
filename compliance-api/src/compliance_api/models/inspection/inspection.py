@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Inspection Model."""
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Index, Integer, String, func
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Index, Integer, String, and_, func
 from sqlalchemy.orm import relationship
 
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
@@ -235,8 +235,14 @@ class Inspection(BaseModelVersioned):
         # Main query with filters for active and non-deleted records
         query = (
             db.session.query(cls)
-            .filter(cls.is_deleted.is_(False), cls.is_active.is_(True))
-            .outerjoin(InspectionRecord, cls.id == InspectionRecord.inspection_id)
+            .outerjoin(
+                InspectionRecord,
+                and_(
+                    cls.id == InspectionRecord.inspection_id,
+                    InspectionRecord.is_deleted.is_(False),
+                    InspectionRecord.is_active.is_(True),
+                ),
+            )
             .outerjoin(
                 latest_approval_subquery,
                 latest_approval_subquery.c.inspection_record_id == InspectionRecord.id,
@@ -249,6 +255,7 @@ class Inspection(BaseModelVersioned):
                     == latest_approval_subquery.c.latest_date
                 ),
             )
+            .filter(cls.is_deleted.is_(False), cls.is_active.is_(True))
             .add_columns(
                 InspectionRecord.ir_progress,
                 InspectionRecordApproval.approval_status,
