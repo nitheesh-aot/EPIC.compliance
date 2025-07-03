@@ -32,7 +32,7 @@ class InspectionRequirementService:
     @classmethod
     def get_by_id(cls, requirement_id):
         """Get inspection requirement by id."""
-        return InspectionReqDetailDocumentModel.find_by_id(requirement_id)
+        return InspectionRequirementModel.find_by_id(requirement_id)
 
     @classmethod
     def create(cls, inspection_id, requirement_data):
@@ -198,6 +198,7 @@ class InspectionRequirementService:
             requirement_id=requirement_id, image_type=image_type
         )
         images = _set_signed_url(images)
+        return images
 
     @classmethod
     def get_all_images_by_inspection(cls, inspection_id):

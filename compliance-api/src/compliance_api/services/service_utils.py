@@ -42,7 +42,6 @@ class ServiceUtils:
     def access_check_update_for_inspection(inspection: dict):
         """Access check for update an inspection."""
         auth_user_guid = g.token_info["preferred_username"]
-        print(auth_user_guid)
         if (
             not auth.has_permission([PermissionEnum.SUPERUSER])
             and not inspection.primary_officer.auth_user_guid == auth_user_guid
