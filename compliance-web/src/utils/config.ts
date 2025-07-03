@@ -48,7 +48,8 @@ export const AppConfig = {
 export const OidcConfig = {
   authority: OIDC_AUTHORITY,
   client_id: CLIENT_ID,
-  redirect_uri: `${APP_URL}/oidc-callback`,
+  kc_idp_hint: "idir",
+  redirect_uri: `${APP_URL}/oidc-callback?kc_idp_hint=idir`,
   post_logout_redirect_uri: `${APP_URL}/`,
   scope: "openid profile email",
   response_type: "code",

@@ -23,8 +23,8 @@ const EnforcementCard = ({
         .map((map) => map.inspection_requirement.summary)
         .join(", ");
     }
-    if (warningLetter?.warning_letter_requirement_map) {
-      return warningLetter.warning_letter_requirement_map
+    if (warningLetter?.warning_letter_requirement_maps) {
+      return warningLetter.warning_letter_requirement_maps
         .map((map) => map.inspection_requirement.summary)
         .join(", ");
     }
@@ -36,7 +36,7 @@ const EnforcementCard = ({
       (map) => map.inspection_requirement_id
     );
     const warningLetterRequirementIds =
-      warningLetter?.warning_letter_requirement_map?.map(
+      warningLetter?.warning_letter_requirement_maps?.map(
         (map) => map.inspection_requirement_id
       );
 
