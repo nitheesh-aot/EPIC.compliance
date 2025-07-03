@@ -28,6 +28,7 @@ class CaseFileInitiationEnum(enum.Enum):
 
     INSPECTION = 1
     COMPLIANT = 2
+    OTHER = 3
 
 
 class CaseFileStatusEnum(enum.Enum):
