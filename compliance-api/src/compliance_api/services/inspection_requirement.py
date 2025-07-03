@@ -321,11 +321,9 @@ def _check_enforcement_action_existennce(
         set(new_enforcement_ids)
     )
     if removed_action_ids:
-        """
-        If the removed enforcement action is either ORDER or WARNING LETTER, then check if
-        the order or warning letter is in DRAFTING status. If not, throw validation error.
-        If the order or warning letter is in DRAFTING status, then delete the order or warning letter.
-        """
+        # If the removed enforcement action is either ORDER or WARNING LETTER, then check if
+        # the order or warning letter is in DRAFTING status. If not, throw validation error.
+        # If the order or warning letter is in DRAFTING status, then delete the order or warning letter.
         if EnforcementActionOptionEnum.ORDER.value in removed_action_ids:
             orders = OrderModel.get_by_inspection_id(inspection_id)
             requirement_orders = [
@@ -338,20 +336,16 @@ def _check_enforcement_action_existennce(
                 ]
             ]
             if any(
-                [
-                    order
-                    for order in requirement_orders
-                    if order.order_progress != OrderProgressEnum.DRAFTING
-                ]
+                order.order_progress != OrderProgressEnum.DRAFTING
+                for order in requirement_orders
             ):
                 raise UnprocessableEntityError(
                     "You cannot change enforcement action as order exists and is not in DRAFTING status."
                 )
-            else:
-                for order in requirement_orders:
-                    OrderModel.update_order(
-                        order.id, {"is_deleted": True, "is_active": False}, session
-                    )
+            for order in requirement_orders:
+                OrderModel.update_order(
+                    order.id, {"is_deleted": True, "is_active": False}, session
+                )
         if EnforcementActionOptionEnum.WARNING_LETTER.value in removed_action_ids:
             warnings = WarningLetterModel.get_by_inspection_id(inspection_id)
             requirement_warnings = [
@@ -364,20 +358,17 @@ def _check_enforcement_action_existennce(
                 ]
             ]
             if any(
-                [
-                    warning
-                    for warning in requirement_warnings
-                    if warning.progress != WarningLetterProgressEnum.DRAFTING
-                ]
+                warning.progress != WarningLetterProgressEnum.DRAFTING
+                for warning in requirement_warnings
             ):
                 raise UnprocessableEntityError(
                     "You cannot change enforcement action as warning letter exists and is not in DRAFTING status."
                 )
-            else:
-                for warning in requirement_warnings:
-                    WarningLetterModel.update_warning_letter(
-                        warning.id, {"is_deleted": True, "is_active": False}, session
-                    )
+            
+            for warning in requirement_warnings:
+                WarningLetterModel.update_warning_letter(
+                    warning.id, {"is_deleted": True, "is_active": False}, session
+                )
 
 
 def _update_the_findigs_by_images(
