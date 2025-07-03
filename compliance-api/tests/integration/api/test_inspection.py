@@ -176,6 +176,8 @@ def test_get_inspections(
     result = client.get(url, headers=auth_header)
 
     assert result.status_code == HTTPStatus.OK
+    print(result.json)
+    print(created_inspection.id)
     filtered_inspection = next(
         (
             inspection

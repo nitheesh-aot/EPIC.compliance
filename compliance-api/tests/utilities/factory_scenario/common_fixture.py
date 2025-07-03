@@ -7,8 +7,9 @@ import pytest
 from faker import Faker
 
 from compliance_api.models import CaseFile as CaseFileModel
-from compliance_api.services import InspectionService
-from tests.utilities.factory_scenario import CasefileScenario, InspectionScenario, StaffScenario
+from compliance_api.services import InspectionRequirementService, InspectionService
+from tests.utilities.factory_scenario import (
+    CasefileScenario, InspectionRequirementScenario, InspectionScenario, StaffScenario)
 
 
 fake = Faker()
@@ -56,12 +57,6 @@ def mock_track_service(mocker):
         "compliance_api.services.epic_track_service.track_service.TrackService.get_project_statuses"
     )
     mock_get_project_statuses.return_value = [
-        {"id": 1, "name": "Active", "description": "Project is active"}
-    ]
-    mock_get_project_statuses = mocker.patch(
-        "compliance_api.services.epic_track_service.track_service.TrackService.get_project_statuses"
-    )
-    mock_get_project_statuses.return_value = [
         {
             "id": 13,
             "name": "Preconstruction",
@@ -73,7 +68,7 @@ def mock_track_service(mocker):
     yield mock_get_project_by_id, mock_get_project_statuses
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def mock_doc_service(mocker):
     """Fixture to mock DocService methods."""
     mock_get_presigned_url = mocker.patch(
@@ -129,3 +124,19 @@ def created_inspection(
     inspection_data["start_date"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     inspection = InspectionService.create(inspection_data)
     return inspection
+
+
+@pytest.fixture
+def created_inspection_requirement(app, created_inspection, mocker):
+    """Create an inspection requirement for testing."""
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
+    access_check_fn = mocker.patch(
+        "compliance_api.services.service_utils.ServiceUtils.access_check_update_for_inspection"
+    )
+    access_check_fn.return_value = True
+    requirement_data = copy.copy(InspectionRequirementScenario.default_value.value)
+    requirement = InspectionRequirementService.create(
+        created_inspection.id, requirement_data
+    )
+    return requirement

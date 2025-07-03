@@ -28,7 +28,8 @@ from compliance_api.models import db as _db
 
 from .utilities.factory_scenario import TokenJWTClaims
 from .utilities.factory_scenario.common_fixture import (  # noqa: F401
-    created_case_file, created_inspection, created_staff, mock_auth_service, mock_track_service)
+    created_case_file, created_inspection, created_inspection_requirement, created_staff, mock_auth_service,
+    mock_doc_service, mock_track_service)
 from .utilities.factory_utils import factory_auth_header
 
 
