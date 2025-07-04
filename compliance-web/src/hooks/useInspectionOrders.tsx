@@ -164,7 +164,10 @@ const updateOrderStatus = ({
 
 export const useInspectionOrdersData = (
   inspectionId: number,
-  { filterOpenOrders = false }: { filterOpenOrders?: boolean } = {}
+    {
+    filterOpenOrders = false,
+    isStaleInfinate = true,
+  }: { filterOpenOrders?: boolean; isStaleInfinate?: boolean } = {}
 ) => {
   return useQuery({
     queryKey: ["inspection-orders", inspectionId],
@@ -178,7 +181,7 @@ export const useInspectionOrdersData = (
       return data;
     },
     enabled: !!inspectionId,
-    staleTime: Infinity,
+    staleTime: isStaleInfinate ? Infinity : 0,
   });
 };
 
