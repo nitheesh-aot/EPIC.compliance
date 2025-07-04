@@ -241,7 +241,9 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
 
       const inspectionRequirementPayload = formatRequirementAPIData(
         formLeftData,
-        isRegulatoryConsideration ? REGULATORY_CONSIDERATION_TYPE_ID : REQUIREMENT_TYPE_ID,
+        isRegulatoryConsideration
+          ? REGULATORY_CONSIDERATION_TYPE_ID
+          : REQUIREMENT_TYPE_ID,
         requirementPhotos.get(requirement?.id ?? NaN),
         requirementFigures.get(requirement?.id ?? NaN),
         requirementSourceList ?? undefined
@@ -335,6 +337,10 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
             isRegulatoryConsideration={isRegulatoryConsideration}
             isEditMode={!!inspectionRequirementData}
             requirementId={requirement?.id ?? 0}
+            inspectionId={inspectionData.id}
+            currentEnforcementAction={
+              requirement?.enforcement_action_data?.[0] ?? undefined
+            }
           />
           <RequirementFormRight
             onDataChange={onRequirementSourceListDataChange}
