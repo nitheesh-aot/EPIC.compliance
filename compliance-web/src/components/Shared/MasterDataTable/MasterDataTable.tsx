@@ -16,6 +16,7 @@ import { BCDesignTokens } from "epic.theme";
 import { AddRounded, DownloadRounded } from "@mui/icons-material";
 import DataTableNoData from "./DataTableNoData";
 import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
+import { MasterTableColumnFilter } from "@/components/Shared/FilterSelect/type";
 
 interface MRT_EAO_TitleToolbarProps {
   tableTitle: string;
@@ -29,7 +30,7 @@ export interface MaterialReactTableProps<TData extends MRT_RowData>
   columns: MRT_ColumnDef<TData>[];
   data: TData[];
   setTableInstance?: (instance: MRT_TableInstance<TData> | undefined) => void;
-  onCacheFilters?: (columnFilters: unknown) => void;
+  onCacheFilters?: (columnFilters: MasterTableColumnFilter[]) => void;
   enableExport?: boolean;
   tableName?: string;
   titleToolbarProps?: MRT_EAO_TitleToolbarProps;

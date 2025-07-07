@@ -1,5 +1,6 @@
 import CaseFileDrawer from "@/components/App/CaseFiles/CaseFileDrawer";
 import CustomSwitch from "@/components/Shared/Controlled/CustomSwitch";
+import { MasterTableColumnFilter } from "@/components/Shared/FilterSelect/type";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import PageLink from "@/components/Shared/PageLink";
 import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
@@ -7,6 +8,7 @@ import { useCaseFilesData } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
+import { cachedFiltersStore } from "@/store/cachedFiltersStore";
 import { DRAWER_WIDTHS } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import { Chip, FormControlLabel, Typography } from "@mui/material";
@@ -16,11 +18,14 @@ import { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
 import { useMemo, useCallback, useState, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
+
 export const Route = createFileRoute("/_authenticated/ce-database/case-files/")(
   {
     component: CaseFiles,
   }
 );
+
+const caseFilesColumnFiltersCacheKey = "case-files-column-filters";
 
 export function CaseFiles() {
   const queryClient = useQueryClient();
@@ -35,6 +40,8 @@ export function CaseFiles() {
     KC_USER_GROUPS.USER,
     KC_USER_GROUPS.SUPERUSER,
   ]);
+  const { getFilters, setFilters } = cachedFiltersStore();
+  const columnFilters = getFilters(caseFilesColumnFiltersCacheKey);
 
   // Check if current user has primary case files
   const isCurrentUserHasPrimary = useMemo(() => {
@@ -247,6 +254,13 @@ export function CaseFiles() {
     ]
   );
 
+  const handleCacheFilters = (filters?: MasterTableColumnFilter[]) => {
+    if (!filters) {
+      return;
+    }
+    setFilters(caseFilesColumnFiltersCacheKey, filters);
+  };
+
   return (
     <>
       <MasterDataTable
@@ -260,6 +274,7 @@ export function CaseFiles() {
               desc: false,
             },
           ],
+          columnFilters: columnFilters,
         }}
         state={{
           isLoading: isLoading || authLoading,
@@ -274,6 +289,7 @@ export function CaseFiles() {
         renderExternalFilter={
           isCurrentUserHasPrimary ? renderExternalFilter : undefined
         }
+        onCacheFilters={handleCacheFilters}
       />
     </>
   );

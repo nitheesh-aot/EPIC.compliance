@@ -1,7 +1,9 @@
+import { MasterTableColumnFilter } from "@/components/Shared/FilterSelect/type";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import PageLink from "@/components/Shared/PageLink";
 import { useComplaintsData } from "@/hooks/useComplaints";
 import { Complaint } from "@/models/Complaint";
+import { cachedFiltersStore } from "@/store/cachedFiltersStore";
 import dateUtils from "@/utils/dateUtils";
 import { Chip } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
@@ -14,6 +16,8 @@ export const Route = createFileRoute("/_authenticated/ce-database/complaints/")(
   }
 );
 
+const complaintsColumnFiltersCacheKey = "complaints-column-filters";
+
 export function Complaints() {
   const { data: complaintsList, isLoading } = useComplaintsData();
 
@@ -22,6 +26,9 @@ export function Complaints() {
   const [complaintSourceList, setComplaintSourceList] = useState<string[]>([]);
   const [officerList, setOfficerList] = useState<string[]>([]);
   const [statusList, setStatusList] = useState<string[]>([]);
+
+  const { getFilters, setFilters } = cachedFiltersStore();
+  const columnFilters = getFilters(complaintsColumnFiltersCacheKey);
 
   useEffect(() => {
     setProjectList(
@@ -145,6 +152,13 @@ export function Complaints() {
     [projectList, topicList, complaintSourceList, officerList, statusList]
   );
 
+  const handleCacheFilters = (filters?: MasterTableColumnFilter[]) => {
+    if (!filters) {
+      return;
+    }
+    setFilters(complaintsColumnFiltersCacheKey, filters);
+  };
+
   return (
     <MasterDataTable
       columns={columns}
@@ -156,6 +170,7 @@ export function Complaints() {
             desc: false,
           },
         ],
+        columnFilters: columnFilters,
       }}
       state={{
         isLoading: isLoading,
@@ -164,6 +179,7 @@ export function Complaints() {
       titleToolbarProps={{
         tableTitle: "Complaints",
       }}
+      onCacheFilters={handleCacheFilters}
     />
   );
 }
