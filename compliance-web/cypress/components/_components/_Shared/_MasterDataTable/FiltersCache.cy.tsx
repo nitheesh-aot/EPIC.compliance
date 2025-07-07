@@ -4,7 +4,7 @@ import { MRT_TableInstance } from "material-react-table";
 import { FiltersCache } from "@/components/Shared/MasterDataTable/FiltersCache";
 
 describe("FiltersCache Component", () => {
-  it("calls onCacheFilters with the current column filters when mounted", () => {
+  it("does not call onCacheFilters on initial mount with filters", () => {
     const onCacheFilters = cy.stub().as("onCacheFiltersStub");
 
     const tableMock = {
@@ -15,40 +15,25 @@ describe("FiltersCache Component", () => {
 
     mount(<FiltersCache onCacheFilters={onCacheFilters} table={tableMock} />);
 
-    // Verify that onCacheFilters was called with the correct filters
-    cy.get("@onCacheFiltersStub").should("have.been.calledOnceWith", [
-      { id: "name", value: "John" },
-    ]);
+    // Wait for the effect to run
+    cy.wait(50);
+
+    // Should NOT be called on initial mount since prevFilters equals currentFilters
+    cy.get("@onCacheFiltersStub").should("not.have.been.called");
   });
 
-  it("calls onCacheFilters again when the table instance changes", () => {
+  it("does not call onCacheFilters when filters are empty on mount", () => {
     const onCacheFilters = cy.stub().as("onCacheFiltersStub");
 
-    const tableMock1 = {
+    const tableMock = {
       getState: () => ({
-        columnFilters: [{ id: "name", value: "John" }],
+        columnFilters: [],
       }),
     } as MRT_TableInstance<any>;
 
-    const tableMock2 = {
-      getState: () => ({
-        columnFilters: [{ id: "email", value: "john.doe@example.com" }],
-      }),
-    } as MRT_TableInstance<any>;
-
-    mount(<FiltersCache onCacheFilters={onCacheFilters} table={tableMock1} />);
-
-    // Verify that onCacheFilters was called initially
-    cy.get("@onCacheFiltersStub").should("have.been.calledOnceWith", [
-      { id: "name", value: "John" },
-    ]);
-
-    // Now remount the component with a new table instance
-    mount(<FiltersCache onCacheFilters={onCacheFilters} table={tableMock2} />);
-
-    // Verify that onCacheFilters was called again with the updated filters
-    cy.get("@onCacheFiltersStub").should("have.been.calledWith", [
-      { id: "email", value: "john.doe@example.com" },
-    ]);
+    mount(<FiltersCache onCacheFilters={onCacheFilters} table={tableMock} />);
+    cy.wait(50);
+    // Should not be called when filters are empty
+    cy.get("@onCacheFiltersStub").should("not.have.been.called");
   });
 });

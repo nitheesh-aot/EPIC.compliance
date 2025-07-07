@@ -1,5 +1,6 @@
 import CaseFileDrawer from "@/components/App/CaseFiles/CaseFileDrawer";
 import CustomSwitch from "@/components/Shared/Controlled/CustomSwitch";
+import { MasterTableColumnFilter } from "@/components/Shared/FilterSelect/type";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import PageLink from "@/components/Shared/PageLink";
 import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
@@ -7,6 +8,7 @@ import { useCaseFilesData } from "@/hooks/useCaseFiles";
 import { CaseFile } from "@/models/CaseFile";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
+import { cachedFiltersStore } from "@/store/cachedFiltersStore";
 import { DRAWER_WIDTHS } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import { Chip, FormControlLabel, Typography } from "@mui/material";
@@ -16,11 +18,14 @@ import { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
 import { useMemo, useCallback, useState, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
+
 export const Route = createFileRoute("/_authenticated/ce-database/case-files/")(
   {
     component: CaseFiles,
   }
 );
+
+const caseFilesColumnFiltersCacheKey = "case-files-column-filters";
 
 export function CaseFiles() {
   const queryClient = useQueryClient();
@@ -35,6 +40,9 @@ export function CaseFiles() {
     KC_USER_GROUPS.USER,
     KC_USER_GROUPS.SUPERUSER,
   ]);
+  const { getFilters, setFilters, getExternalFilters } = cachedFiltersStore();
+  const columnFilters = getFilters(caseFilesColumnFiltersCacheKey);
+  const cachedExternalFilters = getExternalFilters(caseFilesColumnFiltersCacheKey);
 
   // Check if current user has primary case files
   const isCurrentUserHasPrimary = useMemo(() => {
@@ -49,21 +57,30 @@ export function CaseFiles() {
   const applyUserSpecificFilters = useCallback(
     (table: MRT_TableInstance<CaseFile>) => {
       if (isCurrentUserHasPrimary) {
-        table.setColumnFilters([
-          {
-            id: "primary_officer.name",
-            value: [currentUser?.profile?.name],
-          },
-        ]);
+        const currentFilters = table.getState().columnFilters;
+        const userFilter = {
+          id: "primary_officer.name",
+          value: [currentUser?.profile?.name],
+        };
+        
+        // Check if user filter already exists
+        const existingUserFilterIndex = currentFilters.findIndex(
+          filter => filter.id === "primary_officer.name"
+        );
+        
+        if (existingUserFilterIndex >= 0) {
+          // Update existing user filter
+          const newFilters = [...currentFilters];
+          newFilters[existingUserFilterIndex] = userFilter;
+          table.setColumnFilters(newFilters);
+        } else {
+          // Add user filter to existing filters
+          table.setColumnFilters([...currentFilters, userFilter]);
+        }
       }
     },
     [isCurrentUserHasPrimary, currentUser?.profile?.name]
   );
-
-  // Helper function to clear all filters
-  const clearAllFilters = useCallback((table: MRT_TableInstance<CaseFile>) => {
-    table.setColumnFilters([]);
-  }, []);
 
   const createUniqueFilterList = useCallback(
     (key: keyof CaseFile, subKey?: string): string[] => {
@@ -191,25 +208,33 @@ export function CaseFiles() {
     [initiationList, projectList, staffUserList, statusList]
   );
 
+  // Initialize external filter state from cache or user role
   useEffect(() => {
-    if (isCurrentUserHasPrimary) {
+    if (cachedExternalFilters?.showOnlyMyCaseFiles !== undefined) {
+      // Restore from cache
+      setShowOnlyMyCaseFiles(cachedExternalFilters.showOnlyMyCaseFiles as boolean);
+    } else if (isCurrentUserHasPrimary) {
+      // Set based on user role if no cache
       setShowOnlyMyCaseFiles(true);
-      if (tableInstance) {
-        applyUserSpecificFilters(tableInstance);
-      }
     } else {
       setShowOnlyMyCaseFiles(false);
-      if (tableInstance) {
-        clearAllFilters(tableInstance);
+    }
+  }, [cachedExternalFilters, isCurrentUserHasPrimary]);
+
+  // Apply filters when table instance is available and state changes
+  useEffect(() => {
+    if (tableInstance) {
+      if (showOnlyMyCaseFiles && isCurrentUserHasPrimary) {
+        // When external filter is ON, apply user-specific filter
+        applyUserSpecificFilters(tableInstance);
       }
+      // When external filter is OFF, do nothing - let cached column filters remain
     }
   }, [
-    caseFilesList,
-    currentUser,
     tableInstance,
+    showOnlyMyCaseFiles,
     isCurrentUserHasPrimary,
     applyUserSpecificFilters,
-    clearAllFilters,
   ]);
 
   const renderExternalFilter = useCallback(
@@ -222,9 +247,15 @@ export function CaseFiles() {
               onChange={(e) => {
                 setShowOnlyMyCaseFiles(e.target.checked);
                 if (e.target.checked) {
+                  // When turning ON, apply user-specific filter
                   applyUserSpecificFilters(table);
                 } else {
-                  clearAllFilters(table);
+                  // When turning OFF, remove only the user-specific filter
+                  const currentFilters = table.getState().columnFilters;
+                  const filteredFilters = currentFilters.filter(
+                    filter => filter.id !== "primary_officer.name"
+                  );
+                  table.setColumnFilters(filteredFilters);
                 }
               }}
               size="small"
@@ -243,9 +274,20 @@ export function CaseFiles() {
       showOnlyMyCaseFiles,
       currentUser?.profile?.given_name,
       applyUserSpecificFilters,
-      clearAllFilters,
     ]
   );
+
+  const handleCacheFilters = (filters?: MasterTableColumnFilter[]) => {
+    if (!filters) {
+      return;
+    }
+    // Cache both column filters and external filter state
+    setFilters(
+      caseFilesColumnFiltersCacheKey, 
+      filters, 
+      { showOnlyMyCaseFiles }
+    );
+  };
 
   return (
     <>
@@ -260,6 +302,7 @@ export function CaseFiles() {
               desc: false,
             },
           ],
+          columnFilters: columnFilters,
         }}
         state={{
           isLoading: isLoading || authLoading,
@@ -274,6 +317,7 @@ export function CaseFiles() {
         renderExternalFilter={
           isCurrentUserHasPrimary ? renderExternalFilter : undefined
         }
+        onCacheFilters={handleCacheFilters}
       />
     </>
   );

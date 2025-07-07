@@ -43,7 +43,7 @@ const makeTableFilter =
               }
         ) => toOptionType(option)
       );
-      return filterOptions;
+      return filterOptions.sort((a: { label: string; }, b: { label: string; }) => a.label.localeCompare(b.label));
     }, [column.columnDef.filterSelectOptions, toOptionType]);
 
     const handleValues = useCallback((value: string | string[]) => {
