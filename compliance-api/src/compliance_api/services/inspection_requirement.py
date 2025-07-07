@@ -34,8 +34,9 @@ class InspectionRequirementService:
         return InspectionRequirementModel.get_by_inspection_id(inspection_id)
 
     @classmethod
-    def get_by_id(cls, requirement_id):
+    def get_by_id(cls, inspection_id, requirement_id):
         """Get inspection requirement by id."""
+        ServiceUtils.inspection_exist_check(inspection_id)
         return InspectionRequirementModel.find_by_id(requirement_id)
 
     @classmethod
@@ -365,7 +366,7 @@ def _check_enforcement_action_existennce(
                 raise UnprocessableEntityError(
                     "You cannot change enforcement action as warning letter exists and is not in DRAFTING status."
                 )
-            
+
             for warning in requirement_warnings:
                 WarningLetterModel.update_warning_letter(
                     warning.id, {"is_deleted": True, "is_active": False}, session
