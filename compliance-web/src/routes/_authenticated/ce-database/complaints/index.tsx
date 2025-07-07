@@ -156,7 +156,7 @@ export function Complaints() {
     if (!filters) {
       return;
     }
-    setFilters(complaintsColumnFiltersCacheKey, filters);
+    setFilters(complaintsColumnFiltersCacheKey, filters, undefined);
   };
 
   return (

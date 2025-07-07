@@ -1,9 +1,11 @@
 import CustomSwitch from "@/components/Shared/Controlled/CustomSwitch";
+import { MasterTableColumnFilter } from "@/components/Shared/FilterSelect/type";
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import PageLink from "@/components/Shared/PageLink";
 import { useInspectionsData } from "@/hooks/useInspections";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { Inspection } from "@/models/Inspection";
+import { cachedFiltersStore } from "@/store/cachedFiltersStore";
 import {
   APPROVAL_STATUS,
   APPROVAL_STATUS_TEXT,
@@ -26,6 +28,8 @@ export const Route = createFileRoute(
   "/_authenticated/ce-database/inspections/"
 )({ component: Inspections });
 
+const inspectionsColumnFiltersCacheKey = "inspections-column-filters";
+
 export function Inspections() {
   const { data: inspectionsList, isLoading } = useInspectionsData();
   const { data: staffList, isLoading: staffLoading } = useStaffUsersData(true);
@@ -34,6 +38,9 @@ export function Inspections() {
   const [tableInstance, setTableInstance] = useState<
     MRT_TableInstance<Inspection> | undefined
   >();
+  const { getFilters, setFilters, getExternalFilters } = cachedFiltersStore();
+  const columnFilters = getFilters(inspectionsColumnFiltersCacheKey);
+  const cachedExternalFilters = getExternalFilters(inspectionsColumnFiltersCacheKey);
 
   // Find current user from staff list
   const currentUserStaff = useMemo(() => {
@@ -72,8 +79,10 @@ export function Inspections() {
   // Helper function to apply filters based on user role
   const applyUserSpecificFilters = useCallback(
     (table: MRT_TableInstance<Inspection>) => {
+      const currentFilters = table.getState().columnFilters;
+      
       if (isCurrentUserDeputy && isDeputyReviewPending) {
-        table.setColumnFilters([
+        const deputyFilters = [
           {
             id: "primary_officer.name",
             value: [currentUser?.profile?.name],
@@ -82,14 +91,33 @@ export function Inspections() {
             id: "approval_status",
             value: [APPROVAL_STATUS_TEXT.APPROVAL_PENDING],
           },
-        ]);
+        ];
+        
+        // Remove existing user-specific filters and add new ones
+        const filteredFilters = currentFilters.filter(
+          filter => filter.id !== "primary_officer.name" && filter.id !== "approval_status"
+        );
+        table.setColumnFilters([...filteredFilters, ...deputyFilters]);
       } else if (isCurrentUserHasPrimary) {
-        table.setColumnFilters([
-          {
-            id: "primary_officer.name",
-            value: [currentUser?.profile?.name],
-          },
-        ]);
+        const userFilter = {
+          id: "primary_officer.name",
+          value: [currentUser?.profile?.name],
+        };
+        
+        // Check if user filter already exists
+        const existingUserFilterIndex = currentFilters.findIndex(
+          filter => filter.id === "primary_officer.name"
+        );
+        
+        if (existingUserFilterIndex >= 0) {
+          // Update existing user filter
+          const newFilters = [...currentFilters];
+          newFilters[existingUserFilterIndex] = userFilter;
+          table.setColumnFilters(newFilters);
+        } else {
+          // Add user filter to existing filters
+          table.setColumnFilters([...currentFilters, userFilter]);
+        }
       }
     },
     [
@@ -100,13 +128,90 @@ export function Inspections() {
     ]
   );
 
-  // Helper function to clear all filters
-  const clearAllFilters = useCallback(
-    (table: MRT_TableInstance<Inspection>) => {
-      table.setColumnFilters([]);
+  // Initialize external filter state from cache or user role
+  useEffect(() => {
+    if (cachedExternalFilters?.showOnlyMyInspections !== undefined) {
+      // Restore from cache
+      setShowOnlyMyInspections(cachedExternalFilters.showOnlyMyInspections as boolean);
+    } else if (isCurrentUserDeputy && isDeputyReviewPending) {
+      // Set based on user role if no cache
+      setShowOnlyMyInspections(true);
+    } else if (isCurrentUserHasPrimary) {
+      // Set based on user role if no cache
+      setShowOnlyMyInspections(true);
+    } else {
+      setShowOnlyMyInspections(false);
+    }
+  }, [cachedExternalFilters, isCurrentUserDeputy, isDeputyReviewPending, isCurrentUserHasPrimary]);
+
+  // Apply filters when table instance is available and state changes
+  useEffect(() => {
+    if (tableInstance) {
+      if (showOnlyMyInspections) {
+        // When external filter is ON, apply user-specific filter
+        applyUserSpecificFilters(tableInstance);
+      }
+      // When external filter is OFF, do nothing - let cached column filters remain
+    }
+  }, [
+    tableInstance,
+    showOnlyMyInspections,
+    applyUserSpecificFilters,
+  ]);
+
+  const renderExternalFilter = useCallback(
+    ({ table }: { table: MRT_TableInstance<Inspection> }) => {
+      return (
+        <FormControlLabel
+          control={
+            <CustomSwitch
+              checked={showOnlyMyInspections}
+              onChange={(e) => {
+                setShowOnlyMyInspections(e.target.checked);
+                if (e.target.checked) {
+                  // When turning ON, apply user-specific filter
+                  applyUserSpecificFilters(table);
+                } else {
+                  // When turning OFF, remove only the user-specific filters
+                  const currentFilters = table.getState().columnFilters;
+                  const filteredFilters = currentFilters.filter(
+                    filter => filter.id !== "primary_officer.name" && filter.id !== "approval_status"
+                  );
+                  table.setColumnFilters(filteredFilters);
+                }
+              }}
+              size="small"
+            />
+          }
+          label={
+            <Typography variant="body1" mr={1}>
+              <strong>{currentUser?.profile?.given_name}</strong>'s Files
+              {isCurrentUserDeputy && " for Review"}
+            </Typography>
+          }
+          labelPlacement="start"
+        />
+      );
     },
-    []
+    [
+      showOnlyMyInspections,
+      currentUser?.profile?.given_name,
+      isCurrentUserDeputy,
+      applyUserSpecificFilters,
+    ]
   );
+
+  const handleCacheFilters = (filters?: MasterTableColumnFilter[]) => {
+    if (!filters) {
+      return;
+    }
+    // Cache both column filters and external filter state
+    setFilters(
+      inspectionsColumnFiltersCacheKey, 
+      filters, 
+      { showOnlyMyInspections }
+    );
+  };
 
   const createUniqueFilterList = useCallback(
     (key: keyof Inspection, subKey?: string): string[] => {
@@ -283,66 +388,6 @@ export function Inspections() {
     ]
   );
 
-  useEffect(() => {
-    if (isCurrentUserDeputy && isDeputyReviewPending) {
-      setShowOnlyMyInspections(true);
-      if (tableInstance) {
-        applyUserSpecificFilters(tableInstance);
-      }
-    } else if (isCurrentUserHasPrimary) {
-      setShowOnlyMyInspections(true);
-      if (tableInstance) {
-        applyUserSpecificFilters(tableInstance);
-      }
-    }
-  }, [
-    inspectionsList,
-    currentUser,
-    tableInstance,
-    currentUserStaff,
-    isCurrentUserDeputy,
-    isDeputyReviewPending,
-    isCurrentUserHasPrimary,
-    applyUserSpecificFilters,
-  ]);
-
-  const renderExternalFilter = useCallback(
-    ({ table }: { table: MRT_TableInstance<Inspection> }) => {
-      return (
-        <FormControlLabel
-          control={
-            <CustomSwitch
-              checked={showOnlyMyInspections}
-              onChange={(e) => {
-                setShowOnlyMyInspections(e.target.checked);
-                if (e.target.checked) {
-                  applyUserSpecificFilters(table);
-                } else {
-                  clearAllFilters(table);
-                }
-              }}
-              size="small"
-            />
-          }
-          label={
-            <Typography variant="body1" mr={1}>
-              <strong>{currentUser?.profile?.given_name}</strong>'s Files
-              {isCurrentUserDeputy && " for Review"}
-            </Typography>
-          }
-          labelPlacement="start"
-        />
-      );
-    },
-    [
-      showOnlyMyInspections,
-      currentUser?.profile?.given_name,
-      isCurrentUserDeputy,
-      applyUserSpecificFilters,
-      clearAllFilters,
-    ]
-  );
-
   return authLoading || staffLoading ? (
     <Box
       display="flex"
@@ -359,6 +404,7 @@ export function Inspections() {
       setTableInstance={setTableInstance}
       initialState={{
         sorting: [{ id: "ir_number", desc: false }],
+        columnFilters: columnFilters,
       }}
       state={{
         isLoading,
@@ -368,6 +414,7 @@ export function Inspections() {
         tableTitle: "Inspections",
       }}
       renderExternalFilter={renderExternalFilter}
+      onCacheFilters={handleCacheFilters}
     />
   );
 }

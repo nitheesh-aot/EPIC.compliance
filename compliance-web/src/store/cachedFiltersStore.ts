@@ -2,10 +2,17 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { MasterTableColumnFilter } from "@/components/Shared/FilterSelect/type";
 
+interface CachedFilterState {
+  columnFilters: MasterTableColumnFilter[];
+  externalFilters?: Record<string, unknown>;
+}
+
 interface CachedFiltersState {
-  filters: { [key: string]: MasterTableColumnFilter[] };
-  setFilters: (storageKey: string, filters: MasterTableColumnFilter[]) => void;
+  filters: { [key: string]: CachedFilterState };
+  setFilters: (storageKey: string, filters: MasterTableColumnFilter[], externalFilters?: Record<string, unknown>) => void;
   getFilters: (storageKey: string) => MasterTableColumnFilter[];
+  getExternalFilters: (storageKey: string) => Record<string, unknown> | undefined;
+  getCachedFilterState: (storageKey: string) => CachedFilterState;
   clearFilters: (storageKey: string) => void;
   clearAllFilters: () => void;
 }
@@ -14,16 +21,25 @@ export const cachedFiltersStore = create<CachedFiltersState>()(
   persist(
     (set, get) => ({
       filters: {},
-      setFilters: (storageKey: string, filters: MasterTableColumnFilter[]) => {
+      setFilters: (storageKey: string, filters: MasterTableColumnFilter[], externalFilters?: Record<string, unknown>) => {
         set((state) => ({
           filters: {
             ...state.filters,
-            [storageKey]: filters,
+            [storageKey]: {
+              columnFilters: filters,
+              ...(externalFilters && { externalFilters }),
+            },
           },
         }));
       },
       getFilters: (storageKey: string) => {
-        return get().filters[storageKey] || [];
+        return get().filters[storageKey]?.columnFilters || [];
+      },
+      getExternalFilters: (storageKey: string) => {
+        return get().filters[storageKey]?.externalFilters;
+      },
+      getCachedFilterState: (storageKey: string) => {
+        return get().filters[storageKey] || { columnFilters: [] };
       },
       clearFilters: (storageKey: string) => {
         set((state) => {
