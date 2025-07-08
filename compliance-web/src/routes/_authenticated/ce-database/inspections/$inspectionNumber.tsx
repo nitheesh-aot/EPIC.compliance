@@ -5,7 +5,7 @@ import { notify } from "@/store/snackbarStore";
 import { Box } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 
 import ContinuationReport from "@/components/App/ContinuationReports/ContinuationReport";
 import FileProfileHeader from "@/components/App/FileProfileHeader";
@@ -57,7 +57,7 @@ function InspectionProfilePage() {
     inspectionData?.case_file.case_file_number ?? ""
   );
 
-  const showEditInspectionButton = useIsRolesAllowed(
+  const isUserEditAllowed = useIsRolesAllowed(
     [KC_USER_GROUPS.SUPERUSER],
     inspectionData?.primary_officer ? [inspectionData?.primary_officer] : []
   );
@@ -67,6 +67,12 @@ function InspectionProfilePage() {
       [KC_USER_GROUPS.SUPERUSER],
       inspectionData?.primary_officer ? [inspectionData?.primary_officer] : []
     ) && caseFileData?.case_file_status === "Open";
+
+  const isInspectionEditable = useMemo(() => {
+    return (
+      isUserEditAllowed && inspectionData?.inspection_status?.toLowerCase() === "open"
+    );
+  }, [inspectionData, isUserEditAllowed]);
 
   // Event handlers
   const handleOnSubmit = useCallback(
@@ -120,7 +126,7 @@ function InspectionProfilePage() {
             inspectionData={inspectionData}
             caseFileData={caseFileData as CaseFile}
             onEdit={handleOpenEditModal}
-            allowEdit={showEditInspectionButton}
+            allowEdit={isInspectionEditable}
           />
         </TabPanel>
         <TabPanel value={currentTab} index={1} id="inspection-requirements">
