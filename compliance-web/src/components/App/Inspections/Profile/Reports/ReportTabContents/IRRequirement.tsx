@@ -61,7 +61,7 @@ const IRRequirement = ({
   requirement: InspectionRequirement;
   requirementIndex: number;
 }) => {
-  const { inspectionData } = useReportStore();
+  const { inspectionData, isReportsReadOnly } = useReportStore();
   const { requirementPhotos, requirementFigures } = useRequirementStore();
   const { setOpen, setClose } = useDrawer();
   const queryClient = useQueryClient();
@@ -119,7 +119,7 @@ const IRRequirement = ({
   return (
     <IRBoxContainer
       title={`#${requirementIndex + 1}. ${requirement.summary}`}
-      onEdit={handleOpenEditRequirementModal}
+      onEdit={!isReportsReadOnly ? handleOpenEditRequirementModal : undefined}
     >
       {Array.from(groupedRequirementSources.entries()).map(
         ([sourceId, reqSourceDetails], groupIndex) => (

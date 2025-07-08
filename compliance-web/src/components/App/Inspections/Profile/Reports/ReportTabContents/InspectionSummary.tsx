@@ -17,6 +17,7 @@ const InspectionSummary = () => {
     preliminaryReviewDetails,
     findingsStatement,
     inspectionReportsData,
+    isReportsReadOnly,
     setInspectionScope,
     setPreliminaryReviewDetails,
     setFindingsStatement,
@@ -89,10 +90,17 @@ const InspectionSummary = () => {
         title="Inspection Scope"
         sx={{ mb: 1 }}
         defaultValue={inspectionScope}
-        onEditSubmit={(editorValue) =>
-          handleSaveInspectionSummary(editorValue, "inspection_scope")
+        onEditSubmit={
+          !isReportsReadOnly
+            ? (editorValue) =>
+                handleSaveInspectionSummary(editorValue, "inspection_scope")
+            : undefined
         }
-        onReset={() => handleResetInspectionSummary("inspection_scope")}
+        onReset={
+          !isReportsReadOnly
+            ? () => handleResetInspectionSummary("inspection_scope")
+            : undefined
+        }
       >
         <Typography
           variant="body1"
@@ -106,14 +114,17 @@ const InspectionSummary = () => {
           title="Preliminary Review Details"
           sx={{ mb: 1 }}
           defaultValue={preliminaryReviewDetails}
-          onEditSubmit={(editorValue) =>
-            handleSaveInspectionSummary(
-              editorValue,
-              "preliminary_review_details"
-            )
+          onEditSubmit={
+            !isReportsReadOnly
+              ? (editorValue) =>
+                  handleSaveInspectionSummary(
+                    editorValue,
+                    "preliminary_review_details"
+                  )
+              : undefined
           }
           onReset={
-            isPreliminaryReviewDetailsChanged
+            !isReportsReadOnly && isPreliminaryReviewDetailsChanged
               ? () => handleResetInspectionSummary("preliminary_review_details")
               : undefined
           }
@@ -129,11 +140,14 @@ const InspectionSummary = () => {
       <IRBoxContainer
         title="Findings Statement"
         defaultValue={findingsStatement}
-        onEditSubmit={(editorValue) =>
-          handleSaveInspectionSummary(editorValue, "finding_statement")
+        onEditSubmit={
+          !isReportsReadOnly
+            ? (editorValue) =>
+                handleSaveInspectionSummary(editorValue, "finding_statement")
+            : undefined
         }
         onReset={
-          isFindingsStatementChanged
+          !isReportsReadOnly && isFindingsStatementChanged
             ? () => handleResetInspectionSummary("finding_statement")
             : undefined
         }

@@ -47,6 +47,7 @@ export default function ReportTopSection() {
     inspectionData,
     inspectionReportsData,
     irApprovalsData,
+    isReportsReadOnly,
     setIRApprovalsData,
   } = useReportStore();
 
@@ -299,49 +300,55 @@ export default function ReportTopSection() {
               />
             )}
           </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <Typography variant="body2">Wrong Version?</Typography>
-            <Link
-              underline="hover"
-              sx={{ cursor: "pointer" }}
-              onClick={handleChangeIRVersion}
-            >
-              Change
-            </Link>
-          </Box>
+          {!isReportsReadOnly && (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <Typography variant="body2">Wrong Version?</Typography>
+              <Link
+                underline="hover"
+                sx={{ cursor: "pointer" }}
+                onClick={handleChangeIRVersion}
+              >
+                Change
+              </Link>
+            </Box>
+          )}
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {isShowSendForApprovalButton && (
-            <Button
-              variant="text"
-              color="primary"
-              onClick={handleSendForApproval}
-              disabled={isDisableApprovalButton}
-            >
-              <SendRounded sx={{ mr: 0.5, fontSize: 20 }} />
-              Send for Approval
-            </Button>
-          )}
-          {isShowApprovalButtons && (
+          {!isReportsReadOnly && (
             <>
-              <Button
-                color="secondary"
-                size="small"
-                onClick={() => handleApproval(true)}
-              >
-                Approve
-              </Button>
-              <Button
-                color="secondary"
-                size="small"
-                onClick={() => handleApproval(false)}
-              >
-                Not Approve
-              </Button>
+              {isShowSendForApprovalButton && (
+                <Button
+                  variant="text"
+                  color="primary"
+                  onClick={handleSendForApproval}
+                  disabled={isDisableApprovalButton}
+                >
+                  <SendRounded sx={{ mr: 0.5, fontSize: 20 }} />
+                  Send for Approval
+                </Button>
+              )}
+              {isShowApprovalButtons && (
+                <>
+                  <Button
+                    color="secondary"
+                    size="small"
+                    onClick={() => handleApproval(true)}
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    color="secondary"
+                    size="small"
+                    onClick={() => handleApproval(false)}
+                  >
+                    Not Approve
+                  </Button>
+                </>
+              )}
+              {isShowIssueIRButton && (
+                <Button onClick={handleIssueIR}>Issue IR</Button>
+              )}
             </>
-          )}
-          {isShowIssueIRButton && (
-            <Button onClick={handleIssueIR}>Issue IR</Button>
           )}
           <PreviewDownloadButton />
         </Box>
