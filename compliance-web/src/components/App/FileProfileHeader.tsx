@@ -56,11 +56,11 @@ const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
             <>
               <CaseFileCreateInspection
                 fileNumber={fileNumber}
-                disabled={status.toLowerCase() === "closed"}
+                hidden={status.toLowerCase() === "closed"}
               />
               <CaseFileCreateComplaint
                 fileNumber={fileNumber}
-                disabled={status.toLowerCase() === "closed"}
+                hidden={status.toLowerCase() === "closed"}
               />
               <CaseFileActions status={status} fileNumber={fileNumber} />
             </>

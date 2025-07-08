@@ -12,7 +12,7 @@ import { CR_CONTEXT_TYPE, DRAWER_WIDTHS, FILE_PROFILE_CONTEXT } from "@/utils/co
 import { Box } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/case-files/$caseFileNumber"
@@ -34,7 +34,7 @@ function CaseFileProfilePage() {
     isLoading,
   } = useCaseFileByNumber(caseFileNumber!);
 
-  const showEditCaseFileButton = useIsRolesAllowed(
+  const isUserEditAllowed = useIsRolesAllowed(
     [KC_USER_GROUPS.SUPERUSER],
     caseFileData?.primary_officer ? [caseFileData.primary_officer] : []
   );
@@ -44,6 +44,12 @@ function CaseFileProfilePage() {
       ? [...[caseFileData.primary_officer], ...caseFileData.officers]
       : []
   ) && caseFileData?.case_file_status === "Open";
+
+  const isCaseFileEditable = useMemo(() => {
+    return (
+      isUserEditAllowed && caseFileData?.case_file_status?.toLowerCase() === "open"
+    );
+  }, [caseFileData, isUserEditAllowed]);
 
   // Handlers
   const handleOnSubmit = useCallback(
@@ -91,7 +97,7 @@ function CaseFileProfilePage() {
         <CaseFileGeneralInformation
           caseFileData={caseFileData}
           onEdit={handleOpenEditModal}
-          allowEdit={showEditCaseFileButton}
+          allowEdit={isCaseFileEditable}
         />
         <ContinuationReport
           caseFileId={caseFileData.id}
