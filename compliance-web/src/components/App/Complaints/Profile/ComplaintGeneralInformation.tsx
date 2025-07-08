@@ -72,7 +72,6 @@ const ComplaintGeneralInformation: React.FC<
       case RequirementSourceEnum.ACT2022:
       case RequirementSourceEnum.CPD:
       case RequirementSourceEnum.COMPLAINCE_AGREEMENT:
-      case RequirementSourceEnum.NOT_EA_ACT:
       case RequirementSourceEnum.OTHER:
         generalProperties.push({
           name: "Condition Description",

@@ -142,9 +142,6 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
       },
       sharedRequirementSourceField(),
     ],
-    [RequirementSourceEnum.NOT_EA_ACT]: [
-      sharedRequirementSourceField("description", "Description"),
-    ],
     [RequirementSourceEnum.CPD]: [sharedRequirementSourceField()],
     [RequirementSourceEnum.ACT2018]: [sharedRequirementSourceField()],
     [RequirementSourceEnum.COMPLAINCE_AGREEMENT]: [

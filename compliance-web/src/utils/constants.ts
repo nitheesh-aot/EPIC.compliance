@@ -37,8 +37,7 @@ export enum RequirementSourceEnum {
   ACT2018 = "5",
   COMPLAINCE_AGREEMENT = "6",
   ACT2022 = "7",
-  NOT_EA_ACT = "8",
-  OTHER = "9",
+  OTHER = "8",
   EACA = "10",
 }
 
