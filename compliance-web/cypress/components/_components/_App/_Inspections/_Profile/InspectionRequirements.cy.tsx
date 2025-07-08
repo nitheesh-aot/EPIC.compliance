@@ -68,9 +68,13 @@ const mockRequirements: InspectionRequirement[] = [
         section_number: "1.1",
         condition_number: "C-1",
         amendment_number: "A-1",
-        title: "Test Requirement Source 1",
+                title: "Test Requirement Source 1",
         description: "Test description for requirement source 1",
         is_active: true,
+        appendix_id: undefined,
+        appendix: undefined,
+        order_id: undefined,
+        order: undefined,
         documents: [
           {
             id: 1,
@@ -82,6 +86,8 @@ const mockRequirements: InspectionRequirement[] = [
             section_title: "Test Section 1",
             description: "Test document description 1",
             is_active: true,
+            appendix_id: undefined,
+            appendix: undefined,
           },
         ],
       },
@@ -115,22 +121,28 @@ const mockRequirements: InspectionRequirement[] = [
         section_number: "2.2",
         condition_number: "C-2",
         amendment_number: "A-2",
-        title: "Test Requirement Source 2",
+                title: "Test Requirement Source 2",
         description: "Test description for requirement source 2",
         is_active: true,
+        appendix_id: undefined,
+        appendix: undefined,
+        order_id: undefined,
+        order: undefined,
         documents: [
-          {
-            id: 2,
-            req_detail_id: 2,
-            document_type: mockDocumentType,
-            document_type_id: 1,
-            document_title: "Test Document 2",
-            section_number: "3.1",
-            section_title: "Test Section 2",
-            description: "Test document description 2",
-            is_active: true,
-          },
-        ],
+              {
+                id: 2,
+                req_detail_id: 2,
+                document_type: mockDocumentType,
+                document_type_id: 1,
+                document_title: "Test Document 2",
+                section_number: "3.1",
+                section_title: "Test Section 2",
+                description: "Test document description 2",
+                is_active: true,
+                appendix_id: undefined,
+                appendix: undefined,
+              },
+            ],
       },
     ],
   },
@@ -342,5 +354,78 @@ describe("InspectionRequirements Component", () => {
     // Submit the form
     cy.get("button[type=submit]").click();
     cy.get("button[aria-label=close]").should("be.visible").click();
+  });
+
+  it("disables drag functionality when inspection status is not open", () => {
+    // Create a new QueryClient for this test
+    const closedQueryClient = new QueryClient();
+
+    // Set the same requirements data
+    closedQueryClient.setQueryData(
+      ["inspection-requirements", mockInspection.id],
+      mockRequirements
+    );
+
+    // Create a mock inspection with "Complete" status (not "open")
+    const closedInspection = {
+      ...mockInspection,
+      inspection_status: "Complete", // This should disable drag functionality
+    };
+
+    // Mock the API to return the same data
+    cy.intercept("GET", "/api/inspection-requirements*", {
+      statusCode: 200,
+      body: mockRequirements,
+    }).as("getRequirementsClosed");
+
+    // Mount with closed inspection
+    mount(
+      <QueryClientProvider client={closedQueryClient}>
+        <DrawerProvider />
+        <InspectionRequirements inspectionData={closedInspection} />
+      </QueryClientProvider>
+    );
+
+    // Drag indicators should be hidden when inspection is not open
+    cy.get("[data-testid='DragIndicatorRoundedIcon']").should("not.be.visible");
+
+    // But cards should still be clickable
+    cy.get("[data-cy=requirement-card-title]").eq(0).click();
+    cy.get("div[role=presentation]").should("be.visible");
+    cy.get("button[aria-label=close]").should("be.visible").click();
+  });
+
+  it("enables drag functionality when inspection status is open", () => {
+    // Create a new QueryClient for this test
+    const openQueryClient = new QueryClient();
+
+    // Set the same requirements data
+    openQueryClient.setQueryData(
+      ["inspection-requirements", mockInspection.id],
+      mockRequirements
+    );
+
+    // Create a mock inspection with "open" status
+    const openInspection = {
+      ...mockInspection,
+      inspection_status: "open", // This should enable drag functionality
+    };
+
+    // Mock the API to return the same data
+    cy.intercept("GET", "/api/inspection-requirements*", {
+      statusCode: 200,
+      body: mockRequirements,
+    }).as("getRequirementsOpen");
+
+    // Mount with open inspection
+    mount(
+      <QueryClientProvider client={openQueryClient}>
+        <DrawerProvider />
+        <InspectionRequirements inspectionData={openInspection} />
+      </QueryClientProvider>
+    );
+
+    // Drag indicators should be visible when inspection is open
+    cy.get("[data-testid='DragIndicatorRoundedIcon']").should("be.visible");
   });
 });

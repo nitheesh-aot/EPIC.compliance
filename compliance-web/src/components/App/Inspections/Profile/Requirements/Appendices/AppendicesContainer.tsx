@@ -22,10 +22,11 @@ import { Appendix } from "@/models/Appendix";
 
 type AppendicesContainerProps = {
   inspectionId: number;
+  isRequirementEditable?: boolean;
 };
 
 const AppendicesContainer: FC<AppendicesContainerProps> = memo(
-  ({ inspectionId }) => {
+  ({ inspectionId, isRequirementEditable }) => {
     const [isExpanded, setIsExpanded] = useState(true);
     const { setOpen, setClose } = usePopover();
 
@@ -148,13 +149,13 @@ const AppendicesContainer: FC<AppendicesContainerProps> = memo(
                     display: "flex",
                     gap: 0.75,
                     fontSize: "0.875rem",
-                    cursor: "pointer",
+                    cursor: isRequirementEditable ? "pointer" : "default",
                     "&:hover": {
-                      textDecoration: "underline",
+                      textDecoration: isRequirementEditable ? "underline" : "none",
                     },
                   }}
                   underline="none"
-                  onClick={(e) => editAppendix(e, appendix)}
+                  onClick={(e) => isRequirementEditable && editAppendix(e, appendix)}
                 >
                   <span>{appendix.appendix_no}.</span>
                   <span>{appendix.document_title}</span>
@@ -162,26 +163,28 @@ const AppendicesContainer: FC<AppendicesContainerProps> = memo(
               ))}
             </Box>
           )}
-          <Button
-            variant="text"
-            color="secondary"
-            size="small"
-            onClick={(e) => {
-              addNewAppendix(e);
-            }}
-            startIcon={<AddRounded />}
-            sx={{
-              backgroundColor: "transparent",
-              px: 0.5,
-              mt: 2,
-              height: "auto",
-              "& .MuiButton-startIcon": {
-                mr: 0,
-              },
-            }}
-          >
-            New Appendix
-          </Button>
+          {isRequirementEditable && (
+            <Button
+              variant="text"
+              color="secondary"
+              size="small"
+              onClick={(e) => {
+                addNewAppendix(e);
+              }}
+              startIcon={<AddRounded />}
+              sx={{
+                backgroundColor: "transparent",
+                px: 0.5,
+                mt: 2,
+                height: "auto",
+                "& .MuiButton-startIcon": {
+                  mr: 0,
+                },
+              }}
+            >
+              New Appendix
+            </Button>
+          )}
         </AccordionDetails>
       </Accordion>
     );

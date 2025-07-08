@@ -12,7 +12,7 @@ import { AddRounded } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { Reorder } from "framer-motion";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import RequirementCard from "./Requirements/RequirementCard";
 import {
   convertRequirementImagesArrToMap,
@@ -64,6 +64,11 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 
   const { mutate: updateInspectionRequirementBatch } =
     useUpdateInspectionRequirementBatch(() => {});
+
+  const isRequirementsAllowed = useMemo(
+    () => inspectionData?.inspection_status?.toLowerCase() === "open",
+    [inspectionData]
+  );
 
   useEffect(() => {
     if (inspectionRequirementsData) {
@@ -155,7 +160,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     });
   }, [setOpen, handleOnSubmit, inspectionData]);
 
-  const handleOpenEditRequirementModal = useCallback(
+  const handleOpenEditRequirementDrawer = useCallback(
     (
       requirement: InspectionRequirement,
       index?: number,
@@ -183,7 +188,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
 
   const handleSortOrderChange = useCallback(
     (newRequirementListOrder: InspectionRequirement[]) => {
-      if (isDrawerOpen) {
+      if (isDrawerOpen || !isRequirementsAllowed) {
         return;
       }
 
@@ -192,18 +197,6 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
       if (regulatoryConsideration?.id) {
         updateRequirementLists.push(regulatoryConsideration);
       }
-
-      // Copy photos from the original map to the new map based on the new order of requirements
-      // updateRequirementLists.forEach((requirement) => {
-      //   updatedPhotosNewReqOrder.set(
-      //     requirement.id,
-      //     requirementPhotos.get(requirement.id) || []
-      //   );
-      //   updatedFiguresNewReqOrder.set(
-      //     requirement.id,
-      //     requirementFigures.get(requirement.id) || []
-      //   );
-      // });
 
       const photosWithSortOrder = updateImagesWithContinuousSortOrder(
         requirementPhotos,
@@ -251,6 +244,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     },
     [
       isDrawerOpen,
+      isRequirementsAllowed,
       inspectionData,
       queryClient,
       regulatoryConsideration,
@@ -295,7 +289,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
     >
       <Box display={"flex"} justifyContent={"space-between"} mt={3} mb={2}>
         <Typography variant="h6">Requirements</Typography>
-        {!isDataLoading && (
+        {!isDataLoading && isRequirementsAllowed && (
           <Box display={"flex"} gap={2}>
             <Button
               variant="text"
@@ -329,7 +323,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
             onReorder={handleSortOrderChange}
             values={inspectionRequirements}
             className="reorder-list"
-            disabled={isDrawerOpen}
+            disabled={isDrawerOpen || !isRequirementsAllowed}
           >
             {inspectionRequirements?.map((requirement, index) => (
               <RequirementCard
@@ -337,10 +331,11 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
                 requirement={requirement}
                 index={index}
                 onEdit={() =>
-                  handleOpenEditRequirementModal(requirement, index)
+                  handleOpenEditRequirementDrawer(requirement, index)
                 }
                 isActive={requirement.id === activeRequirementId}
                 disabled={isDrawerOpen}
+                dragDisabled={!isRequirementsAllowed}
               />
             ))}
           </Reorder.Group>
@@ -350,7 +345,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
               requirement={regulatoryConsideration}
               index={inspectionRequirements.length}
               onEdit={() =>
-                handleOpenEditRequirementModal(
+                handleOpenEditRequirementDrawer(
                   regulatoryConsideration,
                   undefined,
                   true
@@ -358,6 +353,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
               }
               isActive={regulatoryConsideration.id === activeRequirementId}
               disabled={isDrawerOpen}
+              dragDisabled={!isRequirementsAllowed}
             />
           )}
         </>
