@@ -58,7 +58,7 @@ def test_get_case_file_initiation_options(client, auth_header):
     """Get complaint sources."""
     url = urljoin(API_BASE_URL, "case-files/initiation-options")
     result = client.get(url, headers=auth_header)
-    assert len(result.json) == 2
+    assert len(result.json) == 3
     assert result.status_code == HTTPStatus.OK
 
 

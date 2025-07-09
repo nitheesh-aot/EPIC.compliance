@@ -19,7 +19,7 @@ import {
 import { useMenuStore } from "@/store/menuStore";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Stack } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import RequirementFormLeft from "./RequirementFormLeft";
 import RequirementFormRight from "./RequirementFormRight";
@@ -88,6 +88,11 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const { data: complianceFindingsList } = useComplianceFindingsData();
   const { data: topicsList } = useTopicsData();
   const { data: agenciesList } = useAgenciesData();
+
+  const isRequirementEditable = useMemo(
+    () => inspectionData?.inspection_status?.toLowerCase() === "open",
+    [inspectionData]
+  );
 
   const GeneratedFormSchema = RequirementFormSchema(isRegulatoryConsideration);
 
@@ -241,7 +246,9 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
 
       const inspectionRequirementPayload = formatRequirementAPIData(
         formLeftData,
-        isRegulatoryConsideration ? REGULATORY_CONSIDERATION_TYPE_ID : REQUIREMENT_TYPE_ID,
+        isRegulatoryConsideration
+          ? REGULATORY_CONSIDERATION_TYPE_ID
+          : REQUIREMENT_TYPE_ID,
         requirementPhotos.get(requirement?.id ?? NaN),
         requirementFigures.get(requirement?.id ?? NaN),
         requirementSourceList ?? undefined
@@ -335,6 +342,11 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
             isRegulatoryConsideration={isRegulatoryConsideration}
             isEditMode={!!inspectionRequirementData}
             requirementId={requirement?.id ?? 0}
+            inspectionId={inspectionData.id}
+            currentEnforcementAction={
+              requirement?.enforcement_action_data?.[0] ?? undefined
+            }
+            isRequirementEditable={isRequirementEditable}
           />
           <RequirementFormRight
             onDataChange={onRequirementSourceListDataChange}
@@ -343,6 +355,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
             caseFileId={inspectionData.case_file_id ?? 0}
             isRegulatoryConsideration={isRegulatoryConsideration}
             requirementId={requirement?.id ?? 0}
+            isRequirementEditable={isRequirementEditable}
           />
         </Stack>
         <DrawerActionBarBottom

@@ -34,9 +34,10 @@ class InspectionRequirementService:
         return InspectionRequirementModel.get_by_inspection_id(inspection_id)
 
     @classmethod
-    def get_by_id(cls, requirement_id):
+    def get_by_id(cls, inspection_id, requirement_id):
         """Get inspection requirement by id."""
-        return InspectionReqDetailDocumentModel.find_by_id(requirement_id)
+        ServiceUtils.inspection_exist_check(inspection_id)
+        return InspectionRequirementModel.find_by_id(requirement_id)
 
     @classmethod
     def create(cls, inspection_id, requirement_data):
@@ -208,6 +209,7 @@ class InspectionRequirementService:
             requirement_id=requirement_id, image_type=image_type
         )
         images = _set_signed_url(images)
+        return images
 
     @classmethod
     def get_all_images_by_inspection(cls, inspection_id):
@@ -364,7 +366,7 @@ def _check_enforcement_action_existennce(
                 raise UnprocessableEntityError(
                     "You cannot change enforcement action as warning letter exists and is not in DRAFTING status."
                 )
-            
+
             for warning in requirement_warnings:
                 WarningLetterModel.update_warning_letter(
                     warning.id, {"is_deleted": True, "is_active": False}, session
@@ -641,6 +643,10 @@ def _create_requirement_source_detail_obj(
         "appendix_id": requirement_source_data.get("appendix_id", None),
         "section_number": requirement_source_data.get("section_number", None),
         "condition_number": requirement_source_data.get("condition_number", None),
+        "clause_number": requirement_source_data.get("clause_number", None),
+        "regulation_number": requirement_source_data.get("regulation_number", None),
+        "compliance_number": requirement_source_data.get("compliance_number", None),
+        "source_title": requirement_source_data.get("source_title", None),
         "order_id": requirement_source_data.get("order_id", None),
         "amendment_number": requirement_source_data.get("amendment_number", None),
         "title": requirement_source_data.get("title", None),

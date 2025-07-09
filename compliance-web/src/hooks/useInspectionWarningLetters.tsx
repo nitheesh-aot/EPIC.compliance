@@ -139,12 +139,15 @@ const deleteInspectionWarningLetter = ({
   });
 };
 
-export const useInspectionWarningLettersData = (inspectionId: number) => {
+export const useInspectionWarningLettersData = (
+  inspectionId: number,
+  { isStaleInfinate = true }: { isStaleInfinate?: boolean } = {}
+) => {
   return useQuery({
     queryKey: ["inspection-warning-letters", inspectionId],
     queryFn: () => fetchWarningLetters(inspectionId),
     enabled: !!inspectionId,
-    staleTime: Infinity,
+    staleTime: isStaleInfinate ? Infinity : 0,
   });
 };
 

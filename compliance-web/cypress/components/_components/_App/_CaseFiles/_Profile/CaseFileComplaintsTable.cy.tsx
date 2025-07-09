@@ -21,6 +21,7 @@ describe("CaseFileComplaintsTable", () => {
       status: "OPEN",
       concern_description: "Test concern description 1",
       source_type: { name: "Source 1" },
+      primary_officer: { id: 1, name: "John Doe", is_active: true },
       date_received: "2023-04-15T12:00:00Z",
     },
     {
@@ -29,6 +30,7 @@ describe("CaseFileComplaintsTable", () => {
       status: "CLOSED",
       concern_description: "Test concern description 2",
       source_type: { name: "Source 2" },
+      primary_officer: { id: 1, name: "Jane Smith", is_active: true },
       date_received: "2023-04-16T12:00:00Z",
     },
   ];
@@ -103,7 +105,8 @@ describe("CaseFileComplaintsTable", () => {
 
   it("displays primary officer information", () => {
     cy.contains("Primary:").should("exist");
-    cy.contains("Christie Lombardi").should("exist");
+    cy.contains("John Doe").should("exist");
+    cy.contains("Jane Smith").should("exist");
   });
 
   it("shows expand/collapse icons", () => {

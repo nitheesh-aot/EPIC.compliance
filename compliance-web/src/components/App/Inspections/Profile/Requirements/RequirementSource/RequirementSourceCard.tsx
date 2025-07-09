@@ -45,6 +45,7 @@ type RequirementSourceCardProps = {
   onDeleteRelatedDocumentSection: (
     data: RequirementRelatedDocumentSectionData
   ) => void;
+  isRequirementEditable?: boolean;
 };
 
 const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
@@ -58,6 +59,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
     onAddRelatedDocumentSection,
     onDeleteRelatedDocumentSection,
     onEditRelatedDocumentSection,
+    isRequirementEditable = true,
   }) => {
     const [isExpanded, setIsExpanded] = useState(true);
 
@@ -115,7 +117,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
               {appendix && ` (Appendix ${appendix.appendix_no})`}
             </Typography>
           </Box>
-          {isExpanded && !isOrder && (
+          {isExpanded && !isOrder && isRequirementEditable && (
             <Button
               variant="text"
               color="secondary"
@@ -153,61 +155,63 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                       borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
                     }}
                   >
-                    <Box
-                      display={"flex"}
-                      justifyContent={"space-between"}
-                      gap={".25rem"}
-                    >
-                      <Box display={"flex"} gap={".25rem"}>
-                        <Tooltip title="Edit" arrow>
-                          <IconButton
-                            size="small"
+                    {isRequirementEditable && (
+                      <Box
+                        display={"flex"}
+                        justifyContent={"space-between"}
+                        gap={".25rem"}
+                      >
+                        <Box display={"flex"} gap={".25rem"}>
+                          <Tooltip title="Edit" arrow>
+                            <IconButton
+                              size="small"
+                              color="secondary"
+                              onClick={() => onEdit(item)}
+                              data-testid={`requirement-source-edit-${index}`}
+                            >
+                              <EditOutlined />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete" arrow>
+                            <IconButton
+                              size="small"
+                              color="secondary"
+                              onClick={() => onDelete(item)}
+                              data-testid={`requirement-source-delete-${index}`}
+                            >
+                              <DeleteOutlineRounded />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                        <Tooltip
+                          title={`Add an extract from ${
+                            !isOrder ? "a management plan or" : ""
+                          } other document to support this requirement`}
+                          arrow
+                        >
+                          <Button
+                            variant="text"
                             color="secondary"
-                            onClick={() => onEdit(item)}
-                            data-testid={`requirement-source-edit-${index}`}
-                          >
-                            <EditOutlined />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete" arrow>
-                          <IconButton
                             size="small"
-                            color="secondary"
-                            onClick={() => onDelete(item)}
-                            data-testid={`requirement-source-delete-${index}`}
+                            onClick={() => onAddRelatedDocument(item)}
+                            startIcon={<AddRounded />}
+                            data-testid={`requirement-source-add-related-document-${index}`}
+                            sx={{
+                              backgroundColor: "transparent",
+                              paddingY: 0,
+                              height: "auto",
+                              "& .MuiButton-startIcon": {
+                                mr: 0,
+                              },
+                            }}
                           >
-                            <DeleteOutlineRounded />
-                          </IconButton>
+                            {isOrder
+                              ? "Other Document"
+                              : "Management Plan / Other Document"}
+                          </Button>
                         </Tooltip>
                       </Box>
-                      <Tooltip
-                        title={`Add an extract from ${
-                          !isOrder ? "a management plan or" : ""
-                        } other document to support this requirement`}
-                        arrow
-                      >
-                        <Button
-                          variant="text"
-                          color="secondary"
-                          size="small"
-                          onClick={() => onAddRelatedDocument(item)}
-                          startIcon={<AddRounded />}
-                          data-testid={`requirement-source-add-related-document-${index}`}
-                          sx={{
-                            backgroundColor: "transparent",
-                            paddingY: 0,
-                            height: "auto",
-                            "& .MuiButton-startIcon": {
-                              mr: 0,
-                            },
-                          }}
-                        >
-                          {isOrder
-                            ? "Other Document"
-                            : "Management Plan / Other Document"}
-                        </Button>
-                      </Tooltip>
-                    </Box>
+                    )}
                     {!isOrder && (
                       <Box
                         sx={{
@@ -277,6 +281,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                       onEditRelatedDocumentSection={
                         onEditRelatedDocumentSection
                       }
+                      isRequirementEditable={isRequirementEditable}
                     />
                   ))}
                 </Box>

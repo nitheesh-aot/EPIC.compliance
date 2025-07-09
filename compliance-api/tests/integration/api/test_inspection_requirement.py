@@ -1,0 +1,306 @@
+"""Test suite for inspection requirement."""
+
+import copy
+import json
+from http import HTTPStatus
+from urllib.parse import urljoin
+
+from compliance_api.models import InspectionRequirement as InspectionRequirementModel
+from compliance_api.models import RequirementSourceEnum
+from tests.utilities.factory_scenario.inspection_requirement_scenario import InspectionRequirementScenario
+
+
+API_BASE_URL = "/api/inspections/"
+
+
+def test_get_inspection_requirements(
+    client, auth_header, created_inspection, created_inspection_requirement
+):
+    """Test getting all inspection requirements."""
+    url = urljoin(API_BASE_URL, f"{created_inspection.id}/requirements")
+    result = client.get(url, headers=auth_header)
+    assert result.status_code == HTTPStatus.OK
+    assert len(result.json) == 1
+    assert isinstance(result.json, list)
+
+
+def test_get_inspection_requirement_by_id(
+    client, auth_header_super_user, created_inspection, created_inspection_requirement
+):
+    """Test getting inspection requirement by ID."""
+    url = urljoin(
+        API_BASE_URL,
+        f"{created_inspection.id}/requirements/{created_inspection_requirement.id}",
+    )
+    result = client.get(url, headers=auth_header_super_user)
+    assert result.status_code == HTTPStatus.OK
+    assert result.json["id"] == created_inspection_requirement.id
+
+
+def test_create_inspection_requirement(
+    client, auth_header_super_user, created_inspection
+):
+    """Test creating a new inspection requirement."""
+    url = urljoin(API_BASE_URL, f"{created_inspection.id}/requirements")
+    requirement_data = copy.copy(InspectionRequirementScenario.default_value.value)
+    result = client.post(
+        url,
+        data=json.dumps(requirement_data),
+        headers=auth_header_super_user,
+    )
+    assert result.status_code == HTTPStatus.CREATED
+    assert result.json["inspection_id"] == created_inspection.id
+    assert result.json["sort_order"] == 1
+
+
+def test_create_inspection_requirement_with_images(
+    client, auth_header_super_user, created_inspection, mock_doc_service
+):
+    """Test creating a requirement with photos and figures."""
+    url = urljoin(API_BASE_URL, f"{created_inspection.id}/requirements")
+    requirement_data = copy.copy(
+        InspectionRequirementScenario.requirement_with_images.value
+    )
+    result = client.post(
+        url,
+        data=json.dumps(requirement_data),
+        headers=auth_header_super_user,
+    )
+    assert result.status_code == HTTPStatus.CREATED
+
+    photo_url = urljoin(
+        API_BASE_URL, f"{created_inspection.id}/requirements/{result.json['id']}/photos"
+    )
+    photo_result = client.get(photo_url, headers=auth_header_super_user)
+    assert photo_result.status_code == HTTPStatus.OK
+    assert len(photo_result.json) == 1
+
+    figure_url = urljoin(
+        API_BASE_URL,
+        f"{created_inspection.id}/requirements/{result.json['id']}/figures",
+    )
+    figure_result = client.get(figure_url, headers=auth_header_super_user)
+    assert figure_result.status_code == HTTPStatus.OK
+    assert len(figure_result.json) == 1
+
+
+def test_create_inspection_requirement_with_everything(
+    client, auth_header_super_user, created_inspection
+):
+    """Test creating a requirement with everything."""
+    url = urljoin(API_BASE_URL, f"{created_inspection.id}/requirements")
+    requirement_data = copy.copy(InspectionRequirementScenario.with_everything.value)
+    result = client.post(
+        url,
+        data=json.dumps(requirement_data),
+        headers=auth_header_super_user,
+    )
+    assert result.status_code == HTTPStatus.CREATED
+
+
+def test_create_inspection_requirement_with_all_requirement_sources(
+    client, auth_header_super_user, created_inspection
+):
+    """Test creating requirements with all requirement sources."""
+    url = urljoin(API_BASE_URL, f"{created_inspection.id}/requirements")
+
+    # Test each requirement source
+    requirement_sources = [
+        RequirementSourceEnum.SCHEDULE_B,
+        # RequirementSourceEnum.ORDER,
+        RequirementSourceEnum.EAC_CERTIFICATE,
+        RequirementSourceEnum.CERTIFIED_PROJECT_DESCRIPTION,
+        RequirementSourceEnum.ACT_2018,
+        RequirementSourceEnum.COMPLIANCE_AGREEMENT,
+        RequirementSourceEnum.ACT_2002,
+        RequirementSourceEnum.OTHER,
+        RequirementSourceEnum.EAC_AMENDMENT,
+    ]
+
+    for source in requirement_sources:
+        requirement_data = copy.copy(InspectionRequirementScenario.default_value.value)
+        requirement_source_detail = {
+            "requirement_source_id": source.value,
+            "title": f"Test requirement for {source.name}",
+            "description": f"Description for {source.name} requirement",
+            "documents": [],
+        }
+
+        # Add appropriate fields based on requirement source
+        if source in [
+            RequirementSourceEnum.ACT_2002,
+            RequirementSourceEnum.ACT_2018,
+            RequirementSourceEnum.COMPLIANCE_AGREEMENT,
+            RequirementSourceEnum.CERTIFIED_PROJECT_DESCRIPTION,
+            RequirementSourceEnum.OTHER,
+        ]:
+            requirement_source_detail["section_number"] = "1.1"
+
+        if source in [
+            RequirementSourceEnum.SCHEDULE_B,
+            RequirementSourceEnum.EAC_CERTIFICATE,
+            RequirementSourceEnum.EAC_AMENDMENT,
+        ]:
+            requirement_source_detail["condition_number"] = "1"
+
+        if source == RequirementSourceEnum.EAC_AMENDMENT:
+            requirement_source_detail["amendment_number"] = "A1"
+
+        if source == RequirementSourceEnum.ORDER:
+            requirement_source_detail["order_id"] = 1
+
+        requirement_data["requirement_source_details"] = [requirement_source_detail]
+
+        result = client.post(
+            url,
+            data=json.dumps(requirement_data),
+            headers=auth_header_super_user,
+        )
+        assert result.status_code == HTTPStatus.CREATED
+        assert (
+            result.json["requirement_source_details"][0]["requirement_source_id"]
+            == source.value
+        )
+        assert (
+            result.json["requirement_source_details"][0]["title"]
+            == f"Test requirement for {source.name}"
+        )
+
+
+def test_update_inspection_requirement(
+    client, auth_header_super_user, created_inspection, created_inspection_requirement
+):
+    """Test updating an existing inspection requirement."""
+    update_data = copy.copy(InspectionRequirementScenario.default_value.value)
+    update_data["summary"] = "Updated description"
+    url = urljoin(
+        API_BASE_URL,
+        f"{created_inspection.id}/requirements/{created_inspection_requirement.id}",
+    )
+    result = client.patch(
+        url,
+        data=json.dumps(update_data),
+        headers=auth_header_super_user,
+    )
+    print(result.json)
+    assert result.status_code == HTTPStatus.OK
+    assert result.json["summary"] == "Updated description"
+
+
+def test_delete_inspection_requirement(
+    client,
+    auth_header_super_user,
+    created_inspection,
+    created_inspection_requirement,
+):
+    """Test deleting an inspection requirement."""
+    url = urljoin(
+        API_BASE_URL,
+        f"{created_inspection.id}/requirements/{created_inspection_requirement.id}",
+    )
+    result = client.delete(url, headers=auth_header_super_user)
+    assert result.status_code == HTTPStatus.NO_CONTENT
+    # Verify deletion
+    deleted_req = InspectionRequirementModel.find_by_id(
+        created_inspection_requirement.id
+    )
+    assert deleted_req is None
+
+
+# def test_create_requirement_with_invalid_inspection(
+#     client, auth_header_super_user,
+# ):
+#     """Test creating requirement with invalid inspection ID."""
+#     url = urljoin(API_BASE_URL, "inspections/9999/requirements")
+#     requirement_data = copy.copy(InspectionRequirementScenario.default_value.value)
+#     result = client.post(
+#         url,
+#         data=json.dumps(requirement_data),
+#         headers=auth_header_super_user,
+#     )
+#     assert result.status_code == HTTPStatus.NOT_FOUND
+
+
+# def test_create_requirement_with_closed_inspection(
+#     client, auth_header_super_user, created_inspection,
+# ):
+#     """Test creating requirement for a closed inspection."""
+#     # Update inspection status to closed
+#     created_inspection.inspection_status = InspectionStatusEnum.CLOSED.value
+#     created_inspection.save()
+
+#     url = urljoin(API_BASE_URL, f"inspections/{created_inspection.id}/requirements")
+#     requirement_data = copy.copy(InspectionRequirementScenario.default_value.value)
+#     result = client.post(
+#         url,
+#         data=json.dumps(requirement_data),
+#         headers=auth_header_super_user,
+#     )
+#     assert result.status_code == HTTPStatus.BAD_REQUEST
+
+
+# def test_update_requirement_with_invalid_id(
+#     client, auth_header_super_user, created_inspection,
+# ):
+#     """Test updating non-existent requirement."""
+#     url = urljoin(API_BASE_URL, "inspection-requirements/9999")
+#     update_data = {
+#         "description": "Updated description",
+#     }
+#     result = client.put(
+#         url,
+#         data=json.dumps(update_data),
+#         headers=auth_header_super_user,
+#     )
+#     assert result.status_code == HTTPStatus.NOT_FOUND
+
+
+# def test_update_requirement_with_invalid_inspection_status(
+#     client, auth_header_super_user, created_inspection, created_inspection_requirement,
+# ):
+#     """Test updating requirement when inspection is closed."""
+#     # Update inspection status to closed
+#     created_inspection.inspection_status = InspectionStatusEnum.CLOSED.value
+#     created_inspection.save()
+
+#     url = urljoin(API_BASE_URL, f"inspection-requirements/{created_inspection_requirement.id}")
+#     update_data = {
+#         "description": "Updated description",
+#     }
+#     result = client.put(
+#         url,
+#         data=json.dumps(update_data),
+#         headers=auth_header_super_user,
+#     )
+#     assert result.status_code == HTTPStatus.BAD_REQUEST
+
+
+# def test_sort_order_handling(
+#     client, auth_header_super_user, created_inspection,
+# ):
+#     """Test sort order handling when creating multiple requirements."""
+#     url = urljoin(API_BASE_URL, f"inspections/{created_inspection.id}/requirements")
+
+#     # Create first requirement
+#     requirement_data = copy.copy(InspectionRequirementScenario.default_value.value)
+#     result = client.post(
+#         url,
+#         data=json.dumps(requirement_data),
+#         headers=auth_header_super_user,
+#     )
+#     assert result.status_code == HTTPStatus.CREATED
+#     first_req_id = result.json["id"]
+#     assert result.json["sort_order"] == 1
+
+#     # Create second requirement
+#     result = client.post(
+#         url,
+#         data=json.dumps(requirement_data),
+#         headers=auth_header_super_user,
+#     )
+#     assert result.status_code == HTTPStatus.CREATED
+#     assert result.json["sort_order"] == 2
+
+#     # Verify first requirement's sort order is still 1
+#     first_req = InspectionRequirementModel.find_by_id(first_req_id)
+#     assert first_req.sort_order == 1

@@ -13,6 +13,7 @@ const ActionsRequired = () => {
     inspectionReportsData,
     actionsRequired,
     proponentLabel,
+    isReportsReadOnly,
     setActionsRequired,
     setInspectionReportsData,
   } = useReportStore();
@@ -44,7 +45,7 @@ const ActionsRequired = () => {
     <IRBoxContainer
       title={`Actions Required by ${proponentLabel} and Comments`}
       defaultValue={actionsRequired}
-      onEditSubmit={handleSaveActionsRequired}
+      onEditSubmit={!isReportsReadOnly ? handleSaveActionsRequired : undefined}
     >
       <Typography
         variant="body1"

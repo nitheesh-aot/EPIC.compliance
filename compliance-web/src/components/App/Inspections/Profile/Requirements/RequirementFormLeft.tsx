@@ -1,5 +1,5 @@
 import { FC, useEffect, useState, useRef, useCallback } from "react";
-import { Box, Grid, IconButton, Stack } from "@mui/material";
+import { Alert, Box, Grid, IconButton, Stack } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { BCDesignTokens } from "epic.theme";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
@@ -18,7 +18,15 @@ import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 import { useRequirementStore } from "./requirementStore";
 import { MentionData } from "@/components/Shared/LexicalEditor/LexicalUtils";
-import { EnforcementActionEnum } from "@/utils/constants";
+import {
+  EnforcementActionEnum,
+  OrderProgressEnum,
+  WarningLetterProgressEnum,
+} from "@/utils/constants";
+import { useInspectionOrdersData } from "@/hooks/useInspectionOrders";
+import { useInspectionWarningLettersData } from "@/hooks/useInspectionWarningLetters";
+import { useModal } from "@/store/modalStore";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 type RequirementFormLeftProps = {
   enforcementActionsList: EnforcementAction[];
@@ -29,6 +37,9 @@ type RequirementFormLeftProps = {
   isEditMode?: boolean;
   isRegulatoryConsideration?: boolean;
   requirementId: number;
+  inspectionId: number;
+  currentEnforcementAction?: EnforcementAction;
+  isRequirementEditable?: boolean;
 };
 
 const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
@@ -40,13 +51,28 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
   isEditMode,
   isRegulatoryConsideration,
   requirementId,
+  inspectionId,
+  currentEnforcementAction,
+  isRequirementEditable = true,
 }) => {
+  const { setOpen, setClose } = useModal();
   const { control, setValue, getValues } = useFormContext();
   const { requirementPhotos, requirementFigures } = useRequirementStore();
   const [mentionDataList, setMentionDataList] = useState<MentionData[]>([]);
   const [mentionVersion, setMentionVersion] = useState<number>(0);
+  const [orderExists, setOrderExists] = useState<boolean>(false);
+  const [warningLetterExists, setWarningLetterExists] =
+    useState<boolean>(false);
+  const [disableEnforcementAction, setDisableEnforcementAction] =
+    useState<boolean>(false);
   const summaryInputRef = useRef<HTMLInputElement>(null);
   const [isReadOnly, setIsReadOnly] = useState(isEditMode);
+
+  const { data: inspectionOrdersData } = useInspectionOrdersData(inspectionId, {
+    isStaleInfinate: false,
+  });
+  const { data: inspectionWarningLettersData } =
+    useInspectionWarningLettersData(inspectionId, { isStaleInfinate: false });
 
   const inputFocus = useCallback((inputRef: HTMLInputElement | null) => {
     if (inputRef) {
@@ -105,6 +131,85 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
     }
   }, [complianceFinding, enforcementActionsList, setValue, getValues]);
 
+  useEffect(() => {
+    // Check if requirement exists in inspection orders
+    const requirementsInOrders =
+      inspectionOrdersData?.filter((order) =>
+        order.order_requirement_maps?.some(
+          (map) => map.inspection_requirement_id === requirementId
+        )
+      ) ?? [];
+    setOrderExists(requirementsInOrders.length > 0);
+
+    // Check if requirement exists in warning letters
+    const requirementsInWarningLetters =
+      inspectionWarningLettersData?.filter((letter) =>
+        letter.warning_letter_requirement_maps?.some(
+          (map) => map.inspection_requirement_id === requirementId
+        )
+      ) ?? [];
+    setWarningLetterExists(requirementsInWarningLetters.length > 0);
+
+    if (
+      requirementsInOrders.length > 0 ||
+      requirementsInWarningLetters.length > 0
+    ) {
+      const nonDraftOrders = requirementsInOrders.some(
+        (order) => order.order_progress?.id !== OrderProgressEnum.DRAFTING
+      );
+      const nonDraftWarningLetters = requirementsInWarningLetters.some(
+        (letter) => letter.progress?.id !== WarningLetterProgressEnum.DRAFTING
+      );
+      setDisableEnforcementAction(nonDraftOrders || nonDraftWarningLetters);
+    } else {
+      setDisableEnforcementAction(false);
+    }
+  }, [inspectionOrdersData, inspectionWarningLettersData, requirementId]);
+
+  useEffect(() => {
+    // Only show confirmation modal when in edit mode and not readonly
+    if (currentEnforcementAction && !isReadOnly) {
+      const hasEnforcementActionChanged =
+        currentEnforcementAction?.id !== enforcementAction?.id;
+
+      if (
+        [
+          EnforcementActionEnum.ORDER,
+          EnforcementActionEnum.WARNING_LETTER,
+        ].includes(currentEnforcementAction?.id as EnforcementActionEnum) &&
+        hasEnforcementActionChanged &&
+        (orderExists || warningLetterExists)
+      ) {
+        setOpen({
+          content: (
+            <ConfirmationModal
+              title="Change Enforcement Action?"
+              description={`A document already exists for the previous enforcement action(${currentEnforcementAction?.name}). 
+              Changing it will delete the existing document so you can create a new one`}
+              confirmButtonText="Proceed"
+              onConfirm={() => {
+                setClose();
+              }}
+              onCancel={() => {
+                setClose();
+                setValue("enforcementAction", currentEnforcementAction);
+              }}
+            />
+          ),
+        });
+      }
+    }
+  }, [
+    currentEnforcementAction,
+    enforcementAction,
+    orderExists,
+    setClose,
+    setOpen,
+    setValue,
+    warningLetterExists,
+    isReadOnly,
+  ]);
+
   const ReadOnlySection = () => {
     const { getValues } = useFormContext();
     const agencyName = getValues("agency")?.name;
@@ -123,15 +228,17 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
           mb: "1.5rem",
         }}
       >
-        <IconButton
-          aria-label="edit"
-          onClick={() => setIsReadOnly(false)}
-          size="small"
-          sx={{ marginBottom: "-1rem", marginTop: "-0.5rem" }}
-          data-cy="editable-requirement-button"
-        >
-          <EditOutlined sx={{ fontSize: "1.25rem" }} />
-        </IconButton>
+        {isRequirementEditable && (
+          <IconButton
+            aria-label="edit"
+            onClick={() => setIsReadOnly(false)}
+            size="small"
+            sx={{ marginBottom: "-1rem", marginTop: "-0.5rem" }}
+            data-cy="editable-requirement-button"
+          >
+            <EditOutlined sx={{ fontSize: "1.25rem" }} />
+          </IconButton>
+        )}
         <Grid container spacing={1}>
           <GridLabelValuePair
             label="Requirement Summary"
@@ -210,41 +317,54 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
           />
         )}
         {!isRegulatoryConsideration && (
-          <Stack direction="row" gap={2}>
-            <ControlledAutoComplete
-              sx={{ width: "50%" }}
-              name="complianceFinding"
-              label="Compliance Finding"
-              options={complianceFindingsList}
-              getOptionLabel={(option) => option.name}
-              getOptionKey={(option) => option.id}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              fullWidth
-              isRequired={true}
-            />
-            <Stack direction="column" sx={{ width: "50%" }}>
+          <>
+            <Stack direction="row" gap={2}>
               <ControlledAutoComplete
-                name="enforcementAction"
-                label="Enforcement Action"
-                options={enforcementActionsList}
+                sx={{ width: "50%" }}
+                name="complianceFinding"
+                label="Compliance Finding"
+                options={complianceFindingsList}
                 getOptionLabel={(option) => option.name}
                 getOptionKey={(option) => option.id}
-                isOptionEqualToValue={(option, value) =>
-                  option.id.toString() === value.id.toString()
-                }
+                isOptionEqualToValue={(option, value) => option.id === value.id}
                 fullWidth
-                sx={{ marginBottom: "-0.5rem" }}
                 isRequired={true}
+                disabled={disableEnforcementAction}
               />
-              {enforcementAction?.id === EnforcementActionEnum.ORDER && (
-                <ControlledCheckbox
-                  name="isReferralToAdministrativePenalty"
-                  label="Add Referral to Administrative Penalty"
-                  fontSize="small"
+              <Stack direction="column" sx={{ width: "50%" }}>
+                <ControlledAutoComplete
+                  name="enforcementAction"
+                  label="Enforcement Action"
+                  options={enforcementActionsList}
+                  getOptionLabel={(option) => option.name}
+                  getOptionKey={(option) => option.id}
+                  isOptionEqualToValue={(option, value) =>
+                    option.id.toString() === value.id.toString()
+                  }
+                  fullWidth
+                  sx={{ marginBottom: "-0.5rem" }}
+                  isRequired={true}
+                  disabled={disableEnforcementAction}
                 />
-              )}
+                {enforcementAction?.id === EnforcementActionEnum.ORDER && (
+                  <ControlledCheckbox
+                    name="isReferralToAdministrativePenalty"
+                    label="Add Referral to Administrative Penalty"
+                    fontSize="small"
+                  />
+                )}
+              </Stack>
             </Stack>
-          </Stack>
+            {disableEnforcementAction && (
+              <Alert
+                severity="warning"
+                sx={{ fontSize: "0.75rem", mb: 1, mt: -0.5 }}
+              >
+                An enforcement document has already been inprogress or issued.
+                The Enforcement Action can no longer be changed.
+              </Alert>
+            )}
+          </>
         )}
         {(isReferredToAnotherAgency ||
           enforcementAction?.id ===
@@ -284,6 +404,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
         isAdvanced
         mentionsList={mentionDataList}
         key={`lexical-editor-${mentionVersion}`}
+        disabled={!isRequirementEditable}
       />
     </Box>
   );

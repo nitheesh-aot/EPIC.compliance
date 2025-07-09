@@ -10,10 +10,10 @@ import { useCallback } from "react";
 
 const CaseFileCreateInspection = ({
   fileNumber,
-  disabled = false,
+  hidden = false,
 }: {
   fileNumber: string;
-  disabled?: boolean;
+  hidden?: boolean;
 }) => {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useDrawer();
@@ -30,7 +30,7 @@ const CaseFileCreateInspection = ({
       });
       queryClient.invalidateQueries({
         queryKey: ["continuation-reports", caseFileData?.id],
-      })
+      });
       setClose();
       notify.success(submitMsg);
     },
@@ -49,13 +49,12 @@ const CaseFileCreateInspection = ({
     });
   }, [setOpen, handleOnSubmit, caseFileData]);
 
-  return (
+  return hidden ? null : (
     <Button
       variant="text"
       size="small"
       onClick={handleOpenInspectionDrawer}
       startIcon={<AddRounded />}
-      disabled={disabled}
     >
       Inspection
     </Button>

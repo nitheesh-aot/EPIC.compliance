@@ -117,6 +117,25 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
         metadata={"description": "The unique identifier of the requirement."},
         required=True,
     )
+    source_title = fields.Str(
+        metadata={"description": "The title of the requirement source detail"},
+        allow_none=True,
+    )
+    compliance_number = fields.Str(
+        metadata={
+            "description": "The optional compliance number associated with requirement sources as Compliance Agreement"
+        }
+    )
+    clause_number = fields.Str(
+        metadata={
+            "description": "The optional clause number associated with requirement sources as Exemption Order"
+        }
+    )
+    regulation_number = fields.Str(
+        metadata={
+            "description": "The optional regulation number associated with requirement sources as Regulation"
+        }
+    )
     section_number = fields.Str(
         metadata={
             "description": "The optional section number associated with requirement sources"
@@ -138,6 +157,11 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
     amendment_number = fields.Str(
         metadata={
             "description": "The amendment number if the requirement source is EAC Amendment"
+        }
+    )
+    exemption_order_number = fields.Str(
+        metadata={
+            "description": "The optional exemption order number associated with requirement sources as Exemption Order"
         }
     )
     title = fields.Str(
@@ -165,7 +189,7 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
             RequirementSourceEnum.ACT_2018,
             RequirementSourceEnum.COMPLIANCE_AGREEMENT,
             RequirementSourceEnum.CERTIFIED_PROJECT_DESCRIPTION,
-            RequirementSourceEnum.NOT_EA_ACT,
+            RequirementSourceEnum.OTHER,
         ]:
             raise ValidationError(
                 "Invalid requirement source for the given section number",
@@ -204,6 +228,68 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
             raise ValidationError(
                 "Invalid requirement source for the given condition number",
                 field_name="condition_number",
+            )
+
+    @validates_schema
+    def validate_compliance_number(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Ensure the correct requirement is selected for the compliance number."""
+        compliance_number = data.get("compliance_number", [])
+        requirement_source_id = data.get("requirement_source_id", None)
+        if compliance_number and RequirementSourceEnum(requirement_source_id) not in [
+            RequirementSourceEnum.COMPLIANCE_AGREEMENT,
+        ]:
+            raise ValidationError(
+                "Invalid requirement source for the given compliance number",
+                field_name="compliance_number",
+            )
+
+    @validates_schema
+    def validate_clause_number(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Ensure the correct requirement is selected for the clause number."""
+        clause_number = data.get("clause_number", [])
+        requirement_source_id = data.get("requirement_source_id", None)
+        if clause_number and RequirementSourceEnum(requirement_source_id) not in [
+            RequirementSourceEnum.EXEMPTION_ORDER,
+        ]:
+            raise ValidationError(
+                "Invalid requirement source for the given clause number",
+                field_name="clause_number",
+            )
+
+    @validates_schema
+    def validate_regulation_number(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Ensure the correct requirement is selected for the regulation number."""
+        regulation_number = data.get("regulation_number", [])
+        requirement_source_id = data.get("requirement_source_id", None)
+        if regulation_number and RequirementSourceEnum(requirement_source_id) not in [
+            RequirementSourceEnum.REGULATION,
+        ]:
+            raise ValidationError(
+                "Invalid requirement source for the given regulation number",
+                field_name="regulation_number",
+            )
+
+    @validates_schema
+    def validate_exemption_order_number(
+        self, data, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
+        """Ensure the correct requirement is selected for the exemption order number."""
+        exemption_order_number = data.get("exemption_order_number", [])
+        requirement_source_id = data.get("requirement_source_id", None)
+        if (
+            RequirementSourceEnum(requirement_source_id)
+            == RequirementSourceEnum.EXEMPTION_ORDER
+            and not exemption_order_number
+        ):
+            raise ValidationError(
+                "Exemption order number is mandatory when the requirement source is EXEMPTION_ORDER",
+                field_name="exemption_order_number",
             )
 
     @validates_schema
@@ -284,10 +370,14 @@ class InspectionRequirementCreateSchema(BaseSchema):
         req_type = data.get("req_type")
         agency_id = data.get("agency_id", None)
         enforcement_action_ids = data.get("enforcement_action_ids")
-        if req_type == InspectionRequirementTypeEnum.REQ and (
-            EnforcementActionOptionEnum.REFERRAL_TO_ANOTHER_AGENCY
-            in enforcement_action_ids
-            and not agency_id
+        if (
+            enforcement_action_ids
+            and req_type == InspectionRequirementTypeEnum.REQ
+            and (
+                EnforcementActionOptionEnum.REFERRAL_TO_ANOTHER_AGENCY
+                in enforcement_action_ids
+                and not agency_id
+            )
         ):
             raise ValidationError(
                 "Agency is required if the enforcement actions include REFERRAL_TO_ANOTHER_AGENCY",

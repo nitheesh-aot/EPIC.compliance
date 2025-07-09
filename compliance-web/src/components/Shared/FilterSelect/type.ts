@@ -45,3 +45,9 @@ export type TableFilterProps = {
   header: any;
   column: any;
 } & SelectProps;
+
+export type MasterTableColumnFilter = {
+  id: string;
+  value: unknown;
+};
+

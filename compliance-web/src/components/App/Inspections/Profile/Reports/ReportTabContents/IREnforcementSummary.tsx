@@ -12,6 +12,7 @@ const IREnforcementSummary = () => {
     inspectionData,
     inspectionReportsData,
     enforcementSummary,
+    isReportsReadOnly,
     setEnforcementSummary,
     setInspectionReportsData,
   } = useReportStore();
@@ -56,8 +57,8 @@ const IREnforcementSummary = () => {
     <IRBoxContainer
       title="Enforcement Summary"
       defaultValue={enforcementSummary}
-      onEditSubmit={handleSaveEnforcementSummary}
-      onReset={handleResetEnforcementSummary}
+      onEditSubmit={!isReportsReadOnly ? handleSaveEnforcementSummary : undefined}
+      onReset={!isReportsReadOnly ? handleResetEnforcementSummary : undefined}
     >
       <Typography
         variant="body1"

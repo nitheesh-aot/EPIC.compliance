@@ -42,7 +42,6 @@ class ServiceUtils:
     def access_check_update_for_inspection(inspection: dict):
         """Access check for update an inspection."""
         auth_user_guid = g.token_info["preferred_username"]
-        print(auth_user_guid)
         if (
             not auth.has_permission([PermissionEnum.SUPERUSER])
             and not inspection.primary_officer.auth_user_guid == auth_user_guid
@@ -173,15 +172,19 @@ class ServiceUtils:
             }
             if requirement.requirement_source_details:
                 for detail in requirement.requirement_source_details:
+                    requirement_source_number = (
+                        ServiceUtils.get_requirement_source_number_field(detail)
+                    )
                     req["requirement_source_details"].append(
                         {
                             "requirement_source_name": detail.requirement_source.name,
+                            "requirement_title": ServiceUtils.get_requirement_title(
+                                detail, requirement_source_number
+                            ),
                             "appendix_no": (
                                 detail.appendix.appendix_no if detail.appendix else None
                             ),
-                            "requirement_source_number": ServiceUtils.get_requirement_source_number_field(
-                                detail
-                            ),
+                            "requirement_source_number": requirement_source_number,
                             "requirement_source_description": detail.description,
                             "requirement_documents": [],
                         }
@@ -211,6 +214,47 @@ class ServiceUtils:
                 req["requirement_figures"] = figures
             result.append(req)
         return result
+
+    @staticmethod
+    def get_requirement_title(
+        detail: InspectionReqSourceDetailModel, requirement_source_number: str
+    ):
+        """Get the requirement title in a particular format based on the requirement source."""
+        #  Extracting the common element for the final output
+        requirement_title = f"{requirement_source_number} of {detail.source_title}"
+        if requirement_source_number is None:
+            requirement_title = detail.source_title
+        #  format: Section [Section #] of [Source Title]
+        #  format: Condition [Condition #] of [Source Title]
+        if detail.requirement_source_id in [
+            RequirementSourceEnum.ACT_2002.value,
+            RequirementSourceEnum.ACT_2018.value,
+            RequirementSourceEnum.EAC_CERTIFICATE.value,
+            RequirementSourceEnum.CERTIFIED_PROJECT_DESCRIPTION.value,
+            RequirementSourceEnum.SCHEDULE_B.value,
+            RequirementSourceEnum.OTHER.value,
+        ]:
+            return requirement_title
+        #  format: Condition [Condition #] of [Source Title][Amendment #]
+        if detail.requirement_source_id == RequirementSourceEnum.EAC_AMENDMENT.value:
+            return requirement_title + f" {detail.amendment_number}"
+        #  format: Section [Section #] of [Source Title][Compliance #]
+        # ToDo: compliance number
+        if (
+            detail.requirement_source_id
+            == RequirementSourceEnum.COMPLIANCE_AGREEMENT.value
+        ):
+            return requirement_title + f" {detail.compliance_number}"
+        #  format: Order [Order #]
+        if detail.requirement_source_id == RequirementSourceEnum.ORDER.value:
+            return requirement_source_number
+        #  format: [Source Title],[Regulation #]
+        if detail.requirement_source_id == RequirementSourceEnum.REGULATION.value:
+            return requirement_title + f" {detail.regulation_number}"
+        #  format: Clause [Clause #] of [Exemption Order #]
+        if detail.requirement_source_id == RequirementSourceEnum.EXEMPTION_ORDER.value:
+            return requirement_title + f" {detail.exemption_order_number}"
+        return ""
 
     @staticmethod
     def get_photos_and_figures(requirement_id: int):
@@ -330,7 +374,7 @@ class ServiceUtils:
             RequirementSourceEnum.ACT_2018,
             RequirementSourceEnum.COMPLIANCE_AGREEMENT,
             RequirementSourceEnum.CERTIFIED_PROJECT_DESCRIPTION,
-            RequirementSourceEnum.NOT_EA_ACT,
+            RequirementSourceEnum.OTHER,
         }
         condition_sources = {
             RequirementSourceEnum.EAC_AMENDMENT,
@@ -343,6 +387,8 @@ class ServiceUtils:
             return f"Condition {getattr(detail_obj, 'condition_number')}"
         if requirement_source == RequirementSourceEnum.ORDER:
             return f"Order {getattr(detail_obj.order, 'order_number')}"
+        if requirement_source == RequirementSourceEnum.EXEMPTION_ORDER:
+            return f"Clause {getattr(detail_obj, 'clause_number')}"
         return None
 
     @staticmethod
