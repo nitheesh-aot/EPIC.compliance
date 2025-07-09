@@ -31,11 +31,16 @@ describe("AppendicesContainer", () => {
     useRequirementStore.getState().reset();
   });
 
-  function mountAppendicesContainer(): React.ReactNode {
+  function mountAppendicesContainer(
+    isRequirementEditable = true
+  ): React.ReactNode {
     return (
       <QueryClientProvider client={queryClient}>
         <PopoverProvider />
-        <AppendicesContainer inspectionId={inspectionId} />
+        <AppendicesContainer
+          inspectionId={inspectionId}
+          isRequirementEditable={isRequirementEditable}
+        />
       </QueryClientProvider>
     );
   }
@@ -71,7 +76,7 @@ describe("AppendicesContainer", () => {
   it("renders list of appendices correctly", () => {
     // Set mock data in store
     useRequirementStore.getState().setAppendices(mockAppendices);
-    
+
     cy.mount(mountAppendicesContainer());
 
     // Open accordion
@@ -87,8 +92,6 @@ describe("AppendicesContainer", () => {
 
   it("opens popover when adding new appendix", () => {
     cy.mount(mountAppendicesContainer());
-    // Open accordion
-    cy.get("[aria-controls='panel-appendices-content']").click();
     // Click new appendix button
     cy.contains("New Appendix").click();
     // Check if popover is opened
@@ -106,5 +109,11 @@ describe("AppendicesContainer", () => {
     // Check if popover is opened with existing data
     cy.get("[role='presentation']").should("exist");
     cy.contains("Cancel").click();
+  });
+
+  it("hides new appendix button when not editable", () => {
+    cy.mount(mountAppendicesContainer(false));
+    // Check if new appendix button is not visible
+    cy.contains("New Appendix").should("not.exist");
   });
 });

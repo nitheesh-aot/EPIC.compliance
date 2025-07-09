@@ -153,6 +153,7 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
                     : "visible",
               }}
               color="action"
+              data-testid="drag-indicator"
             />
             <Typography variant="body1" data-cy="requirement-card-title">
               {isRegulatoryConsideration

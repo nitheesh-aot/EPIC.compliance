@@ -20,7 +20,7 @@ describe("CaseFileCreateInspection", () => {
   const mountComponent = (disabled = false) => {
     mount(
       <QueryClientProvider client={queryClient}>
-        <CaseFileCreateInspection fileNumber="CF-123" disabled={disabled} />
+        <CaseFileCreateInspection fileNumber="CF-123" hidden={disabled} />
       </QueryClientProvider>
     );
   };
@@ -31,13 +31,13 @@ describe("CaseFileCreateInspection", () => {
     cy.get('button').find('svg').should("exist"); // Check for icon
   });
 
-  it("disables button when disabled prop is true", () => {
+  it("hides button when hidden prop is true", () => {
     mountComponent(true);
-    cy.contains("button", "Inspection").should("be.disabled");
+    cy.contains("button", "Inspection").should("not.exist");
   });
 
-  it("enables button when disabled prop is false", () => {
+  it("shows button when hidden prop is false", () => {
     mountComponent(false);
-    cy.contains("button", "Inspection").should("not.be.disabled");
+    cy.contains("button", "Inspection").should("exist");
   });
 }); 

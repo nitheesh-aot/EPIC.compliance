@@ -26,7 +26,7 @@ type AppendicesContainerProps = {
 };
 
 const AppendicesContainer: FC<AppendicesContainerProps> = memo(
-  ({ inspectionId, isRequirementEditable }) => {
+  ({ inspectionId, isRequirementEditable = true }) => {
     const [isExpanded, setIsExpanded] = useState(true);
     const { setOpen, setClose } = usePopover();
 

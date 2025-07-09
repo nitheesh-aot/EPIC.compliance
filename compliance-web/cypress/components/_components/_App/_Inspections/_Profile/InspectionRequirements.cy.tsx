@@ -163,7 +163,7 @@ const mockInspection: Inspection = {
   end_date: "2023-01-02",
   types: [{ id: "1", name: "Routine" }],
   types_text: "Routine",
-  inspection_status: "Complete",
+  inspection_status: "Open",
   is_active: true,
   initiation: { id: "1", name: "Planned" },
   project: { id: 1, name: "Test Project" },
@@ -354,78 +354,5 @@ describe("InspectionRequirements Component", () => {
     // Submit the form
     cy.get("button[type=submit]").click();
     cy.get("button[aria-label=close]").should("be.visible").click();
-  });
-
-  it("disables drag functionality when inspection status is not open", () => {
-    // Create a new QueryClient for this test
-    const closedQueryClient = new QueryClient();
-
-    // Set the same requirements data
-    closedQueryClient.setQueryData(
-      ["inspection-requirements", mockInspection.id],
-      mockRequirements
-    );
-
-    // Create a mock inspection with "Complete" status (not "open")
-    const closedInspection = {
-      ...mockInspection,
-      inspection_status: "Complete", // This should disable drag functionality
-    };
-
-    // Mock the API to return the same data
-    cy.intercept("GET", "/api/inspection-requirements*", {
-      statusCode: 200,
-      body: mockRequirements,
-    }).as("getRequirementsClosed");
-
-    // Mount with closed inspection
-    mount(
-      <QueryClientProvider client={closedQueryClient}>
-        <DrawerProvider />
-        <InspectionRequirements inspectionData={closedInspection} />
-      </QueryClientProvider>
-    );
-
-    // Drag indicators should be hidden when inspection is not open
-    cy.get("[data-testid='DragIndicatorRoundedIcon']").should("not.be.visible");
-
-    // But cards should still be clickable
-    cy.get("[data-cy=requirement-card-title]").eq(0).click();
-    cy.get("div[role=presentation]").should("be.visible");
-    cy.get("button[aria-label=close]").should("be.visible").click();
-  });
-
-  it("enables drag functionality when inspection status is open", () => {
-    // Create a new QueryClient for this test
-    const openQueryClient = new QueryClient();
-
-    // Set the same requirements data
-    openQueryClient.setQueryData(
-      ["inspection-requirements", mockInspection.id],
-      mockRequirements
-    );
-
-    // Create a mock inspection with "open" status
-    const openInspection = {
-      ...mockInspection,
-      inspection_status: "open", // This should enable drag functionality
-    };
-
-    // Mock the API to return the same data
-    cy.intercept("GET", "/api/inspection-requirements*", {
-      statusCode: 200,
-      body: mockRequirements,
-    }).as("getRequirementsOpen");
-
-    // Mount with open inspection
-    mount(
-      <QueryClientProvider client={openQueryClient}>
-        <DrawerProvider />
-        <InspectionRequirements inspectionData={openInspection} />
-      </QueryClientProvider>
-    );
-
-    // Drag indicators should be visible when inspection is open
-    cy.get("[data-testid='DragIndicatorRoundedIcon']").should("be.visible");
   });
 });

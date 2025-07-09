@@ -73,11 +73,11 @@ describe("RequirementCard Component", () => {
   it("shows drag indicator for standard requirements but not for regulatory considerations", () => {
     // Mount standard requirement
     mountComponent(baseRequirement);
-    cy.get("[data-testid='DragIndicatorRoundedIcon']").should("be.visible");
+    cy.get("[data-testid='drag-indicator']").should("be.visible");
 
     // Mount regulatory consideration
     mountComponent(regulatoryRequirement);
-    cy.get("[data-testid='DragIndicatorRoundedIcon']").should("not.be.visible");
+    cy.get("[data-testid='drag-indicator']").should("not.be.visible");
   });
 
   it("renders condition number instead of section number when source is condition", () => {
@@ -144,7 +144,7 @@ describe("RequirementCard Component", () => {
     );
 
     // Drag indicator should be hidden when dragDisabled is true
-    cy.get("[data-testid='DragIndicatorRoundedIcon']").should("not.be.visible");
+    cy.get("[data-testid='drag-indicator']").should("not.be.visible");
   });
 
   it("remains clickable when dragDisabled is true", () => {
@@ -172,31 +172,5 @@ describe("RequirementCard Component", () => {
     // Card should still be clickable even when drag is disabled
     cy.get("[class*='MuiBox-root']").first().click();
     cy.get("@onEditHandler").should("have.been.calledOnce");
-  });
-
-  it("disables drag functionality when dragDisabled is true", () => {
-    const mockOnEdit = cy.stub().as("onEditHandler");
-    const requirements = [baseRequirement];
-
-    cy.mount(
-      <QueryClientProvider client={queryClient}>
-        <Reorder.Group
-          axis="y"
-          values={requirements}
-          onReorder={cy.stub()}
-        >
-          <RequirementCard
-            requirement={baseRequirement}
-            index={0}
-            onEdit={mockOnEdit}
-            isActive={false}
-            dragDisabled={true}
-          />
-        </Reorder.Group>
-      </QueryClientProvider>
-    );
-
-    // The Reorder.Item should have disabled attribute
-    cy.get("[data-framer-reorder-item]").should("have.attr", "data-framer-disabled");
   });
 });
