@@ -119,7 +119,7 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
     )
     source_title = fields.Str(
         metadata={"description": "The title of the requirement source detail"},
-        required=True,
+        allow_none=True,
     )
     compliance_number = fields.Str(
         metadata={
