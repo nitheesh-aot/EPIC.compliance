@@ -245,8 +245,9 @@ class ServiceUtils:
             == RequirementSourceEnum.COMPLIANCE_AGREEMENT.value
         ):
             return requirement_title + f" {detail.compliance_number}"
+        #  format: Order [Order #]
         if detail.requirement_source_id == RequirementSourceEnum.ORDER.value:
-            return requirement_title
+            return requirement_source_number
         #  format: [Source Title],[Regulation #]
         if detail.requirement_source_id == RequirementSourceEnum.REGULATION.value:
             return requirement_title + f" {detail.regulation_number}"
