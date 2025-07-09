@@ -23,6 +23,7 @@ class RequirementSourceDetailSchema(BaseSchema):
     appendix_no = fields.String(allow_none=True)
     requirement_source_name = fields.String()
     requirement_source_number = fields.String()
+    requirement_title = fields.String()
     requirement_source_description = fields.String(allow_none=True)
     requirement_documents = fields.List(
         fields.Nested(RequirementDocumentSchema), allow_none=True

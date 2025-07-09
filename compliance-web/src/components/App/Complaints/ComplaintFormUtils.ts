@@ -157,7 +157,6 @@ export const formatComplaintData = (
         complaintData.requirement_source_details.order_number =
           (formData.order as InspectionOrder)?.order_number ?? "";
         break;
-      case RequirementSourceEnum.NOT_EA_ACT:
       case RequirementSourceEnum.OTHER:
         complaintData.requirement_source_details.description =
           formData.description ?? "";

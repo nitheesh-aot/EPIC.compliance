@@ -95,7 +95,9 @@ class InspectionRequirement(Resource):
     @auth.require
     def get(inspection_id, requirement_id):
         """Fetch all inspection requirement."""
-        requirement = InspectionRequirementService.get_by_id(inspection_id, requirement_id)
+        requirement = InspectionRequirementService.get_by_id(
+            inspection_id, requirement_id
+        )
         return InspectionRequirementSchema().dump(requirement), HTTPStatus.OK
 
     @staticmethod

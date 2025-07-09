@@ -113,7 +113,7 @@ def test_create_inspection_requirement_with_all_requirement_sources(
         RequirementSourceEnum.ACT_2018,
         RequirementSourceEnum.COMPLIANCE_AGREEMENT,
         RequirementSourceEnum.ACT_2002,
-        RequirementSourceEnum.NOT_EA_ACT,
+        RequirementSourceEnum.OTHER,
         RequirementSourceEnum.EAC_AMENDMENT,
     ]
 
@@ -132,7 +132,7 @@ def test_create_inspection_requirement_with_all_requirement_sources(
             RequirementSourceEnum.ACT_2018,
             RequirementSourceEnum.COMPLIANCE_AGREEMENT,
             RequirementSourceEnum.CERTIFIED_PROJECT_DESCRIPTION,
-            RequirementSourceEnum.NOT_EA_ACT,
+            RequirementSourceEnum.OTHER,
         ]:
             requirement_source_detail["section_number"] = "1.1"
 

@@ -261,7 +261,7 @@ def upgrade():
     )
     op.execute("INSERT INTO requirement_source_document_maps(requirement_source_id, document_type_id, created_date, created_by)VALUES(1, 1, now() at time zone \'utc\','system')")
     op.execute("INSERT INTO requirement_source_document_maps(requirement_source_id, document_type_id, created_date, created_by)VALUES(1, 2, now() at time zone \'utc\','system')")
-    for item in RequirementSourceEnum:
+    for item in [RequirementSourceEnum.ORDER, RequirementSourceEnum.EAC_CERTIFICATE, RequirementSourceEnum.CERTIFIED_PROJECT_DESCRIPTION, RequirementSourceEnum.EAC_AMENDMENT, RequirementSourceEnum.SCHEDULE_B, RequirementSourceEnum.ACT_2018, RequirementSourceEnum.ACT_2002, RequirementSourceEnum.OTHER, RequirementSourceEnum.COMPLIANCE_AGREEMENT]:
         if item.value != 1:
             op.execute(f"INSERT INTO requirement_source_document_maps(requirement_source_id, document_type_id, created_date, created_by)VALUES({item.value}, 2, now() at time zone \'utc\','system')")
 

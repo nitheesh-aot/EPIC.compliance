@@ -41,6 +41,31 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         nullable=True,
         comment="The appendix id associated with requirement sources",
     )
+    source_title = Column(
+        String,
+        nullable=True,
+        comment="The title of the requirement source detail",
+    )
+    compliance_number = Column(
+        String,
+        nullable=True,
+        comment="The optional compliance number associated with requirement sources as Compliance Agreement",
+    )
+    clause_number = Column(
+        String,
+        nullable=True,
+        comment="The optional clause number associated with requirement sources as Exemption Order",
+    )
+    regulation_number = Column(
+        String,
+        nullable=True,
+        comment="The optional regulation number associated with requirement sources as Regulation",
+    )
+    exemption_order_number = Column(
+        String,
+        nullable=True,
+        comment="The optional exemption order number associated with requirement sources as Exemption Order",
+    )
     section_number = Column(
         String,
         nullable=True,
