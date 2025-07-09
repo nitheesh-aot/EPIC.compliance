@@ -33,6 +33,7 @@ interface RequirementRelatedDocumentCardProps {
   onEditRelatedDocumentSection: (
     data: RequirementRelatedDocumentSectionData
   ) => void;
+  isRequirementEditable?: boolean;
 }
 
 const RequirementRelatedDocumentCard: FC<
@@ -43,6 +44,7 @@ const RequirementRelatedDocumentCard: FC<
   onAddRelatedDocumentSection,
   onDeleteRelatedDocumentSection,
   onEditRelatedDocumentSection,
+  isRequirementEditable = true,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -91,7 +93,7 @@ const RequirementRelatedDocumentCard: FC<
               ` (Appendix ${relatedDocument.appendix.appendix_no})`}
           </Typography>
         </Box>
-        {isExpanded && (
+        {isExpanded && isRequirementEditable && (
           <Button
             variant="text"
             color="secondary"
@@ -128,32 +130,34 @@ const RequirementRelatedDocumentCard: FC<
                 borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
               }}
             >
-              <Box
-                display={"flex"}
-                justifyContent={"flex-start"}
-                gap={".25rem"}
-              >
-                <Tooltip title="Edit" arrow>
-                  <IconButton
-                    size="small"
-                    color="secondary"
-                    onClick={() => onEditRelatedDocumentSection(section)}
-                    data-testid={`requirement-related-document-edit-${index}-${idx}`}
-                  >
-                    <EditOutlined />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Delete" arrow>
-                  <IconButton
-                    size="small"
-                    color="secondary"
-                    onClick={() => onDeleteRelatedDocumentSection(section)}
-                    data-testid={`requirement-related-document-delete-${index}-${idx}`}
-                  >
-                    <DeleteOutlineRounded />
-                  </IconButton>
-                </Tooltip>
-              </Box>
+              {isRequirementEditable && (
+                <Box
+                  display={"flex"}
+                  justifyContent={"flex-start"}
+                  gap={".25rem"}
+                >
+                  <Tooltip title="Edit" arrow>
+                    <IconButton
+                      size="small"
+                      color="secondary"
+                      onClick={() => onEditRelatedDocumentSection(section)}
+                      data-testid={`requirement-related-document-edit-${index}-${idx}`}
+                    >
+                      <EditOutlined />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete" arrow>
+                    <IconButton
+                      size="small"
+                      color="secondary"
+                      onClick={() => onDeleteRelatedDocumentSection(section)}
+                      data-testid={`requirement-related-document-delete-${index}-${idx}`}
+                    >
+                      <DeleteOutlineRounded />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              )}
               <Box
                 sx={{
                   display: "flex",

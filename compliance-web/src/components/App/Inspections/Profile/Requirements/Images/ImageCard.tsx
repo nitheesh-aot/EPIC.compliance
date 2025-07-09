@@ -10,12 +10,14 @@ type ImageCardProps = {
   image: RequirementImage;
   handleImageClick: () => void;
   isPhoto: boolean;
+  isRequirementEditable?: boolean;
 };
 
 export default function ImageCard({
   image,
   handleImageClick,
   isPhoto,
+  isRequirementEditable = true,
 }: ImageCardProps) {
   const { attributes, listeners, setNodeRef, transition, transform } =
     useSortable({
@@ -41,16 +43,16 @@ export default function ImageCard({
         pb: "12px",
         boxSizing: "border-box",
         backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
-        cursor: "pointer",
+        cursor: isRequirementEditable ? "pointer" : "default",
         "&:hover": {
-          backgroundColor: BCDesignTokens.surfaceColorBackgroundLightBlue,
+          backgroundColor: isRequirementEditable ? BCDesignTokens.surfaceColorBackgroundLightBlue : "transparent",
         },
       }}
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
-      onClick={handleImageClick}
+      onClick={isRequirementEditable ? handleImageClick : undefined}
       data-testid={`image-card-${image.id}`}
     >
       <Box
@@ -85,7 +87,12 @@ export default function ImageCard({
             overflow: "hidden",
             textOverflow: "ellipsis",
             fontSize: "0.75rem",
+            cursor: isRequirementEditable ? "pointer" : "default",
+            "&:hover": {
+              textDecoration: isRequirementEditable ? "underline" : "none",
+            },
           }}
+          underline="none"
         >
           <strong>
             {isPhoto ? "Photo" : "Figure"} {image.sort_order}:

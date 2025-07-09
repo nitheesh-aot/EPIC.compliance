@@ -39,6 +39,7 @@ type RequirementFormLeftProps = {
   requirementId: number;
   inspectionId: number;
   currentEnforcementAction?: EnforcementAction;
+  isRequirementEditable?: boolean;
 };
 
 const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
@@ -52,6 +53,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
   requirementId,
   inspectionId,
   currentEnforcementAction,
+  isRequirementEditable = true,
 }) => {
   const { setOpen, setClose } = useModal();
   const { control, setValue, getValues } = useFormContext();
@@ -226,15 +228,17 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
           mb: "1.5rem",
         }}
       >
-        <IconButton
-          aria-label="edit"
-          onClick={() => setIsReadOnly(false)}
-          size="small"
-          sx={{ marginBottom: "-1rem", marginTop: "-0.5rem" }}
-          data-cy="editable-requirement-button"
-        >
-          <EditOutlined sx={{ fontSize: "1.25rem" }} />
-        </IconButton>
+        {isRequirementEditable && (
+          <IconButton
+            aria-label="edit"
+            onClick={() => setIsReadOnly(false)}
+            size="small"
+            sx={{ marginBottom: "-1rem", marginTop: "-0.5rem" }}
+            data-cy="editable-requirement-button"
+          >
+            <EditOutlined sx={{ fontSize: "1.25rem" }} />
+          </IconButton>
+        )}
         <Grid container spacing={1}>
           <GridLabelValuePair
             label="Requirement Summary"
@@ -400,6 +404,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
         isAdvanced
         mentionsList={mentionDataList}
         key={`lexical-editor-${mentionVersion}`}
+        disabled={!isRequirementEditable}
       />
     </Box>
   );

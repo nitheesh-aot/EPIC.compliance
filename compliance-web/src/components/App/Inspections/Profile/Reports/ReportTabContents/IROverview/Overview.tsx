@@ -17,7 +17,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { formatInAttendance } from "@/components/App/Inspections/InspectionFormUtils";
 
 const Overview = () => {
-  const { inspectionData, caseFileData } = useReportStore();
+  const { inspectionData, caseFileData, isReportsReadOnly } = useReportStore();
   const { setOpen, setClose } = useDrawer();
   const queryClient = useQueryClient();
 
@@ -82,7 +82,10 @@ const Overview = () => {
   return (
     <>
       <ProjectOverview />
-      <IRBoxContainer title="IR Overview" onEdit={handleOpenEditModal}>
+      <IRBoxContainer
+        title="IR Overview"
+        onEdit={!isReportsReadOnly ? handleOpenEditModal : undefined}
+      >
         <Grid container spacing={1}>
           <GridLabelValuePair
             label="Project Status"

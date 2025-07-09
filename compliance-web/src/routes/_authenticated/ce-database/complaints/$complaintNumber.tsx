@@ -10,11 +10,15 @@ import { useComplaintByNumber } from "@/hooks/useComplaints";
 import { CaseFile } from "@/models/CaseFile";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
-import { CR_CONTEXT_TYPE, DRAWER_WIDTHS, FILE_PROFILE_CONTEXT } from "@/utils/constants";
+import {
+  CR_CONTEXT_TYPE,
+  DRAWER_WIDTHS,
+  FILE_PROFILE_CONTEXT,
+} from "@/utils/constants";
 import { Box } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
-import React from "react";
+import React, { useMemo } from "react";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/complaints/$complaintNumber"
@@ -40,14 +44,21 @@ function ComplaintProfilePage() {
     complaintData?.case_file.case_file_number ?? ""
   );
 
-  const showEditComplaintButton = useIsRolesAllowed(
+  const isUserEditAllowed = useIsRolesAllowed(
     [KC_USER_GROUPS.SUPERUSER],
     complaintData?.primary_officer ? [complaintData.primary_officer] : []
   );
-  const showCreateCREntryButton = useIsRolesAllowed(
-    [KC_USER_GROUPS.SUPERUSER],
-    complaintData?.primary_officer ? [complaintData.primary_officer] : []
-  ) && caseFileData?.case_file_status === "Open";
+  const showCreateCREntryButton =
+    useIsRolesAllowed(
+      [KC_USER_GROUPS.SUPERUSER],
+      complaintData?.primary_officer ? [complaintData.primary_officer] : []
+    ) && caseFileData?.case_file_status?.toLowerCase() === "open";
+
+  const isComplaintEditable = useMemo(() => {
+    return (
+      isUserEditAllowed && complaintData?.status?.toLowerCase() === "open"
+    );
+  }, [complaintData?.status, isUserEditAllowed]);
 
   const handleOpenEditModal = () => {
     setOpen({
@@ -92,7 +103,7 @@ function ComplaintProfilePage() {
             <ComplaintGeneralInformation
               complaintData={complaintData}
               onEdit={handleOpenEditModal}
-              allowEdit={showEditComplaintButton}
+              allowEdit={isComplaintEditable}
             />
             <ContinuationReport
               caseFileId={complaintData.case_file_id}

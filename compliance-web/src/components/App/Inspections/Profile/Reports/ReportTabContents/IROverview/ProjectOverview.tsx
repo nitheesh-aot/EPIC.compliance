@@ -18,6 +18,7 @@ const ProjectOverview = () => {
     caseFileData,
     inspectionReportsData,
     irApprovalsData,
+    isReportsReadOnly,
     setInspectionReportsData,
   } = useReportStore();
   const { setOpen, setClose } = usePopover();
@@ -131,34 +132,38 @@ const ProjectOverview = () => {
               sx={{
                 display: "flex",
                 gap: 0.75,
-                cursor: "pointer",
+                cursor: !isReportsReadOnly ? "pointer" : "default",
                 "&:hover": {
-                  textDecoration: "underline",
+                  textDecoration: !isReportsReadOnly ? "underline" : "none",
                 },
               }}
               underline="none"
-              onClick={(e) => editMailingAddress(e, mailingAddress)}
+              onClick={(e) =>
+                !isReportsReadOnly && editMailingAddress(e, mailingAddress)
+              }
             >
               {mailingAddress}
             </Link>
           ) : (
-            <Button
-              variant="text"
-              color="secondary"
-              size="small"
-              onClick={addMailingAddress}
-              startIcon={<AddRounded />}
-              sx={{
-                backgroundColor: "transparent",
-                px: 0,
-                height: "auto",
-                "& .MuiButton-startIcon": {
-                  mr: 0,
-                },
-              }}
-            >
-              Add Mailing Address
-            </Button>
+            !isReportsReadOnly && (
+              <Button
+                variant="text"
+                color="secondary"
+                size="small"
+                onClick={addMailingAddress}
+                startIcon={<AddRounded />}
+                sx={{
+                  backgroundColor: "transparent",
+                  px: 0,
+                  height: "auto",
+                  "& .MuiButton-startIcon": {
+                    mr: 0,
+                  },
+                }}
+              >
+                Add Mailing Address
+              </Button>
+            )
           )}
         </Grid>
         <GridLabelValuePair

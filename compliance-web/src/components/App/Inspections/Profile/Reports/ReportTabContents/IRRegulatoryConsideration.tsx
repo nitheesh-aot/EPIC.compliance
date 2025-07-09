@@ -15,7 +15,7 @@ import { RequirementImage } from "@/models/Image";
 import IRImageSection from "./IRImageSection";
 
 const IRRegulatoryConsideration = () => {
-  const { inspectionData } = useReportStore();
+  const { inspectionData, isReportsReadOnly } = useReportStore();
   const { requirementsList, requirementPhotos, requirementFigures } =
     useRequirementStore();
   const { setOpen, setClose } = useDrawer();
@@ -82,7 +82,7 @@ const IRRegulatoryConsideration = () => {
   return (
     <IRBoxContainer
       title="Regulatory Consideration"
-      onEdit={handleOpenEditRequirementModal}
+      onEdit={!isReportsReadOnly ? handleOpenEditRequirementModal : undefined}
     >
       {inspectionRegulatoryConsideration ? (
         <>

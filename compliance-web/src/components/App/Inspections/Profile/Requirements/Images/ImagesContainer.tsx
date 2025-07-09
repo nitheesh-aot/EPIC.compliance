@@ -45,10 +45,11 @@ type ImagesContainerProps = {
   inspectionId: number;
   requirementId: number;
   isRegulatoryConsideration: boolean;
+  isRequirementEditable?: boolean;
 };
 
 const ImagesContainer: FC<ImagesContainerProps> = memo(
-  ({ imageType, inspectionId, requirementId, isRegulatoryConsideration }) => {
+  ({ imageType, inspectionId, requirementId, isRegulatoryConsideration, isRequirementEditable }) => {
     const isPhoto = imageType === ImageTypeEnum.PHOTO;
     const { setOpen, setClose } = useModal();
     const [isExpanded, setIsExpanded] = useState(true);
@@ -295,7 +296,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
               {isPhoto ? "Photos" : "Figures"}
             </Typography>
           </Box>
-          {isExpanded && (
+          {isExpanded && isRequirementEditable && (
             <Button
               variant="text"
               color="secondary"
@@ -346,6 +347,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                 <SortableContext
                   items={images.map((image) => image.id ?? 0)}
                   strategy={rectSwappingStrategy}
+                  disabled={!isRequirementEditable}
                 >
                   {images.map((image, index) => (
                     <ImageCard
@@ -355,6 +357,7 @@ const ImagesContainer: FC<ImagesContainerProps> = memo(
                         handleImageClick(image);
                       }}
                       isPhoto={isPhoto}
+                      isRequirementEditable={isRequirementEditable}
                     />
                   ))}
                 </SortableContext>

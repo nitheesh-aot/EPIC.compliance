@@ -38,6 +38,11 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     InspectionRequirement[]
   >([]);
 
+  const isEnforcementsAllowed = useMemo(
+    () => inspectionData?.inspection_status?.toLowerCase() === "open",
+    [inspectionData]
+  );
+
   const {
     data: inspectionRequirementsData,
     isLoading: isInspectionRequirementsLoading,
@@ -197,13 +202,17 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             notify.success(message);
             refetchInspectionOrders();
             queryClient.invalidateQueries({
-              queryKey: ["inspection-orders-projectwise", inspectionData.case_file_id],
+              queryKey: [
+                "inspection-orders-projectwise",
+                inspectionData.case_file_id,
+              ],
             });
             setDrawerClose();
           }}
           inspection={inspectionData}
           enforcementOrder={order}
           staffUsersList={staffUsersList || []}
+          isReadonlyMode={!isEnforcementsAllowed}
         />
       ),
       width: DRAWER_WIDTHS.ENFORCEMENT_DRAWER,
@@ -224,6 +233,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           inspection={inspectionData}
           warningLetter={warningLetter}
           staffUsersList={staffUsersList || []}
+          isReadonlyMode={!isEnforcementsAllowed}
         />
       ),
       width: DRAWER_WIDTHS.ENFORCEMENT_DRAWER,
@@ -239,7 +249,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     >
       <Box display={"flex"} justifyContent={"space-between"} mt={3} mb={2}>
         <Typography variant="h6">Enforcement</Typography>
-        {!isDataLoading && (
+        {!isDataLoading && isEnforcementsAllowed && (
           <MenuActionDropdown
             buttonText="New Enforcement"
             actions={actionsList}
@@ -253,18 +263,19 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
         <RequirementLoading />
       ) : (
         <>
-          {[
-            ...nonProceededOrderRequirements,
-            ...nonProceededWarningLetterRequirements,
-          ].map((requirement) => (
-            <EnforcementNotificationCard
-              key={requirement.id}
-              requirement={requirement}
-              openEnforcementModal={(modelType) =>
-                openEnforcementModal(modelType, requirement)
-              }
-            />
-          ))}
+          {isEnforcementsAllowed &&
+            [
+              ...nonProceededOrderRequirements,
+              ...nonProceededWarningLetterRequirements,
+            ].map((requirement) => (
+              <EnforcementNotificationCard
+                key={requirement.id}
+                requirement={requirement}
+                openEnforcementModal={(modelType) =>
+                  openEnforcementModal(modelType, requirement)
+                }
+              />
+            ))}
           {inspectionOrdersData?.map((order) => (
             <Box
               key={order.id}

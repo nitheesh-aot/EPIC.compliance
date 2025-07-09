@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Inspection } from "@/models/Inspection";
 import {
   Box,
@@ -31,6 +31,11 @@ const InspectionReports: React.FC<InspectionReportsProps> = ({
   const { setInspectionReportsData, setQueryClient, setIRApprovalsData } =
     useReportStore();
   const [reportVersion, setReportVersion] = useState<string>("");
+
+  const isReportsAllowed = useMemo(
+    () => inspectionData?.inspection_status?.toLowerCase() === "open",
+    [inspectionData]
+  );
 
   const { data: irStatusesData } = useIRStatusesData();
   const { data: inspectionReportsData, isLoading } = useInspectionReportsData(
@@ -94,7 +99,7 @@ const InspectionReports: React.FC<InspectionReportsProps> = ({
     </Box>
   ) : inspectionReportsData?.id ? (
     <ReportTabs />
-  ) : (
+  ) : isReportsAllowed ? (
     <Box
       sx={{
         display: "flex",
@@ -137,6 +142,10 @@ const InspectionReports: React.FC<InspectionReportsProps> = ({
         Proceed to Report
       </Button>
     </Box>
+  ) : (
+    <Typography variant="subtitle2" py={3}>
+      This inspection is closed.
+    </Typography>
   );
 };
 

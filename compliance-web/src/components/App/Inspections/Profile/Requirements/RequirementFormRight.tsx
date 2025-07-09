@@ -28,6 +28,7 @@ interface RequirementFormRightProps {
   caseFileId: number;
   requirementId: number;
   isRegulatoryConsideration: boolean;
+  isRequirementEditable?: boolean;
 }
 
 const RequirementFormRight: FC<RequirementFormRightProps> = ({
@@ -37,6 +38,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   caseFileId,
   requirementId,
   isRegulatoryConsideration,
+  isRequirementEditable = true,
 }) => {
   const { setOpen, setClose } = useModal();
   const [requirementSourceFormData, setRequirementSourceFormData] = useState<
@@ -309,7 +311,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         boxSizing: "border-box",
       }}
     >
-      {!isRegulatoryConsideration && (
+      {!isRegulatoryConsideration && isRequirementEditable && (
         <Button
           color="secondary"
           onClick={handleAddRequirementSource}
@@ -332,6 +334,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
           onDeleteRelatedDocumentSection={
             handleDeleteRequirementRelatedDocumentSection
           }
+          isRequirementEditable={isRequirementEditable}
         />
       ))}
       <ImagesContainer
@@ -339,14 +342,19 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
         inspectionId={inspectionId}
         requirementId={requirementId}
         isRegulatoryConsideration={isRegulatoryConsideration}
+        isRequirementEditable={isRequirementEditable}
       />
       <ImagesContainer
         imageType={ImageTypeEnum.FIGURE}
         inspectionId={inspectionId}
         requirementId={requirementId}
         isRegulatoryConsideration={isRegulatoryConsideration}
+        isRequirementEditable={isRequirementEditable}
       />
-      <AppendicesContainer inspectionId={inspectionId} />
+      <AppendicesContainer
+        inspectionId={inspectionId}
+        isRequirementEditable={isRequirementEditable}
+      />
     </Box>
   );
 };

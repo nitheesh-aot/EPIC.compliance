@@ -10,6 +10,8 @@ describe("ImagesContainer", () => {
     imageType: ImageTypeEnum.PHOTO,
     inspectionId: 123,
     requirementId: 1,
+    isRegulatoryConsideration: false,
+    isRequirementEditable: true,
   };
 
   const queryClient = new QueryClient();
@@ -79,6 +81,8 @@ describe("ImagesContainer", () => {
         imageType: ImageTypeEnum.FIGURE,
         inspectionId: 123,
         requirementId: 1,
+        isRegulatoryConsideration: false,
+        isRequirementEditable: true,
       })
     );
 
@@ -101,6 +105,8 @@ describe("ImagesContainer", () => {
         imageType: ImageTypeEnum.PHOTO,
         inspectionId: 123,
         requirementId: 1,
+        isRegulatoryConsideration: false,
+        isRequirementEditable: true,
       })
     );
 

@@ -73,11 +73,11 @@ describe("RequirementCard Component", () => {
   it("shows drag indicator for standard requirements but not for regulatory considerations", () => {
     // Mount standard requirement
     mountComponent(baseRequirement);
-    cy.get("[data-testid='DragIndicatorRoundedIcon']").should("be.visible");
+    cy.get("[data-testid='drag-indicator']").should("be.visible");
 
     // Mount regulatory consideration
     mountComponent(regulatoryRequirement);
-    cy.get("[data-testid='DragIndicatorRoundedIcon']").should("not.be.visible");
+    cy.get("[data-testid='drag-indicator']").should("not.be.visible");
   });
 
   it("renders condition number instead of section number when source is condition", () => {
@@ -95,6 +95,10 @@ describe("RequirementCard Component", () => {
           is_active: true,
           id: 1,
           requirement_id: 1,
+          appendix_id: undefined,
+          appendix: undefined,
+          order_id: undefined,
+          order: undefined,
           documents: [
             { id: 1, req_detail_id: 1, document_type: { id: "1", name: "Test Document" },
               document_type_id: 1,
@@ -103,6 +107,8 @@ describe("RequirementCard Component", () => {
               section_title: "Test Section",
               description: "Test Description",
               is_active: true,
+              appendix_id: undefined,
+              appendix: undefined,
             },
           ],
         },
@@ -113,5 +119,58 @@ describe("RequirementCard Component", () => {
 
     cy.contains("Condition #").should("be.visible");
     cy.contains("C-123").should("be.visible");
+  });
+
+  it("hides drag indicator when dragDisabled is true", () => {
+    const mockOnEdit = cy.stub().as("onEditHandler");
+    const requirements = [baseRequirement];
+
+    cy.mount(
+      <QueryClientProvider client={queryClient}>
+        <Reorder.Group
+          axis="y"
+          values={requirements}
+          onReorder={cy.stub()}
+        >
+          <RequirementCard
+            requirement={baseRequirement}
+            index={0}
+            onEdit={mockOnEdit}
+            isActive={false}
+            dragDisabled={true}
+          />
+        </Reorder.Group>
+      </QueryClientProvider>
+    );
+
+    // Drag indicator should be hidden when dragDisabled is true
+    cy.get("[data-testid='drag-indicator']").should("not.be.visible");
+  });
+
+  it("remains clickable when dragDisabled is true", () => {
+    const mockOnEdit = cy.stub().as("onEditHandler");
+    const requirements = [baseRequirement];
+
+    cy.mount(
+      <QueryClientProvider client={queryClient}>
+        <Reorder.Group
+          axis="y"
+          values={requirements}
+          onReorder={cy.stub()}
+        >
+          <RequirementCard
+            requirement={baseRequirement}
+            index={0}
+            onEdit={mockOnEdit}
+            isActive={false}
+            dragDisabled={true}
+          />
+        </Reorder.Group>
+      </QueryClientProvider>
+    );
+
+    // Card should still be clickable even when drag is disabled
+    cy.get("[class*='MuiBox-root']").first().click();
+    cy.get("@onEditHandler").should("have.been.calledOnce");
   });
 });

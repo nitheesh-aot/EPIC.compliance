@@ -19,6 +19,7 @@ interface ReportStore {
   findingsStatement?: string;
   actionsRequired?: string;
   enforcementSummary?: string;
+  isReportsReadOnly?: boolean;
 
   setQueryClient: (queryClient: QueryClient) => void;
   setInspectionReportsData: (inspectionReportsData: InspectionRecord) => void;
@@ -46,6 +47,7 @@ export const useReportStore = create<ReportStore>((set) => ({
   findingsStatement: undefined,
   actionsRequired: undefined,
   enforcementSummary: DEFAULT_REPORT_TAB_CONTENT,
+  isReportsReadOnly: false,
 
   setQueryClient: (queryClient: QueryClient) => set({ queryClient }),
   setInspectionReportsData: (inspectionReportsData: InspectionRecord) => {
@@ -68,7 +70,13 @@ export const useReportStore = create<ReportStore>((set) => ({
       irApprovalsData
     );
   },
-  setInspectionData: (inspectionData: Inspection) => set({ inspectionData }),
+  setInspectionData: (inspectionData: Inspection) => {
+    set({
+      inspectionData,
+      isReportsReadOnly:
+        inspectionData?.inspection_status?.toLowerCase() === "closed",
+    });
+  },
   setCaseFileData: (caseFileData: CaseFile) => {
     set({ caseFileData });
     set({
@@ -96,5 +104,6 @@ export const useReportStore = create<ReportStore>((set) => ({
       findingsStatement: undefined,
       actionsRequired: undefined,
       enforcementSummary: DEFAULT_REPORT_TAB_CONTENT,
+      isReportsReadOnly: false,
     }),
 }));
