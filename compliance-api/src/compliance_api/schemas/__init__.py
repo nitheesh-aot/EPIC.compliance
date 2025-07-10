@@ -43,6 +43,7 @@ from .order import OrderCreateSchema, OrderIssueSchema, OrderSchema, OrderStatus
 from .order_approval import CreateOrderApprovalSchema, OrderApprovalSchema, UpdateOrderApprovalStatusSchema
 from .paginate import PaginationParameterSchema
 from .project import ProjectSchema
+from .requirement_source import RequirementSourceSchema
 from .section import SectionSchema
 from .staff_user import StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateSchema
 from .topic import TopicCreateSchema, TopicSchema
