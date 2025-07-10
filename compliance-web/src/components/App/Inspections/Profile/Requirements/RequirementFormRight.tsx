@@ -20,12 +20,13 @@ import { AddRounded } from "@mui/icons-material";
 import { Box, Button } from "@mui/material";
 import { FC, useEffect, useMemo, useState } from "react";
 import { useRequirementStore } from "./requirementStore";
+import { CaseFile } from "@/models/CaseFile";
 
 interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
   requirementSourceFormDataList: RequirementSourceFormData[];
   inspectionId: number;
-  caseFileId: number;
+  caseFile: CaseFile;
   requirementId: number;
   isRegulatoryConsideration: boolean;
   isRequirementEditable?: boolean;
@@ -35,7 +36,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   onDataChange,
   requirementSourceFormDataList,
   inspectionId,
-  caseFileId,
+  caseFile,
   requirementId,
   isRegulatoryConsideration,
   isRequirementEditable = true,
@@ -141,7 +142,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       content: (
         <RequirementSourceModal
           onSubmit={handleOnAddSubmit}
-          caseFileId={caseFileId}
+          caseFile={caseFile}
           appendixList={appendixList}
         />
       ),
@@ -154,7 +155,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       content: (
         <RequirementSourceModal
           onSubmit={handleOnEditSubmit}
-          caseFileId={caseFileId}
+          caseFile={caseFile}
           requirementSourceFormData={data}
           appendixList={appendixList}
         />
@@ -205,7 +206,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       content: (
         <RequirementSourceModal
           onSubmit={handleOnAddSubmit}
-          caseFileId={caseFileId}
+          caseFile={caseFile}
           requirementSource={data.requirementSource}
           order={data.order}
           appendixList={appendixList}

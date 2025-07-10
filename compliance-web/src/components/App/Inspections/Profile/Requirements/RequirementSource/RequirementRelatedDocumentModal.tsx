@@ -224,7 +224,7 @@ const RequirementRelatedDocumentModal: React.FC<
           />
           <ControlledAutoComplete
             name="appendix"
-            label="Appendix"
+            label="Inspection Record Appendix #"
             options={appendixList ?? []}
             getOptionLabel={(option) =>
               `Appendix ${option.appendix_no}: ${option.document_title}`

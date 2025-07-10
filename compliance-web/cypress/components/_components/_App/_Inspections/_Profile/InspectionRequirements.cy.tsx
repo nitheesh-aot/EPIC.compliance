@@ -31,6 +31,7 @@ const mockComplianceFinding: ComplianceFinding = {
 const mockRequirementSource: RequirementSource = {
   id: "1",
   name: "Test Source",
+  source_title: "Test Source Title",
 };
 
 const mockDocumentType: RequirementDocumentType = {

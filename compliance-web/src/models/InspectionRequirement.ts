@@ -81,6 +81,7 @@ export interface RequirementSourceFormData {
   id?: number;
   dbId?: number;
   requirementSource?: RequirementSource;
+  requirementSourceTitle?: string;
   appendix?: Appendix;
   sourceNumber?: string;
   sourceTitle?: string,
