@@ -52,6 +52,11 @@ class ContinuationReports(Resource):
                 "type": "integer",
                 "required": True,
             },
+            "search_text": {
+                "description": "The text to be searched",
+                "type": "string",
+                "required": False,
+            },
         }
     )
     @ApiHelper.swagger_decorators(

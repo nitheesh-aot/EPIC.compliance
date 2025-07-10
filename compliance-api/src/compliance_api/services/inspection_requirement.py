@@ -1,9 +1,12 @@
-"""InspectionRequirementService."""
+"""Service for inspection requirement operations."""
 
+from http import HTTPStatus
 from typing import List
 
 import requests
 from bs4 import BeautifulSoup
+from sqlalchemy import func, desc
+from sqlalchemy.orm import aliased
 
 from compliance_api.exceptions import BadRequestError, ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models import Appendix as AppendixModel
@@ -21,12 +24,92 @@ from compliance_api.models.order import Order as OrderModel
 from compliance_api.models.order import OrderProgressEnum
 from compliance_api.services.document_service.doc_service import DocService
 from compliance_api.services.document_service.doc_service_enum import ActionOnFileEnum
+from compliance_api.models import (
+    InspectionRequirement,
+    Topic,
+    ComplianceFindingOption,
+    InspectionReqEnforcementMap,
+    EnforcementActionOption,
+    IRStatusOption,
+    RequirementSource,
+)
+from compliance_api.models.inspection_record import InspectionRecord
+from compliance_api.models.inspection_record_approval import InspectionRecordApproval, IRApprovalStatusEnum
 
 from .service_utils import ServiceUtils
 
-
 class InspectionRequirementService:
-    """InspectionRequirementService."""
+    """Service for inspection requirement operations."""
+
+    @classmethod
+    async def get_all_inspection_requirements(cls, args):
+        """Get all inspection requirements with filtering and pagination."""
+        
+        # Create a subquery to get the latest approval for each inspection record
+        latest_approval_subq = (
+            InspectionRecordApproval.query
+            .filter(InspectionRecordApproval.is_active.is_(True), 
+                   InspectionRecordApproval.is_deleted.is_(False))
+            .with_entities(
+                InspectionRecordApproval.inspection_record_id,
+                func.max(InspectionRecordApproval.id).label('max_id')
+            )
+            .group_by(InspectionRecordApproval.inspection_record_id)
+            .subquery('latest_approval')
+        )
+        
+        # Create an alias for the latest approval
+        LatestApproval = aliased(InspectionRecordApproval)
+        
+        # Base query with joins
+        query = InspectionRequirement.query\
+            .join(InspectionReqEnforcementMap, 
+                  InspectionReqEnforcementMap.requirement_id == InspectionRequirement.id)\
+            .outerjoin(InspectionRecord, 
+                      InspectionRecord.inspection_id == InspectionRequirement.inspection_id)\
+            .outerjoin(latest_approval_subq, 
+                      latest_approval_subq.c.inspection_record_id == InspectionRecord.id)\
+            .outerjoin(LatestApproval, 
+                      LatestApproval.id == latest_approval_subq.c.max_id)\
+            .filter(
+                InspectionRequirement.is_active.is_(True),
+                InspectionRequirement.is_deleted.is_(False),
+                InspectionReqEnforcementMap.is_active.is_(True),
+                InspectionReqEnforcementMap.is_deleted.is_(False),
+            )
+
+        if args.get("topic_id"):
+            query = query.filter(InspectionRequirement.topic_id == args["topic_id"])
+        if args.get("requirement_summary"):
+            query = query.filter(
+                InspectionRequirement.summary.ilike(f'%{args["requirement_summary"]}%')
+            )
+        if args.get("compliance_finding_id"):
+            query = query.filter(
+                InspectionRequirement.compliance_finding_id == args["compliance_finding_id"]
+            )
+        if args.get("enforcement_action_id"):
+            query = query.filter(
+                InspectionReqEnforcementMap.enforcement_action_id == args["enforcement_action_id"]
+            )
+        if args.get("ir_number"):
+            query = query.filter(InspectionRequirement.ir_number.ilike(f'%{args["ir_number"]}%'))
+        if args.get("approval_status"):
+            query = query.filter(LatestApproval.approval_status == IRApprovalStatusEnum(args["approval_status"]))
+
+        paginated_query = query.paginate(page=int(args.get("page", 1)), per_page=int(args.get("per_page", 10)))
+        requirements = paginated_query.items
+
+        return (
+            {
+                "items": requirements,
+                "page": paginated_query.page,
+                "pages": paginated_query.pages,
+                "per_page": paginated_query.per_page,
+                "total": paginated_query.total,
+            },
+            HTTPStatus.OK,
+        )
 
     @classmethod
     def get_all(cls, inspection_id):

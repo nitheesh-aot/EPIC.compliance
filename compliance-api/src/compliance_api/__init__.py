@@ -49,6 +49,7 @@ def create_app(run_mode=os.getenv("FLASK_ENV", "development")):
 
     # Flask app initialize
     app = Flask(__name__)
+    app.url_map.strict_slashes = False
 
     # All configuration are in config file
     app.config.from_object(get_named_config(run_mode))
