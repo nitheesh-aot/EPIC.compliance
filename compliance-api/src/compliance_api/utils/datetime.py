@@ -49,3 +49,8 @@ def convert_and_format_to_utc_str(
     utc_datetime_str = date_val_utc.strftime(dt_format)
 
     return utc_datetime_str
+
+
+def convert_to_full_month_format(date_val: datetime):
+    """Convert a datetime object to a full month format."""
+    return date_val.strftime("%B %d, %Y")

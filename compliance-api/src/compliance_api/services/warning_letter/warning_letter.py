@@ -17,6 +17,7 @@ from compliance_api.services.epic_track_service.track_service import TrackServic
 from compliance_api.services.service_utils import ServiceUtils
 from compliance_api.services.warning_letter.warning_letter_template_constant import WARNING_LETTER_CONTENT
 from compliance_api.utils.constant import OFFICE_BRANCH, OFFICE_NAME, UNAPPROVED_PROJECT_CODE
+from compliance_api.utils.datetime import convert_to_full_month_format
 from compliance_api.utils.template_renderer import render_template_with_data
 
 
@@ -209,7 +210,11 @@ def _create_warning_letter_data(warning_letter):
             "issue_date": (
                 warning_letter.date_issued.strftime("%Y-%m-%d")
                 if warning_letter.date_issued
-                else None
+                else (
+                    warning_letter.intended_issuance_date.strftime("%Y-%m-%d")
+                    if warning_letter.intended_issuance_date
+                    else None
+                )
             ),
             "content": warning_letter.content,
         },
@@ -306,11 +311,13 @@ def _create_content(inspection, requirement_ids):
             "inspection_type": " and ".join(
                 [inspection_type.type.name for inspection_type in inspection.types]
             ),
-            "start_date": inspection.start_date.strftime("%Y-%m-%d"),
+            "start_date": convert_to_full_month_format(inspection.start_date),
             "end_date": (
-                inspection.end_date.strftime("%Y-%m-%d") if inspection.end_date else ""
+                convert_to_full_month_format(inspection.end_date)
+                if inspection.end_date
+                else ""
             ),
-            "ir_number": inspection.ir_number,
+            "ir_number": ServiceUtils.strip_project_code(inspection.ir_number),
             "officer_name": f"{inspection.primary_officer.first_name} {inspection.primary_officer.last_name}",
             "officer_position": inspection.primary_officer.position.name,
         },
