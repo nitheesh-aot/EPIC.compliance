@@ -39,8 +39,7 @@ const requirementSourceFormSchema = yup.object().shape({
   complianceNumber: yup.string().nullable(),
   amendmentNumber: yup.string().nullable(),
   appendix: yup.object<Appendix>().nullable(),
-  sourceTitle: yup.string().nullable(),
-  sourceAmendmentNumber: yup.string().nullable(),
+  title: yup.string().nullable(),
   order: yup
     .object<InspectionOrder>()
     .nullable()
@@ -65,11 +64,14 @@ type RequirementSourceSchemaType = yup.InferType<
 
 const initFormData: RequirementSourceFormData = {
   requirementSource: undefined,
-  requirementSourceTitle: "",
+  requirementSourceTitle: undefined,
+  regulationNumber: undefined,
+  exemptionOrderNumber: undefined,
+  complianceNumber: undefined,
+  amendmentNumber: undefined,
   appendix: undefined,
   sourceNumber: "",
-  sourceTitle: "",
-  sourceAmendmentNumber: "",
+  title: "",
   description: undefined,
 };
 
@@ -255,13 +257,6 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
               getOptionKey={(option) => option.id ?? ""}
               isOptionEqualToValue={(option, value) => option.id === value.id}
             />
-            {selectedRequirementSource?.id === RequirementSourceEnum.EACA && (
-              <ControlledTextField
-                name="sourceAmendmentNumber"
-                label="Amendment #"
-                fullWidth
-              />
-            )}
             {selectedRequirementSource?.id !== RequirementSourceEnum.ORDER && (
               <Stack direction={"row"} gap={2}>
                 <ControlledTextField
@@ -276,7 +271,7 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
                   fullWidth
                 />
                 <ControlledTextField
-                  name="sourceTitle"
+                  name="title"
                   label="Title"
                   fullWidth
                 />

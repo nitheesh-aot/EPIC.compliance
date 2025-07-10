@@ -181,11 +181,11 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       Deleting it will also permanently remove all associated documents. 
       Are you sure you want to proceed?`
       : data.relatedDocuments?.length
-        ? `You are about to delete ${data.sourceNumber} - ${data.sourceTitle}.
+        ? `You are about to delete ${data.sourceNumber} - ${data.title}.
         This ${sourceType} has associated documents.
         Deleting this ${sourceType} will also remove all associated documents from the system.
         Are you sure you want to proceed?`
-        : `You are about to delete ${data.sourceNumber} - ${data.sourceTitle}.
+        : `You are about to delete ${data.sourceNumber} - ${data.title}.
         Are you sure you want to proceed?`;
     setOpen({
       content: (

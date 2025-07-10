@@ -34,6 +34,11 @@ export interface InspectionRequirement {
       section_number: string,
       condition_number: string,
       amendment_number: string,
+      clause_number: string,
+      regulation_number: string,
+      exemption_order_number: string,
+      compliance_number: string,
+      source_title: string,
       appendix_id: number,
       appendix: Appendix,
       order_id: number,
@@ -82,10 +87,13 @@ export interface RequirementSourceFormData {
   dbId?: number;
   requirementSource?: RequirementSource;
   requirementSourceTitle?: string;
+  regulationNumber?: string;
+  exemptionOrderNumber?: string;
+  complianceNumber?: string;
+  amendmentNumber?: string;
   appendix?: Appendix;
   sourceNumber?: string;
-  sourceTitle?: string,
-  sourceAmendmentNumber?: string,
+  title?: string,
   order?: InspectionOrder,
   description?: {
     html: string;
@@ -147,9 +155,13 @@ export interface InspectionRequirementAPIData {
 export interface InspectionRequirementSourceAPIData {
   id?: number,
   requirement_source_id: string,
+  source_title?: string,
   section_number?: string,
   condition_number?: string,
   amendment_number?: string,
+  regulation_number?: string,
+  exemption_order_number?: string,
+  compliance_number?: string,
   appendix_id?: number,
   order_id?: number,
   title: string,

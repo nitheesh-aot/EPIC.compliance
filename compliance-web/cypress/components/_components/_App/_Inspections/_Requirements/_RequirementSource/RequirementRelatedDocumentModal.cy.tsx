@@ -23,7 +23,7 @@ const mockSourceData: RequirementSourceFormData = {
     name: "Schedule B",
   },
   sourceNumber: "123",
-  sourceTitle: "Test Source",
+  title: "Test Source",
   description: { html: "<p>Test</p>", text: "Test" },
   relatedDocuments: [],
 };

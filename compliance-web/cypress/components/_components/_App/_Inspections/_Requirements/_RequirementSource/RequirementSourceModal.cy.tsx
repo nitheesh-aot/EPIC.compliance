@@ -15,7 +15,7 @@ const mockFormData: RequirementSourceFormData = {
   dbId: 1,
   requirementSource: mockRequirementSourceList[0],
   sourceNumber: "123",
-  sourceTitle: "Test Title",
+  title: "Test Title",
   description: { html: "<p>Test</p>", text: "Test" },
   relatedDocuments: [],
 };

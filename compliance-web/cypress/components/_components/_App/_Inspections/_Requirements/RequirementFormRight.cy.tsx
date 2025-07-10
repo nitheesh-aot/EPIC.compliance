@@ -27,7 +27,7 @@ describe("RequirementFormRight Component", () => {
     {
       id: 1,
       sourceNumber: "1.1",
-      sourceTitle: "Test Requirement",
+      title: "Test Requirement",
       requirementSource: {
         id: RequirementSourceEnum.ACT2018,
         name: "ACT 2018",
@@ -59,7 +59,7 @@ describe("RequirementFormRight Component", () => {
 
   it("displays requirement source card with correct data", () => {
     cy.contains(mockInitialData[0].sourceNumber).should("exist");
-    cy.contains(mockInitialData[0].sourceTitle).should("exist");
+    cy.contains(mockInitialData[0].title).should("exist");
   });
 
   it("allows editing a requirement source", () => {
@@ -95,7 +95,7 @@ describe("RequirementFormRight Component with Related Documents", () => {
     {
       id: 1,
       sourceNumber: "1.1",
-      sourceTitle: "Test Requirement",
+      title: "Test Requirement",
       requirementSource: {
         id: "REQ",
         name: "Requirement",

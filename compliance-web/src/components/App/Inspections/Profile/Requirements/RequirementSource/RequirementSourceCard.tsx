@@ -112,7 +112,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                 {requirementSource?.name}
                 {isOrder && ` — ${data[0].order?.order_number ?? ""}`}
                 {requirementSource?.id === RequirementSourceEnum.EACA &&
-                  ` #${data[0].sourceAmendmentNumber}`}
+                  ` #${data[0].amendmentNumber}`}
               </strong>
               {appendix && ` (Appendix ${appendix.appendix_no})`}
             </Typography>
@@ -239,7 +239,7 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                             Title:
                           </Typography>
                           <Typography variant="body2" fontWeight={700}>
-                            {item.sourceTitle}
+                            {item.title}
                           </Typography>
                         </Box>
                       </Box>

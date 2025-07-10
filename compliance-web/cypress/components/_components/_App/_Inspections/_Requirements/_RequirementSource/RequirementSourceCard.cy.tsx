@@ -10,7 +10,7 @@ describe("RequirementSourceCard", () => {
         name: "Test Source",
       },
       sourceNumber: "1.1",
-      sourceTitle: "Test Title",
+      title: "Test Title",
       sourceAmendmentNumber: "123",
       description: {
         html: "<p>Test description</p>",
