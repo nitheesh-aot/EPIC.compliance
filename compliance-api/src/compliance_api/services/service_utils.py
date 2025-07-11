@@ -305,7 +305,7 @@ class ServiceUtils:
         enforcement_actions = [
             action.enforcement_action for action in requirement.enforcement_actions
         ]
-        result = ""
+        result = None
         if not ir_status:
             return result
         if ir_status == IRStatusEnum.PRELIMINARY.value:
@@ -348,7 +348,7 @@ class ServiceUtils:
                 for action in enforcement_actions
             ):
                 result = (
-                    " - ".join([action.name for action in enforcement_actions])
+                    ", ".join([action.name for action in enforcement_actions])
                     + " - Refer to Enforcement Summary"
                 )
             if any(
@@ -360,9 +360,9 @@ class ServiceUtils:
                     " - ".join([action.name for action in enforcement_actions])
                     + " - "
                     + requirement.agency.name
-                    + " - Refer to Enforcement Summary"
                 )
-            result = "".join([action.name for action in enforcement_actions])
+            if not result:
+                result = "".join([action.name for action in enforcement_actions])
         return result
 
     @staticmethod
@@ -482,3 +482,12 @@ class ServiceUtils:
                 f"You cannot make changes to  {inspection.inspection_status.name} inspection"
             )
         return inspection
+
+    @staticmethod
+    def strip_project_code(auto_generated_number):
+        """Remove the first part of a project code (e.g., 'PRGTRA_20250001_OR001' -> '20250001_OR001')."""
+        if "_" in auto_generated_number:
+            return auto_generated_number[
+                auto_generated_number.index("_") + 1:
+            ]  # Return from the first underscore onwards
+        return auto_generated_number  # Return original if no underscore found

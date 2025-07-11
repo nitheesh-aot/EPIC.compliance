@@ -8,6 +8,7 @@ from compliance_api.utils.constant import DELETE_DIC_PARAMS
 from ..base_model import BaseModelVersioned
 from ..inspection.inspection import Inspection as InspectionModel
 from ..utils import with_session
+from .inspection_option import InspectionAttendanceOption as InspectionAttendanceOptionModel
 
 
 class InspectionAttendance(BaseModelVersioned):
@@ -48,7 +49,15 @@ class InspectionAttendance(BaseModelVersioned):
     @classmethod
     def get_all_by_inspection(cls, inspection_id: int):
         """Retrieve all attendance option by inspection id."""
-        return cls.query.filter_by(inspection_id=inspection_id, is_deleted=False).all()
+        return (
+            cls.query.join(
+                InspectionAttendanceOptionModel,
+                cls.attendance_option_id == InspectionAttendanceOptionModel.id,
+            )
+            .filter(cls.inspection_id == inspection_id, cls.is_deleted.is_(False))
+            .order_by(InspectionAttendanceOptionModel.sort_order)
+            .all()
+        )
 
     @classmethod
     @with_session

@@ -12,7 +12,7 @@ INSPECTION_SCOPE = """<p class="editor-paragraph" dir="ltr">
 </p>
 <ol class="editor-list-ol">
     {% for req in requirements %}
-    <li class="editor-listitem">
+    <li class="editor-listitem" style="margin-bottom: 4px;">
         <span>{{ req }}.</span>
     </li>
     {% endfor %}
@@ -65,20 +65,20 @@ ACTION_REQUIRED_BY_RP = """<p class="editor-paragraph" dir="ltr"><b><strong clas
 </p>"""
 
 ENFORCEMENT_SUMMARY = {
-    "NOTICE_OF_NON_COMPLIANCE": """<span>{{ regulated_party }} is not compliant with {{ number }} of
+    "NOTICE_OF_NON_COMPLIANCE": """<div>{{ regulated_party }} is not compliant with {{ number }} of
      {{ req_source_name }} of {{ eac }}. {{ regulated_party }} has been issued a Notice of Non-Compliance. See
-     Requirement {{ req_sort_order }} for further information.</span>""",
-    "WARNING_LETTER": """<span>{{ regulated_party }} is not compliant with {{ ','.join(condition_lines)}}
-     of {{ eac }}. See Appendix X for a Letter of Warning for the non-compliances
-      {{ warning_letter_no }}. See Requirement {{ req_sort_order }} for further information.</span>""",
-    "ORDER": """<span>In Addition, {{ regulated_party }} is not compliant with {{ ','.join(condition_lines)}}
-     of {{ eac }}. See Appendix X for an Order {{ order_no }} issued under {{ section_no }} of the {{ act }}.
-     See Requirement {{ req_sort_order }} for further information</span>""",
-    "ADMINISTRATIVE_PENALTY": """<span>In Addition, the findings for Requirement {{ req_sort_order }}
-    may be referred to a decision maker for consideration of an Administrative Penalty.</span>""",
-    "AGENCY": """<span>{{ number }} of {{ req_source_name }} of {{ eac }} was refered to {{ agency_name }}.
-     See Requirement {{ req_sort_order }} for further information</span>""",
-    "DEFAULT": """<br><span>The EAO CEB may inspect to determine if {{ project_name }} has been brought into compliance with these
+     Requirement {{ req_sort_order }} for further information.</div>""",
+    "WARNING_LETTER": """<div>{{ regulated_party }} is not compliant with {{ ','.join(condition_lines)}}
+     of {{ eac }}. See Appendix X for Warning Letter {{ warning_letter_no }} for the non-compliance and
+      Requirement {{ req_sort_order }} for further information.</div>""",
+    "ORDER": """<div>In Addition, {{ regulated_party }} is not compliant with {{ ','.join(condition_lines)}}
+     of {{ eac }}. See Appendix X for Order {{ order_no }} issued under {{ section_no }} of the <i>{{ act }}</i>
+     and Requirement {{ req_sort_order }} for further information.</div>""",
+    "ADMINISTRATIVE_PENALTY": """<div>In Addition, the findings for Requirement {{ req_sort_order }}
+    may be referred to a decision maker for consideration of an Administrative Penalty.</div>""",
+    "AGENCY": """<div>{{ number }} of {{ req_source_name }} of {{ eac }} was refered to {{ agency_name }}.
+     See Requirement {{ req_sort_order }} for further information</div>""",
+    "DEFAULT": """<div>The EAO CEB may inspect to determine if {{ project_name }} has been brought into compliance with these
      requirements. Continued non-compliance with these requirements may result in additional enforcement
-     under the {{ act }} </span>""",
+     under the <i>{{ act }}</i> </div>""",
 }
