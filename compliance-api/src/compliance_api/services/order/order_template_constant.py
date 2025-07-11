@@ -1,12 +1,13 @@
 """Order template constants."""
 
-WHERE_AS = """<p class="com-order-title" style="text-align: center;font-weight: bold"><strong class="editor-text-bold"
+WHERE_AS = """<p class="com-order-title" style="text-align: center;font-weight: bold">
+<strong class="editor-text-bold"
             style="white-space: pre-wrap;">
 IN THE MATTER OF THE ENVIRONMENTAL ASSESSMENT ACT S.B.C. {{order_details.act}}, c.{{order_details.chapter}}
 <br />
 (ACT)<br />
 AND<br />
-NON-COMPLIANCES<br />
+# NON-COMPLIANCES<br />
 WITH {% if order_details.has_certificate %}ENVIRONMENTAL ASSESSMENT CERTIFICATE
  {{order_details.ea_certificate}}{%else%}(reference Act or Exemption Order, as appropriate){% endif %}<br />
 <u>ORDER UNDER SECTION {{order_details.section}}</u>
@@ -17,7 +18,7 @@ WITH {% if order_details.has_certificate %}ENVIRONMENTAL ASSESSMENT CERTIFICATE
 <p class="editor-paragraph" style="text-align: left;"><br></p>
 <p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">
 {% if project_details.has_certificate %}
-A. {{project_details.name}} (Project) is a reviewable project under the </span><i>
+A. The {{project_details.name}} (Project) is a reviewable project under the </span><i>
 <em class="editor-text-italic" style="white-space: pre-wrap;">Environmental Assessment Act</em></i>
 <span style="white-space: pre-wrap;"> (the Act).</span></p>
 <p class="editor-paragraph" style="text-align: left;"><br></p>
@@ -37,10 +38,10 @@ C. {% else %}A. {% endif %}On
 {% else %}
  {{inspection_details.start_date}} and {{inspection_details.end_date}}
 {% endif %}, the Environmental Assessment
- Office Compliance and Enforcement Branch (EAO CEB) conducted a {{inspection_details.inspection_type}}
-  inspection of the Project. The inspection found that the {{project_details.proponent_label}} was not compliant
+ Office Compliance and Enforcement Branch (EAO CEB) conducted a {{inspection_details.inspection_type | lower }}
+ inspection of the Project. The inspection found that the {{project_details.proponent_label}} was not compliant
  with {{requirement_details.requirement_numbers}} with respect to {{requirement_details.requirement_summaries}}.
-  The inspection findings are documented in Inspection Record {{inspection_details.ir_number}}.</span></p>
+ The inspection findings are documented in Inspection Record {{inspection_details.ir_number}}.</span></p>
 <p class="editor-paragraph" style="text-align: left;"><br></p>
 <p class="editor-paragraph" dir="ltr" style="text-align: left;"><span style="white-space: pre-wrap;">
 {% if project_details.has_certificate %}D. {% else %}B. {% endif %}Section
@@ -67,6 +68,6 @@ Pursuant to Section {{order_details.section}} of the Act, I order that the {{pro
     <li value="2" class="editor-listitem"><span style="white-space: pre-wrap;">XX</span></li>
     <li value="3" class="editor-listitem"><span style="white-space: pre-wrap;">XX</span></li>
     <li value="4" class="editor-listitem"><span style="white-space: pre-wrap;">Complete the measures in clauses 1, 2
-     and 3 above to the satisfaction of, and unless otherwise authorized by, the EAO Compliance and Enforcement Branch.
-  </span></li>
+ and 3 above to the satisfaction of, and unless otherwise authorized by, the EAO Compliance and Enforcement Branch.
+ </span></li>
 </ol>"""

@@ -16,6 +16,7 @@ from compliance_api.services.docgen_service.docgen_service import DocGenService
 from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils
 from compliance_api.utils.constant import OFFICE_BRANCH, OFFICE_NAME, UNAPPROVED_PROJECT_CODE
+from compliance_api.utils.datetime import convert_to_full_month_format
 from compliance_api.utils.template_renderer import render_template_with_data
 
 from .order_constant import DEFAULT_ACT, DEFAULT_CHAPTER, DEFAULT_SECTION
@@ -242,7 +243,15 @@ def _create_order_data(inspection, order):
             "order_number": order.order_number,
             "where_as": order.where_as,
             "now_therefore": order.now_therefore,
-            "issued_date": order_date.strftime("%Y-%m-%d") if order_date else None,
+            "issued_date": (
+                order_date.strftime("%Y-%m-%d")
+                if order_date
+                else (
+                    order.intended_issuance_date.strftime("%Y-%m-%d")
+                    if order.intended_issuance_date
+                    else None
+                )
+            ),
         },
         "officer_details": {
             "officer_name": inspection.primary_officer.first_name
@@ -321,11 +330,13 @@ def _create_where_as_and_now_therefore(
             "inspection_type": " and ".join(
                 [inspection_type.type.name for inspection_type in inspection.types]
             ),
-            "start_date": inspection.start_date.strftime("%Y-%m-%d"),
+            "start_date": convert_to_full_month_format(inspection.start_date),
             "end_date": (
-                inspection.end_date.strftime("%Y-%m-%d") if inspection.end_date else ""
+                convert_to_full_month_format(inspection.end_date)
+                if inspection.end_date
+                else ""
             ),
-            "ir_number": inspection.ir_number,
+            "ir_number": ServiceUtils.strip_project_code(inspection.ir_number),
         },
         "order_details": {
             "order_number": order_number,

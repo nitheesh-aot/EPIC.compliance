@@ -124,6 +124,10 @@
             font-weight: bold;
             padding-bottom: 4px;
         }
+        .com-ir-section-description {
+            font-weight: normal;
+            padding-bottom: 4px;
+        }
         .com-ir-section-header-appendix {
             font-weight: normal;
             padding-bottom: 4px;
@@ -156,7 +160,6 @@
         }
 
         .com-ir-document-section {
-            margin-top: 4px;
             font-weight: bold;
         }
 
@@ -165,6 +168,9 @@
             margin-top: 4px;
             margin-bottom: 10px;
             white-space: normal !important;
+        }
+        .com-ir-officer-details {
+            padding-bottom: 4px
         }
 
         /* Links */
@@ -335,17 +341,23 @@
                 <th>Inspection Summary</th>
                 <td colspan="3">
                     {{ inspection_scope | safe | replace('style="white-space: pre-wrap;"', '') }}
-                    </br>
                     {% if preliminary_review_details %}
                     {{ preliminary_review_details | safe | replace('style="white-space: pre-wrap;"', '') }}
-                    </br>
                     {% endif %}
                     {{ finding_statement | safe | replace('style="white-space: pre-wrap;"', '') }}
                 </td>
             </tr>
             <tr>
                 <th>In Attendance</th>
-                <td colspan="3">{{ officer_details.in_attendance if officer_details.in_attendance else 'N/A' }}</td>
+                <td colspan="3">
+                    {% if officer_details.in_attendance %}
+                        {% for attendance in officer_details.in_attendance %}
+                            {{ attendance }}<br>
+                        {% endfor %}
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
             </tr>
             <tr>
                 <th>{{ project_details.proponent_label }}</th>
@@ -357,7 +369,11 @@
             </tr>
             <tr>
                 <th>Inspecting Officer(s)</th>
-                <td colspan="3">{{ officer_details.inspecting_officers }}</td>
+                <td colspan="3">
+                    {% for officer in officer_details.inspecting_officers %}
+                        <div class="com-ir-officer-details">{{ officer.name }}<br>{{ officer.position }}<br></div>
+                    {% endfor %}
+                </td>
             </tr>
             <tr>
                 <th>Record Prepared By</th>
@@ -376,54 +392,23 @@
                 </td>
             </tr>
         </table>
-
-        <!-- Add spacer before inspection details -->
         <div class="inspection-details">
             <div class="com-ir-inspection-details-header">INSPECTION DETAILS</div>
             {% for requirement in requirement_details %}
             <table>
-                <!-- START: Handle the first requirement source details -->
-                {% if requirement.requirement_source_details and requirement.requirement_source_details|length > 0 and
-                requirement.requirement_source_details[0] %}
+                {% if requirement.requirement_source_details and requirement.requirement_source_details|length > 0%}
                 <tr>
                     <td colspan="2">
-                        <div class="com-ir-section-header">Requirement {{ requirement.sort_order }}: {{
-                            requirement.requirement_source_details[0].requirement_title }}{% if requirement.requirement_source_details[0].appendix_no %} <span class="com-ir-section-header-appendix">&nbsp;(Appendix {{ requirement.requirement_source_details[0].appendix_no }})</span>{% endif %}</div>
-                        {{ requirement.requirement_source_details[0].requirement_source_description | safe |
-                        replace('style="white-space: pre-wrap;"', '') }}
-                        {% if requirement.requirement_source_details[0].requirement_documents %}
-                        {% for doc in requirement.requirement_source_details[0].requirement_documents %}
-                        <div class="com-ir-document-title">{{ doc.document_title }}{% if doc.appendix_no %} <span class="com-ir-section-header-appendix">&nbsp;(Appendix {{ doc.appendix_no }})</span>{% endif %}</div>
-                        {% if doc.section_number or doc.section_title %}
-                        <div class="com-ir-document-section">Section {{ doc.section_number }} {{ doc.section_title }}
-                        </div>
-                        {% endif %}
-                        {% if doc.description %}
-                        <div class="com-ir-document-description">{{ doc.description | safe |
-                            replace('style="white-space:
-                            pre-wrap;"', '') }}</div>
-                        {% endif %}
-                        {% endfor %}
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endif %}
-                <!-- END: handle the first requirement source details -->
-                <!-- START: Handle the additional requirement source details -->
-                {% if requirement.requirement_source_details|length > 1 %}
-                {% for source in requirement.requirement_source_details[1:] %}
-                <tr>
-                    <td colspan="2">
-                        <div class="com-ir-additional-source">
-                            <div class="com-ir-section-header">Requirement {{ source.sort_order }}: {{ source.requirement_title }}{% if source.appendix_no %} <span class="com-ir-section-header-appendix">&nbsp;(Appendix {{ source.appendix_no }})</span>{% endif %}</div>
-                            {{ source.requirement_source_description | safe | replace('style="white-space: pre-wrap;"',
-                            '') }}
-                        </div>
+                        {% for source in requirement.requirement_source_details %}
+                        <div class="com-ir-section-header">{% if loop.first %}Requirement {{ requirement.sort_order }}: {% endif %}{{
+                            source.requirement_title }}{% if source.appendix_no %} <span class="com-ir-section-header-appendix">&nbsp;(Appendix {{ source.appendix_no }})</span>{% endif %}</div>
+                        <div class="com-ir-section-description">{{ source.requirement_source_description | safe |
+                        replace('style="white-space: pre-wrap;"', '') }}</div>
                         {% if source.requirement_documents %}
                         {% for doc in source.requirement_documents %}
                         <div class="com-ir-document-title">{{ doc.document_title }}{% if doc.appendix_no %} <span class="com-ir-section-header-appendix">&nbsp;(Appendix {{ doc.appendix_no }})</span>{% endif %}</div>
                         {% if doc.section_number or doc.section_title %}
-                        <div class="com-ir-document-section">Section {{ doc.section_number }} {{ doc.section_title }}
+                        <div class="com-ir-document-section">{% if doc.section_number %}Section {{ doc.section_number }} {% endif %}{{ doc.section_title }}
                         </div>
                         {% endif %}
                         {% if doc.description %}
@@ -433,11 +418,10 @@
                         {% endif %}
                         {% endfor %}
                         {% endif %}
+                        {% endfor %}
                     </td>
                 </tr>
-                {% endfor %}
                 {% endif %}
-                <!-- END: Handle the additional requirement source details -->
                 <tr>
                     <td colspan="2">
                         <div class="com-ir-section-header">Findings:</div>
@@ -550,10 +534,10 @@
                         <strong>Date Preliminary</strong></br>
                         {% if version_date_info and version_date_info.preliminary_dates %}
                         {% for date in version_date_info.preliminary_dates %}
-                        <strong>{{ date }}</strong></br>
+                        {{ date }}</br>
                         {% endfor %}
                         {% else %}
-                        <strong>n/a</strong>
+                        n/a
                         {% endif %}
                     </td>
                 </tr>
@@ -561,7 +545,7 @@
                     <td colspan="2">
                         <strong>Date Issued</strong></br>
                         {% if version_date_info and version_date_info.final_date %}
-                        <strong>{{ version_date_info.final_date }}</strong>
+                        {{ version_date_info.final_date }}
                         {% else %}
                         </br>
                         {% endif %}

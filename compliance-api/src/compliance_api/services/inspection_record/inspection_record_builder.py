@@ -20,6 +20,7 @@ from compliance_api.models.warning_letter import \
     WarningLetterInspectionRequirementMap as WarningLetterInspectionRequirementMapModel
 from compliance_api.services.inspection_record.ir_template_constant import (
     ACTION_REQUIRED_BY_RP, ENFORCEMENT_SUMMARY, FINDING_STATEMENT, INSPECTION_SCOPE, PRELIMINARY_REVIEW_DETAILS)
+from compliance_api.utils.datetime import convert_to_full_month_format
 from compliance_api.utils.template_renderer import render_template_with_data
 
 from ..service_utils import ServiceUtils
@@ -63,7 +64,7 @@ class InspectionRecordDataBuilder:
             "project_description": self.inspection.project_description,
             "location_description": self.inspection.location_description,
             "initiation": self.inspection.initiation.name,
-            "ir_number": self.inspection.ir_number,
+            "ir_number": ServiceUtils.strip_project_code(self.inspection.ir_number),
         }
 
         # Initialize officer_details
@@ -123,8 +124,10 @@ class InspectionRecordDataBuilder:
         attendance_list = []
         # Initialize inspecting officers list with primary officer
         inspecting_officers = [
-            f"{self.data['officer_details']['primary_officer']['name']},"
-            f"{self.data['officer_details']['primary_officer']['position']}"
+            {
+                "name": f"{self.data['officer_details']['primary_officer']['name']}",
+                "position": self.data["officer_details"]["primary_officer"]["position"],
+            }
         ]
         # Process each attendance option
         for option in attendance_options:
@@ -137,7 +140,10 @@ class InspectionRecordDataBuilder:
                     # Avoid duplicate primary officer
                     if officer.get("id") != self.inspection.primary_officer_id:
                         inspecting_officers.append(
-                            f"{officer.get('name')}, {officer.get('position').get('name')}"
+                            {
+                                "name": f"{officer.get('name')}",
+                                "position": officer.get("position").get("name"),
+                            }
                         )
                 continue
             # Handle different types of attendance data
@@ -162,15 +168,9 @@ class InspectionRecordDataBuilder:
                 else:
                     attendance_list.append(option.attendance_option.name)
 
-        # Join all attendance items with commas
-        attendance_string = ", ".join(attendance_list) if attendance_list else ""
-        inspecting_officers_string = (
-            "; ".join(inspecting_officers) if inspecting_officers else ""
-        )
-
         # Add the attendance information to the officer_details dictionary
-        self.data["officer_details"]["in_attendance"] = attendance_string
-        self.data["officer_details"]["inspecting_officers"] = inspecting_officers_string
+        self.data["officer_details"]["in_attendance"] = attendance_list
+        self.data["officer_details"]["inspecting_officers"] = inspecting_officers
 
         return self
 
@@ -224,7 +224,7 @@ class InspectionRecordDataBuilder:
         debreif_date = self.inspection.debrief_date
         inspection_scope_data = {
             "debrief_date": (
-                debreif_date.strftime("%B %d, %Y") if debreif_date else None
+                convert_to_full_month_format(debreif_date) if debreif_date else None
             ),  # handling of the null case
             "requirements": [],
         }
@@ -276,12 +276,12 @@ class InspectionRecordDataBuilder:
             if self.approvals:
                 data = {
                     "date_report_sent": ", ".join(
-                        approval.date_report_sent.strftime("%B %d, %Y")
+                        convert_to_full_month_format(approval.date_report_sent)
                         for approval in self.approvals
                         if approval.date_report_sent is not None
                     ),
                     "date_response": ", ".join(
-                        approval.date_response.strftime("%B %d, %Y")
+                        convert_to_full_month_format(approval.date_response)
                         for approval in self.approvals
                         if approval.date_response is not None
                     ),
@@ -314,7 +314,11 @@ class InspectionRecordDataBuilder:
                 "final_date": (
                     inspection_record.date_issued.strftime("%Y-%m-%d")
                     if inspection_record.date_issued
-                    else None
+                    else (
+                        inspection_record.intended_issuance_date.strftime("%Y-%m-%d")
+                        if inspection_record.intended_issuance_date
+                        else None
+                    )
                 ),
             }
         return self
@@ -381,20 +385,31 @@ class InspectionRecordDataBuilder:
                         )
                         if summary_line:
                             enforcement_summary_lines.append(summary_line)
-            actions = [
-                item[0]
-                for item in grouped_enforcementactions.items()
-                if EnforcementActionOptionEnum(item[0]) in special_actions
-            ]
-            for action_id in actions:
-                summary_lines = (
-                    self._generate_enforcement_summary_lines_for_special_actions(
-                        EnforcementActionOptionEnum(action_id),
-                        IRStatusEnum.FINAL.value,
+                #  _generate_enforcement_summary_lines_for_special_actions is only called for special actions
+                #  it handles multiple requirements at once for a single action
+                if EnforcementActionOptionEnum(action_id) in special_actions:
+                    summary_lines = (
+                        self._generate_enforcement_summary_lines_for_special_actions(
+                            EnforcementActionOptionEnum(action_id),
+                            self.ir_status,
+                        )
                     )
-                )
-                if summary_lines:
-                    enforcement_summary_lines.extend(summary_lines)
+                    if summary_lines:
+                        enforcement_summary_lines.extend(summary_lines)
+            # actions = [
+            #     item[0]
+            #     for item in grouped_enforcementactions.items()
+            #     if EnforcementActionOptionEnum(item[0]) in special_actions
+            # ]
+            # for action_id in actions:
+            #     summary_lines = (
+            #         self._generate_enforcement_summary_lines_for_special_actions(
+            #             EnforcementActionOptionEnum(action_id),
+            #             IRStatusEnum.FINAL.value,
+            #         )
+            #     )
+            #     if summary_lines:
+            #         enforcement_summary_lines.extend(summary_lines)
             # Add a line for Regulatory Considerations in the requirements
             if any(
                 req.req_type == InspectionRequirementTypeEnum.REG
@@ -529,6 +544,8 @@ class InspectionRecordDataBuilder:
             },
         }
         results = []
+        if action == EnforcementActionOptionEnum.WARNING_LETTER:
+            items = WarningLetterModel.get_by_inspection_id(self.inspection.id)
         if action == EnforcementActionOptionEnum.ORDER:
             items = OrderModel.get_by_inspection_id(self.inspection.id)
             if ir_status_id == IRStatusEnum.PRELIMINARY.value:
@@ -537,8 +554,6 @@ class InspectionRecordDataBuilder:
                     for item in items
                     if item.order_progress == OrderProgressEnum.ISSUED
                 ]
-        if action == EnforcementActionOptionEnum.WARNING_LETTER:
-            items = WarningLetterModel.get_by_inspection_id(self.inspection.id)
         if len(items) == 0:
             return []
         for item in items:
@@ -567,10 +582,14 @@ class InspectionRecordDataBuilder:
                 condition_lines.append(f"{numbers} of {source_name}")
             data_to_be_rendered["condition_lines"] = condition_lines
             if action == EnforcementActionOptionEnum.ORDER:
-                data_to_be_rendered["order_no"] = item.order_number
+                data_to_be_rendered["order_no"] = ServiceUtils.strip_project_code(
+                    item.order_number
+                )
                 data_to_be_rendered["section_no"] = item.section.name
             if action == EnforcementActionOptionEnum.WARNING_LETTER:
-                data_to_be_rendered["warning_letter_no"] = item.warning_letter_number
+                data_to_be_rendered["warning_letter_no"] = (
+                    ServiceUtils.strip_project_code(item.warning_letter_number)
+                )
             results.append(
                 render_template_with_data(
                     object_map[action]["template"],
@@ -663,4 +682,4 @@ class InspectionRecordDataBuilder:
                         grouped_requirements[enforcement_id] = []
                     grouped_requirements[enforcement_id].append(requirement)
 
-        return grouped_requirements
+        return dict(sorted(grouped_requirements.items()))
