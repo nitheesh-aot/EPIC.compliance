@@ -1,7 +1,8 @@
 import { Agency } from "@/models/Agency";
 import { ComplianceFinding } from "@/models/ComplianceFinding";
 import { EnforcementAction } from "@/models/EnforcementAction";
-import { InspectionRequirement, InspectionRequirementAPIData, InspectionRequirementBatchAPIData, InspectionRequirementBatchImageAPIData, InspectionRequirementFormData, InspectionRequirementSourceAPIData, InspectionRequirementSourceDocumentAPIData, RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData, RequirementSourceFormData } from "@/models/InspectionRequirement";
+import { InspectionRequirement, InspectionRequirementFormData, InspectionRequirementAPIData, InspectionRequirementBatchAPIData, InspectionRequirementBatchImageAPIData } from "@/models/InspectionRequirement";
+import { InspectionRequirementSourceAPIData, InspectionRequirementSourceDocumentAPIData, RequirementRelatedDocumentData, RequirementRelatedDocumentSectionData, RequirementSourceFormData } from "@/models/InspectionRequirementSource";
 import { Topic } from "@/models/Topic";
 import { EnforcementActionEnum, RequirementSourceEnum } from "@/utils/constants";
 import * as yup from "yup";

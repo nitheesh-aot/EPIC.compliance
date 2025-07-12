@@ -14,7 +14,7 @@ import {
   RequirementRelatedDocumentData,
   RequirementRelatedDocumentSectionData,
   RequirementSourceFormData,
-} from "@/models/InspectionRequirement";
+} from "@/models/InspectionRequirementSource";
 import { useModal } from "@/store/modalStore";
 import { AddRounded } from "@mui/icons-material";
 import { Box, Button } from "@mui/material";

@@ -14,8 +14,8 @@ import { Inspection } from "@/models/Inspection";
 import {
   InspectionRequirement,
   InspectionRequirementFormData,
-  RequirementSourceFormData,
 } from "@/models/InspectionRequirement";
+import { RequirementSourceFormData } from "@/models/InspectionRequirementSource";
 import { useMenuStore } from "@/store/menuStore";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Stack } from "@mui/material";

@@ -9,6 +9,7 @@ import {
   AccordionDetails,
   IconButton,
   Tooltip,
+  Grid,
 } from "@mui/material";
 import {
   AddRounded,
@@ -21,7 +22,7 @@ import {
   RequirementRelatedDocumentData,
   RequirementRelatedDocumentSectionData,
   RequirementSourceFormData,
-} from "@/models/InspectionRequirement";
+} from "@/models/InspectionRequirementSource";
 import { BCDesignTokens } from "epic.theme";
 import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 import { RequirementSourceEnum } from "@/utils/constants";
@@ -69,6 +70,8 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
       requirementSource?.id ?? ""
     );
     const isOrder = requirementSource?.id === RequirementSourceEnum.ORDER;
+    const isRegulation =
+      requirementSource?.id === RequirementSourceEnum.REGULATION;
 
     return (
       <Accordion
@@ -205,22 +208,42 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                               },
                             }}
                           >
-                            {isOrder
+                            {isOrder || isRegulation
                               ? "Other Document"
                               : "Management Plan / Other Document"}
                           </Button>
                         </Tooltip>
                       </Box>
                     )}
+                    {isRegulation && (
+                      <Grid container spacing={2} mb={1}>
+                        <Grid item xs={4}>
+                          <Typography
+                            variant="subtitle2"
+                            color={BCDesignTokens.typographyColorPlaceholder}
+                          >
+                            Regulation #
+                          </Typography>
+                          <Typography variant="body2" fontWeight={700}>
+                            {item.regulationNumber}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={8}>
+                          <Typography
+                            variant="subtitle2"
+                            color={BCDesignTokens.typographyColorPlaceholder}
+                          >
+                            Title:
+                          </Typography>
+                          <Typography variant="body2">
+                            {item.requirementSourceTitle}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    )}
                     {!isOrder && (
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "row",
-                          gap: "1rem",
-                        }}
-                      >
-                        <Box>
+                      <Grid container spacing={2}>
+                        <Grid item xs={4}>
                           <Typography
                             variant="subtitle2"
                             color={BCDesignTokens.typographyColorPlaceholder}
@@ -230,19 +253,19 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                           <Typography variant="body2" fontWeight={700}>
                             {item.sourceNumber}
                           </Typography>
-                        </Box>
-                        <Box>
+                        </Grid>
+                        <Grid item xs={8}>
                           <Typography
                             variant="subtitle2"
                             color={BCDesignTokens.typographyColorPlaceholder}
                           >
                             Title:
                           </Typography>
-                          <Typography variant="body2" fontWeight={700}>
+                          <Typography variant="body2">
                             {item.title}
                           </Typography>
-                        </Box>
-                      </Box>
+                        </Grid>
+                      </Grid>
                     )}
                     <Box sx={{ marginTop: ".5rem" }}>
                       <Typography

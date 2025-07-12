@@ -13,7 +13,7 @@ import {
   RequirementRelatedDocumentData,
   RequirementSourceFormData,
   RequirementRelatedDocumentSectionData,
-} from "@/models/InspectionRequirement";
+} from "@/models/InspectionRequirementSource";
 import { RequirementDocumentType } from "@/models/RequirementDocumentType";
 import { BCDesignTokens } from "epic.theme";
 import {

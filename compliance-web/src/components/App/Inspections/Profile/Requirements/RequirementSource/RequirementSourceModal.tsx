@@ -6,7 +6,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
 import { RequirementSource } from "@/models/RequirementSource";
-import { RequirementSourceFormData } from "@/models/InspectionRequirement";
+import { RequirementSourceFormData } from "@/models/InspectionRequirementSource";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import { useRequirementSourcesData } from "@/hooks/useComplaints";
