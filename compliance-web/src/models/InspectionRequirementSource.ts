@@ -50,7 +50,9 @@ export interface RequirementSourceFormData {
   complianceNumber?: string;
   amendmentNumber?: string;
   appendix?: Appendix;
-  sourceNumber?: string;
+  conditionNumber?: string;
+  sectionNumber?: string;
+  clauseNumber?: string;
   title?: string,
   order?: InspectionOrder,
   description?: {
@@ -104,6 +106,7 @@ export interface InspectionRequirementSourceAPIData {
   condition_number?: string,
   amendment_number?: string,
   regulation_number?: string,
+  clause_number?: string,
   exemption_order_number?: string,
   compliance_number?: string,
   appendix_id?: number,

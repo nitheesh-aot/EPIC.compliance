@@ -27,7 +27,7 @@ import { BCDesignTokens } from "epic.theme";
 import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 import { RequirementSourceEnum } from "@/utils/constants";
 import RequirementRelatedDocumentCard from "./RequirementRelatedDocumentCard";
-import { isRequirementSourceCondition } from "../RequirementUtils";
+import { requirementSourceNumberType } from "../RequirementUtils";
 
 type RequirementSourceCardProps = {
   data: RequirementSourceFormData[];
@@ -66,12 +66,30 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
 
     const requirementSource = data[0].requirementSource;
     const appendix = data[0].appendix;
-    const isCondition = isRequirementSourceCondition(
+    const sourceNumberType = requirementSourceNumberType(
       requirementSource?.id ?? ""
     );
     const isOrder = requirementSource?.id === RequirementSourceEnum.ORDER;
     const isRegulation =
       requirementSource?.id === RequirementSourceEnum.REGULATION;
+
+    const dataSorted = data.slice().sort((a, b) => {
+      const srcType =
+        `${sourceNumberType.toLowerCase()}Number` as keyof RequirementSourceFormData;
+      const aValue = a[srcType];
+      const bValue = b[srcType];
+
+      // Convert both values to strings for localeCompare, handling undefined/null
+      const aStr =
+        aValue !== undefined && aValue !== null ? String(aValue) : "";
+      const bStr =
+        bValue !== undefined && bValue !== null ? String(bValue) : "";
+
+      return aStr.localeCompare(bStr, undefined, {
+        numeric: true,
+        sensitivity: "base",
+      });
+    });
 
     return (
       <Accordion
@@ -139,176 +157,171 @@ const RequirementSourceCard: FC<RequirementSourceCardProps> = memo(
                 },
               }}
             >
-              {isCondition ? "Condition" : "Section"}
+              {sourceNumberType}
             </Button>
           )}
         </AccordionSummary>
         <AccordionDetails sx={{ padding: "0" }}>
           <Stack>
-            {data
-              .slice()
-              .sort((a, b) =>
-                (a.sourceNumber ?? "").localeCompare(b.sourceNumber ?? "")
-              )
-              .map((item, idx) => (
-                <Box key={idx}>
-                  <Box
-                    sx={{
-                      padding: "0.5rem 1rem 1rem",
-                      borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-                    }}
-                  >
-                    {isRequirementEditable && (
-                      <Box
-                        display={"flex"}
-                        justifyContent={"space-between"}
-                        gap={".25rem"}
-                      >
-                        <Box display={"flex"} gap={".25rem"}>
-                          <Tooltip title="Edit" arrow>
-                            <IconButton
-                              size="small"
-                              color="secondary"
-                              onClick={() => onEdit(item)}
-                              data-testid={`requirement-source-edit-${index}`}
-                            >
-                              <EditOutlined />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Delete" arrow>
-                            <IconButton
-                              size="small"
-                              color="secondary"
-                              onClick={() => onDelete(item)}
-                              data-testid={`requirement-source-delete-${index}`}
-                            >
-                              <DeleteOutlineRounded />
-                            </IconButton>
-                          </Tooltip>
-                        </Box>
-                        <Tooltip
-                          title={`Add an extract from ${
-                            !isOrder ? "a management plan or" : ""
-                          } other document to support this requirement`}
-                          arrow
-                        >
-                          <Button
-                            variant="text"
-                            color="secondary"
+            {dataSorted.map((item, idx) => (
+              <Box key={idx}>
+                <Box
+                  sx={{
+                    padding: "0.5rem 1rem 1rem",
+                    borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+                  }}
+                >
+                  {isRequirementEditable && (
+                    <Box
+                      display={"flex"}
+                      justifyContent={"space-between"}
+                      gap={".25rem"}
+                    >
+                      <Box display={"flex"} gap={".25rem"}>
+                        <Tooltip title="Edit" arrow>
+                          <IconButton
                             size="small"
-                            onClick={() => onAddRelatedDocument(item)}
-                            startIcon={<AddRounded />}
-                            data-testid={`requirement-source-add-related-document-${index}`}
-                            sx={{
-                              backgroundColor: "transparent",
-                              paddingY: 0,
-                              height: "auto",
-                              "& .MuiButton-startIcon": {
-                                mr: 0,
-                              },
-                            }}
+                            color="secondary"
+                            onClick={() => onEdit(item)}
+                            data-testid={`requirement-source-edit-${index}`}
                           >
-                            {isOrder || isRegulation
-                              ? "Other Document"
-                              : "Management Plan / Other Document"}
-                          </Button>
+                            <EditOutlined />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete" arrow>
+                          <IconButton
+                            size="small"
+                            color="secondary"
+                            onClick={() => onDelete(item)}
+                            data-testid={`requirement-source-delete-${index}`}
+                          >
+                            <DeleteOutlineRounded />
+                          </IconButton>
                         </Tooltip>
                       </Box>
-                    )}
-                    {isRegulation && (
-                      <Grid container spacing={2} mb={1}>
-                        <Grid item xs={4}>
-                          <Typography
-                            variant="subtitle2"
-                            color={BCDesignTokens.typographyColorPlaceholder}
-                          >
-                            Regulation #
-                          </Typography>
-                          <Typography variant="body2" fontWeight={700}>
-                            {item.regulationNumber}
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={8}>
-                          <Typography
-                            variant="subtitle2"
-                            color={BCDesignTokens.typographyColorPlaceholder}
-                          >
-                            Title:
-                          </Typography>
-                          <Typography variant="body2">
-                            {item.requirementSourceTitle}
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    )}
-                    {!isOrder && (
-                      <Grid container spacing={2}>
-                        <Grid item xs={4}>
-                          <Typography
-                            variant="subtitle2"
-                            color={BCDesignTokens.typographyColorPlaceholder}
-                          >
-                            {isCondition ? "Condition #:" : "Section #:"}
-                          </Typography>
-                          <Typography variant="body2" fontWeight={700}>
-                            {item.sourceNumber}
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={8}>
-                          <Typography
-                            variant="subtitle2"
-                            color={BCDesignTokens.typographyColorPlaceholder}
-                          >
-                            Title:
-                          </Typography>
-                          <Typography variant="body2">
-                            {item.title}
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    )}
-                    <Box sx={{ marginTop: ".5rem" }}>
-                      <Typography
-                        variant="subtitle2"
-                        color={BCDesignTokens.typographyColorPlaceholder}
+                      <Tooltip
+                        title={`Add an extract from ${
+                          !isOrder ? "a management plan or" : ""
+                        } other document to support this requirement`}
+                        arrow
                       >
-                        Description:
-                      </Typography>
-                      <ParagraphWithReadMore
-                        key={item.description?.html}
-                        maxHeight={84}
-                        isFormatted={true}
-                        renderTypography={
-                          <Typography
-                            variant="subtitle2"
-                            component={"div"}
-                            dangerouslySetInnerHTML={{
-                              __html: item.description?.html ?? "",
-                            }}
-                          />
-                        }
-                      />
+                        <Button
+                          variant="text"
+                          color="secondary"
+                          size="small"
+                          onClick={() => onAddRelatedDocument(item)}
+                          startIcon={<AddRounded />}
+                          data-testid={`requirement-source-add-related-document-${index}`}
+                          sx={{
+                            backgroundColor: "transparent",
+                            paddingY: 0,
+                            height: "auto",
+                            "& .MuiButton-startIcon": {
+                              mr: 0,
+                            },
+                          }}
+                        >
+                          {isOrder || isRegulation
+                            ? "Other Document"
+                            : "Management Plan / Other Document"}
+                        </Button>
+                      </Tooltip>
                     </Box>
-                  </Box>
-                  {item.relatedDocuments?.map((relatedDocument, docIdx) => (
-                    <RequirementRelatedDocumentCard
-                      key={docIdx}
-                      index={docIdx}
-                      relatedDocument={relatedDocument}
-                      onAddRelatedDocumentSection={() =>
-                        onAddRelatedDocumentSection(relatedDocument, item)
+                  )}
+                  {isRegulation && (
+                    <Grid container spacing={2} mb={1}>
+                      <Grid item xs={4}>
+                        <Typography
+                          variant="subtitle2"
+                          color={BCDesignTokens.typographyColorPlaceholder}
+                        >
+                          Regulation #
+                        </Typography>
+                        <Typography variant="body2" fontWeight={700}>
+                          {item.regulationNumber}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={8}>
+                        <Typography
+                          variant="subtitle2"
+                          color={BCDesignTokens.typographyColorPlaceholder}
+                        >
+                          Title:
+                        </Typography>
+                        <Typography variant="body2">
+                          {item.requirementSourceTitle}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  )}
+                  {!isOrder && (
+                    <Grid container spacing={2}>
+                      <Grid item xs={4}>
+                        <Typography
+                          variant="subtitle2"
+                          color={BCDesignTokens.typographyColorPlaceholder}
+                        >
+                          {sourceNumberType} #:
+                        </Typography>
+                        <Typography variant="body2" fontWeight={700}>
+                          {String(
+                            item[
+                              `${sourceNumberType.toLowerCase()}Number` as keyof RequirementSourceFormData
+                            ] ?? ""
+                          )}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={8}>
+                        <Typography
+                          variant="subtitle2"
+                          color={BCDesignTokens.typographyColorPlaceholder}
+                        >
+                          Title:
+                        </Typography>
+                        <Typography variant="body2">{item.title}</Typography>
+                      </Grid>
+                    </Grid>
+                  )}
+                  <Box sx={{ marginTop: ".5rem" }}>
+                    <Typography
+                      variant="subtitle2"
+                      color={BCDesignTokens.typographyColorPlaceholder}
+                    >
+                      Description:
+                    </Typography>
+                    <ParagraphWithReadMore
+                      key={item.description?.html}
+                      maxHeight={84}
+                      isFormatted={true}
+                      renderTypography={
+                        <Typography
+                          variant="subtitle2"
+                          component={"div"}
+                          dangerouslySetInnerHTML={{
+                            __html: item.description?.html ?? "",
+                          }}
+                        />
                       }
-                      onDeleteRelatedDocumentSection={
-                        onDeleteRelatedDocumentSection
-                      }
-                      onEditRelatedDocumentSection={
-                        onEditRelatedDocumentSection
-                      }
-                      isRequirementEditable={isRequirementEditable}
                     />
-                  ))}
+                  </Box>
                 </Box>
-              ))}
+                {item.relatedDocuments?.map((relatedDocument, docIdx) => (
+                  <RequirementRelatedDocumentCard
+                    key={docIdx}
+                    index={docIdx}
+                    relatedDocument={relatedDocument}
+                    onAddRelatedDocumentSection={() =>
+                      onAddRelatedDocumentSection(relatedDocument, item)
+                    }
+                    onDeleteRelatedDocumentSection={
+                      onDeleteRelatedDocumentSection
+                    }
+                    onEditRelatedDocumentSection={onEditRelatedDocumentSection}
+                    isRequirementEditable={isRequirementEditable}
+                  />
+                ))}
+              </Box>
+            ))}
           </Stack>
         </AccordionDetails>
       </Accordion>

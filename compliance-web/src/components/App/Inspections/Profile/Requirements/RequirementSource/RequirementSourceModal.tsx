@@ -11,7 +11,7 @@ import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAut
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import { useRequirementSourcesData } from "@/hooks/useComplaints";
 import { RequirementSourceEnum } from "@/utils/constants";
-import { isRequirementSourceCondition } from "../RequirementUtils";
+import { requirementSourceNumberType } from "../RequirementUtils";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 import { Appendix } from "@/models/Appendix";
 import { InspectionOrder } from "@/models/InspectionOrder";
@@ -38,7 +38,10 @@ const requirementSourceFormSchema = yup.object().shape({
   exemptionOrderNumber: yup.string().nullable(),
   complianceNumber: yup.string().nullable(),
   amendmentNumber: yup.string().nullable(),
+  clauseNumber: yup.string().nullable(),
   appendix: yup.object<Appendix>().nullable(),
+  conditionNumber: yup.string().nullable(),
+  sectionNumber: yup.string().nullable(),
   title: yup.string().nullable(),
   order: yup
     .object<InspectionOrder>()
@@ -70,7 +73,9 @@ const initFormData: RequirementSourceFormData = {
   complianceNumber: undefined,
   amendmentNumber: undefined,
   appendix: undefined,
-  sourceNumber: "",
+  conditionNumber: undefined,
+  sectionNumber: undefined,
+  clauseNumber: undefined,
   title: "",
   description: undefined,
 };
@@ -259,22 +264,34 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
             />
             {selectedRequirementSource?.id !== RequirementSourceEnum.ORDER && (
               <Stack direction={"row"} gap={2}>
-                <ControlledTextField
-                  name="sourceNumber"
-                  label={
-                    isRequirementSourceCondition(
-                      selectedRequirementSource?.id ?? ""
-                    )
-                      ? "Condition #"
-                      : "Section #"
-                  }
-                  fullWidth
-                />
-                <ControlledTextField
-                  name="title"
-                  label="Title"
-                  fullWidth
-                />
+                {requirementSourceNumberType(
+                  selectedRequirementSource?.id ?? ""
+                ).toLowerCase() === "condition" && (
+                  <ControlledTextField
+                    name="conditionNumber"
+                    label="Condition #"
+                    fullWidth
+                  />
+                )}
+                {requirementSourceNumberType(
+                  selectedRequirementSource?.id ?? ""
+                ).toLowerCase() === "section" && (
+                  <ControlledTextField
+                    name="sectionNumber"
+                    label="Section #"
+                    fullWidth
+                  />
+                )}
+                {requirementSourceNumberType(
+                  selectedRequirementSource?.id ?? ""
+                ).toLowerCase() === "clause" && (
+                  <ControlledTextField
+                    name="clauseNumber"
+                    label="Clause #"
+                    fullWidth
+                  />
+                )}
+                <ControlledTextField name="title" label="Title" fullWidth />
               </Stack>
             )}
             <ControlledLexicalEditor

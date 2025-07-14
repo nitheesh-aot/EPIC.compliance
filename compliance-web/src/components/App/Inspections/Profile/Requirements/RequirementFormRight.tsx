@@ -5,8 +5,8 @@ import RequirementSourceCard from "@/components/App/Inspections/Profile/Requirem
 import RequirementSourceModal from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementSourceModal";
 import {
   ImageTypeEnum,
-  isRequirementSourceCondition,
   groupRequirementSourcesByType,
+  requirementSourceNumberType,
 } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useAppendicesData } from "@/hooks/useAppendices";
@@ -170,22 +170,22 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
     );
     const isLastSectionItem =
       requirementSourceDetails && requirementSourceDetails.length === 1;
-    const sourceType = isRequirementSourceCondition(
+    const sourceNumberType = requirementSourceNumberType(
       data.requirementSource?.id ?? ""
-    )
-      ? "condition"
-      : "section";
+    ).toLowerCase();
+    const sourceNumber =
+      data[`${sourceNumberType}Number` as keyof RequirementSourceFormData];
     const description = isLastSectionItem
       ? `You are about to delete ${data.requirementSource?.name}.
       This is the primary requirement source. 
       Deleting it will also permanently remove all associated documents. 
       Are you sure you want to proceed?`
       : data.relatedDocuments?.length
-        ? `You are about to delete ${data.sourceNumber} - ${data.title}.
-        This ${sourceType} has associated documents.
-        Deleting this ${sourceType} will also remove all associated documents from the system.
+        ? `You are about to delete ${sourceNumber} - ${data.title}.
+        This ${sourceNumberType} has associated documents.
+        Deleting this ${sourceNumberType} will also remove all associated documents from the system.
         Are you sure you want to proceed?`
-        : `You are about to delete ${data.sourceNumber} - ${data.title}.
+        : `You are about to delete ${sourceNumber} - ${data.title}.
         Are you sure you want to proceed?`;
     setOpen({
       content: (

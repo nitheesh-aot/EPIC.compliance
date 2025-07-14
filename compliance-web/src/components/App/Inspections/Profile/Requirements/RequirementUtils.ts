@@ -69,13 +69,18 @@ export const RequirementFormSchema = (isRegulatoryConsideration: boolean) => yup
     .nullable(),
 });
 
-// Check if the RequirementSource got condition
-export const isRequirementSourceCondition = (id: string): boolean =>
-  [
-    RequirementSourceEnum.SCHEDULE_B,
-    RequirementSourceEnum.EAC,
-    RequirementSourceEnum.EACA,
-  ].includes(id as RequirementSourceEnum);
+export const requirementSourceNumberType = (id: string): string => {
+  switch (id as RequirementSourceEnum) {
+    case RequirementSourceEnum.SCHEDULE_B:
+    case RequirementSourceEnum.EAC:
+    case RequirementSourceEnum.EACA:
+      return "Condition";
+    case RequirementSourceEnum.EXEMPTION_ORDER:
+      return "Clause";
+    default:
+      return "Section";
+  }
+};
 
 
 export const formatRequirementAPIData = (
@@ -113,6 +118,9 @@ export const formatRequirementAPIData = (
           regulation_number: item.regulationNumber ?? "",
           exemption_order_number: item.exemptionOrderNumber ?? "",
           compliance_number: item.complianceNumber ?? "",
+          condition_number: item.conditionNumber ?? "",
+          section_number: item.sectionNumber ?? "",
+          clause_number: item.clauseNumber ?? "",
           title: item.title ?? "",
           description: item.description?.html ?? "",
           appendix_id: item.appendix?.id ?? undefined,
@@ -121,11 +129,6 @@ export const formatRequirementAPIData = (
         };
         if (item.dbId) {
           requirementSource.id = item.dbId;
-        }
-        if (isRequirementSourceCondition(item.requirementSource?.id ?? "")) {
-          requirementSource.condition_number = item.sourceNumber ?? "";
-        } else {
-          requirementSource.section_number = item.sourceNumber ?? "";
         }
         item.relatedDocuments?.forEach((document) => {
           document.sections?.forEach((section) => {
@@ -203,12 +206,14 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
       requirementSource: item.requirement_source,
       appendix: item.appendix,
       requirementSourceTitle: item.source_title,
-      sourceNumber: item.section_number ?? item.condition_number,
       amendmentNumber: item.amendment_number,
       regulationNumber: item.regulation_number,
-      exemptionOrderNumber: item.exemption_order_number,
+      exemptionOrderNumber: item.exemption_order_number ?? "",
       complianceNumber: item.compliance_number,
       title: item.title,
+      conditionNumber: item.condition_number,
+      sectionNumber: item.section_number,
+      clauseNumber: item.clause_number,
       order: item.order,
       description: { html: item.description, text: item.description },
       relatedDocuments: relatedDocuments,

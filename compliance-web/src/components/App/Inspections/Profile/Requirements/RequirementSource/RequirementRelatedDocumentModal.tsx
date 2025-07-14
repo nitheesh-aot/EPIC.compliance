@@ -22,6 +22,7 @@ import {
 } from "@/utils/constants";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 import { Appendix } from "@/models/Appendix";
+import { requirementSourceNumberType } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 
 type RequirementRelatedDocumentModalProps = {
   onSubmit: (data: RequirementRelatedDocumentData) => void;
@@ -72,6 +73,10 @@ const RequirementRelatedDocumentModal: React.FC<
 
   const isOrder =
     requirementSourceData.requirementSource?.id === RequirementSourceEnum.ORDER;
+
+  const sourceNumberType = requirementSourceNumberType(
+    requirementSourceData.requirementSource?.id ?? ""
+  );
 
   const defaultValues =
     useMemo<RequirementRelatedDocumentSectionFormData>(() => {
@@ -198,10 +203,14 @@ const RequirementRelatedDocumentModal: React.FC<
             {!isOrder && (
               <Box display="flex" flexDirection="column" gap={0.5}>
                 <Typography variant="caption" fontWeight={700}>
-                  Condition #:
+                  {sourceNumberType} #:
                 </Typography>
                 <Typography variant="body2">
-                  {requirementSourceData.sourceNumber}
+                  {String(
+                    requirementSourceData[
+                      `${sourceNumberType.toLowerCase()}Number` as keyof RequirementSourceFormData
+                    ] ?? ""
+                  )}
                 </Typography>
               </Box>
             )}
