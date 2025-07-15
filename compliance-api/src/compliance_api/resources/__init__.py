@@ -36,6 +36,7 @@ from .inspection import API as INSPECTION_API
 from .inspection_record import API as IR_API
 from .inspection_requirement import API as INSPECTION_REQUIREMENT_API
 from .inspection_requirement_type import API as REQUIREMENT_TYPE_API
+from .inspection_requirements import API as INSPECTION_REQUIREMENTS_API
 from .ops import API as OPS_API
 from .order import API as ORDER_API
 from .position import API as POSITION_API
@@ -46,7 +47,6 @@ from .section import API as SECTION_API
 from .staff_user import API as USER_API
 from .topic import API as TOPIC_API
 from .warning_letter import API as WARNING_LETTER_API
-from .inspection_requirements import API as INSPECTION_REQUIREMENTS_API
 
 
 __all__ = ("API_BLUEPRINT", "OPS_BLUEPRINT")

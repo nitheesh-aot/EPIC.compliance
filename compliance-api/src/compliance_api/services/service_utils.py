@@ -253,7 +253,9 @@ class ServiceUtils:
         elif detail.requirement_source_id == RequirementSourceEnum.REGULATION.value:
             requirement_title += f" {detail.regulation_number}"
         #  format: Clause [Clause #] of [Exemption Order #]
-        elif detail.requirement_source_id == RequirementSourceEnum.EXEMPTION_ORDER.value:
+        elif (
+            detail.requirement_source_id == RequirementSourceEnum.EXEMPTION_ORDER.value
+        ):
             requirement_title += f" {detail.exemption_order_number}"
         else:
             requirement_title = ""
