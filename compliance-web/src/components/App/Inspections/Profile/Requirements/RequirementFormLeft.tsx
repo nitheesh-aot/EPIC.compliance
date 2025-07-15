@@ -1,5 +1,5 @@
 import { FC, useEffect, useState, useRef, useCallback } from "react";
-import { Alert, Box, Grid, IconButton, Stack } from "@mui/material";
+import { Alert, Box, Grid, IconButton, Stack, Typography } from "@mui/material";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { BCDesignTokens } from "epic.theme";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
@@ -27,6 +27,7 @@ import { useInspectionOrdersData } from "@/hooks/useInspectionOrders";
 import { useInspectionWarningLettersData } from "@/hooks/useInspectionWarningLetters";
 import { useModal } from "@/store/modalStore";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import ControlledToggleButtonGroup from "@/components/Shared/Controlled/ControlledToggleButtonGroup";
 
 type RequirementFormLeftProps = {
   enforcementActionsList: EnforcementAction[];
@@ -255,11 +256,11 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
               />
               <GridLabelValuePair
                 label="Enforcement Action"
-                value={`${getValues("enforcementAction")?.name ?? ""}${
-                  getValues("isReferralToAdministrativePenalty")
-                    ? ", Referral to Administrative Penalty"
-                    : ""
-                }`}
+                value={
+                  [getValues("enforcementAction")?.name, getValues("enforcementActionExtra")?.name]
+                    .filter(Boolean)
+                    .join(", ")
+                }
                 gridProps={{ xs: agencyName ? 4 : 8 }}
               />
             </>
@@ -320,7 +321,6 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
           <>
             <Stack direction="row" gap={2}>
               <ControlledAutoComplete
-                sx={{ width: "50%" }}
                 name="complianceFinding"
                 label="Compliance Finding"
                 options={complianceFindingsList}
@@ -331,30 +331,51 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
                 isRequired={true}
                 disabled={disableEnforcementAction}
               />
-              <Stack direction="column" sx={{ width: "50%" }}>
-                <ControlledAutoComplete
-                  name="enforcementAction"
-                  label="Enforcement Action"
-                  options={enforcementActionsList}
-                  getOptionLabel={(option) => option.name}
-                  getOptionKey={(option) => option.id}
-                  isOptionEqualToValue={(option, value) =>
-                    option.id.toString() === value.id.toString()
-                  }
-                  fullWidth
-                  sx={{ marginBottom: "-0.5rem" }}
-                  isRequired={true}
-                  disabled={disableEnforcementAction}
-                />
-                {enforcementAction?.id === EnforcementActionEnum.ORDER && (
-                  <ControlledCheckbox
-                    name="isReferralToAdministrativePenalty"
-                    label="Add Referral to Administrative Penalty"
-                    fontSize="small"
-                  />
-                )}
-              </Stack>
+              <ControlledAutoComplete
+                name="enforcementAction"
+                label="Enforcement Action"
+                options={enforcementActionsList}
+                getOptionLabel={(option) => option.name}
+                getOptionKey={(option) => option.id}
+                isOptionEqualToValue={(option, value) =>
+                  option.id.toString() === value.id.toString()
+                }
+                fullWidth
+                sx={{ marginBottom: "-0.5rem" }}
+                isRequired={true}
+                disabled={disableEnforcementAction}
+              />
             </Stack>
+            {enforcementAction?.id === EnforcementActionEnum.ORDER && (
+              <Stack
+                direction="row"
+                gap={1}
+                alignItems="baseline"
+                justifyContent="flex-end"
+              >
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  Select if relevant:
+                </Typography>
+                <ControlledToggleButtonGroup
+                  name="enforcementActionExtra"
+                  size="small"
+                  options={[
+                    {
+                      id: EnforcementActionEnum.AP_RECOMMENDATION,
+                      name: "AP Recommendation",
+                    },
+                    {
+                      id: EnforcementActionEnum.CHARGE_RECOMMENDATION,
+                      name: "Charge Recommendation",
+                    },
+                    {
+                      id: EnforcementActionEnum.VIOLATION_TICKET,
+                      name: "Violation Ticket",
+                    },
+                  ]}
+                />
+              </Stack>
+            )}
             {disableEnforcementAction && (
               <Alert
                 severity="warning"

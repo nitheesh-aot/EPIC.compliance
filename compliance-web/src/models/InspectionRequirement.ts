@@ -32,7 +32,7 @@ export interface InspectionRequirementFormData {
   topic?: Topic;
   complianceFinding?: ComplianceFinding;
   enforcementAction?: EnforcementAction;
-  isReferralToAdministrativePenalty?: boolean;
+  enforcementActionExtra?: EnforcementAction;
   agency?: Agency;
   isReferredToAnotherAgency?: boolean;
   findings?: {
