@@ -17,6 +17,7 @@ export const STAFF_USER_POSITION = {
 export const INITIATION = {
   INSPECTION_ID: "1",
   COMPLAINTS_ID: "2",
+  OTHER_ID: "3",
 };
 
 export const IR_STATUS = {
@@ -39,6 +40,8 @@ export enum RequirementSourceEnum {
   ACT2022 = "7",
   OTHER = "8",
   EACA = "10",
+  REGULATION = "11",
+  EXEMPTION_ORDER = "12",
 }
 
 export enum RequirementDocumentTypeEnum {

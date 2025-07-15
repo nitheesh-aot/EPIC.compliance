@@ -14,8 +14,8 @@ import { Inspection } from "@/models/Inspection";
 import {
   InspectionRequirement,
   InspectionRequirementFormData,
-  RequirementSourceFormData,
 } from "@/models/InspectionRequirement";
+import { RequirementSourceFormData } from "@/models/InspectionRequirementSource";
 import { useMenuStore } from "@/store/menuStore";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Stack } from "@mui/material";
@@ -352,7 +352,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
             onDataChange={onRequirementSourceListDataChange}
             requirementSourceFormDataList={requirementSourceList}
             inspectionId={inspectionData.id}
-            caseFileId={inspectionData.case_file_id ?? 0}
+            caseFile={inspectionData.case_file}
             isRegulatoryConsideration={isRegulatoryConsideration}
             requirementId={requirement?.id ?? 0}
             isRequirementEditable={isRequirementEditable}

@@ -2,12 +2,9 @@ import { Agency } from "./Agency";
 import { ComplianceFinding } from "./ComplianceFinding";
 import { EnforcementAction } from "./EnforcementAction";
 import { InspectionRequirementType } from "./InspectionRequirementType";
-import { RequirementDocumentType } from "./RequirementDocumentType";
-import { RequirementSource } from "./RequirementSource";
 import { Topic } from "./Topic";
 import { RequirementImage } from "./Image";
-import { Appendix } from "./Appendix";
-import { InspectionOrder } from "./InspectionOrder";
+import { InspectionRequirementSource, InspectionRequirementSourceAPIData, RequirementSourceFormData } from "./InspectionRequirementSource";
 
 export interface InspectionRequirement {
   id: number;
@@ -25,39 +22,7 @@ export interface InspectionRequirement {
   findings: string;
   sort_order: number;
   is_active: boolean;
-  requirement_source_details: [
-    {
-      id: number,
-      requirement_id: number,
-      requirement_source_id: number,
-      requirement_source: RequirementSource,
-      section_number: string,
-      condition_number: string,
-      amendment_number: string,
-      appendix_id: number,
-      appendix: Appendix,
-      order_id: number,
-      order: InspectionOrder,
-      title: string,
-      description: string,
-      is_active: boolean,
-      documents: [
-        {
-          id: number,
-          req_detail_id: number,
-          document_type: RequirementDocumentType,
-          document_type_id: number,
-          document_title: string,
-          section_number: string,
-          section_title: string,
-          appendix_id: number,
-          appendix: Appendix,
-          description: string,
-          is_active: boolean
-        }
-      ],
-    }
-  ],
+  requirement_source_details: InspectionRequirementSource[];
 }
 
 export interface InspectionRequirementFormData {
@@ -77,58 +42,6 @@ export interface InspectionRequirementFormData {
   requirementSourceDetails?: RequirementSourceFormData[];
 }
 
-export interface RequirementSourceFormData {
-  id?: number;
-  dbId?: number;
-  requirementSource?: RequirementSource;
-  appendix?: Appendix;
-  sourceNumber?: string;
-  sourceTitle?: string,
-  sourceAmendmentNumber?: string,
-  order?: InspectionOrder,
-  description?: {
-    html: string;
-    text: string;
-  },
-  relatedDocuments?: RequirementRelatedDocumentData[];
-}
-
-export interface RequirementRelatedDocumentData {
-  id?: number;
-  sourceFormId?: number;
-  relatedDocument?: RequirementDocumentType;
-  documentTitle?: string;
-  sections?: RequirementRelatedDocumentSectionData[];
-  appendix?: Appendix;
-}
-
-export interface RequirementRelatedDocumentSectionData {
-  id?: number;
-  dbId?: number;
-  sourceFormId?: number;
-  relatedDocumentFormId?: number;
-  appendix?: Appendix;
-  sectionNumber?: string;
-  sectionTitle?: string;
-  description?: {
-    html: string;
-    text: string;
-  };
-}
-
-export interface RequirementRelatedDocumentSectionFormData {
-  id?: number;
-  relatedDocument?: RequirementDocumentType,
-  appendix?: Appendix;
-  documentTitle?: string,
-  sectionNumber?: string,
-  sectionTitle?: string,
-  description?: {
-    html: string;
-    text: string;
-  },
-}
-
 export interface InspectionRequirementAPIData {
   id?: number,
   req_type: string,
@@ -141,29 +54,6 @@ export interface InspectionRequirementAPIData {
   requirement_source_details?: InspectionRequirementSourceAPIData[],
   photos?: RequirementImage[],
   figures?: RequirementImage[],
-}
-
-export interface InspectionRequirementSourceAPIData {
-  id?: number,
-  requirement_source_id: string,
-  section_number?: string,
-  condition_number?: string,
-  amendment_number?: string,
-  appendix_id?: number,
-  order_id?: number,
-  title: string,
-  description: string,
-  documents: InspectionRequirementSourceDocumentAPIData[]
-}
-
-export interface InspectionRequirementSourceDocumentAPIData {
-  id?: number,
-  document_type_id: string,
-  document_title: string,
-  section_number: string,
-  section_title: string,
-  description: string,
-  appendix_id?: number,
 }
 
 export interface InspectionRequirementBatchAPIData {

@@ -31,6 +31,7 @@ const mockComplianceFinding: ComplianceFinding = {
 const mockRequirementSource: RequirementSource = {
   id: "1",
   name: "Test Source",
+  source_title: "Test Source Title",
 };
 
 const mockDocumentType: RequirementDocumentType = {
@@ -69,6 +70,7 @@ const mockRequirements: InspectionRequirement[] = [
         condition_number: "C-1",
         amendment_number: "A-1",
                 title: "Test Requirement Source 1",
+        source_title: "Test Source Title 1",
         description: "Test description for requirement source 1",
         is_active: true,
         appendix_id: undefined,
@@ -122,6 +124,7 @@ const mockRequirements: InspectionRequirement[] = [
         condition_number: "C-2",
         amendment_number: "A-2",
                 title: "Test Requirement Source 2",
+        source_title: "Test Source Title 2",
         description: "Test description for requirement source 2",
         is_active: true,
         appendix_id: undefined,

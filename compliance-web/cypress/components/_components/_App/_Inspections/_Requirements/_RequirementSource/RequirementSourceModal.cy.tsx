@@ -1,23 +1,45 @@
 import RequirementSourceModal from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementSourceModal";
 import { RequirementSourceEnum } from "@/utils/constants";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RequirementSourceFormData } from "@/models/InspectionRequirement";
+import { RequirementSourceFormData } from "@/models/InspectionRequirementSource";
 import { RequirementSource } from "@/models/RequirementSource";
+import { CaseFile } from "@/models/CaseFile";
 
 const mockRequirementSourceList: RequirementSource[] = [
-  { id: RequirementSourceEnum.ACT2018, name: "ACT 2018" },
-  { id: RequirementSourceEnum.EACA, name: "EACA" },
-  { id: RequirementSourceEnum.OTHER, name: "Other Source" },
+  {
+    id: RequirementSourceEnum.ACT2018,
+    name: "ACT 2018",
+    source_title: "ACT 2018",
+  },
+  { id: RequirementSourceEnum.EACA, name: "EACA", source_title: "EAC# M19-01" },
+  {
+    id: RequirementSourceEnum.OTHER,
+    name: "Other",
+    source_title: "Sample Requirement Source",
+  },
 ];
 
 const mockFormData: RequirementSourceFormData = {
   id: 1,
   dbId: 1,
   requirementSource: mockRequirementSourceList[0],
-  sourceNumber: "123",
-  sourceTitle: "Test Title",
+  sectionNumber: "1.1",
+  title: "Test Title",
   description: { html: "<p>Test</p>", text: "Test" },
   relatedDocuments: [],
+};
+
+const mockCaseFile: CaseFile = {
+  id: 1,
+  project_id: 0,
+  date_created: "",
+  primary_officer_id: 0,
+  case_file_number: "123",
+  case_file_status: "open",
+  initiation: undefined,
+  is_active: false,
+  project: undefined,
+  primary_officer: undefined,
 };
 
 describe("RequirementSourceModal", () => {
@@ -33,9 +55,9 @@ describe("RequirementSourceModal", () => {
       <QueryClientProvider client={queryClient}>
         <RequirementSourceModal
           onSubmit={cy.stub().as("onSubmit")}
-          inspectionId={1}
           requirementSourceFormData={formData}
           requirementSource={requirementSource ?? mockRequirementSourceList[0]}
+          caseFile={mockCaseFile}
         />
       </QueryClientProvider>
     );
@@ -74,51 +96,63 @@ describe("RequirementSourceModal", () => {
   });
 
   it("shows Amendment # field when EACA source is selected", () => {
-    cy.mount(mountRequirementSourceModal({ requirementSource: mockRequirementSourceList[1] }));
+    cy.mount(
+      mountRequirementSourceModal({
+        requirementSource: mockRequirementSourceList[1],
+      })
+    );
 
     cy.contains("Amendment #").should("be.visible");
   });
 
   it("shows Condition # instead of Section # when condition source is selected", () => {
-    cy.mount(mountRequirementSourceModal({ requirementSource: mockRequirementSourceList[1] }));
+    cy.mount(
+      mountRequirementSourceModal({
+        requirementSource: mockRequirementSourceList[1],
+      })
+    );
 
     cy.contains("Condition #").should("exist");
     cy.contains("Section #").should("not.exist");
   });
 
-    it("validates required fields", () => {
-      cy.mount(mountRequirementSourceModal());
+  it("validates required fields", () => {
+    cy.mount(mountRequirementSourceModal());
 
-      // Try to submit without required fields
-      cy.contains("button", "Add").click();
-      cy.contains("Description is required").should("be.visible");
+    // Try to submit without required fields
+    cy.contains("button", "Add").click();
+    cy.contains("Description is required").should("be.visible");
+  });
+
+  it("submits form with valid data", () => {
+    cy.mount(
+      mountRequirementSourceModal({
+        requirementSource: mockRequirementSourceList[1],
+      })
+    );
+
+    // Fill out the form
+    cy.get('input[name="amendmentNumber"]').type("A1");
+    cy.get('input[name="conditionNumber"]').type("123");
+    cy.get('input[name="title"]').type("Test Title");
+
+    // Type in the Lexical editor
+    cy.get('[contenteditable="true"]').type("Test Description");
+
+    // Submit the form
+    cy.contains("button", "Add").click();
+
+    // Verify submission
+    cy.get("@onSubmit").should("be.calledOnce");
+    cy.get("@onSubmit").should("be.calledWithMatch", {
+      requirementSource: { id: RequirementSourceEnum.EACA, name: "EACA" },
+      amendmentNumber: "A1",
+      conditionNumber: "123",
+      title: "Test Title",
+      description: {
+        html: Cypress.sinon.match.string,
+        text: Cypress.sinon.match.string,
+      },
     });
-
-    it("submits form with valid data", () => {
-      cy.mount(mountRequirementSourceModal({ requirementSource: mockRequirementSourceList[1] }));
-
-      // Fill out the form
-      cy.get('input[name="sourceAmendmentNumber"]').type("A1");
-      cy.get('input[name="sourceNumber"]').type("123");
-      cy.get('input[name="sourceTitle"]').type("Test Title");
-
-      // Type in the Lexical editor
-      cy.get('[contenteditable="true"]').type("Test Description");
-
-      // Submit the form
-      cy.contains("button", "Add").click();
-
-      // Verify submission
-      cy.get("@onSubmit").should("be.calledOnce");
-      cy.get("@onSubmit").should("be.calledWithMatch", {
-        requirementSource: { id: RequirementSourceEnum.EACA, name: "EACA" },
-        sourceAmendmentNumber: "A1",
-        sourceNumber: "123",
-        sourceTitle: "Test Title",
-        description: {
-          html: Cypress.sinon.match.string,
-          text: Cypress.sinon.match.string,
-        },
-      });
-    });
+  });
 });

@@ -190,6 +190,7 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
             RequirementSourceEnum.COMPLIANCE_AGREEMENT,
             RequirementSourceEnum.CERTIFIED_PROJECT_DESCRIPTION,
             RequirementSourceEnum.OTHER,
+            RequirementSourceEnum.REGULATION,
         ]:
             raise ValidationError(
                 "Invalid requirement source for the given section number",

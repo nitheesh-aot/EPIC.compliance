@@ -18,6 +18,7 @@ interface FileProfileHeaderProps {
   breadcrumbs: BreadcrumbItem[];
   profileContext: string;
   caseFileNumber?: string;
+  isInititationOther?: boolean;
 }
 
 const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
@@ -26,6 +27,7 @@ const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
   breadcrumbs,
   profileContext,
   caseFileNumber,
+  isInititationOther = false,
 }) => {
   return (
     <Box
@@ -56,11 +58,11 @@ const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
             <>
               <CaseFileCreateInspection
                 fileNumber={fileNumber}
-                hidden={status.toLowerCase() === "closed"}
+                hidden={status.toLowerCase() === "closed" || isInititationOther}
               />
               <CaseFileCreateComplaint
                 fileNumber={fileNumber}
-                hidden={status.toLowerCase() === "closed"}
+                hidden={status.toLowerCase() === "closed" || isInititationOther}
               />
               <CaseFileActions status={status} fileNumber={fileNumber} />
             </>

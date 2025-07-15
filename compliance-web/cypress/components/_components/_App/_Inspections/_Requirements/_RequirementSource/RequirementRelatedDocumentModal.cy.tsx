@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   RequirementSourceFormData,
   RequirementRelatedDocumentData,
-} from "@/models/InspectionRequirement";
+} from "@/models/InspectionRequirementSource";
 import {
   RequirementSourceEnum,
   RequirementDocumentTypeEnum,
@@ -21,9 +21,10 @@ const mockSourceData: RequirementSourceFormData = {
   requirementSource: {
     id: RequirementSourceEnum.SCHEDULE_B,
     name: "Schedule B",
+    source_title: "Schedule B",
   },
-  sourceNumber: "123",
-  sourceTitle: "Test Source",
+  conditionNumber: "1.1",
+  title: "Test Source",
   description: { html: "<p>Test</p>", text: "Test" },
   relatedDocuments: [],
 };
@@ -111,7 +112,7 @@ describe("RequirementRelatedDocumentModal", () => {
     cy.mount(mountRelatedDocumentModal());
 
     cy.contains("Schedule B").should("be.visible");
-    cy.contains("123").should("be.visible");
+    cy.contains("1.1").should("be.visible");
   });
 
   it("validates required fields", () => {

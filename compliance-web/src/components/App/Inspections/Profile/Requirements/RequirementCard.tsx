@@ -1,5 +1,6 @@
 import { useUpdateInspectionRequirementOrder } from "@/hooks/useInspectionRequirements";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
+import { InspectionRequirementSource } from "@/models/InspectionRequirementSource";
 import { notify } from "@/store/snackbarStore";
 import { DragIndicatorRounded } from "@mui/icons-material";
 import { Box, Grid, Typography } from "@mui/material";
@@ -7,9 +8,9 @@ import { BCDesignTokens } from "epic.theme";
 import { Reorder } from "framer-motion";
 import React, { memo, useCallback, useState } from "react";
 import {
-  isRequirementSourceCondition,
   REGULATORY_CONSIDERATION_TYPE_ID,
   requirementCardStyles,
+  requirementSourceNumberType,
 } from "./RequirementUtils";
 import GridLabelValuePair from "@/components/Shared/GridLabelValuePair";
 
@@ -29,7 +30,7 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
     const isRegulatoryConsideration =
       requirement.req_type?.id === REGULATORY_CONSIDERATION_TYPE_ID;
 
-    const isCondition = isRequirementSourceCondition(
+    const sourceNumberType = requirementSourceNumberType(
       requirement.requirement_source_details?.[0]?.requirement_source_id.toString()
     );
 
@@ -94,11 +95,13 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
             gridProps={{ xs: 4 }}
           />
           <GridLabelValuePair
-            label={isCondition ? "Condition #" : "Section #"}
+            label={`${sourceNumberType} #`}
             value={
-              isCondition
-                ? requirement.requirement_source_details?.[0]?.condition_number
-                : requirement.requirement_source_details?.[0]?.section_number
+              String(
+                requirement.requirement_source_details?.[0]?.[
+                  `${sourceNumberType.toLowerCase()}_number` as keyof InspectionRequirementSource
+                ] ?? ""
+              )
             }
             gridProps={{ xs: 8 }}
           />
@@ -116,7 +119,7 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
           />
         </>
       ),
-      [isCondition, requirement]
+      [sourceNumberType, requirement]
     );
 
     const renderCardContent = useCallback(() => {
@@ -135,9 +138,10 @@ const RequirementCard: React.FC<RequirementCardProps> = memo(
               },
             }),
             // When drag is disabled but card should still be clickable, maintain pointer cursor
-            ...(dragDisabled && !disabled && {
-              cursor: "pointer",
-            }),
+            ...(dragDisabled &&
+              !disabled && {
+                cursor: "pointer",
+              }),
           }}
           onClick={handleClick}
         >

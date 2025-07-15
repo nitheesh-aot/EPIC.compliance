@@ -8,7 +8,12 @@ import { KC_USER_GROUPS, useIsRolesAllowed } from "@/hooks/useAuthorization";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import { useDrawer } from "@/store/drawerStore";
 import { notify } from "@/store/snackbarStore";
-import { CR_CONTEXT_TYPE, DRAWER_WIDTHS, FILE_PROFILE_CONTEXT } from "@/utils/constants";
+import {
+  CR_CONTEXT_TYPE,
+  DRAWER_WIDTHS,
+  FILE_PROFILE_CONTEXT,
+  INITIATION,
+} from "@/utils/constants";
 import { Box } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
@@ -38,16 +43,18 @@ function CaseFileProfilePage() {
     [KC_USER_GROUPS.SUPERUSER],
     caseFileData?.primary_officer ? [caseFileData.primary_officer] : []
   );
-  const showCreateCREntryButton = useIsRolesAllowed(
-    [KC_USER_GROUPS.SUPERUSER],
-    caseFileData
-      ? [...[caseFileData.primary_officer], ...caseFileData.officers]
-      : []
-  ) && caseFileData?.case_file_status === "Open";
+  const showCreateCREntryButton =
+    useIsRolesAllowed(
+      [KC_USER_GROUPS.SUPERUSER],
+      caseFileData
+        ? [...[caseFileData.primary_officer], ...caseFileData.officers]
+        : []
+    ) && caseFileData?.case_file_status === "Open";
 
   const isCaseFileEditable = useMemo(() => {
     return (
-      isUserEditAllowed && caseFileData?.case_file_status?.toLowerCase() === "open"
+      isUserEditAllowed &&
+      caseFileData?.case_file_status?.toLowerCase() === "open"
     );
   }, [caseFileData, isUserEditAllowed]);
 
@@ -92,6 +99,7 @@ function CaseFileProfilePage() {
           { label: caseFileNumber },
         ]}
         profileContext={FILE_PROFILE_CONTEXT.CASEFILE}
+        isInititationOther={caseFileData.initiation.id === INITIATION.OTHER_ID}
       />
       <Box p="1rem 1rem 1.25rem 3.75rem" display="flex" gap={3}>
         <CaseFileGeneralInformation

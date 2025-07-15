@@ -5,8 +5,8 @@ import RequirementSourceCard from "@/components/App/Inspections/Profile/Requirem
 import RequirementSourceModal from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementSourceModal";
 import {
   ImageTypeEnum,
-  isRequirementSourceCondition,
   groupRequirementSourcesByType,
+  requirementSourceNumberType,
 } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useAppendicesData } from "@/hooks/useAppendices";
@@ -14,18 +14,19 @@ import {
   RequirementRelatedDocumentData,
   RequirementRelatedDocumentSectionData,
   RequirementSourceFormData,
-} from "@/models/InspectionRequirement";
+} from "@/models/InspectionRequirementSource";
 import { useModal } from "@/store/modalStore";
 import { AddRounded } from "@mui/icons-material";
 import { Box, Button } from "@mui/material";
 import { FC, useEffect, useMemo, useState } from "react";
 import { useRequirementStore } from "./requirementStore";
+import { CaseFile } from "@/models/CaseFile";
 
 interface RequirementFormRightProps {
   onDataChange: (data: RequirementSourceFormData[]) => void;
   requirementSourceFormDataList: RequirementSourceFormData[];
   inspectionId: number;
-  caseFileId: number;
+  caseFile: CaseFile;
   requirementId: number;
   isRegulatoryConsideration: boolean;
   isRequirementEditable?: boolean;
@@ -35,7 +36,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
   onDataChange,
   requirementSourceFormDataList,
   inspectionId,
-  caseFileId,
+  caseFile,
   requirementId,
   isRegulatoryConsideration,
   isRequirementEditable = true,
@@ -141,7 +142,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       content: (
         <RequirementSourceModal
           onSubmit={handleOnAddSubmit}
-          caseFileId={caseFileId}
+          caseFile={caseFile}
           appendixList={appendixList}
         />
       ),
@@ -154,7 +155,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       content: (
         <RequirementSourceModal
           onSubmit={handleOnEditSubmit}
-          caseFileId={caseFileId}
+          caseFile={caseFile}
           requirementSourceFormData={data}
           appendixList={appendixList}
         />
@@ -169,22 +170,22 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
     );
     const isLastSectionItem =
       requirementSourceDetails && requirementSourceDetails.length === 1;
-    const sourceType = isRequirementSourceCondition(
+    const sourceNumberType = requirementSourceNumberType(
       data.requirementSource?.id ?? ""
-    )
-      ? "condition"
-      : "section";
+    ).toLowerCase();
+    const sourceNumber =
+      data[`${sourceNumberType}Number` as keyof RequirementSourceFormData];
     const description = isLastSectionItem
       ? `You are about to delete ${data.requirementSource?.name}.
       This is the primary requirement source. 
       Deleting it will also permanently remove all associated documents. 
       Are you sure you want to proceed?`
       : data.relatedDocuments?.length
-        ? `You are about to delete ${data.sourceNumber} - ${data.sourceTitle}.
-        This ${sourceType} has associated documents.
-        Deleting this ${sourceType} will also remove all associated documents from the system.
+        ? `You are about to delete ${sourceNumber} - ${data.title}.
+        This ${sourceNumberType} has associated documents.
+        Deleting this ${sourceNumberType} will also remove all associated documents from the system.
         Are you sure you want to proceed?`
-        : `You are about to delete ${data.sourceNumber} - ${data.sourceTitle}.
+        : `You are about to delete ${sourceNumber} - ${data.title}.
         Are you sure you want to proceed?`;
     setOpen({
       content: (
@@ -205,7 +206,7 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
       content: (
         <RequirementSourceModal
           onSubmit={handleOnAddSubmit}
-          caseFileId={caseFileId}
+          caseFile={caseFile}
           requirementSource={data.requirementSource}
           order={data.order}
           appendixList={appendixList}

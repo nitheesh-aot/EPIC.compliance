@@ -1,25 +1,27 @@
 import { DialogContent, Stack } from "@mui/material";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as yup from "yup";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
 import { RequirementSource } from "@/models/RequirementSource";
-import { RequirementSourceFormData } from "@/models/InspectionRequirement";
+import { RequirementSourceFormData } from "@/models/InspectionRequirementSource";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import { useRequirementSourcesData } from "@/hooks/useComplaints";
 import { RequirementSourceEnum } from "@/utils/constants";
-import { isRequirementSourceCondition } from "../RequirementUtils";
+import { requirementSourceNumberType } from "../RequirementUtils";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 import { Appendix } from "@/models/Appendix";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import { useInspectionOrdersProjectwiseData } from "@/hooks/useInspectionOrders";
+import { CaseFile } from "@/models/CaseFile";
+import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 
 type RequirementSourceModalProps = {
   onSubmit: (data: RequirementSourceFormData) => void;
-  caseFileId: number;
+  caseFile: CaseFile;
   requirementSourceFormData?: RequirementSourceFormData;
   requirementSource?: RequirementSource;
   order?: InspectionOrder;
@@ -31,9 +33,16 @@ const requirementSourceFormSchema = yup.object().shape({
     .object<RequirementSource>()
     .nullable()
     .required("Requirement Source is required"),
+  requirementSourceTitle: yup.string().nullable(),
+  regulationNumber: yup.string().nullable(),
+  exemptionOrderNumber: yup.string().nullable(),
+  complianceNumber: yup.string().nullable(),
+  amendmentNumber: yup.string().nullable(),
+  clauseNumber: yup.string().nullable(),
   appendix: yup.object<Appendix>().nullable(),
-  sourceTitle: yup.string().nullable(),
-  sourceAmendmentNumber: yup.string().nullable(),
+  conditionNumber: yup.string().nullable(),
+  sectionNumber: yup.string().nullable(),
+  title: yup.string().nullable(),
   order: yup
     .object<InspectionOrder>()
     .nullable()
@@ -58,23 +67,30 @@ type RequirementSourceSchemaType = yup.InferType<
 
 const initFormData: RequirementSourceFormData = {
   requirementSource: undefined,
+  requirementSourceTitle: undefined,
+  regulationNumber: undefined,
+  exemptionOrderNumber: undefined,
+  complianceNumber: undefined,
+  amendmentNumber: undefined,
   appendix: undefined,
-  sourceNumber: "",
-  sourceTitle: "",
-  sourceAmendmentNumber: "",
+  conditionNumber: undefined,
+  sectionNumber: undefined,
+  clauseNumber: undefined,
+  title: "",
   description: undefined,
 };
 
 const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
   onSubmit,
-  caseFileId,
+  caseFile,
   requirementSourceFormData,
   requirementSource,
   order,
   appendixList,
 }) => {
   const { data: requirementSourceList } = useRequirementSourcesData();
-  const { data: orderList } = useInspectionOrdersProjectwiseData(caseFileId);
+  const { data: orderList } = useInspectionOrdersProjectwiseData(caseFile.id);
+  const { data: caseFileData } = useCaseFileByNumber(caseFile.case_file_number);
 
   const defaultValues = useMemo<RequirementSourceFormData>(() => {
     return (
@@ -93,6 +109,8 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
   });
 
   const { handleSubmit, reset, control, getValues, setValue } = methods;
+  const hasUserEditedTitle = useRef(false);
+  const currentRequirementSourceId = useRef<string | null>(null);
 
   const selectedRequirementSource = useWatch({
     control,
@@ -118,7 +136,33 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
 
   useEffect(() => {
     reset(defaultValues);
+    // Reset the user edit flag when form is reset
+    hasUserEditedTitle.current = false;
+    currentRequirementSourceId.current = null;
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (selectedRequirementSource) {
+      // Check if requirement source has changed
+      const hasSourceChanged =
+        currentRequirementSourceId.current !== selectedRequirementSource.id;
+
+      if (hasSourceChanged) {
+        // Reset the edit flag when source changes
+        hasUserEditedTitle.current = false;
+        currentRequirementSourceId.current = selectedRequirementSource.id;
+
+        let sourceTitle = selectedRequirementSource.source_title;
+        if (sourceTitle && sourceTitle.includes("${eac#}")) {
+          sourceTitle = sourceTitle.replace(
+            "${eac#}",
+            caseFileData?.authorization ?? ""
+          );
+        }
+        setValue("requirementSourceTitle", sourceTitle);
+      }
+    }
+  }, [selectedRequirementSource, setValue, caseFileData]);
 
   const onSubmitHandler = (data: RequirementSourceSchemaType) => {
     const formData = data as RequirementSourceFormData;
@@ -126,6 +170,10 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
       formData.id = Date.now();
     }
     onSubmit(formData);
+  };
+
+  const handleTitleChange = () => {
+    hasUserEditedTitle.current = true;
   };
 
   return (
@@ -150,6 +198,48 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
               disabled={!!requirementSourceFormData || !!requirementSource}
               isRequired={true}
             />
+            {selectedRequirementSource && (
+              <Stack direction={"row"} gap={2}>
+                <ControlledTextField
+                  name="requirementSourceTitle"
+                  label="Source Title"
+                  fullWidth
+                  onChange={handleTitleChange}
+                />
+                {selectedRequirementSource?.id ===
+                  RequirementSourceEnum.REGULATION && (
+                  <ControlledTextField
+                    name="regulationNumber"
+                    label="Regulation #"
+                    fullWidth
+                  />
+                )}
+                {selectedRequirementSource?.id ===
+                  RequirementSourceEnum.EXEMPTION_ORDER && (
+                  <ControlledTextField
+                    name="exemptionOrderNumber"
+                    label="Exemption Order #"
+                    fullWidth
+                  />
+                )}
+                {selectedRequirementSource?.id ===
+                  RequirementSourceEnum.COMPLAINCE_AGREEMENT && (
+                  <ControlledTextField
+                    name="complianceNumber"
+                    label="#"
+                    fullWidth
+                  />
+                )}
+                {selectedRequirementSource?.id ===
+                  RequirementSourceEnum.EACA && (
+                  <ControlledTextField
+                    name="amendmentNumber"
+                    label="Amendment #"
+                    fullWidth
+                  />
+                )}
+              </Stack>
+            )}
             {selectedRequirementSource?.id === RequirementSourceEnum.ORDER && (
               <ControlledAutoComplete
                 name="order"
@@ -164,7 +254,7 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
             )}
             <ControlledAutoComplete
               name="appendix"
-              label="Appendix"
+              label="Inspection Record Appendix #"
               options={appendixList ?? []}
               getOptionLabel={(option) => {
                 return `Appendix ${option.appendix_no}: ${option.document_title}`;
@@ -172,31 +262,36 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
               getOptionKey={(option) => option.id ?? ""}
               isOptionEqualToValue={(option, value) => option.id === value.id}
             />
-            {selectedRequirementSource?.id === RequirementSourceEnum.EACA && (
-              <ControlledTextField
-                name="sourceAmendmentNumber"
-                label="Amendment #"
-                fullWidth
-              />
-            )}
             {selectedRequirementSource?.id !== RequirementSourceEnum.ORDER && (
               <Stack direction={"row"} gap={2}>
-                <ControlledTextField
-                  name="sourceNumber"
-                  label={
-                    isRequirementSourceCondition(
-                      selectedRequirementSource?.id ?? ""
-                    )
-                      ? "Condition #"
-                      : "Section #"
-                  }
-                  fullWidth
-                />
-                <ControlledTextField
-                  name="sourceTitle"
-                  label="Title"
-                  fullWidth
-                />
+                {requirementSourceNumberType(
+                  selectedRequirementSource?.id ?? ""
+                ).toLowerCase() === "condition" && (
+                  <ControlledTextField
+                    name="conditionNumber"
+                    label="Condition #"
+                    fullWidth
+                  />
+                )}
+                {requirementSourceNumberType(
+                  selectedRequirementSource?.id ?? ""
+                ).toLowerCase() === "section" && (
+                  <ControlledTextField
+                    name="sectionNumber"
+                    label="Section #"
+                    fullWidth
+                  />
+                )}
+                {requirementSourceNumberType(
+                  selectedRequirementSource?.id ?? ""
+                ).toLowerCase() === "clause" && (
+                  <ControlledTextField
+                    name="clauseNumber"
+                    label="Clause #"
+                    fullWidth
+                  />
+                )}
+                <ControlledTextField name="title" label="Title" fullWidth />
               </Stack>
             )}
             <ControlledLexicalEditor

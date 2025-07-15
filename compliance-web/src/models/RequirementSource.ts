@@ -3,6 +3,7 @@ import { Topic } from "./Topic";
 export interface RequirementSource {
   id: string;
   name: string;
+  source_title: string;
 }
 
 export interface RequirementDetails {

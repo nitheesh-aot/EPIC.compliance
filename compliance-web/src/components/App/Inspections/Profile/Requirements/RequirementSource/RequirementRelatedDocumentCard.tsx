@@ -20,7 +20,7 @@ import { ExpandLessRounded } from "@mui/icons-material";
 import {
   RequirementRelatedDocumentData,
   RequirementRelatedDocumentSectionData,
-} from "@/models/InspectionRequirement";
+} from "@/models/InspectionRequirementSource";
 import ParagraphWithReadMore from "@/components/Shared/ParagraphWithReadMore";
 
 interface RequirementRelatedDocumentCardProps {
