@@ -20,4 +20,4 @@ class RequirementSourceSchema(Schema):
 
     id = fields.Str(metadata={"description": "Unique id in the list"})
     name = fields.Str(metadata={"description": "Name of the list item"})
-    source_title = fields.Str(metadata={"description": "The title of the requirement source"}) 
+    source_title = fields.Str(metadata={"description": "The title of the requirement source"})
