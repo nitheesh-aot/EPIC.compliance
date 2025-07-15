@@ -224,6 +224,7 @@ class ServiceUtils:
         requirement_title = f"{requirement_source_number} of {detail.source_title}"
         if requirement_source_number is None:
             requirement_title = detail.source_title
+
         #  format: Section [Section #] of [Source Title]
         #  format: Condition [Condition #] of [Source Title]
         if detail.requirement_source_id in [
@@ -234,27 +235,32 @@ class ServiceUtils:
             RequirementSourceEnum.SCHEDULE_B.value,
             RequirementSourceEnum.OTHER.value,
         ]:
-            return requirement_title
+            pass
         #  format: Condition [Condition #] of [Source Title][Amendment #]
-        if detail.requirement_source_id == RequirementSourceEnum.EAC_AMENDMENT.value:
-            return requirement_title + f" {detail.amendment_number}"
+        elif detail.requirement_source_id == RequirementSourceEnum.EAC_AMENDMENT.value:
+            requirement_title += f" {detail.amendment_number}"
         #  format: Section [Section #] of [Source Title][Compliance #]
         # ToDo: compliance number
-        if (
+        elif (
             detail.requirement_source_id
             == RequirementSourceEnum.COMPLIANCE_AGREEMENT.value
         ):
-            return requirement_title + f" {detail.compliance_number}"
+            requirement_title += f" {detail.compliance_number}"
         #  format: Order [Order #]
-        if detail.requirement_source_id == RequirementSourceEnum.ORDER.value:
-            return requirement_source_number
+        elif detail.requirement_source_id == RequirementSourceEnum.ORDER.value:
+            requirement_title = requirement_source_number
         #  format: [Source Title],[Regulation #]
-        if detail.requirement_source_id == RequirementSourceEnum.REGULATION.value:
-            return requirement_title + f" {detail.regulation_number}"
+        elif detail.requirement_source_id == RequirementSourceEnum.REGULATION.value:
+            requirement_title += f" {detail.regulation_number}"
         #  format: Clause [Clause #] of [Exemption Order #]
-        if detail.requirement_source_id == RequirementSourceEnum.EXEMPTION_ORDER.value:
-            return requirement_title + f" {detail.exemption_order_number}"
-        return ""
+        elif (
+            detail.requirement_source_id == RequirementSourceEnum.EXEMPTION_ORDER.value
+        ):
+            requirement_title += f" {detail.exemption_order_number}"
+        else:
+            requirement_title = ""
+
+        return requirement_title
 
     @staticmethod
     def get_photos_and_figures(requirement_id: int):

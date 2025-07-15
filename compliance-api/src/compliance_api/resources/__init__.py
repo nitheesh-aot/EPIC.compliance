@@ -36,6 +36,7 @@ from .inspection import API as INSPECTION_API
 from .inspection_record import API as IR_API
 from .inspection_requirement import API as INSPECTION_REQUIREMENT_API
 from .inspection_requirement_type import API as REQUIREMENT_TYPE_API
+from .inspection_requirements import API as INSPECTION_REQUIREMENTS_API
 from .ops import API as OPS_API
 from .order import API as ORDER_API
 from .position import API as POSITION_API
@@ -103,3 +104,4 @@ API.add_namespace(IR_API, path="inspections/<int:inspection_id>/inspection-recor
 API.add_namespace(ORDER_API, path="orders")
 API.add_namespace(SECTION_API)
 API.add_namespace(WARNING_LETTER_API, path="warning-letters")
+API.add_namespace(INSPECTION_REQUIREMENTS_API, path="inspection-requirements")
