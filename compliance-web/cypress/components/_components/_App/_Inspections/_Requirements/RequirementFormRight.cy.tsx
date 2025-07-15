@@ -1,10 +1,24 @@
 import RequirementFormRight from "@/components/App/Inspections/Profile/Requirements/RequirementFormRight";
 import ModalProvider from "@/components/Shared/Modals/ModalProvider";
-import { RequirementSourceFormData } from "@/models/InspectionRequirement";
+import { CaseFile } from "@/models/CaseFile";
+import { RequirementSourceFormData } from "@/models/InspectionRequirementSource";
 import { RequirementSourceEnum } from "@/utils/constants";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const queryClient = new QueryClient();
+
+const mockCaseFile: CaseFile = {
+  id: 1,
+  project_id: 0,
+  date_created: "",
+  primary_officer_id: 0,
+  case_file_number: "123",
+  case_file_status: "open",
+  initiation: undefined,
+  is_active: false,
+  project: undefined,
+  primary_officer: undefined
+};
 
 const mountComponent = (reqSrcList: RequirementSourceFormData[]) => {
   const mockOnDataChange = cy.stub().as("onDataChange");
@@ -16,7 +30,10 @@ const mountComponent = (reqSrcList: RequirementSourceFormData[]) => {
         onDataChange={mockOnDataChange}
         requirementSourceFormDataList={reqSrcList}
         inspectionId={1}
-        isRequirement={true}
+        caseFile={mockCaseFile}
+        requirementId={1}
+        isRegulatoryConsideration={false}
+        isRequirementEditable={true}
       />
     </QueryClientProvider>
   );
@@ -26,11 +43,12 @@ describe("RequirementFormRight Component", () => {
   const mockInitialData: RequirementSourceFormData[] = [
     {
       id: 1,
-      sourceNumber: "1.1",
+      conditionNumber: "1.1",
       title: "Test Requirement",
       requirementSource: {
-        id: RequirementSourceEnum.ACT2018,
-        name: "ACT 2018",
+        id: RequirementSourceEnum.EAC,
+        name: "EAC Certificate",
+        source_title: "EAC# M19-01",
       },
       relatedDocuments: [],
     },
@@ -58,7 +76,7 @@ describe("RequirementFormRight Component", () => {
   });
 
   it("displays requirement source card with correct data", () => {
-    cy.contains(mockInitialData[0].sourceNumber).should("exist");
+    cy.contains(mockInitialData[0].conditionNumber).should("exist");
     cy.contains(mockInitialData[0].title).should("exist");
   });
 
@@ -94,11 +112,12 @@ describe("RequirementFormRight Component with Related Documents", () => {
   const mockDataWithRelatedDocs: RequirementSourceFormData[] = [
     {
       id: 1,
-      sourceNumber: "1.1",
+      conditionNumber: "1.1",
       title: "Test Requirement",
       requirementSource: {
-        id: "REQ",
-        name: "Requirement",
+        id: RequirementSourceEnum.EAC,
+        name: "EAC Certificate",
+        source_title: "EAC# M19-01",
       },
       relatedDocuments: [
         {

@@ -1,5 +1,5 @@
 import RequirementSourceCard from "@/components/App/Inspections/Profile/Requirements/RequirementSource/RequirementSourceCard";
-import { RequirementSourceFormData } from "@/models/InspectionRequirement";
+import { RequirementSourceFormData } from "@/models/InspectionRequirementSource";
 import { RequirementSourceEnum } from "@/utils/constants";
 
 describe("RequirementSourceCard", () => {
@@ -8,10 +8,11 @@ describe("RequirementSourceCard", () => {
       requirementSource: {
         id: RequirementSourceEnum.EACA,
         name: "Test Source",
+        source_title: "Test Source",
       },
-      sourceNumber: "1.1",
+      conditionNumber: "1.1",
       title: "Test Title",
-      sourceAmendmentNumber: "123",
+      amendmentNumber: "123",
       description: {
         html: "<p>Test description</p>",
         text: "Test description",
