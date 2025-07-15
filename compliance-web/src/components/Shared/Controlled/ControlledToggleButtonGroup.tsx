@@ -33,11 +33,18 @@ const ControlledToggleButtonGroup: FC<ControlledToggleButtonGroupProps> = ({
         <ToggleButtonGroup
           value={value}
           exclusive
-          onChange={(_event, newValue) => onChange(newValue)}
+          onChange={(_event, newValue) => {
+            // Allow deselection by clicking the same option
+            if (newValue && value && newValue.id === value.id) {
+              onChange(null);
+            } else {
+              onChange(newValue);
+            }
+          }}
           disabled={disabled}
           sx={{
             marginBottom: "1rem",
-            height: "2.5rem",
+            height: rest.size === "small" ? "2rem" : "2.5rem",
             backgroundColor: BCDesignTokens.surfaceColorBackgroundWhite,
             ...sx,
           }}
@@ -54,9 +61,6 @@ const ControlledToggleButtonGroup: FC<ControlledToggleButtonGroupProps> = ({
                 paddingX: "1rem",
                 "&.Mui-selected": {
                   border: `1px solid ${BCDesignTokens.surfaceColorBorderDark}`,
-                },
-                "&.MuiToggleButtonGroup-lastButton.Mui-disabled": {
-                  borderLeft: `1px solid ${BCDesignTokens.surfaceColorBorderDark}`,
                 },
               }}
             >

@@ -52,7 +52,7 @@ export const RequirementFormSchema = (isRegulatoryConsideration: boolean) => yup
   topic: yup.object<Topic>().nullable().required("Topic is required"),
   complianceFinding: yup.object<ComplianceFinding>().nullable(),
   enforcementAction: yup.object<EnforcementAction>().nullable(),
-  isReferralToAdministrativePenalty: yup.boolean().nullable(),
+  enforcementActionExtra: yup.object<EnforcementAction>().nullable(),
   isReferredToAnotherAgency: isRegulatoryConsideration ? yup.boolean().nullable() : yup.boolean().strip(),
   agency: yup.object<Agency>().nullable().when(['isReferredToAnotherAgency', 'enforcementAction'], {
     is: (isReferred: boolean, enforcementAction: EnforcementAction) =>
@@ -105,8 +105,8 @@ export const formatRequirementAPIData = (
     inspectionRequirementPayload.enforcement_action_ids = formData.enforcementAction?.id ? [formData.enforcementAction.id] : [];
     inspectionRequirementPayload.compliance_finding_id = formData.complianceFinding?.id ?? undefined;
 
-    if (formData.enforcementAction?.id === EnforcementActionEnum.ORDER && formData.isReferralToAdministrativePenalty) {
-      inspectionRequirementPayload.enforcement_action_ids?.push(EnforcementActionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY);
+    if (formData.enforcementAction?.id === EnforcementActionEnum.ORDER && formData.enforcementActionExtra?.id) {
+      inspectionRequirementPayload.enforcement_action_ids.push(formData.enforcementActionExtra.id);
     }
 
     const requirementSourceDetails: InspectionRequirementSourceAPIData[] =
@@ -232,9 +232,7 @@ export const formatRequirementFormData = (requirement: InspectionRequirement): I
     isReferredToAnotherAgency: !!requirement.agency_id,
     complianceFinding: requirement.compliance_finding,
     enforcementAction: enforcementActions[0],
-    isReferralToAdministrativePenalty:
-      enforcementActions.some(a => a.id === EnforcementActionEnum.ORDER) &&
-      enforcementActions.some(a => a.id === EnforcementActionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY),
+    enforcementActionExtra: enforcementActions.length > 1 ? enforcementActions[1] : undefined,
     findings: { html: requirement.findings, text: requirement.findings },
     requirementSourceDetails: requirementSourceDetails,
   };
