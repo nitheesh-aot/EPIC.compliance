@@ -44,3 +44,14 @@ class InspectionRequirementGridItemSchema(Schema):
     requirement_source = fields.Nested(
         KeyValueSchema, metadata={"description": "The requirement source"}
     )
+    inspection_status = fields.Nested(
+        KeyValueSchema, metadata={"description": "The inspection status"}
+    )
+    primary_officer_name = fields.Str(
+        metadata={
+            "description": "The primary officer name of the inspection requirement"
+        }
+    )
+    project_name = fields.Str(
+        metadata={"description": "The project name of the inspection requirement"}
+    )
