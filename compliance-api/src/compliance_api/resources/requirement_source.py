@@ -41,7 +41,9 @@ class RequirementSource(Resource):
     """Resource for managing requirement source."""
 
     @staticmethod
-    @API.response(code=200, description="Success", model=[requirement_source_list_model])
+    @API.response(
+        code=200, description="Success", model=[requirement_source_list_model]
+    )
     @ApiHelper.swagger_decorators(
         API, endpoint_description="Fetch all requirement sources"
     )

@@ -1,0 +1,19 @@
+[flake8]
+# E203 whitespace before ':' - Black intentionally breaks this rule
+extend-ignore = E203,Q000,W503
+max-line-length = 120
+
+# Explicitly specify which directories to check
+filename = ./src/compliance_api/**/*.py ./tests/**/*.py
+
+# Additional directories to exclude
+exclude = 
+    .git,
+    __pycache__,
+    .pytest_cache,
+    .coverage,
+    venv,
+    build,
+    dist,
+    migrations,
+    alembic
