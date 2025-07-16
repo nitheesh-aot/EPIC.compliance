@@ -366,7 +366,7 @@ class InspectionRecordDataBuilder:
             #  Actions that can be applied to individual requirements
             valid_actions_for_individual_requirements = {
                 EnforcementActionOptionEnum.NOTICE_OF_NON_COMPLIANCE,
-                EnforcementActionOptionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY,
+                EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY_RECOMMENDATION,
                 EnforcementActionOptionEnum.REFERRAL_TO_ANOTHER_AGENCY,
             }
             #  Actions that are mapped to multiple requirements
@@ -642,7 +642,7 @@ class InspectionRecordDataBuilder:
         requirement: InspectionRequirementModel,
     ):
         """Create the enforcement summary lines."""
-        if action == EnforcementActionOptionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY:
+        if action == EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY_RECOMMENDATION:
             return render_template_with_data(
                 "ENFORCEMENT_SUMMARY.ADMINISTRATIVE_PENALTY",
                 ENFORCEMENT_SUMMARY.get("ADMINISTRATIVE_PENALTY"),

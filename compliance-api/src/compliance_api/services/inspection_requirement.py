@@ -602,8 +602,8 @@ def _build_inspection_requirements_base_query(
         )
     if enable_pagination:
         # Add pagination
-        page = int(args.get("page", 1))
-        per_page = int(args.get("per_page", 15))
+        page = int(args.get("page_no", 1))
+        per_page = int(args.get("page_size", 15))
 
         req = aliased(InspectionRequirementModel)
         enf_map = aliased(InspectionReqEnforcementMapModel)
