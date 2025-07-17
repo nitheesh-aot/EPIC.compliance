@@ -605,9 +605,8 @@ def _build_inspection_requirements_base_query(
         page = int(args.get("page", 1))
         per_page = int(args.get("per_page", 15))
 
-        req = aliased(InspectionRequirementModel)
-        enf_map = aliased(InspectionReqEnforcementMapModel)
         # Get distinct count by requirement ID to avoid duplicates
+        # Use the existing aliases from the base query
         distinct_count_query = base_query.with_entities(
             req.id, enf_map.enforcement_action_id
         ).distinct()
