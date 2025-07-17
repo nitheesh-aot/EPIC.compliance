@@ -8,6 +8,7 @@ import {
   useMaterialReactTable,
   MRT_Column,
   MRT_Header,
+  MRT_TableState,
 } from "material-react-table";
 import { Box, Button, IconButton, Tooltip, Typography } from "@mui/material";
 import { FiltersCache } from "./FiltersCache";
@@ -25,6 +26,43 @@ interface MRT_EAO_TitleToolbarProps {
   tableAddRecordFunction?: () => void;
 }
 
+// interfaces for remote data
+interface RemoteDataConfig<TData extends MRT_RowData> {
+  enableRemoteData: boolean;
+  rowCount?: number;
+  manualPagination?: boolean;
+  manualSorting?: boolean;
+  manualFiltering?: boolean;
+  onPaginationChange?: (
+    updater:
+      | MRT_TableState<TData>["pagination"]
+      | ((
+          old: MRT_TableState<TData>["pagination"]
+        ) => MRT_TableState<TData>["pagination"])
+  ) => void;
+  onSortingChange?: (
+    updater:
+      | MRT_TableState<TData>["sorting"]
+      | ((
+          old: MRT_TableState<TData>["sorting"]
+        ) => MRT_TableState<TData>["sorting"])
+  ) => void;
+  onColumnFiltersChange?: (
+    updater:
+      | MRT_TableState<TData>["columnFilters"]
+      | ((
+          old: MRT_TableState<TData>["columnFilters"]
+        ) => MRT_TableState<TData>["columnFilters"])
+  ) => void;
+  onGlobalFilterChange?: (
+    updater:
+      | MRT_TableState<TData>["globalFilter"]
+      | ((
+          old: MRT_TableState<TData>["globalFilter"]
+        ) => MRT_TableState<TData>["globalFilter"])
+  ) => void;
+}
+
 export interface MaterialReactTableProps<TData extends MRT_RowData>
   extends MRT_TableOptions<TData> {
   columns: MRT_ColumnDef<TData>[];
@@ -38,6 +76,8 @@ export interface MaterialReactTableProps<TData extends MRT_RowData>
   renderExternalFilter?: (props: {
     table: MRT_TableInstance<TData>;
   }) => React.ReactNode;
+  // Add remote data configuration
+  remoteDataConfig?: RemoteDataConfig<TData>;
 }
 
 const MasterDataTable = <TData extends MRT_RowData>({
@@ -51,6 +91,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
   renderTopToolbarCustomActions,
   isStackedTables,
   renderExternalFilter,
+  remoteDataConfig,
   ...rest
 }: MaterialReactTableProps<TData>) => {
   const { initialState, state, ...otherProps } = rest;
@@ -144,8 +185,22 @@ const MasterDataTable = <TData extends MRT_RowData>({
     enableFilters: true,
     enableColumnActions: false,
     enablePinning: true,
-    enablePagination: false,
+    // Enable pagination for remote data
+    enablePagination: remoteDataConfig?.enableRemoteData ?? false,
     positionActionsColumn: "last",
+
+    // Remote data configuration
+    ...(remoteDataConfig?.enableRemoteData && {
+      manualPagination: remoteDataConfig.manualPagination ?? true,
+      manualSorting: remoteDataConfig.manualSorting ?? true,
+      manualFiltering: remoteDataConfig.manualFiltering ?? true,
+      rowCount: remoteDataConfig.rowCount,
+      onPaginationChange: remoteDataConfig.onPaginationChange,
+      onSortingChange: remoteDataConfig.onSortingChange,
+      onColumnFiltersChange: remoteDataConfig.onColumnFiltersChange,
+      onGlobalFilterChange: remoteDataConfig.onGlobalFilterChange,
+    }),
+
     muiTableHeadProps: {
       sx: {
         "& .MuiTableRow-root": {
