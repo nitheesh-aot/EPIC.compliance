@@ -602,11 +602,8 @@ def _build_inspection_requirements_base_query(
         )
     if enable_pagination:
         # Add pagination
-        page = int(args.get("page_no", 1))
-        per_page = int(args.get("page_size", 15))
-
-        req = aliased(InspectionRequirementModel)
-        enf_map = aliased(InspectionReqEnforcementMapModel)
+        page = int(args.get("page", 1))
+        per_page = int(args.get("per_page", 15))
         # Get distinct count by requirement ID to avoid duplicates
         distinct_count_query = base_query.with_entities(
             req.id, enf_map.enforcement_action_id
@@ -667,6 +664,10 @@ def _make_requirement_detail_object(requirements: list):
                 else None
             ),
             "topic": requirement.topic,
+            "approval_status": {
+                "id": requirement.approval_status.name,
+                "name": requirement.approval_status.value,
+            },
             "compliance_finding": requirement.compliance_finding,
             "enforcement_action": requirement.enforcement_action,
             "primary_officer_name": requirement.primary_officer_name,

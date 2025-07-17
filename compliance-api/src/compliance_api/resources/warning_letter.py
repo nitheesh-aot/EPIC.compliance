@@ -9,8 +9,8 @@ from flask_restx import Namespace, Resource
 from compliance_api.auth import auth
 from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.schemas.warning_letter import (
-    WarningLetterCreateSchema, WarningLetterIssueSchema, WarningLetterSchema, WarningLetterStatusSchema,
-    WarningLetterUpdateSchema)
+    ResetWarningLetterFieldSchema, WarningLetterCreateSchema, WarningLetterIssueSchema, WarningLetterSchema,
+    WarningLetterStatusSchema, WarningLetterUpdateSchema)
 from compliance_api.schemas.warning_letter_approval import (
     CreateWarningLetterApprovalSchema, UpdateWarningLetterApprovalStatusSchema, WarningLetterApprovalSchema)
 from compliance_api.services.warning_letter.warning_letter import WarningLetterService
@@ -37,6 +37,9 @@ warning_letter_status_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 warning_letter_issue_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, WarningLetterIssueSchema(), "WarningLetterIssue"
+)
+reset_warning_letter_field_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, ResetWarningLetterFieldSchema(), "ResetWarningLetterField"
 )
 warning_letter_approval_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, WarningLetterApprovalSchema(), "WarningLetterApproval"
@@ -174,6 +177,28 @@ class WarningLetterByWarningLetterNumber(Resource):
                 f"Warning letter with {warning_letter_number} not found"
             )
         return WarningLetterSchema().dump(warning_letter), HTTPStatus.OK
+
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/<int:warning_letter_id>/reset", methods=["PATCH", "OPTIONS"])
+@API.doc(params={"warning_letter_id": "The unique identifier for the warning letter"})
+class WarningLetterReset(Resource):
+    """Reset specific fields in a warning letter."""
+
+    @staticmethod
+    @auth.require
+    @API.response(400, "Bad Request")
+    @API.expect(reset_warning_letter_field_model)
+    @API.response(404, "Not Found")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Reset warning letter field")
+    @API.response(code=200, description="Success", model=warning_letter_list_model)
+    def patch(warning_letter_id):
+        """Reset a specific field in the warning letter."""
+        reset_data = ResetWarningLetterFieldSchema().load(API.payload)
+        updated_warning_letter = WarningLetterService.reset_field(
+            warning_letter_id, reset_data["field_name"]
+        )
+        return WarningLetterSchema().dump(updated_warning_letter), HTTPStatus.OK
 
 
 @cors_preflight("PATCH, OPTIONS")

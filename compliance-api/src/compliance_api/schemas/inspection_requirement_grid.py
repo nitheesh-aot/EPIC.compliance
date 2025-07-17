@@ -28,7 +28,8 @@ class InspectionRequirementGridItemSchema(Schema):
             "description": "The enforcement action of the inspection requirement"
         },
     )
-    approval_status = fields.Str(
+    approval_status = fields.Nested(
+        KeyValueSchema,
         metadata={"description": "The approval status of the inspection requirement"}
     )
     sort_order = fields.Int(

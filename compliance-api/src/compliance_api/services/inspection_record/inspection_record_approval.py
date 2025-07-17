@@ -89,7 +89,6 @@ class InspectionRecordApprovalService:
         """Update inspection record approval."""
         field_name = approval_update_data.get("field_name")
         value = approval_update_data.get("value", None)
-        approval_update_data = {field_name: value}
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
         inspection_record = ServiceUtils.inspection_record_exist_check(
             inspection_record_id
@@ -103,12 +102,19 @@ class InspectionRecordApprovalService:
                 "Given approval id does not match the latest approval request"
             )
 
+        # Convert date fields to datetime objects
+        date_fields = ["date_report_sent", "date_expected_return", "date_response"]
+        if field_name in date_fields and value and isinstance(value, str):
+            # Convert string date to datetime object
+            approval_update_data[field_name] = datetime.strptime(
+                value, "%Y-%m-%dT%H:%M:%S.%fZ"
+            )
+        
         # Calculate date_expected_return if date_report_sent is updated
-        if field_name == "date_report_sent" and value:
-            date_report_sent = value
-            date_expected_return = datetime.strptime(
-                date_report_sent, "%Y-%m-%dT%H:%M:%S.%fZ"
-            ) + timedelta(days=5)
+        if field_name == "date_report_sent" and approval_update_data[field_name]:
+            # date_report_sent is already converted to datetime above
+            date_report_sent = approval_update_data[field_name]
+            date_expected_return = date_report_sent + timedelta(days=5)
             approval_update_data["date_expected_return"] = date_expected_return
         with session_scope() as session:
             ir_update_data = {}
