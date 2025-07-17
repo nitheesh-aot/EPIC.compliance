@@ -1,6 +1,7 @@
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import PageLink from "@/components/Shared/PageLink";
 import { useInspectionRequirementsGrid } from "@/hooks/useInspectionRequirementsGrid";
+import { useTopicsData } from "@/hooks/useTopics";
 import {
   InspectionRequirementGrid,
   InspectionRequirementGridQueryParams,
@@ -19,17 +20,76 @@ export const Route = createFileRoute(
 });
 
 function Requirements() {
+  const { data: topics } = useTopicsData();
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
+  const [columnFilters, setColumnFilters] = useState<MRT_TableState<InspectionRequirementGrid>["columnFilters"]>([]);
+  const [globalFilter, setGlobalFilter] = useState<string>("");
+
+  // Convert column filters to API query parameters
+  const convertFiltersToQueryParams = useCallback((filters: MRT_TableState<InspectionRequirementGrid>["columnFilters"]) => {
+    const params: Partial<InspectionRequirementGridQueryParams> = {};
+    
+    filters.forEach((filter) => {
+      switch (filter.id) {
+        case "topic":
+          if (Array.isArray(filter.value) && filter.value.length > 0) {
+            params.topic_id = filter.value[0];
+          }
+          break;
+        case "summary":
+          if (typeof filter.value === "string" && filter.value.trim()) {
+            params.summary = filter.value.trim();
+          }
+          break;
+        case "compliance_finding":
+          if (Array.isArray(filter.value) && filter.value.length > 0) {
+            params.compliance_finding_id = filter.value[0];
+          }
+          break;
+        case "enforcement_action":
+          if (Array.isArray(filter.value) && filter.value.length > 0) {
+            params.enforcement_action_id = filter.value[0];
+          }
+          break;
+        case "approval_status":
+          if (Array.isArray(filter.value) && filter.value.length > 0) {
+            params.approval_status = filter.value[0];
+          }
+          break;
+        case "requirement_source":
+          if (Array.isArray(filter.value) && filter.value.length > 0) {
+            params.requirement_source_id = filter.value[0];
+          }
+          break;
+        case "ir_number":
+          if (typeof filter.value === "string" && filter.value.trim()) {
+            params.ir_number = filter.value.trim();
+          }
+          break;
+        case "date_issued":
+          if (typeof filter.value === "string" && filter.value.trim()) {
+            params.date_issued = filter.value.trim();
+          }
+          break;
+        // requirement_number is not in the query params interface, so skip it
+      }
+    });
+
+    return params;
+  }, []);
+
   const queryParams: InspectionRequirementGridQueryParams = useMemo(
     () => ({
       page: pagination.pageIndex + 1,
       per_page: pagination.pageSize,
+      ...convertFiltersToQueryParams(columnFilters),
+      ...(globalFilter && { global_search: globalFilter }),
     }),
-    [pagination.pageIndex, pagination.pageSize]
+    [pagination.pageIndex, pagination.pageSize, columnFilters, globalFilter, convertFiltersToQueryParams]
   );
 
   const { data, isLoading } = useInspectionRequirementsGrid(queryParams);
@@ -48,6 +108,36 @@ function Requirements() {
     []
   );
 
+  const handleColumnFiltersChange = useCallback(
+    (
+      updater:
+        | MRT_TableState<InspectionRequirementGrid>["columnFilters"]
+        | ((
+            old: MRT_TableState<InspectionRequirementGrid>["columnFilters"]
+          ) => MRT_TableState<InspectionRequirementGrid>["columnFilters"])
+    ) => {
+      setColumnFilters(updater);
+      // Reset to first page when filters change
+      setPagination(prev => ({ ...prev, pageIndex: 0 }));
+    },
+    []
+  );
+
+  const handleGlobalFilterChange = useCallback(
+    (
+      updater:
+        | MRT_TableState<InspectionRequirementGrid>["globalFilter"]
+        | ((
+            old: MRT_TableState<InspectionRequirementGrid>["globalFilter"]
+          ) => MRT_TableState<InspectionRequirementGrid>["globalFilter"])
+    ) => {
+      setGlobalFilter(updater);
+      // Reset to first page when global filter changes
+      setPagination(prev => ({ ...prev, pageIndex: 0 }));
+    },
+    []
+  );
+
   const columns = useMemo<MRT_ColumnDef<InspectionRequirementGrid>[]>(
     () => [
       {
@@ -57,7 +147,7 @@ function Requirements() {
         filterVariant: "multi-select",
         filterSelectOptions: [
           ...new Set(
-            requirementsList?.map((req) => req.topic?.name).filter(Boolean)
+            topics?.map((topic) => topic.name).filter(Boolean)
           ),
         ],
         size: 120,
@@ -165,7 +255,7 @@ function Requirements() {
         size: 120,
       },
     ],
-    [requirementsList]
+    [requirementsList, topics]
   );
 
   return isLoading ? (
@@ -188,6 +278,8 @@ function Requirements() {
         isLoading,
         showGlobalFilter: true,
         pagination,
+        columnFilters,
+        globalFilter,
       }}
       titleToolbarProps={{
         tableTitle: "Requirements",
@@ -196,6 +288,8 @@ function Requirements() {
         enableRemoteData: true,
         rowCount: data?.total,
         onPaginationChange: handlePaginationChange,
+        onColumnFiltersChange: handleColumnFiltersChange,
+        onGlobalFilterChange: handleGlobalFilterChange,
       }}
     />
   );
