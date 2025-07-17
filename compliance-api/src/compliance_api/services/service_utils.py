@@ -348,7 +348,7 @@ class ServiceUtils:
                 action.id
                 in [
                     EnforcementActionOptionEnum.ORDER.value,
-                    EnforcementActionOptionEnum.REFERRAL_TO_ADMINISTRATIVE_PENALTY.value,
+                    EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY_RECOMMENDATION.value,
                     EnforcementActionOptionEnum.WARNING_LETTER.value,
                 ]
                 for action in enforcement_actions
