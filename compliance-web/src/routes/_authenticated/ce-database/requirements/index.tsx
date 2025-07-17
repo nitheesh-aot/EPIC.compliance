@@ -135,11 +135,18 @@ function Requirements() {
             old: MRT_TableState<InspectionRequirementGrid>["columnFilters"]
           ) => MRT_TableState<InspectionRequirementGrid>["columnFilters"])
     ) => {
+      const newFilters = typeof updater === "function" ? updater(columnFilters) : updater;
+      
+      // Only reset pagination if filters actually changed
+      const filtersChanged = JSON.stringify(newFilters) !== JSON.stringify(columnFilters);
+      
       setColumnFilters(updater);
-      // Reset to first page when filters change
-      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+      
+      if (filtersChanged) {
+        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+      }
     },
-    []
+    [columnFilters]
   );
 
   const handleGlobalFilterChange = useCallback(
@@ -150,11 +157,18 @@ function Requirements() {
             old: MRT_TableState<InspectionRequirementGrid>["globalFilter"]
           ) => MRT_TableState<InspectionRequirementGrid>["globalFilter"])
     ) => {
+      const newGlobalFilter = typeof updater === "function" ? updater(globalFilter) : updater;
+      
+      // Only reset pagination if global filter actually changed
+      const globalFilterChanged = newGlobalFilter !== globalFilter;
+      
       setGlobalFilter(updater);
-      // Reset to first page when global filter changes
-      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+      
+      if (globalFilterChanged) {
+        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+      }
     },
-    []
+    [globalFilter]
   );
 
   const columns = useMemo<MRT_ColumnDef<InspectionRequirementGrid>[]>(
@@ -261,7 +275,7 @@ function Requirements() {
         size: 120,
       },
       {
-        accessorFn: (row) => dateUtils.formatDate(row.date_issued),
+        accessorFn: (row) => row.date_issued ? dateUtils.formatDate(row.date_issued) : "",
         id: "date_issued",
         header: "IR Issuance Date",
         filterFn: "contains",
@@ -303,6 +317,7 @@ function Requirements() {
       titleToolbarProps={{
         tableTitle: "Requirements",
       }}
+      enableSorting={false}
       remoteDataConfig={{
         enableRemoteData: true,
         rowCount: data?.total,
