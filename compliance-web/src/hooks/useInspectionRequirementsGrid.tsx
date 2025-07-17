@@ -11,9 +11,11 @@ const fetchInspectionRequirementsGrid = (
   return request({ url: "/inspection-requirements", params: queryParams });
 };
 
-export const useInspectionRequirementsGrid = () => {
+export const useInspectionRequirementsGrid = (
+  queryParams: InspectionRequirementGridQueryParams = {}
+) => {
   return useQuery({
-    queryKey: ["inspection-requirements-grid"],
-    queryFn: () => fetchInspectionRequirementsGrid({}),
+    queryKey: ["inspection-requirements-grid", queryParams],
+    queryFn: () => fetchInspectionRequirementsGrid(queryParams),
   });
 };

@@ -141,3 +141,5 @@ export enum EnforcementActionEnum {
   VIOLATION_TICKET = "8",
   CHARGE_RECOMMENDATION = "9",
 }
+
+export const DEFAULT_PAGE_SIZE = 10;

@@ -1,12 +1,16 @@
 import MasterDataTable from "@/components/Shared/MasterDataTable/MasterDataTable";
 import PageLink from "@/components/Shared/PageLink";
 import { useInspectionRequirementsGrid } from "@/hooks/useInspectionRequirementsGrid";
-import { InspectionRequirementGrid } from "@/models/InspectionRequirementGrid";
+import {
+  InspectionRequirementGrid,
+  InspectionRequirementGridQueryParams,
+} from "@/models/InspectionRequirementGrid";
+import { DEFAULT_PAGE_SIZE } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import { Box, Chip, CircularProgress } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
-import { MRT_ColumnDef } from "material-react-table";
-import { useMemo } from "react";
+import { MRT_ColumnDef, MRT_TableState } from "material-react-table";
+import { useMemo, useState, useCallback } from "react";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/requirements/"
@@ -15,8 +19,34 @@ export const Route = createFileRoute(
 });
 
 function Requirements() {
-  const { data, isLoading } = useInspectionRequirementsGrid();
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: DEFAULT_PAGE_SIZE,
+  });
+
+  const queryParams: InspectionRequirementGridQueryParams = useMemo(
+    () => ({
+      page: pagination.pageIndex + 1,
+      per_page: pagination.pageSize,
+    }),
+    [pagination.pageIndex, pagination.pageSize]
+  );
+
+  const { data, isLoading } = useInspectionRequirementsGrid(queryParams);
   const requirementsList = useMemo(() => data?.items ?? [], [data]);
+
+  const handlePaginationChange = useCallback(
+    (
+      updater:
+        | MRT_TableState<InspectionRequirementGrid>["pagination"]
+        | ((
+            old: MRT_TableState<InspectionRequirementGrid>["pagination"]
+          ) => MRT_TableState<InspectionRequirementGrid>["pagination"])
+    ) => {
+      setPagination(updater);
+    },
+    []
+  );
 
   const columns = useMemo<MRT_ColumnDef<InspectionRequirementGrid>[]>(
     () => [
@@ -99,7 +129,7 @@ function Requirements() {
         accessorKey: "requirement_number",
         header: "Condition #",
         filterFn: "contains",
-        size: 100,
+        size: 80,
       },
       {
         accessorFn: (row) => row.requirement_source?.name,
@@ -125,7 +155,7 @@ function Requirements() {
             params={{ inspectionNumber: row.original.ir_number }}
           />
         ),
-        size: 100,
+        size: 120,
       },
       {
         accessorFn: (row) => dateUtils.formatDate(row.date_issued),
@@ -157,6 +187,7 @@ function Requirements() {
       state={{
         isLoading,
         showGlobalFilter: true,
+        pagination,
       }}
       titleToolbarProps={{
         tableTitle: "Requirements",
@@ -164,6 +195,7 @@ function Requirements() {
       remoteDataConfig={{
         enableRemoteData: true,
         rowCount: data?.total,
+        onPaginationChange: handlePaginationChange,
       }}
     />
   );
