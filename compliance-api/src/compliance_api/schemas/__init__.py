@@ -50,6 +50,6 @@ from .staff_user import StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateS
 from .topic import TopicCreateSchema, TopicSchema
 from .warning_letter import (
     WarningLetterCreateSchema, WarningLetterIssueSchema, WarningLetterSchema, WarningLetterStatusSchema,
-    WarningLetterUpdateSchema)
+    WarningLetterUpdateSchema, ResetWarningLetterFieldSchema)
 from .warning_letter_approval import (
     CreateWarningLetterApprovalSchema, UpdateWarningLetterApprovalStatusSchema, WarningLetterApprovalSchema)

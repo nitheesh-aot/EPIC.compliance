@@ -1,6 +1,6 @@
 """Warning Letter Schemas."""
 
-from marshmallow import EXCLUDE, fields, post_dump, post_load
+from marshmallow import EXCLUDE, fields, post_dump, post_load, validate
 from marshmallow_enum import EnumField
 
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
@@ -159,4 +159,13 @@ class WarningLetterIssueSchema(BaseSchema):
             "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
         },
         metadata={"description": "The date the warning letter was issued"},
+    )
+
+
+class ResetWarningLetterFieldSchema(BaseSchema):
+    """Schema for resetting warning letter fields."""
+
+    field_name = fields.Str(
+        required=True,
+        validate=validate.OneOf(["content"]),
     )
