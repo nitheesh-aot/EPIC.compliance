@@ -604,7 +604,6 @@ def _build_inspection_requirements_base_query(
         # Add pagination
         page = int(args.get("page", 1))
         per_page = int(args.get("per_page", 15))
-
         # Get distinct count by requirement ID to avoid duplicates
         # Use the existing aliases from the base query
         distinct_count_query = base_query.with_entities(
@@ -666,6 +665,10 @@ def _make_requirement_detail_object(requirements: list):
                 else None
             ),
             "topic": requirement.topic,
+            "approval_status": {
+                "id": requirement.approval_status.name,
+                "name": requirement.approval_status.value,
+            },
             "compliance_finding": requirement.compliance_finding,
             "enforcement_action": requirement.enforcement_action,
             "primary_officer_name": requirement.primary_officer_name,

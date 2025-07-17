@@ -168,21 +168,72 @@ class WarningLetterService:
                 )
 
     @classmethod
-    def issue_warning_letter(cls, warning_letter_id, issue):
+    def issue_warning_letter(cls, warning_letter_id: int, issue_data: dict) -> dict:
         """Issue a warning letter."""
         warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
         ServiceUtils.access_check_update_for_inspection(warning_letter.inspection)
         ServiceUtils.inspection_status_check(warning_letter.inspection)
         with session_scope() as session:
+            issue_data["status"] = WarningLetterStatusEnum.ISSUED
+            issue_data["progress"] = WarningLetterProgressEnum.ISSUED
             updated_warning_letter = WarningLetterModel.update_warning_letter(
-                warning_letter_id,
-                {
-                    "status": WarningLetterStatusEnum.ISSUED,
-                    "date_issued": issue.get("date_issued"),
-                    "progress": WarningLetterProgressEnum.ISSUED,
-                },
-                session,
+                warning_letter_id=warning_letter_id,
+                warning_letter_update_data=issue_data,
+                session=session,
             )
+        return updated_warning_letter
+
+    @classmethod
+    def reset_field(cls, warning_letter_id: int, field_name: str) -> dict:
+        """Reset a specific field in the warning letter.
+
+        Currently only supports resetting the 'content' field.
+
+        Args:
+            warning_letter_id: The ID of the warning letter
+            field_name: The field name to reset (must be 'content')
+
+        Returns:
+            The updated warning letter with the reset field
+
+        Raises:
+            ResourceNotFoundError: If the warning letter doesn't exist
+            UnprocessableEntityError: If the warning letter is not in drafting status
+            or the field_name is not supported
+        """
+        warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
+        ServiceUtils.access_check_update_for_inspection(warning_letter.inspection)
+        ServiceUtils.inspection_status_check(warning_letter.inspection)
+        # Only allow reset if warning letter is in drafting status
+        if warning_letter.progress != WarningLetterProgressEnum.DRAFTING:
+            raise UnprocessableEntityError(
+                "Warning letter can only be reset if the progress is in drafting status"
+            )
+
+        # Currently only content field is supported for reset
+        if field_name != "content":
+            raise UnprocessableEntityError(
+                f"Field {field_name} is not supported for reset"
+            )
+
+        # Get the inspection and requirement IDs to regenerate content
+        inspection = warning_letter.inspection
+        requirement_ids = [
+            req_map.inspection_requirement_id
+            for req_map in warning_letter.warning_letter_requirement_maps
+        ]
+
+        # Regenerate content using the existing method
+        new_content = _create_content(inspection, requirement_ids)
+
+        # Update the warning letter with the new content
+        with session_scope() as session:
+            updated_warning_letter = WarningLetterModel.update_warning_letter(
+                warning_letter_id=warning_letter_id,
+                warning_letter_update_data={"content": new_content},
+                session=session,
+            )
+
         return updated_warning_letter
 
     @classmethod
