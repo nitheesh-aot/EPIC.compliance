@@ -1,6 +1,6 @@
 """Order Schemas."""
 
-from marshmallow import EXCLUDE, fields, post_dump, post_load
+from marshmallow import EXCLUDE, fields, post_dump, post_load, validate
 from marshmallow_enum import EnumField
 
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
@@ -165,4 +165,19 @@ class OrderIssueSchema(BaseSchema):
             "invalid": f"Not a valid datetime. Expected format: {INPUT_DATE_TIME_FORMAT}."
         },
         metadata={"description": "The date the order was issued"},
+    )
+
+
+class ResetOrderFieldSchema(BaseSchema):
+    """Schema for validating fields that can be reset in orders."""
+
+    field_name = fields.Str(
+        required=True,
+        validate=validate.OneOf(
+            [
+                "where_as",
+                "now_therefore",
+            ]
+        ),
+        metadata={"description": "The name of the field to reset"},
     )

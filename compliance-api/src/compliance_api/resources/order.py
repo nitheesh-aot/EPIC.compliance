@@ -13,7 +13,7 @@ from compliance_api.services.order.order_approval import OrderApprovalService
 
 from ..schemas import (
     CreateOrderApprovalSchema, OrderApprovalSchema, OrderCreateSchema, OrderIssueSchema, OrderSchema, OrderStatusSchema,
-    OrderUpdateSchema, UpdateOrderApprovalStatusSchema)
+    OrderUpdateSchema, ResetOrderFieldSchema, UpdateOrderApprovalStatusSchema)
 from ..utils.util import cors_preflight
 from .apihelper import Api as ApiHelper
 
@@ -44,6 +44,10 @@ order_approval_create_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 order_approval_status_update_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, UpdateOrderApprovalStatusSchema(), "OrderApprovalStatusUpdate"
+)
+
+reset_order_field_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, ResetOrderFieldSchema(), "ResetOrderField"
 )
 
 
@@ -210,6 +214,27 @@ class OrderIssue(Resource):
         issue = OrderIssueSchema().load(API.payload)
         OrderService.issue_order(order_id, issue)
         return {}, HTTPStatus.NO_CONTENT
+
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/<int:order_id>/reset", methods=["PATCH", "OPTIONS"])
+@API.doc(params={"order_id": "The unique identifier for the order"})
+class OrderFieldReset(Resource):
+    """Reset specific fields in an order."""
+
+    @staticmethod
+    @auth.require
+    @API.response(400, "Bad Request")
+    @API.expect(reset_order_field_model)
+    @API.response(404, "Not Found")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Reset an order field")
+    @API.response(code=200, description="Order field reset", model=order_list_model)
+    def patch(order_id):
+        """Reset a field in the order."""
+        reset_data = ResetOrderFieldSchema().load(API.payload)
+        field_name = reset_data.get("field_name")
+        updated_order = OrderService.reset_field(order_id, field_name)
+        return OrderSchema().dump(updated_order), HTTPStatus.OK
 
 
 @cors_preflight("POST, OPTIONS")
