@@ -23,6 +23,7 @@ from compliance_api.models import InspectionReqSourceDetail as InspectionReqSour
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models import InspectionRequirementImage as InspectionRequirementImageModel
 from compliance_api.models import WarningLetter as WarningLetterModel
+from compliance_api.models.inspection_record_approval import IRApprovalStatusEnum
 from compliance_api.models import WarningLetterProgressEnum
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import db, session_scope
@@ -664,6 +665,10 @@ def _make_requirement_detail_object(requirements: list):
                 else None
             ),
             "topic": requirement.topic,
+            "approval_status": {
+                "id": InspectionApprovalstatusEnumrequirement.approval_status.name,
+                "name": requirement.approval_status.value,
+            },
             "compliance_finding": requirement.compliance_finding,
             "enforcement_action": requirement.enforcement_action,
             "primary_officer_name": requirement.primary_officer_name,

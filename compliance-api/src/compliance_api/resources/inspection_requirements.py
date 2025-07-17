@@ -87,6 +87,16 @@ class InspectionRequirements(Resource):
                 "type": "integer",
                 "required": False,
             },
+            "page_no": {
+                "description": "The page number of the inspection requirement",
+                "type": "integer",
+                "required": False,
+            },
+            "page_size": {
+                "description": "The number of items per page of the inspection requirement",
+                "type": "integer",
+                "required": False,
+            },
         }
     )
     @API.response(
@@ -175,11 +185,7 @@ class InspectionRequirementsExport(Resource):
     @auth.require
     def post():
         """Export all inspection requirements as Excel."""
-        # Get the same data as the GET endpoint but ignore pagination
         args = dict(request.args)
-        # Ensure we get all results without pagination limits
-        args["page"] = 1
-        args["per_page"] = 10000  # Use a large number to get all records
         output = InspectionRequirementService.generate_inspection_requirements_excel(
             args
         )
