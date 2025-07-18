@@ -78,6 +78,7 @@ export interface MaterialReactTableProps<TData extends MRT_RowData>
   }) => React.ReactNode;
   // Add remote data configuration
   remoteDataConfig?: RemoteDataConfig<TData>;
+  hideFilterToggle?: boolean;
 }
 
 const MasterDataTable = <TData extends MRT_RowData>({
@@ -92,6 +93,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
   isStackedTables,
   renderExternalFilter,
   remoteDataConfig,
+  hideFilterToggle,
   ...rest
 }: MaterialReactTableProps<TData>) => {
   const { initialState, state, ...otherProps } = rest;
@@ -225,7 +227,13 @@ const MasterDataTable = <TData extends MRT_RowData>({
       },
     },
     muiTopToolbarProps: {
-      sx: { p: 0, m: "-0.5rem" },
+      sx: {
+        p: 0,
+        m: "-0.5rem",
+        "& .MuiIconButton-root[aria-label='Show/Hide filters']": {
+          display: hideFilterToggle ? "none" : "block",
+        },
+      },
     },
     muiBottomToolbarProps: {
       sx: {
@@ -245,7 +253,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
       },
     },
     muiTableProps: {
-      sx: { tableLayout: "fixed" },
+      sx: { tableLayout: "fixed", pb: "4rem" },
       ...rest.muiTableProps,
     },
     muiTableBodyCellProps,

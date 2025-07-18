@@ -17,10 +17,24 @@ import {
   DEFAULT_PAGE_SIZE,
 } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
-import { Box, Chip, CircularProgress } from "@mui/material";
+import {
+  ChevronLeftRounded,
+  ChevronRightRounded,
+  FileDownloadRounded,
+} from "@mui/icons-material";
+import {
+  Box,
+  Chip,
+  CircularProgress,
+  Typography,
+  Button,
+  IconButton,
+} from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
+import { BCDesignTokens } from "epic.theme";
 import { MRT_ColumnDef, MRT_TableState } from "material-react-table";
 import { useMemo, useState, useCallback } from "react";
+import RequirementsExternalFilters from "@/components/App/RequirementsGrid/RequirementsExternalFilters";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/requirements/"
@@ -33,6 +47,7 @@ function Requirements() {
   const { data: complianceFindings } = useComplianceFindingsData();
   const { data: enforcementActions } = useEnforcementActionsData();
   const { data: requirementSources } = useRequirementSourcesData();
+
   const approvalStatusOptions = Object.entries(APPROVAL_STATUS_TEXT).map(
     ([id, name]) => ({
       id,
@@ -48,6 +63,9 @@ function Requirements() {
     MRT_TableState<InspectionRequirementGrid>["columnFilters"]
   >([]);
   const [globalFilter, setGlobalFilter] = useState<string>("");
+  const [externalFilters, setExternalFilters] = useState<
+    Record<string, string[] | string>
+  >({});
 
   // Convert column filters to API query parameters
   const convertFiltersToQueryParams = useCallback(
@@ -100,9 +118,32 @@ function Requirements() {
         }
       });
 
+      // Add external filters
+      Object.entries(externalFilters).forEach(([key, value]) => {
+        if (value && (Array.isArray(value) ? value.length > 0 : value !== "")) {
+          switch (key) {
+            case "primary_officer_id":
+              params.primary_officer_id = Array.isArray(value)
+                ? parseInt(value[0])
+                : parseInt(value);
+              break;
+            case "inspection_status":
+              params.inspection_status = Array.isArray(value)
+                ? value[0]
+                : value;
+              break;
+            case "project_id":
+              params.project_id = Array.isArray(value)
+                ? parseInt(value[0])
+                : parseInt(value);
+              break;
+          }
+        }
+      });
+
       return params;
     },
-    []
+    [externalFilters]
   );
 
   const queryParams: InspectionRequirementGridQueryParams = useMemo(
@@ -182,6 +223,17 @@ function Requirements() {
       }
     },
     [globalFilter]
+  );
+
+  const handleExternalFilterChange = useCallback(
+    (filterId: string, value: string[] | string) => {
+      setExternalFilters((prev) => ({
+        ...prev,
+        [filterId]: value,
+      }));
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    },
+    []
   );
 
   const columns = useMemo<MRT_ColumnDef<InspectionRequirementGrid>[]>(
@@ -333,6 +385,103 @@ function Requirements() {
         tableTitle: "Requirements",
       }}
       enableSorting={false}
+      enablePagination={false}
+      hideFilterToggle={true}
+      renderTopToolbarCustomActions={({ table }) => (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+            width: "100%",
+            mr: -1,
+          }}
+        >
+          {/* Title section with toggle */}
+          <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+            }}
+          >
+            <Typography
+              variant="h5"
+              sx={{ color: BCDesignTokens.typographyColorLink }}
+            >
+              Requirements
+            </Typography>
+            <Box display="flex" alignItems="center" gap={2}>
+              files for review should be here
+            </Box>
+          </Box>
+
+          {/* Pagination and controls section */}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
+            {/* Left side - Export button */}
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Button
+                variant="text"
+                size="small"
+                startIcon={<FileDownloadRounded />}
+                sx={{ ml: -2 }}
+              >
+                Export as Excel
+              </Button>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  justifyContent: "center",
+                }}
+              >
+                <Typography variant="body1">
+                  {table.getState().pagination.pageIndex *
+                    table.getState().pagination.pageSize +
+                    1}{" "}
+                  to{" "}
+                  {Math.min(
+                    (table.getState().pagination.pageIndex + 1) *
+                      table.getState().pagination.pageSize,
+                    data?.total || 0
+                  )}{" "}
+                  of {data?.total || 0}
+                </Typography>
+                <IconButton
+                  aria-label="page_back"
+                  size="small"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  <ChevronLeftRounded fontSize="small" />
+                </IconButton>
+                <IconButton
+                  aria-label="page_forward"
+                  size="small"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  <ChevronRightRounded fontSize="small" />
+                </IconButton>
+              </Box>
+            </Box>
+
+            {/* Right side - Filters */}
+            <RequirementsExternalFilters
+              onFilterChange={handleExternalFilterChange}
+            />
+          </Box>
+        </Box>
+      )}
       remoteDataConfig={{
         enableRemoteData: true,
         rowCount: data?.total,

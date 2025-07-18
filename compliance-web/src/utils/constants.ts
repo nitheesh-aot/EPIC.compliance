@@ -96,6 +96,12 @@ export enum IRProgressEnum {
   ISSUED = "ISSUED",
 }
 
+export enum InspectionStatusEnum {
+  OPEN = "Open",
+  CLOSED = "Closed",
+  CANCELED = "Canceled",
+}
+
 export enum OrderStatusEnum {
   CREATED = "CREATED",
   OPEN = "OPEN",
@@ -142,4 +148,4 @@ export enum EnforcementActionEnum {
   CHARGE_RECOMMENDATION = "9",
 }
 
-export const DEFAULT_PAGE_SIZE = 10;
+export const DEFAULT_PAGE_SIZE = 15;
