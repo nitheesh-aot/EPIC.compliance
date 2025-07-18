@@ -190,7 +190,9 @@ class WarningLetterReset(Resource):
     @API.response(400, "Bad Request")
     @API.expect(reset_warning_letter_field_model)
     @API.response(404, "Not Found")
-    @ApiHelper.swagger_decorators(API, endpoint_description="Reset warning letter field")
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Reset warning letter field"
+    )
     @API.response(code=200, description="Success", model=warning_letter_list_model)
     def patch(warning_letter_id):
         """Reset a specific field in the warning letter."""

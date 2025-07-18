@@ -109,7 +109,7 @@ class InspectionRecordApprovalService:
             approval_update_data[field_name] = datetime.strptime(
                 value, "%Y-%m-%dT%H:%M:%S.%fZ"
             )
-        
+
         # Calculate date_expected_return if date_report_sent is updated
         if field_name == "date_report_sent" and approval_update_data[field_name]:
             # date_report_sent is already converted to datetime above
