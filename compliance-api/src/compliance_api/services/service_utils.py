@@ -388,13 +388,29 @@ class ServiceUtils:
             RequirementSourceEnum.SCHEDULE_B,
         }
         if requirement_source in section_sources:
-            return f"Section {getattr(detail_obj, 'section_number')}"
+            return (
+                f"Section {getattr(detail_obj, 'section_number')}"
+                if getattr(detail_obj, "section_number")
+                else None
+            )
         if requirement_source in condition_sources:
-            return f"Condition {getattr(detail_obj, 'condition_number')}"
+            return (
+                f"Condition {getattr(detail_obj, 'condition_number')}"
+                if getattr(detail_obj, "condition_number")
+                else None
+            )
         if requirement_source == RequirementSourceEnum.ORDER:
-            return f"Order {getattr(detail_obj.order, 'order_number')}"
+            return (
+                f"Order {getattr(detail_obj.order, 'order_number')}"
+                if getattr(detail_obj.order, "order_number")
+                else None
+            )
         if requirement_source == RequirementSourceEnum.EXEMPTION_ORDER:
-            return f"Clause {getattr(detail_obj, 'clause_number')}"
+            return (
+                f"Clause {getattr(detail_obj, 'clause_number')}"
+                if getattr(detail_obj, "clause_number")
+                else None
+            )
         return None
 
     @staticmethod

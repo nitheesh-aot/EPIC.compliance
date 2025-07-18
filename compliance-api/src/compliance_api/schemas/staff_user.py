@@ -37,8 +37,20 @@ class StaffUserSchemaSkeleton(AutoSchemaBase):  # pylint: disable=too-many-ances
     name = fields.Method("get_full_name")
 
     def get_full_name(self, obj):  # pylint: disable=no-self-use
-        """Derive fullname."""
-        return f"{obj.first_name} {obj.last_name}" if obj else ""
+        """Derive fullname from either an object or a dictionary."""
+        if obj is None:
+            return ""
+
+        # Handle dictionary case
+        if isinstance(obj, dict):
+            first_name = obj.get("first_name", "")
+            last_name = obj.get("last_name", "")
+        # Handle StaffUser object case
+        else:
+            first_name = getattr(obj, "first_name", "")
+            last_name = getattr(obj, "last_name", "")
+
+        return f"{first_name} {last_name}".strip()
 
     @post_dump
     def nullify_nested(

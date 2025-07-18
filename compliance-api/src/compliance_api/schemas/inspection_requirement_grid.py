@@ -3,6 +3,7 @@
 from marshmallow import Schema, fields
 
 from .common import KeyValueSchema
+from .staff_user import StaffUserSchema
 
 
 class InspectionRequirementGridItemSchema(Schema):
@@ -30,7 +31,7 @@ class InspectionRequirementGridItemSchema(Schema):
     )
     approval_status = fields.Nested(
         KeyValueSchema,
-        metadata={"description": "The approval status of the inspection requirement"}
+        metadata={"description": "The approval status of the inspection requirement"},
     )
     sort_order = fields.Int(
         metadata={"description": "The sort order of the inspection requirement"}
@@ -48,11 +49,13 @@ class InspectionRequirementGridItemSchema(Schema):
     inspection_status = fields.Nested(
         KeyValueSchema, metadata={"description": "The inspection status"}
     )
-    primary_officer_name = fields.Str(
+    primary_officer = fields.Nested(
+        StaffUserSchema,
         metadata={
             "description": "The primary officer name of the inspection requirement"
-        }
+        },
     )
-    project_name = fields.Str(
-        metadata={"description": "The project name of the inspection requirement"}
+    project = fields.Nested(
+        KeyValueSchema,
+        metadata={"description": "The project name of the inspection requirement"},
     )
