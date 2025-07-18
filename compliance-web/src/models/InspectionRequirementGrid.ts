@@ -1,5 +1,6 @@
 import { ComplianceFinding } from "./ComplianceFinding";
 import { EnforcementAction } from "./EnforcementAction";
+import { ApprovalStatus } from "./ApprovalStatus";
 import { RequirementSource } from "./RequirementSource";
 import { Topic } from "./Topic";
 
@@ -9,7 +10,7 @@ export interface InspectionRequirementGrid {
   summary: string;
   compliance_finding: ComplianceFinding;
   enforcement_action: EnforcementAction;
-  approval_status: string;
+  approval_status: ApprovalStatus;
   sort_order: number;
   date_issued: string;
   ir_number: string;

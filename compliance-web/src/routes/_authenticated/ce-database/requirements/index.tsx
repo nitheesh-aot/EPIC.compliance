@@ -11,7 +11,11 @@ import {
   InspectionRequirementGrid,
   InspectionRequirementGridQueryParams,
 } from "@/models/InspectionRequirementGrid";
-import { DEFAULT_PAGE_SIZE } from "@/utils/constants";
+import {
+  APPROVAL_STATUS,
+  APPROVAL_STATUS_TEXT,
+  DEFAULT_PAGE_SIZE,
+} from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import { Box, Chip, CircularProgress } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
@@ -29,6 +33,12 @@ function Requirements() {
   const { data: complianceFindings } = useComplianceFindingsData();
   const { data: enforcementActions } = useEnforcementActionsData();
   const { data: requirementSources } = useRequirementSourcesData();
+  const approvalStatusOptions = Object.entries(APPROVAL_STATUS_TEXT).map(
+    ([id, name]) => ({
+      id,
+      name,
+    })
+  );
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: DEFAULT_PAGE_SIZE,
@@ -135,13 +145,15 @@ function Requirements() {
             old: MRT_TableState<InspectionRequirementGrid>["columnFilters"]
           ) => MRT_TableState<InspectionRequirementGrid>["columnFilters"])
     ) => {
-      const newFilters = typeof updater === "function" ? updater(columnFilters) : updater;
-      
+      const newFilters =
+        typeof updater === "function" ? updater(columnFilters) : updater;
+
       // Only reset pagination if filters actually changed
-      const filtersChanged = JSON.stringify(newFilters) !== JSON.stringify(columnFilters);
-      
+      const filtersChanged =
+        JSON.stringify(newFilters) !== JSON.stringify(columnFilters);
+
       setColumnFilters(updater);
-      
+
       if (filtersChanged) {
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
       }
@@ -157,13 +169,14 @@ function Requirements() {
             old: MRT_TableState<InspectionRequirementGrid>["globalFilter"]
           ) => MRT_TableState<InspectionRequirementGrid>["globalFilter"])
     ) => {
-      const newGlobalFilter = typeof updater === "function" ? updater(globalFilter) : updater;
-      
+      const newGlobalFilter =
+        typeof updater === "function" ? updater(globalFilter) : updater;
+
       // Only reset pagination if global filter actually changed
       const globalFilterChanged = newGlobalFilter !== globalFilter;
-      
+
       setGlobalFilter(updater);
-      
+
       if (globalFilterChanged) {
         setPagination((prev) => ({ ...prev, pageIndex: 0 }));
       }
@@ -221,11 +234,12 @@ function Requirements() {
         Cell: ({ row }) => {
           return row.original.approval_status ? (
             <Chip
-              label={row.original.approval_status}
+              label={row.original.approval_status.name}
               color={
-                row.original.approval_status === "Pending"
+                row.original.approval_status.id ===
+                APPROVAL_STATUS.APPROVAL_PENDING
                   ? "warning"
-                  : row.original.approval_status === "Approved"
+                  : row.original.approval_status.id === APPROVAL_STATUS.APPROVED
                     ? "success"
                     : "error"
               }
@@ -237,11 +251,11 @@ function Requirements() {
           );
         },
         filterVariant: "multi-select",
-        filterSelectOptions: [
-          ...new Set(
-            requirementsList?.map((req) => req.approval_status).filter(Boolean)
-          ),
-        ],
+        filterSelectOptions:
+          approvalStatusOptions?.map((approvalStatus) => ({
+            text: approvalStatus.name,
+            value: approvalStatus.id.toString(),
+          })) ?? [],
         size: 120,
       },
       {
@@ -275,7 +289,8 @@ function Requirements() {
         size: 120,
       },
       {
-        accessorFn: (row) => row.date_issued ? dateUtils.formatDate(row.date_issued) : "",
+        accessorFn: (row) =>
+          row.date_issued ? dateUtils.formatDate(row.date_issued) : "",
         id: "date_issued",
         header: "IR Issuance Date",
         filterFn: "contains",
@@ -283,11 +298,11 @@ function Requirements() {
       },
     ],
     [
-      requirementsList,
       topics,
       complianceFindings,
       enforcementActions,
       requirementSources,
+      approvalStatusOptions,
     ]
   );
 

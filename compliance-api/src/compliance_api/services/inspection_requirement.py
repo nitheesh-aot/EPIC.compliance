@@ -665,10 +665,14 @@ def _make_requirement_detail_object(requirements: list):
                 else None
             ),
             "topic": requirement.topic,
-            "approval_status": {
-                "id": requirement.approval_status.name,
-                "name": requirement.approval_status.value,
-            },
+            "approval_status": (
+                {
+                    "id": requirement.approval_status.name,
+                    "name": requirement.approval_status.value,
+                }
+                if requirement.approval_status
+                else None
+            ),
             "compliance_finding": requirement.compliance_finding,
             "enforcement_action": requirement.enforcement_action,
             "primary_officer_name": requirement.primary_officer_name,
