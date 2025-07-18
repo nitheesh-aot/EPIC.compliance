@@ -236,6 +236,11 @@ function Requirements() {
     []
   );
 
+  const handleClearAllFilters = useCallback(() => {
+    setExternalFilters({});
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  }, []);
+
   const columns = useMemo<MRT_ColumnDef<InspectionRequirementGrid>[]>(
     () => [
       {
@@ -478,6 +483,8 @@ function Requirements() {
             {/* Right side - Filters */}
             <RequirementsExternalFilters
               onFilterChange={handleExternalFilterChange}
+              onClearAll={handleClearAllFilters}
+              externalFilters={externalFilters}
             />
           </Box>
         </Box>

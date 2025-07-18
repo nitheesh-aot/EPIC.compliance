@@ -51,6 +51,7 @@ const makeExternalTableFilter =
         filterAppliedCallback={filterAppliedCallback}
         filterClearedCallback={filterClearedCallback}
         defaultValue={isMulti ? [] : ""}
+        isMulti={isMulti}
       />
     );
   });

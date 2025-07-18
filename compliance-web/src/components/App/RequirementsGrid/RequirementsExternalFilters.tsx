@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import ExternalTableFilter from "@/components/Shared/FilterSelect/ExternalTableFilter";
 import { InspectionStatusEnum } from "@/utils/constants";
 import { useStaffUsersData } from "@/hooks/useStaff";
@@ -7,11 +7,13 @@ import { useMemo } from "react";
 
 interface RequirementsExternalFiltersProps {
   onFilterChange: (filterId: string, value: string[] | string) => void;
+  onClearAll: () => void;
+  externalFilters: Record<string, string[] | string>;
 }
 
 const RequirementsExternalFilters: React.FC<
   RequirementsExternalFiltersProps
-> = ({ onFilterChange }) => {
+> = ({ onFilterChange, onClearAll, externalFilters }) => {
   const { data: staffUsers } = useStaffUsersData();
   const { data: projects } = useProjectsData();
 
@@ -40,6 +42,13 @@ const RequirementsExternalFilters: React.FC<
     [projects]
   );
 
+  // Check if any filters are applied
+  const hasActiveFilters = useMemo(() => {
+    return Object.values(externalFilters).some(
+      (value) => value && (Array.isArray(value) ? value.length > 0 : value !== "")
+    );
+  }, [externalFilters]);
+
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
       <ExternalTableFilter
@@ -48,7 +57,7 @@ const RequirementsExternalFilters: React.FC<
         onFilterChange={onFilterChange}
         placeholder="Primary"
         variant="inline"
-        isMulti={false}
+        isMulti={true}
         name="primaryOfficerFilter"
       />
       <ExternalTableFilter
@@ -57,7 +66,7 @@ const RequirementsExternalFilters: React.FC<
         onFilterChange={onFilterChange}
         placeholder="Inspection Status"
         variant="inline"
-        isMulti={false}
+        isMulti={true}
         name="inspectionStatusFilter"
       />
       <ExternalTableFilter
@@ -66,9 +75,18 @@ const RequirementsExternalFilters: React.FC<
         onFilterChange={onFilterChange}
         placeholder="Project"
         variant="inline"
-        isMulti={false}
+        isMulti={true}
         name="projectFilter"
       />
+      {hasActiveFilters && (
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={onClearAll}
+        >
+          Clear All
+        </Button>
+      )}
     </Box>
   );
 };
