@@ -118,7 +118,7 @@ def test_create_existing_user(mock_auth_service, client, auth_header_super_user)
     """Create an existing user."""
     url = urljoin(API_BASE_URL, "staff-users")
     user_data = StaffScenario.default_data.value
-    auth_user_guid = fake.word()
+    auth_user_guid = f"{fake.word()}{str(datetime.now().strftime('%Y%m%d%H%M%S'))}"
     user_data["auth_user_guid"] = auth_user_guid
     StaffScenario.create(user_data)
 
