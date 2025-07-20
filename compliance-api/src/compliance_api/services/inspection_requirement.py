@@ -637,64 +637,101 @@ def _build_inspection_requirements_base_query(
     )
 
     # Apply filters based on query parameters
-    if args.get("tpc_ids"):
-        base_query = base_query.filter(req.topic_id.in_(args["tpc_ids"].split(",")))
+    base_query = _apply_filters(
+        base_query,
+        args,
+        req,
+        insp,
+        enf_map,
+        req_source,
+        insp_rec,
+        order_app,
+        warning_app,
+        order,
+    )
+    # Apply pagination if requested
+    if enable_pagination:
+        return _apply_pagination(base_query, args, req, enf_map)
+    return base_query
 
+
+def _apply_filters(
+    query, args, req, insp, enf_map, req_source, insp_rec, order_app, warning_app, order
+):  # pylint: disable=too-many-arguments
+    """Apply filters to the query based on arguments.
+
+    Args:
+        query: The SQLAlchemy query to filter
+        args: Query arguments containing filter parameters
+        req, insp, enf_map, req_source, insp_rec, order_app, warning_app, order: Model aliases
+
+    Returns:
+        Filtered SQLAlchemy query
+    """
+    # Topic IDs filter
+    if args.get("tpc_ids"):
+        query = query.filter(req.topic_id.in_(args["tpc_ids"].split(",")))
+
+    # Summary text search filter
     if args.get("summary"):
         search_term = args["summary"].lower().strip()
-        # Try a simpler filter approach
-        base_query = base_query.filter(func.lower(req.summary).contains(search_term))
+        query = query.filter(func.lower(req.summary).contains(search_term))
 
+    # Compliance finding IDs filter
     if args.get("cmd_fnd_ids"):
-        base_query = base_query.filter(
+        query = query.filter(
             req.compliance_finding_id.in_(args["cmd_fnd_ids"].split(","))
         )
 
+    # Enforcement action IDs filter
     if args.get("enf_actn_ids"):
-        base_query = base_query.filter(
+        query = query.filter(
             enf_map.enforcement_action_id.in_(args["enf_actn_ids"].split(","))
         )
 
+    # Requirement source IDs filter
     if args.get("req_src_ids"):
-        # Assuming there's a relationship to requirement sources
-        base_query = base_query.filter(
+        query = query.filter(
             req_source.requirement_source_id.in_(args["req_src_ids"].split(","))
         )
 
+    # IR number filter
     if args.get("ir_no") and args.get("ir_no").strip():
-        base_query = base_query.filter(insp.ir_number.ilike(f'%{args["ir_no"]}%'))
+        query = query.filter(insp.ir_number.ilike(f'%{args["ir_no"]}%'))
 
+    # Approval status filter
     if args.get("apprv_sts"):
         approval_status = [st.upper().strip() for st in args["apprv_sts"].split(",")]
-        base_query = base_query.filter(
+        query = query.filter(
             or_(
                 order_app.approval_status.in_(approval_status),
                 warning_app.approval_status.in_(approval_status),
             )
         )
 
+    # Primary officer IDs filter
     if args.get("prm_offc_ids"):
-        base_query = base_query.filter(
+        query = query.filter(
             insp.primary_officer_id.in_(args["prm_offc_ids"].split(","))
         )
 
+    # Inspection status filter
     if args.get("insp_sts"):
         inspection_status = [st.upper().strip() for st in args["insp_sts"].split(",")]
-        base_query = base_query.filter(insp.inspection_status.in_(inspection_status))
+        query = query.filter(insp.inspection_status.in_(inspection_status))
 
+    # Project IDs filter
     if args.get("project_ids"):
-        base_query = base_query.filter(
-            insp.project_id.in_(args["project_ids"].split(","))
-        )
+        query = query.filter(insp.project_id.in_(args["project_ids"].split(",")))
 
+    # Date issued filter
     if args.get("date_issued"):
-        # Use func.date() to extract only the date part from the datetime field
-        # This removes the time component for comparison
-        base_query = base_query.filter(
-            func.date(insp_rec.date_issued) == args["date_issued"]
-        )
+        # Extract only the date part from the datetime field
+        query = query.filter(func.date(insp_rec.date_issued) == args["date_issued"])
+
+    # Requirement source number filter
     if args.get("req_src_num"):
-        base_query = base_query.filter(
+        query = query.filter(
             or_(
                 req_source.section_number.in_(args["req_src_num"].split(",")),
                 req_source.clause_number.in_(args["req_src_num"].split(",")),
@@ -702,25 +739,39 @@ def _build_inspection_requirements_base_query(
                 order.order_number.in_(args["req_src_num"].split(",")),
             )
         )
-    if enable_pagination:
-        # Add pagination
-        page = int(args.get("page_no", 1))
-        per_page = int(args.get("page_size", 15))
-        # Get distinct count by requirement ID to avoid duplicates
-        distinct_count_query = base_query.with_entities(
-            req.id, enf_map.enforcement_action_id
-        ).distinct()
-        total_count = distinct_count_query.count()
 
-        # Apply pagination with distinct to avoid duplicate requirements
-        paginated_query = (
-            base_query.distinct(req.id, enf_map.enforcement_action_id)
-            .order_by(req.id)
-            .offset((page - 1) * per_page)
-            .limit(per_page)
-        )
-        return paginated_query, total_count
-    return base_query
+    return query
+
+
+def _apply_pagination(query, args, req, enf_map):
+    """Apply pagination to the query.
+
+    Args:
+        query: The SQLAlchemy query to paginate
+        args: Query arguments containing pagination parameters
+        req: InspectionRequirement model alias
+        enf_map: InspectionReqEnforcementMap model alias
+
+    Returns:
+        Tuple of (paginated_query, total_count)
+    """
+    page = int(args.get("page_no", 1))
+    per_page = int(args.get("page_size", 15))
+
+    # Get distinct count by requirement ID to avoid duplicates
+    distinct_count_query = query.with_entities(
+        req.id, enf_map.enforcement_action_id
+    ).distinct()
+    total_count = distinct_count_query.count()
+
+    # Apply pagination with distinct to avoid duplicate requirements
+    paginated_query = (
+        query.distinct(req.id, enf_map.enforcement_action_id)
+        .order_by(req.id)
+        .offset((page - 1) * per_page)
+        .limit(per_page)
+    )
+    return paginated_query, total_count
 
 
 def _process_inspection_requirement_query_results(query_results):
