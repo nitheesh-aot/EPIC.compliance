@@ -389,7 +389,9 @@ def _make_requirement_detail_object(
                 number_field = ServiceUtils.get_requirement_source_number_field(
                     first_requirement_details
                 )
-                item["requirement_number"] = number_field.split(" ")[1]
+                item["requirement_number"] = (
+                    number_field.split(" ")[1] if number_field else None
+                )
                 item["requirement_source_name"] = (
                     first_requirement_details.requirement_source.name
                 )
