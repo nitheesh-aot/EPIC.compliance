@@ -59,6 +59,7 @@ const RequirementsExternalFilters: React.FC<
         variant="inline"
         isMulti={true}
         name="primaryOfficerFilter"
+        currentValue={externalFilters.primary_officer_id}
       />
       <ExternalTableFilter
         filterId="inspection_status"
@@ -68,6 +69,7 @@ const RequirementsExternalFilters: React.FC<
         variant="inline"
         isMulti={true}
         name="inspectionStatusFilter"
+        currentValue={externalFilters.inspection_status}
       />
       <ExternalTableFilter
         filterId="project_id"
@@ -77,6 +79,7 @@ const RequirementsExternalFilters: React.FC<
         variant="inline"
         isMulti={true}
         name="projectFilter"
+        currentValue={externalFilters.project_id}
       />
       {hasActiveFilters && (
         <Button
