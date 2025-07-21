@@ -244,7 +244,6 @@ const FilterSelect = memo((props: SelectProps) => {
             height: "2.25rem",
             minHeight: "2.25rem",
             borderWidth: "1px",
-            borderStyle: props.hasValue ? "none" : "solid",
             borderColor:
               props.isFocused || props.menuIsOpen
                 ? BCDesignTokens.surfaceColorBorderActive
@@ -254,6 +253,14 @@ const FilterSelect = memo((props: SelectProps) => {
               borderColor: props.isFocused
                 ? BCDesignTokens.surfaceColorBorderActive
                 : "transparent",
+            }),
+            ...(props.selectProps.filterProps?.variant ===
+              "inline-standalone" && {
+              borderColor: props.hasValue
+                ? BCDesignTokens.surfaceColorBorderActive
+                : BCDesignTokens.surfaceColorBorderDefault,
+              borderWidth: "0.5px",
+              height: "auto",
             }),
           }),
           menu: (base) => ({
@@ -274,6 +281,10 @@ const FilterSelect = memo((props: SelectProps) => {
             ...(props.selectProps.filterProps?.variant == "bar" && {
               color: BCDesignTokens.themePrimaryBlue,
               fontWeight: BCDesignTokens.typographyFontWeightsBold,
+            }),
+            ...(props.selectProps.filterProps?.variant ===
+              "inline-standalone" && {
+              color: BCDesignTokens.typographyColorPrimary,
             }),
           }),
           menuPortal: (base) => ({

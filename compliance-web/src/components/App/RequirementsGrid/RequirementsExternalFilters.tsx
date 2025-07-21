@@ -45,7 +45,8 @@ const RequirementsExternalFilters: React.FC<
   // Check if any filters are applied
   const hasActiveFilters = useMemo(() => {
     return Object.values(externalFilters).some(
-      (value) => value && (Array.isArray(value) ? value.length > 0 : value !== "")
+      (value) =>
+        value && (Array.isArray(value) ? value.length > 0 : value !== "")
     );
   }, [externalFilters]);
 
@@ -56,7 +57,7 @@ const RequirementsExternalFilters: React.FC<
         filterOptions={primaryOfficerOptions}
         onFilterChange={onFilterChange}
         placeholder="Primary"
-        variant="inline"
+        variant="inline-standalone"
         isMulti={true}
         name="primaryOfficerFilter"
         currentValue={externalFilters.primary_officer_id}
@@ -66,7 +67,7 @@ const RequirementsExternalFilters: React.FC<
         filterOptions={inspectionStatusOptions}
         onFilterChange={onFilterChange}
         placeholder="Inspection Status"
-        variant="inline"
+        variant="inline-standalone"
         isMulti={true}
         name="inspectionStatusFilter"
         currentValue={externalFilters.inspection_status}
@@ -76,17 +77,13 @@ const RequirementsExternalFilters: React.FC<
         filterOptions={projectOptions}
         onFilterChange={onFilterChange}
         placeholder="Project"
-        variant="inline"
+        variant="inline-standalone"
         isMulti={true}
         name="projectFilter"
         currentValue={externalFilters.project_id}
       />
       {hasActiveFilters && (
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={onClearAll}
-        >
+        <Button variant="outlined" size="small" onClick={onClearAll}>
           Clear All
         </Button>
       )}

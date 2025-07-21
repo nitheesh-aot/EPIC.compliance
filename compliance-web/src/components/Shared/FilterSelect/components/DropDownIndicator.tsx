@@ -10,9 +10,13 @@ const DropdownIndicator = (props: DropdownIndicatorProps) => {
         sx={{
           color: props.hasValue
             ? BCDesignTokens.surfaceColorBorderActive
-            : BCDesignTokens.surfaceColorBorderMedium,
+            : props.selectProps.filterProps?.variant === "inline-standalone"
+              ? BCDesignTokens.surfaceColorBorderDark
+              : BCDesignTokens.surfaceColorBorderMedium,
           height: "1.25rem",
-          transform: props.selectProps.menuIsOpen ? "rotate(270deg)" : "rotate(90deg)"
+          transform: props.selectProps.menuIsOpen
+            ? "rotate(270deg)"
+            : "rotate(90deg)",
         }}
       />
     </components.DropdownIndicator>
