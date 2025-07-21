@@ -6,7 +6,7 @@ from http import HTTPStatus
 from urllib.parse import urljoin
 
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
-from compliance_api.models import RequirementSourceEnum
+from compliance_api.models import RequirementSourceEnum, InspectionStatusEnum
 from tests.utilities.factory_scenario.inspection_requirement_scenario import InspectionRequirementScenario
 
 
@@ -207,100 +207,101 @@ def test_delete_inspection_requirement(
     assert deleted_req is None
 
 
-# def test_create_requirement_with_invalid_inspection(
-#     client, auth_header_super_user,
-# ):
-#     """Test creating requirement with invalid inspection ID."""
-#     url = urljoin(API_BASE_URL, "inspections/9999/requirements")
-#     requirement_data = copy.copy(InspectionRequirementScenario.default_value.value)
-#     result = client.post(
-#         url,
-#         data=json.dumps(requirement_data),
-#         headers=auth_header_super_user,
-#     )
-#     assert result.status_code == HTTPStatus.NOT_FOUND
+def test_create_requirement_with_invalid_inspection(
+    client, auth_header_super_user,
+):
+    """Test creating requirement with invalid inspection ID."""
+    url = urljoin(API_BASE_URL, "9999/requirements")
+    print(url)
+    requirement_data = copy.copy(InspectionRequirementScenario.default_value.value)
+    result = client.post(
+        url,
+        data=json.dumps(requirement_data),
+        headers=auth_header_super_user,
+    )
+    assert result.status_code == HTTPStatus.NOT_FOUND
 
 
-# def test_create_requirement_with_closed_inspection(
-#     client, auth_header_super_user, created_inspection,
-# ):
-#     """Test creating requirement for a closed inspection."""
-#     # Update inspection status to closed
-#     created_inspection.inspection_status = InspectionStatusEnum.CLOSED.value
-#     created_inspection.save()
+def test_create_requirement_with_closed_inspection(
+    client, auth_header_super_user, created_inspection,
+):
+    """Test creating requirement for a closed inspection."""
+    # Update inspection status to closed
+    created_inspection.inspection_status = InspectionStatusEnum.CLOSED
+    created_inspection.save()
 
-#     url = urljoin(API_BASE_URL, f"inspections/{created_inspection.id}/requirements")
-#     requirement_data = copy.copy(InspectionRequirementScenario.default_value.value)
-#     result = client.post(
-#         url,
-#         data=json.dumps(requirement_data),
-#         headers=auth_header_super_user,
-#     )
-#     assert result.status_code == HTTPStatus.BAD_REQUEST
-
-
-# def test_update_requirement_with_invalid_id(
-#     client, auth_header_super_user, created_inspection,
-# ):
-#     """Test updating non-existent requirement."""
-#     url = urljoin(API_BASE_URL, "inspection-requirements/9999")
-#     update_data = {
-#         "description": "Updated description",
-#     }
-#     result = client.put(
-#         url,
-#         data=json.dumps(update_data),
-#         headers=auth_header_super_user,
-#     )
-#     assert result.status_code == HTTPStatus.NOT_FOUND
+    url = urljoin(API_BASE_URL, f"{created_inspection.id}/requirements")
+    requirement_data = copy.copy(InspectionRequirementScenario.default_value.value)
+    result = client.post(
+        url,
+        data=json.dumps(requirement_data),
+        headers=auth_header_super_user,
+    )
+    assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
 
 
-# def test_update_requirement_with_invalid_inspection_status(
-#     client, auth_header_super_user, created_inspection, created_inspection_requirement,
-# ):
-#     """Test updating requirement when inspection is closed."""
-#     # Update inspection status to closed
-#     created_inspection.inspection_status = InspectionStatusEnum.CLOSED.value
-#     created_inspection.save()
-
-#     url = urljoin(API_BASE_URL, f"inspection-requirements/{created_inspection_requirement.id}")
-#     update_data = {
-#         "description": "Updated description",
-#     }
-#     result = client.put(
-#         url,
-#         data=json.dumps(update_data),
-#         headers=auth_header_super_user,
-#     )
-#     assert result.status_code == HTTPStatus.BAD_REQUEST
+def test_update_requirement_with_invalid_id(
+    client, auth_header_super_user, created_inspection,
+):
+    """Test updating non-existent requirement."""
+    url = urljoin(API_BASE_URL, "9998/requirements/9998")
+    requirement_data = copy.copy(InspectionRequirementScenario.with_everything.value)
+    print(requirement_data)
+    result = client.patch(
+        url,
+        data=json.dumps(requirement_data),
+        headers=auth_header_super_user,
+    )
+    print(result.json)
+    assert result.status_code == HTTPStatus.NOT_FOUND
 
 
-# def test_sort_order_handling(
-#     client, auth_header_super_user, created_inspection,
-# ):
-#     """Test sort order handling when creating multiple requirements."""
-#     url = urljoin(API_BASE_URL, f"inspections/{created_inspection.id}/requirements")
+def test_update_requirement_with_invalid_inspection_status(
+    client, auth_header_super_user, created_inspection, created_inspection_requirement,
+):
+    """Test updating requirement when inspection is closed."""
+    # Update inspection status to closed
+    created_inspection.inspection_status = InspectionStatusEnum.CLOSED
+    created_inspection.save()
 
-#     # Create first requirement
-#     requirement_data = copy.copy(InspectionRequirementScenario.default_value.value)
-#     result = client.post(
-#         url,
-#         data=json.dumps(requirement_data),
-#         headers=auth_header_super_user,
-#     )
-#     assert result.status_code == HTTPStatus.CREATED
-#     first_req_id = result.json["id"]
-#     assert result.json["sort_order"] == 1
+    url = urljoin(API_BASE_URL, f"{created_inspection.id}/requirements/{created_inspection_requirement.id}")
+    update_data = {
+        "description": "Updated description",
+    }
+    result = client.patch(
+        url,
+        data=json.dumps(update_data),
+        headers=auth_header_super_user,
+    )
+    assert result.status_code == HTTPStatus.BAD_REQUEST
 
-#     # Create second requirement
-#     result = client.post(
-#         url,
-#         data=json.dumps(requirement_data),
-#         headers=auth_header_super_user,
-#     )
-#     assert result.status_code == HTTPStatus.CREATED
-#     assert result.json["sort_order"] == 2
 
-#     # Verify first requirement's sort order is still 1
-#     first_req = InspectionRequirementModel.find_by_id(first_req_id)
-#     assert first_req.sort_order == 1
+def test_sort_order_handling(
+    client, auth_header_super_user, created_inspection,
+):
+    """Test sort order handling when creating multiple requirements."""
+    url = urljoin(API_BASE_URL, f"{created_inspection.id}/requirements")
+
+    # Create first requirement
+    requirement_data = copy.copy(InspectionRequirementScenario.default_value.value)
+    result = client.post(
+        url,
+        data=json.dumps(requirement_data),
+        headers=auth_header_super_user,
+    )
+    assert result.status_code == HTTPStatus.CREATED
+    first_req_id = result.json["id"]
+    assert result.json["sort_order"] == 1
+
+    # Create second requirement
+    result = client.post(
+        url,
+        data=json.dumps(requirement_data),
+        headers=auth_header_super_user,
+    )
+    assert result.status_code == HTTPStatus.CREATED
+    assert result.json["sort_order"] == 2
+
+    # Verify first requirement's sort order is still 1
+    first_req = InspectionRequirementModel.find_by_id(first_req_id)
+    assert first_req.sort_order == 1
