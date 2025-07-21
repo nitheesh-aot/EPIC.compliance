@@ -34,9 +34,9 @@ class InspectionRequirements(Resource):
     )
     @API.doc(
         params={
-            "topic_id": {
-                "description": "The topic of the inspection requirement",
-                "type": "integer",
+            "tpc_ids": {
+                "description": "The comma separated list of topic ids",
+                "type": "string",
                 "required": False,
             },
             "summary": {
@@ -44,49 +44,54 @@ class InspectionRequirements(Resource):
                 "type": "string",
                 "required": False,
             },
-            "compliance_finding_id": {
-                "description": "The compliance finding of the inspection requirement",
-                "type": "integer",
-                "required": False,
-            },
-            "enforcement_action_id": {
-                "description": "The enforcement action of the inspection requirement",
-                "type": "integer",
-                "required": False,
-            },
-            "approval_status": {
-                "description": "The approval status of the inspection requirement",
+            "cmd_fnd_ids": {
+                "description": "The comma separated list of compliance finding ids",
                 "type": "string",
                 "required": False,
             },
-            "requirement_source_id": {
-                "description": "The requirement source of the inspection requirement",
-                "type": "integer",
+            "enf_actn_ids": {
+                "description": "The comma separated list of enforcement action ids",
+                "type": "string",
                 "required": False,
             },
-            "ir_number": {
-                "description": "The inspection requirement number",
+            "apprv_sts": {
+                "description": "The comma separated list of approval statuses of the inspection requirement",
+                "type": "string",
+                "required": False,
+            },
+            "req_src_ids": {
+                "description": "The comma separated list of requirement source ids of the inspection requirement",
+                "type": "string",
+                "required": False,
+            },
+            "req_src_num": {
+                "description": "The requirement source number of the inspection requirement",
+                "type": "string",
+                "required": False,
+            },
+            "ir_no": {
+                "description": "The inspection record number",
                 "type": "string",
                 "required": False,
             },
             "date_issued": {
-                "description": "The date issued of the inspection requirement",
+                "description": "The comma separated list of date issued of the inspection requirement",
                 "type": "date",
                 "required": False,
             },
-            "primary_officer_id": {
-                "description": "The primary officer of the inspection requirement",
-                "type": "integer",
-                "required": False,
-            },
-            "inspection_status": {
-                "description": "The inspection status of the inspection requirement",
+            "prm_offc_ids": {
+                "description": "The comma separated list of primary officer ids of the inspection requirement",
                 "type": "string",
                 "required": False,
             },
-            "project_id": {
-                "description": "The project of the inspection requirement",
-                "type": "integer",
+            "insp_sts": {
+                "description": "The comma separated list of inspection status of the inspection requirement",
+                "type": "string",
+                "required": False,
+            },
+            "project_ids": {
+                "description": "The comma separated list of project ids of the inspection requirement",
+                "type": "string",
                 "required": False,
             },
             "page_no": {
@@ -127,9 +132,9 @@ class InspectionRequirementsExport(Resource):
     )
     @API.doc(
         params={
-            "topic_id": {
-                "description": "The topic of the inspection requirement",
-                "type": "integer",
+            "topic_ids": {
+                "description": "The comma separated list of topic ids of the inspection requirement",
+                "type": "string",
                 "required": False,
             },
             "summary": {
@@ -137,22 +142,22 @@ class InspectionRequirementsExport(Resource):
                 "type": "string",
                 "required": False,
             },
-            "compliance_finding_id": {
-                "description": "The compliance finding of the inspection requirement",
-                "type": "integer",
-                "required": False,
-            },
-            "enforcement_action_id": {
-                "description": "The enforcement action of the inspection requirement",
-                "type": "integer",
-                "required": False,
-            },
-            "approval_status": {
-                "description": "The approval status of the inspection requirement",
+            "compliance_finding_ids": {
+                "description": "The comma separated list of compliance finding ids of the inspection requirement",
                 "type": "string",
                 "required": False,
             },
-            "requirement_source_id": {
+            "enforcement_action_ids": {
+                "description": "The comma separated list of enforcement action ids of the inspection requirement",
+                "type": "string",
+                "required": False,
+            },
+            "approval_statuses": {
+                "description": "The comma separated list of approval statuses of the inspection requirement",
+                "type": "string",
+                "required": False,
+            },
+            "requirement_source_ids": {
                 "description": "The requirement source of the inspection requirement",
                 "type": "integer",
                 "required": False,

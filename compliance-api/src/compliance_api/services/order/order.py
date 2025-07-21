@@ -228,52 +228,54 @@ class OrderService:
             "ORDER_TEMPLATE", order_data, output_format
         )
         return response, order
-        
+
     @classmethod
     def reset_field(cls, order_id: int, field_name: str) -> OrderModel:
         """Reset a field in the order to its default generated value.
-        
+
         Args:
             order_id: The order ID
             field_name: The field to reset (where_as or now_therefore)
-            
+
         Returns:
             OrderModel: The updated order
-        
+
         Raises:
             ResourceNotFoundError: If the order is not found
             UnprocessableEntityError: If the order is not in drafting status
         """
         order = ServiceUtils.order_exist_check(order_id)
-        inspection = ServiceUtils.inspection_exist_check(inspection_id=order.inspection_id)
+        inspection = ServiceUtils.inspection_exist_check(
+            inspection_id=order.inspection_id
+        )
         ServiceUtils.access_check_update_for_inspection(inspection)
-        
+
         # Check if the order is in drafting status
         if order.order_progress != OrderProgressEnum.DRAFTING:
             raise UnprocessableEntityError(
                 f"Order cannot be reset as it is in {order.order_progress.value} progress"
             )
-            
+
         # Get the section and requirements for generating content
         section_id = order.section_id
         requirement_maps = OrderInspectionRequirementMapModel.get_by_order_id(order_id)
         requirement_ids = [req.inspection_requirement_id for req in requirement_maps]
-        
+
         # Generate the where_as and now_therefore content
         where_as, now_therefore = _create_where_as_and_now_therefore(
             inspection, order.order_number, section_id, requirement_ids
         )
-        
+
         # Update only the requested field
         update_data = {}
         if field_name == "where_as":
             update_data["where_as"] = where_as
         elif field_name == "now_therefore":
             update_data["now_therefore"] = now_therefore
-            
+
         # Update the order in the database
         updated_order = OrderModel.update_order(order_id, update_data)
-            
+
         return updated_order
 
 

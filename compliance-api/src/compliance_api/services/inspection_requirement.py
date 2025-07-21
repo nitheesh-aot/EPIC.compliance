@@ -9,7 +9,7 @@ from typing import List
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, or_
 from sqlalchemy.orm import aliased
 
 from compliance_api.exceptions import BadRequestError, ResourceNotFoundError, UnprocessableEntityError
@@ -28,11 +28,15 @@ from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import db, session_scope
 from compliance_api.models.inspection_record import InspectionRecord as InspectionRecordModel
 from compliance_api.models.inspection_record_approval import InspectionRecordApproval as InspectionRecordApprovalModel
-from compliance_api.models.inspection_record_approval import IRApprovalStatusEnum
 from compliance_api.models.order import Order as OrderModel
+from compliance_api.models.order import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
 from compliance_api.models.order import OrderProgressEnum
+from compliance_api.models.order_approval import OrderApproval as OrderApprovalModel
 from compliance_api.models.project import Project as ProjectModel
 from compliance_api.models.staff_user import StaffUser as StaffUserModel
+from compliance_api.models.warning_letter import \
+    WarningLetterInspectionRequirementMap as WarningLetterInspectionRequirementMapModel
+from compliance_api.models.warning_letter_approval import WarningLetterApproval as WarningLetterApprovalModel
 from compliance_api.schemas.inspection_requirement_grid import InspectionRequirementGridItemSchema
 from compliance_api.services.document_service.doc_service import DocService
 from compliance_api.services.document_service.doc_service_enum import ActionOnFileEnum
@@ -396,14 +400,9 @@ class InspectionRequirementService:
                     )
 
 
-def _build_inspection_requirements_base_query(
-    args: dict, enable_pagination: bool = False
-):  # pylint: disable=too-many-locals
-    """Build inspection requirements base query."""
-
-    # Use a more direct SQL approach to avoid ORM deduplication
-    # First create a subquery for the latest approvals
-    latest_approval_subq = (
+def _get_latest_approval_sub_query():
+    """Get latest approval sub query."""
+    return (
         db.session.query(
             InspectionRecordApprovalModel.inspection_record_id,
             func.max(InspectionRecordApprovalModel.id).label("max_id"),
@@ -416,7 +415,10 @@ def _build_inspection_requirements_base_query(
         .subquery("latest_approval")
     )
 
-    first_requirement_source_subq = (
+
+def _get_first_requirement_source_sub_query():
+    """Get first requirement source sub query."""
+    return (
         db.session.query(
             InspectionReqSourceDetailModel.requirement_id,
             func.min(InspectionReqSourceDetailModel.id).label("min_id"),
@@ -429,6 +431,63 @@ def _build_inspection_requirements_base_query(
         .subquery("first_requirement_source")
     )
 
+
+def _get_requirement_order_sub_query():
+    """Get requirement order sub query."""
+    return (
+        db.session.query(
+            OrderInspectionRequirementMapModel.inspection_requirement_id,
+            OrderInspectionRequirementMapModel.order_id,
+        )
+        .join(
+            OrderModel,
+            OrderModel.id == OrderInspectionRequirementMapModel.order_id,
+        )
+        .filter(
+            OrderInspectionRequirementMapModel.is_active.is_(True),
+            OrderInspectionRequirementMapModel.is_deleted.is_(False),
+            OrderModel.is_active.is_(True),
+            OrderModel.is_deleted.is_(False),
+        )
+        .subquery("requirement_order")
+    )
+
+
+def _get_requirement_warning_letter_sub_query():
+    """Get requirement warning letter sub query."""
+    return (
+        db.session.query(
+            WarningLetterInspectionRequirementMapModel.inspection_requirement_id,
+            WarningLetterInspectionRequirementMapModel.warning_letter_id,
+        )
+        .join(
+            WarningLetterModel,
+            WarningLetterModel.id
+            == WarningLetterInspectionRequirementMapModel.warning_letter_id,
+        )
+        .filter(
+            WarningLetterInspectionRequirementMapModel.is_active.is_(True),
+            WarningLetterInspectionRequirementMapModel.is_deleted.is_(False),
+            WarningLetterModel.is_active.is_(True),
+            WarningLetterModel.is_deleted.is_(False),
+        )
+        .subquery("requirement_warning_letter")
+    )
+
+
+def _build_inspection_requirements_base_query(
+    args: dict, enable_pagination: bool = False
+):  # pylint: disable=too-many-locals
+    """Build inspection requirements base query."""
+    # Gets the latest inspection approval entry
+    latest_approval_subq = _get_latest_approval_sub_query()
+    # Gets the first requirement source entry
+    first_requirement_source_subq = _get_first_requirement_source_sub_query()
+    # Gets the requirement order entries
+    requirement_order_subq = _get_requirement_order_sub_query()
+    # Gets the requirement warning letter entries
+    requirement_warning_letter_subq = _get_requirement_warning_letter_sub_query()
+
     # Create aliases for clarity
     req = aliased(InspectionRequirementModel)
     insp = aliased(InspectionModel)
@@ -440,26 +499,28 @@ def _build_inspection_requirements_base_query(
     staff = aliased(StaffUserModel)
     case_file = aliased(CaseFileModel)
     project = aliased(ProjectModel)
+    order_app = aliased(OrderApprovalModel)
+    warning_app = aliased(WarningLetterApprovalModel)
+    order = aliased(OrderModel)
 
     # Build a more explicit query with distinct rows
     base_query = (
         db.session.query(
-            req,  # The requirement itself
-            approval.approval_status,  # Additional fields
+            req,
             approval.approved_by_id,
             insp.ir_number,
             insp_rec.date_issued,
-            enf_map.enforcement_action_id,  # The ID for filtering
-            enf_action.name.label(
-                "enforcement_action_name"
-            ),  # Description of the enforcement action
-            req_source.requirement_source_id,
-            # Add primary officer full name
+            enf_map.enforcement_action_id,
+            enf_action.name.label("enforcement_action_name"),
+            staff.id,
             staff.first_name,
             staff.last_name,
-            # Add project name
+            staff.auth_user_guid,
+            project.id,
             project.name,
             insp.inspection_status,
+            order_app.approval_status,
+            warning_app.approval_status,
         )
         .join(
             insp,
@@ -520,6 +581,35 @@ def _build_inspection_requirements_base_query(
             ),
         )
         .outerjoin(
+            requirement_order_subq,
+            requirement_order_subq.c.inspection_requirement_id == req.id,
+        )
+        .outerjoin(
+            order,
+            order.id == requirement_order_subq.c.order_id,
+        )
+        .outerjoin(
+            order_app,
+            and_(
+                order_app.order_id == requirement_order_subq.c.order_id,
+                order_app.is_deleted.is_(False),
+                order_app.is_active.is_(True),
+            ),
+        )
+        .outerjoin(
+            requirement_warning_letter_subq,
+            requirement_warning_letter_subq.c.inspection_requirement_id == req.id,
+        )
+        .outerjoin(
+            warning_app,
+            and_(
+                warning_app.warning_letter_id
+                == requirement_warning_letter_subq.c.warning_letter_id,
+                warning_app.is_deleted.is_(False),
+                warning_app.is_active.is_(True),
+            ),
+        )
+        .outerjoin(
             staff,
             and_(
                 staff.id == insp.primary_officer_id,
@@ -547,79 +637,141 @@ def _build_inspection_requirements_base_query(
     )
 
     # Apply filters based on query parameters
-    if args.get("topic_id"):
-        base_query = base_query.filter(req.topic_id == int(args["topic_id"]))
+    base_query = _apply_filters(
+        base_query,
+        args,
+        req,
+        insp,
+        enf_map,
+        req_source,
+        insp_rec,
+        order_app,
+        warning_app,
+        order,
+    )
+    # Apply pagination if requested
+    if enable_pagination:
+        return _apply_pagination(base_query, args, req, enf_map)
+    return base_query
 
+
+def _apply_filters(
+    query, args, req, insp, enf_map, req_source, insp_rec, order_app, warning_app, order
+):  # pylint: disable=too-many-arguments
+    """Apply filters to the query based on arguments.
+
+    Args:
+        query: The SQLAlchemy query to filter
+        args: Query arguments containing filter parameters
+        req, insp, enf_map, req_source, insp_rec, order_app, warning_app, order: Model aliases
+
+    Returns:
+        Filtered SQLAlchemy query
+    """
+    # Topic IDs filter
+    if args.get("tpc_ids"):
+        query = query.filter(req.topic_id.in_(args["tpc_ids"].split(",")))
+
+    # Summary text search filter
     if args.get("summary"):
         search_term = args["summary"].lower().strip()
-        # Try a simpler filter approach
-        base_query = base_query.filter(func.lower(req.summary).contains(search_term))
+        query = query.filter(func.lower(req.summary).contains(search_term))
 
-    if args.get("compliance_finding_id"):
-        base_query = base_query.filter(
-            req.compliance_finding_id == int(args["compliance_finding_id"])
+    # Compliance finding IDs filter
+    if args.get("cmd_fnd_ids"):
+        query = query.filter(
+            req.compliance_finding_id.in_(args["cmd_fnd_ids"].split(","))
         )
 
-    if args.get("enforcement_action_id"):
-        base_query = base_query.filter(
-            enf_map.enforcement_action_id == int(args["enforcement_action_id"])
+    # Enforcement action IDs filter
+    if args.get("enf_actn_ids"):
+        query = query.filter(
+            enf_map.enforcement_action_id.in_(args["enf_actn_ids"].split(","))
         )
 
-    if args.get("requirement_source_id"):
-        # Assuming there's a relationship to requirement sources
-        base_query = base_query.filter(
-            req_source.requirement_source_id == int(args["requirement_source_id"])
+    # Requirement source IDs filter
+    if args.get("req_src_ids"):
+        query = query.filter(
+            req_source.requirement_source_id.in_(args["req_src_ids"].split(","))
         )
 
-    if args.get("ir_number") and args.get("ir_number").strip():
-        base_query = base_query.filter(insp.ir_number.ilike(f'%{args["ir_number"]}%'))
+    # IR number filter
+    if args.get("ir_no") and args.get("ir_no").strip():
+        query = query.filter(insp.ir_number.ilike(f'%{args["ir_no"]}%'))
 
-    if args.get("approval_status"):
-        base_query = base_query.filter(
-            approval.approval_status
-            == IRApprovalStatusEnum[args["approval_status"].upper()]
+    # Approval status filter
+    if args.get("apprv_sts"):
+        approval_status = [st.upper().strip() for st in args["apprv_sts"].split(",")]
+        query = query.filter(
+            or_(
+                order_app.approval_status.in_(approval_status),
+                warning_app.approval_status.in_(approval_status),
+            )
         )
 
-    if args.get("primary_officer_id"):
-        base_query = base_query.filter(
-            insp.primary_officer_id == int(args["primary_officer_id"])
+    # Primary officer IDs filter
+    if args.get("prm_offc_ids"):
+        query = query.filter(
+            insp.primary_officer_id.in_(args["prm_offc_ids"].split(","))
         )
 
-    if args.get("inspection_status"):
-        base_query = base_query.filter(
-            insp.inspection_status == args["inspection_status"]
-        )
+    # Inspection status filter
+    if args.get("insp_sts"):
+        inspection_status = [st.upper().strip() for st in args["insp_sts"].split(",")]
+        query = query.filter(insp.inspection_status.in_(inspection_status))
 
-    if args.get("project_id"):
-        # May need to adjust this depending on how project_id is accessed
-        base_query = base_query.filter(insp.project_id == int(args["project_id"]))
+    # Project IDs filter
+    if args.get("project_ids"):
+        query = query.filter(insp.project_id.in_(args["project_ids"].split(",")))
 
+    # Date issued filter
     if args.get("date_issued"):
-        # Use func.date() to extract only the date part from the datetime field
-        # This removes the time component for comparison
-        base_query = base_query.filter(
-            func.date(insp_rec.date_issued) == args["date_issued"]
-        )
-    if enable_pagination:
-        # Add pagination
-        page = int(args.get("page", 1))
-        per_page = int(args.get("per_page", 15))
-        # Get distinct count by requirement ID to avoid duplicates
-        # Use the existing aliases from the base query
-        distinct_count_query = base_query.with_entities(
-            req.id, enf_map.enforcement_action_id
-        ).distinct()
-        total_count = distinct_count_query.count()
+        # Extract only the date part from the datetime field
+        query = query.filter(func.date(insp_rec.date_issued) == args["date_issued"])
 
-        # Apply pagination with distinct to avoid duplicate requirements
-        paginated_query = (
-            base_query.distinct(req.id, enf_map.enforcement_action_id)
-            .order_by(req.id)
-            .offset((page - 1) * per_page)
-            .limit(per_page)
+    # Requirement source number filter
+    if args.get("req_src_num"):
+        query = query.filter(
+            or_(
+                req_source.section_number.in_(args["req_src_num"].split(",")),
+                req_source.clause_number.in_(args["req_src_num"].split(",")),
+                req_source.condition_number.in_(args["req_src_num"].split(",")),
+                order.order_number.in_(args["req_src_num"].split(",")),
+            )
         )
-        return paginated_query, total_count
-    return base_query
+
+    return query
+
+
+def _apply_pagination(query, args, req, enf_map):
+    """Apply pagination to the query.
+
+    Args:
+        query: The SQLAlchemy query to paginate
+        args: Query arguments containing pagination parameters
+        req: InspectionRequirement model alias
+        enf_map: InspectionReqEnforcementMap model alias
+
+    Returns:
+        Tuple of (paginated_query, total_count)
+    """
+    page = int(args.get("page_no", 1))
+    per_page = int(args.get("page_size", 15))
+
+    # Get distinct count by requirement ID to avoid duplicates
+    distinct_count_query = query.with_entities(
+        req.id, enf_map.enforcement_action_id
+    ).distinct()
+    total_count = distinct_count_query.count()
+
+    # Apply pagination with distinct to avoid duplicate requirements
+    paginated_query = (
+        query.distinct(req.id, enf_map.enforcement_action_id)
+        .order_by(req.id)
+        .offset((page - 1) * per_page)
+        .limit(per_page)
+    )
+    return paginated_query, total_count
 
 
 def _process_inspection_requirement_query_results(query_results):
@@ -629,21 +781,27 @@ def _process_inspection_requirement_query_results(query_results):
     for result in query_results:
         requirement = result[0]
         # Add additional attributes to the requirement object
-        requirement.approval_status = result[1]
-        requirement.approved_by_id = result[2]
-        requirement.ir_number = result[3]
-        requirement.date_issued = result[4]
+        requirement.approved_by_id = result[1]
+        requirement.ir_number = result[2]
+        requirement.date_issued = result[3]
         # Create a simple dict with enforcement action data
-        requirement.enforcement_action = {"id": result[5], "name": result[6]}
+        requirement.enforcement_action = {"id": result[4], "name": result[5]}
 
         # Add primary officer full name
-        first_name = result[8] or ""
-        last_name = result[9] or ""
-        requirement.primary_officer_name = f"{first_name} {last_name}".strip()
+        requirement.primary_officer = {
+            "id": result[6],
+            "first_name": result[7] or "",
+            "last_name": result[8] or "",
+            "auth_user_guid": result[9],
+        }
 
         # Add project name
-        requirement.project_name = result[10] or ""
-        requirement.inspection_status = result[11]
+        requirement.project = {
+            "id": result[10],
+            "name": result[11],
+        }
+        requirement.inspection_status = result[12]
+        requirement.order_approval_status = result[13]
         processed_requirements.append(requirement)
     return processed_requirements
 
@@ -665,29 +823,29 @@ def _make_requirement_detail_object(requirements: list):
                 else None
             ),
             "topic": requirement.topic,
-            "approval_status": (
-                {
-                    "id": requirement.approval_status.name,
-                    "name": requirement.approval_status.value,
-                }
-                if requirement.approval_status
-                else None
-            ),
             "compliance_finding": requirement.compliance_finding,
             "enforcement_action": requirement.enforcement_action,
-            "primary_officer_name": requirement.primary_officer_name,
-            "project_name": requirement.project_name,
+            "primary_officer": requirement.primary_officer,
+            "project": requirement.project,
             "inspection_status": {
                 "id": requirement.inspection_status.name,
                 "name": requirement.inspection_status.value,
             },
         }
+        approval_status = requirement.order_approval_status
+        if approval_status:
+            item["approval_status"] = {
+                "id": approval_status.name,
+                "name": approval_status.value,
+            }
         if requirement.requirement_source_details:
             first_requirement_details = requirement.requirement_source_details[0]
             number_field = ServiceUtils.get_requirement_source_number_field(
                 first_requirement_details
             )
-            item["requirement_number"] = number_field.split(" ")[1]
+            item["requirement_number"] = (
+                number_field.split(" ")[1] if number_field else None
+            )
             item["requirement_source"] = first_requirement_details.requirement_source
         requirement_details.append(item)
     return requirement_details
