@@ -92,6 +92,7 @@ class Inspection(BaseModelVersioned):
         ),
         nullable=False,
     )
+    is_history = Column(Boolean, nullable=True)
     inspection_status = Column(Enum(InspectionStatusEnum), nullable=True)
     project_status_id = Column(
         Integer,
