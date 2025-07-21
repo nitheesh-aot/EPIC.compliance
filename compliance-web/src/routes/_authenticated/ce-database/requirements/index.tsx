@@ -35,6 +35,7 @@ import { BCDesignTokens } from "epic.theme";
 import { MRT_ColumnDef, MRT_TableState } from "material-react-table";
 import { useMemo, useState, useCallback } from "react";
 import RequirementsExternalFilters from "@/components/App/RequirementsGrid/RequirementsExternalFilters";
+import ShowOnlyMyRequirementsSwitch from "@/components/App/RequirementsGrid/ShowOnlyMyRequirementsSwitch";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/requirements/"
@@ -47,6 +48,7 @@ function Requirements() {
   const { data: complianceFindings } = useComplianceFindingsData();
   const { data: enforcementActions } = useEnforcementActionsData();
   const { data: requirementSources } = useRequirementSourcesData();
+  const [showOnlyMyRequirements, setShowOnlyMyRequirements] = useState(false);
 
   const approvalStatusOptions = Object.entries(APPROVAL_STATUS_TEXT).map(
     ([id, name]) => ({
@@ -76,7 +78,7 @@ function Requirements() {
         switch (filter.id) {
           case "topic":
             if (Array.isArray(filter.value) && filter.value.length > 0) {
-              params.topic_id = filter.value[0];
+              params.tpc_ids = filter.value.join(",");
             }
             break;
           case "summary":
@@ -86,27 +88,32 @@ function Requirements() {
             break;
           case "compliance_finding":
             if (Array.isArray(filter.value) && filter.value.length > 0) {
-              params.compliance_finding_id = filter.value[0];
+              params.cmd_fnd_ids = filter.value.join(",");
             }
             break;
           case "enforcement_action":
             if (Array.isArray(filter.value) && filter.value.length > 0) {
-              params.enforcement_action_id = filter.value[0];
+              params.enf_actn_ids = filter.value.join(",");
             }
             break;
           case "approval_status":
             if (Array.isArray(filter.value) && filter.value.length > 0) {
-              params.approval_status = filter.value[0];
+              params.apprv_sts = filter.value.join(",");
+            }
+            break;
+          case "requirement_number":
+            if (typeof filter.value === "string" && filter.value.trim()) {
+              params.req_src_num = filter.value.trim();
             }
             break;
           case "requirement_source":
             if (Array.isArray(filter.value) && filter.value.length > 0) {
-              params.requirement_source_id = filter.value[0];
+              params.req_src_ids = filter.value.join(",");
             }
             break;
           case "ir_number":
             if (typeof filter.value === "string" && filter.value.trim()) {
-              params.ir_number = filter.value.trim();
+              params.ir_no = filter.value.trim();
             }
             break;
           case "date_issued":
@@ -123,19 +130,17 @@ function Requirements() {
         if (value && (Array.isArray(value) ? value.length > 0 : value !== "")) {
           switch (key) {
             case "primary_officer_id":
-              params.primary_officer_id = Array.isArray(value)
-                ? parseInt(value[0])
-                : parseInt(value);
-              break;
-            case "inspection_status":
-              params.inspection_status = Array.isArray(value)
-                ? value[0]
+              params.prm_offc_ids = Array.isArray(value)
+                ? value.join(",")
                 : value;
               break;
+            case "inspection_status":
+              params.insp_sts = Array.isArray(value) ? value.join(",") : value;
+              break;
             case "project_id":
-              params.project_id = Array.isArray(value)
-                ? parseInt(value[0])
-                : parseInt(value);
+              params.project_ids = Array.isArray(value)
+                ? value.join(",")
+                : value;
               break;
           }
         }
@@ -148,8 +153,8 @@ function Requirements() {
 
   const queryParams: InspectionRequirementGridQueryParams = useMemo(
     () => ({
-      page: pagination.pageIndex + 1,
-      per_page: pagination.pageSize,
+      page_no: pagination.pageIndex + 1,
+      page_size: pagination.pageSize,
       ...convertFiltersToQueryParams(columnFilters),
       ...(globalFilter && { global_search: globalFilter }),
     }),
@@ -240,6 +245,24 @@ function Requirements() {
     setExternalFilters({});
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   }, []);
+
+  // Handler for the switch
+  const handleShowOnlyMyRequirementsChange = useCallback(
+    (checked: boolean, staffId?: number) => {
+      setShowOnlyMyRequirements(checked);
+      setExternalFilters((prev) => {
+        const newFilters = { ...prev };
+        if (checked && staffId) {
+          newFilters.primary_officer_id = [staffId.toString()];
+        } else {
+          delete newFilters.primary_officer_id;
+        }
+        return newFilters;
+      });
+      setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    },
+    []
+  );
 
   const columns = useMemo<MRT_ColumnDef<InspectionRequirementGrid>[]>(
     () => [
@@ -397,7 +420,7 @@ function Requirements() {
           sx={{
             display: "flex",
             flexDirection: "column",
-            gap: 1,
+            gap: 2,
             width: "100%",
             mr: -1,
           }}
@@ -417,9 +440,10 @@ function Requirements() {
             >
               Requirements
             </Typography>
-            <Box display="flex" alignItems="center" gap={2}>
-              files for review should be here
-            </Box>
+            <ShowOnlyMyRequirementsSwitch
+              checked={showOnlyMyRequirements}
+              onChange={handleShowOnlyMyRequirementsChange}
+            />
           </Box>
 
           {/* Pagination and controls section */}

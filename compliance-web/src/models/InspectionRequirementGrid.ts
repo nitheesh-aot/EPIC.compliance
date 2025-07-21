@@ -19,19 +19,20 @@ export interface InspectionRequirementGrid {
 }
 
 export interface InspectionRequirementGridQueryParams {
-  topic_id?: number;
+  tpc_ids?: string;
   summary?: string;
-  compliance_finding_id?: number;
-  enforcement_action_id?: number;
-  approval_status?: string;
-  requirement_source_id?: number;
-  ir_number?: string;
+  cmd_fnd_ids?: string;
+  enf_actn_ids?: string;
+  apprv_sts?: string;
+  req_src_ids?: string;
+  req_src_num?: string;
+  ir_no?: string;
   date_issued?: string;
-  primary_officer_id?: number;
-  inspection_status?: string;
-  project_id?: number;
-  page?: number;
-  per_page?: number;
+  prm_offc_ids?: string;
+  insp_sts?: string;
+  project_ids?: string;
+  page_no?: number;
+  page_size?: number;
 }
 
 export interface InspectionRequirementGridItems {
