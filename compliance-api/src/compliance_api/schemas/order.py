@@ -171,13 +171,13 @@ class OrderIssueSchema(BaseSchema):
 class ResetOrderFieldSchema(BaseSchema):
     """Schema for validating fields that can be reset in orders."""
 
-    field_name = fields.Str(
-        required=True,
-        validate=validate.OneOf(
-            [
-                "where_as",
-                "now_therefore",
-            ]
-        ),
-        metadata={"description": "The name of the field to reset"},
-    )
+    field_names = fields.List(
+        fields.Str(
+            validate=validate.OneOf(
+                [
+                    "where_as",
+                    "now_therefore",
+                ]
+            ),
+            metadata={"description": "The name of the field to reset"},
+        )

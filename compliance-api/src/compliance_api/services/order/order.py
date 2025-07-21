@@ -230,12 +230,12 @@ class OrderService:
         return response, order
 
     @classmethod
-    def reset_field(cls, order_id: int, field_name: str) -> OrderModel:
+    def reset_field(cls, order_id: int, field_names: List[str]) -> OrderModel:
         """Reset a field in the order to its default generated value.
 
         Args:
             order_id: The order ID
-            field_name: The field to reset (where_as or now_therefore)
+            field_names: The fields to reset (where_as or now_therefore)
 
         Returns:
             OrderModel: The updated order
@@ -268,9 +268,9 @@ class OrderService:
 
         # Update only the requested field
         update_data = {}
-        if field_name == "where_as":
+        if "where_as" in field_names:
             update_data["where_as"] = where_as
-        elif field_name == "now_therefore":
+        if "now_therefore" in field_names:
             update_data["now_therefore"] = now_therefore
 
         # Update the order in the database
