@@ -802,6 +802,7 @@ def _process_inspection_requirement_query_results(query_results):
         }
         requirement.inspection_status = result[12]
         requirement.order_approval_status = result[13]
+        requirement.warning_letter_approval_status = result[14]
         processed_requirements.append(requirement)
     return processed_requirements
 
@@ -815,6 +816,7 @@ def _make_requirement_detail_object(requirements: list):
         item = {
             "id": requirement.id,
             "summary": requirement.summary,
+            "approved_by_id": requirement.approved_by_id,
             "sort_order": requirement.sort_order,
             "ir_number": requirement.ir_number,
             "date_issued": (
@@ -832,7 +834,7 @@ def _make_requirement_detail_object(requirements: list):
                 "name": requirement.inspection_status.value,
             },
         }
-        approval_status = requirement.order_approval_status
+        approval_status = requirement.order_approval_status or requirement.warning_letter_approval_status
         if approval_status:
             item["approval_status"] = {
                 "id": approval_status.name,

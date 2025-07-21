@@ -33,6 +33,9 @@ class InspectionRequirementGridItemSchema(Schema):
         KeyValueSchema,
         metadata={"description": "The approval status of the inspection requirement"},
     )
+    approved_by_id = fields.Int(
+        metadata={"description": "The ID of the approved by"}
+    )
     sort_order = fields.Int(
         metadata={"description": "The sort order of the inspection requirement"}
     )
