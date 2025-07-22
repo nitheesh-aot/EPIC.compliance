@@ -5,7 +5,10 @@ import {
   useComplianceFindingsData,
   useEnforcementActionsData,
 } from "@/hooks/useInspectionRequirements";
-import { useInspectionRequirementsGrid } from "@/hooks/useInspectionRequirementsGrid";
+import {
+  useInspectionRequirementExport,
+  useInspectionRequirementsGrid,
+} from "@/hooks/useInspectionRequirementsGrid";
 import { useTopicsData } from "@/hooks/useTopics";
 import {
   InspectionRequirementGrid,
@@ -36,6 +39,7 @@ import { MRT_ColumnDef, MRT_TableState } from "material-react-table";
 import { useMemo, useState, useCallback } from "react";
 import RequirementsExternalFilters from "@/components/App/RequirementsGrid/RequirementsExternalFilters";
 import ShowOnlyMyRequirementsSwitch from "@/components/App/RequirementsGrid/ShowOnlyMyRequirementsSwitch";
+import { downloadFile } from "@/utils/appUtils";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/requirements/"
@@ -118,7 +122,13 @@ function Requirements() {
             break;
           case "date_issued":
             if (typeof filter.value === "string" && filter.value.trim()) {
-              params.date_issued = filter.value.trim();
+              // Convert the formatted date back to ISO format for the API
+              const dateValue = filter.value.trim();
+              if (dateValue) {
+                // Assuming the date is in the format used by dateUtils.formatDate
+                // You may need to adjust this based on your API expectations
+                params.date_issued = dateValue;
+              }
             }
             break;
           // requirement_number is not in the query params interface, so skip it
@@ -169,6 +179,15 @@ function Requirements() {
 
   const { data, isLoading } = useInspectionRequirementsGrid(queryParams);
   const requirementsList = useMemo(() => data?.items ?? [], [data]);
+
+  const { mutate: downloadRequirementExport } = useInspectionRequirementExport(
+    (data) => {
+      downloadFile(
+        data,
+        `requirements-${dateUtils.formatDate(new Date().toISOString(), "YYYY-MM-DD-HH-mm-ss")}.xlsx`
+      );
+    }
+  );
 
   const handlePaginationChange = useCallback(
     (
@@ -373,7 +392,8 @@ function Requirements() {
           row.date_issued ? dateUtils.formatDate(row.date_issued) : "",
         id: "date_issued",
         header: "IR Issuance Date",
-        filterFn: "contains",
+        filterVariant: "date",
+        filterFn: "greaterThanOrEqual",
         size: 120,
       },
     ],
@@ -462,6 +482,7 @@ function Requirements() {
                 size="small"
                 startIcon={<FileDownloadRounded />}
                 sx={{ ml: -2 }}
+                onClick={() => downloadRequirementExport(queryParams)}
               >
                 Export as Excel
               </Button>
