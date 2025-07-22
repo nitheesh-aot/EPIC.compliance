@@ -8,7 +8,8 @@ from flask import request, send_file
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
-from compliance_api.schemas.inspection_requirement_grid import InspectionRequirementGridItemSchema
+from compliance_api.schemas.inspection_requirement_grid import (
+    InspectionRequirementFilterSchema, InspectionRequirementGridItemSchema)
 from compliance_api.services import InspectionRequirementService
 
 from .apihelper import Api as ApiHelper
@@ -19,6 +20,9 @@ API = Namespace(
 )
 inspection_requirement_list_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, InspectionRequirementGridItemSchema(), "InspectionRequirementList"
+)
+inspection_requirement_filter_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, InspectionRequirementFilterSchema(), "InspectionRequirementFilter"
 )
 
 
@@ -127,72 +131,21 @@ class InspectionRequirementsExport(Resource):
     @ApiHelper.swagger_decorators(
         API, endpoint_description="Export all inspection requirements as Excel"
     )
-    @API.doc(
-        params={
-            "topic_ids": {
-                "description": "The comma separated list of topic ids of the inspection requirement",
-                "type": "string",
-                "required": False,
-            },
-            "summary": {
-                "description": "The summary of the inspection requirement",
-                "type": "string",
-                "required": False,
-            },
-            "compliance_finding_ids": {
-                "description": "The comma separated list of compliance finding ids of the inspection requirement",
-                "type": "string",
-                "required": False,
-            },
-            "enforcement_action_ids": {
-                "description": "The comma separated list of enforcement action ids of the inspection requirement",
-                "type": "string",
-                "required": False,
-            },
-            "approval_statuses": {
-                "description": "The comma separated list of approval statuses of the inspection requirement",
-                "type": "string",
-                "required": False,
-            },
-            "requirement_source_ids": {
-                "description": "The requirement source of the inspection requirement",
-                "type": "integer",
-                "required": False,
-            },
-            "ir_number": {
-                "description": "The inspection requirement number",
-                "type": "string",
-                "required": False,
-            },
-            "date_issued": {
-                "description": "The date issued of the inspection requirement",
-                "type": "date",
-                "required": False,
-            },
-            "primary_officer_id": {
-                "description": "The primary officer of the inspection requirement",
-                "type": "integer",
-                "required": False,
-            },
-            "inspection_status": {
-                "description": "The inspection status of the inspection requirement",
-                "type": "string",
-                "required": False,
-            },
-            "project_id": {
-                "description": "The project of the inspection requirement",
-                "type": "integer",
-                "required": False,
-            },
-        }
+    @API.expect(
+        ApiHelper.convert_ma_schema_to_restx_model(
+            API, InspectionRequirementFilterSchema(), "InspectionRequirementFilter"
+        )
     )
+    @API.doc()
     @API.response(code=200, description="Success - Excel file download")
     @auth.require
     def post():
         """Export all inspection requirements as Excel."""
-        args = dict(request.args)
+        # Get filter parameters from request body instead of query parameters
+        schema = InspectionRequirementFilterSchema()
+        filter_data = schema.load(request.json or {})
         output = InspectionRequirementService.generate_inspection_requirements_excel(
-            args
+            filter_data
         )
 
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

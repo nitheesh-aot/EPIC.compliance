@@ -16,7 +16,7 @@ class EnforcementActionOptionEnum(Enum):
     ADMINISTRATIVE_PENALTY_RECOMMENDATION = 6
     REFERRAL_TO_ANOTHER_AGENCY = 7
     VIOLATION_TICKET = 8
-    CHARGE_RECOMMENDATION = 10
+    CHARGE_RECOMMENDATION = 9
 
 
 class EnforcementActionOption(OptionModel):
