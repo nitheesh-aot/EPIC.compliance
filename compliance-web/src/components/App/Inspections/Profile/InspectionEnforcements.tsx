@@ -14,13 +14,13 @@ import EnforcementCard from "./Enforcements/EnforcementCard";
 import { useInspectionOrdersData } from "@/hooks/useInspectionOrders";
 import EnforcementOrderDrawer from "./Enforcements/EnforcementOrderDrawer";
 import { InspectionOrder } from "@/models/InspectionOrder";
-import { useStaffUsersData } from "@/hooks/useStaff";
 import { useDrawer } from "@/store/drawerStore";
 import { useInspectionWarningLettersData } from "@/hooks/useInspectionWarningLetters";
 import EnforcementWarningLetterDrawer from "./Enforcements/EnforcementWarningLetterDrawer";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
 import { AddRounded } from "@mui/icons-material";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 
 interface InspectionEnforcementsProps {
   inspectionData: Inspection;
@@ -32,7 +32,6 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
   const queryClient = useQueryClient();
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
   const { setOpen: setDrawerOpen, setClose: setDrawerClose } = useDrawer();
-  const { data: staffUsersList } = useStaffUsersData();
   const [isDataLoading, setIsDataLoading] = React.useState<boolean>(true);
   const [requirementEnforcements, setRequirementEnforcements] = React.useState<
     InspectionRequirement[]
@@ -41,6 +40,18 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
   const isEnforcementsAllowed = useMemo(
     () => inspectionData?.inspection_status?.toLowerCase() === "open",
     [inspectionData]
+  );
+
+  const { data: caseFile } = useCaseFileByNumber(
+    inspectionData.case_file.case_file_number
+  );
+
+  const issuingOfficers = useMemo(
+    () =>
+      [caseFile?.primary_officer, ...(caseFile?.officers || [])].filter(
+        (officer) => officer !== undefined
+      ),
+    [caseFile]
   );
 
   const {
@@ -211,7 +222,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           }}
           inspection={inspectionData}
           enforcementOrder={order}
-          staffUsersList={staffUsersList || []}
+          staffUsersList={issuingOfficers || []}
           isReadonlyMode={!isEnforcementsAllowed}
         />
       ),
@@ -232,7 +243,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           }}
           inspection={inspectionData}
           warningLetter={warningLetter}
-          staffUsersList={staffUsersList || []}
+          staffUsersList={issuingOfficers || []}
           isReadonlyMode={!isEnforcementsAllowed}
         />
       ),
