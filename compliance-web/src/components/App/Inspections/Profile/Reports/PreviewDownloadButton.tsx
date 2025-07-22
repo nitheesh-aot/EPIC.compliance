@@ -14,12 +14,18 @@ import {
   MenuList,
   MenuItem,
 } from "@mui/material";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useInspectionRecordRender } from "@/hooks/useInspectionReports";
 import { useModal } from "@/store/modalStore";
 import { useReportStore } from "./reportStore";
 import ReportPreviewModal from "./ReportPreviewModal";
 import { BCDesignTokens } from "epic.theme";
+import {
+  KC_USER_GROUPS,
+  useCurrentLoggedInUser,
+} from "@/hooks/useAuthorization";
+import { useIsRolesAllowed } from "@/hooks/useAuthorization";
+import { InspectionStatusEnum } from "@/utils/constants";
 
 const PreviewDownloadButton = () => {
   const { setOpen: setModalOpen } = useModal();
@@ -27,6 +33,26 @@ const PreviewDownloadButton = () => {
   const [previewClicked, setPreviewClicked] = useState(false);
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
+  const currentUser = useCurrentLoggedInUser();
+
+  const isSuperUser = useIsRolesAllowed([KC_USER_GROUPS.SUPERUSER]);
+
+  const isUserPrimary = useMemo(
+    () =>
+      inspectionData?.primary_officer?.auth_user_guid ===
+      currentUser?.preferred_username,
+    [inspectionData?.primary_officer, currentUser?.preferred_username]
+  );
+
+  const isInspectionOpen = useMemo(
+    () => inspectionData?.inspection_status === InspectionStatusEnum.OPEN,
+    [inspectionData]
+  );
+
+  const isDownloadAllowed = useMemo(
+    () => isInspectionOpen && (isUserPrimary || isSuperUser),
+    [isInspectionOpen, isUserPrimary, isSuperUser]
+  );
 
   const onSuccess = (data: { html: string } | Blob) => {
     if ("html" in data) {
@@ -94,19 +120,21 @@ const PreviewDownloadButton = () => {
           <PictureAsPdfOutlined sx={{ mr: 1, fontSize: 20 }} />
           {previewClicked ? "Loading..." : "Preview"}
         </Button>
-        <Button
-          aria-controls={open ? "split-button-menu" : undefined}
-          aria-expanded={open ? "true" : undefined}
-          aria-label="download report"
-          aria-haspopup="menu"
-          onClick={handleToggle}
-          sx={{
-            padding: "0.5rem 0 !important",
-            minWidth: "2rem !important",
-          }}
-        >
-          <ArrowDropDownRounded />
-        </Button>
+        {isDownloadAllowed && (
+          <Button
+            aria-controls={open ? "split-button-menu" : undefined}
+            aria-expanded={open ? "true" : undefined}
+            aria-label="download report"
+            aria-haspopup="menu"
+            onClick={handleToggle}
+            sx={{
+              padding: "0.5rem 0 !important",
+              minWidth: "2rem !important",
+            }}
+          >
+            <ArrowDropDownRounded />
+          </Button>
+        )}
       </ButtonGroup>
       <Popper
         sx={{
