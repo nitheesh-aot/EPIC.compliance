@@ -48,3 +48,5 @@ from .unapproved_project import UnapprovedProject
 from .warning_letter import (
     WarningLetter, WarningLetterInspectionRequirementMap, WarningLetterProgressEnum, WarningLetterStatusEnum)
 from .warning_letter_approval import WarningLetterApproval, WarningLetterApprovalStatusEnum
+from .administrative_penalty import (
+    AdministrativePenalty, AdministrativePenaltyInspectionRequirementMap, ReferralStatusEnum, DecisionEnum)

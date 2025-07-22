@@ -380,6 +380,7 @@ class ServiceUtils:
             RequirementSourceEnum.ACT_2018,
             RequirementSourceEnum.COMPLIANCE_AGREEMENT,
             RequirementSourceEnum.CERTIFIED_PROJECT_DESCRIPTION,
+            RequirementSourceEnum.REGULATION,
             RequirementSourceEnum.OTHER,
         }
         condition_sources = {

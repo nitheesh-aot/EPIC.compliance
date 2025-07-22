@@ -54,3 +54,6 @@ from .warning_letter import (
     WarningLetterStatusSchema, WarningLetterUpdateSchema)
 from .warning_letter_approval import (
     CreateWarningLetterApprovalSchema, UpdateWarningLetterApprovalStatusSchema, WarningLetterApprovalSchema)
+from .administrative_penalty import (
+    AdministrativePenaltyCreateSchema, AdministrativePenaltySchema, AdministrativePenaltyUpdateSchema,
+    DecisionSchema, ReferralStatusSchema)

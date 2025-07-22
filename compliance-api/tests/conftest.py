@@ -32,6 +32,8 @@ from .utilities.factory_scenario.common_fixture import (  # noqa: F401
     mock_doc_gen_service, mock_doc_service, mock_track_service)
 from .utilities.factory_scenario.order_fixture import (  # noqa: F401
     created_order, created_order_requirement_map, created_section)
+from .utilities.factory_scenario.administrative_penalty_fixture import (  # noqa: F401
+    created_administrative_penalty, created_administrative_penalty_requirement_map)
 from .utilities.factory_utils import factory_auth_header
 
 

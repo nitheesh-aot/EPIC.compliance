@@ -32,6 +32,7 @@ from .compliance_finding import API as COMPLIANCE_FINDING_API
 from .continuation_report import API as CONTINUATION_REPORT_API
 from .document_type import API as DOCUMENT_TYPE_API
 from .enforcement_action import API as ENFORCEMENT_ACTION_API
+from .administrative_penalty import API as ADMINISTRATIVE_PENALTY_API
 from .inspection import API as INSPECTION_API
 from .inspection_record import API as IR_API
 from .inspection_requirement import API as INSPECTION_REQUIREMENT_API
@@ -104,4 +105,5 @@ API.add_namespace(IR_API, path="inspections/<int:inspection_id>/inspection-recor
 API.add_namespace(ORDER_API, path="orders")
 API.add_namespace(SECTION_API)
 API.add_namespace(WARNING_LETTER_API, path="warning-letters")
+API.add_namespace(ADMINISTRATIVE_PENALTY_API, path="administrative-penalties")
 API.add_namespace(INSPECTION_REQUIREMENTS_API, path="inspection-requirements")
