@@ -81,6 +81,24 @@ def mock_doc_service(mocker):
     yield mock_get_presigned_url
 
 
+@pytest.fixture
+def mock_doc_gen_service(mocker):
+    """Fixture to mock DocGenService methods."""
+    # Create a Mock object with a json method
+    mock_response = mocker.MagicMock()
+    mock_response.json.return_value = {
+        "content": "<html><body>Mock Document</body></html>"
+    }
+
+    # Set up the mock render_template method
+    mock_generate_doc = mocker.patch(
+        "compliance_api.services.docgen_service.docgen_service.DocGenService.render_template"
+    )
+    mock_generate_doc.return_value = mock_response
+
+    yield mock_generate_doc
+
+
 @pytest.fixture(scope="session")
 def mock_requests(mocker):
     """Fixture to mock requests library."""

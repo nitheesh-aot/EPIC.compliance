@@ -39,7 +39,7 @@ from .inspection_requirement import (
     InspectionReqImageCreateSchema, InspectionReqImageSchema, InspectionReqImageSortOrderSchema,
     InspectionRequirementBulkUpdateSchema, InspectionRequirementCreateSchema, InspectionRequirementSchema,
     InspectionRequirementUpdateSchema, InspectionSortOrderSchema)
-from .inspection_requirement_grid import InspectionRequirementGridItemSchema
+from .inspection_requirement_grid import InspectionRequirementFilterSchema, InspectionRequirementGridItemSchema
 from .order import (
     OrderCreateSchema, OrderIssueSchema, OrderSchema, OrderStatusSchema, OrderUpdateSchema, ResetOrderFieldSchema)
 from .order_approval import CreateOrderApprovalSchema, OrderApprovalSchema, UpdateOrderApprovalStatusSchema

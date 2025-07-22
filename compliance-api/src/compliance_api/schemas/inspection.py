@@ -89,9 +89,7 @@ class InspectionUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
         required=True,
     )
     is_history = fields.Bool(
-        metadata={
-            "description": "If enabled, the inspection is a history inspection."
-        },
+        metadata={"description": "If enabled, the inspection is a history inspection."},
         allow_none=True,
     )
     inspection_type_ids = fields.List(
