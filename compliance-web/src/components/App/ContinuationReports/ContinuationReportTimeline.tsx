@@ -20,19 +20,19 @@ import ContinuationReportTimelineEntry from "./ContinuationReportTimelineEntry";
 interface ContinuationReportTimelineProps {
   crtList: ContinuationReport[];
   searchText?: string;
+  isAllowEdit?: boolean;
 }
 
 export default function ContinuationReportTimeline({
   crtList,
   searchText,
+  isAllowEdit,
 }: ContinuationReportTimelineProps) {
   const queryClient = useQueryClient();
   const { setOpen, setClose } = useModal();
   const { user: authUser } = useAuth();
 
-  const allowCREntryEdit = useIsRolesAllowed(
-    [KC_USER_GROUPS.SUPERUSER],
-  );
+  const allowCREntryEdit = useIsRolesAllowed([KC_USER_GROUPS.SUPERUSER]);
 
   const handleOnSubmit = useCallback(
     (submitMsg: string, caseFileId: number) => {
@@ -92,11 +92,13 @@ export default function ContinuationReportTimeline({
           key={crt.id}
           sx={timelineItemStyles(
             !crt.system_generated &&
+              isAllowEdit &&
               (allowCREntryEdit ||
                 isCurrentUserEntry(crt.created_by_user?.auth_user_guid))
           )}
           onClick={
             !crt.system_generated &&
+            isAllowEdit &&
             (allowCREntryEdit ||
               isCurrentUserEntry(crt.created_by_user?.auth_user_guid))
               ? () => handleEditEntry(crt)
