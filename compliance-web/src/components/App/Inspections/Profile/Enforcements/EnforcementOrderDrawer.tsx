@@ -7,12 +7,13 @@ import {
 import { Inspection } from "@/models/Inspection";
 import { useMenuStore } from "@/store/menuStore";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, Stack } from "@mui/material";
+import { Box, Button, Stack } from "@mui/material";
 import { useCallback, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import {
   useDeleteInspectionOrder,
+  useResetOrderTemplate,
   useUpdateInspectionOrder,
 } from "@/hooks/useInspectionOrders";
 import { StaffUser } from "@/models/Staff";
@@ -27,6 +28,9 @@ import EnforcementDownloadPDFButton from "./EnforcementDownloadPDFButton";
 import { EnforcementActionEnum, OrderProgressEnum } from "@/utils/constants";
 import OrderApprovalButtons from "./OrderApprovalButtons";
 import EnforcementStatusFlag from "./EnforcementStatusFlag";
+import { RestartAltRounded } from "@mui/icons-material";
+import { useModal } from "@/store/modalStore";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 type EnforcementOrderDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -74,8 +78,15 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
   staffUsersList,
   isReadonlyMode = false,
 }) => {
+  const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
   const { appHeaderHeight } = useMenuStore();
   const { data: enforcementSections } = useEnforcementSectionsData();
+
+  const isDrafting = useMemo(
+    () =>
+      enforcementOrder.order_progress?.id === OrderProgressEnum.DRAFTING,
+    [enforcementOrder.order_progress]
+  );
 
   const isReadonly = useMemo(
     () =>
@@ -84,26 +95,30 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
     [enforcementOrder.order_progress, isReadonlyMode]
   );
 
+  const formatFormData = useCallback((data: InspectionOrder) => {
+    return {
+      whereAs: {
+        html: data.where_as,
+        text: data.where_as,
+      },
+      nowTherefore: {
+        html: data.now_therefore,
+        text: data.now_therefore,
+      },
+      issuingOfficer: data.issuing_officer as StaffUser,
+      section: data.section as EnforcementSection,
+      intendedIssuanceDate: data.intended_issuance_date
+        ? dayjs(data.intended_issuance_date)
+        : undefined,
+    };
+  }, []);
+
   const defaultValues = useMemo<EnforcementFormType>(() => {
     if (enforcementOrder) {
-      return {
-        whereAs: {
-          html: enforcementOrder.where_as,
-          text: enforcementOrder.where_as,
-        },
-        nowTherefore: {
-          html: enforcementOrder.now_therefore,
-          text: enforcementOrder.now_therefore,
-        },
-        issuingOfficer: enforcementOrder.issuing_officer as StaffUser,
-        section: enforcementOrder.section as EnforcementSection,
-        intendedIssuanceDate: enforcementOrder.intended_issuance_date
-          ? dayjs(enforcementOrder.intended_issuance_date)
-          : undefined,
-      };
+      return formatFormData(enforcementOrder);
     }
     return initFormData;
-  }, [enforcementOrder]);
+  }, [enforcementOrder, formatFormData]);
 
   const methods = useForm<EnforcementFormType>({
     resolver: yupResolver(enforcementSchema),
@@ -113,10 +128,13 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
 
   const { handleSubmit, reset } = methods;
 
-  const onSuccess = useCallback(() => {
-    onSubmit("Changes saved successfully!");
-    reset();
-  }, [onSubmit, reset]);
+  const onSuccess = useCallback(
+    (data: InspectionOrder) => {
+      onSubmit("Changes saved successfully!");
+      reset(formatFormData(data));
+    },
+    [onSubmit, reset, formatFormData]
+  );
 
   const { mutate: updateInspectionOrder } = useUpdateInspectionOrder(onSuccess);
 
@@ -160,6 +178,28 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
     });
   }, [deleteInspectionOrder, enforcementOrder.id]);
 
+  const { mutate: resetOrderTemplate } = useResetOrderTemplate(onSuccess);
+
+  const onResetTemplate = useCallback(() => {
+    setModalOpen({
+      content: (
+        <ConfirmationModal
+          title="Reset Template"
+          description="This will reset the template to its default version. All your changes will be permanently removed and cannot be undone. Do you want to proceed?"
+          confirmButtonText="Yes, Reset"
+          cancelButtonText="No, Keep Changes"
+          onConfirm={() => {
+            resetOrderTemplate({
+              inspectionOrderId: enforcementOrder.id || 0,
+              fieldNames: ["where_as", "now_therefore"],
+            });
+            setModalClose();
+          }}
+        />
+      ),
+    });
+  }, [resetOrderTemplate, enforcementOrder.id, setModalOpen, setModalClose]);
+
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
@@ -173,23 +213,34 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
             backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
             padding: "0.75rem 2rem",
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             alignItems: "center",
             gap: 1,
           }}
         >
-          {!isReadonlyMode && (
-            <OrderApprovalButtons
-              inspectionOrder={enforcementOrder}
-              inspectionId={inspection.id}
-              caseFileId={inspection.case_file_id ?? 0}
+          <Button
+            variant="text"
+            size="small"
+            onClick={onResetTemplate}
+            startIcon={<RestartAltRounded />}
+            disabled={!isDrafting}
+          >
+            Reset Template
+          </Button>
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+            {!isReadonlyMode && (
+              <OrderApprovalButtons
+                inspectionOrder={enforcementOrder}
+                inspectionId={inspection.id}
+                caseFileId={inspection.case_file_id ?? 0}
+              />
+            )}
+            <EnforcementDownloadPDFButton
+              enforcementId={enforcementOrder.id || 0}
+              fileNumber={enforcementOrder.order_number || ""}
+              enforcementType={EnforcementActionEnum.ORDER}
             />
-          )}
-          <EnforcementDownloadPDFButton
-            enforcementId={enforcementOrder.id || 0}
-            fileNumber={enforcementOrder.order_number || ""}
-            enforcementType={EnforcementActionEnum.ORDER}
-          />
+          </Box>
         </Box>
         <Stack
           /** 64px (DrawerTitleBar height) + 65px (DrawerActionBar height) + 64px (DrawerActionBarTop preview height) */
