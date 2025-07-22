@@ -11,6 +11,7 @@ from compliance_api.auth import auth
 from compliance_api.schemas.inspection_requirement_grid import (
     InspectionRequirementFilterSchema, InspectionRequirementGridItemSchema)
 from compliance_api.services import InspectionRequirementService
+from compliance_api.utils.util import cors_preflight
 
 from .apihelper import Api as ApiHelper
 
@@ -26,6 +27,7 @@ inspection_requirement_filter_model = ApiHelper.convert_ma_schema_to_restx_model
 )
 
 
+@cors_preflight("GET, OPTIONS, POST")
 @API.route("", methods=["GET", "POST", "OPTIONS"])
 class InspectionRequirements(Resource):
     """InspectionRequirements."""
@@ -123,6 +125,7 @@ class InspectionRequirements(Resource):
         }, HTTPStatus.OK
 
 
+@cors_preflight("POST, OPTIONS")
 @API.route("/export", methods=["POST", "OPTIONS"])
 class InspectionRequirementsExport(Resource):
     """Export all inspection requirements as Excel."""

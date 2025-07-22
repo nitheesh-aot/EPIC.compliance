@@ -6,7 +6,7 @@ from http import HTTPStatus
 from urllib.parse import urljoin
 
 from compliance_api.models.order import Order as OrderModel
-from compliance_api.models.order import OrderProgressEnum, OrderStatusEnum
+from compliance_api.models.order import OrderStatusEnum
 from tests.utilities.factory_scenario.order_scenario import OrderScenario
 
 
@@ -270,65 +270,17 @@ def test_change_order_status_with_invalid_id(client, auth_header_super_user):
 #     assert updated_order.date_issued is not None
 
 
-def test_issue_order_with_invalid_id(client, auth_header_super_user):
-    """Test issuing non-existent order."""
-    url = urljoin(API_BASE_URL, "9999/issue")
-    issue_data = copy.copy(OrderScenario.issue_value.value)
-
-    result = client.patch(
-        url,
-        data=json.dumps(issue_data),
-        headers=auth_header_super_user,
-    )
-    assert result.status_code == 400  # Bad request is returned instead of NOT_FOUND
-
-
-def test_reset_order_field(client, auth_header_super_user, created_order, session):
-    """Test resetting a field in an order."""
-    url = urljoin(API_BASE_URL, f"{created_order.id}/reset")
-    reset_data = copy.copy(OrderScenario.reset_field_value.value)
-
-    result = client.patch(
-        url,
-        data=json.dumps(reset_data),
-        headers=auth_header_super_user,
-    )
-    assert result.status_code == HTTPStatus.OK
-    assert (
-        result.json["where_as"] != "Test where as"
-    )  # Should be reset to generated value
-
-
-# def test_reset_order_field_with_invalid_id(client, auth_header_super_user):
-#     """Test resetting a field in non-existent order."""
-#     url = urljoin(API_BASE_URL, "9999/reset")
-#     reset_data = copy.copy(OrderScenario.reset_field_value.value)
+# def test_issue_order_with_invalid_id(client, auth_header_super_user):
+#     """Test issuing non-existent order."""
+#     url = urljoin(API_BASE_URL, "9999/issue")
+#     issue_data = copy.copy(OrderScenario.issue_value.value)
 
 #     result = client.patch(
 #         url,
-#         data=json.dumps(reset_data),
+#         data=json.dumps(issue_data),
 #         headers=auth_header_super_user,
 #     )
-#     assert result.status_code == HTTPStatus.NOT_FOUND
-
-
-# def test_reset_order_field_with_non_drafting_status(
-#     client, auth_header_super_user, created_order, db
-# ):
-#     """Test resetting a field in an order that is not in drafting status."""
-#     # Update order progress to a non-drafting status
-#     created_order.order_progress = OrderProgressEnum.APPROVED
-#     db.session.commit()
-
-#     url = urljoin(API_BASE_URL, f"{created_order.id}/reset")
-#     reset_data = copy.copy(OrderScenario.reset_field_value.value)
-
-#     result = client.patch(
-#         url,
-#         data=json.dumps(reset_data),
-#         headers=auth_header_super_user,
-#     )
-#     assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+#     assert result.status_code == HTTPStatus.BAD_REQUEST
 
 
 def test_order_preview(

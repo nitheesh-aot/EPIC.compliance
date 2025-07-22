@@ -8,6 +8,7 @@ import {
   useMaterialReactTable,
   MRT_Column,
   MRT_Header,
+  MRT_TableState,
 } from "material-react-table";
 import { Box, Button, IconButton, Tooltip, Typography } from "@mui/material";
 import { FiltersCache } from "./FiltersCache";
@@ -16,6 +17,7 @@ import { BCDesignTokens } from "epic.theme";
 import { AddRounded, DownloadRounded } from "@mui/icons-material";
 import DataTableNoData from "./DataTableNoData";
 import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
+import DateFilter from "@/components/Shared/FilterSelect/DateFilter";
 import { MasterTableColumnFilter } from "@/components/Shared/FilterSelect/type";
 
 interface MRT_EAO_TitleToolbarProps {
@@ -23,6 +25,43 @@ interface MRT_EAO_TitleToolbarProps {
   tableAddRecordButtonText?: string;
   tableAddRecordButtonVisibility?: boolean;
   tableAddRecordFunction?: () => void;
+}
+
+// interfaces for remote data
+interface RemoteDataConfig<TData extends MRT_RowData> {
+  enableRemoteData: boolean;
+  rowCount?: number;
+  manualPagination?: boolean;
+  manualSorting?: boolean;
+  manualFiltering?: boolean;
+  onPaginationChange?: (
+    updater:
+      | MRT_TableState<TData>["pagination"]
+      | ((
+          old: MRT_TableState<TData>["pagination"]
+        ) => MRT_TableState<TData>["pagination"])
+  ) => void;
+  onSortingChange?: (
+    updater:
+      | MRT_TableState<TData>["sorting"]
+      | ((
+          old: MRT_TableState<TData>["sorting"]
+        ) => MRT_TableState<TData>["sorting"])
+  ) => void;
+  onColumnFiltersChange?: (
+    updater:
+      | MRT_TableState<TData>["columnFilters"]
+      | ((
+          old: MRT_TableState<TData>["columnFilters"]
+        ) => MRT_TableState<TData>["columnFilters"])
+  ) => void;
+  onGlobalFilterChange?: (
+    updater:
+      | MRT_TableState<TData>["globalFilter"]
+      | ((
+          old: MRT_TableState<TData>["globalFilter"]
+        ) => MRT_TableState<TData>["globalFilter"])
+  ) => void;
 }
 
 export interface MaterialReactTableProps<TData extends MRT_RowData>
@@ -38,6 +77,9 @@ export interface MaterialReactTableProps<TData extends MRT_RowData>
   renderExternalFilter?: (props: {
     table: MRT_TableInstance<TData>;
   }) => React.ReactNode;
+  // Add remote data configuration
+  remoteDataConfig?: RemoteDataConfig<TData>;
+  hideFilterToggle?: boolean;
 }
 
 const MasterDataTable = <TData extends MRT_RowData>({
@@ -51,6 +93,8 @@ const MasterDataTable = <TData extends MRT_RowData>({
   renderTopToolbarCustomActions,
   isStackedTables,
   renderExternalFilter,
+  remoteDataConfig,
+  hideFilterToggle,
   ...rest
 }: MaterialReactTableProps<TData>) => {
   const { initialState, state, ...otherProps } = rest;
@@ -83,6 +127,18 @@ const MasterDataTable = <TData extends MRT_RowData>({
     []
   );
 
+  // Memoize the Date Filter component to prevent recreation on every render
+  const createDateFilterComponent = useCallback(
+    (props: { column: MRT_Column<TData>; header: MRT_Header<TData> }) => (
+      <DateFilter
+        header={props.header as MRT_Header<MRT_RowData>}
+        column={props.column as MRT_Column<MRT_RowData>}
+        placeholder={props.column.columnDef.header}
+      />
+    ),
+    []
+  );
+
   // Memoize the columns mapping to prevent recreation on every render
   const mappedColumns = useMemo(
     () =>
@@ -92,8 +148,11 @@ const MasterDataTable = <TData extends MRT_RowData>({
           column.filterVariant === "multi-select" && {
             Filter: createFilterComponent,
           }),
+        ...(column.filterVariant === "date" && {
+          Filter: createDateFilterComponent,
+        }),
       })),
-    [columns, createFilterComponent]
+    [columns, createFilterComponent, createDateFilterComponent]
   );
 
   // Memoize the table body cell props to prevent recreation on every render
@@ -144,8 +203,22 @@ const MasterDataTable = <TData extends MRT_RowData>({
     enableFilters: true,
     enableColumnActions: false,
     enablePinning: true,
-    enablePagination: false,
+    // Enable pagination for remote data
+    enablePagination: remoteDataConfig?.enableRemoteData ?? false,
     positionActionsColumn: "last",
+
+    // Remote data configuration
+    ...(remoteDataConfig?.enableRemoteData && {
+      manualPagination: remoteDataConfig.manualPagination ?? true,
+      manualSorting: remoteDataConfig.manualSorting ?? true,
+      manualFiltering: remoteDataConfig.manualFiltering ?? true,
+      rowCount: remoteDataConfig.rowCount,
+      onPaginationChange: remoteDataConfig.onPaginationChange,
+      onSortingChange: remoteDataConfig.onSortingChange,
+      onColumnFiltersChange: remoteDataConfig.onColumnFiltersChange,
+      onGlobalFilterChange: remoteDataConfig.onGlobalFilterChange,
+    }),
+
     muiTableHeadProps: {
       sx: {
         "& .MuiTableRow-root": {
@@ -170,7 +243,13 @@ const MasterDataTable = <TData extends MRT_RowData>({
       },
     },
     muiTopToolbarProps: {
-      sx: { p: 0, m: "-0.5rem" },
+      sx: {
+        p: 0,
+        m: "-0.5rem",
+        "& .MuiIconButton-root[aria-label='Show/Hide filters']": {
+          display: hideFilterToggle ? "none" : "block",
+        },
+      },
     },
     muiBottomToolbarProps: {
       sx: {
@@ -190,7 +269,7 @@ const MasterDataTable = <TData extends MRT_RowData>({
       },
     },
     muiTableProps: {
-      sx: { tableLayout: "fixed" },
+      sx: { tableLayout: "fixed", pb: "4rem" },
       ...rest.muiTableProps,
     },
     muiTableBodyCellProps,

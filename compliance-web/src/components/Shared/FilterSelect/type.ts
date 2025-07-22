@@ -51,3 +51,10 @@ export type MasterTableColumnFilter = {
   value: unknown;
 };
 
+export type ExternalTableFilterProps = {
+  filterId: string;
+  filterOptions: Array<string | { text: string; value: unknown }>;
+  onFilterChange: (filterId: string, value: string[] | string) => void;
+  isMulti?: boolean;
+} & Omit<SelectProps, 'filterAppliedCallback' | 'filterClearedCallback'>;
+
