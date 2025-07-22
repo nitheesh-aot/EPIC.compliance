@@ -40,7 +40,9 @@ export function Inspections() {
   >();
   const { getFilters, setFilters, getExternalFilters } = cachedFiltersStore();
   const columnFilters = getFilters(inspectionsColumnFiltersCacheKey);
-  const cachedExternalFilters = getExternalFilters(inspectionsColumnFiltersCacheKey);
+  const cachedExternalFilters = getExternalFilters(
+    inspectionsColumnFiltersCacheKey
+  );
 
   // Find current user from staff list
   const currentUserStaff = useMemo(() => {
@@ -80,35 +82,36 @@ export function Inspections() {
   const applyUserSpecificFilters = useCallback(
     (table: MRT_TableInstance<Inspection>) => {
       const currentFilters = table.getState().columnFilters;
-      
+
       if (isCurrentUserDeputy && isDeputyReviewPending) {
         const deputyFilters = [
           {
-            id: "primary_officer.name",
-            value: [currentUser?.profile?.name],
+            id: "approved_by_id",
+            value: [currentUserStaff?.id?.toString()],
           },
           {
             id: "approval_status",
             value: [APPROVAL_STATUS_TEXT.APPROVAL_PENDING],
           },
         ];
-        
+
         // Remove existing user-specific filters and add new ones
         const filteredFilters = currentFilters.filter(
-          filter => filter.id !== "primary_officer.name" && filter.id !== "approval_status"
+          (filter) =>
+            filter.id !== "approved_by_id" && filter.id !== "approval_status"
         );
         table.setColumnFilters([...filteredFilters, ...deputyFilters]);
-      } else if (isCurrentUserHasPrimary) {
+      } else if (!isCurrentUserDeputy && isCurrentUserHasPrimary) {
         const userFilter = {
           id: "primary_officer.name",
           value: [currentUser?.profile?.name],
         };
-        
+
         // Check if user filter already exists
         const existingUserFilterIndex = currentFilters.findIndex(
-          filter => filter.id === "primary_officer.name"
+          (filter) => filter.id === "primary_officer.name"
         );
-        
+
         if (existingUserFilterIndex >= 0) {
           // Update existing user filter
           const newFilters = [...currentFilters];
@@ -125,6 +128,7 @@ export function Inspections() {
       isDeputyReviewPending,
       isCurrentUserHasPrimary,
       currentUser?.profile?.name,
+      currentUserStaff?.id,
     ]
   );
 
@@ -132,7 +136,9 @@ export function Inspections() {
   useEffect(() => {
     if (cachedExternalFilters?.showOnlyMyInspections !== undefined) {
       // Restore from cache
-      setShowOnlyMyInspections(cachedExternalFilters.showOnlyMyInspections as boolean);
+      setShowOnlyMyInspections(
+        cachedExternalFilters.showOnlyMyInspections as boolean
+      );
     } else if (isCurrentUserDeputy && isDeputyReviewPending) {
       // Set based on user role if no cache
       setShowOnlyMyInspections(true);
@@ -142,7 +148,12 @@ export function Inspections() {
     } else {
       setShowOnlyMyInspections(false);
     }
-  }, [cachedExternalFilters, isCurrentUserDeputy, isDeputyReviewPending, isCurrentUserHasPrimary]);
+  }, [
+    cachedExternalFilters,
+    isCurrentUserDeputy,
+    isDeputyReviewPending,
+    isCurrentUserHasPrimary,
+  ]);
 
   // Apply filters when table instance is available and state changes
   useEffect(() => {
@@ -153,11 +164,7 @@ export function Inspections() {
       }
       // When external filter is OFF, do nothing - let cached column filters remain
     }
-  }, [
-    tableInstance,
-    showOnlyMyInspections,
-    applyUserSpecificFilters,
-  ]);
+  }, [tableInstance, showOnlyMyInspections, applyUserSpecificFilters]);
 
   const renderExternalFilter = useCallback(
     ({ table }: { table: MRT_TableInstance<Inspection> }) => {
@@ -175,12 +182,20 @@ export function Inspections() {
                   // When turning OFF, remove only the user-specific filters
                   const currentFilters = table.getState().columnFilters;
                   const filteredFilters = currentFilters.filter(
-                    filter => filter.id !== "primary_officer.name" && filter.id !== "approval_status"
+                    (filter) =>
+                      filter.id !== "primary_officer.name" &&
+                      filter.id !== "approved_by_id" &&
+                      filter.id !== "approval_status"
                   );
                   table.setColumnFilters(filteredFilters);
                 }
               }}
               size="small"
+              disabled={
+                isLoading ||
+                staffLoading ||
+                (isCurrentUserDeputy && !isDeputyReviewPending)
+              }
             />
           }
           label={
@@ -195,8 +210,11 @@ export function Inspections() {
     },
     [
       showOnlyMyInspections,
-      currentUser?.profile?.given_name,
+      isLoading,
+      staffLoading,
       isCurrentUserDeputy,
+      isDeputyReviewPending,
+      currentUser?.profile?.given_name,
       applyUserSpecificFilters,
     ]
   );
@@ -206,11 +224,9 @@ export function Inspections() {
       return;
     }
     // Cache both column filters and external filter state
-    setFilters(
-      inspectionsColumnFiltersCacheKey, 
-      filters, 
-      { showOnlyMyInspections }
-    );
+    setFilters(inspectionsColumnFiltersCacheKey, filters, {
+      showOnlyMyInspections,
+    });
   };
 
   const createUniqueFilterList = useCallback(
@@ -316,9 +332,11 @@ export function Inspections() {
             <Chip
               label={row.original.approval_status?.name}
               color={
-                row.original.approval_status?.id === APPROVAL_STATUS.APPROVAL_PENDING
+                row.original.approval_status?.id ===
+                APPROVAL_STATUS.APPROVAL_PENDING
                   ? "warning"
-                  : row.original.approval_status?.id === APPROVAL_STATUS.APPROVED
+                  : row.original.approval_status?.id ===
+                      APPROVAL_STATUS.APPROVED
                     ? "success"
                     : "error"
               }
@@ -340,6 +358,20 @@ export function Inspections() {
         filterVariant: "multi-select",
         filterSelectOptions: staffUserList,
         size: 120,
+      },
+      {
+        accessorKey: "approved_by_id",
+        header: "Approved By ID",
+        enableHiding: true,
+        enableColumnFilter: true,
+        filterVariant: "multi-select",
+        accessorFn: (row) => row.approved_by_id?.toString() ?? "",
+        muiTableHeadCellProps: {
+          sx: { display: "none" },
+        },
+        muiTableBodyCellProps: {
+          sx: { display: "none" },
+        },
       },
       {
         accessorKey: "inspection_status",
