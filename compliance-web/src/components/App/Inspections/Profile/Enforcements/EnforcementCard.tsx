@@ -104,6 +104,18 @@ const EnforcementCard = ({
     return approvedByDate ? dateUtils.formatDate(approvedByDate) : "";
   }, [order, warningLetter]);
 
+  const getApproverName = useCallback(() => {
+    let approverName: string = "";
+    if (order?.order_approvals) {
+      approverName = order.order_approvals?.[0]?.approved_by?.name ?? "";
+    }
+    if (warningLetter?.warning_letter_approvals) {
+      approverName =
+        warningLetter.warning_letter_approvals?.[0]?.approved_by?.name ?? "";
+    }
+    return approverName;
+  }, [order, warningLetter]);
+
   return (
     <Box
       sx={{
@@ -158,7 +170,7 @@ const EnforcementCard = ({
           />
           <GridLabelValuePair
             label="Deputy Director, Compliance & Enforcement Operations"
-            value={(order || warningLetter)?.issuing_officer?.name ?? ""}
+            value={getApproverName()}
           />
           <GridLabelValuePair
             label="Sent for Review"
