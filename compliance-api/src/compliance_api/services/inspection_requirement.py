@@ -780,15 +780,23 @@ def _process_inspection_requirement_query_results(query_results):
     processed_requirements = []
     for result in query_results:
         requirement = result[0]
+        item = {
+            "id": requirement.id,
+            "topic": requirement.topic,
+            "summary": requirement.summary,
+            "compliance_finding": requirement.compliance_finding,
+            "sort_order": requirement.sort_order,
+            "requirement_source_details": requirement.requirement_source_details,
+        }
         # Add additional attributes to the requirement object
-        requirement.approved_by_id = result[1]
-        requirement.ir_number = result[2]
-        requirement.date_issued = result[3]
+        item["approved_by_id"] = result[1]
+        item["ir_number"] = result[2]
+        item["date_issued"] = result[3]
         # Create a simple dict with enforcement action data
-        requirement.enforcement_action = {"id": result[4], "name": result[5]}
+        item["enforcement_action"] = {"id": result[4], "name": result[5]}
 
         # Add primary officer full name
-        requirement.primary_officer = {
+        item["primary_officer"] = {
             "id": result[6],
             "first_name": result[7] or "",
             "last_name": result[8] or "",
@@ -796,14 +804,14 @@ def _process_inspection_requirement_query_results(query_results):
         }
 
         # Add project name
-        requirement.project = {
+        item["project"] = {
             "id": result[10],
             "name": result[11],
         }
-        requirement.inspection_status = result[12]
-        requirement.order_approval_status = result[13]
-        requirement.warning_letter_approval_status = result[14]
-        processed_requirements.append(requirement)
+        item["inspection_status"] = result[12]
+        item["order_approval_status"] = result[13]
+        item["warning_letter_approval_status"] = result[14]
+        processed_requirements.append(item)
     return processed_requirements
 
 
@@ -811,37 +819,35 @@ def _make_requirement_detail_object(requirements: list):
     """Make requirement detail object."""
     requirement_details = []
     for requirement in requirements:
-        if not requirement.enforcement_actions:
-            continue
         item = {
-            "id": requirement.id,
-            "summary": requirement.summary,
-            "approved_by_id": requirement.approved_by_id,
-            "sort_order": requirement.sort_order,
-            "ir_number": requirement.ir_number,
+            "id": requirement["id"],
+            "topic": requirement["topic"],
+            "summary": requirement["summary"],
+            "approved_by_id": requirement["approved_by_id"],
+            "sort_order": requirement["sort_order"],
+            "ir_number": requirement["ir_number"],
             "date_issued": (
-                datetime.strftime(requirement.date_issued, "%Y-%m-%d")
-                if requirement.date_issued
+                datetime.strftime(requirement["date_issued"], "%Y-%m-%d")
+                if requirement["date_issued"]
                 else None
             ),
-            "topic": requirement.topic,
-            "compliance_finding": requirement.compliance_finding,
-            "enforcement_action": requirement.enforcement_action,
-            "primary_officer": requirement.primary_officer,
-            "project": requirement.project,
+            "compliance_finding": requirement["compliance_finding"],
+            "enforcement_action": requirement["enforcement_action"],
+            "primary_officer": requirement["primary_officer"],
+            "project": requirement["project"],
             "inspection_status": {
-                "id": requirement.inspection_status.name,
-                "name": requirement.inspection_status.value,
+                "id": requirement["inspection_status"].name,
+                "name": requirement["inspection_status"].value,
             },
         }
-        approval_status = requirement.order_approval_status or requirement.warning_letter_approval_status
+        approval_status = requirement["order_approval_status"] or requirement["warning_letter_approval_status"]
         if approval_status:
             item["approval_status"] = {
                 "id": approval_status.name,
                 "name": approval_status.value,
             }
-        if requirement.requirement_source_details:
-            first_requirement_details = requirement.requirement_source_details[0]
+        if requirement["requirement_source_details"]:
+            first_requirement_details = requirement["requirement_source_details"][0]
             number_field = ServiceUtils.get_requirement_source_number_field(
                 first_requirement_details
             )
