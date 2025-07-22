@@ -29,7 +29,9 @@ from compliance_api.models import db as _db
 from .utilities.factory_scenario import TokenJWTClaims
 from .utilities.factory_scenario.common_fixture import (  # noqa: F401
     created_case_file, created_inspection, created_inspection_requirement, created_staff, mock_auth_service,
-    mock_doc_service, mock_track_service)
+    mock_doc_gen_service, mock_doc_service, mock_track_service)
+from .utilities.factory_scenario.order_fixture import (  # noqa: F401
+    created_order, created_order_requirement_map, created_section)
 from .utilities.factory_utils import factory_auth_header
 
 
@@ -133,7 +135,7 @@ def db(app):  # pylint: disable=redefined-outer-name, invalid-name
         return _db
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def session(app, db):  # pylint: disable=redefined-outer-name, invalid-name
     """Return a function-scoped session."""
     with app.app_context():
@@ -141,8 +143,8 @@ def session(app, db):  # pylint: disable=redefined-outer-name, invalid-name
         conn = db.engine.connect()
         txn = conn.begin()
 
-        options = dict(bind=conn, binds={})
-        sess = db.create_scoped_session(options=options)
+        # Use the existing session instead of creating a new one
+        sess = db.session
 
         # establish  a SAVEPOINT just before beginning the test
         # (http://docs.sqlalchemy.org/en/latest/orm/session_transaction.html#using-savepoint)

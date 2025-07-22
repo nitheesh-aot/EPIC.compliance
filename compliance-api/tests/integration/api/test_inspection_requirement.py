@@ -6,7 +6,7 @@ from http import HTTPStatus
 from urllib.parse import urljoin
 
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
-from compliance_api.models import RequirementSourceEnum, InspectionStatusEnum
+from compliance_api.models import InspectionStatusEnum, RequirementSourceEnum
 from tests.utilities.factory_scenario.inspection_requirement_scenario import InspectionRequirementScenario
 
 
@@ -22,6 +22,15 @@ def test_get_inspection_requirements(
     assert result.status_code == HTTPStatus.OK
     assert len(result.json) == 1
     assert isinstance(result.json, list)
+
+
+def test_get_inspections_with_invalid_inspection_id(
+    client, auth_header, created_inspection, created_inspection_requirement
+):
+    """Test getting all inspection requirements with invalid inspection ID."""
+    url = urljoin(API_BASE_URL, "9999/requirements")
+    result = client.get(url, headers=auth_header)
+    assert result.status_code == HTTPStatus.NOT_FOUND
 
 
 def test_get_inspection_requirement_by_id(
@@ -208,7 +217,8 @@ def test_delete_inspection_requirement(
 
 
 def test_create_requirement_with_invalid_inspection(
-    client, auth_header_super_user,
+    client,
+    auth_header_super_user,
 ):
     """Test creating requirement with invalid inspection ID."""
     url = urljoin(API_BASE_URL, "9999/requirements")
@@ -223,7 +233,9 @@ def test_create_requirement_with_invalid_inspection(
 
 
 def test_create_requirement_with_closed_inspection(
-    client, auth_header_super_user, created_inspection,
+    client,
+    auth_header_super_user,
+    created_inspection,
 ):
     """Test creating requirement for a closed inspection."""
     # Update inspection status to closed
@@ -241,7 +253,9 @@ def test_create_requirement_with_closed_inspection(
 
 
 def test_update_requirement_with_invalid_id(
-    client, auth_header_super_user, created_inspection,
+    client,
+    auth_header_super_user,
+    created_inspection,
 ):
     """Test updating non-existent requirement."""
     url = urljoin(API_BASE_URL, "9998/requirements/9998")
@@ -257,14 +271,20 @@ def test_update_requirement_with_invalid_id(
 
 
 def test_update_requirement_with_invalid_inspection_status(
-    client, auth_header_super_user, created_inspection, created_inspection_requirement,
+    client,
+    auth_header_super_user,
+    created_inspection,
+    created_inspection_requirement,
 ):
     """Test updating requirement when inspection is closed."""
     # Update inspection status to closed
     created_inspection.inspection_status = InspectionStatusEnum.CLOSED
     created_inspection.save()
 
-    url = urljoin(API_BASE_URL, f"{created_inspection.id}/requirements/{created_inspection_requirement.id}")
+    url = urljoin(
+        API_BASE_URL,
+        f"{created_inspection.id}/requirements/{created_inspection_requirement.id}",
+    )
     update_data = {
         "description": "Updated description",
     }
@@ -277,7 +297,9 @@ def test_update_requirement_with_invalid_inspection_status(
 
 
 def test_sort_order_handling(
-    client, auth_header_super_user, created_inspection,
+    client,
+    auth_header_super_user,
+    created_inspection,
 ):
     """Test sort order handling when creating multiple requirements."""
     url = urljoin(API_BASE_URL, f"{created_inspection.id}/requirements")

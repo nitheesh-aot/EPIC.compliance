@@ -96,13 +96,13 @@ class InspectionRequirementService:
             ("summary", "Summary"),
             ("compliance_finding.name", "Compliance Finding"),
             ("enforcement_action.name", "Enforcement Action"),
-            ("approval_status", "Approval Status"),
+            ("approval_status.name", "Approval Status"),
             ("requirement_number", "Condition #"),
             ("requirement_source.name", "Requirement Source"),
             ("ir_number", "IR Number"),
             ("date_issued", "Date Issued"),
-            ("primary_officer_name", "Primary Officer"),
-            ("project_name", "Project"),
+            ("primary_officer.name", "Primary Officer"),
+            ("project.name", "Project"),
             ("inspection_status.name", "Inspection Status"),
         ]
 
