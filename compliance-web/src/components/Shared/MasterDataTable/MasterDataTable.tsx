@@ -17,6 +17,7 @@ import { BCDesignTokens } from "epic.theme";
 import { AddRounded, DownloadRounded } from "@mui/icons-material";
 import DataTableNoData from "./DataTableNoData";
 import TableFilter from "@/components/Shared/FilterSelect/TableFilter";
+import DateFilter from "@/components/Shared/FilterSelect/DateFilter";
 import { MasterTableColumnFilter } from "@/components/Shared/FilterSelect/type";
 
 interface MRT_EAO_TitleToolbarProps {
@@ -126,6 +127,18 @@ const MasterDataTable = <TData extends MRT_RowData>({
     []
   );
 
+  // Memoize the Date Filter component to prevent recreation on every render
+  const createDateFilterComponent = useCallback(
+    (props: { column: MRT_Column<TData>; header: MRT_Header<TData> }) => (
+      <DateFilter
+        header={props.header as MRT_Header<MRT_RowData>}
+        column={props.column as MRT_Column<MRT_RowData>}
+        placeholder={props.column.columnDef.header}
+      />
+    ),
+    []
+  );
+
   // Memoize the columns mapping to prevent recreation on every render
   const mappedColumns = useMemo(
     () =>
@@ -135,8 +148,11 @@ const MasterDataTable = <TData extends MRT_RowData>({
           column.filterVariant === "multi-select" && {
             Filter: createFilterComponent,
           }),
+        ...(column.filterVariant === "date" && {
+          Filter: createDateFilterComponent,
+        }),
       })),
-    [columns, createFilterComponent]
+    [columns, createFilterComponent, createDateFilterComponent]
   );
 
   // Memoize the table body cell props to prevent recreation on every render
