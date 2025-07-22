@@ -232,8 +232,8 @@ class OrderFieldReset(Resource):
     def patch(order_id):
         """Reset a field in the order."""
         reset_data = ResetOrderFieldSchema().load(API.payload)
-        field_name = reset_data.get("field_name")
-        updated_order = OrderService.reset_field(order_id, field_name)
+        field_names = reset_data.get("field_names")
+        updated_order = OrderService.reset_field(order_id, field_names)
         return OrderSchema().dump(updated_order), HTTPStatus.OK
 
 

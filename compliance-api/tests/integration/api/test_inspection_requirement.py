@@ -6,7 +6,7 @@ from http import HTTPStatus
 from urllib.parse import urljoin
 
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
-from compliance_api.models import RequirementSourceEnum, InspectionStatusEnum
+from compliance_api.models import InspectionStatusEnum, RequirementSourceEnum
 from tests.utilities.factory_scenario.inspection_requirement_scenario import InspectionRequirementScenario
 
 
