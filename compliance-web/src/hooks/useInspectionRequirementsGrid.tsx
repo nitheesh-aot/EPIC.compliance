@@ -14,11 +14,12 @@ const fetchInspectionRequirementsGrid = (
 const inspectionRequirementExport = (
   queryParams: InspectionRequirementGridQueryParams = {}
 ) => {
+  delete queryParams.page_no;
+  delete queryParams.page_size;
   return request({
     method: "POST",
     url: `/inspection-requirements/export`,
-    params: queryParams,
-    data: {},
+    data: queryParams,
     responseType: "blob",
   });
 };
