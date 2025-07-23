@@ -61,7 +61,7 @@ class AdministrativePenaltyService:
             "inspection_requirement_ids", []
         )
         ServiceUtils.check_requirement_for_enforcement_action(
-            requirement_ids, EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY.value
+            requirement_ids, EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY_RECOMMENDATION.value
         )
 
         # Generate administrative penalty number if not provided
@@ -117,7 +117,7 @@ class AdministrativePenaltyService:
         if requirement_ids:
             ServiceUtils.check_requirement_for_enforcement_action(
                 requirement_ids,
-                EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY.value,
+                EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY_RECOMMENDATION.value,
             )
 
         # Check if administrative penalty already exists for the given requirements

@@ -3,6 +3,7 @@
 from enum import Enum
 
 from sqlalchemy import Boolean, Column, DateTime
+from compliance_api.models.inspection import Inspection
 from sqlalchemy import Enum as SqlEnum
 from sqlalchemy import ForeignKey, Index, Integer, Numeric, String
 from sqlalchemy.orm import relationship
