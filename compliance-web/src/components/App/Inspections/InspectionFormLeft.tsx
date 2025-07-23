@@ -1,5 +1,6 @@
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
+import ControlledSwitch from "@/components/Shared/Controlled/ControlledSwitch";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import { Initiation } from "@/models/Initiation";
 import { IRType } from "@/models/IRType";
@@ -38,6 +39,11 @@ const InspectionFormLeft: FC<InspectionFormLeftProps> = ({
           boxSizing: "border-box",
         }}
       >
+        <ControlledSwitch
+          name="isHistory"
+          label="Log as Historical Record"
+          sx={{ marginBottom: "1rem" }}
+        />
         <ControlledTextField
           name="projectDescription"
           label="Project Description"

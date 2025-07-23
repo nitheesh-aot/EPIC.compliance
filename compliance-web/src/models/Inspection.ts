@@ -47,6 +47,7 @@ export interface Inspection {
   approval_status?: ApprovalStatus;
   approved_by_id?: number;
   ir_progress?: IRProgress;
+  is_history?: boolean;
 }
 
 export interface InspectionMoreDetails extends Inspection {
@@ -82,6 +83,7 @@ export interface InspectionFormData {
   irStatus?: IRStatus;
   projectStatus?: ProjectStatus;
   caseFileId?: string;
+  isHistory?: boolean;
 }
 
 export interface InspectionAPIData {
@@ -108,6 +110,7 @@ export interface InspectionAPIData {
   unapproved_project_regulated_party?: string;
   unapproved_project_type?: string;
   unapproved_project_sub_type?: string;
+  is_history?: boolean;
 }
 
 export interface InspectionStatusAPIData {

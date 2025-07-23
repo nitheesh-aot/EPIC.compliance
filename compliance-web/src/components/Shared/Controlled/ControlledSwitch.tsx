@@ -1,4 +1,4 @@
-import { FormControlLabel } from "@mui/material";
+import { FormControlLabel, SxProps } from "@mui/material";
 import { FC } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import CustomSwitch from "./CustomSwitch";
@@ -7,12 +7,14 @@ type IFormSwitchProps = {
   name: string;
   label: string;
   isRequired?: boolean;
+  sx?: SxProps;
 };
 
 const ControlledSwitch: FC<IFormSwitchProps> = ({
   name,
   label,
   isRequired = false,
+  sx,
 }) => {
   const { control } = useFormContext();
   return (
@@ -25,6 +27,7 @@ const ControlledSwitch: FC<IFormSwitchProps> = ({
             marginLeft: 0,
             fontWeight: isRequired ? "bold" : "normal",
           }}
+          sx={sx}
           control={
             <CustomSwitch
               {...field}
