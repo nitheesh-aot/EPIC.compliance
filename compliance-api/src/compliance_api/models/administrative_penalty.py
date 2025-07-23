@@ -2,9 +2,9 @@
 
 from enum import Enum
 
-from sqlalchemy import Boolean, Column, DateTime, Numeric
+from sqlalchemy import Boolean, Column, DateTime
 from sqlalchemy import Enum as SqlEnum
-from sqlalchemy import ForeignKey, Index, Integer, String
+from sqlalchemy import ForeignKey, Index, Integer, Numeric, String
 from sqlalchemy.orm import relationship
 
 from compliance_api.models.base_model import BaseModelVersioned
@@ -88,10 +88,14 @@ class AdministrativePenaltyInspectionRequirementMap(BaseModelVersioned):
 
     @classmethod
     @with_session
-    def delete_by_administrative_penalty(cls, administrative_penalty_id: int, session=None):
+    def delete_by_administrative_penalty(
+        cls, administrative_penalty_id: int, session=None
+    ):
         """Delete administrative penalty."""
         query = session.query(cls) if session else cls.query
-        maps = query.filter_by(administrative_penalty_id=administrative_penalty_id).all()
+        maps = query.filter_by(
+            administrative_penalty_id=administrative_penalty_id
+        ).all()
         for map_item in maps:
             map_item.update(DELETE_DIC_PARAMS, commit=not session)
         session.flush()
@@ -167,9 +171,12 @@ class AdministrativePenalty(BaseModelVersioned):
         "AdministrativePenaltyInspectionRequirementMap",
         back_populates="administrative_penalty",
         lazy="select",
-        primaryjoin="and_(AdministrativePenaltyInspectionRequirementMap.administrative_penalty_id == AdministrativePenalty.id, "
-        "AdministrativePenaltyInspectionRequirementMap.is_active == True, "
-        "AdministrativePenaltyInspectionRequirementMap.is_deleted == False)",
+        primaryjoin=(
+            "and_(AdministrativePenaltyInspectionRequirementMap.administrative_penalty_id == "
+            "AdministrativePenalty.id, "
+            "AdministrativePenaltyInspectionRequirementMap.is_active == True, "
+            "AdministrativePenaltyInspectionRequirementMap.is_deleted == False)"
+        ),
     )
     __table_args__ = (
         Index(
@@ -220,10 +227,8 @@ class AdministrativePenalty(BaseModelVersioned):
 
         if inspection_requirement_ids is not None:
             # Get existing requirement maps
-            existing_maps = (
-                AdministrativePenaltyInspectionRequirementMap.get_by_administrative_penalty_id(
-                    administrative_penalty_id
-                )
+            existing_maps = AdministrativePenaltyInspectionRequirementMap.get_by_administrative_penalty_id(
+                administrative_penalty_id
             )
             existing_requirement_ids = [
                 map_item.inspection_requirement_id for map_item in existing_maps
@@ -268,7 +273,8 @@ class AdministrativePenalty(BaseModelVersioned):
     def get_by_administrative_penalty_number(cls, administrative_penalty_number):
         """Find administrative penalty by administrative penalty number."""
         return cls.query.filter_by(
-            administrative_penalty_number=administrative_penalty_number, is_deleted=False
+            administrative_penalty_number=administrative_penalty_number,
+            is_deleted=False,
         ).first()
 
     @classmethod

@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Exposes all of the schemas in the compliance_api."""
+from .administrative_penalty import (
+    AdministrativePenaltyCreateSchema, AdministrativePenaltySchema, AdministrativePenaltyUpdateSchema, DecisionSchema,
+    ReferralStatusSchema)
 from .agency import AgencyCreateSchema, AgencySchema
 from .appendix import AppendixCreateSchema, AppendixSchema
 from .case_file import (
@@ -54,6 +57,3 @@ from .warning_letter import (
     WarningLetterStatusSchema, WarningLetterUpdateSchema)
 from .warning_letter_approval import (
     CreateWarningLetterApprovalSchema, UpdateWarningLetterApprovalStatusSchema, WarningLetterApprovalSchema)
-from .administrative_penalty import (
-    AdministrativePenaltyCreateSchema, AdministrativePenaltySchema, AdministrativePenaltyUpdateSchema,
-    DecisionSchema, ReferralStatusSchema)

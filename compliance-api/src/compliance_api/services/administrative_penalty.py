@@ -3,14 +3,15 @@
 from http import HTTPStatus
 
 from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
-from compliance_api.models.administrative_penalty import AdministrativePenalty
-from compliance_api.models.administrative_penalty import AdministrativePenaltyInspectionRequirementMap
+from compliance_api.models.administrative_penalty import (
+    AdministrativePenalty, AdministrativePenaltyInspectionRequirementMap)
 from compliance_api.models.case_file import CaseFile as CaseFileModel
+from compliance_api.models.db import session_scope
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.services.epic_track_service.track_service import TrackService
-from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE
 from compliance_api.services.service_utils import ServiceUtils
-from compliance_api.models.db import session_scope
+from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE
+
 
 class AdministrativePenaltyService:
     """Administrative Penalty Service."""
@@ -25,7 +26,9 @@ class AdministrativePenaltyService:
     @staticmethod
     def get_by_id(administrative_penalty_id):
         """Get administrative penalty by id."""
-        administrative_penalty = AdministrativePenalty.find_by_id(administrative_penalty_id)
+        administrative_penalty = AdministrativePenalty.find_by_id(
+            administrative_penalty_id
+        )
         if not administrative_penalty:
             raise ResourceNotFoundError(
                 f"Administrative Penalty with id: {administrative_penalty_id} not found"
@@ -35,8 +38,10 @@ class AdministrativePenaltyService:
     @staticmethod
     def get_by_number(administrative_penalty_number):
         """Get administrative penalty by number."""
-        administrative_penalty = AdministrativePenalty.get_by_administrative_penalty_number(
-            administrative_penalty_number
+        administrative_penalty = (
+            AdministrativePenalty.get_by_administrative_penalty_number(
+                administrative_penalty_number
+            )
         )
         if not administrative_penalty:
             raise ResourceNotFoundError(
@@ -51,8 +56,10 @@ class AdministrativePenaltyService:
         inspection = ServiceUtils.inspection_exist_check(inspection_id=inspection_id)
         ServiceUtils.access_check_update_for_inspection(inspection)
         ServiceUtils.inspection_status_check(inspection)
-        
-        requirement_ids = administrative_penalty_data.get("inspection_requirement_ids", [])
+
+        requirement_ids = administrative_penalty_data.get(
+            "inspection_requirement_ids", []
+        )
         ServiceUtils.check_requirement_for_enforcement_action(
             requirement_ids, EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY.value
         )
@@ -61,7 +68,9 @@ class AdministrativePenaltyService:
         if not administrative_penalty_data.get("administrative_penalty_number"):
             project_id = inspection.project_id
             case_file_id = inspection.case_file_id
-            administrative_penalty_data["administrative_penalty_number"] = _create_administrative_penalty_number(project_id, case_file_id)
+            administrative_penalty_data["administrative_penalty_number"] = (
+                _create_administrative_penalty_number(project_id, case_file_id)
+            )
 
         # Check if administrative penalty already exists for the given requirements
         if AdministrativePenalty.does_administrative_penalty_exists_by_requirement_ids(
@@ -73,8 +82,10 @@ class AdministrativePenaltyService:
 
         # Create administrative penalty with session scope
         with session_scope() as session:
-            administrative_penalty = AdministrativePenalty.create_administrative_penalty(
-                administrative_penalty_data, session
+            administrative_penalty = (
+                AdministrativePenalty.create_administrative_penalty(
+                    administrative_penalty_data, session
+                )
             )
             cls.insert_or_update_inspection_requirements(
                 administrative_penalty.id,
@@ -87,25 +98,34 @@ class AdministrativePenaltyService:
     @classmethod
     def update_administrative_penalty(cls, administrative_penalty_id, update_data):
         """Update an administrative penalty."""
-        administrative_penalty = AdministrativePenalty.find_by_id(administrative_penalty_id)
+        administrative_penalty = AdministrativePenalty.find_by_id(
+            administrative_penalty_id
+        )
         if not administrative_penalty:
             raise ResourceNotFoundError(
                 f"Administrative Penalty with id: {administrative_penalty_id} not found"
             )
-            
-        inspection = ServiceUtils.inspection_exist_check(inspection_id=update_data.get("inspection_id") or administrative_penalty.inspection_id)
+
+        inspection = ServiceUtils.inspection_exist_check(
+            inspection_id=update_data.get("inspection_id")
+            or administrative_penalty.inspection_id
+        )
         ServiceUtils.access_check_update_for_inspection(inspection)
         ServiceUtils.inspection_status_check(inspection)
-        
+
         requirement_ids = update_data.get("inspection_requirement_ids", [])
         if requirement_ids:
             ServiceUtils.check_requirement_for_enforcement_action(
-                requirement_ids, EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY.value
+                requirement_ids,
+                EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY.value,
             )
 
         # Check if administrative penalty already exists for the given requirements
-        if requirement_ids and AdministrativePenalty.does_administrative_penalty_exists_by_requirement_ids(
-            requirement_ids, administrative_penalty_id
+        if (
+            requirement_ids
+            and AdministrativePenalty.does_administrative_penalty_exists_by_requirement_ids(
+                requirement_ids, administrative_penalty_id
+            )
         ):
             raise UnprocessableEntityError(
                 "Administrative Penalty already exists for these requirements."
@@ -132,18 +152,20 @@ class AdministrativePenaltyService:
 
         return updated_penalty
 
-    # update_referral_status and update_decision methods removed as they are now handled by the update_administrative_penalty method
-
     @classmethod
     def delete_administrative_penalty(cls, administrative_penalty_id):
         """Delete an administrative penalty."""
-        administrative_penalty = AdministrativePenalty.find_by_id(administrative_penalty_id)
+        administrative_penalty = AdministrativePenalty.find_by_id(
+            administrative_penalty_id
+        )
         if not administrative_penalty:
             raise ResourceNotFoundError(
                 f"Administrative Penalty with id: {administrative_penalty_id} not found"
             )
-            
-        ServiceUtils.access_check_update_for_inspection(administrative_penalty.inspection)
+
+        ServiceUtils.access_check_update_for_inspection(
+            administrative_penalty.inspection
+        )
         ServiceUtils.inspection_status_check(administrative_penalty.inspection)
 
         with session_scope() as session:
@@ -154,10 +176,13 @@ class AdministrativePenaltyService:
                 administrative_penalty_id, session
             )
         return HTTPStatus.NO_CONTENT
-        
+
     @classmethod
     def insert_or_update_inspection_requirements(
-        cls, administrative_penalty_id: int, inspection_requirement_ids: list[int], session=None
+        cls,
+        administrative_penalty_id: int,
+        inspection_requirement_ids: list[int],
+        session=None,
     ):
         """Insert/Update inspection requirements associated with a given administrative penalty."""
         if inspection_requirement_ids is not None:
@@ -178,11 +203,15 @@ class AdministrativePenaltyService:
 
             if requirement_ids_to_be_deleted:
                 AdministrativePenaltyInspectionRequirementMap.bulk_delete(
-                    administrative_penalty_id, list(requirement_ids_to_be_deleted), session
+                    administrative_penalty_id,
+                    list(requirement_ids_to_be_deleted),
+                    session,
                 )
             if requirement_ids_to_be_added:
                 AdministrativePenaltyInspectionRequirementMap.bulk_insert(
-                    administrative_penalty_id, list(requirement_ids_to_be_added), session
+                    administrative_penalty_id,
+                    list(requirement_ids_to_be_added),
+                    session,
                 )
 
 
@@ -195,14 +224,15 @@ def _create_administrative_penalty_number(project_id: int, case_file_id: int) ->
     if case_file.project_id != project_id:
         raise UnprocessableEntityError("Given project and case file don't match")
 
-    count = AdministrativePenalty.get_count_by_project_nd_case_file_id(project_id, case_file_id)
+    count = AdministrativePenalty.get_count_by_project_nd_case_file_id(
+        project_id, case_file_id
+    )
     serial_number = f"{count + 1:03}"
     return f"{project_code}_{case_file.case_file_number}_AP{serial_number}"
 
 
 def _get_project_abbreviation(project_id: int):
     """Return the project abbreviation."""
-    
     if project_id:
         project = TrackService.get_project_by_id(project_id)
         return project.get("abbreviation")

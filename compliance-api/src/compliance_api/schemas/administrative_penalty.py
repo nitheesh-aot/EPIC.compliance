@@ -6,15 +6,14 @@ from marshmallow_enum import EnumField
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from ..models.administrative_penalty import (
-    AdministrativePenalty,
-    AdministrativePenaltyInspectionRequirementMap,
-    DecisionEnum,
-    ReferralStatusEnum,
-)
+    AdministrativePenalty, AdministrativePenaltyInspectionRequirementMap, DecisionEnum, ReferralStatusEnum)
 from .base_schema import AutoSchemaBase, BaseSchema
 from .inspection_requirement import InspectionRequirementSchema
 
-class AdministrativePenaltyUpdateSchema(BaseSchema):  # pylint: disable=too-many-ancestors
+
+class AdministrativePenaltyUpdateSchema(
+    BaseSchema
+):  # pylint: disable=too-many-ancestors
     """Schema for administrative penalty model."""
 
     inspection_id = fields.Integer(
@@ -60,12 +59,15 @@ class AdministrativePenaltyUpdateSchema(BaseSchema):  # pylint: disable=too-many
             "description": "List of inspection requirement IDs associated with the administrative penalty."
         },
     )
-    
+
     @validates_schema
     def validate_penalty_amount(self, data, **kwargs):
         """Validate that penalty_amount is required when decision is present."""
         if data.get("decision") and not data.get("penalty_amount"):
-            raise ValidationError("Penalty amount is required when a decision is provided", "penalty_amount")
+            raise ValidationError(
+                "Penalty amount is required when a decision is provided",
+                "penalty_amount",
+            )
 
 
 class AdministrativePenaltyCreateSchema(
@@ -74,7 +76,8 @@ class AdministrativePenaltyCreateSchema(
     """Schema for administrative penalty model."""
 
     administrative_penalty_number = fields.String(
-        allow_none=True, metadata={"description": "The unique administrative penalty number."}
+        allow_none=True,
+        metadata={"description": "The unique administrative penalty number."},
     )
 
 
@@ -118,10 +121,10 @@ class AdministrativePenaltySchema(AutoSchemaBase):  # pylint: disable=too-many-a
         # Convert enum values to their string representation
         if "referral_status" in data and data["referral_status"]:
             data["referral_status"] = data["referral_status"]["value"]
-        
+
         if "decision" in data and data["decision"]:
             data["decision"] = data["decision"]["value"]
-        
+
         return data
 
 
