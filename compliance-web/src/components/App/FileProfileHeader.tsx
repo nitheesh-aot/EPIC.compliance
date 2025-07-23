@@ -1,4 +1,4 @@
-import { Box, Typography, Chip } from "@mui/material";
+import { Box, Typography, Chip, Alert } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import BreadcrumbsNav, {
   BreadcrumbItem,
@@ -19,6 +19,7 @@ interface FileProfileHeaderProps {
   profileContext: string;
   caseFileNumber?: string;
   isInititationOther?: boolean;
+  isHistorical?: boolean;
 }
 
 const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
@@ -28,6 +29,7 @@ const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
   profileContext,
   caseFileNumber,
   isInititationOther = false,
+  isHistorical = false,
 }) => {
   return (
     <Box
@@ -52,6 +54,19 @@ const FileProfileHeader: React.FC<FileProfileHeaderProps> = ({
               size="small"
             />
           </Box>
+          {isHistorical && (
+            <Alert
+              variant="outlined"
+              severity="warning"
+              sx={{
+                py: "2px",
+                backgroundColor: BCDesignTokens.supportSurfaceColorWarning,
+              }}
+            >
+              You are in Historical Mode. Records created here will bypass
+              Deputy Review and include additional options for Enforcement.
+            </Alert>
+          )}
         </Box>
         <Box display={"flex"} gap={1}>
           {profileContext === FILE_PROFILE_CONTEXT.CASEFILE && (
