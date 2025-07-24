@@ -67,7 +67,7 @@ const RegPartyResponse: React.FC<RegPartyResponseProps> = ({
     handleSubmit,
     watch,
     reset,
-    formState: { isDirty },
+    formState: { isDirty, isValid },
   } = methods;
 
   // Reset form with defaultValues when they change
@@ -134,11 +134,11 @@ const RegPartyResponse: React.FC<RegPartyResponseProps> = ({
               gap: 1,
             }}
           >
-            <Button variant="text" size="small" onClick={onBack}>
+            <Button variant="outlined" size="small" onClick={onBack}>
               Previous
             </Button>
-            <Button variant="outlined" size="small" type="submit">
-              Next
+            <Button size="small" type="submit" disabled={!isValid}>
+              Save & Next
             </Button>
           </Box>
         </Box>

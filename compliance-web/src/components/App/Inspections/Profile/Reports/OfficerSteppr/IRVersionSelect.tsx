@@ -38,7 +38,10 @@ const IRVersionSelect: React.FC<IRVersionSelectProps> = ({
     defaultValues,
   });
 
-  const { handleSubmit } = methods;
+  const {
+    handleSubmit,
+    formState: { isValid },
+  } = methods;
 
   const onSubmitHandler = (data: IRVersionSelectSchemaType) => {
     if (data.versionSelection === "final") {
@@ -79,11 +82,11 @@ const IRVersionSelect: React.FC<IRVersionSelectProps> = ({
               gap: 1,
             }}
           >
-            <Button variant="text" size="small" onClick={onBack}>
+            <Button variant="outlined" size="small" onClick={onBack}>
               Previous
             </Button>
-            <Button variant="outlined" size="small" type="submit">
-              Finish
+            <Button size="small" type="submit" disabled={!isValid}>
+              Save & Finish
             </Button>
           </Box>
         </Box>
