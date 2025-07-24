@@ -177,6 +177,7 @@ class ServiceUtils:
                     )
                     req["requirement_source_details"].append(
                         {
+                            "requirement_source_id": detail.requirement_source.id,
                             "requirement_source_name": detail.requirement_source.name,
                             "requirement_title": ServiceUtils.get_requirement_title(
                                 detail, requirement_source_number
@@ -236,6 +237,9 @@ class ServiceUtils:
             RequirementSourceEnum.OTHER.value,
         ]:
             pass
+        #  format: Order [Order #]
+        elif detail.requirement_source_id == RequirementSourceEnum.ORDER.value:
+            requirement_title = detail.source_title
         #  format: Condition [Condition #] of [Source Title][Amendment #]
         elif detail.requirement_source_id == RequirementSourceEnum.EAC_AMENDMENT.value:
             requirement_title += f" {detail.amendment_number}"
@@ -246,17 +250,14 @@ class ServiceUtils:
             == RequirementSourceEnum.COMPLIANCE_AGREEMENT.value
         ):
             requirement_title += f" {detail.compliance_number}"
-        #  format: Order [Order #]
-        elif detail.requirement_source_id == RequirementSourceEnum.ORDER.value:
-            requirement_title = requirement_source_number
         #  format: [Source Title],[Regulation #]
         elif detail.requirement_source_id == RequirementSourceEnum.REGULATION.value:
-            requirement_title += f" {detail.regulation_number}"
+            requirement_title += f", {detail.regulation_number}"
         #  format: Clause [Clause #] of [Exemption Order #]
         elif (
             detail.requirement_source_id == RequirementSourceEnum.EXEMPTION_ORDER.value
         ):
-            requirement_title += f" {detail.exemption_order_number}"
+            requirement_title += f", {detail.exemption_order_number}"
         else:
             requirement_title = ""
 

@@ -77,24 +77,30 @@ class InspectionRecordService:
                 change_info[f"{field_name}_changed"] = True
                 ir_update_data["field_change_info"] = change_info
         with session_scope() as session:
-            updated_inspection_record = InspectionRecordModel.update_inspection_record(
-                inspection_record_id=inspection_record_id,
-                ir_update_data=ir_update_data,
-                session=session,
-            )
             # Update the IR progress to ISSUED if date_issued is updated
             # Update the inspection status to be closed if date_issued is updated
             if field_name == "date_issued" and value:
-                InspectionRecordModel.update_inspection_record(
-                    inspection_record_id=inspection_record_id,
-                    ir_update_data={"ir_progress": IRProgressEnum.ISSUED},
-                    session=session,
+                approvals = InspectionRecordApprovalModel.get_approvals_by_ir(
+                    inspection_record_id=inspection_record_id
                 )
+                if not approvals:
+                    raise UnprocessableEntityError(
+                        "IR cannot be issued without approval"
+                    )
+                latest_approval = approvals[0]
+                if latest_approval.approval_status != IRApprovalStatusEnum.APPROVED:
+                    raise UnprocessableEntityError("Pending review for this IR")
+                ir_update_data["ir_progress"] = IRProgressEnum.ISSUED
                 InspectionModel.update_inspection(
                     inspection_id=inspection_id,
                     inspection_data={"inspection_status": InspectionStatusEnum.CLOSED},
                     session=session,
                 )
+            updated_inspection_record = InspectionRecordModel.update_inspection_record(
+                inspection_record_id=inspection_record_id,
+                ir_update_data=ir_update_data,
+                session=session,
+            )
         return updated_inspection_record
 
     @classmethod
