@@ -67,10 +67,8 @@ const PreliminaryReview: React.FC<PreliminaryReviewProps> = ({
   const {
     handleSubmit,
     watch,
-    setValue,
-    clearErrors,
     reset,
-    formState: { isDirty },
+    formState: { isDirty, isValid },
   } = methods;
 
   // Reset form with defaultValues when they change
@@ -83,18 +81,6 @@ const PreliminaryReview: React.FC<PreliminaryReviewProps> = ({
   // Watch for changes in dateSent
   const dateSent = watch("dateSent");
 
-  // Update dueDate when dateSent changes
-  useEffect(() => {
-    if (dateSent) {
-      // Add 5 days to dateSent
-      const calculatedDueDate = dayjs(dateSent).add(5, "day");
-      setValue("dueDate", calculatedDueDate);
-
-      // Clear any existing errors for dueDate
-      clearErrors("dueDate");
-    }
-  }, [dateSent, setValue, clearErrors]);
-
   const onSubmitHandler = (data: PreliminaryReviewSchemaType) => {
     if (isDirty) {
       // Create an array to hold the approval payloads
@@ -105,10 +91,7 @@ const PreliminaryReview: React.FC<PreliminaryReviewProps> = ({
         },
       ];
 
-      const daysDifference = data.dueDate.diff(data.dateSent, "day");
-
-      // Only add dueDate to the payload if it's different from the default (more than 5 days)
-      if (daysDifference !== 5) {
+      if (data.dueDate) {
         approvalPayloads.push({
           field_name: "date_expected_return",
           value: dateUtils.dateToISO(data.dueDate),
@@ -125,9 +108,10 @@ const PreliminaryReview: React.FC<PreliminaryReviewProps> = ({
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <Typography variant="body2">
-          Please enter the date the report was sent to the regulated party. The
-          system will automatically set a 5 business expected return day for
-          you. Adjust if needed.
+          Please enter the date the report was sent to the Regulated Party. This
+          will be recorded in the Inspection Version Dates as the “Date
+          Preliminary”. The Due Date will appear under “Actions Required by
+          Regulated Party”.
         </Typography>
         <Box
           sx={{
@@ -154,8 +138,8 @@ const PreliminaryReview: React.FC<PreliminaryReviewProps> = ({
               minDate={dateSent ?? undefined}
             />
           </Box>
-          <Button variant="outlined" size="small" type="submit">
-            Next
+          <Button size="small" type="submit" disabled={!isValid}>
+            Save & Next
           </Button>
         </Box>
       </form>
