@@ -1208,9 +1208,6 @@ def _create_requirement_source_detail_obj(
         "clause_number": requirement_source_data.get("clause_number", None),
         "regulation_number": requirement_source_data.get("regulation_number", None),
         "compliance_number": requirement_source_data.get("compliance_number", None),
-        "exemption_order_number": requirement_source_data.get(
-            "exemption_order_number", None
-        ),
         "source_title": requirement_source_data.get("source_title", None),
         "order_id": requirement_source_data.get("order_id", None),
         "amendment_number": requirement_source_data.get("amendment_number", None),

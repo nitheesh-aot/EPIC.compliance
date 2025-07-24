@@ -229,14 +229,6 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
                   />
                 )}
                 {selectedRequirementSource?.id ===
-                  RequirementSourceEnum.EXEMPTION_ORDER && (
-                  <ControlledTextField
-                    name="exemptionOrderNumber"
-                    label="Exemption Order #"
-                    fullWidth
-                  />
-                )}
-                {selectedRequirementSource?.id ===
                   RequirementSourceEnum.COMPLAINCE_AGREEMENT && (
                   <ControlledTextField
                     name="complianceNumber"

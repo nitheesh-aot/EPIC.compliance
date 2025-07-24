@@ -159,11 +159,6 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
             "description": "The amendment number if the requirement source is EAC Amendment"
         }
     )
-    exemption_order_number = fields.Str(
-        metadata={
-            "description": "The optional exemption order number associated with requirement sources as Exemption Order"
-        }
-    )
     title = fields.Str(
         metadata={"description": "The title of the requirement source detail"}
     )
@@ -274,23 +269,6 @@ class InspectionReqSourceDetailCreateSchema(BaseSchema):
             raise ValidationError(
                 "Invalid requirement source for the given regulation number",
                 field_name="regulation_number",
-            )
-
-    @validates_schema
-    def validate_exemption_order_number(
-        self, data, **kwargs
-    ):  # pylint: disable=no-self-use, unused-argument
-        """Ensure the correct requirement is selected for the exemption order number."""
-        exemption_order_number = data.get("exemption_order_number", [])
-        requirement_source_id = data.get("requirement_source_id", None)
-        if (
-            RequirementSourceEnum(requirement_source_id)
-            == RequirementSourceEnum.EXEMPTION_ORDER
-            and not exemption_order_number
-        ):
-            raise ValidationError(
-                "Exemption order number is mandatory when the requirement source is EXEMPTION_ORDER",
-                field_name="exemption_order_number",
             )
 
     @validates_schema
