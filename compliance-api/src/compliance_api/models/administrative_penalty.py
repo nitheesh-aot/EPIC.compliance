@@ -3,12 +3,12 @@
 from enum import Enum
 
 from sqlalchemy import Boolean, Column, DateTime
-from compliance_api.models.inspection import Inspection
 from sqlalchemy import Enum as SqlEnum
 from sqlalchemy import ForeignKey, Index, Integer, Numeric, String
 from sqlalchemy.orm import relationship
 
 from compliance_api.models.base_model import BaseModelVersioned
+from compliance_api.models.inspection import Inspection as InspectionModel
 from compliance_api.models.utils import with_session
 from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
@@ -281,13 +281,11 @@ class AdministrativePenalty(BaseModelVersioned):
     @classmethod
     def get_count_by_project_nd_case_file_id(cls, project_id: int, case_file_id: int):
         """Get count of administrative penalties by project and case file id."""
-        from compliance_api.models.inspection import Inspection
-
         return (
-            cls.query.join(Inspection)
+            cls.query.join(InspectionModel)
             .filter(
-                Inspection.project_id == project_id,
-                Inspection.case_file_id == case_file_id,
+                InspectionModel.project_id == project_id,
+                InspectionModel.case_file_id == case_file_id,
                 cls.is_deleted.is_(False),
             )
             .count()

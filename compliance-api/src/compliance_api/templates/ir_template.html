@@ -400,8 +400,7 @@
                 <tr>
                     <td colspan="2">
                         {% for source in requirement.requirement_source_details %}
-                        <div class="com-ir-section-header">{% if loop.first %}Requirement {{ requirement.sort_order }}: {% endif %}{{
-                            source.requirement_title }}{% if source.appendix_no %} <span class="com-ir-section-header-appendix">&nbsp;(Appendix {{ source.appendix_no }})</span>{% endif %}</div>
+                        <div class="com-ir-section-header">{% if loop.first %}Requirement {{ requirement.sort_order }}: {% endif %}{% if source.requirement_source_id == 5 or source.requirement_source_id == 7 %}{{ source.requirement_title | replace('Environmental Assessment Act', '<i>Environmental Assessment Act</i>') | safe }}{% else %}{{ source.requirement_title }}{% endif %}{% if source.appendix_no %} <span class="com-ir-section-header-appendix">&nbsp;(Appendix {{ source.appendix_no }})</span>{% endif %}</div>
                         <div class="com-ir-section-description">{{ source.requirement_source_description | safe |
                         replace('style="white-space: pre-wrap;"', '') }}</div>
                         {% if source.requirement_documents %}

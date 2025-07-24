@@ -61,7 +61,8 @@ class AdministrativePenaltyService:
             "inspection_requirement_ids", []
         )
         ServiceUtils.check_requirement_for_enforcement_action(
-            requirement_ids, EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY_RECOMMENDATION.value
+            requirement_ids,
+            EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY_RECOMMENDATION.value,
         )
 
         # Generate administrative penalty number if not provided

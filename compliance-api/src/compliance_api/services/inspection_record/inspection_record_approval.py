@@ -29,11 +29,17 @@ class InspectionRecordApprovalService:
             inspection_record_id
         )
         ServiceUtils.access_check_update_for_inspection(inspection)
+        # for historical inspection record, the approval status is set to
+        # approved by default as no explicit approval is required
         approval_data = {
             "inspection_record_id": inspection_record_id,
-            "approved_by_id": ir_approval_request_data.get("approved_by_id"),
+            "approved_by_id": ir_approval_request_data.get("approved_by_id", None),
             "ir_status_id": inspection_record.ir_status_id,
-            "approval_status": IRApprovalStatusEnum.APPROVAL_PENDING,  # default status
+            "approval_status": (
+                IRApprovalStatusEnum.APPROVED
+                if inspection.is_history
+                else IRApprovalStatusEnum.APPROVAL_PENDING
+            ),  # default status
         }
         # No more approval request can be made if the IR is in the following statuses
         if inspection_record.ir_progress in {
@@ -63,16 +69,17 @@ class InspectionRecordApprovalService:
                 )
             )
             # Update ir_progress to either PRELIMINARY_DEPUTY_REVIEW or FINAL_DEPUTY_REVIEW
+            ir_progress = (
+                IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW
+                if inspection_record.ir_status_id == IRStatusEnum.PRELIMINARY.value
+                else IRProgressEnum.FINAL_DEPUTY_REVIEW
+            )
+            # for historical inspection record, the ir_progress is set to FINAL_APPROVED
+            if inspection.is_history:
+                ir_progress = IRProgressEnum.FINAL_APPROVED
             InspectionRecordModel.update_inspection_record(
                 inspection_record_id=inspection_record_id,
-                ir_update_data={
-                    "ir_progress": (
-                        IRProgressEnum.PRELIMINARY_DEPUTY_REVIEW
-                        if inspection_record.ir_status_id
-                        == IRStatusEnum.PRELIMINARY.value
-                        else IRProgressEnum.FINAL_DEPUTY_REVIEW
-                    )
-                },
+                ir_update_data={"ir_progress": ir_progress},
                 session=session,
             )
         return created_approval

@@ -131,8 +131,22 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
         text: selectedOrder.now_therefore,
       };
       setValue("description", newValue);
+      
+      // Auto-fill source title for Order
+      if (selectedRequirementSource?.id === RequirementSourceEnum.ORDER && !hasUserEditedTitle.current) {
+        // Extract order number without project code prefix
+        let orderNumber = selectedOrder.order_number || "";
+        // Remove project code prefix (everything before and including the first underscore)
+        const underscoreIndex = orderNumber.indexOf("_");
+        if (underscoreIndex !== -1) {
+          orderNumber = orderNumber.substring(underscoreIndex + 1);
+        }
+        
+        // Set the source title as "Order orderNumber"
+        setValue("requirementSourceTitle", `Order ${orderNumber}`);
+      }
     }
-  }, [selectedOrder, setValue, requirementSourceFormData]);
+  }, [selectedOrder, setValue, requirementSourceFormData, selectedRequirementSource]);
 
   useEffect(() => {
     reset(defaultValues);
