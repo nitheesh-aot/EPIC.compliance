@@ -2,14 +2,11 @@ import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBot
 import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
 import {
-  useComplianceFindingsData,
   useCreateInspectionRequirement,
   useDeleteInspectionRequirement,
-  useEnforcementActionsData,
   useInspectionRequirementTypesData,
   useUpdateInspectionRequirement,
 } from "@/hooks/useInspectionRequirements";
-import { useTopicsData } from "@/hooks/useTopics";
 import { Inspection } from "@/models/Inspection";
 import {
   InspectionRequirement,
@@ -34,9 +31,7 @@ import {
   updateImagesWithContinuousSortOrder,
 } from "./RequirementUtils";
 import * as yup from "yup";
-import { useAgenciesData } from "@/hooks/useAgencies";
 import { useRequirementStore } from "./requirementStore";
-import { EnforcementActionEnum } from "@/utils/constants";
 
 type RequirementDrawerProps = {
   inspectionData: Inspection;
@@ -85,20 +80,6 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
 
   const { data: inspectionRequirementTypesList } =
     useInspectionRequirementTypesData();
-  const { data: enforcementActionsList } = useEnforcementActionsData();
-  const { data: complianceFindingsList } = useComplianceFindingsData();
-  const { data: topicsList } = useTopicsData();
-  const { data: agenciesList } = useAgenciesData();
-
-  const enforcementActions = useMemo(() => {
-    return inspectionData.is_history
-      ? enforcementActionsList
-      : enforcementActionsList?.filter(
-          (enforcementAction) =>
-            enforcementAction.id !== EnforcementActionEnum.ADVISORY &&
-            enforcementAction.id !== EnforcementActionEnum.WARNING
-        );
-  }, [enforcementActionsList, inspectionData.is_history]);
 
   const isRequirementEditable = useMemo(
     () => inspectionData?.inspection_status?.toLowerCase() === "open",
@@ -345,15 +326,11 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
           direction={"row"}
         >
           <RequirementFormLeft
-            complianceFindingsList={complianceFindingsList ?? []}
-            enforcementActionsList={enforcementActions ?? []}
-            topicList={topicsList ?? []}
-            agencyList={agenciesList ?? []}
             appHeaderHeight={appHeaderHeight}
             isRegulatoryConsideration={isRegulatoryConsideration}
             isEditMode={!!inspectionRequirementData}
             requirementId={requirement?.id ?? 0}
-            inspectionId={inspectionData.id}
+            inspectionData={inspectionData}
             currentEnforcementAction={
               requirement?.enforcement_action_data?.[0] ?? undefined
             }
