@@ -78,8 +78,10 @@ const IssuanceDate: React.FC = () => {
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <Typography variant="body2" mb={1}>
-          Indicate the IR intended issuance date. On the date after the record
-          is issued, don’t forget to update the continuation report.
+          Indicate the IR issuance date. This date will be recorded in the
+          Inspection Version Dates section. If the issuance date changes, be
+          sure to update it here. On the date after the record is issued, don’t
+          forget to update the continuation report.
         </Typography>
         <Box
           sx={{
@@ -93,20 +95,18 @@ const IssuanceDate: React.FC = () => {
         >
           <ControlledDateField
             name="issuanceDate"
-            label="Intended Issuance Date"
+            label="Issuance Date"
             height="2rem"
             width="40%"
           />
-          <Box
-            sx={{
-              display: "flex",
-              gap: 1,
-            }}
+          <Button
+            size="small"
+            type="submit"
+            disabled={!isDirty}
+            sx={{ width: "150px" }}
           >
-            <Button variant="outlined" size="small" type="submit" disabled={!isDirty}>
-              Save
-            </Button>
-          </Box>
+            Save & Record
+          </Button>
         </Box>
       </form>
     </FormProvider>
