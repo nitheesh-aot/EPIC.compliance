@@ -351,7 +351,7 @@ def _create_content(inspection, requirement_ids):
 
     # Create condition line for each source
     for source_name, reqs in grouped_requirements.items():
-        numbers = ", ".join(req["number"] for req in reqs)
+        numbers = ", ".join(req["number"] for req in reqs if req["number"])
         condition_lines.append(f"{numbers} of {source_name}")
     warning_letter_content = {
         "project_details": ServiceUtils.get_project_details(

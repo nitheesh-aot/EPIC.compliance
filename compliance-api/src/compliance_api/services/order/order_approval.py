@@ -22,12 +22,18 @@ class OrderApprovalService:
     ):
         """Create approval for the order."""
         order = ServiceUtils.order_exist_check(order_id)
-        ServiceUtils.access_check_update_for_inspection(order.inspection)
+        inspection = order.inspection
+        ServiceUtils.access_check_update_for_inspection(inspection)
+        #  If the inspection is historical, then no approval is required
         approval_data = {
             "order_id": order_id,
             "approved_by_id": order_approval_request_data.get("approved_by_id"),
             "order_status": order.order_status,  # default status
-            "approval_status": OrderApprovalStatusEnum.APPROVAL_PENDING,  # default status
+            "approval_status": (
+                OrderApprovalStatusEnum.APPROVED
+                if inspection.is_history
+                else OrderApprovalStatusEnum.APPROVAL_PENDING
+            ),  # default status
         }
         # No more approval request can be made if the order is in the following statuses
         if order.order_progress in {
@@ -51,10 +57,15 @@ class OrderApprovalService:
             created_approval = OrderApprovalModel.create_order_approval(
                 approval_data, session=session
             )
-            # Update order_progress to either PRELIMINARY_DEPUTY_REVIEW or FINAL_DEPUTY_REVIEW
             OrderModel.update_order(
                 order_id=order_id,
-                order_data={"order_progress": OrderProgressEnum.DEPUTY_REVIEW},
+                order_data={
+                    "order_progress": (
+                        OrderProgressEnum.APPROVED
+                        if inspection.is_history
+                        else OrderProgressEnum.DEPUTY_REVIEW
+                    )
+                },
                 session=session,
             )
         return created_approval
