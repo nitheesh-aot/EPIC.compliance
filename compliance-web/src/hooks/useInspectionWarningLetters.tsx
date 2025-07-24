@@ -139,6 +139,22 @@ const deleteInspectionWarningLetter = ({
   });
 };
 
+const resetWarningLetterTemplate = ({
+  inspectionWarningLetterId,
+  fieldName,
+}: {
+  inspectionWarningLetterId: number;
+  fieldName: string;
+}) => {
+  return request({
+    url: `/warning-letters/${inspectionWarningLetterId}/reset`,
+    method: "patch",
+    data: {
+      field_name: fieldName,
+    },
+  });
+};
+
 export const useInspectionWarningLettersData = (
   inspectionId: number,
   { isStaleInfinate = true }: { isStaleInfinate?: boolean } = {}
@@ -204,6 +220,13 @@ export const useIssueWarningLetter = (onSuccess: OnSuccessType) => {
 export const useDeleteWarningLetter = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: deleteInspectionWarningLetter,
+    onSuccess,
+  });
+};
+
+export const useResetWarningLetterTemplate = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: resetWarningLetterTemplate,
     onSuccess,
   });
 };

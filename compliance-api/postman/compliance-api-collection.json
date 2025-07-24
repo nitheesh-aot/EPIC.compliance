@@ -1,0 +1,4716 @@
+{
+	"info": {
+		"_postman_id": "3e550374-cad5-4af0-800c-7ca1ab8eb447",
+		"name": "EPIC.Compliance",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17100841"
+	},
+	"item": [
+		{
+			"name": "Staffuser",
+			"item": [
+				{
+					"name": "Get Staff",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/staff-users",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"staff-users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Staff By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/staff-users/3",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"staff-users",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Staff User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"auth_user_guid\": \"10a1c860c1df454d97bc8d2e3a70fdf3@idir\",\r\n    \"permission\": \"VIEWER\",\r\n    \"position_id\": \"1\"\r\n   \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/staff-users",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"staff-users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Staff User Copy",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"full_name\": \"Nitheesh Ganesh\",\r\n        \"first_name\": \"Nitheesh1\",\r\n        \"last_name\": \"Ganesh1\",\r\n        \"position_id\": 2,\r\n        \"deputy_director_id\": null,\r\n        \"supervisor_id\": null,\r\n        \"auth_user_guid\": \"b16917cd4cba4df6acb9ff5ca4e56b28@idir\",\r\n        \"permission\": \"SUPERUSER\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/staff-users/4",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"staff-users",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Staff User Copy 2",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\r\n        \"full_name\": \"Nitheesh Ganesh\",\r\n        \"first_name\": \"Nitheesh\",\r\n        \"last_name\": \"Ganesh\",\r\n        \"position_id\": 1,\r\n        \"deputy_director_id\": null,\r\n        \"supervisor_id\": null,\r\n        \"auth_user_guid\": \"10a1c860c1df454d97bc8d2e3a70fdf3@idir\"\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/staff-users/1",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"staff-users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Permissions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/staff-users/permissions",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"staff-users",
+								"permissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Positions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/positions",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"positions"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Agency",
+			"item": [
+				{
+					"name": "Get Agency",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/agencies",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"agencies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Agency By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/agencies/5",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"agencies",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Agency",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/agencies/1",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"agencies",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Agency",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Test1\",\r\n    \"abbreviation\": \"TST\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/agencies",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"agencies"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Agency Copy",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"name\",\r\n    \"abbreviation\": \"TST\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/agencies/2",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"agencies",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Appendix",
+			"item": [
+				{
+					"name": "Get Appendix",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/appendices",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"appendices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get AppendixBy Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/appendices/5",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"appendices",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Appendix",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/appendices/6",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"appendices",
+								"6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Appendix",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"appendix_no\": 2,\r\n    \"inspection_id\": 52,\r\n    \"document_title\": \"document title 1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/appendices",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"appendices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH AppendixCopy",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"inspection_id\": 53,\r\n    \"appendix_no\": 1,\r\n    \"document_title\": \"document title 2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/appendices/7",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"appendices",
+								"7"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Topics",
+			"item": [
+				{
+					"name": "Get Agency",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/topics",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"topics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Agency By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/topics/1",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"topics",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Agency",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/topics/5",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"topics",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Agency",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"test\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/topics",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"topics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Agency Copy",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"test2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/topics/1",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"topics",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CaseFile",
+			"item": [
+				{
+					"name": "Get Case Initiation Options",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/case-files/initiation-options",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"case-files",
+								"initiation-options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST CaseFile",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"project_id\": 1,\r\n  \"date_created\": \"2024-09-17T00:00:00.123Z\",\r\n  \"initiation_id\": 2,\r\n  \"primary_officer_id\": 1,\r\n  \"officer_ids\": [1,2],\r\n  \"unapproved_project_authorization\": \"authorization sample\",\r\n  \"unapproved_project_regulated_party\": \"regulated party sample\",\r\n  \"unapproved_project_type\": \"type sample\",\r\n  \"unapproved_project_sub_type\": \"sub type sample\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/case-files",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"case-files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Link",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"link_case_file_id\": 39\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/case-files/40/links",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"case-files",
+								"40",
+								"links"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST CaseFile Copy",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"project_id\": null,\r\n  \"date_created\": \"2024-08-18T04:45:23.844Z\",\r\n  \"primary_officer_id\": 1,\r\n  \"initiation\": \"INSPECTION\",\r\n  \"case_file_number\": \"20240001\",\r\n  \"officer_ids\": [\r\n    1\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/case-files/50",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"case-files",
+								"50"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"OPEN\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/case-files/39/status",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"case-files",
+								"39",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unlink Case File",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"case_file_to_unlink\": 39\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/case-files/40/unlink",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"case-files",
+								"40",
+								"unlink"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE CaseFile",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"project_id\": null,\r\n  \"date_created\": \"2024-08-18T04:45:23.844Z\",\r\n  \"primary_officer_id\": 2,\r\n  \"initiation\": \"INSPECTION\",\r\n  \"case_file_number\": \"20240001\",\r\n  \"officer_ids\": [\r\n    1,2\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/case-files/567",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"case-files",
+								"567"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET CaseFile By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/case-files/70",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"case-files",
+								"70"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Other Officer",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/case-files/1/officers",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"case-files",
+								"1",
+								"officers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Case Files",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/case-files",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"case-files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Links",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/case-files/40/links",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"case-files",
+								"40",
+								"links"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET CaseFile Copy",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/case-files/case-file-numbers/20240001",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"case-files",
+								"case-file-numbers",
+								"20240001"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Project",
+			"item": [
+				{
+					"name": "Get Projects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/projects",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"projects"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Project By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/projects/75",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"projects",
+								"75"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Inspection",
+			"item": [
+				{
+					"name": "Get Attendance Option",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/attendance-options",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"attendance-options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Inspections",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Inspection More Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/more-details?case_file_id=74",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"more-details"
+							],
+							"query": [
+								{
+									"key": "case_file_id",
+									"value": "74"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Inspection Images",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/53/images",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"53",
+								"images"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Inspections Attendance",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/52/attendance-options",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"52",
+								"attendance-options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Inspections By Inspection Number",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/ir-numbers/UNPRVD_20240005_IR001",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"ir-numbers",
+								"UNPRVD_20240005_IR001"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Inspections By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/52",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"52"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Officers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/3/officers",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"3",
+								"officers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get IRType Options",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/type-options",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"type-options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Initiation Options",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/initiation-options",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"initiation-options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get IRStatus Options",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/ir-status-options",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"ir-status-options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Create Inspection",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"location_description\": \"test location description\",\r\n  \"case_file_id\":781,\r\n  \"project_description\": \"project descrioption\",\r\n  \"utm\": \"utm\",\r\n  \"is_history\": true,\r\n  \"primary_officer_id\": 1,\r\n  \"project_status_id\": 13,\r\n  \"inspection_type_ids\": [1,2],\r\n  \"start_date\": \"2024-08-29T20:18:55.740Z\",\r\n  \"end_date\": \"2024-08-29T20:18:55.741Z\",\r\n  \"debrief_date\": \"2024-08-29T20:18:55.741Z\",\r\n  \"initiation_id\": 1,\r\n  \"attendance_option_ids\": [\r\n    1\r\n  ],\r\n  \"agency_attendance_ids\": [1,2]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Inspection",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"location_description\": \"test location description\",\r\n  \"project_description\": \"project descrioption\",\r\n  \"utm\": \"utm\",\r\n  \"primary_officer_id\": 1,\r\n  \"inspection_type_ids\": [1,2],\r\n  \"start_date\": \"2024-08-29T20:18:55.740Z\",\r\n  \"end_date\": \"2024-08-29T20:18:55.741Z\",\r\n  \"initiation_id\": 1,\r\n  \"attending_officer_ids\": [\r\n    1,2\r\n  ],\r\n  \"attendance_option_ids\": [\r\n    2,8,1,3,7\r\n  ],\r\n   \"agency_attendance_ids\": [1,2],\r\n  \"attendance_municipal\": \"Municipal some text\",\r\n  \"attendance_other\": \"Other some text\",\r\n  \"firstnation_attendance_ids\": [\r\n    1\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/98",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"98"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Status Copy",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"OPEN\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/65/status",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"65",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Bulk Update Requirements",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"requirements\": [\r\n        {\r\n            \"requirement_id\": 52,\r\n            \"findings\": \"<p>Updated requirement 1</p>\",\r\n            \"images\": [\r\n                {\r\n                    \"image_id\": 9,\r\n                    \"sort_order\": 2\r\n                },\r\n                {\r\n                    \"image_id\": 10,\r\n                    \"sort_order\": 1\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"requirement_id\": 53,\r\n            \"findings\": \"<p>Updated requirement 2</p>\",\r\n            \"images\": [\r\n                {\r\n                    \"image_id\": 11,\r\n                    \"sort_order\": 2\r\n                },\r\n                {\r\n                    \"image_id\": 12,\r\n                    \"sort_order\": 1\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/67/requirements",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"67",
+								"requirements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Inspection",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"project_id\": null,\r\n  \"date_created\": \"2024-08-18T04:45:23.844Z\",\r\n  \"primary_officer_id\": 2,\r\n  \"initiation\": \"INSPECTION\",\r\n  \"case_file_number\": \"20240001\",\r\n  \"officer_ids\": [\r\n    1,2\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/51",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"51"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Complaint",
+			"item": [
+				{
+					"name": "Get Attendance Option",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/attendance-options",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"attendance-options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Requirement Sources",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/complaints/requirement-sources",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"complaints",
+								"requirement-sources"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET complaints",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/complaints",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"complaints"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET By Id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/complaints/1",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"complaints",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Source Contact",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/complaints/1/source-contacts",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"complaints",
+								"1",
+								"source-contacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Source Contact Copy",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/complaints/3/requirement-details",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"complaints",
+								"3",
+								"requirement-details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET By Id Copy",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/complaints/complaint-numbers/UNPRVD_20240001_CM001",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"complaints",
+								"complaint-numbers",
+								"UNPRVD_20240001_CM001"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get IRType Options",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/ir-type-options",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"ir-type-options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Initiation Options",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/initiation-options",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"initiation-options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get IRStatus Options",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/ir-status-options",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"ir-status-options"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Create Complaint",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"concern_description\": \"concern description test\",\r\n  \"location_description\": \"location description test\",\r\n  \"primary_officer_id\": 1,\r\n  \"case_file_id\": 53,\r\n  \"date_received\": \"2024-09-24T16:41:28.088Z\",\r\n  \"source_type_id\": 4,\r\n  \"complaint_source_contact\": {\r\n    \"description\": \"test\",\r\n    \"full_name\": \"Dinesh Balakrishnan\",\r\n    \"email\": \"dineshpeckal@gmail.com\",\r\n    \"phone\": \"5555555555\",\r\n    \"comment\": \"no comment at this time\"\r\n  },\r\n  \"requirement_source_id\": 1,\r\n  \"requirement_source_details\": {\r\n    \"topic_id\": 1,\r\n   \r\n    \"condition_number\": \"124\"\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/complaints",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"complaints"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Complaint",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n  \"concern_description\": \"concern description test\",\r\n  \"location_description\": \"location description test\",\r\n  \"project_description\": \"project description test\",\r\n  \"primary_officer_id\": 1,\r\n  \"date_received\": \"2024-09-24T16:41:28.088Z\",\r\n  \"source_type_id\": 4,\r\n  \"complaint_source_contact\": {\r\n    \"description\": \"test\",\r\n    \"full_name\": \"Dinesh Balakrishnan\",\r\n    \"email\": \"dineshpeckal@gmail.com\",\r\n    \"phone\": \"5555555555\",\r\n    \"comment\": \"no comment at this time\"\r\n  },\r\n  \"requirement_source_id\": 1,\r\n  \"requirement_source_details\": {\r\n    \"topic_id\": 4,\r\n    \"condition_number\": \"124\"\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/complaints/4",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"complaints",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"CLOSED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/complaints/150/status",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"complaints",
+								"150",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Complaint",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"project_id\": null,\r\n  \"date_created\": \"2024-08-18T04:45:23.844Z\",\r\n  \"primary_officer_id\": 2,\r\n  \"initiation\": \"INSPECTION\",\r\n  \"case_file_number\": \"20240001\",\r\n  \"officer_ids\": [\r\n    1,2\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/complaints/33",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"complaints",
+								"33"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ProjectStatusOptions",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/project-status-options",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"project-status-options"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ContinuationReport",
+			"item": [
+				{
+					"name": "POST Create Continuation Report",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"case_file_id\": 3,\r\n  \"text\": \"second string\",\r\n  \"rich_text\": \"<p>second string</p>\",\r\n  \"context_type\": \"Inspection\",\r\n  \"context_id\": 1,\r\n  \"date_created\": \"2024-09-24T16:41:28.088Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/continuation-reports",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"continuation-reports"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Create Continuation Report",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"text\": \"second string\",\r\n  \"rich_text\": \"<p>second string</p>\",\r\n  \"date_created\": \"2024-09-24T16:41:28.088Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/continuation-reports/5",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"continuation-reports",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Create Continuation Report",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"text\": \"second string\",\r\n  \"rich_text\": \"<p>second string</p>\",\r\n  \"date_created\": \"2024-09-24T16:41:28.088Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/continuation-reports/5",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"continuation-reports",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Create Continuation Report Copy",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/continuation-reports?case_file_id=40",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"continuation-reports"
+							],
+							"query": [
+								{
+									"key": "case_file_id",
+									"value": "40"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "EnforcementActions",
+			"item": [
+				{
+					"name": "GET Enforcement Actions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/enforcement-actions",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"enforcement-actions"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Compliance Findings",
+			"item": [
+				{
+					"name": "GET Compliance Findings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/compliance-findings",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"compliance-findings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "InspectionRequirements",
+			"item": [
+				{
+					"name": "Create Requirement",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"summary\": \"requirement summary 4\",\r\n    \"topic_id\": 1,\r\n    \"req_type\": \"REQ\",\r\n    \"enforcement_action_ids\": [\r\n        1,\r\n        7\r\n    ],\r\n    \"compliance_finding_id\": 1,\r\n    \"findings\": \"requirement finding\",\r\n    \"requirement_source_details\": [\r\n        {\r\n            \"requirement_source_id\": 10,\r\n            \"section_number\": \"\",\r\n            \"condition_number\": \"121\",\r\n            \r\n            \"amendment_number\": \"11\",\r\n            \"title\": \"detail title\",\r\n            \"description\": \"detail description\",\r\n            \"documents\": [\r\n                {\r\n                    \"document_type_id\": 1,\r\n                    \"document_title\": \"document title\",\r\n                    \"description\": \"document 1\",\r\n                    \"section_number\": \"section number\",\r\n                    \"section_title\": \"section title\"\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/1/requirements",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"1",
+								"requirements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Requirement",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 4,\r\n    \"summary\": \"requirement summary 1\",\r\n    \"topic_id\": 1,\r\n    \"req_type\": \"REG\",\r\n    \"enforcement_action_ids\": [\r\n        1\r\n    ],\r\n    \"compliance_finding_id\": 1,\r\n    \r\n    \"findings\": \"requirement finding\"\r\n    \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/53/requirements/42",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"53",
+								"requirements",
+								"42"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Images",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 4,\r\n    \"summary\": \"requirement summary 1\",\r\n    \"topic_id\": 1,\r\n    \"req_type\": \"REG\",\r\n    \"enforcement_action_ids\": [\r\n        1\r\n    ],\r\n    \"compliance_finding_id\": 1,\r\n    \"findings\": \"requirement finding\",\r\n    \"photos\": [\r\n        {\r\n            \"original_file_name\": \"filename1.jpg\",\r\n            \"date_taken\": \"2024-08-29T20:18:55.740Z\",\r\n            \"taken_by_id\": 1,\r\n            \"caption\": \"caption 1\",\r\n            \"relative_url\": \"/compliance/1/inspection/1/requirement_images/filename1.jpg\"\r\n        },\r\n        {\r\n            \"original_file_name\": \"filename2.jpg\",\r\n            \"date_taken\": \"2024-08-30T20:18:55.740Z\",\r\n            \"taken_by_id\": 1,\r\n            \"caption\": \"caption 2\",\r\n            \"relative_url\": \"/compliance/1/inspection/1/requirement_images/filename2.jpg\"\r\n        }\r\n    ],\r\n    \"figures\": [\r\n        {\r\n            \"original_file_name\": \"changedfilename3.jpg\",\r\n            \"date_taken\": \"2025-08-29T20:18:55.740Z\",\r\n            \"taken_by_id\": 2,\r\n            \"caption\": \"changedcaption 1\",\r\n            \"relative_url\": \"changed/compliance/1/inspection/1/requirement_images/filename3.jpg\"\r\n        },\r\n        {\r\n            \"original_file_name\": \"changedfilename4.jpg\",\r\n            \"date_taken\": \"2025-08-30T20:18:55.740Z\",\r\n            \"taken_by_id\": 2,\r\n            \"caption\": \"changed caption 2\",\r\n            \"relative_url\": \"changed/compliance/1/inspection/1/requirement_images/filename4.jpg\"\r\n        }\r\n    ],\r\n    \"requirement_source_details\": [\r\n        {\r\n            \"requirement_source_id\": 5,\r\n            \"section_number\": \"13\",\r\n            \"condition_number\": \"\",\r\n            \"amendment_number\": \"\",\r\n            \"title\": \"detail title 2\",\r\n            \"description\": \"detail description 2\"\r\n        },\r\n        {\r\n            \"id\": 4,\r\n            \"requirement_source_id\": 5,\r\n            \"section_number\": \"12\",\r\n            \"condition_number\": \"\",\r\n            \"amendment_number\": \"\",\r\n            \"title\": \"detail title updated\",\r\n            \"description\": \"detail description\",\r\n            \"documents\": [\r\n                {\r\n                    \"id\": 4,\r\n                    \"document_type_id\": 1,\r\n                    \"document_title\": \"document title\",\r\n                    \"section_number\": \"section number\",\r\n                    \"description\": \"document 1\",\r\n                    \"section_title\": \"section title\"\r\n                },\r\n                {\r\n                    \"document_type_id\": 2,\r\n                    \"document_title\": \"document title 2\",\r\n                    \"description\": \"document 1\",\r\n                    \"section_number\": \"section number 2\",\r\n                    \"section_title\": \"section title 2\"\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/53/requirements/42/photos?relative_url=/compliance/1/inspection/1/requirement_images/filename1.jpg",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"53",
+								"requirements",
+								"42",
+								"photos"
+							],
+							"query": [
+								{
+									"key": "relative_url",
+									"value": "/compliance/1/inspection/1/requirement_images/filename1.jpg"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Images",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 4,\r\n    \"summary\": \"requirement summary 1\",\r\n    \"topic_id\": 1,\r\n    \"req_type\": \"REG\",\r\n    \"enforcement_action_ids\": [\r\n        1\r\n    ],\r\n    \"compliance_finding_id\": 1,\r\n    \"findings\": \"requirement finding\",\r\n    \"photos\": [\r\n        {\r\n            \"original_file_name\": \"filename1.jpg\",\r\n            \"date_taken\": \"2024-08-29T20:18:55.740Z\",\r\n            \"taken_by_id\": 1,\r\n            \"caption\": \"caption 1\",\r\n            \"relative_url\": \"/compliance/1/inspection/1/requirement_images/filename1.jpg\"\r\n        },\r\n        {\r\n            \"original_file_name\": \"filename2.jpg\",\r\n            \"date_taken\": \"2024-08-30T20:18:55.740Z\",\r\n            \"taken_by_id\": 1,\r\n            \"caption\": \"caption 2\",\r\n            \"relative_url\": \"/compliance/1/inspection/1/requirement_images/filename2.jpg\"\r\n        }\r\n    ],\r\n    \"figures\": [\r\n        {\r\n            \"original_file_name\": \"changedfilename3.jpg\",\r\n            \"date_taken\": \"2025-08-29T20:18:55.740Z\",\r\n            \"taken_by_id\": 2,\r\n            \"caption\": \"changedcaption 1\",\r\n            \"relative_url\": \"changed/compliance/1/inspection/1/requirement_images/filename3.jpg\"\r\n        },\r\n        {\r\n            \"original_file_name\": \"changedfilename4.jpg\",\r\n            \"date_taken\": \"2025-08-30T20:18:55.740Z\",\r\n            \"taken_by_id\": 2,\r\n            \"caption\": \"changed caption 2\",\r\n            \"relative_url\": \"changed/compliance/1/inspection/1/requirement_images/filename4.jpg\"\r\n        }\r\n    ],\r\n    \"requirement_source_details\": [\r\n        {\r\n            \"requirement_source_id\": 5,\r\n            \"section_number\": \"13\",\r\n            \"condition_number\": \"\",\r\n            \"amendment_number\": \"\",\r\n            \"title\": \"detail title 2\",\r\n            \"description\": \"detail description 2\"\r\n        },\r\n        {\r\n            \"id\": 4,\r\n            \"requirement_source_id\": 5,\r\n            \"section_number\": \"12\",\r\n            \"condition_number\": \"\",\r\n            \"amendment_number\": \"\",\r\n            \"title\": \"detail title updated\",\r\n            \"description\": \"detail description\",\r\n            \"documents\": [\r\n                {\r\n                    \"id\": 4,\r\n                    \"document_type_id\": 1,\r\n                    \"document_title\": \"document title\",\r\n                    \"section_number\": \"section number\",\r\n                    \"description\": \"document 1\",\r\n                    \"section_title\": \"section title\"\r\n                },\r\n                {\r\n                    \"document_type_id\": 2,\r\n                    \"document_title\": \"document title 2\",\r\n                    \"description\": \"document 1\",\r\n                    \"section_number\": \"section number 2\",\r\n                    \"section_title\": \"section title 2\"\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/53/requirements/42/photos",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"53",
+								"requirements",
+								"42",
+								"photos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Sort Order",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"order\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/48/requirements/11/sort-order",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"48",
+								"requirements",
+								"11",
+								"sort-order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Requirement",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id\": 4,\r\n  \"summary\": \"requirement summary\",\r\n  \"topic_id\": 1,\r\n  \"enforcement_action_id\": 1,\r\n  \"compliance_finding_id\": 1,\r\n  \"findings\": \"requirement finding\",\r\n  \"sort_order\": 1,\r\n  \"requirement_source_details\": [\r\n    {\r\n      \"requirement_source_id\": 1,\r\n      \"section_number\": \"13\",\r\n      \"condition_number\": \"\",\r\n      \"amendment_number\": \"\",\r\n      \"title\": \"detail title 2\",\r\n      \"description\": \"detail description 2\"\r\n    },\r\n    {\r\n      \"id\":4,\r\n      \"requirement_source_id\": 1,\r\n      \"section_number\": \"12\",\r\n      \"condition_number\": \"\",\r\n      \"amendment_number\": \"\",\r\n      \"title\": \"detail title updated\",\r\n      \"description\": \"detail description\",\r\n      \"documents\": [\r\n        {\r\n            \"id\":4,\r\n          \"document_type_id\": 1,\r\n          \"document_title\": \"document title\",\r\n          \"section_number\": \"section number\",\r\n          \"section_title\": \"section title\"\r\n        },\r\n        {\r\n          \"document_type_id\": 2,\r\n          \"document_title\": \"document title 2\",\r\n          \"section_number\": \"section number 2\",\r\n          \"section_title\": \"section title 2\"\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/48/requirements/12",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"48",
+								"requirements",
+								"12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Requirements",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/52/requirements",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"52",
+								"requirements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All Requirements",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspection-requirements",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspection-requirements"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Export Requirements",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"req_src_num\":\"1,1.12\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspection-requirements/export",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspection-requirements",
+								"export"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET RequirementById",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/95/requirements/107",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"95",
+								"requirements",
+								"107"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "DocumentType",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/document-types",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"document-types"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "InspectionRequirementType",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspection-requirement-types",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspection-requirement-types"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Inspection Record",
+			"item": [
+				{
+					"name": "POST IR Create",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ir_status\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/52/inspection-records",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"52",
+								"inspection-records"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET IR",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ir_status\": \"PRELIMINARY\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/97/inspection-records",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"97",
+								"inspection-records"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RENDER",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/pdf",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/1/inspection-records/1/render?output_format=html",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"1",
+								"inspection-records",
+								"1",
+								"render"
+							],
+							"query": [
+								{
+									"key": "output_format",
+									"value": "html"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH IR",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"field_name\": \"intended_issuance_date\",\r\n    \"value\": \"2024-08-29T20:18:55.741000+00:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/52/inspection-records/12",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"52",
+								"inspection-records",
+								"12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Version",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"field_name\": \"intended_issuance_date\",\r\n    \"value\": \"2024-08-29T20:18:55.741000+00:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/97/inspection-records/29",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"97",
+								"inspection-records",
+								"29"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Switch To Final",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"field_name\": \"inspection_scope\",\r\n    \"value\": \"<p class=\\\"editor-paragraph\\\" dir=\\\"ltr\\\"></p><span>    The Officer inspected [Brief description of Project Components / Area inspected]</span></p><p class=\\\"editor-paragraph\\\" dir=\\\"ltr\\\">    <span style=\\\"white-space: pre-wrap;\\\">The inspection included a </span>    <u><b><strong class=\\\"editor-text-bold editor-text-underline\\\">        debrief</strong></b></u>    <span style=\\\"white-space: pre-wrap;\\\"> of observations with Project staff on None.</span></p><p class=\\\"editor-paragraph\\\" dir=\\\"ltr\\\">    <span style=\\\"white-space: pre-wrap;\\\">The following requirements were inspected against:</span></p><ol class=\\\"editor-list-ol\\\">        <li value=\\\"1\\\" class=\\\"editor-listitem\\\">        <span style=\\\"white-space: pre-wrap;\\\">Section 21,Section 21 of Act (2018) with respect to Summary 1.</span>    </li>        <li value=\\\"1\\\" class=\\\"editor-listitem\\\">        <span style=\\\"white-space: pre-wrap;\\\">Section 11 of Act (2018) with respect to Summary 2.</span>    </li>    </ol><p class=\\\"editor-paragraph\\\" dir=\\\"ltr\\\">    <br></p>\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/66/inspection-records/3/switch-to-final",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"66",
+								"inspection-records",
+								"3",
+								"switch-to-final"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Reset Field",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"field_name\": \"preliminary_review_details\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/77/inspection-records/17/reset",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"77",
+								"inspection-records",
+								"17",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "InspectionRecordApproval",
+			"item": [
+				{
+					"name": "POST Create approval",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"approved_by_id\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/52/inspection-records/12/approvals",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"52",
+								"inspection-records",
+								"12",
+								"approvals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Approval Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"approval_status\": \"APPROVED\",\r\n    \"approved_by_id\": 5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/52/inspection-records/12/approvals/6/status",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"52",
+								"inspection-records",
+								"12",
+								"approvals",
+								"6",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Inspection Record Approvals",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ir_status\": \"PRELIMINARY\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/66/inspection-records/3/approvals",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"66",
+								"inspection-records",
+								"3",
+								"approvals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH IR Copy",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"field_name\": \"enforcement_summary\",\r\n    \"value\": \"2024-08-29T20:18:55.740Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/52/inspection-records/12/approvals/6",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"52",
+								"inspection-records",
+								"12",
+								"approvals",
+								"6"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Section",
+			"item": [
+				{
+					"name": "GET Sections",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ir_status\": \"PRELIMINARY\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/sections",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"sections"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Order",
+			"item": [
+				{
+					"name": "POST Create Order",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"inspection_id\": 77,\r\n    \"issuing_officer_id\": 4,\r\n  \"inspection_requirement_ids\": [\r\n    60\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Update Order",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"inspection_id\": 77,\r\n  \"inspection_requirement_ids\": [\r\n    60\r\n  ],\r\n  \"intended_issuance_date\": \"2024-08-29T20:18:55.740Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Change Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"CLOSED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10/status",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Issue",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"date_issued\": \"2024-08-29T20:18:55.740Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10/issue",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10",
+								"issue"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Reset",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"field_names\": [\"now_therefore\", \"where_as\"]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/5/reset",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"5",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Orders",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    57, 58\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Orders Projectwise",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    57, 58\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/projectwise?case_file_id=65",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"projectwise"
+							],
+							"query": [
+								{
+									"key": "case_file_id",
+									"value": "65"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Order By Number",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    57, 58\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/order-numbers/PRGTRA_20250008_OR0001",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"order-numbers",
+								"PRGTRA_20250008_OR0001"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Order By Number Copy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    57, 58\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Order",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    57, 58\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RENDER",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/pdf",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10/render?output_format=pdf",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10",
+								"render"
+							],
+							"query": [
+								{
+									"key": "output_format",
+									"value": "pdf"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Administrative Penalty",
+			"item": [
+				{
+					"name": "POST AP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"inspection_id\": 77,\r\n  \"inspection_requirement_ids\": [\r\n    60\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Update Order",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"inspection_id\": 77,\r\n  \"inspection_requirement_ids\": [\r\n    60\r\n  ],\r\n  \"intended_issuance_date\": \"2024-08-29T20:18:55.740Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Change Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"CLOSED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10/status",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Issue",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"date_issued\": \"2024-08-29T20:18:55.740Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10/issue",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10",
+								"issue"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Reset",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"field_name\": \"where_as\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/5/reset",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"5",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Orders",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    57, 58\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Orders Projectwise",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    57, 58\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/projectwise?case_file_id=65",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"projectwise"
+							],
+							"query": [
+								{
+									"key": "case_file_id",
+									"value": "65"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Order By Number",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    57, 58\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/order-numbers/PRGTRA_20250008_OR0001",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"order-numbers",
+								"PRGTRA_20250008_OR0001"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Order By Number Copy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    57, 58\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Order",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    57, 58\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RENDER",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/pdf",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10/render?output_format=pdf",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10",
+								"render"
+							],
+							"query": [
+								{
+									"key": "output_format",
+									"value": "pdf"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Warning Letter",
+			"item": [
+				{
+					"name": "Create Warning Letter",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"inspection_id\": 77,\r\n    \"issuing_officer_id\": 4,\r\n  \"inspection_requirement_ids\": [\r\n    61\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/warning-letters",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"warning-letters"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Warning Letter",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"inspection_id\": 77,\r\n  \"inspection_requirement_ids\": [\r\n    61\r\n  ],\r\n  \"intended_issuance_date\": \"2024-08-29T20:18:55.740Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/warning-letters/19",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"warning-letters",
+								"19"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Issue",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"date_issued\": \"2024-08-29T20:18:55.740Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/warning-letters/19/issue",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"warning-letters",
+								"19",
+								"issue"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Reset",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"field_name\": \"content\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/warning-letters/4/reset",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"warning-letters",
+								"4",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Warning Letters",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    57, 58\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/warning-letters",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"warning-letters"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Warning Letter By Number",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    57, 58\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/warning-letters/warning-letter-numbers/PRGTRA_20250008_WN0001",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"warning-letters",
+								"warning-letter-numbers",
+								"PRGTRA_20250008_WN0001"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Warning Letter By Id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    57, 58\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/warning-letters/19",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"warning-letters",
+								"19"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RENDER",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Accept",
+								"value": "application/pdf",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/warning-letters/19/render?output_format=pdf",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"warning-letters",
+								"19",
+								"render"
+							],
+							"query": [
+								{
+									"key": "output_format",
+									"value": "pdf"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "OrderApproval",
+			"item": [
+				{
+					"name": "POST Order Approval",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"approved_by_id\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10/approvals",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10",
+								"approvals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST Order Approval Copy",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"approved_by_id\": 2,\r\n  \"approval_status\": \"APPROVED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/orders/10/approvals/3/status",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"orders",
+								"10",
+								"approvals",
+								"3",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Order Approvals",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    61\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/77/orders/9/approvals",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"77",
+								"orders",
+								"9",
+								"approvals"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "WarningLetterApproval",
+			"item": [
+				{
+					"name": "POST Warning Letter Approval",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"approved_by_id\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/warning-letters/19/approvals",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"warning-letters",
+								"19",
+								"approvals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PATCH Warning Letter Approval",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"approved_by_id\": 2,\r\n  \"approval_status\": \"NOT_APPROVED\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/77/warning-letters/18/approvals/2/status",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"77",
+								"warning-letters",
+								"18",
+								"approvals",
+								"2",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Warning Letter Approval",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"inspection_requirement_ids\": [\r\n    61\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/inspections/77/warning-letters/18/approvals",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"inspections",
+								"77",
+								"warning-letters",
+								"18",
+								"approvals"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Position",
+			"item": [
+				{
+					"name": "Get Position",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{web_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{api_server}}/api/positions",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{api_server}}"
+							],
+							"path": [
+								"api",
+								"positions"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Complaint Sources",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{web_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}://{{api_server}}/api/complaints/sources",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{api_server}}"
+					],
+					"path": [
+						"api",
+						"complaints",
+						"sources"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Project Status Options",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{web_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{protocol}}://{{api_server}}/api/project-status-options",
+					"protocol": "{{protocol}}",
+					"host": [
+						"{{api_server}}"
+					],
+					"path": [
+						"api",
+						"project-status-options"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Web Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"pm.environment.set(\"web_refresh_token\", jsonData.refresh_token);\r",
+							"pm.environment.set(\"web_token\", jsonData.access_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{web_client_username}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{web_client_password}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{web_client_id}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{auth_protocol}}://{{keycloak}}/auth/realms/{{realm}}/protocol/openid-connect/token",
+					"protocol": "{{auth_protocol}}",
+					"host": [
+						"{{keycloak}}"
+					],
+					"path": [
+						"auth",
+						"realms",
+						"{{realm}}",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -2,6 +2,8 @@
 
 from enum import Enum
 
+from sqlalchemy import Boolean, Column
+
 from .option_base_model import OptionModel
 
 
@@ -23,3 +25,4 @@ class EnforcementActionOption(OptionModel):
     """Requirement source."""
 
     __tablename__ = "enforcement_action_options"
+    is_historical = Column(Boolean, default=False, server_default="f", nullable=False)

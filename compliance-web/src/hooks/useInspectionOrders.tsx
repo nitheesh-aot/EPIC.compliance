@@ -162,9 +162,25 @@ const updateOrderStatus = ({
   });
 };
 
+const resetOrderTemplate = ({
+  inspectionOrderId,
+  fieldNames,
+}: {
+  inspectionOrderId: number;
+  fieldNames: string[];
+}) => {
+  return request({
+    url: `/orders/${inspectionOrderId}/reset`,
+    method: "patch",
+    data: {
+      field_names: fieldNames,
+    },
+  });
+};
+
 export const useInspectionOrdersData = (
   inspectionId: number,
-    {
+  {
     filterOpenOrders = false,
     isStaleInfinate = true,
   }: { filterOpenOrders?: boolean; isStaleInfinate?: boolean } = {}
@@ -261,6 +277,13 @@ export const useDeleteInspectionOrder = (onSuccess: OnSuccessType) => {
 export const useUpdateOrderStatus = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: updateOrderStatus,
+    onSuccess,
+  });
+};
+
+export const useResetOrderTemplate = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: resetOrderTemplate,
     onSuccess,
   });
 };

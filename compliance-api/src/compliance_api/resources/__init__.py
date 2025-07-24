@@ -23,6 +23,7 @@ That are used to expose operational health information about the service, and me
 
 from flask import Blueprint
 
+from .administrative_penalty import API as ADMINISTRATIVE_PENALTY_API
 from .agency import API as AGENCY_API
 from .apihelper import Api
 from .appendix import API as APPENDIX_API
@@ -104,4 +105,5 @@ API.add_namespace(IR_API, path="inspections/<int:inspection_id>/inspection-recor
 API.add_namespace(ORDER_API, path="orders")
 API.add_namespace(SECTION_API)
 API.add_namespace(WARNING_LETTER_API, path="warning-letters")
+API.add_namespace(ADMINISTRATIVE_PENALTY_API, path="administrative-penalties")
 API.add_namespace(INSPECTION_REQUIREMENTS_API, path="inspection-requirements")

@@ -3,7 +3,7 @@ import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
 import { Inspection } from "@/models/Inspection";
 import { useMenuStore } from "@/store/menuStore";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, Stack } from "@mui/material";
+import { Box, Button, Stack } from "@mui/material";
 import { useCallback, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -19,15 +19,20 @@ import {
 } from "@/models/InspectionWarningLetter";
 import {
   useDeleteWarningLetter,
+  useResetWarningLetterTemplate,
   useUpdateWarningLetter,
 } from "@/hooks/useInspectionWarningLetters";
 import EnforcementDownloadPDFButton from "./EnforcementDownloadPDFButton";
 import {
   EnforcementActionEnum,
+  WarningLetterProgressEnum,
   WarningLetterStatusEnum,
 } from "@/utils/constants";
 import WarningLetterApprovalButtons from "./WarningLetterApprovalButtons";
 import EnforcementStatusFlag from "./EnforcementStatusFlag";
+import { RestartAltRounded } from "@mui/icons-material";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import { useModal } from "@/store/modalStore";
 
 type EnforcementWarningLetterDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -69,6 +74,12 @@ const EnforcementWarningLetterDrawer: React.FC<
   isReadonlyMode,
 }) => {
   const { appHeaderHeight } = useMenuStore();
+  const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
+
+  const isDrafting = useMemo(
+    () => warningLetter.progress?.id === WarningLetterProgressEnum.DRAFTING,
+    [warningLetter.progress]
+  );
 
   const isReadonly =
     useMemo(
@@ -78,21 +89,25 @@ const EnforcementWarningLetterDrawer: React.FC<
       [warningLetter.status, isReadonlyMode]
     ) || false;
 
+  const formatFormData = useCallback((data: InspectionWarningLetter) => {
+    return {
+      content: {
+        html: data.content,
+        text: data.content,
+      },
+      issuingOfficer: data.issuing_officer as StaffUser,
+      intendedIssuanceDate: data.intended_issuance_date
+        ? dayjs(data.intended_issuance_date)
+        : undefined,
+    };
+  }, []);
+
   const defaultValues = useMemo<EnforcementFormType>(() => {
     if (warningLetter) {
-      return {
-        content: {
-          html: warningLetter.content,
-          text: warningLetter.content,
-        },
-        issuingOfficer: warningLetter.issuing_officer as StaffUser,
-        intendedIssuanceDate: warningLetter.intended_issuance_date
-          ? dayjs(warningLetter.intended_issuance_date)
-          : undefined,
-      };
+      return formatFormData(warningLetter);
     }
     return initFormData;
-  }, [warningLetter]);
+  }, [warningLetter, formatFormData]);
 
   const methods = useForm<EnforcementFormType>({
     resolver: yupResolver(warningLetterFormSchema),
@@ -102,10 +117,13 @@ const EnforcementWarningLetterDrawer: React.FC<
 
   const { handleSubmit, reset } = methods;
 
-  const onSuccess = useCallback(() => {
-    onSubmit("Changes saved successfully!");
-    reset();
-  }, [onSubmit, reset]);
+  const onSuccess = useCallback(
+    (data: InspectionWarningLetter) => {
+      onSubmit("Changes saved successfully!");
+      reset(formatFormData(data));
+    },
+    [onSubmit, reset, formatFormData]
+  );
 
   const { mutate: updateWarningLetter } = useUpdateWarningLetter(onSuccess);
 
@@ -147,6 +165,34 @@ const EnforcementWarningLetterDrawer: React.FC<
     });
   }, [deleteWarningLetter, warningLetter.id]);
 
+  const { mutate: resetWarningLetterTemplate } =
+    useResetWarningLetterTemplate(onSuccess);
+
+  const onResetTemplate = useCallback(() => {
+    setModalOpen({
+      content: (
+        <ConfirmationModal
+          title="Reset Template"
+          description="This will reset the template to its default version. All your changes will be permanently removed and cannot be undone. Do you want to proceed?"
+          confirmButtonText="Yes, Reset"
+          cancelButtonText="No, Keep Changes"
+          onConfirm={() => {
+            resetWarningLetterTemplate({
+              inspectionWarningLetterId: warningLetter.id || 0,
+              fieldName: "content",
+            });
+            setModalClose();
+          }}
+        />
+      ),
+    });
+  }, [
+    resetWarningLetterTemplate,
+    warningLetter.id,
+    setModalOpen,
+    setModalClose,
+  ]);
+
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
@@ -159,20 +205,34 @@ const EnforcementWarningLetterDrawer: React.FC<
           sx={{
             backgroundColor: BCDesignTokens.surfaceColorBackgroundLightGray,
             padding: "0.75rem 2rem",
-            textAlign: "right",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 1,
           }}
         >
-          {!isReadonlyMode && (
-            <WarningLetterApprovalButtons
-              warningLetter={warningLetter}
-              inspectionId={inspection.id}
+          <Button
+            variant="text"
+            size="small"
+            onClick={onResetTemplate}
+            startIcon={<RestartAltRounded />}
+            disabled={!isDrafting}
+          >
+            Reset Template
+          </Button>
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+            {!isReadonlyMode && (
+              <WarningLetterApprovalButtons
+                warningLetter={warningLetter}
+                inspectionId={inspection.id}
+              />
+            )}
+            <EnforcementDownloadPDFButton
+              enforcementId={warningLetter.id || 0}
+              fileNumber={warningLetter.warning_letter_number || ""}
+              enforcementType={EnforcementActionEnum.WARNING_LETTER}
             />
-          )}
-          <EnforcementDownloadPDFButton
-            enforcementId={warningLetter.id || 0}
-            fileNumber={warningLetter.warning_letter_number || ""}
-            enforcementType={EnforcementActionEnum.WARNING_LETTER}
-          />
+          </Box>
         </Box>
         <Stack
           /** 64px (DrawerTitleBar height) + 65px (DrawerActionBar height) + 64px (DrawerActionBarTop preview height) */

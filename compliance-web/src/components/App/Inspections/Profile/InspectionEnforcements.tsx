@@ -31,7 +31,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
-  const { setOpen: setDrawerOpen, setClose: setDrawerClose } = useDrawer();
+  const { setOpen: setDrawerOpen } = useDrawer();
   const [isDataLoading, setIsDataLoading] = React.useState<boolean>(true);
   const [requirementEnforcements, setRequirementEnforcements] = React.useState<
     InspectionRequirement[]
@@ -218,7 +218,6 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
                 inspectionData.case_file_id,
               ],
             });
-            setDrawerClose();
           }}
           inspection={inspectionData}
           enforcementOrder={order}
@@ -239,7 +238,6 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           onSubmit={(message) => {
             notify.success(message);
             refetchInspectionWarningLetters();
-            setDrawerClose();
           }}
           inspection={inspectionData}
           warningLetter={warningLetter}
