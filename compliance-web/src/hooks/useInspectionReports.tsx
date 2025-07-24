@@ -73,7 +73,7 @@ const createIRApproval = ({
   inspectionId: number;
   inspectionRecordId: number;
   approvalPayload: {
-    approved_by_id: number;
+    approved_by_id?: number;
   };
 }) => {
   return request({

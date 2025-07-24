@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Inspection } from "@/models/Inspection";
 import {
   Box,
@@ -12,6 +12,7 @@ import {
 import ReportTabs from "./Reports/ReportTabs";
 import {
   useCreateInspectionRecord,
+  useCreateIRApproval,
   useFetchIRApprovals,
   useInspectionReportsData,
 } from "@/hooks/useInspectionReports";
@@ -20,6 +21,7 @@ import { notify } from "@/store/snackbarStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIRStatusesData } from "@/hooks/useInspections";
 import { IR_STATUS } from "@/utils/constants";
+import { InspectionRecord } from "@/models/InspectionRecord";
 
 interface InspectionReportsProps {
   inspectionData: Inspection;
@@ -74,11 +76,28 @@ const InspectionReports: React.FC<InspectionReportsProps> = ({
     setReportVersion(event.target.value);
   };
 
-  const handleOnSuccess = () => {
+  const onApprovalSuccess = useCallback(() => {
     notify.success("Inspection record created");
     queryClient.invalidateQueries({
       queryKey: ["inspection-reports", inspectionData.id],
     });
+  }, [inspectionData.id, queryClient]);
+
+  const { mutate: createIRApproval } = useCreateIRApproval(onApprovalSuccess);
+
+  const handleOnSuccess = (data: InspectionRecord) => {
+    notify.success("Inspection record created");
+    queryClient.invalidateQueries({
+      queryKey: ["inspection-reports", inspectionData.id],
+    });
+    // if the inspection is history, we need to create an final approval for the inspection record
+    if (inspectionData.is_history) {
+      createIRApproval({
+        inspectionId: inspectionData.id,
+        inspectionRecordId: data.id ?? 0,
+        approvalPayload: {},
+      });
+    }
   };
 
   const { mutate: createInspectionRecord } =
