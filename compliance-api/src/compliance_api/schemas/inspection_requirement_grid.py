@@ -34,9 +34,7 @@ class InspectionRequirementGridItemSchema(Schema):
         KeyValueSchema,
         metadata={"description": "The approval status of the inspection requirement"},
     )
-    approved_by_id = fields.Int(
-        metadata={"description": "The ID of the approved by"}
-    )
+    approved_by_id = fields.Int(metadata={"description": "The ID of the approved by"})
     sort_order = fields.Int(
         metadata={"description": "The sort order of the inspection requirement"}
     )
@@ -70,40 +68,56 @@ class InspectionRequirementFilterSchema(BaseSchema):
 
     tpc_ids = fields.String(
         required=False,
-        metadata={"description": "The comma separated list of topic ids of the inspection requirement"},
+        metadata={
+            "description": "The comma separated list of topic ids of the inspection requirement"
+        },
     )
     summary = fields.String(
-        required=False, metadata={"description": "The summary of the inspection requirement"}
+        required=False,
+        metadata={"description": "The summary of the inspection requirement"},
     )
     cmd_fnd_ids = fields.String(
         required=False,
-        metadata={"description": "The comma separated list of compliance finding ids of the inspection requirement"},
+        metadata={
+            "description": "The comma separated list of compliance finding ids of the inspection requirement"
+        },
     )
     enf_actn_ids = fields.String(
         required=False,
-        metadata={"description": "The comma separated list of enforcement action ids of the inspection requirement"},
+        metadata={
+            "description": "The comma separated list of enforcement action ids of the inspection requirement"
+        },
     )
     apprv_sts = fields.String(
         required=False,
-        metadata={"description": "The comma separated list of approval status ids of the inspection requirement"},
+        metadata={
+            "description": "The comma separated list of approval status ids of the inspection requirement"
+        },
     )
     req_src_ids = fields.String(
         required=False,
-        metadata={"description": "The comma separated list of requirement source ids of the inspection requirement"},
+        metadata={
+            "description": "The comma separated list of requirement source ids of the inspection requirement"
+        },
     )
     req_src_num = fields.String(
         required=False,
-        metadata={"description": "The requirement source number of the inspection requirement"},
+        metadata={
+            "description": "The requirement source number of the inspection requirement"
+        },
     )
     ir_no = fields.String(
         required=False, metadata={"description": "The inspection requirement number"}
     )
     date_issued = fields.String(
-        required=False, metadata={"description": "The date the inspection requirement was issued"}
+        required=False,
+        metadata={"description": "The date the inspection requirement was issued"},
     )
     prm_offc_ids = fields.String(
         required=False,
-        metadata={"description": "The comma separated list of primary officer ids of the inspection requirement"},
+        metadata={
+            "description": "The comma separated list of primary officer ids of the inspection requirement"
+        },
     )
     insp_sts = fields.String(
         required=False,
@@ -111,5 +125,7 @@ class InspectionRequirementFilterSchema(BaseSchema):
     )
     project_ids = fields.String(
         required=False,
-        metadata={"description": "The comma separated list of project ids of the inspection requirement"},
+        metadata={
+            "description": "The comma separated list of project ids of the inspection requirement"
+        },
     )

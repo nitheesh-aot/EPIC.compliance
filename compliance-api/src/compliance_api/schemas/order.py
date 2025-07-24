@@ -180,4 +180,5 @@ class ResetOrderFieldSchema(BaseSchema):
                 ]
             ),
             metadata={"description": "The name of the field to reset"},
-        ))
+        )
+    )

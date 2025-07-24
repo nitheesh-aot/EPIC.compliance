@@ -841,7 +841,10 @@ def _make_requirement_detail_object(requirements: list):
                 "name": requirement["inspection_status"].value,
             },
         }
-        approval_status = requirement["order_approval_status"] or requirement["warning_letter_approval_status"]
+        approval_status = (
+            requirement["order_approval_status"]
+            or requirement["warning_letter_approval_status"]
+        )
         if approval_status:
             item["approval_status"] = {
                 "id": approval_status.name,

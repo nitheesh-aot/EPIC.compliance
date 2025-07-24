@@ -14,6 +14,8 @@
 
 """This exports all of the models and schemas used by the application."""
 
+from .administrative_penalty import (
+    AdministrativePenalty, AdministrativePenaltyInspectionRequirementMap, DecisionEnum, ReferralStatusEnum)
 from .agency import Agency
 from .appendix import Appendix
 from .case_file import (
