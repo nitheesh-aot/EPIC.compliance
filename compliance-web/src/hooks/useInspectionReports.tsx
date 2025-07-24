@@ -225,7 +225,6 @@ export const useFetchIRApprovals = (
     queryKey: ["ir-approvals", inspectionId, inspectionRecordId],
     queryFn: () => fetchIRApprovals({ inspectionId, inspectionRecordId }),
     enabled: !!inspectionId && !!inspectionRecordId,
-    staleTime: Infinity,
   });
 };
 
