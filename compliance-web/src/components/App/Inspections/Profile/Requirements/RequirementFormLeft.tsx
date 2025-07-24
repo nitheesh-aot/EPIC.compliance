@@ -256,11 +256,12 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
               />
               <GridLabelValuePair
                 label="Enforcement Action"
-                value={
-                  [getValues("enforcementAction")?.name, getValues("enforcementActionExtra")?.name]
-                    .filter(Boolean)
-                    .join(", ")
-                }
+                value={[
+                  getValues("enforcementAction")?.name,
+                  getValues("enforcementActionExtra")?.name,
+                ]
+                  .filter(Boolean)
+                  .join(", ")}
                 gridProps={{ xs: agencyName ? 4 : 8 }}
               />
             </>
@@ -344,6 +345,25 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
                 sx={{ marginBottom: "-0.5rem" }}
                 isRequired={true}
                 disabled={disableEnforcementAction}
+                renderOptionBadge={(option) => {
+                  // Define which enforcement action IDs are considered historical
+                  const historicalEnforcementActionIds = [
+                    EnforcementActionEnum.ADVISORY,
+                    EnforcementActionEnum.WARNING,
+                  ];
+
+                  if (
+                    historicalEnforcementActionIds.includes(
+                      option.id as EnforcementActionEnum
+                    )
+                  ) {
+                    return {
+                      label: "Historical",
+                      color: "warning",
+                    };
+                  }
+                  return null;
+                }}
               />
             </Stack>
             {enforcementAction?.id === EnforcementActionEnum.ORDER && (

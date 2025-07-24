@@ -9,9 +9,12 @@ import {
   TextField,
   Checkbox,
   AutocompleteProps,
+  Chip,
+  Box,
 } from "@mui/material";
 import { useMemo } from "react";
 import { Controller, useFormContext } from "react-hook-form";
+import { VARIANT_COLORS } from "@/utils/constants";
 
 interface FormAutocompleteProps<T>
   extends Partial<AutocompleteProps<T, true | false, false, false>> {
@@ -25,6 +28,9 @@ interface FormAutocompleteProps<T>
   onDeleteOption?: (option: T) => void;
   isSortOptions?: boolean;
   isRequired?: boolean;
+  renderOptionBadge?: (
+    option: T
+  ) => { label: string; color: VARIANT_COLORS } | null;
 }
 
 const ControlledAutoComplete = <T,>({
@@ -38,6 +44,7 @@ const ControlledAutoComplete = <T,>({
   onDeleteOption,
   isSortOptions = false,
   isRequired = false,
+  renderOptionBadge,
   ...props
 }: FormAutocompleteProps<T>) => {
   const {
@@ -80,16 +87,37 @@ const ControlledAutoComplete = <T,>({
           popupIcon={<ExpandMore />}
           renderOption={(props, option, { selected }) => {
             const { key, ...otherProps } = props;
+            const badge = renderOptionBadge ? renderOptionBadge(option) : null;
+
             return (
               <li key={key} {...otherProps}>
-                {multiple && (
-                  <Checkbox
-                    icon={<CheckBoxOutlineBlank />}
-                    checkedIcon={<CheckBox />}
-                    checked={selected}
-                  />
-                )}
-                {getOptionLabel(option)}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    {multiple && (
+                      <Checkbox
+                        icon={<CheckBoxOutlineBlank />}
+                        checkedIcon={<CheckBox />}
+                        checked={selected}
+                      />
+                    )}
+                    {getOptionLabel(option)}
+                  </Box>
+                  {badge && (
+                    <Chip
+                      label={badge.label}
+                      color={badge.color}
+                      size="small"
+                      sx={{ ml: 1 }}
+                    />
+                  )}
+                </Box>
               </li>
             );
           }}

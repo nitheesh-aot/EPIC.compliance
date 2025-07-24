@@ -36,6 +36,7 @@ import {
 import * as yup from "yup";
 import { useAgenciesData } from "@/hooks/useAgencies";
 import { useRequirementStore } from "./requirementStore";
+import { EnforcementActionEnum } from "@/utils/constants";
 
 type RequirementDrawerProps = {
   inspectionData: Inspection;
@@ -88,6 +89,16 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
   const { data: complianceFindingsList } = useComplianceFindingsData();
   const { data: topicsList } = useTopicsData();
   const { data: agenciesList } = useAgenciesData();
+
+  const enforcementActions = useMemo(() => {
+    return inspectionData.is_history
+      ? enforcementActionsList
+      : enforcementActionsList?.filter(
+          (enforcementAction) =>
+            enforcementAction.id !== EnforcementActionEnum.ADVISORY &&
+            enforcementAction.id !== EnforcementActionEnum.WARNING
+        );
+  }, [enforcementActionsList, inspectionData.is_history]);
 
   const isRequirementEditable = useMemo(
     () => inspectionData?.inspection_status?.toLowerCase() === "open",
@@ -335,7 +346,7 @@ const RequirementDrawer: React.FC<RequirementDrawerProps> = ({
         >
           <RequirementFormLeft
             complianceFindingsList={complianceFindingsList ?? []}
-            enforcementActionsList={enforcementActionsList ?? []}
+            enforcementActionsList={enforcementActions ?? []}
             topicList={topicsList ?? []}
             agencyList={agenciesList ?? []}
             appHeaderHeight={appHeaderHeight}
