@@ -163,6 +163,7 @@ const RequirementFormLeftEditSection: FC<
               <ControlledToggleButtonGroup
                 name="enforcementActionExtra"
                 size="small"
+                disabled={disableEnforcementAction}
                 options={[
                   {
                     id: EnforcementActionEnum.AP_RECOMMENDATION,

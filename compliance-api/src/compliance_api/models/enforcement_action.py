@@ -19,6 +19,8 @@ class EnforcementActionOptionEnum(Enum):
     REFERRAL_TO_ANOTHER_AGENCY = 7
     VIOLATION_TICKET = 8
     CHARGE_RECOMMENDATION = 9
+    ADVISORY = 10
+    WARNING = 11
 
 
 class EnforcementActionOption(OptionModel):
