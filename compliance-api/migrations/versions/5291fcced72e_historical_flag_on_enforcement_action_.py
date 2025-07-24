@@ -34,6 +34,7 @@ def upgrade():
             )
         )
         sort_order += 1
+    op.execute("UPDATE requirement_sources SET source_title = REPLACE(source_title, 'EAC#', 'Exemption Order #') WHERE id in (1, 4)")
     # ### end Alembic commands ###
 
 
@@ -42,7 +43,7 @@ def downgrade():
     # Delete the historical options first
     op.execute(
         sa.text(
-            "DELETE FROM enforcement_action_options WHERE option_name IN ('Advisory', 'Warning') AND is_historical = true"
+            "DELETE FROM enforcement_action_options WHERE name IN ('Advisory', 'Warning') AND is_historical = true"
         )
     )
     
@@ -59,4 +60,5 @@ def downgrade():
             "ALTER SEQUENCE enforcement_action_options_id_seq RESTART WITH 10"
         )
     )
+    op.execute("UPDATE requirement_sources SET source_title = REPLACE(source_title, 'Exemption Order #', 'EAC#') WHERE id in (1, 4)")
     # ### end Alembic commands ###
