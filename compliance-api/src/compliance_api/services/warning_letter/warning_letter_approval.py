@@ -23,14 +23,20 @@ class WarningLetterApprovalService:
     ):
         """Create approval for the warning letter."""
         warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
-        ServiceUtils.access_check_update_for_inspection(warning_letter.inspection)
+        inspection = warning_letter.inspection
+        ServiceUtils.access_check_update_for_inspection(inspection)
+        #  If the inspection is historical, then no approval is required
         approval_data = {
             "warning_letter_id": warning_letter_id,
             "approved_by_id": warning_letter_approval_request_data.get(
                 "approved_by_id"
             ),
             "warning_letter_status": warning_letter.status,  # default status
-            "approval_status": WarningLetterApprovalStatusEnum.APPROVAL_PENDING,  # default status
+            "approval_status": (
+                WarningLetterApprovalStatusEnum.APPROVED
+                if inspection.is_history
+                else WarningLetterApprovalStatusEnum.APPROVAL_PENDING
+            ),  # default status
         }
         latest_approval = (
             WarningLetterApprovalModel.get_latest_approval_by_warning_letter(
@@ -52,11 +58,15 @@ class WarningLetterApprovalService:
                     approval_data, session=session
                 )
             )
-            # # Update order_progress to either PRELIMINARY_DEPUTY_REVIEW or FINAL_DEPUTY_REVIEW
+            # Update order_progress to either PRELIMINARY_DEPUTY_REVIEW or FINAL_DEPUTY_REVIEW
             WarningLetterModel.update_warning_letter(
                 warning_letter_id=warning_letter_id,
                 warning_letter_update_data={
-                    "progress": WarningLetterProgressEnum.DEPUTY_REVIEW
+                    "progress": (
+                        WarningLetterProgressEnum.APPROVED
+                        if inspection.is_history
+                        else WarningLetterProgressEnum.DEPUTY_REVIEW
+                    )
                 },
                 session=session,
             )

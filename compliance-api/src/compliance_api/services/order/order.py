@@ -404,8 +404,10 @@ def _create_where_as_and_now_therefore(
     for requirement in requirement_details:
         requirement_summaries.append(requirement["requirement_summary"])
         for detail in requirement["requirement_source_details"]:
-            requirement_sources.append(detail["requirement_source_name"])
-            requirement_numbers.append(detail["requirement_source_number"])
+            if detail["requirement_source_name"]:
+                requirement_sources.append(detail["requirement_source_name"])
+            if detail["requirement_source_number"]:
+                requirement_numbers.append(detail["requirement_source_number"])
             # break after first requirement source detail
             break
     whereas_data["requirement_details"] = {
