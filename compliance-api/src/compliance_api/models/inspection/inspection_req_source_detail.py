@@ -61,11 +61,6 @@ class InspectionReqSourceDetail(BaseModelVersioned):
         nullable=True,
         comment="The optional regulation number associated with requirement sources as Regulation",
     )
-    exemption_order_number = Column(
-        String,
-        nullable=True,
-        comment="The optional exemption order number associated with requirement sources as Exemption Order",
-    )
     section_number = Column(
         String,
         nullable=True,

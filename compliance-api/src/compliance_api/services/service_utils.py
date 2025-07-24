@@ -235,6 +235,7 @@ class ServiceUtils:
             RequirementSourceEnum.CERTIFIED_PROJECT_DESCRIPTION.value,
             RequirementSourceEnum.SCHEDULE_B.value,
             RequirementSourceEnum.OTHER.value,
+            RequirementSourceEnum.EXEMPTION_ORDER.value,
         ]:
             pass
         #  format: Order [Order #]
@@ -253,11 +254,6 @@ class ServiceUtils:
         #  format: [Source Title],[Regulation #]
         elif detail.requirement_source_id == RequirementSourceEnum.REGULATION.value:
             requirement_title += f", {detail.regulation_number}"
-        #  format: Clause [Clause #] of [Exemption Order #]
-        elif (
-            detail.requirement_source_id == RequirementSourceEnum.EXEMPTION_ORDER.value
-        ):
-            requirement_title += f", {detail.exemption_order_number}"
         else:
             requirement_title = ""
 
