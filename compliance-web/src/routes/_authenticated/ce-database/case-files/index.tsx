@@ -299,7 +299,7 @@ export function CaseFiles() {
           sorting: [
             {
               id: "case_file_number",
-              desc: false,
+              desc: true,
             },
           ],
           columnFilters: columnFilters,
