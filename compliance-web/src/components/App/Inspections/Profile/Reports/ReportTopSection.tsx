@@ -4,6 +4,7 @@ import {
   APPROVAL_STATUS,
   IRProgressEnum,
   STAFF_USER_POSITION,
+  VARIANT_COLORS,
 } from "@/utils/constants";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import {
@@ -289,13 +290,7 @@ export default function ReportTopSection() {
             {irApprStatusBadge.text && (
               <Chip
                 label={irApprStatusBadge.text}
-                color={
-                  irApprStatusBadge.color as
-                    | "default"
-                    | "error"
-                    | "success"
-                    | "warning"
-                }
+                color={irApprStatusBadge.color as VARIANT_COLORS}
                 variant="outlined"
                 size="small"
               />
