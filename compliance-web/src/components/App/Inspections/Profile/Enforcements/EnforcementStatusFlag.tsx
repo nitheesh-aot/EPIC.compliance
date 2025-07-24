@@ -4,6 +4,7 @@ import {
   APPROVAL_STATUS,
   OrderProgressEnum,
   OrderStatusEnum,
+  VARIANT_COLORS,
   WarningLetterProgressEnum,
 } from "@/utils/constants";
 import { Chip } from "@mui/material";
@@ -19,7 +20,7 @@ const EnforcementStatusFlag = ({
   const flagStatus = useMemo(() => {
     let status: {
       name: string;
-      color?: "success" | "default" | "error" | "warning";
+      color?: VARIANT_COLORS;
     } = {
       name: "",
       color: "default",

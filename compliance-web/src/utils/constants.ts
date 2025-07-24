@@ -146,6 +146,10 @@ export enum EnforcementActionEnum {
   REFER_TO_ANOTHER_AGENCY = "7",
   VIOLATION_TICKET = "8",
   CHARGE_RECOMMENDATION = "9",
+  ADVISORY = "10",
+  WARNING = "11",
 }
 
 export const DEFAULT_PAGE_SIZE = 15;
+
+export type VARIANT_COLORS = "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning";

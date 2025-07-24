@@ -1,5 +1,8 @@
 /// <reference types="cypress" />
-import { InspectionFormSchema, formatInspectionData } from "@/components/App/Inspections/InspectionFormUtils";
+import {
+  InspectionFormSchema,
+  formatInspectionAPIData,
+} from "@/components/App/Inspections/InspectionFormUtils";
 import { AttendanceEnum } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import dayjs from "dayjs";
@@ -92,9 +95,10 @@ describe("InspectionFormUtils", () => {
         project_status_id: 1,
         attendance_option_ids: [1, AttendanceEnum.OFFICERS],
         attending_officer_ids: [2],
+        is_history: false,
       };
 
-      const formattedData = formatInspectionData(formData, 123);
+      const formattedData = formatInspectionAPIData(formData, 123);
       expect(formattedData).to.deep.equal(expectedFormattedData);
     });
   });

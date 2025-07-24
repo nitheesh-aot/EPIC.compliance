@@ -1,12 +1,13 @@
+import { VARIANT_COLORS } from "@/utils/constants";
 import { create } from "zustand";
 
 interface SnackbarState {
   isOpen: boolean;
-  severity: "success" | "error" | "warning" | "info";
+  severity: VARIANT_COLORS;
   message: string;
   setOpen: (
     message: string,
-    severity?: "success" | "error" | "warning" | "info",
+    severity?: VARIANT_COLORS,
   ) => void;
   setClose: () => void;
 }

@@ -1,13 +1,7 @@
 import { FC, useEffect, useState, useRef, useCallback } from "react";
-import { Alert, Box, Grid, IconButton, Stack, Typography } from "@mui/material";
-import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
+import { Box, Grid, IconButton } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
-import { Topic } from "@/models/Topic";
 import { EnforcementAction } from "@/models/EnforcementAction";
-import { ComplianceFinding } from "@/models/ComplianceFinding";
-import { Agency } from "@/models/Agency";
-import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbox";
 import { useFormContext, useWatch } from "react-hook-form";
 import {
   ComplianceFindingEnum,
@@ -27,32 +21,26 @@ import { useInspectionOrdersData } from "@/hooks/useInspectionOrders";
 import { useInspectionWarningLettersData } from "@/hooks/useInspectionWarningLetters";
 import { useModal } from "@/store/modalStore";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
-import ControlledToggleButtonGroup from "@/components/Shared/Controlled/ControlledToggleButtonGroup";
+import RequirementFormLeftEditSection from "./RequirementFormLeftEditSection";
+import { Inspection } from "@/models/Inspection";
+import { useEnforcementActionsData } from "@/hooks/useInspectionRequirements";
 
 type RequirementFormLeftProps = {
-  enforcementActionsList: EnforcementAction[];
-  complianceFindingsList: ComplianceFinding[];
-  topicList: Topic[];
-  agencyList: Agency[];
   appHeaderHeight: number;
   isEditMode?: boolean;
   isRegulatoryConsideration?: boolean;
   requirementId: number;
-  inspectionId: number;
+  inspectionData: Inspection;
   currentEnforcementAction?: EnforcementAction;
   isRequirementEditable?: boolean;
 };
 
 const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
-  enforcementActionsList,
-  complianceFindingsList,
-  topicList,
-  agencyList,
   appHeaderHeight,
   isEditMode,
   isRegulatoryConsideration,
   requirementId,
-  inspectionId,
+  inspectionData,
   currentEnforcementAction,
   isRequirementEditable = true,
 }) => {
@@ -69,11 +57,17 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
   const summaryInputRef = useRef<HTMLInputElement>(null);
   const [isReadOnly, setIsReadOnly] = useState(isEditMode);
 
-  const { data: inspectionOrdersData } = useInspectionOrdersData(inspectionId, {
-    isStaleInfinate: false,
-  });
+  const { data: enforcementActionsList } = useEnforcementActionsData();
+  const { data: inspectionOrdersData } = useInspectionOrdersData(
+    inspectionData.id,
+    {
+      isStaleInfinate: false,
+    }
+  );
   const { data: inspectionWarningLettersData } =
-    useInspectionWarningLettersData(inspectionId, { isStaleInfinate: false });
+    useInspectionWarningLettersData(inspectionData.id, {
+      isStaleInfinate: false,
+    });
 
   const inputFocus = useCallback((inputRef: HTMLInputElement | null) => {
     if (inputRef) {
@@ -105,11 +99,6 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
     updateMentionList();
   }, [updateMentionList]);
 
-  const isReferredToAnotherAgency = useWatch({
-    control,
-    name: "isReferredToAnotherAgency",
-  });
-
   const enforcementAction = useWatch({
     control,
     name: "enforcementAction",
@@ -125,7 +114,7 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
       complianceFinding?.id === ComplianceFindingEnum.IN &&
       !getValues("enforcementAction")?.id
     ) {
-      const notApplicableAction = enforcementActionsList.find(
+      const notApplicableAction = enforcementActionsList?.find(
         (action) => action.id === EnforcementActionEnum.NOT_APPLICABLE
       );
       setValue("enforcementAction", notApplicableAction);
@@ -256,11 +245,12 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
               />
               <GridLabelValuePair
                 label="Enforcement Action"
-                value={
-                  [getValues("enforcementAction")?.name, getValues("enforcementActionExtra")?.name]
-                    .filter(Boolean)
-                    .join(", ")
-                }
+                value={[
+                  getValues("enforcementAction")?.name,
+                  getValues("enforcementActionExtra")?.name,
+                ]
+                  .filter(Boolean)
+                  .join(", ")}
                 gridProps={{ xs: agencyName ? 4 : 8 }}
               />
             </>
@@ -277,135 +267,6 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
     );
   };
 
-  const EditSection = () => {
-    useEffect(() => {
-      if (
-        document.activeElement === null ||
-        document.activeElement === document.body
-      ) {
-        inputFocus(summaryInputRef.current);
-      }
-    }, []);
-
-    return (
-      <>
-        <ControlledTextField
-          name="requirementSummary"
-          label={isRegulatoryConsideration ? "Summary" : "Requirement Summary"}
-          placeholder="e.g installing and maintaining erosion and sediment control measures"
-          fullWidth
-          inputRef={summaryInputRef}
-          inputProps={{ "data-cy": "requirement-summary-input" }}
-          multiline
-          isRequired={true}
-        />
-        <ControlledAutoComplete
-          name="topic"
-          label="Topic"
-          options={topicList}
-          getOptionLabel={(option) => option.name}
-          getOptionKey={(option) => option.id}
-          isOptionEqualToValue={(option, value) =>
-            option.id.toString() === value.id.toString()
-          }
-          fullWidth
-          isRequired={true}
-        />
-        {isRegulatoryConsideration && (
-          <ControlledCheckbox
-            name="isReferredToAnotherAgency"
-            label="Mark if issue was referred to another Agency"
-          />
-        )}
-        {!isRegulatoryConsideration && (
-          <>
-            <Stack direction="row" gap={2}>
-              <ControlledAutoComplete
-                name="complianceFinding"
-                label="Compliance Finding"
-                options={complianceFindingsList}
-                getOptionLabel={(option) => option.name}
-                getOptionKey={(option) => option.id}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                fullWidth
-                isRequired={true}
-                disabled={disableEnforcementAction}
-              />
-              <ControlledAutoComplete
-                name="enforcementAction"
-                label="Enforcement Action"
-                options={enforcementActionsList}
-                getOptionLabel={(option) => option.name}
-                getOptionKey={(option) => option.id}
-                isOptionEqualToValue={(option, value) =>
-                  option.id.toString() === value.id.toString()
-                }
-                fullWidth
-                sx={{ marginBottom: "-0.5rem" }}
-                isRequired={true}
-                disabled={disableEnforcementAction}
-              />
-            </Stack>
-            {enforcementAction?.id === EnforcementActionEnum.ORDER && (
-              <Stack
-                direction="row"
-                gap={1}
-                alignItems="baseline"
-                justifyContent="flex-end"
-              >
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  Select if relevant:
-                </Typography>
-                <ControlledToggleButtonGroup
-                  name="enforcementActionExtra"
-                  size="small"
-                  options={[
-                    {
-                      id: EnforcementActionEnum.AP_RECOMMENDATION,
-                      name: "AP Recommendation",
-                    },
-                    {
-                      id: EnforcementActionEnum.CHARGE_RECOMMENDATION,
-                      name: "Charge Recommendation",
-                    },
-                    {
-                      id: EnforcementActionEnum.VIOLATION_TICKET,
-                      name: "Violation Ticket",
-                    },
-                  ]}
-                />
-              </Stack>
-            )}
-            {disableEnforcementAction && (
-              <Alert
-                severity="warning"
-                sx={{ fontSize: "0.75rem", mb: 1, mt: -0.5 }}
-              >
-                An enforcement document has already been inprogress or issued.
-                The Enforcement Action can no longer be changed.
-              </Alert>
-            )}
-          </>
-        )}
-        {(isReferredToAnotherAgency ||
-          enforcementAction?.id ===
-            EnforcementActionEnum.REFER_TO_ANOTHER_AGENCY) && (
-          <ControlledAutoComplete
-            name="agency"
-            label="Agency"
-            options={agencyList}
-            getOptionLabel={(option) => option.name}
-            getOptionKey={(option) => option.id}
-            isOptionEqualToValue={(option, value) =>
-              option.id.toString() === value.id.toString()
-            }
-            fullWidth
-          />
-        )}
-      </>
-    );
-  };
-
   return (
     <Box
       sx={{
@@ -416,7 +277,15 @@ const RequirementFormLeft: FC<RequirementFormLeftProps> = ({
         boxSizing: "border-box",
       }}
     >
-      {isReadOnly ? <ReadOnlySection /> : <EditSection />}
+      {isReadOnly ? (
+        <ReadOnlySection />
+      ) : (
+        <RequirementFormLeftEditSection
+          inspectionData={inspectionData}
+          isRegulatoryConsideration={isRegulatoryConsideration}
+          disableEnforcementAction={disableEnforcementAction}
+        />
+      )}
       <ControlledLexicalEditor
         label="Findings"
         name="findings"

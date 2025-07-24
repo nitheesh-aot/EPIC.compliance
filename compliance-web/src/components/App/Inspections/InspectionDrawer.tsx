@@ -26,7 +26,7 @@ import InspectionFormLeft from "./InspectionFormLeft";
 import InspectionFormRight from "./InspectionFormRight";
 import { AttendanceEnum } from "@/utils/constants";
 import {
-  formatInspectionData,
+  formatInspectionAPIData,
   InspectionFormSchema,
   InspectionSchemaType,
 } from "./InspectionFormUtils";
@@ -47,6 +47,7 @@ const initFormData: InspectionFormData = {
   irStatus: undefined,
   projectStatus: undefined,
   caseFileId: undefined,
+  isHistory: false,
 };
 
 const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
@@ -82,6 +83,7 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
         irTypes: inspection.types,
         startDate: dayjs(inspection.start_date),
         endDate: dayjs(inspection.end_date),
+        isHistory: inspection.is_history,
         officers: inspection.inspectionAttendances?.find(
           (item) =>
             item.attendance_option_id === Number(AttendanceEnum.OFFICERS)
@@ -161,13 +163,13 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     (formData: InspectionSchemaType) => {
       if (inspection) {
         // update existing inspection record
-        const inspectionUpdateData = formatInspectionData(formData);
+        const inspectionUpdateData = formatInspectionAPIData(formData);
         updateInspection({
           id: inspection.id,
           inspection: inspectionUpdateData,
         });
       } else {
-        const inspectionCreateData = formatInspectionData(
+        const inspectionCreateData = formatInspectionAPIData(
           formData,
           caseFile.id
         );

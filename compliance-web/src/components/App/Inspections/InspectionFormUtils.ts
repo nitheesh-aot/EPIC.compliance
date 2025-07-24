@@ -47,6 +47,7 @@ export const InspectionFormSchema = yup.object().shape({
     .array()
     .of(yup.object<StaffUser>())
     .nullable(),
+  isHistory: yup.boolean().nullable(),
   isIndependentEnvMonitor: yup.boolean().nullable(),
   isCHRepresentatives: yup.boolean().nullable(),
 
@@ -105,7 +106,7 @@ export const InspectionFormSchema = yup.object().shape({
 export type InspectionSchemaType = yup.InferType<typeof InspectionFormSchema>;
 
 // Formatting inspection form data for API
-export const formatInspectionData = (
+export const formatInspectionAPIData = (
   formData: InspectionSchemaType,
   caseFileId?: number // use as a flag for create new inspection mode
 ) => {
@@ -113,6 +114,7 @@ export const formatInspectionData = (
     (formData.inAttendance as Attendance[])?.map((att) => att.id) ?? [];
 
   let inspectionData: InspectionAPIData = {
+    is_history: formData.isHistory ?? false,
     project_description: formData.projectDescription ?? "",
     inspection_type_ids:
       (formData.irTypes as IRType[])?.map((ir) => ir.id) ?? [],

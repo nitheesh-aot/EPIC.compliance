@@ -4,6 +4,7 @@ import {
   APPROVAL_STATUS,
   IRProgressEnum,
   STAFF_USER_POSITION,
+  VARIANT_COLORS,
 } from "@/utils/constants";
 import { useMemo, useState, useEffect, useCallback } from "react";
 import {
@@ -48,6 +49,7 @@ export default function ReportTopSection() {
     inspectionReportsData,
     irApprovalsData,
     isReportsReadOnly,
+    isHistorical,
     setIRApprovalsData,
   } = useReportStore();
 
@@ -288,19 +290,13 @@ export default function ReportTopSection() {
             {irApprStatusBadge.text && (
               <Chip
                 label={irApprStatusBadge.text}
-                color={
-                  irApprStatusBadge.color as
-                    | "default"
-                    | "error"
-                    | "success"
-                    | "warning"
-                }
+                color={irApprStatusBadge.color as VARIANT_COLORS}
                 variant="outlined"
                 size="small"
               />
             )}
           </Box>
-          {!isReportsReadOnly && (
+          {!isReportsReadOnly && !isHistorical && (
             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               <Typography variant="body2">Wrong Version?</Typography>
               <Link
@@ -316,7 +312,7 @@ export default function ReportTopSection() {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           {!isReportsReadOnly && (
             <>
-              {isShowSendForApprovalButton && (
+              {isShowSendForApprovalButton && !isHistorical && (
                 <Button
                   variant="text"
                   color="primary"
@@ -327,7 +323,7 @@ export default function ReportTopSection() {
                   Send for Approval
                 </Button>
               )}
-              {isShowApprovalButtons && (
+              {isShowApprovalButtons && !isHistorical && (
                 <>
                   <Button
                     color="secondary"

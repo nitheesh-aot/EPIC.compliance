@@ -73,7 +73,7 @@ const createIRApproval = ({
   inspectionId: number;
   inspectionRecordId: number;
   approvalPayload: {
-    approved_by_id: number;
+    approved_by_id?: number;
   };
 }) => {
   return request({
@@ -225,7 +225,6 @@ export const useFetchIRApprovals = (
     queryKey: ["ir-approvals", inspectionId, inspectionRecordId],
     queryFn: () => fetchIRApprovals({ inspectionId, inspectionRecordId }),
     enabled: !!inspectionId && !!inspectionRecordId,
-    staleTime: Infinity,
   });
 };
 
