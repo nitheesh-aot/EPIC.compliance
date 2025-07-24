@@ -19,6 +19,7 @@ import { useReportStore } from "./Reports/reportStore";
 import { notify } from "@/store/snackbarStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIRStatusesData } from "@/hooks/useInspections";
+import { IR_STATUS } from "@/utils/constants";
 
 interface InspectionReportsProps {
   inspectionData: Inspection;
@@ -31,6 +32,12 @@ const InspectionReports: React.FC<InspectionReportsProps> = ({
   const { setInspectionReportsData, setQueryClient, setIRApprovalsData } =
     useReportStore();
   const [reportVersion, setReportVersion] = useState<string>("");
+
+  useEffect(() => {
+    if (inspectionData.is_history) {
+      setReportVersion(IR_STATUS.FINAL.toString());
+    }
+  }, [inspectionData.is_history]);
 
   const isReportsAllowed = useMemo(
     () => inspectionData?.inspection_status?.toLowerCase() === "open",
@@ -108,29 +115,33 @@ const InspectionReports: React.FC<InspectionReportsProps> = ({
         maxWidth: "600px",
       }}
     >
-      <Typography variant="h6" mb={2}>
-        Select Report Version
-      </Typography>
+      {!inspectionData.is_history && (
+        <>
+          <Typography variant="h6" mb={2}>
+            Select Report Version
+          </Typography>
 
-      <Typography variant="body2" mb={2}>
-        Choose the IR report version you want to work on.
-      </Typography>
+          <Typography variant="body2" mb={2}>
+            Choose the IR report version you want to work on.
+          </Typography>
 
-      <RadioGroup
-        value={reportVersion}
-        onChange={handleReportVersionChange}
-        sx={{ mb: 3 }}
-      >
-        {irStatusesData?.map((irStatus) => (
-          <FormControlLabel
-            key={irStatus.id}
-            value={irStatus.id}
-            control={<Radio />}
-            label={`${irStatus.name} Inspection Record`}
-            sx={{ mb: 0.5 }}
-          />
-        ))}
-      </RadioGroup>
+          <RadioGroup
+            value={reportVersion}
+            onChange={handleReportVersionChange}
+            sx={{ mb: 3 }}
+          >
+            {irStatusesData?.map((irStatus) => (
+              <FormControlLabel
+                key={irStatus.id}
+                value={irStatus.id}
+                control={<Radio />}
+                label={`${irStatus.name} Inspection Record`}
+                sx={{ mb: 0.5 }}
+              />
+            ))}
+          </RadioGroup>
+        </>
+      )}
 
       <Button
         onClick={handleProceedToReport}
@@ -139,7 +150,7 @@ const InspectionReports: React.FC<InspectionReportsProps> = ({
           width: "fit-content",
         }}
       >
-        Proceed to Report
+        Proceed to {`${inspectionData.is_history ? "Final" : ""} Report`}
       </Button>
     </Box>
   ) : (

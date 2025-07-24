@@ -20,7 +20,8 @@ interface ReportStore {
   actionsRequired?: string;
   enforcementSummary?: string;
   isReportsReadOnly?: boolean;
-
+  isHistorical?: boolean;
+  
   setQueryClient: (queryClient: QueryClient) => void;
   setInspectionReportsData: (inspectionReportsData: InspectionRecord) => void;
   setIRApprovalsData: (irApprovalsData: IRApproval[]) => void;
@@ -48,6 +49,7 @@ export const useReportStore = create<ReportStore>((set) => ({
   actionsRequired: undefined,
   enforcementSummary: DEFAULT_REPORT_TAB_CONTENT,
   isReportsReadOnly: false,
+  isHistorical: false,
 
   setQueryClient: (queryClient: QueryClient) => set({ queryClient }),
   setInspectionReportsData: (inspectionReportsData: InspectionRecord) => {
@@ -75,6 +77,7 @@ export const useReportStore = create<ReportStore>((set) => ({
       inspectionData,
       isReportsReadOnly:
         inspectionData?.inspection_status?.toLowerCase() === "closed",
+      isHistorical: inspectionData?.is_history ?? false,
     });
   },
   setCaseFileData: (caseFileData: CaseFile) => {
