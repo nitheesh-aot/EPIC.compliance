@@ -1,26 +1,28 @@
 import { useInspectionRequirementsData } from "@/hooks/useInspectionRequirements";
 import { Inspection } from "@/models/Inspection";
 import { Box, Typography } from "@mui/material";
-import React, { useCallback, useEffect, useMemo } from "react";
-import RequirementLoading from "./Requirements/RequirementLoading";
+import React, { useEffect, useMemo } from "react";
+import RequirementLoading from "@/components/App/Inspections/Profile/Requirements/RequirementLoading";
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
-import EnforcementNotificationCard from "./Enforcements/EnforcementNotificationCard";
+import EnforcementNotificationCard from "@/components/App/Inspections/Profile/Enforcements/EnforcementNotificationCard";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { DRAWER_WIDTHS, EnforcementActionEnum } from "@/utils/constants";
 import { useModal } from "@/store/modalStore";
-import EnforcementModal from "./Enforcements/EnforcementModal";
 import { notify } from "@/store/snackbarStore";
-import EnforcementCard from "./Enforcements/EnforcementCard";
+import EnforcementCard from "@/components/App/Inspections/Profile/Enforcements/EnforcementCard";
 import { useInspectionOrdersData } from "@/hooks/useInspectionOrders";
-import OrderDrawer from "./Enforcements/Orders/OrderDrawer";
+import OrderDrawer from "@/components/App/Inspections/Profile/Enforcements/Orders/OrderDrawer";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import { useDrawer } from "@/store/drawerStore";
 import { useInspectionWarningLettersData } from "@/hooks/useInspectionWarningLetters";
-import WarningLetterDrawer from "./Enforcements/WarningLetters/WarningLetterDrawer";
+import WarningLetterDrawer from "@/components/App/Inspections/Profile/Enforcements/WarningLetters/WarningLetterDrawer";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
 import { AddRounded } from "@mui/icons-material";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
+import OrderCreateModal from "@/components/App/Inspections/Profile/Enforcements/Orders/OrderCreateModal";
+import WarningLetterCreateModal from "@/components/App/Inspections/Profile/Enforcements/WarningLetters/WarningLetterCreateModal";
+import { prepNonProceededRequirements } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
 
 interface InspectionEnforcementsProps {
   inspectionData: Inspection;
@@ -102,38 +104,17 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     }
   }, [inspectionRequirementsData]);
 
-  const prepNonProceededRequirements = useCallback(
-    (
-      orderReqIds: (number[] | undefined)[] | undefined,
-      enforcementAction: EnforcementActionEnum
-    ) => {
-      const flattenedOrderReqIds = orderReqIds?.flat() || [];
-      const nonProceededRequirements = requirementEnforcements.filter(
-        (requirement) =>
-          !flattenedOrderReqIds.includes(requirement.id) &&
-          requirement.enforcement_action_data?.some(
-            (enforcement) => enforcement.id === enforcementAction
-          )
-      );
-      return nonProceededRequirements;
-    },
-    [requirementEnforcements]
-  );
-
   const nonProceededOrderRequirements = useMemo(() => {
     if (!requirementEnforcements) return [];
     const orderReqIds = inspectionOrdersData?.map((order) =>
       order.order_requirement_maps?.map((map) => map.inspection_requirement_id)
     );
-    return prepNonProceededRequirements(
-      orderReqIds,
-      EnforcementActionEnum.ORDER
-    );
-  }, [
-    requirementEnforcements,
-    inspectionOrdersData,
-    prepNonProceededRequirements,
-  ]);
+    return prepNonProceededRequirements({
+      requirements: requirementEnforcements,
+      reqIds: orderReqIds,
+      enforcementActionType: EnforcementActionEnum.ORDER,
+    });
+  }, [requirementEnforcements, inspectionOrdersData]);
 
   const nonProceededWarningLetterRequirements = useMemo(() => {
     if (!requirementEnforcements) return [];
@@ -143,46 +124,42 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           (map) => map.inspection_requirement_id
         )
     );
-    return prepNonProceededRequirements(
-      warningLetterReqIds,
-      EnforcementActionEnum.WARNING_LETTER
-    );
-  }, [
-    requirementEnforcements,
-    inspectionWarningLettersData,
-    prepNonProceededRequirements,
-  ]);
+    return prepNonProceededRequirements({
+      requirements: requirementEnforcements,
+      reqIds: warningLetterReqIds,
+      enforcementActionType: EnforcementActionEnum.WARNING_LETTER,
+    });
+  }, [requirementEnforcements, inspectionWarningLettersData]);
 
   const openEnforcementModal = (
     modelType: EnforcementActionEnum,
     requirement?: InspectionRequirement
   ) => {
-    setModalOpen({
-      content: (
-        <EnforcementModal
+    const content =
+      modelType === EnforcementActionEnum.ORDER ? (
+        <OrderCreateModal
           inspectionData={inspectionData}
-          enforcementType={modelType}
-          requirementsList={
-            modelType === EnforcementActionEnum.ORDER
-              ? nonProceededOrderRequirements
-              : nonProceededWarningLetterRequirements
-          }
+          requirementsList={nonProceededOrderRequirements}
           requirement={requirement}
-          onSubmit={(message, data) => {
-            notify.success(message);
-            if (modelType === EnforcementActionEnum.ORDER) {
-              refetchInspectionOrders();
-              openEnforcementOrderDrawer(data as InspectionOrder);
-            } else {
-              refetchInspectionWarningLetters();
-              openEnforcementWarningLetterDrawer(
-                data as InspectionWarningLetter
-              );
-            }
+          onSubmit={(data) => {
+            openEnforcementOrderDrawer(data);
             setModalClose();
           }}
         />
-      ),
+      ) : (
+        <WarningLetterCreateModal
+          inspectionData={inspectionData}
+          requirementsList={nonProceededWarningLetterRequirements}
+          requirement={requirement}
+          onSubmit={(data) => {
+            openEnforcementWarningLetterDrawer(data);
+            setModalClose();
+          }}
+        />
+      );
+
+    setModalOpen({
+      content,
     });
   };
 

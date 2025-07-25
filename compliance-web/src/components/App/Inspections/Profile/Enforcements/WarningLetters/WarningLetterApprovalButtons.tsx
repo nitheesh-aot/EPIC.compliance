@@ -9,7 +9,11 @@ import { useModal } from "@/store/modalStore";
 import { StaffUser } from "@/models/Staff";
 import { WarningLetterApproval } from "@/models/WarningLetterApproval";
 import { useCurrentLoggedInUser } from "@/hooks/useAuthorization";
-import { APPROVAL_STATUS, STAFF_USER_POSITION, WarningLetterProgressEnum } from "@/utils/constants";
+import {
+  APPROVAL_STATUS,
+  STAFF_USER_POSITION,
+  WarningLetterProgressEnum,
+} from "@/utils/constants";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useQueryClient } from "@tanstack/react-query";
 import IssueEnforcementModal from "@/components/App/Inspections/Profile/Enforcements/IssueEnforcementModal";
@@ -159,9 +163,14 @@ const WarningLetterApprovalButtons = ({
   );
 
   const isShowIssueButton = useMemo(
+    () => warningLetter?.progress?.id === WarningLetterProgressEnum.APPROVED,
+    [warningLetter]
+  );
+
+  const isIssueButtonDisabled = useMemo(
     () =>
       warningLetter?.progress?.id === WarningLetterProgressEnum.APPROVED &&
-      warningLetter?.intended_issuance_date,
+      !warningLetter?.intended_issuance_date,
     [warningLetter]
   );
 
@@ -246,7 +255,12 @@ const WarningLetterApprovalButtons = ({
         </Box>
       )}
       {isShowIssueButton && (
-        <Button onClick={handleIssueButtonClick}>Issue Warning Letter</Button>
+        <Button
+          onClick={handleIssueButtonClick}
+          disabled={isIssueButtonDisabled}
+        >
+          Issue Warning Letter
+        </Button>
       )}
     </>
   );

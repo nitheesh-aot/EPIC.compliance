@@ -174,8 +174,14 @@ const OrderApprovalButtons = ({
 
   const isShowIssueButton = useMemo(
     () =>
+      inspectionOrder?.order_progress?.id === OrderProgressEnum.APPROVED,
+    [inspectionOrder]
+  );
+
+  const isIssueButtonDisabled = useMemo(
+    () =>
       inspectionOrder?.order_progress?.id === OrderProgressEnum.APPROVED &&
-      inspectionOrder?.intended_issuance_date,
+      !inspectionOrder?.intended_issuance_date,
     [inspectionOrder]
   );
 
@@ -320,7 +326,12 @@ const OrderApprovalButtons = ({
         </Box>
       )}
       {isShowIssueButton && (
-        <Button onClick={handleIssueButtonClick}>Issue Order</Button>
+        <Button
+          onClick={handleIssueButtonClick}
+          disabled={isIssueButtonDisabled}
+        >
+          Issue Order
+        </Button>
       )}
       {isShowRescindCloseButton && (
         <Box sx={{ display: "inline-flex", gap: 2 }}>

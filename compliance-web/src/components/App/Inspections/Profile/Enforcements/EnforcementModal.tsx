@@ -1,122 +1,49 @@
-import { Box, Collapse, DialogContent, Typography } from "@mui/material";
+import { Box, DialogContent, Typography } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
-import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ModalTitleBar from "@/components/Shared/Modals/ModalTitleBar";
 import ModalActions from "@/components/Shared/Modals/ModalActions";
-import { FC, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, ReactNode } from "react";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
-import { EnforcementActionEnum } from "@/utils/constants";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
-import {
-  useCreateInspectionOrder,
-  useCreateOrderApproval,
-} from "@/hooks/useInspectionOrders";
-import {
-  InspectionOrder,
-  InspectionOrderAPIData,
-} from "@/models/InspectionOrder";
-import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbox";
 import { BCDesignTokens } from "epic.theme";
-import { ExpandMoreRounded, WarningAmberOutlined } from "@mui/icons-material";
-import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
-import { useCreateWarningLetter } from "@/hooks/useInspectionWarningLetters";
+import { WarningAmberOutlined } from "@mui/icons-material";
 import {
-  InspectionWarningLetter,
-  InspectionWarningLetterAPIData,
-} from "@/models/InspectionWarningLetter";
-import { Inspection } from "@/models/Inspection";
-import { useQueryClient } from "@tanstack/react-query";
-import { OrderApproval } from "@/models/OrderApproval";
+  BaseEnforcementFormType,
+  baseEnforcementSchema,
+  initBaseFormData,
+} from "./EnforcementUtils";
 
 type EnforcementModalProps = {
-  inspectionData: Inspection;
-  enforcementType: EnforcementActionEnum;
   requirementsList: InspectionRequirement[];
   requirement?: InspectionRequirement;
-  onSubmit: (
-    message: string,
-    data: InspectionOrder | InspectionWarningLetter
-  ) => void;
+  title: string;
+  onSubmit: (data: BaseEnforcementFormType) => void;
+  isLoading?: boolean;
+  children?: ReactNode;
+  additionalFormFields?: ReactNode;
 };
 
-const enforcementSchema = yup.object().shape({
-  requirements: yup
-    .array()
-    .of(yup.object<InspectionRequirement>())
-    .nullable()
-    .min(1, "At least one Requirement is required")
-    .required("Requirement is required"),
-  isHistoricalRecord: yup.boolean().nullable(),
-  manualOrderNumber: yup
-    .string()
-    .nullable()
-    .when("isHistoricalRecord", {
-      is: (value: boolean) => value === true,
-      then: (schema) => schema.required("Manual Order # is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-});
-
-type EnforcementFormType = yup.InferType<typeof enforcementSchema>;
-
-const initFormData = {
-  requirements: undefined,
-  isHistoricalRecord: false,
-  manualOrderNumber: undefined,
-};
-
-const ManualOrderNumberInfo = () => {
-  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
-
-  return (
-    <Box
-      sx={{ display: "flex", gap: 1, ml: 3, cursor: "pointer" }}
-      onClick={() => setIsInfoExpanded(!isInfoExpanded)}
-    >
-      <ExpandMoreRounded
-        sx={{
-          marginTop: "-0.125rem",
-          fontSize: "1.25rem",
-          transform: isInfoExpanded ? "rotate(180deg)" : "rotate(270deg)",
-        }}
-      />
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-        <Typography variant="caption">Why enter a manual Order #?</Typography>
-        <Collapse in={isInfoExpanded}>
-          <Typography variant="caption">
-            If you are entering an order that was previously created outside
-            this system, check this box and enter the existing Order #. If this
-            is a new order, leave the box unchecked, and the system will
-            generate a number for you.
-          </Typography>
-        </Collapse>
-      </Box>
-    </Box>
-  );
-};
-
-const EnforcementModal: FC<EnforcementModalProps> = ({
-  inspectionData,
-  onSubmit,
+const EnforcementModal = ({
   requirementsList,
-  enforcementType,
   requirement,
-}) => {
-  const isEnforcementOrder = enforcementType === EnforcementActionEnum.ORDER;
-  const queryClient = useQueryClient();
-
+  title,
+  onSubmit,
+  isLoading = false,
+  children,
+  additionalFormFields,
+}: EnforcementModalProps) => {
   const defaultValues = useMemo(() => {
     if (requirement) {
       return {
         requirements: [requirement],
       };
     }
-    return initFormData;
+    return initBaseFormData;
   }, [requirement]);
 
-  const methods = useForm<EnforcementFormType>({
-    resolver: yupResolver(enforcementSchema),
+  const methods = useForm<BaseEnforcementFormType>({
+    resolver: yupResolver(baseEnforcementSchema),
     mode: "onBlur",
     defaultValues,
   });
@@ -124,91 +51,22 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
   const { handleSubmit, reset, watch } = methods;
 
   const selectedRequirements = watch("requirements") as InspectionRequirement[];
-  const isHistoricalRecord = watch("isHistoricalRecord");
 
   useEffect(() => {
     reset(defaultValues);
   }, [reset, defaultValues]);
 
-  const onOrderApprovalSuccess = (data: OrderApproval) => {
-    queryClient.invalidateQueries({
-      queryKey: ["order-approvals", data.order_id],
-    });
-    queryClient.invalidateQueries({
-      queryKey: ["inspection-orders", inspectionData.id],
-    });
-  };
-
-  const { mutate: createOrderApproval } = useCreateOrderApproval(
-    onOrderApprovalSuccess
-  );
-
-  const onSuccess = (data: InspectionOrder | InspectionWarningLetter) => {
-    if (isEnforcementOrder) {
-      if (inspectionData.is_history) {
-        createOrderApproval({
-          inspectionOrderId: (data as InspectionOrder).id ?? 0,
-          approvalPayload: {},
-        });
-      }
-      onSubmit(`Order ${(data as InspectionOrder).order_number} created`, data);
-    } else {
-      onSubmit(
-        `Warning Letter ${(data as InspectionWarningLetter).warning_letter_number} created`,
-        data
-      );
-    }
-  };
-
-  const { mutate: createInspectionOrder, isPending: isPendingOrder } =
-    useCreateInspectionOrder(onSuccess);
-
-  const {
-    mutate: createInspectionWarningLetter,
-    isPending: isPendingWarningLetter,
-  } = useCreateWarningLetter(onSuccess);
-
   const onSubmitHandler = useCallback(
-    (data: EnforcementFormType) => {
-      if (isEnforcementOrder) {
-        const orderData: InspectionOrderAPIData = {
-          inspection_id: inspectionData?.id ?? 0,
-          inspection_requirement_ids: (
-            data.requirements as InspectionRequirement[]
-          ).map((requirement) => requirement.id),
-        };
-        if (data.isHistoricalRecord) {
-          orderData.order_number = data.manualOrderNumber ?? "";
-        }
-        createInspectionOrder({
-          inspectionOrder: orderData,
-        });
-      } else {
-        const warningLetterData: InspectionWarningLetterAPIData = {
-          inspection_id: inspectionData?.id ?? 0,
-          inspection_requirement_ids: (
-            data.requirements as InspectionRequirement[]
-          ).map((requirement) => requirement.id),
-        };
-        createInspectionWarningLetter({
-          inspectionWarningLetter: warningLetterData,
-        });
-      }
+    (data: BaseEnforcementFormType) => {
+      onSubmit(data);
     },
-    [
-      createInspectionOrder,
-      createInspectionWarningLetter,
-      inspectionData,
-      isEnforcementOrder,
-    ]
+    [onSubmit]
   );
 
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <ModalTitleBar
-          title={isEnforcementOrder ? "Create Order" : "Create Warning Letter"}
-        />
+        <ModalTitleBar title={title} />
         <DialogContent dividers sx={{ p: 0 }}>
           <Box sx={{ p: "1rem 1.5rem" }}>
             <ControlledAutoComplete
@@ -245,25 +103,7 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
                 </Typography>
               </Box>
             ))}
-            {isEnforcementOrder && (
-              <>
-                <ControlledCheckbox
-                  name="isHistoricalRecord"
-                  label="Check this box to enter an existing Order # for historical records."
-                  fontSize="small"
-                />
-                <ManualOrderNumberInfo />
-                {isHistoricalRecord && (
-                  <ControlledTextField
-                    name="manualOrderNumber"
-                    label="Manual Order #"
-                    placeholder="Enter existing order number"
-                    sx={{ mt: 2 }}
-                    fullWidth
-                  />
-                )}
-              </>
-            )}
+            {additionalFormFields}
           </Box>
           {selectedRequirements?.length > 1 && (
             <Box
@@ -280,17 +120,17 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
             >
               <WarningAmberOutlined fontSize="small" color="warning" />
               <Typography variant="caption">
-                Note: By selecting multiple requirements, a single{" "}
-                {isEnforcementOrder ? "order" : "warning letter"} will be
-                created to address all selected requirements
+                Note: By selecting multiple requirements, a single enforcement
+                action will be created to address all selected requirements
               </Typography>
             </Box>
           )}
+          {children}
         </DialogContent>
         <ModalActions
           primaryActionButtonText="Create"
           isButtonValidation
-          isLoading={isPendingOrder || isPendingWarningLetter}
+          isLoading={isLoading}
         />
       </form>
     </FormProvider>
