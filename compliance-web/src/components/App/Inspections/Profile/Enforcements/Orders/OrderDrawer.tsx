@@ -31,6 +31,7 @@ import EnforcementStatusFlag from "@/components/App/Inspections/Profile/Enforcem
 import { RestartAltRounded } from "@mui/icons-material";
 import { useModal } from "@/store/modalStore";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
+import { useQueryClient } from "@tanstack/react-query";
 
 type OrderDrawerProps = {
   onSubmit: (submitMsg: string, isCloseDrawer?: boolean) => void;
@@ -78,13 +79,13 @@ const OrderDrawer: React.FC<OrderDrawerProps> = ({
   staffUsersList,
   isReadonlyMode = false,
 }) => {
+  const queryClient = useQueryClient();
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
   const { appHeaderHeight } = useMenuStore();
   const { data: enforcementSections } = useEnforcementSectionsData();
 
   const isDrafting = useMemo(
-    () =>
-      enforcementOrder.order_progress?.id === OrderProgressEnum.DRAFTING,
+    () => enforcementOrder.order_progress?.id === OrderProgressEnum.DRAFTING,
     [enforcementOrder.order_progress]
   );
 
@@ -132,8 +133,17 @@ const OrderDrawer: React.FC<OrderDrawerProps> = ({
     (data: InspectionOrder) => {
       onSubmit("Changes saved successfully!");
       reset(formatFormData(data));
+      const updateFn = (oldData: InspectionOrder[] | undefined) => {
+        if (!oldData) return oldData;
+        return oldData.map((order) => (order.id === data.id ? data : order));
+      };
+      queryClient.setQueryData(["inspection-orders", inspection.id], updateFn);
+      queryClient.setQueryData(
+        ["inspection-orders-projectwise", inspection.case_file_id],
+        updateFn
+      );
     },
-    [onSubmit, reset, formatFormData]
+    [onSubmit, reset, formatFormData, queryClient, inspection]
   );
 
   const { mutate: updateInspectionOrder } = useUpdateInspectionOrder(onSuccess);

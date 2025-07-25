@@ -11,6 +11,7 @@ import {
   useFetchOrderApprovals,
   useUpdateOrderApprovalStatus,
   useUpdateOrderStatus,
+  useInspectionOrdersData,
 } from "@/hooks/useInspectionOrders";
 import { StaffUser } from "@/models/Staff";
 import { OrderApproval } from "@/models/OrderApproval";
@@ -41,9 +42,15 @@ const OrderApprovalButtons = ({
   const { data: staffData } = useStaffUsersData();
   const currentUser = useCurrentLoggedInUser();
   const queryClient = useQueryClient();
+  
+  // Get the latest order data from cache to ensure buttons update immediately
+  const { data: ordersData } = useInspectionOrdersData(inspectionId);
+  const latestOrder = useMemo(() => {
+    return ordersData?.find(order => order.id === inspectionOrder.id) || inspectionOrder;
+  }, [ordersData, inspectionOrder]);
 
   const { data: orderApprovalsData } = useFetchOrderApprovals(
-    inspectionOrder.id ?? 0
+    latestOrder.id ?? 0
   );
 
   // Memoize the current user's staff ID
@@ -85,14 +92,14 @@ const OrderApprovalButtons = ({
   const onSuccess = useCallback(
     (data: OrderApproval) => {
       queryClient.setQueryData(
-        ["order-approvals", inspectionOrder.id],
+        ["order-approvals", latestOrder.id],
         (oldData: OrderApproval[]) => {
           return [...oldData, data];
         }
       );
       refetchDataAndClose("Approval request sent");
     },
-    [refetchDataAndClose, queryClient, inspectionOrder.id]
+    [refetchDataAndClose, queryClient, latestOrder.id]
   );
 
   const { mutate: createOrderApproval, isPending } =
@@ -102,7 +109,7 @@ const OrderApprovalButtons = ({
     (data: OrderApproval) => {
       notify.success("Approval status updated");
       queryClient.setQueryData(
-        ["order-approvals", inspectionOrder.id],
+        ["order-approvals", latestOrder.id],
         (oldData: OrderApproval[]) => {
           return oldData.map((approval) =>
             approval.id === data.id ? data : approval
@@ -111,7 +118,7 @@ const OrderApprovalButtons = ({
       );
       refetchDataAndClose("Approval status updated");
     },
-    [inspectionOrder.id, queryClient, refetchDataAndClose]
+    [latestOrder.id, queryClient, refetchDataAndClose]
   );
 
   const { mutate: updateOrderApprovalStatus } =
@@ -121,13 +128,13 @@ const OrderApprovalButtons = ({
     (data: SendForApprovalFormType) => {
       const directorId = (data.director as StaffUser).id;
       createOrderApproval({
-        inspectionOrderId: inspectionOrder.id ?? 0,
+        inspectionOrderId: latestOrder.id ?? 0,
         approvalPayload: {
           approved_by_id: directorId,
         },
       });
     },
-    [createOrderApproval, inspectionOrder.id]
+    [createOrderApproval, latestOrder.id]
   );
 
   // Modal handlers
@@ -148,13 +155,13 @@ const OrderApprovalButtons = ({
 
   const isInDeputyReview = useMemo(
     () =>
-      inspectionOrder.order_progress?.id === OrderProgressEnum.DEPUTY_REVIEW,
-    [inspectionOrder.order_progress]
+      latestOrder.order_progress?.id === OrderProgressEnum.DEPUTY_REVIEW,
+    [latestOrder.order_progress]
   );
 
   const isInDrafting = useMemo(
-    () => inspectionOrder.order_progress?.id === OrderProgressEnum.DRAFTING,
-    [inspectionOrder.order_progress]
+    () => latestOrder.order_progress?.id === OrderProgressEnum.DRAFTING,
+    [latestOrder.order_progress]
   );
 
   const isDisableSendApprovalButton = useMemo(
@@ -174,29 +181,29 @@ const OrderApprovalButtons = ({
 
   const isShowIssueButton = useMemo(
     () =>
-      inspectionOrder?.order_progress?.id === OrderProgressEnum.APPROVED,
-    [inspectionOrder]
+      latestOrder?.order_progress?.id === OrderProgressEnum.APPROVED,
+    [latestOrder]
   );
 
   const isIssueButtonDisabled = useMemo(
     () =>
-      inspectionOrder?.order_progress?.id === OrderProgressEnum.APPROVED &&
-      !inspectionOrder?.intended_issuance_date,
-    [inspectionOrder]
+      latestOrder?.order_progress?.id === OrderProgressEnum.APPROVED &&
+      !latestOrder?.intended_issuance_date,
+    [latestOrder]
   );
 
   const isShowRescindCloseButton = useMemo(
     () =>
-      inspectionOrder?.order_progress?.id === OrderProgressEnum.ISSUED &&
-      inspectionOrder.order_status?.id === OrderStatusEnum.OPEN,
-    [inspectionOrder]
+      latestOrder?.order_progress?.id === OrderProgressEnum.ISSUED &&
+      latestOrder.order_status?.id === OrderStatusEnum.OPEN,
+    [latestOrder]
   );
 
   const isShowReopenButton = useMemo(
     () =>
-      inspectionOrder?.order_status?.id === OrderStatusEnum.CLOSED &&
+      latestOrder?.order_status?.id === OrderStatusEnum.CLOSED &&
       !isShowRescindCloseButton,
-    [inspectionOrder, isShowRescindCloseButton]
+    [latestOrder, isShowRescindCloseButton]
   );
 
   const handleApprovalsButtonClick = useCallback(
@@ -213,7 +220,7 @@ const OrderApprovalButtons = ({
             confirmButtonText={isApprove ? "Approve" : "Reject"}
             onConfirm={() => {
               updateOrderApprovalStatus({
-                inspectionOrderId: inspectionOrder.id ?? 0,
+                inspectionOrderId: latestOrder.id ?? 0,
                 approvalId: orderApprovalsData?.[0]?.id ?? 0,
                 statusPayload: {
                   approval_status: isApprove
@@ -231,7 +238,7 @@ const OrderApprovalButtons = ({
       currentUserStaffId,
       setOpen,
       updateOrderApprovalStatus,
-      inspectionOrder.id,
+      latestOrder.id,
       orderApprovalsData,
     ]
   );
@@ -243,11 +250,11 @@ const OrderApprovalButtons = ({
           onSubmit={(message) => {
             refetchDataAndClose(message);
           }}
-          inspectionOrder={inspectionOrder}
+          inspectionOrder={latestOrder}
         />
       ),
     });
-  }, [setOpen, inspectionOrder, refetchDataAndClose]);
+  }, [setOpen, latestOrder, refetchDataAndClose]);
 
   const handleStatusButtonClick = useCallback(
     (status: OrderStatusEnum) => {
@@ -255,17 +262,17 @@ const OrderApprovalButtons = ({
 
       if (status === OrderStatusEnum.CLOSED) {
         title = "Close Order";
-        description = `You are about to close this Order ${inspectionOrder.order_number}.
-          Once closed, you can’t inspect against it. In order to inspect, you need to reopen it again.
+        description = `You are about to close this Order ${latestOrder.order_number}.
+          Once closed, you can't inspect against it. In order to inspect, you need to reopen it again.
           Are you sure?`;
         confirmButtonText = "Close Order";
       } else if (status === OrderStatusEnum.RESCINDED) {
         title = "Rescind Order";
-        description = `You are about to rescind this Order ${inspectionOrder.order_number}. Are you sure?`;
+        description = `You are about to rescind this Order ${latestOrder.order_number}. Are you sure?`;
         confirmButtonText = "Rescind Order";
       } else if (status === OrderStatusEnum.OPEN) {
         title = "Reopen Order";
-        description = `You are about to reopen Order ${inspectionOrder.order_number}. Once reopened, you can inspect against it. 
+        description = `You are about to reopen Order ${latestOrder.order_number}. Once reopened, you can inspect against it. 
           Are you sure?`;
         confirmButtonText = "Reopen Order";
       }
@@ -277,7 +284,7 @@ const OrderApprovalButtons = ({
             confirmButtonText={confirmButtonText}
             onConfirm={() => {
               updateOrderStatus({
-                inspectionOrderId: inspectionOrder.id ?? 0,
+                inspectionOrderId: latestOrder.id ?? 0,
                 statusPayload: {
                   status: status,
                 },
@@ -289,8 +296,8 @@ const OrderApprovalButtons = ({
     },
     [
       setOpen,
-      inspectionOrder.order_number,
-      inspectionOrder.id,
+      latestOrder.order_number,
+      latestOrder.id,
       updateOrderStatus,
     ]
   );

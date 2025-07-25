@@ -33,6 +33,7 @@ import EnforcementStatusFlag from "@/components/App/Inspections/Profile/Enforcem
 import { RestartAltRounded } from "@mui/icons-material";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
+import { useQueryClient } from "@tanstack/react-query";
 
 type WarningLetterDrawerProps = {
   onSubmit: (submitMsg: string, isCloseDrawer?: boolean) => void;
@@ -73,6 +74,7 @@ const WarningLetterDrawer: React.FC<WarningLetterDrawerProps> = ({
 }) => {
   const { appHeaderHeight } = useMenuStore();
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
+  const queryClient = useQueryClient();
 
   const isDrafting = useMemo(
     () => warningLetter.progress?.id === WarningLetterProgressEnum.DRAFTING,
@@ -117,10 +119,19 @@ const WarningLetterDrawer: React.FC<WarningLetterDrawerProps> = ({
 
   const onSuccess = useCallback(
     (data: InspectionWarningLetter) => {
+      // Update the specific warning letter in cache with new data
+      queryClient.setQueryData(
+        ["inspection-warning-letters", inspection.id],
+        (oldData: InspectionWarningLetter[] | undefined) => {
+          if (!oldData) return oldData;
+          return oldData.map((wl) => (wl.id === data.id ? data : wl));
+        }
+      );
+
       onSubmit("Changes saved successfully!");
       reset(formatFormData(data));
     },
-    [onSubmit, reset, formatFormData]
+    [onSubmit, reset, formatFormData, queryClient, inspection.id]
   );
 
   const { mutate: updateWarningLetter } = useUpdateWarningLetter(onSuccess);
