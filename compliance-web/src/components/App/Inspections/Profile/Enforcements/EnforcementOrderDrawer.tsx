@@ -33,7 +33,7 @@ import { useModal } from "@/store/modalStore";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
 type EnforcementOrderDrawerProps = {
-  onSubmit: (submitMsg: string) => void;
+  onSubmit: (submitMsg: string, isCloseDrawer?: boolean) => void;
   inspection: Inspection;
   enforcementOrder: InspectionOrder;
   staffUsersList: StaffUser[];
@@ -165,7 +165,7 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
   );
 
   const onDeleteSuccess = useCallback(() => {
-    onSubmit("Order deleted successfully!");
+    onSubmit("Order deleted successfully!", true);
     reset();
   }, [onSubmit, reset]);
 

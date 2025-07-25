@@ -35,7 +35,7 @@ import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
 
 type EnforcementWarningLetterDrawerProps = {
-  onSubmit: (submitMsg: string) => void;
+  onSubmit: (submitMsg: string, isCloseDrawer?: boolean) => void;
   inspection: Inspection;
   warningLetter: InspectionWarningLetter;
   staffUsersList: StaffUser[];
@@ -152,7 +152,7 @@ const EnforcementWarningLetterDrawer: React.FC<
   );
 
   const onDeleteSuccess = useCallback(() => {
-    onSubmit("Warning letter deleted successfully!");
+    onSubmit("Warning letter deleted successfully!", true);
     reset();
   }, [onSubmit, reset]);
 

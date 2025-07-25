@@ -31,7 +31,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
-  const { setOpen: setDrawerOpen } = useDrawer();
+  const { setOpen: setDrawerOpen, setClose: setDrawerClose } = useDrawer();
   const [isDataLoading, setIsDataLoading] = React.useState<boolean>(true);
   const [requirementEnforcements, setRequirementEnforcements] = React.useState<
     InspectionRequirement[]
@@ -160,7 +160,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     setModalOpen({
       content: (
         <EnforcementModal
-          inspectionId={inspectionData.id}
+          inspectionData={inspectionData}
           enforcementType={modelType}
           requirementsList={
             modelType === EnforcementActionEnum.ORDER
@@ -209,7 +209,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     setDrawerOpen({
       content: (
         <EnforcementOrderDrawer
-          onSubmit={(message) => {
+          onSubmit={(message, isCloseDrawer) => {
             notify.success(message);
             refetchInspectionOrders();
             queryClient.invalidateQueries({
@@ -218,6 +218,9 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
                 inspectionData.case_file_id,
               ],
             });
+            if (isCloseDrawer) {
+              setDrawerClose();
+            }
           }}
           inspection={inspectionData}
           enforcementOrder={order}
@@ -235,9 +238,12 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     setDrawerOpen({
       content: (
         <EnforcementWarningLetterDrawer
-          onSubmit={(message) => {
+          onSubmit={(message, isCloseDrawer) => {
             notify.success(message);
             refetchInspectionWarningLetters();
+            if (isCloseDrawer) {
+              setDrawerClose();
+            }
           }}
           inspection={inspectionData}
           warningLetter={warningLetter}
