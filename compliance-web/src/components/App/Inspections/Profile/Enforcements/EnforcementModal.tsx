@@ -8,7 +8,10 @@ import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import { EnforcementActionEnum } from "@/utils/constants";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
-import { useCreateInspectionOrder } from "@/hooks/useInspectionOrders";
+import {
+  useCreateInspectionOrder,
+  useCreateOrderApproval,
+} from "@/hooks/useInspectionOrders";
 import {
   InspectionOrder,
   InspectionOrderAPIData,
@@ -22,9 +25,12 @@ import {
   InspectionWarningLetter,
   InspectionWarningLetterAPIData,
 } from "@/models/InspectionWarningLetter";
+import { Inspection } from "@/models/Inspection";
+import { useQueryClient } from "@tanstack/react-query";
+import { OrderApproval } from "@/models/OrderApproval";
 
 type EnforcementModalProps = {
-  inspectionId: number;
+  inspectionData: Inspection;
   enforcementType: EnforcementActionEnum;
   requirementsList: InspectionRequirement[];
   requirement?: InspectionRequirement;
@@ -91,13 +97,14 @@ const ManualOrderNumberInfo = () => {
 };
 
 const EnforcementModal: FC<EnforcementModalProps> = ({
-  inspectionId,
+  inspectionData,
   onSubmit,
   requirementsList,
   enforcementType,
   requirement,
 }) => {
   const isEnforcementOrder = enforcementType === EnforcementActionEnum.ORDER;
+  const queryClient = useQueryClient();
 
   const defaultValues = useMemo(() => {
     if (requirement) {
@@ -123,8 +130,27 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
     reset(defaultValues);
   }, [reset, defaultValues]);
 
+  const onOrderApprovalSuccess = (data: OrderApproval) => {
+    queryClient.invalidateQueries({
+      queryKey: ["order-approvals", data.order_id],
+    });
+    queryClient.invalidateQueries({
+      queryKey: ["inspection-orders", inspectionData.id],
+    });
+  };
+
+  const { mutate: createOrderApproval } = useCreateOrderApproval(
+    onOrderApprovalSuccess
+  );
+
   const onSuccess = (data: InspectionOrder | InspectionWarningLetter) => {
     if (isEnforcementOrder) {
+      if (inspectionData.is_history) {
+        createOrderApproval({
+          inspectionOrderId: (data as InspectionOrder).id ?? 0,
+          approvalPayload: {},
+        });
+      }
       onSubmit(`Order ${(data as InspectionOrder).order_number} created`, data);
     } else {
       onSubmit(
@@ -146,7 +172,7 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
     (data: EnforcementFormType) => {
       if (isEnforcementOrder) {
         const orderData: InspectionOrderAPIData = {
-          inspection_id: inspectionId,
+          inspection_id: inspectionData?.id ?? 0,
           inspection_requirement_ids: (
             data.requirements as InspectionRequirement[]
           ).map((requirement) => requirement.id),
@@ -159,7 +185,7 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
         });
       } else {
         const warningLetterData: InspectionWarningLetterAPIData = {
-          inspection_id: inspectionId,
+          inspection_id: inspectionData?.id ?? 0,
           inspection_requirement_ids: (
             data.requirements as InspectionRequirement[]
           ).map((requirement) => requirement.id),
@@ -172,7 +198,7 @@ const EnforcementModal: FC<EnforcementModalProps> = ({
     [
       createInspectionOrder,
       createInspectionWarningLetter,
-      inspectionId,
+      inspectionData,
       isEnforcementOrder,
     ]
   );

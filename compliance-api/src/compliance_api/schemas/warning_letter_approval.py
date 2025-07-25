@@ -48,7 +48,7 @@ class CreateWarningLetterApprovalSchema(BaseSchema):
 
     approved_by_id = fields.Integer(
         metadata={"description": "The unique id of the staff who needs to approve"},
-        required=True,
+        allow_none=True,
     )
 
 
