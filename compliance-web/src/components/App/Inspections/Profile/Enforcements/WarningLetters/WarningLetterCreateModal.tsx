@@ -1,10 +1,17 @@
 import { FC, useCallback, useEffect, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-
 import EnforcementModal from "@/components/App/Inspections/Profile/Enforcements/EnforcementModal";
-import { BaseEnforcementFormType, baseEnforcementSchema } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
-import { useCreateWarningLetter, useCreateWarningLetterApproval } from "@/hooks/useInspectionWarningLetters";
+import {
+  BaseEnforcementFormType,
+  baseEnforcementSchema,
+  getDefaultFormValues,
+  ENFORCEMENT_MESSAGES,
+} from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
+import {
+  useCreateWarningLetter,
+  useCreateWarningLetterApproval,
+} from "@/hooks/useInspectionWarningLetters";
 import {
   InspectionWarningLetter,
   InspectionWarningLetterAPIData,
@@ -14,10 +21,6 @@ import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { useQueryClient } from "@tanstack/react-query";
 import { notify } from "@/store/snackbarStore";
 import { WarningLetterApproval } from "@/models/WarningLetterApproval";
-
-const initWarningLetterFormData: BaseEnforcementFormType = {
-  requirements: [],
-};
 
 type WarningLetterCreateModalProps = {
   inspectionData: Inspection;
@@ -34,12 +37,7 @@ const WarningLetterCreateModal: FC<WarningLetterCreateModalProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const defaultValues = useMemo(() => {
-    if (requirement) {
-      return {
-        requirements: [requirement],
-      };
-    }
-    return initWarningLetterFormData;
+    return getDefaultFormValues(requirement);
   }, [requirement]);
 
   const methods = useForm<BaseEnforcementFormType>({
@@ -54,14 +52,15 @@ const WarningLetterCreateModal: FC<WarningLetterCreateModalProps> = ({
     reset(defaultValues);
   }, [reset, defaultValues]);
 
-  const onWarningLetterApprovalSuccess = async (data: WarningLetterApproval) => {
+  const onWarningLetterApprovalSuccess = async (
+    data: WarningLetterApproval
+  ) => {
     await queryClient.invalidateQueries({
       queryKey: ["inspection-warning-letters", inspectionData.id],
     });
-    const inspectionWarningLetters = queryClient.getQueryData<InspectionWarningLetter[]>([
-      "inspection-warning-letters",
-      inspectionData.id,
-    ]);
+    const inspectionWarningLetters = queryClient.getQueryData<
+      InspectionWarningLetter[]
+    >(["inspection-warning-letters", inspectionData.id]);
     if (inspectionWarningLetters) {
       const warningLetter = inspectionWarningLetters.find(
         (warningLetter) => warningLetter.id === data.warning_letter_id
@@ -72,9 +71,8 @@ const WarningLetterCreateModal: FC<WarningLetterCreateModalProps> = ({
     }
   };
 
-  const { mutate: createWarningLetterApproval } = useCreateWarningLetterApproval(
-    onWarningLetterApprovalSuccess
-  );
+  const { mutate: createWarningLetterApproval } =
+    useCreateWarningLetterApproval(onWarningLetterApprovalSuccess);
 
   const onSuccess = (data: InspectionWarningLetter) => {
     if (inspectionData.is_history) {
@@ -93,7 +91,11 @@ const WarningLetterCreateModal: FC<WarningLetterCreateModalProps> = ({
   };
 
   const notifyAndSubmit = (data: InspectionWarningLetter) => {
-    notify.success(`Warning Letter ${data.warning_letter_number} created`);
+    notify.success(
+      ENFORCEMENT_MESSAGES.WARNING_LETTER_CREATED(
+        data.warning_letter_number || ""
+      )
+    );
     onSubmit(data);
   };
 
@@ -130,4 +132,4 @@ const WarningLetterCreateModal: FC<WarningLetterCreateModalProps> = ({
   );
 };
 
-export default WarningLetterCreateModal; 
+export default WarningLetterCreateModal;

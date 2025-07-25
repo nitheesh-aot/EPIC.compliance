@@ -8,7 +8,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import EnforcementModal from "@/components/App/Inspections/Profile/Enforcements/EnforcementModal";
 import {
   BaseEnforcementFormType,
-  baseEnforcementSchema,
+  orderSchema,
+  getDefaultFormValues,
+  ENFORCEMENT_MESSAGES,
 } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
 import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbox";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
@@ -25,26 +27,7 @@ import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { OrderApproval } from "@/models/OrderApproval";
 import { notify } from "@/store/snackbarStore";
 
-// Extended schema for orders
-const orderSchema = baseEnforcementSchema.shape({
-  isHistoricalRecord: yup.boolean().nullable(),
-  manualOrderNumber: yup
-    .string()
-    .nullable()
-    .when("isHistoricalRecord", {
-      is: (value: boolean) => value === true,
-      then: (schema) => schema.required("Manual Order # is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-});
-
 type OrderFormType = yup.InferType<typeof orderSchema>;
-
-const initOrderFormData: OrderFormType = {
-  requirements: [],
-  isHistoricalRecord: false,
-  manualOrderNumber: undefined,
-};
 
 const ManualOrderNumberInfo = () => {
   const [isInfoExpanded, setIsInfoExpanded] = useState(false);
@@ -117,14 +100,7 @@ const OrderCreateModal: FC<OrderCreateModalProps> = ({
   const queryClient = useQueryClient();
 
   const defaultValues = useMemo(() => {
-    if (requirement) {
-      return {
-        requirements: [requirement],
-        isHistoricalRecord: false,
-        manualOrderNumber: undefined,
-      };
-    }
-    return initOrderFormData;
+    return getDefaultFormValues(requirement, false, undefined);
   }, [requirement]);
 
   const methods = useForm<OrderFormType>({
@@ -177,7 +153,7 @@ const OrderCreateModal: FC<OrderCreateModalProps> = ({
   };
 
   const notifyAndSubmit = (data: InspectionOrder) => {
-    notify.success(`Order ${data.order_number} created`);
+    notify.success(ENFORCEMENT_MESSAGES.ORDER_CREATED(data.order_number || ""));
     onSubmit(data);
   };
 
