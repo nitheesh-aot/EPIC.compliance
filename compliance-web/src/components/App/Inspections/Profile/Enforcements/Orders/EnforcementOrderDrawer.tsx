@@ -1,5 +1,9 @@
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
 import DrawerTitleBar from "@/components/Shared/Drawer/DrawerTitleBar";
+import {
+  InspectionOrder,
+  InspectionOrderAPIData,
+} from "@/models/InspectionOrder";
 import { Inspection } from "@/models/Inspection";
 import { useMenuStore } from "@/store/menuStore";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -7,43 +11,43 @@ import { Box, Button, Stack } from "@mui/material";
 import { useCallback, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
+import {
+  useDeleteInspectionOrder,
+  useResetOrderTemplate,
+  useUpdateInspectionOrder,
+} from "@/hooks/useInspectionOrders";
 import { StaffUser } from "@/models/Staff";
 import dayjs, { Dayjs } from "dayjs";
+import { EnforcementSection } from "@/models/EnforcementSection";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
+import { useEnforcementSectionsData } from "@/hooks/useEnforcementSections";
 import { BCDesignTokens } from "epic.theme";
-import {
-  InspectionWarningLetter,
-  InspectionWarningLetterAPIData,
-} from "@/models/InspectionWarningLetter";
-import {
-  useDeleteWarningLetter,
-  useResetWarningLetterTemplate,
-  useUpdateWarningLetter,
-} from "@/hooks/useInspectionWarningLetters";
-import EnforcementDownloadPDFButton from "./EnforcementDownloadPDFButton";
-import {
-  EnforcementActionEnum,
-  WarningLetterProgressEnum,
-  WarningLetterStatusEnum,
-} from "@/utils/constants";
-import WarningLetterApprovalButtons from "./WarningLetterApprovalButtons";
-import EnforcementStatusFlag from "./EnforcementStatusFlag";
+import EnforcementDownloadPDFButton from "../EnforcementDownloadPDFButton";
+import { EnforcementActionEnum, OrderProgressEnum } from "@/utils/constants";
+import OrderApprovalButtons from "@/components/App/Inspections/Profile/Enforcements/Orders/OrderApprovalButtons";
+import EnforcementStatusFlag from "@/components/App/Inspections/Profile/Enforcements/EnforcementStatusFlag";
 import { RestartAltRounded } from "@mui/icons-material";
-import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
+import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
-type EnforcementWarningLetterDrawerProps = {
+type EnforcementOrderDrawerProps = {
   onSubmit: (submitMsg: string, isCloseDrawer?: boolean) => void;
   inspection: Inspection;
-  warningLetter: InspectionWarningLetter;
+  enforcementOrder: InspectionOrder;
   staffUsersList: StaffUser[];
   isReadonlyMode?: boolean;
 };
 
-const warningLetterFormSchema = yup.object().shape({
-  content: yup
+const enforcementSchema = yup.object().shape({
+  whereAs: yup
+    .object({
+      html: yup.string(),
+      text: yup.string(),
+    })
+    .nullable(),
+  nowTherefore: yup
     .object({
       html: yup.string(),
       text: yup.string(),
@@ -53,49 +57,56 @@ const warningLetterFormSchema = yup.object().shape({
     .object<StaffUser>()
     .nullable()
     .required("Issuing Officer is required"),
+  section: yup.object<EnforcementSection>().required("Section is required"),
   intendedIssuanceDate: yup.mixed<Dayjs>().nullable().typeError("Invalid date"),
 });
 
-type EnforcementFormType = yup.InferType<typeof warningLetterFormSchema>;
+type EnforcementFormType = yup.InferType<typeof enforcementSchema>;
 
 const initFormData = {
-  content: { html: "", text: "" },
+  whereAs: { html: "", text: "" },
+  nowTherefore: { html: "", text: "" },
   issuingOfficer: {} as StaffUser,
+  section: {} as EnforcementSection,
   intendedIssuanceDate: undefined,
 };
 
-const EnforcementWarningLetterDrawer: React.FC<
-  EnforcementWarningLetterDrawerProps
-> = ({
+const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
   onSubmit,
   inspection,
-  warningLetter,
+  enforcementOrder,
   staffUsersList,
-  isReadonlyMode,
+  isReadonlyMode = false,
 }) => {
-  const { appHeaderHeight } = useMenuStore();
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
+  const { appHeaderHeight } = useMenuStore();
+  const { data: enforcementSections } = useEnforcementSectionsData();
 
   const isDrafting = useMemo(
-    () => warningLetter.progress?.id === WarningLetterProgressEnum.DRAFTING,
-    [warningLetter.progress]
+    () =>
+      enforcementOrder.order_progress?.id === OrderProgressEnum.DRAFTING,
+    [enforcementOrder.order_progress]
   );
 
-  const isReadonly =
-    useMemo(
-      () =>
-        warningLetter.status?.id === WarningLetterStatusEnum.ISSUED ||
-        isReadonlyMode,
-      [warningLetter.status, isReadonlyMode]
-    ) || false;
+  const isReadonly = useMemo(
+    () =>
+      enforcementOrder.order_progress?.id === OrderProgressEnum.ISSUED ||
+      isReadonlyMode,
+    [enforcementOrder.order_progress, isReadonlyMode]
+  );
 
-  const formatFormData = useCallback((data: InspectionWarningLetter) => {
+  const formatFormData = useCallback((data: InspectionOrder) => {
     return {
-      content: {
-        html: data.content,
-        text: data.content,
+      whereAs: {
+        html: data.where_as,
+        text: data.where_as,
+      },
+      nowTherefore: {
+        html: data.now_therefore,
+        text: data.now_therefore,
       },
       issuingOfficer: data.issuing_officer as StaffUser,
+      section: data.section as EnforcementSection,
       intendedIssuanceDate: data.intended_issuance_date
         ? dayjs(data.intended_issuance_date)
         : undefined,
@@ -103,14 +114,14 @@ const EnforcementWarningLetterDrawer: React.FC<
   }, []);
 
   const defaultValues = useMemo<EnforcementFormType>(() => {
-    if (warningLetter) {
-      return formatFormData(warningLetter);
+    if (enforcementOrder) {
+      return formatFormData(enforcementOrder);
     }
     return initFormData;
-  }, [warningLetter, formatFormData]);
+  }, [enforcementOrder, formatFormData]);
 
   const methods = useForm<EnforcementFormType>({
-    resolver: yupResolver(warningLetterFormSchema),
+    resolver: yupResolver(enforcementSchema),
     mode: "onBlur",
     defaultValues,
   });
@@ -118,55 +129,56 @@ const EnforcementWarningLetterDrawer: React.FC<
   const { handleSubmit, reset } = methods;
 
   const onSuccess = useCallback(
-    (data: InspectionWarningLetter) => {
+    (data: InspectionOrder) => {
       onSubmit("Changes saved successfully!");
       reset(formatFormData(data));
     },
     [onSubmit, reset, formatFormData]
   );
 
-  const { mutate: updateWarningLetter } = useUpdateWarningLetter(onSuccess);
+  const { mutate: updateInspectionOrder } = useUpdateInspectionOrder(onSuccess);
 
   const onSubmitHandler = useCallback(
     (formData: EnforcementFormType) => {
-      if (warningLetter) {
-        const warningLetterData: InspectionWarningLetterAPIData = {
+      if (enforcementOrder) {
+        const orderData: InspectionOrderAPIData = {
           inspection_id: inspection.id,
           inspection_requirement_ids:
-            warningLetter.warning_letter_requirement_maps?.map(
+            enforcementOrder.order_requirement_maps?.map(
               (map) => map.inspection_requirement_id
             ) || [],
-          content: formData.content?.html || undefined,
+          where_as: formData.whereAs?.html || undefined,
+          now_therefore: formData.nowTherefore?.html || undefined,
           issuing_officer_id: (formData.issuingOfficer as StaffUser).id,
+          section_id: (formData.section as EnforcementSection).id,
           intended_issuance_date:
             formData.intendedIssuanceDate?.toISOString() || undefined,
         };
 
-        updateWarningLetter({
-          inspectionWarningLetterId: warningLetter.id || 0,
-          inspectionWarningLetter: warningLetterData,
+        updateInspectionOrder({
+          inspectionOrderId: enforcementOrder.id || 0,
+          inspectionOrder: orderData,
         });
       }
     },
-    [inspection.id, updateWarningLetter, warningLetter]
+    [enforcementOrder, inspection.id, updateInspectionOrder]
   );
 
   const onDeleteSuccess = useCallback(() => {
-    onSubmit("Warning letter deleted successfully!", true);
+    onSubmit("Order deleted successfully!", true);
     reset();
   }, [onSubmit, reset]);
 
-  const { mutate: deleteWarningLetter } =
-    useDeleteWarningLetter(onDeleteSuccess);
+  const { mutate: deleteInspectionOrder } =
+    useDeleteInspectionOrder(onDeleteSuccess);
 
-  const onDeleteWarningLetter = useCallback(() => {
-    deleteWarningLetter({
-      inspectionWarningLetterId: warningLetter.id || 0,
+  const onDeleteOrder = useCallback(() => {
+    deleteInspectionOrder({
+      inspectionOrderId: enforcementOrder.id || 0,
     });
-  }, [deleteWarningLetter, warningLetter.id]);
+  }, [deleteInspectionOrder, enforcementOrder.id]);
 
-  const { mutate: resetWarningLetterTemplate } =
-    useResetWarningLetterTemplate(onSuccess);
+  const { mutate: resetOrderTemplate } = useResetOrderTemplate(onSuccess);
 
   const onResetTemplate = useCallback(() => {
     setModalOpen({
@@ -177,29 +189,24 @@ const EnforcementWarningLetterDrawer: React.FC<
           confirmButtonText="Yes, Reset"
           cancelButtonText="No, Keep Changes"
           onConfirm={() => {
-            resetWarningLetterTemplate({
-              inspectionWarningLetterId: warningLetter.id || 0,
-              fieldName: "content",
+            resetOrderTemplate({
+              inspectionOrderId: enforcementOrder.id || 0,
+              fieldNames: ["where_as", "now_therefore"],
             });
             setModalClose();
           }}
         />
       ),
     });
-  }, [
-    resetWarningLetterTemplate,
-    warningLetter.id,
-    setModalOpen,
-    setModalClose,
-  ]);
+  }, [resetOrderTemplate, enforcementOrder.id, setModalOpen, setModalClose]);
 
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
         <DrawerTitleBar
-          title={warningLetter.warning_letter_number || "Edit Warning Letter"}
+          title={enforcementOrder.order_number || "Edit Order"}
           isFormDirtyCheck
-          statusFlag={<EnforcementStatusFlag warningLetter={warningLetter} />}
+          statusFlag={<EnforcementStatusFlag order={enforcementOrder} />}
         />
         <Box
           sx={{
@@ -222,15 +229,16 @@ const EnforcementWarningLetterDrawer: React.FC<
           </Button>
           <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
             {!isReadonlyMode && (
-              <WarningLetterApprovalButtons
-                warningLetter={warningLetter}
+              <OrderApprovalButtons
+                inspectionOrder={enforcementOrder}
                 inspectionId={inspection.id}
+                caseFileId={inspection.case_file_id ?? 0}
               />
             )}
             <EnforcementDownloadPDFButton
-              enforcementId={warningLetter.id || 0}
-              fileNumber={warningLetter.warning_letter_number || ""}
-              enforcementType={EnforcementActionEnum.WARNING_LETTER}
+              enforcementId={enforcementOrder.id || 0}
+              fileNumber={enforcementOrder.order_number || ""}
+              enforcementType={EnforcementActionEnum.ORDER}
             />
           </Box>
         </Box>
@@ -249,8 +257,8 @@ const EnforcementWarningLetterDrawer: React.FC<
             }}
           >
             <ControlledLexicalEditor
-              label=""
-              name="content"
+              label="WHEREAS & DEFINITIONS"
+              name="whereAs"
               height={`calc(100vh - ${appHeaderHeight + 235}px)`}
               disabled={isReadonlyMode}
             />
@@ -275,24 +283,43 @@ const EnforcementWarningLetterDrawer: React.FC<
               isRequired={true}
               disabled={isReadonlyMode}
             />
-            <ControlledDateField
-              className="cy-intended-issuance-date"
-              name="intendedIssuanceDate"
-              label="Intended Issuance Date"
-              sx={{ width: "100%" }}
+            <Stack direction={"row"} gap={2}>
+              <ControlledAutoComplete
+                name="section"
+                label="Section"
+                options={enforcementSections || []}
+                getOptionLabel={(option) => option.name}
+                getOptionKey={(option) => option.id}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                fullWidth
+                isRequired={true}
+                disabled={isReadonlyMode}
+              />
+              <ControlledDateField
+                className="cy-intended-issuance-date"
+                name="intendedIssuanceDate"
+                label="Intended Issuance Date"
+                sx={{ width: "100%" }}
+                disabled={isReadonlyMode}
+              />
+            </Stack>
+            <ControlledLexicalEditor
+              label="NOW THEREFORE"
+              name="nowTherefore"
+              height={`calc(100vh - ${appHeaderHeight + 428}px)`}
               disabled={isReadonlyMode}
             />
           </Box>
         </Stack>
         <DrawerActionBarBottom
-          isShowActionBar={!!warningLetter && !isReadonly}
-          onDeleteAction={onDeleteWarningLetter}
-          onDeleteTitle="Delete Warning Letter"
-          onDeleteDescription={`You are about to delete Warning Letter ${warningLetter.warning_letter_number}. Are you sure?`}
+          isShowActionBar={!!enforcementOrder && !isReadonly}
+          onDeleteAction={onDeleteOrder}
+          onDeleteTitle="Delete Order"
+          onDeleteDescription={`You are about to delete Order ${enforcementOrder.order_number}. Are you sure?`}
         />
       </form>
     </FormProvider>
   );
 };
 
-export default EnforcementWarningLetterDrawer;
+export default EnforcementOrderDrawer;

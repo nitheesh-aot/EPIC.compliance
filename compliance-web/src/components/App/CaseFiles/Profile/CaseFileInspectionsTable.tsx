@@ -31,12 +31,12 @@ import {
 import { Link as RouterLink } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { Fragment, useState } from "react";
-import EnforcementOrderDrawer from "@/components/App/Inspections/Profile/Enforcements/EnforcementOrderDrawer";
+import EnforcementOrderDrawer from "@/components/App/Inspections/Profile/Enforcements/Orders/EnforcementOrderDrawer";
 import { useDrawer } from "@/store/drawerStore";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useFetchWarningLetterByNumber } from "@/hooks/useInspectionWarningLetters";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
-import EnforcementWarningLetterDrawer from "@/components/App/Inspections/Profile/Enforcements/EnforcementWarningLetterDrawer";
+import EnforcementWarningLetterDrawer from "@/components/App/Inspections/Profile/Enforcements/WarningLetters/EnforcementWarningLetterDrawer";
 
 const styleOverFlowClipped = {
   whiteSpace: "nowrap",

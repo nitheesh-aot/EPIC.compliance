@@ -1,9 +1,9 @@
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { SendRounded } from "@mui/icons-material";
 import { Box, Button } from "@mui/material";
-import { SendForApprovalFormType } from "../SendForApprovalModal";
+import { SendForApprovalFormType } from "@/components/App/Inspections/Profile/SendForApprovalModal";
 import { useCallback, useMemo } from "react";
-import SendForApprovalModal from "../SendForApprovalModal";
+import SendForApprovalModal from "@/components/App/Inspections/Profile/SendForApprovalModal";
 import { notify } from "@/store/snackbarStore";
 import { useModal } from "@/store/modalStore";
 import {
@@ -24,7 +24,7 @@ import { OrderProgressEnum } from "@/utils/constants";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useQueryClient } from "@tanstack/react-query";
-import IssueEnforcementModal from "./IssueEnforcementModal";
+import IssueEnforcementModal from "@/components/App/Inspections/Profile/Enforcements/IssueEnforcementModal";
 import { useDrawer } from "@/store/drawerStore";
 
 const OrderApprovalButtons = ({
