@@ -31,12 +31,12 @@ import {
 import { Link as RouterLink } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { Fragment, useState } from "react";
-import EnforcementOrderDrawer from "@/components/App/Inspections/Profile/Enforcements/Orders/EnforcementOrderDrawer";
+import OrderDrawer from "@/components/App/Inspections/Profile/Enforcements/Orders/OrderDrawer";
 import { useDrawer } from "@/store/drawerStore";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { useFetchWarningLetterByNumber } from "@/hooks/useInspectionWarningLetters";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
-import EnforcementWarningLetterDrawer from "@/components/App/Inspections/Profile/Enforcements/WarningLetters/EnforcementWarningLetterDrawer";
+import WarningLetterDrawer from "@/components/App/Inspections/Profile/Enforcements/WarningLetters/WarningLetterDrawer";
 
 const styleOverFlowClipped = {
   whiteSpace: "nowrap",
@@ -105,7 +105,7 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
     );
     setOpen({
       content: (
-        <EnforcementOrderDrawer
+        <OrderDrawer
           onSubmit={() => {
             setClose();
           }}
@@ -128,7 +128,7 @@ const CaseFileInspectionsTable = ({ caseFile }: { caseFile: CaseFile }) => {
     );
     setOpen({
       content: (
-        <EnforcementWarningLetterDrawer
+        <WarningLetterDrawer
           onSubmit={() => {
             setClose();
           }}

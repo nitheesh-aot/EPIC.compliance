@@ -12,11 +12,11 @@ import EnforcementModal from "./Enforcements/EnforcementModal";
 import { notify } from "@/store/snackbarStore";
 import EnforcementCard from "./Enforcements/EnforcementCard";
 import { useInspectionOrdersData } from "@/hooks/useInspectionOrders";
-import EnforcementOrderDrawer from "./Enforcements/Orders/EnforcementOrderDrawer";
+import OrderDrawer from "./Enforcements/Orders/OrderDrawer";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import { useDrawer } from "@/store/drawerStore";
 import { useInspectionWarningLettersData } from "@/hooks/useInspectionWarningLetters";
-import EnforcementWarningLetterDrawer from "./Enforcements/WarningLetters/EnforcementWarningLetterDrawer";
+import WarningLetterDrawer from "./Enforcements/WarningLetters/WarningLetterDrawer";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
 import { AddRounded } from "@mui/icons-material";
 import { useQueryClient } from "@tanstack/react-query";
@@ -208,7 +208,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
   const openEnforcementOrderDrawer = (order: InspectionOrder) => {
     setDrawerOpen({
       content: (
-        <EnforcementOrderDrawer
+        <OrderDrawer
           onSubmit={(message, isCloseDrawer) => {
             notify.success(message);
             refetchInspectionOrders();
@@ -237,7 +237,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
   ) => {
     setDrawerOpen({
       content: (
-        <EnforcementWarningLetterDrawer
+        <WarningLetterDrawer
           onSubmit={(message, isCloseDrawer) => {
             notify.success(message);
             refetchInspectionWarningLetters();

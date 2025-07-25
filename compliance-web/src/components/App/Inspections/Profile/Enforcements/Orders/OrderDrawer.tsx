@@ -24,7 +24,7 @@ import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAut
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
 import { useEnforcementSectionsData } from "@/hooks/useEnforcementSections";
 import { BCDesignTokens } from "epic.theme";
-import EnforcementDownloadPDFButton from "../EnforcementDownloadPDFButton";
+import EnforcementDownloadPDFButton from "@/components/App/Inspections/Profile/Enforcements/EnforcementDownloadPDFButton";
 import { EnforcementActionEnum, OrderProgressEnum } from "@/utils/constants";
 import OrderApprovalButtons from "@/components/App/Inspections/Profile/Enforcements/Orders/OrderApprovalButtons";
 import EnforcementStatusFlag from "@/components/App/Inspections/Profile/Enforcements/EnforcementStatusFlag";
@@ -32,7 +32,7 @@ import { RestartAltRounded } from "@mui/icons-material";
 import { useModal } from "@/store/modalStore";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 
-type EnforcementOrderDrawerProps = {
+type OrderDrawerProps = {
   onSubmit: (submitMsg: string, isCloseDrawer?: boolean) => void;
   inspection: Inspection;
   enforcementOrder: InspectionOrder;
@@ -71,7 +71,7 @@ const initFormData = {
   intendedIssuanceDate: undefined,
 };
 
-const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
+const OrderDrawer: React.FC<OrderDrawerProps> = ({
   onSubmit,
   inspection,
   enforcementOrder,
@@ -322,4 +322,4 @@ const EnforcementOrderDrawer: React.FC<EnforcementOrderDrawerProps> = ({
   );
 };
 
-export default EnforcementOrderDrawer;
+export default OrderDrawer;

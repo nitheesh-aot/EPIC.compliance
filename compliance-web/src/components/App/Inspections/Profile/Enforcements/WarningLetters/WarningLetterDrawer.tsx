@@ -34,7 +34,7 @@ import { RestartAltRounded } from "@mui/icons-material";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useModal } from "@/store/modalStore";
 
-type EnforcementWarningLetterDrawerProps = {
+type WarningLetterDrawerProps = {
   onSubmit: (submitMsg: string, isCloseDrawer?: boolean) => void;
   inspection: Inspection;
   warningLetter: InspectionWarningLetter;
@@ -64,9 +64,7 @@ const initFormData = {
   intendedIssuanceDate: undefined,
 };
 
-const EnforcementWarningLetterDrawer: React.FC<
-  EnforcementWarningLetterDrawerProps
-> = ({
+const WarningLetterDrawer: React.FC<WarningLetterDrawerProps> = ({
   onSubmit,
   inspection,
   warningLetter,
@@ -295,4 +293,4 @@ const EnforcementWarningLetterDrawer: React.FC<
   );
 };
 
-export default EnforcementWarningLetterDrawer;
+export default WarningLetterDrawer;
