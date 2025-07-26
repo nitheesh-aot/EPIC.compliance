@@ -5,6 +5,7 @@ import { downloadFile } from "@/utils/appUtils";
 import { useInspectionOrderRendered } from "@/hooks/useInspectionOrders";
 import { EnforcementActionEnum } from "@/utils/constants";
 import { useWarningLetterRendered } from "@/hooks/useInspectionWarningLetters";
+import { ENFORCEMENT_TYPES } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
 
 interface EnforcementDownloadPDFButtonProps {
   enforcementId: number;
@@ -33,7 +34,7 @@ const EnforcementDownloadPDFButton = ({
 
   const handleDownloadClick = () => {
     setIsLoading(true);
-    if (enforcementType === EnforcementActionEnum.ORDER) {
+    if (enforcementType === ENFORCEMENT_TYPES.ORDER) {
       mutateOrderPDFData({
         inspectionOrderId: enforcementId,
         format: "pdf",

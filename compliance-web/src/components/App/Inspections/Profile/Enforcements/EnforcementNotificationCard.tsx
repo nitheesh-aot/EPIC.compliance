@@ -4,6 +4,7 @@ import { BCDesignTokens } from "epic.theme";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { useState } from "react";
 import { EnforcementActionEnum } from "@/utils/constants";
+import { isEnforcementOrder } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
 
 const EnforcementNotificationCard = ({
   requirement,
@@ -13,9 +14,7 @@ const EnforcementNotificationCard = ({
   openEnforcementModal: (modelType: EnforcementActionEnum) => void;
 }) => {
   const [isClosed, setIsClosed] = useState(false);
-  const isEnforcementOrder = requirement.enforcement_action_data.some(
-    (enforcement) => enforcement.id === EnforcementActionEnum.ORDER
-  );
+  const isOrder = isEnforcementOrder(requirement);
 
   return (
     !isClosed && (
@@ -37,10 +36,10 @@ const EnforcementNotificationCard = ({
         <InfoOutlined sx={{ fontSize: "1.25rem", mt: 0.5 }} />
         <Box flexGrow={1}>
           <Typography variant="body1" fontWeight={"bold"}>
-            {isEnforcementOrder ? "Order" : "Warning Letter"}
+            {isOrder ? "Order" : "Warning Letter"}
           </Typography>
           <Typography variant="body1">
-            You have selected {isEnforcementOrder ? "order" : "warning letter"}{" "}
+            You have selected {isOrder ? "order" : "warning letter"}{" "}
             as an enforcement action for <strong>{requirement.summary}</strong>.
             Please proceed to create it.
           </Typography>
@@ -51,7 +50,7 @@ const EnforcementNotificationCard = ({
               size="small"
               onClick={() =>
                 openEnforcementModal(
-                  isEnforcementOrder
+                  isOrder
                     ? EnforcementActionEnum.ORDER
                     : EnforcementActionEnum.WARNING_LETTER
                 )

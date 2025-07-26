@@ -1,0 +1,238 @@
+import { InspectionRequirement } from "@/models/InspectionRequirement";
+import { InspectionOrder } from "@/models/InspectionOrder";
+import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
+import { EnforcementActionEnum } from "@/utils/constants";
+import * as yup from "yup";
+import dateUtils from "@/utils/dateUtils";
+
+// Base schema for all enforcement types
+export const baseEnforcementSchema = yup.object().shape({
+  requirements: yup
+    .array()
+    .of(yup.object<InspectionRequirement>())
+    .nullable()
+    .min(1, "At least one Requirement is required")
+    .required("Requirement is required"),
+});
+
+export type BaseEnforcementFormType = yup.InferType<typeof baseEnforcementSchema>;
+
+export const initBaseFormData: BaseEnforcementFormType = {
+  requirements: [],
+};
+
+// Extended schema for orders with historical record support
+export const orderSchema = baseEnforcementSchema.shape({
+  isHistoricalRecord: yup.boolean().nullable(),
+  manualOrderNumber: yup
+    .string()
+    .nullable()
+    .when("isHistoricalRecord", {
+      is: (value: boolean) => value === true,
+      then: (schema) => schema.required("Manual Order # is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+});
+
+export type OrderFormType = yup.InferType<typeof orderSchema>;
+
+export const initOrderFormData: OrderFormType = {
+  requirements: [],
+  isHistoricalRecord: false,
+  manualOrderNumber: undefined,
+};
+
+// Enforcement type detection functions
+export const isEnforcementOrder = (requirement: InspectionRequirement): boolean => {
+  return requirement.enforcement_action_data.some(
+    (enforcement) => enforcement.id === EnforcementActionEnum.ORDER
+  );
+};
+
+export const isEnforcementWarningLetter = (requirement: InspectionRequirement): boolean => {
+  return requirement.enforcement_action_data.some(
+    (enforcement) => enforcement.id === EnforcementActionEnum.WARNING_LETTER
+  );
+};
+
+export const getEnforcementTypeFromRequirement = (requirement: InspectionRequirement): EnforcementActionEnum | null => {
+  if (isEnforcementOrder(requirement)) {
+    return EnforcementActionEnum.ORDER;
+  }
+  if (isEnforcementWarningLetter(requirement)) {
+    return EnforcementActionEnum.WARNING_LETTER;
+  }
+  return null;
+};
+
+// Requirement data processing functions
+export const prepNonProceededRequirements = (
+  {
+    requirements,
+    reqIds,
+    enforcementActionType
+  } : {
+    requirements: InspectionRequirement[],
+    reqIds: (number[] | undefined)[] | undefined,
+    enforcementActionType: EnforcementActionEnum
+  }
+) => {
+  const flattenedReqIds = reqIds?.flat() || [];
+  const nonProceededRequirements = requirements.filter(
+    (requirement) =>
+      !flattenedReqIds.includes(requirement.id) &&
+      requirement.enforcement_action_data?.some(
+        (enforcement) => enforcement.id === enforcementActionType
+      )
+  );
+  return nonProceededRequirements;
+};
+
+export const formatRequirementSummary = (
+  order?: InspectionOrder,
+  warningLetter?: InspectionWarningLetter
+): string => {
+  if (order?.order_requirement_maps) {
+    return order.order_requirement_maps
+      .map((map) => map.inspection_requirement.summary)
+      .join(", ");
+  }
+  if (warningLetter?.warning_letter_requirement_maps) {
+    return warningLetter.warning_letter_requirement_maps
+      .map((map) => map.inspection_requirement.summary)
+      .join(", ");
+  }
+  return "No requirement summary available";
+};
+
+export const formatRequirementSources = (
+  requirementEnforcements: InspectionRequirement[],
+  order?: InspectionOrder,
+  warningLetter?: InspectionWarningLetter
+): string[] => {
+  const orderRequirementIds = order?.order_requirement_maps?.map(
+    (map) => map.inspection_requirement_id
+  );
+  const warningLetterRequirementIds =
+    warningLetter?.warning_letter_requirement_maps?.map(
+      (map) => map.inspection_requirement_id
+    );
+
+  const requirementIds = [
+    ...(orderRequirementIds || []),
+    ...(warningLetterRequirementIds || []),
+  ];
+
+  const requirements = requirementEnforcements.filter((requirement) =>
+    requirementIds?.includes(requirement.id)
+  );
+
+  const result: string[] = [];
+
+  requirements.forEach((requirement) => {
+    const sourceMap = new Map<number, { name: string; numbers: string[] }>();
+
+    requirement.requirement_source_details.forEach((source) => {
+      const sourceId = source.requirement_source_id;
+      const sourceName = source.requirement_source?.name || "";
+      const number = source.condition_number ?? source.section_number ?? "";
+
+      if (!sourceMap.has(sourceId)) {
+        sourceMap.set(sourceId, { name: sourceName, numbers: [] });
+      }
+
+      if (number) {
+        sourceMap.get(sourceId)?.numbers.push(`#${number.trim()}`);
+      }
+    });
+
+    sourceMap.forEach((value) => {
+      if (value.numbers.length > 0) {
+        result.push(`${value.name}, ${value.numbers.join(", ")}`);
+      } else {
+        result.push(value.name);
+      }
+    });
+  });
+  return result;
+};
+
+// Approval data extraction functions
+export const getSentForReviewDate = (
+  order?: InspectionOrder,
+  warningLetter?: InspectionWarningLetter
+): string => {
+  let sentForReviewDate: string = "";
+  if (order?.order_approvals) {
+    sentForReviewDate = order.order_approvals?.[0]?.created_date ?? "";
+  }
+  if (warningLetter?.warning_letter_approvals) {
+    sentForReviewDate =
+      warningLetter.warning_letter_approvals?.[0]?.created_date ?? "";
+  }
+  return sentForReviewDate ? dateUtils.formatDate(sentForReviewDate) : "";
+};
+
+export const getApprovedByDate = (
+  order?: InspectionOrder,
+  warningLetter?: InspectionWarningLetter
+): string => {
+  let approvedByDate: string = "";
+  if (order?.order_approvals) {
+    approvedByDate = order.order_approvals?.[0]?.approved_date ?? "";
+  }
+  if (warningLetter?.warning_letter_approvals) {
+    approvedByDate =
+      warningLetter.warning_letter_approvals?.[0]?.approved_date ?? "";
+  }
+  return approvedByDate ? dateUtils.formatDate(approvedByDate) : "";
+};
+
+export const getApproverName = (
+  order?: InspectionOrder,
+  warningLetter?: InspectionWarningLetter
+): string => {
+  let approverName: string = "";
+  if (order?.order_approvals) {
+    approverName = order.order_approvals?.[0]?.approved_by?.name ?? "";
+  }
+  if (warningLetter?.warning_letter_approvals) {
+    approverName =
+      warningLetter.warning_letter_approvals?.[0]?.approved_by?.name ?? "";
+  }
+  return approverName;
+};
+
+// Utility functions for form handling
+export const getDefaultFormValues = (
+  requirement?: InspectionRequirement,
+  isHistoricalRecord: boolean = false,
+  manualOrderNumber?: string
+) => {
+  if (requirement) {
+    return {
+      requirements: [requirement],
+      ...(isHistoricalRecord !== undefined && { isHistoricalRecord }),
+      ...(manualOrderNumber !== undefined && { manualOrderNumber }),
+    };
+  }
+  return {
+    requirements: [],
+    ...(isHistoricalRecord !== undefined && { isHistoricalRecord }),
+    ...(manualOrderNumber !== undefined && { manualOrderNumber }),
+  };
+};
+
+// Enforcement type constants
+export const ENFORCEMENT_TYPES = {
+  ORDER: EnforcementActionEnum.ORDER,
+  WARNING_LETTER: EnforcementActionEnum.WARNING_LETTER,
+} as const;
+
+// Common notification messages
+export const ENFORCEMENT_MESSAGES = {
+  ORDER_CREATED: (orderNumber: string) => `Order ${orderNumber} created`,
+  WARNING_LETTER_CREATED: (warningLetterNumber: string) => `Warning Letter ${warningLetterNumber} created`,
+  ORDER_ISSUED: "Order issued",
+  WARNING_LETTER_ISSUED: "Warning letter issued",
+} as const;

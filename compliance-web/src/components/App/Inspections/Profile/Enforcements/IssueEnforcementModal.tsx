@@ -12,6 +12,7 @@ import { InspectionOrder } from "@/models/InspectionOrder";
 import { useIssueOrder } from "@/hooks/useInspectionOrders";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
 import { useIssueWarningLetter } from "@/hooks/useInspectionWarningLetters";
+import { ENFORCEMENT_MESSAGES } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
 
 type IssueEnforcementModalProps = {
   onSubmit: (message: string) => void;
@@ -59,9 +60,9 @@ const IssueEnforcementModal: FC<IssueEnforcementModalProps> = ({
 
   const onSuccess = () => {
     if (inspectionOrder) {
-      onSubmit("Order issued");
+      onSubmit(ENFORCEMENT_MESSAGES.ORDER_ISSUED);
     } else {
-      onSubmit("Warning letter issued");
+      onSubmit(ENFORCEMENT_MESSAGES.WARNING_LETTER_ISSUED);
     }
   };
 

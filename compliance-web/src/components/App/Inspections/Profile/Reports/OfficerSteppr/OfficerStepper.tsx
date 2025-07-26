@@ -26,7 +26,7 @@ const preliminarySteps = [
   "Select IR version",
 ];
 
-const finalSteps = ["IR Intended Issuance Date"];
+const finalSteps = ["IR Issuance Date"];
 
 export default function OfficerStepper() {
   const {

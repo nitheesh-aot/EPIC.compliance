@@ -1,24 +1,29 @@
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { SendRounded } from "@mui/icons-material";
 import { Box, Button } from "@mui/material";
-import { SendForApprovalFormType } from "../SendForApprovalModal";
+import { SendForApprovalFormType } from "@/components/App/Inspections/Profile/SendForApprovalModal";
 import { useCallback, useMemo } from "react";
-import SendForApprovalModal from "../SendForApprovalModal";
+import SendForApprovalModal from "@/components/App/Inspections/Profile/SendForApprovalModal";
 import { notify } from "@/store/snackbarStore";
 import { useModal } from "@/store/modalStore";
 import { StaffUser } from "@/models/Staff";
 import { WarningLetterApproval } from "@/models/WarningLetterApproval";
 import { useCurrentLoggedInUser } from "@/hooks/useAuthorization";
-import { APPROVAL_STATUS, STAFF_USER_POSITION, WarningLetterProgressEnum } from "@/utils/constants";
+import {
+  APPROVAL_STATUS,
+  STAFF_USER_POSITION,
+  WarningLetterProgressEnum,
+} from "@/utils/constants";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { useQueryClient } from "@tanstack/react-query";
-import IssueEnforcementModal from "./IssueEnforcementModal";
+import IssueEnforcementModal from "@/components/App/Inspections/Profile/Enforcements/IssueEnforcementModal";
 import { useDrawer } from "@/store/drawerStore";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
 import {
   useCreateWarningLetterApproval,
   useFetchWarningLetterApprovals,
   useUpdateWarningLetterApprovalStatus,
+  useInspectionWarningLettersData,
 } from "@/hooks/useInspectionWarningLetters";
 
 const WarningLetterApprovalButtons = ({
@@ -33,9 +38,15 @@ const WarningLetterApprovalButtons = ({
   const { data: staffData } = useStaffUsersData();
   const currentUser = useCurrentLoggedInUser();
   const queryClient = useQueryClient();
+  
+  // Get the latest warning letter data from cache to ensure buttons update immediately
+  const { data: warningLettersData } = useInspectionWarningLettersData(inspectionId);
+  const latestWarningLetter = useMemo(() => {
+    return warningLettersData?.find(wl => wl.id === warningLetter.id) || warningLetter;
+  }, [warningLettersData, warningLetter]);
 
   const { data: warningLetterApprovalsData } = useFetchWarningLetterApprovals(
-    warningLetter.id ?? 0
+    latestWarningLetter.id ?? 0
   );
 
   // Memoize the current user's staff ID
@@ -74,14 +85,14 @@ const WarningLetterApprovalButtons = ({
   const onSuccess = useCallback(
     (data: WarningLetterApproval) => {
       queryClient.setQueryData(
-        ["warning-letter-approvals", warningLetter.id],
+        ["warning-letter-approvals", latestWarningLetter.id],
         (oldData: WarningLetterApproval[]) => {
           return [...oldData, data];
         }
       );
       refetchDataAndClose("Approval request sent");
     },
-    [refetchDataAndClose, queryClient, warningLetter.id]
+    [refetchDataAndClose, queryClient, latestWarningLetter.id]
   );
 
   const { mutate: createWarningLetterApproval, isPending } =
@@ -91,7 +102,7 @@ const WarningLetterApprovalButtons = ({
     (data: WarningLetterApproval) => {
       notify.success("Approval status updated");
       queryClient.setQueryData(
-        ["warning-letter-approvals", warningLetter.id],
+        ["warning-letter-approvals", latestWarningLetter.id],
         (oldData: WarningLetterApproval[]) => {
           return oldData.map((approval) =>
             approval.id === data.id ? data : approval
@@ -100,7 +111,7 @@ const WarningLetterApprovalButtons = ({
       );
       refetchDataAndClose("Approval status updated");
     },
-    [warningLetter.id, queryClient, refetchDataAndClose]
+    [latestWarningLetter.id, queryClient, refetchDataAndClose]
   );
 
   const { mutate: updateWarningLetterApprovalStatus } =
@@ -110,13 +121,13 @@ const WarningLetterApprovalButtons = ({
     (data: SendForApprovalFormType) => {
       const directorId = (data.director as StaffUser).id;
       createWarningLetterApproval({
-        inspectionWarningLetterId: warningLetter.id ?? 0,
+        inspectionWarningLetterId: latestWarningLetter.id ?? 0,
         approvalPayload: {
           approved_by_id: directorId,
         },
       });
     },
-    [createWarningLetterApproval, warningLetter.id]
+    [createWarningLetterApproval, latestWarningLetter.id]
   );
 
   // Modal handlers
@@ -134,13 +145,13 @@ const WarningLetterApprovalButtons = ({
 
   const isInDeputyReview = useMemo(
     () =>
-      warningLetter.progress?.id === WarningLetterProgressEnum.DEPUTY_REVIEW,
-    [warningLetter.progress]
+      latestWarningLetter.progress?.id === WarningLetterProgressEnum.DEPUTY_REVIEW,
+    [latestWarningLetter.progress]
   );
 
   const isInDrafting = useMemo(
-    () => warningLetter.progress?.id === WarningLetterProgressEnum.DRAFTING,
-    [warningLetter.progress]
+    () => latestWarningLetter.progress?.id === WarningLetterProgressEnum.DRAFTING,
+    [latestWarningLetter.progress]
   );
 
   const isDisableSendApprovalButton = useMemo(
@@ -159,10 +170,15 @@ const WarningLetterApprovalButtons = ({
   );
 
   const isShowIssueButton = useMemo(
+    () => latestWarningLetter?.progress?.id === WarningLetterProgressEnum.APPROVED,
+    [latestWarningLetter]
+  );
+
+  const isIssueButtonDisabled = useMemo(
     () =>
-      warningLetter?.progress?.id === WarningLetterProgressEnum.APPROVED &&
-      warningLetter?.intended_issuance_date,
-    [warningLetter]
+      latestWarningLetter?.progress?.id === WarningLetterProgressEnum.APPROVED &&
+      !latestWarningLetter?.intended_issuance_date,
+    [latestWarningLetter]
   );
 
   const handleApprovalsButtonClick = useCallback(
@@ -179,7 +195,7 @@ const WarningLetterApprovalButtons = ({
             confirmButtonText={isApprove ? "Approve" : "Reject"}
             onConfirm={() => {
               updateWarningLetterApprovalStatus({
-                inspectionWarningLetterId: warningLetter.id ?? 0,
+                inspectionWarningLetterId: latestWarningLetter.id ?? 0,
                 approvalId: warningLetterApprovalsData?.[0]?.id ?? 0,
                 statusPayload: {
                   approval_status: isApprove
@@ -197,7 +213,7 @@ const WarningLetterApprovalButtons = ({
       currentUserStaffId,
       setOpen,
       updateWarningLetterApprovalStatus,
-      warningLetter.id,
+      latestWarningLetter.id,
       warningLetterApprovalsData,
     ]
   );
@@ -209,11 +225,11 @@ const WarningLetterApprovalButtons = ({
           onSubmit={(message) => {
             refetchDataAndClose(message);
           }}
-          warningLetter={warningLetter}
+          warningLetter={latestWarningLetter}
         />
       ),
     });
-  }, [setOpen, warningLetter, refetchDataAndClose]);
+  }, [setOpen, latestWarningLetter, refetchDataAndClose]);
 
   return (
     <>
@@ -246,7 +262,12 @@ const WarningLetterApprovalButtons = ({
         </Box>
       )}
       {isShowIssueButton && (
-        <Button onClick={handleIssueButtonClick}>Issue Warning Letter</Button>
+        <Button
+          onClick={handleIssueButtonClick}
+          disabled={isIssueButtonDisabled}
+        >
+          Issue Warning Letter
+        </Button>
       )}
     </>
   );
