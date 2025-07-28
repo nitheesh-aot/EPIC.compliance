@@ -55,6 +55,9 @@ class WarningLetterService:
             )
         warning_letter_obj = _create_warning_letter_obj(inspection, warning_letter_data)
         with session_scope() as session:
+            # pylint: disable=import-outside-toplevel
+            from compliance_api.services.warning_letter.warning_letter_approval import WarningLetterApprovalService
+
             created_warning_letter = WarningLetterModel.create_warning_letter(
                 warning_letter_obj, session
             )
@@ -63,6 +66,14 @@ class WarningLetterService:
                 warning_letter_data.get("inspection_requirement_ids", []),
                 session,
             )
+            if inspection.is_history:
+                WarningLetterApprovalService.create_approval(
+                    {
+                        "approved_by_id": None,
+                    },
+                    created_warning_letter.id,
+                    session,
+                )
         return created_warning_letter
 
     @classmethod

@@ -89,12 +89,13 @@ class InspectionRecordDataBuilder:
                 IRProgressEnum.FINAL_APPROVED,
                 IRProgressEnum.ISSUED,
             ]:
-                self.data["approval_info"] = {
-                    "approved_by": latest_approval.approved_by.first_name
-                    + " "
-                    + latest_approval.approved_by.last_name,
-                    "approved_by_position": latest_approval.approved_by.position.name,
-                }
+                if latest_approval.approved_by:
+                    self.data["approval_info"] = {
+                        "approved_by": latest_approval.approved_by.first_name
+                        + " "
+                        + latest_approval.approved_by.last_name,
+                        "approved_by_position": latest_approval.approved_by.position.name,
+                    }
         return self
 
     def build_officer_details(self):

@@ -50,7 +50,21 @@ class InspectionRecordService:
             .build()
         )
         ir_obj = _create_ir_object(ir_data, ir_status, inspection_id)
-        created_ir = InspectionRecordModel.create_inspection_record(ir_obj)
+        with session_scope() as session:
+            # pylint: disable=import-outside-toplevel
+            from compliance_api.services.inspection_record.inspection_record_approval import (
+                InspectionRecordApprovalService)
+
+            created_ir = InspectionRecordModel.create_inspection_record(
+                ir_obj, session=session
+            )
+            if inspection.is_history:
+                InspectionRecordApprovalService.create_approval(
+                    ir_approval_request_data={"approved_by_id": None},
+                    inspection_id=inspection_id,
+                    inspection_record_id=created_ir.id,
+                    ho_session=session,
+                )
         return created_ir
 
     @classmethod
