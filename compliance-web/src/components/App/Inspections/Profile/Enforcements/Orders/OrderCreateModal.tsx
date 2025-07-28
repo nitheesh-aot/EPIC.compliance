@@ -7,7 +7,6 @@ import { ExpandMoreRounded } from "@mui/icons-material";
 import { useQueryClient } from "@tanstack/react-query";
 import EnforcementModal from "@/components/App/Inspections/Profile/Enforcements/EnforcementModal";
 import {
-  BaseEnforcementFormType,
   orderSchema,
   getDefaultFormValues,
   ENFORCEMENT_MESSAGES,
@@ -161,10 +160,7 @@ const OrderCreateModal: FC<OrderCreateModalProps> = ({
     useCreateInspectionOrder(onSuccess);
 
   const handleBaseSubmit = useCallback(
-    (data: BaseEnforcementFormType) => {
-      // Get the full form data including order-specific fields
-      const fullData = methods.getValues() as OrderFormType;
-
+    (data: OrderFormType) => {
       const orderData: InspectionOrderAPIData = {
         inspection_id: inspectionData?.id ?? 0,
         inspection_requirement_ids: (
@@ -172,15 +168,15 @@ const OrderCreateModal: FC<OrderCreateModalProps> = ({
         ).map((requirement) => requirement.id),
       };
 
-      if (fullData.isHistoricalRecord) {
-        orderData.order_number = fullData.manualOrderNumber ?? "";
+      if (data.isHistoricalRecord) {
+        orderData.order_number = data.manualOrderNumber ?? "";
       }
 
       createInspectionOrder({
         inspectionOrder: orderData,
       });
     },
-    [createInspectionOrder, inspectionData, methods]
+    [createInspectionOrder, inspectionData]
   );
 
   return (

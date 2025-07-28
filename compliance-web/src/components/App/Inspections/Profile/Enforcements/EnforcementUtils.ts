@@ -212,14 +212,14 @@ export const getDefaultFormValues = (
   if (requirement) {
     return {
       requirements: [requirement],
-      ...(isHistoricalRecord !== undefined && { isHistoricalRecord }),
-      ...(manualOrderNumber !== undefined && { manualOrderNumber }),
+      isHistoricalRecord,
+      manualOrderNumber,
     };
   }
   return {
     requirements: [],
-    ...(isHistoricalRecord !== undefined && { isHistoricalRecord }),
-    ...(manualOrderNumber !== undefined && { manualOrderNumber }),
+    isHistoricalRecord: false,
+    manualOrderNumber: undefined,
   };
 };
 
