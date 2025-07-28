@@ -579,8 +579,11 @@ class InspectionRecordDataBuilder:
                     grouped_requirements[req_source_name] = []
                 grouped_requirements[req_source_name].append({"number": number})
             for source_name, reqs in grouped_requirements.items():
-                numbers = ", ".join(req["number"] for req in reqs)
-                condition_lines.append(f"{numbers} of {source_name}")
+                # Filter out None values before joining
+                valid_numbers = [req["number"] for req in reqs if req["number"] is not None]
+                if valid_numbers:
+                    numbers = ", ".join(valid_numbers)
+                    condition_lines.append(f"{numbers} of {source_name}")
             data_to_be_rendered["condition_lines"] = condition_lines
             if action == EnforcementActionOptionEnum.ORDER:
                 data_to_be_rendered["order_no"] = ServiceUtils.strip_project_code(

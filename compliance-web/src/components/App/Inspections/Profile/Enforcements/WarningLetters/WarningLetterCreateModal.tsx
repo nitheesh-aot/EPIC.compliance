@@ -8,10 +8,7 @@ import {
   getDefaultFormValues,
   ENFORCEMENT_MESSAGES,
 } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
-import {
-  useCreateWarningLetter,
-  useCreateWarningLetterApproval,
-} from "@/hooks/useInspectionWarningLetters";
+import { useCreateWarningLetter } from "@/hooks/useInspectionWarningLetters";
 import {
   InspectionWarningLetter,
   InspectionWarningLetterAPIData,
@@ -20,7 +17,6 @@ import { Inspection } from "@/models/Inspection";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { useQueryClient } from "@tanstack/react-query";
 import { notify } from "@/store/snackbarStore";
-import { WarningLetterApproval } from "@/models/WarningLetterApproval";
 
 type WarningLetterCreateModalProps = {
   inspectionData: Inspection;
@@ -52,42 +48,11 @@ const WarningLetterCreateModal: FC<WarningLetterCreateModalProps> = ({
     reset(defaultValues);
   }, [reset, defaultValues]);
 
-  const onWarningLetterApprovalSuccess = async (
-    data: WarningLetterApproval
-  ) => {
-    await queryClient.invalidateQueries({
+  const onSuccess = (data: InspectionWarningLetter) => {
+    queryClient.invalidateQueries({
       queryKey: ["inspection-warning-letters", inspectionData.id],
     });
-    const inspectionWarningLetters = queryClient.getQueryData<
-      InspectionWarningLetter[]
-    >(["inspection-warning-letters", inspectionData.id]);
-    if (inspectionWarningLetters) {
-      const warningLetter = inspectionWarningLetters.find(
-        (warningLetter) => warningLetter.id === data.warning_letter_id
-      );
-      if (warningLetter) {
-        notifyAndSubmit(warningLetter);
-      }
-    }
-  };
-
-  const { mutate: createWarningLetterApproval } =
-    useCreateWarningLetterApproval(onWarningLetterApprovalSuccess);
-
-  const onSuccess = (data: InspectionWarningLetter) => {
-    if (inspectionData.is_history) {
-      // create default order approval for historical records
-      createWarningLetterApproval({
-        inspectionWarningLetterId: data.id ?? 0,
-        approvalPayload: {},
-      });
-    } else {
-      queryClient.invalidateQueries({
-        queryKey: ["inspection-warning-letters", inspectionData.id],
-      });
-      notifyAndSubmit(data);
-    }
-    onSubmit(data);
+    notifyAndSubmit(data);
   };
 
   const notifyAndSubmit = (data: InspectionWarningLetter) => {

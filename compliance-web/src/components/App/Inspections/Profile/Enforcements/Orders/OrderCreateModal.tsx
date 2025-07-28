@@ -13,17 +13,13 @@ import {
 } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
 import ControlledCheckbox from "@/components/Shared/Controlled/ControlledCheckbox";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
-import {
-  useCreateInspectionOrder,
-  useCreateOrderApproval,
-} from "@/hooks/useInspectionOrders";
+import { useCreateInspectionOrder } from "@/hooks/useInspectionOrders";
 import {
   InspectionOrder,
   InspectionOrderAPIData,
 } from "@/models/InspectionOrder";
 import { Inspection } from "@/models/Inspection";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
-import { OrderApproval } from "@/models/OrderApproval";
 import { notify } from "@/store/snackbarStore";
 
 type OrderFormType = yup.InferType<typeof orderSchema>;
@@ -114,41 +110,11 @@ const OrderCreateModal: FC<OrderCreateModalProps> = ({
     reset(defaultValues);
   }, [reset, defaultValues]);
 
-  const onOrderApprovalSuccess = async (data: OrderApproval) => {
-    await queryClient.invalidateQueries({
+  const onSuccess = (data: InspectionOrder) => {
+    queryClient.invalidateQueries({
       queryKey: ["inspection-orders", inspectionData.id],
     });
-    const inspectionOrders = queryClient.getQueryData<InspectionOrder[]>([
-      "inspection-orders",
-      inspectionData.id,
-    ]);
-    if (inspectionOrders) {
-      const order = inspectionOrders.find(
-        (order) => order.id === data.order_id
-      );
-      if (order) {
-        notifyAndSubmit(order);
-      }
-    }
-  };
-
-  const { mutate: createOrderApproval } = useCreateOrderApproval(
-    onOrderApprovalSuccess
-  );
-
-  const onSuccess = (data: InspectionOrder) => {
-    if (inspectionData.is_history) {
-      // create default order approval for historical records
-      createOrderApproval({
-        inspectionOrderId: data.id ?? 0,
-        approvalPayload: {},
-      });
-    } else {
-      queryClient.invalidateQueries({
-        queryKey: ["inspection-orders", inspectionData.id],
-      });
-      notifyAndSubmit(data);
-    }
+    notifyAndSubmit(data);
   };
 
   const notifyAndSubmit = (data: InspectionOrder) => {
