@@ -74,12 +74,23 @@ class OrderService:
             )
         order_obj = _create_order_obj(inspection, order_data)
         with session_scope() as session:
+            from compliance_api.services.order.order_approval import (  # pylint: disable=import-outside-toplevel
+                OrderApprovalService)
+
             created_order = OrderModel.create(order_obj, session)
             cls.insert_or_update_inspection_requirements(
                 created_order.id,
                 order_data.get("inspection_requirement_ids", []),
                 session,
             )
+            if inspection.is_history:
+                OrderApprovalService.create_approval(
+                    {
+                        "approved_by_id": None,
+                    },
+                    created_order.id,
+                    session,
+                )
         return created_order
 
     @classmethod

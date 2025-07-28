@@ -20,6 +20,7 @@ class WarningLetterApprovalService:
         cls,
         warning_letter_approval_request_data: dict,
         warning_letter_id: int,
+        ho_session=None,
     ):
         """Create approval for the warning letter."""
         warning_letter = ServiceUtils.warning_letter_exist_check(warning_letter_id)
@@ -55,7 +56,7 @@ class WarningLetterApprovalService:
         with session_scope() as session:
             created_approval = (
                 WarningLetterApprovalModel.create_warning_letter_approval(
-                    approval_data, session=session
+                    approval_data, session=ho_session or session
                 )
             )
             # Update order_progress to either PRELIMINARY_DEPUTY_REVIEW or FINAL_DEPUTY_REVIEW
@@ -68,7 +69,7 @@ class WarningLetterApprovalService:
                         else WarningLetterProgressEnum.DEPUTY_REVIEW
                     )
                 },
-                session=session,
+                session=ho_session or session,
             )
         return created_approval
 

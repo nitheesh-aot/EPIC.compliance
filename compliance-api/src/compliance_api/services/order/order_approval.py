@@ -16,9 +16,7 @@ class OrderApprovalService:
 
     @classmethod
     def create_approval(
-        cls,
-        order_approval_request_data: dict,
-        order_id: int,
+        cls, order_approval_request_data: dict, order_id: int, ho_session=None
     ):
         """Create approval for the order."""
         order = ServiceUtils.order_exist_check(order_id)
@@ -27,7 +25,7 @@ class OrderApprovalService:
         #  If the inspection is historical, then no approval is required
         approval_data = {
             "order_id": order_id,
-            "approved_by_id": order_approval_request_data.get("approved_by_id"),
+            "approved_by_id": order_approval_request_data.get("approved_by_id", None),
             "order_status": order.order_status,  # default status
             "approval_status": (
                 OrderApprovalStatusEnum.APPROVED
@@ -55,7 +53,7 @@ class OrderApprovalService:
             )
         with session_scope() as session:
             created_approval = OrderApprovalModel.create_order_approval(
-                approval_data, session=session
+                approval_data, session=ho_session or session
             )
             OrderModel.update_order(
                 order_id=order_id,
@@ -66,7 +64,7 @@ class OrderApprovalService:
                         else OrderProgressEnum.DEPUTY_REVIEW
                     )
                 },
-                session=session,
+                session=ho_session or session,
             )
         return created_approval
 

@@ -22,6 +22,7 @@ class InspectionRecordApprovalService:
         ir_approval_request_data: dict,
         inspection_id: int,
         inspection_record_id: int,
+        ho_session=None,
     ):
         """Create approval for the inspection record."""
         inspection = ServiceUtils.inspection_exist_check(inspection_id)
@@ -65,7 +66,7 @@ class InspectionRecordApprovalService:
         with session_scope() as session:
             created_approval = (
                 InspectionRecordApprovalModel.create_inspection_record_approval(
-                    approval_data, session=session
+                    approval_data, session=ho_session or session
                 )
             )
             # Update ir_progress to either PRELIMINARY_DEPUTY_REVIEW or FINAL_DEPUTY_REVIEW
@@ -80,7 +81,7 @@ class InspectionRecordApprovalService:
             InspectionRecordModel.update_inspection_record(
                 inspection_record_id=inspection_record_id,
                 ir_update_data={"ir_progress": ir_progress},
-                session=session,
+                session=ho_session or session,
             )
         return created_approval
 
