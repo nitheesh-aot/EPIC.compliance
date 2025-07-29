@@ -23,6 +23,8 @@ import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import OrderCreateModal from "@/components/App/Inspections/Profile/Enforcements/Orders/OrderCreateModal";
 import WarningLetterCreateModal from "@/components/App/Inspections/Profile/Enforcements/WarningLetters/WarningLetterCreateModal";
 import { prepNonProceededRequirements } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
+import { useAdministrativePenaltiesData } from "@/hooks/useAdministrativePenalties";
+import DynamicHeightBox from "@/components/Shared/DynamicHeightBox";
 
 interface InspectionEnforcementsProps {
   inspectionData: Inspection;
@@ -73,11 +75,17 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     refetch: refetchInspectionWarningLetters,
   } = useInspectionWarningLettersData(inspectionData.id);
 
+  const {
+    data: inspectionAdministrativePenaltiesData,
+    isLoading: isInspectionAdministrativePenaltiesLoading,
+  } = useAdministrativePenaltiesData(inspectionData.id);
+
   useEffect(() => {
     if (
       !isInspectionRequirementsLoading &&
       !isInspectionOrdersLoading &&
-      !isInspectionWarningLettersLoading
+      !isInspectionWarningLettersLoading &&
+      !isInspectionAdministrativePenaltiesLoading
     ) {
       setIsDataLoading(false);
     }
@@ -85,6 +93,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     isInspectionRequirementsLoading,
     isInspectionOrdersLoading,
     isInspectionWarningLettersLoading,
+    isInspectionAdministrativePenaltiesLoading,
   ]);
 
   useEffect(() => {
@@ -97,6 +106,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             [
               EnforcementActionEnum.WARNING_LETTER,
               EnforcementActionEnum.ORDER,
+              EnforcementActionEnum.AP_RECOMMENDATION,
             ].includes(enforcement.id as EnforcementActionEnum)
           )
       );
@@ -131,32 +141,54 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     });
   }, [requirementEnforcements, inspectionWarningLettersData]);
 
+  const nonProceededAPRequirements = useMemo(() => {
+    if (!requirementEnforcements) return [];
+    const apReqIds = inspectionAdministrativePenaltiesData?.map(
+      (administrativePenalty) =>
+        administrativePenalty.administrative_penalty_requirement_maps?.map(
+          (map) => map.inspection_requirement_id
+        )
+    );
+    return prepNonProceededRequirements({
+      requirements: requirementEnforcements,
+      reqIds: apReqIds,
+      enforcementActionType: EnforcementActionEnum.AP_RECOMMENDATION,
+    });
+  }, [requirementEnforcements, inspectionAdministrativePenaltiesData]);
+
   const openEnforcementModal = (
     modelType: EnforcementActionEnum,
     requirement?: InspectionRequirement
   ) => {
-    const content =
-      modelType === EnforcementActionEnum.ORDER ? (
-        <OrderCreateModal
-          inspectionData={inspectionData}
-          requirementsList={nonProceededOrderRequirements}
-          requirement={requirement}
-          onSubmit={(data) => {
-            openEnforcementOrderDrawer(data);
-            setModalClose();
-          }}
-        />
-      ) : (
-        <WarningLetterCreateModal
-          inspectionData={inspectionData}
-          requirementsList={nonProceededWarningLetterRequirements}
-          requirement={requirement}
-          onSubmit={(data) => {
-            openEnforcementWarningLetterDrawer(data);
-            setModalClose();
-          }}
-        />
-      );
+    let content;
+    switch (modelType) {
+      case EnforcementActionEnum.ORDER:
+        content = (
+          <OrderCreateModal
+            inspectionData={inspectionData}
+            requirementsList={nonProceededOrderRequirements}
+            requirement={requirement}
+            onSubmit={(data) => {
+              openEnforcementOrderDrawer(data);
+              setModalClose();
+            }}
+          />
+        );
+        break;
+      case EnforcementActionEnum.WARNING_LETTER:
+        content = (
+          <WarningLetterCreateModal
+            inspectionData={inspectionData}
+            requirementsList={nonProceededWarningLetterRequirements}
+            requirement={requirement}
+            onSubmit={(data) => {
+              openEnforcementWarningLetterDrawer(data);
+              setModalClose();
+            }}
+          />
+        );
+        break;
+    }
 
     setModalOpen({
       content,
@@ -233,11 +265,12 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
   };
 
   return (
-    <Box
+    <DynamicHeightBox
       display={"flex"}
       flexGrow={1}
       flexDirection={"column"}
       overflow={"auto"}
+      bottomOffset={20}
     >
       <Box display={"flex"} justifyContent={"space-between"} mt={3} mb={2}>
         <Typography variant="h6">Enforcement</Typography>
@@ -259,13 +292,12 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             [
               ...nonProceededOrderRequirements,
               ...nonProceededWarningLetterRequirements,
+              ...nonProceededAPRequirements,
             ].map((requirement) => (
               <EnforcementNotificationCard
                 key={requirement.id}
                 requirement={requirement}
-                openEnforcementModal={(modelType) =>
-                  openEnforcementModal(modelType, requirement)
-                }
+                openEnforcementModal={openEnforcementModal}
               />
             ))}
           {inspectionOrdersData?.map((order) => (
@@ -292,7 +324,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           ))}
         </>
       )}
-    </Box>
+    </DynamicHeightBox>
   );
 };
 

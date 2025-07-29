@@ -2,19 +2,24 @@ import { Close, InfoOutlined } from "@mui/icons-material";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { EnforcementActionEnum } from "@/utils/constants";
-import { isEnforcementOrder } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
 
 const EnforcementNotificationCard = ({
   requirement,
   openEnforcementModal,
 }: {
   requirement: InspectionRequirement;
-  openEnforcementModal: (modelType: EnforcementActionEnum) => void;
+  openEnforcementModal: (
+    modelType: EnforcementActionEnum,
+    requirement: InspectionRequirement
+  ) => void;
 }) => {
   const [isClosed, setIsClosed] = useState(false);
-  const isOrder = isEnforcementOrder(requirement);
+
+  const enforcementType = useMemo(() => {
+    return requirement.enforcement_action_data[0];
+  }, [requirement]);
 
   return (
     !isClosed && (
@@ -36,12 +41,12 @@ const EnforcementNotificationCard = ({
         <InfoOutlined sx={{ fontSize: "1.25rem", mt: 0.5 }} />
         <Box flexGrow={1}>
           <Typography variant="body1" fontWeight={"bold"}>
-            {isOrder ? "Order" : "Warning Letter"}
+            {enforcementType.name}
           </Typography>
           <Typography variant="body1">
-            You have selected {isOrder ? "order" : "warning letter"}{" "}
-            as an enforcement action for <strong>{requirement.summary}</strong>.
-            Please proceed to create it.
+            You have selected {enforcementType.name} as an enforcement action
+            for <strong>{requirement.summary}</strong>. Please proceed to create
+            it.
           </Typography>
           <Box sx={{ mt: 1, display: "flex", justifyContent: "flex-end" }}>
             <Button
@@ -50,9 +55,8 @@ const EnforcementNotificationCard = ({
               size="small"
               onClick={() =>
                 openEnforcementModal(
-                  isOrder
-                    ? EnforcementActionEnum.ORDER
-                    : EnforcementActionEnum.WARNING_LETTER
+                  enforcementType.id as EnforcementActionEnum,
+                  requirement
                 )
               }
             >

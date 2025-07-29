@@ -117,7 +117,6 @@ class AdministrativePenaltySchema(AutoSchemaBase):  # pylint: disable=too-many-a
     )
 
     @post_dump
-    @staticmethod
     def transform_data(data, **_):
         """Transform data after serialization."""
         # Convert enum values to their string representation
@@ -141,7 +140,6 @@ class ReferralStatusSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     )
 
     @post_dump
-    @staticmethod
     def extract_status_value(data, **_):
         """Extract the value of the status enum."""
         if "referral_status" in data and data["referral_status"]:
@@ -173,7 +171,6 @@ class DecisionSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     )
 
     @post_dump
-    @staticmethod
     def extract_decision_value(data, **_):
         """Extract the value of the decision enum."""
         if "decision" in data and data["decision"]:
