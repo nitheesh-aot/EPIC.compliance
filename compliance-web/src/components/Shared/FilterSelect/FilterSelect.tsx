@@ -298,6 +298,10 @@ const FilterSelect = memo((props: SelectProps) => {
             fontSize: BCDesignTokens.typographyFontSizeSmallBody,
             paddingLeft: "0.25rem",
           }),
+          valueContainer: (base) => ({
+            ...base,
+            flexWrap: "nowrap",
+          }),
         }}
         isClearable={false}
         menuPortalTarget={document.body}
