@@ -23,6 +23,7 @@ import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import OrderCreateModal from "@/components/App/Inspections/Profile/Enforcements/Orders/OrderCreateModal";
 import WarningLetterCreateModal from "@/components/App/Inspections/Profile/Enforcements/WarningLetters/WarningLetterCreateModal";
 import { prepNonProceededRequirements } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
+import { useAdministrativePenaltiesData } from "@/hooks/useAdministrativePenalties";
 
 interface InspectionEnforcementsProps {
   inspectionData: Inspection;
@@ -73,11 +74,17 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     refetch: refetchInspectionWarningLetters,
   } = useInspectionWarningLettersData(inspectionData.id);
 
+  const {
+    data: inspectionAdministrativePenaltiesData,
+    isLoading: isInspectionAdministrativePenaltiesLoading,
+  } = useAdministrativePenaltiesData(inspectionData.id);
+
   useEffect(() => {
     if (
       !isInspectionRequirementsLoading &&
       !isInspectionOrdersLoading &&
-      !isInspectionWarningLettersLoading
+      !isInspectionWarningLettersLoading &&
+      !isInspectionAdministrativePenaltiesLoading
     ) {
       setIsDataLoading(false);
     }
@@ -85,6 +92,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     isInspectionRequirementsLoading,
     isInspectionOrdersLoading,
     isInspectionWarningLettersLoading,
+    isInspectionAdministrativePenaltiesLoading,
   ]);
 
   useEffect(() => {
@@ -97,6 +105,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             [
               EnforcementActionEnum.WARNING_LETTER,
               EnforcementActionEnum.ORDER,
+              EnforcementActionEnum.AP_RECOMMENDATION,
             ].includes(enforcement.id as EnforcementActionEnum)
           )
       );
@@ -130,6 +139,21 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
       enforcementActionType: EnforcementActionEnum.WARNING_LETTER,
     });
   }, [requirementEnforcements, inspectionWarningLettersData]);
+
+  const nonProceededAPRequirements = useMemo(() => {
+    if (!requirementEnforcements) return [];
+    const apReqIds = inspectionAdministrativePenaltiesData?.map(
+      (administrativePenalty) =>
+        administrativePenalty.administrative_penalty_requirement_maps?.map(
+          (map) => map.inspection_requirement_id
+        )
+    );
+    return prepNonProceededRequirements({
+      requirements: requirementEnforcements,
+      reqIds: apReqIds,
+      enforcementActionType: EnforcementActionEnum.AP_RECOMMENDATION,
+    });
+  }, [requirementEnforcements, inspectionAdministrativePenaltiesData]);
 
   const openEnforcementModal = (
     modelType: EnforcementActionEnum,
@@ -259,13 +283,12 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             [
               ...nonProceededOrderRequirements,
               ...nonProceededWarningLetterRequirements,
+              ...nonProceededAPRequirements,
             ].map((requirement) => (
               <EnforcementNotificationCard
                 key={requirement.id}
                 requirement={requirement}
-                openEnforcementModal={(modelType) =>
-                  openEnforcementModal(modelType, requirement)
-                }
+                openEnforcementModal={openEnforcementModal}
               />
             ))}
           {inspectionOrdersData?.map((order) => (
