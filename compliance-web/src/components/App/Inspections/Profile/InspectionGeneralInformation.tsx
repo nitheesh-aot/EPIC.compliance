@@ -6,6 +6,7 @@ import { EditRounded } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import React, { useMemo } from "react";
 import { formatInAttendance } from "../InspectionFormUtils";
+import DynamicHeightBox from "@/components/Shared/DynamicHeightBox";
 
 interface InspectionGeneralInformationProps {
   inspectionData: Inspection;
@@ -54,12 +55,12 @@ const InspectionGeneralInformation: React.FC<
   ];
 
   return (
-    <Box
+    <DynamicHeightBox
       display={"flex"}
       flexGrow={1}
       flexDirection={"column"}
-      // height={`calc(100vh - ${appHeaderHeight + 158}px)`} // 158px is the height of the FileProfileHeader and the padding
       overflow={"auto"}
+      bottomOffset={20}
     >
       <Box display={"flex"} justifyContent={"space-between"} my={3}>
         <Typography variant="h6">General Information</Typography>
@@ -84,7 +85,7 @@ const InspectionGeneralInformation: React.FC<
           />
         ))}
       </Box>
-    </Box>
+    </DynamicHeightBox>
   );
 };
 

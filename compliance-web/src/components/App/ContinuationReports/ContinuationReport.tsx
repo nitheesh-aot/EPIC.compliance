@@ -7,7 +7,6 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { useMenuStore } from "@/store/menuStore";
 import { AddRounded, CloseRounded, SearchRounded } from "@mui/icons-material";
 import ContinuationReportTimeline from "./ContinuationReportTimeline";
 import { useModal } from "@/store/modalStore";
@@ -21,13 +20,13 @@ import { AppConfig } from "@/utils/config";
 import ComingSoon from "@/components/Shared/ComingSoon";
 import { useCallback, useEffect, useState } from "react";
 import ContinuationReportPagination from "./ContinuationReportPagination";
+import DynamicHeightBox from "@/components/Shared/DynamicHeightBox";
 
 export type ContinuationReportContextType = {
   caseFileId: number;
   contextType: string;
   contextId: number;
   allowCreateEntry?: boolean;
-  isInspection?: boolean;
 };
 
 export default function ContinuationReport({
@@ -35,17 +34,13 @@ export default function ContinuationReport({
   contextType,
   contextId,
   allowCreateEntry,
-  isInspection,
 }: ContinuationReportContextType) {
   const queryClient = useQueryClient();
-  const { appHeaderHeight } = useMenuStore();
   const { setOpen, setClose } = useModal();
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchText, setSearchText] = useState("");
   const [debouncedSearchText, setDebouncedSearchText] = useState("");
-
-  const inspectionOffset = isInspection ? 28 : 0;
 
   // Debounce effect
   useEffect(() => {
@@ -108,12 +103,14 @@ export default function ContinuationReport({
   };
 
   return (
-    <Box
-      width={"40%"}
+    <DynamicHeightBox
+      width="40%"
       bgcolor={BCDesignTokens.surfaceColorBackgroundLightGray}
-      height={`calc(100vh - ${appHeaderHeight + 198 + inspectionOffset}px)`}
       p={3}
       pb={2}
+      display="flex"
+      flexDirection="column"
+      bottomOffset={20} // 20px padding bottom of the parent component
     >
       {AppConfig.inprogressFeatures?.includes("CONTINUATION_REPORT") ? (
         <ComingSoon />
@@ -166,8 +163,11 @@ export default function ContinuationReport({
             <>
               <Box
                 sx={{
-                  height: `calc(100vh - ${appHeaderHeight + 302 + 48 + inspectionOffset}px)`, // 302px is the height above the timeline, 48px is height of pagination
-                  overflow: "scroll",
+                  // height: `calc(100vh - ${appHeaderHeight + 302 + 48 + inspectionOffset}px)`, // 302px is the height above the timeline, 48px is height of pagination
+                  overflow: "auto",
+                  display: "flex",
+                  flex: 1,
+                  flexDirection: "column",
                 }}
               >
                 <ContinuationReportTimeline
@@ -191,6 +191,6 @@ export default function ContinuationReport({
           )}
         </>
       )}
-    </Box>
+    </DynamicHeightBox>
   );
 }
