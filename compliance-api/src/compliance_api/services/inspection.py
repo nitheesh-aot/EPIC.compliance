@@ -311,10 +311,15 @@ class InspectionService:
             raise UnprocessableEntityError(
                 "No status change can be perforemed on CANCELED inspection"
             )
-        InspectionModel.update_inspection(
-            inspection_id,
-            {"inspection_status": InspectionStatusEnum(status_enum.value)},
-        )
+        with session_scope() as session:
+            InspectionModel.update_inspection(
+                inspection_id,
+                {"inspection_status": InspectionStatusEnum(status_enum.value)},
+                session,
+            )
+    def _handle_close_as_note(self, inspection):
+        """Handle close as note."""
+        
 
     @classmethod
     def delete_by_case_file(cls, case_file_id, ho_session=None):
