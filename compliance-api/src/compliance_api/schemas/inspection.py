@@ -438,6 +438,11 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         },
         allow_none=True,
     )
+    approved_by = fields.Nested(
+        StaffUserSchema,
+        only=("id", "first_name", "last_name", "name", "auth_user_guid", "position"),
+        allow_none=True,
+    )
     requirement_details = fields.Nested(InspectionRequirementDetails, many=True)
 
     @pre_dump

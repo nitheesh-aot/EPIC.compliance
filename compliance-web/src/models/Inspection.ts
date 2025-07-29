@@ -46,6 +46,7 @@ export interface Inspection {
   enforcement?: string;
   approval_status?: ApprovalStatus;
   approved_by_id?: number;
+  approved_by?: StaffUser;
   ir_progress?: IRProgress;
   is_history?: boolean;
 }
