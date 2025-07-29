@@ -35,6 +35,11 @@ class InspectionRequirementGridItemSchema(Schema):
         metadata={"description": "The approval status of the inspection requirement"},
     )
     approved_by_id = fields.Int(metadata={"description": "The ID of the approved by"})
+    approved_by = fields.Nested(
+        StaffUserSchema,
+        metadata={"description": "The staff user who approved the inspection requirement"},
+        allow_none=True,
+    )
     sort_order = fields.Int(
         metadata={"description": "The sort order of the inspection requirement"}
     )
@@ -127,5 +132,11 @@ class InspectionRequirementFilterSchema(BaseSchema):
         required=False,
         metadata={
             "description": "The comma separated list of project ids of the inspection requirement"
+        },
+    )
+    reviewer_ids = fields.String(
+        required=False,
+        metadata={
+            "description": "The comma separated list of reviewer ids of the inspection requirement"
         },
     )

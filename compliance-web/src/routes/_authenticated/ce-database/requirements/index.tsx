@@ -40,6 +40,7 @@ import { useMemo, useState, useCallback } from "react";
 import RequirementsExternalFilters from "@/components/App/RequirementsGrid/RequirementsExternalFilters";
 import ShowOnlyMyRequirementsSwitch from "@/components/App/RequirementsGrid/ShowOnlyMyRequirementsSwitch";
 import { downloadFile } from "@/utils/appUtils";
+import { useStaffUsersData } from "@/hooks/useStaff";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/requirements/"
@@ -52,6 +53,7 @@ function Requirements() {
   const { data: complianceFindings } = useComplianceFindingsData();
   const { data: enforcementActions } = useEnforcementActionsData();
   const { data: requirementSources } = useRequirementSourcesData();
+  const { data: staffUsers } = useStaffUsersData();
   const [showOnlyMyRequirements, setShowOnlyMyRequirements] = useState(false);
 
   const approvalStatusOptions = Object.entries(APPROVAL_STATUS_TEXT).map(
@@ -103,6 +105,11 @@ function Requirements() {
           case "approval_status":
             if (Array.isArray(filter.value) && filter.value.length > 0) {
               params.apprv_sts = filter.value.join(",");
+            }
+            break;
+          case "reviewer":
+            if (Array.isArray(filter.value) && filter.value.length > 0) {
+              params.reviewer_ids = filter.value.join(",");
             }
             break;
           case "requirement_number":
@@ -358,6 +365,32 @@ function Requirements() {
         size: 120,
       },
       {
+        accessorFn: (row) => row.approved_by?.name,
+        id: "reviewer",
+        header: "Reviewer",
+        filterVariant: "multi-select",
+        filterSelectOptions:
+          staffUsers?.map((staffUser) => ({
+            text: staffUser.name,
+            value: staffUser.id.toString(),
+          })) ?? [],
+        size: 100,
+      },
+      {
+        accessorKey: "approved_by_id",
+        header: "Approved By ID",
+        enableHiding: true,
+        enableColumnFilter: true,
+        filterVariant: "multi-select",
+        accessorFn: (row) => row.approved_by_id?.toString() ?? "",
+        muiTableHeadCellProps: {
+          sx: { display: "none" },
+        },
+        muiTableBodyCellProps: {
+          sx: { display: "none" },
+        },
+      },
+      {
         accessorKey: "requirement_number",
         header: "Condition #",
         filterFn: "contains",
@@ -403,6 +436,7 @@ function Requirements() {
       enforcementActions,
       requirementSources,
       approvalStatusOptions,
+      staffUsers,
     ]
   );
 

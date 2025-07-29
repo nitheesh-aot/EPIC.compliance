@@ -3,6 +3,7 @@ import { EnforcementAction } from "./EnforcementAction";
 import { ApprovalStatus } from "./ApprovalStatus";
 import { RequirementSource } from "./RequirementSource";
 import { Topic } from "./Topic";
+import { StaffUser } from "./Staff";
 
 export interface InspectionRequirementGrid {
   id: number;
@@ -16,6 +17,8 @@ export interface InspectionRequirementGrid {
   ir_number: string;
   requirement_number: string;
   requirement_source: RequirementSource;
+  approved_by: StaffUser;
+  approved_by_id: number;
 }
 
 export interface InspectionRequirementGridQueryParams {
@@ -24,6 +27,7 @@ export interface InspectionRequirementGridQueryParams {
   cmd_fnd_ids?: string;
   enf_actn_ids?: string;
   apprv_sts?: string;
+  reviewer_ids?: string;
   req_src_ids?: string;
   req_src_num?: string;
   ir_no?: string;

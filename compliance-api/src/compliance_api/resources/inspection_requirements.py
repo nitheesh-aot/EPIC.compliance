@@ -98,6 +98,11 @@ class InspectionRequirements(Resource):
                 "type": "string",
                 "required": False,
             },
+            "reviewer_ids": {
+                "description": "The comma separated list of reviewer ids of the inspection requirement",
+                "type": "string",
+                "required": False,
+            },
             "page_no": {
                 "description": "The page number of the inspection requirement",
                 "type": "integer",

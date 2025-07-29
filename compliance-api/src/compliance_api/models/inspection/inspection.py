@@ -21,6 +21,7 @@ from ..base_model import BaseModelVersioned, db
 from ..case_file import CaseFile as CaseFileModel
 from ..inspection_record import InspectionRecord
 from ..inspection_record_approval import InspectionRecordApproval
+from ..staff_user import StaffUser
 from ..utils import with_session
 from .inspection_enum import InspectionStatusEnum
 
@@ -256,11 +257,16 @@ class Inspection(BaseModelVersioned):
                     == latest_approval_subquery.c.latest_date
                 ),
             )
+            .outerjoin(
+                StaffUser,
+                InspectionRecordApproval.approved_by_id == StaffUser.id,
+            )
             .filter(cls.is_deleted.is_(False), cls.is_active.is_(True))
             .add_columns(
                 InspectionRecord.ir_progress,
                 InspectionRecordApproval.approval_status,
                 InspectionRecordApproval.approved_by_id,
+                StaffUser,
             )
         )
 
@@ -271,6 +277,7 @@ class Inspection(BaseModelVersioned):
             inspection.ir_progress = result[1]
             inspection.approval_status = result[2]
             inspection.approved_by_id = result[3]
+            inspection.approved_by = result[4]
             results.append(inspection)
 
         return results

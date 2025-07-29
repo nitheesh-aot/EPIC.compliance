@@ -102,6 +102,7 @@ class InspectionRequirementService:
             ("ir_number", "IR Number"),
             ("date_issued", "Date Issued"),
             ("primary_officer.name", "Primary Officer"),
+            ("approved_by.name", "Approved By"),
             ("project.name", "Project"),
             ("inspection_status.name", "Inspection Status"),
         ]
@@ -498,6 +499,7 @@ def _build_inspection_requirements_base_query(
     req_source = aliased(InspectionReqSourceDetailModel)
     enf_action = aliased(EnforcementActionOptionModel)
     staff = aliased(StaffUserModel)
+    approved_by_staff = aliased(StaffUserModel)
     case_file = aliased(CaseFileModel)
     project = aliased(ProjectModel)
     order_app = aliased(OrderApprovalModel)
@@ -522,6 +524,10 @@ def _build_inspection_requirements_base_query(
             insp.inspection_status,
             order_app.approval_status,
             warning_app.approval_status,
+            approved_by_staff.id,
+            approved_by_staff.first_name,
+            approved_by_staff.last_name,
+            approved_by_staff.auth_user_guid,
         )
         .join(
             insp,
@@ -566,6 +572,14 @@ def _build_inspection_requirements_base_query(
                 approval.id == latest_approval_subq.c.max_id,
                 approval.is_deleted.is_(False),
                 approval.is_active.is_(True),
+            ),
+        )
+        .outerjoin(
+            approved_by_staff,
+            and_(
+                approved_by_staff.id == approval.approved_by_id,
+                approved_by_staff.is_deleted.is_(False),
+                approved_by_staff.is_active.is_(True),
             ),
         )
         .outerjoin(
@@ -649,6 +663,7 @@ def _build_inspection_requirements_base_query(
         order_app,
         warning_app,
         order,
+        approval,
     )
     # Apply pagination if requested
     if enable_pagination:
@@ -657,14 +672,14 @@ def _build_inspection_requirements_base_query(
 
 
 def _apply_filters(
-    query, args, req, insp, enf_map, req_source, insp_rec, order_app, warning_app, order
+    query, args, req, insp, enf_map, req_source, insp_rec, order_app, warning_app, order, approval
 ):  # pylint: disable=too-many-arguments
     """Apply filters to the query based on arguments.
 
     Args:
         query: The SQLAlchemy query to filter
         args: Query arguments containing filter parameters
-        req, insp, enf_map, req_source, insp_rec, order_app, warning_app, order: Model aliases
+        req, insp, enf_map, req_source, insp_rec, order_app, warning_app, order, approval: Model aliases
 
     Returns:
         Filtered SQLAlchemy query
@@ -740,6 +755,12 @@ def _apply_filters(
                 order.order_number.in_(args["req_src_num"].split(",")),
             )
         )
+    
+    # Reviewer IDs filter
+    if args.get("reviewer_ids"):
+        query = query.filter(
+            approval.approved_by_id.in_(args["reviewer_ids"].split(","))
+        )
 
     return query
 
@@ -812,6 +833,23 @@ def _process_inspection_requirement_query_results(query_results):
         item["inspection_status"] = result[12]
         item["order_approval_status"] = result[13]
         item["warning_letter_approval_status"] = result[14]
+        
+        # Structure approved_by as a StaffUser object from individual fields
+        approved_by_id = result[15]
+        approved_by_first_name = result[16]
+        approved_by_last_name = result[17]
+        approved_by_auth_guid = result[18]
+        
+        if approved_by_id:
+            item["approved_by"] = {
+                "id": approved_by_id,
+                "first_name": approved_by_first_name or "",
+                "last_name": approved_by_last_name or "",
+                "auth_user_guid": approved_by_auth_guid,
+            }
+        else:
+            item["approved_by"] = None
+            
         processed_requirements.append(item)
     return processed_requirements
 
@@ -825,6 +863,7 @@ def _make_requirement_detail_object(requirements: list):
             "topic": requirement["topic"],
             "summary": requirement["summary"],
             "approved_by_id": requirement["approved_by_id"],
+            "approved_by": requirement["approved_by"],
             "sort_order": requirement["sort_order"],
             "ir_number": requirement["ir_number"],
             "date_issued": (
