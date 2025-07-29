@@ -755,7 +755,7 @@ def _apply_filters(
                 order.order_number.in_(args["req_src_num"].split(",")),
             )
         )
-    
+
     # Reviewer IDs filter
     if args.get("reviewer_ids"):
         query = query.filter(
@@ -833,13 +833,13 @@ def _process_inspection_requirement_query_results(query_results):
         item["inspection_status"] = result[12]
         item["order_approval_status"] = result[13]
         item["warning_letter_approval_status"] = result[14]
-        
+
         # Structure approved_by as a StaffUser object from individual fields
         approved_by_id = result[15]
         approved_by_first_name = result[16]
         approved_by_last_name = result[17]
         approved_by_auth_guid = result[18]
-        
+
         if approved_by_id:
             item["approved_by"] = {
                 "id": approved_by_id,
@@ -849,7 +849,7 @@ def _process_inspection_requirement_query_results(query_results):
             }
         else:
             item["approved_by"] = None
-            
+
         processed_requirements.append(item)
     return processed_requirements
 
