@@ -36,17 +36,20 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { MRT_ColumnDef, MRT_TableState } from "material-react-table";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import RequirementsExternalFilters from "@/components/App/RequirementsGrid/RequirementsExternalFilters";
 import ShowOnlyMyRequirementsSwitch from "@/components/App/RequirementsGrid/ShowOnlyMyRequirementsSwitch";
 import { downloadFile } from "@/utils/appUtils";
 import { useStaffUsersData } from "@/hooks/useStaff";
+import { cachedFiltersStore } from "@/store/cachedFiltersStore";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/requirements/"
 )({
   component: Requirements,
 });
+
+const requirementsColumnFiltersCacheKey = "requirements-column-filters";
 
 function Requirements() {
   const { data: topics } = useTopicsData();
@@ -74,6 +77,61 @@ function Requirements() {
   const [externalFilters, setExternalFilters] = useState<
     Record<string, string[] | string>
   >({});
+
+  // Track if we're in the initial load phase to prevent caching during restoration
+  const isInitialLoad = useRef(true);
+
+  // Get cached filters store methods
+  const { getFilters, getExternalFilters } = cachedFiltersStore();
+  const cachedColumnFilters = getFilters(requirementsColumnFiltersCacheKey);
+  const cachedExternalFilters = getExternalFilters(
+    requirementsColumnFiltersCacheKey
+  );
+
+  // Restore cached filters on component mount
+  useEffect(() => {
+    // Reset the initial load flag on every mount
+    isInitialLoad.current = true;
+    
+    if (cachedColumnFilters.length > 0) {
+      setColumnFilters(cachedColumnFilters);
+    }
+    if (cachedExternalFilters) {
+      const restoredExternalFilters = cachedExternalFilters as Record<
+        string,
+        string[] | string
+      >;
+      setExternalFilters(restoredExternalFilters);
+
+      // Restore showOnlyMyRequirements state if it was cached
+      if (restoredExternalFilters.primary_officer_id) {
+        setShowOnlyMyRequirements(true);
+      }
+
+      // Restore global filter if it was cached
+      if (restoredExternalFilters.globalFilter) {
+        setGlobalFilter(restoredExternalFilters.globalFilter as string);
+      }
+    }
+    
+    // Mark initial load as complete after a short delay to allow state updates to settle
+    setTimeout(() => {
+      isInitialLoad.current = false;
+    }, 100);
+  }, [cachedColumnFilters, cachedExternalFilters]);
+
+  // Cache filters when they change (but not during initial load)
+  useEffect(() => {
+    if (!isInitialLoad.current) {
+      cachedFiltersStore
+        .getState()
+        .setFilters(requirementsColumnFiltersCacheKey, columnFilters, {
+          ...externalFilters,
+          showOnlyMyRequirements,
+          globalFilter,
+        });
+    }
+  }, [columnFilters, externalFilters, showOnlyMyRequirements, globalFilter]);
 
   // Convert column filters to API query parameters
   const convertFiltersToQueryParams = useCallback(
@@ -269,6 +327,9 @@ function Requirements() {
 
   const handleClearAllFilters = useCallback(() => {
     setExternalFilters({});
+    setColumnFilters([]);
+    setGlobalFilter("");
+    setShowOnlyMyRequirements(false);
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   }, []);
 
@@ -406,7 +467,7 @@ function Requirements() {
             text: requirementSource.name,
             value: requirementSource.id.toString(),
           })) ?? [],
-        size: 150,
+        size: 100,
       },
       {
         accessorKey: "ir_number",
@@ -455,6 +516,7 @@ function Requirements() {
       data={requirementsList ?? []}
       initialState={{
         sorting: [{ id: "topic", desc: false }],
+        columnFilters: cachedColumnFilters,
       }}
       state={{
         isLoading,
