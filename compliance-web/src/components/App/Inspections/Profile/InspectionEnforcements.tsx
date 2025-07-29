@@ -159,28 +159,35 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     modelType: EnforcementActionEnum,
     requirement?: InspectionRequirement
   ) => {
-    const content =
-      modelType === EnforcementActionEnum.ORDER ? (
-        <OrderCreateModal
-          inspectionData={inspectionData}
-          requirementsList={nonProceededOrderRequirements}
-          requirement={requirement}
-          onSubmit={(data) => {
-            openEnforcementOrderDrawer(data);
-            setModalClose();
-          }}
-        />
-      ) : (
-        <WarningLetterCreateModal
-          inspectionData={inspectionData}
-          requirementsList={nonProceededWarningLetterRequirements}
-          requirement={requirement}
-          onSubmit={(data) => {
-            openEnforcementWarningLetterDrawer(data);
-            setModalClose();
-          }}
-        />
-      );
+    let content;
+    switch (modelType) {
+      case EnforcementActionEnum.ORDER:
+        content = (
+          <OrderCreateModal
+            inspectionData={inspectionData}
+            requirementsList={nonProceededOrderRequirements}
+            requirement={requirement}
+            onSubmit={(data) => {
+              openEnforcementOrderDrawer(data);
+              setModalClose();
+            }}
+          />
+        );
+        break;
+      case EnforcementActionEnum.WARNING_LETTER:
+        content = (
+          <WarningLetterCreateModal
+            inspectionData={inspectionData}
+            requirementsList={nonProceededWarningLetterRequirements}
+            requirement={requirement}
+            onSubmit={(data) => {
+              openEnforcementWarningLetterDrawer(data);
+              setModalClose();
+            }}
+          />
+        );
+        break;
+    }
 
     setModalOpen({
       content,
