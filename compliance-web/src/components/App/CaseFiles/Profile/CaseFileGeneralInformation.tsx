@@ -6,6 +6,7 @@ import { EditRounded } from "@mui/icons-material";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import CaseFileComplaintsTable from "./CaseFileComplaintsTable";
 import CaseFileInspectionsTable from "./CaseFileInspectionsTable";
+import DynamicHeightBox from "@/components/Shared/DynamicHeightBox";
 
 interface CaseFileGeneralInformationProps {
   caseFileData: CaseFile;
@@ -19,7 +20,14 @@ const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
   allowEdit,
 }) => {
   return (
-    <Box display={"flex"} flexGrow={1} flexDirection={"column"} width={"60%"}>
+    <DynamicHeightBox
+      display={"flex"}
+      flexGrow={1}
+      flexDirection={"column"}
+      width={"60%"}
+      bottomOffset={20}
+      overflow={"auto"}
+    >
       <Box display={"flex"} justifyContent={"space-between"} my={3}>
         <Typography variant="h6">General Information</Typography>
         {allowEdit && (
@@ -105,7 +113,7 @@ const CaseFileGeneralInformation: React.FC<CaseFileGeneralInformationProps> = ({
       )}
       <CaseFileComplaintsTable caseFile={caseFileData} />
       <CaseFileInspectionsTable caseFile={caseFileData} />
-    </Box>
+    </DynamicHeightBox>
   );
 };
 

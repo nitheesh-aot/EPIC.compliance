@@ -144,7 +144,6 @@ function InspectionProfilePage() {
           contextType={CR_CONTEXT_TYPE.INSPECTION}
           contextId={inspectionData.id}
           allowCreateEntry={showCreateCREntryButton}
-          isInspection
         />
       </Box>
     </>

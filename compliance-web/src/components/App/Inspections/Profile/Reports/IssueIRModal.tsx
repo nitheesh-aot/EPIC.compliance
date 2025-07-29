@@ -16,7 +16,7 @@ const IssueIRModal: FC<IssueIRModalProps> = ({ onSubmit }) => {
 
   const onSuccess = (data: InspectionRecord) => {
     setInspectionReportsData(data);
-    onSubmit("Approval request sent");
+    onSubmit("Inspection Record Issued");
   };
 
   const { mutate: updateInspectionRecord, isPending } =

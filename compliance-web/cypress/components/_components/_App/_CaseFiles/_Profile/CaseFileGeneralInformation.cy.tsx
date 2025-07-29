@@ -3,6 +3,7 @@ import CaseFileGeneralInformation from "@/components/App/CaseFiles/Profile/CaseF
 import { CaseFile } from "@/models/CaseFile";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dateUtils from "@/utils/dateUtils";
+import { Box } from "@mui/material";
 
 describe("CaseFileGeneralInformation", () => {
   let mockOnEdit: sinon.SinonStub;
@@ -11,6 +12,7 @@ describe("CaseFileGeneralInformation", () => {
   const mockCaseFile: CaseFile = {
     id: 1,
     project: { id: 1, name: "Test Project" },
+    project_description: "Test Project Description",
     date_created: "2023-04-15T12:00:00Z",
     initiation: { id: "1", name: "Test Initiation" },
     primary_officer: { id: 1, name: "John Doe", is_active: true },
@@ -35,10 +37,12 @@ describe("CaseFileGeneralInformation", () => {
   const mountComponent = (caseFileData = mockCaseFile) => {
     mount(
       <QueryClientProvider client={queryClient}>
-        <CaseFileGeneralInformation
-          caseFileData={caseFileData}
-          onEdit={mockOnEdit}
-        />
+        <Box sx={{ width: "800px" }}>
+          <CaseFileGeneralInformation
+            caseFileData={caseFileData}
+            onEdit={mockOnEdit}
+          />
+        </Box>
       </QueryClientProvider>
     );
   };
@@ -61,6 +65,7 @@ describe("CaseFileGeneralInformation", () => {
   it("renders the component with correct general information", () => {
     cy.contains("General Information").should("be.visible");
     cy.contains("Test Project").should("be.visible");
+    cy.contains("Test Project Description").should("be.visible");
     cy.contains(dateUtils.formatDate(mockCaseFile.date_created)).should(
       "be.visible"
     );

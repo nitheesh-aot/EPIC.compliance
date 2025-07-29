@@ -20,6 +20,7 @@ import { notify } from "@/store/snackbarStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIRStatusesData } from "@/hooks/useInspections";
 import { IR_STATUS } from "@/utils/constants";
+import DynamicHeightBox from "@/components/Shared/DynamicHeightBox";
 
 interface InspectionReportsProps {
   inspectionData: Inspection;
@@ -105,7 +106,15 @@ const InspectionReports: React.FC<InspectionReportsProps> = ({
       <CircularProgress />
     </Box>
   ) : inspectionReportsData?.id ? (
-    <ReportTabs />
+    <DynamicHeightBox
+      display={"flex"}
+      flexGrow={1}
+      flexDirection={"column"}
+      overflow={"auto"}
+      bottomOffset={20}
+    >
+      <ReportTabs />
+    </DynamicHeightBox>
   ) : isReportsAllowed ? (
     <Box
       sx={{
