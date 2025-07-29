@@ -268,6 +268,10 @@ export function Inspections() {
     () => createUniqueFilterList("primary_officer", "name"),
     [createUniqueFilterList]
   );
+  const reviewerList = useMemo(
+    () => createUniqueFilterList("approved_by", "name"),
+    [createUniqueFilterList]
+  );
   const inspectionStatusList = useMemo(
     () => createUniqueFilterList("inspection_status"),
     [createUniqueFilterList]
@@ -349,7 +353,15 @@ export function Inspections() {
         },
         filterVariant: "multi-select",
         filterSelectOptions: approvalStatusList,
-        size: 120,
+        size: 100,
+      },
+      {
+        accessorFn: (row) => row.approved_by?.name,
+        id: "reviewer",
+        header: "Reviewer",
+        filterVariant: "multi-select",
+        filterSelectOptions: reviewerList,
+        size: 100,
       },
       {
         accessorFn: (row) => row.primary_officer?.name,
@@ -357,7 +369,7 @@ export function Inspections() {
         header: "Primary",
         filterVariant: "multi-select",
         filterSelectOptions: staffUserList,
-        size: 120,
+        size: 100,
       },
       {
         accessorKey: "approved_by_id",
@@ -417,6 +429,7 @@ export function Inspections() {
       approvalStatusList,
       staffUserList,
       inspectionStatusList,
+      reviewerList,
     ]
   );
 
