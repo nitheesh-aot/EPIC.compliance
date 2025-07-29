@@ -14,13 +14,17 @@ from compliance_api.models import InspectionFirstnation as InspectionFirstnation
 from compliance_api.models import InspectionInitiationOption as InspectionInitiationOptionModel
 from compliance_api.models import InspectionOfficer as InspectionOfficerModel
 from compliance_api.models import InspectionOtherAttendance as InspectionOtherAttendanceModel
+from compliance_api.models import InspectionReqEnforcementMap as InspectionReqEnforcementMapModel
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models import InspectionStatusEnum
 from compliance_api.models import InspectionType as InspectionTypeModel
 from compliance_api.models import InspectionTypeOption as InspectionTypeOptionModel
 from compliance_api.models import IRStatusOption as IRStatusOptionModel
 from compliance_api.models import Order as OrderModel
+from compliance_api.models import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
+from compliance_api.models import OrderProgressEnum
 from compliance_api.models import WarningLetter as WarningLetterModel
+from compliance_api.models.compliance_finding import ComplianceFindingOptionEnum
 from compliance_api.models.db import session_scope
 from compliance_api.models.enforcement_action import EnforcementActionOption as EnforcementActionOptionModel
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
@@ -317,9 +321,8 @@ class InspectionService:
                 {"inspection_status": InspectionStatusEnum(status_enum.value)},
                 session,
             )
-    def _handle_close_as_note(self, inspection):
-        """Handle close as note."""
-        
+            if status_enum == InspectionStatusEnum.CLOSE_AS_NOTE:
+                _handle_close_as_note(inspection, session)
 
     @classmethod
     def delete_by_case_file(cls, case_file_id, ho_session=None):
@@ -364,6 +367,56 @@ class InspectionService:
                 inspection_id, session
             )
             InspectionAgencyModel.delete_inspection_agency(inspection_id)
+
+
+def _handle_close_as_note(inspection, session):
+    """Handle close as note.
+
+    Mark compliance finding as 'Not Determined' and
+    Enforcement action as 'Not Applicable' unless the
+    Enforcement action is 'Order' and is issued
+    Args:
+        inspection (InspectionModel): Inspection model.
+    """
+    requirements = InspectionRequirementModel.get_by_inspection_id(inspection.id)
+    for requirement in requirements:
+        req_enf_maps = InspectionReqEnforcementMapModel.get_all_by_requirement_id(
+            requirement.id
+        )
+        if req_enf_maps:
+            if any(
+                enf_map.enforcement_action_id == EnforcementActionOptionEnum.ORDER.value
+                for enf_map in req_enf_maps
+            ):
+                req_order_map = (
+                    OrderInspectionRequirementMapModel.get_by_requirement_id(
+                        requirement.id
+                    )
+                )
+                if (
+                    req_order_map
+                    and req_order_map.order.order_progress == OrderProgressEnum.ISSUED
+                ):
+                    #  Retain the enforcement action status if the Order is issued
+                    continue
+            #  In all other cases, change the enforcement action to 'Not Applicable'
+            #  and compliance finding to 'Not Determined'
+            enf_action_ids = [enf_map.enforcement_action_id for enf_map in req_enf_maps]
+            InspectionReqEnforcementMapModel.bulk_delete(
+                requirement.id, enf_action_ids, session
+            )
+            InspectionReqEnforcementMapModel.bulk_insert(
+                requirement.id,
+                [EnforcementActionOptionEnum.NOT_APPLICABLE.value],
+                session,
+            )
+            InspectionRequirementModel.update_requirement(
+                requirement.id,
+                {
+                    "compliance_finding_id": ComplianceFindingOptionEnum.NOT_DETERMINED.value
+                },
+                session,
+            )
 
 
 def _make_requirement_detail_object(

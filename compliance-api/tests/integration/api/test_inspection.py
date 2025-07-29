@@ -10,6 +10,13 @@ from faker import Faker
 
 from compliance_api.models import CaseFile as CaseFileModel
 from compliance_api.models import CaseFileStatusEnum
+from compliance_api.models import InspectionReqEnforcementMap
+from compliance_api.models import InspectionReqEnforcementMap as InspectionReqEnforcementMapModel
+from compliance_api.models import InspectionRequirement as InspectionRequirementModel
+from compliance_api.models import Order, OrderInspectionRequirementMap, OrderProgressEnum
+from compliance_api.models.compliance_finding import ComplianceFindingOptionEnum
+from compliance_api.models.db import session_scope
+from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.models.inspection import InspectionAttendanceOptionEnum, InspectionStatusEnum
 from compliance_api.services import InspectionService
 from tests.utilities.factory_scenario import AgencyScenario, InspectionScenario, StaffScenario, TokenJWTClaims
@@ -408,6 +415,123 @@ def test_inspection_close(
         url, data=json.dumps({"status": "OPEN"}), headers=auth_header_super_user
     )
     assert result.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+
+
+def test_inspection_close_as_note(
+    client,
+    jwt,
+    created_staff,
+    mocker,
+    created_case_file,
+    auth_header_super_user,
+    mock_track_service,
+):
+    """Test inspection close as note functionality."""
+    # Mock auth checks
+    contains_role = mocker.patch("compliance_api.auth.jwt.contains_role")
+    contains_role.return_value = True
+
+    # Mock Flask g object with token_info
+    mock_g = mocker.patch("compliance_api.services.service_utils.g")
+    mock_g.token_info = {"preferred_username": created_staff.auth_user_guid}
+
+    # Mock access check function
+    mocker.patch(
+        "compliance_api.services.service_utils.ServiceUtils.access_check_update_for_inspection",
+        return_value=None,
+    )
+    # Create an inspection
+    inspection_data = copy.copy(InspectionScenario.default_value.value)
+    inspection_data.update(
+        {
+            "primary_officer_id": created_staff.id,
+            "attending_officer_ids": [created_staff.id],
+            "start_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "end_date": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "project_description": "test close as note",
+        }
+    )
+    inspection_data["case_file_id"] = created_case_file.id
+    created_inspection = InspectionService.create(inspection_data)
+
+    with session_scope() as session:
+        # Create two requirements
+        req1 = InspectionRequirementModel(
+            inspection_id=created_inspection.id,
+            summary="Requirement 1",
+            topic_id=1,
+            sort_order=1,
+            compliance_finding_id=ComplianceFindingOptionEnum.OUT.value,
+        )
+        req2 = InspectionRequirementModel(
+            inspection_id=created_inspection.id,
+            summary="Requirement 2",
+            topic_id=1,
+            sort_order=2,
+            compliance_finding_id=ComplianceFindingOptionEnum.OUT.value,
+        )
+        session.add(req1)
+        session.add(req2)
+        session.flush()
+
+        # Add enforcement actions to requirements
+        enf_map1 = InspectionReqEnforcementMap(
+            requirement_id=req1.id,
+            enforcement_action_id=EnforcementActionOptionEnum.WARNING_LETTER.value,
+        )
+        enf_map2 = InspectionReqEnforcementMap(
+            requirement_id=req2.id,
+            enforcement_action_id=EnforcementActionOptionEnum.ORDER.value,
+        )
+        session.add(enf_map1)
+        session.add(enf_map2)
+        session.flush()
+
+        # Create an order for req2 that is ISSUED
+        order = Order(
+            inspection_id=created_inspection.id,
+            order_progress=OrderProgressEnum.ISSUED,
+            issuing_officer_id=created_staff.id,
+            order_number="TEST-ORDER-123",
+        )
+        session.add(order)
+        session.flush()
+
+        # Link order to requirement 2
+        order_req_map = OrderInspectionRequirementMap(
+            order_id=order.id, inspection_requirement_id=req2.id
+        )
+        session.add(order_req_map)
+
+    # Change inspection status to CLOSE_AS_NOTE
+    InspectionService.change_status(
+        created_inspection.id, {"status": InspectionStatusEnum.CLOSE_AS_NOTE.value}
+    )
+
+    # Verify the results
+    # Requirement 1 should have enforcement action changed to NOT_APPLICABLE and compliance finding to NOT_DETERMINED
+    req1 = InspectionRequirementModel.find_by_id(req1.id)
+    assert (
+        req1.compliance_finding_id == ComplianceFindingOptionEnum.NOT_DETERMINED.value
+    )
+
+    req1_enf_maps = InspectionReqEnforcementMapModel.get_all_by_requirement_id(req1.id)
+    assert len(req1_enf_maps) == 1
+    assert (
+        req1_enf_maps[0].enforcement_action_id
+        == EnforcementActionOptionEnum.NOT_APPLICABLE.value
+    )
+
+    # Requirement 2 should retain its original values because it has an ISSUED order
+    req2 = InspectionRequirementModel.find_by_id(req2.id)
+    assert req2.compliance_finding_id == ComplianceFindingOptionEnum.OUT.value
+
+    req2_enf_maps = InspectionReqEnforcementMapModel.get_all_by_requirement_id(req2.id)
+    assert len(req2_enf_maps) == 1
+    assert (
+        req2_enf_maps[0].enforcement_action_id
+        == EnforcementActionOptionEnum.ORDER.value
+    )
 
 
 def test_inspection_delete(

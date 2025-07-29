@@ -508,12 +508,6 @@ class InspectionStatusSchema(BaseSchema):
         metadata={"description": "The status of the complaint"},
         required=True,
     )
-    alt_status_text = fields.Str(
-        metadata={
-            "description": "Alternate text for the status to be written to continuation report"
-        },
-        allow_none=True,
-    )
 
     @post_load
     def extract_status_value(

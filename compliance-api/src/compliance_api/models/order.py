@@ -66,7 +66,7 @@ class OrderInspectionRequirementMap(BaseModelVersioned):
         """Get inspection requirements by requirement id."""
         return cls.query.filter_by(
             inspection_requirement_id=requirement_id, is_deleted=False, is_active=True
-        ).all()
+        ).first()
 
     @classmethod
     @with_session
