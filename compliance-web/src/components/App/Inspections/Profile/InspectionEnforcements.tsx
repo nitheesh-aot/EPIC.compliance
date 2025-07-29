@@ -24,6 +24,7 @@ import OrderCreateModal from "@/components/App/Inspections/Profile/Enforcements/
 import WarningLetterCreateModal from "@/components/App/Inspections/Profile/Enforcements/WarningLetters/WarningLetterCreateModal";
 import { prepNonProceededRequirements } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
 import { useAdministrativePenaltiesData } from "@/hooks/useAdministrativePenalties";
+import DynamicHeightBox from "@/components/Shared/DynamicHeightBox";
 
 interface InspectionEnforcementsProps {
   inspectionData: Inspection;
@@ -264,11 +265,12 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
   };
 
   return (
-    <Box
+    <DynamicHeightBox
       display={"flex"}
       flexGrow={1}
       flexDirection={"column"}
       overflow={"auto"}
+      bottomOffset={20}
     >
       <Box display={"flex"} justifyContent={"space-between"} mt={3} mb={2}>
         <Typography variant="h6">Enforcement</Typography>
@@ -322,7 +324,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           ))}
         </>
       )}
-    </Box>
+    </DynamicHeightBox>
   );
 };
 

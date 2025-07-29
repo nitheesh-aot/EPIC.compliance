@@ -192,11 +192,20 @@ export default function ReportTopSection() {
             notify.success(message);
             setClose();
             refetchInspectionReportsData();
+            queryClient.invalidateQueries({
+              queryKey: ["inspection", inspectionData?.ir_number],
+            });
           }}
         />
       ),
     });
-  }, [setOpen, setClose, refetchInspectionReportsData]);
+  }, [
+    setOpen,
+    setClose,
+    refetchInspectionReportsData,
+    queryClient,
+    inspectionData,
+  ]);
 
   const handleApproval = useCallback(
     (isApprove: boolean) => {

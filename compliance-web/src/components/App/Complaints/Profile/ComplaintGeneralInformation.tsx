@@ -1,7 +1,7 @@
 import { ComplaintSourceEnum } from "@/components/App/Complaints/ComplaintFormUtils";
 import FileProfileProperty from "@/components/App/FileProfileProperty";
+import DynamicHeightBox from "@/components/Shared/DynamicHeightBox";
 import { Complaint } from "@/models/Complaint";
-import { useMenuStore } from "@/store/menuStore";
 import { RequirementSourceEnum } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import { EditRounded } from "@mui/icons-material";
@@ -17,8 +17,6 @@ interface ComplaintGeneralInformationProps {
 const ComplaintGeneralInformation: React.FC<
   ComplaintGeneralInformationProps
 > = ({ complaintData, onEdit, allowEdit }) => {
-  const { appHeaderHeight } = useMenuStore();
-
   const generalProperties = [
     { name: "Project Name", value: complaintData.case_file?.project?.name },
     {
@@ -126,12 +124,12 @@ const ComplaintGeneralInformation: React.FC<
   ];
 
   return (
-    <Box
+    <DynamicHeightBox
       display={"flex"}
       flexGrow={1}
       flexDirection={"column"}
       width={"75%"}
-      height={`calc(100vh - ${appHeaderHeight + 158}px)`} // 158px is the height of the FileProfileHeader and the padding
+      bottomOffset={20}
       overflow={"auto"}
     >
       <Box display={"flex"} justifyContent={"space-between"} my={3}>
@@ -169,7 +167,7 @@ const ComplaintGeneralInformation: React.FC<
           />
         ))}
       </Box>
-    </Box>
+    </DynamicHeightBox>
   );
 };
 

@@ -25,6 +25,7 @@ import {
 import { DRAWER_WIDTHS } from "@/utils/constants";
 import { useRequirementStore } from "./Requirements/requirementStore";
 import RequirementLoading from "./Requirements/RequirementLoading";
+import DynamicHeightBox from "@/components/Shared/DynamicHeightBox";
 
 interface InspectionRequirementsProps {
   inspectionData: Inspection;
@@ -281,11 +282,12 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
   }, [isInspectionRequirementsLoading, isInspectionRequirementImagesLoading]);
 
   return (
-    <Box
+    <DynamicHeightBox
       display={"flex"}
       flexGrow={1}
       flexDirection={"column"}
       overflow={"auto"}
+      bottomOffset={20}
     >
       <Box display={"flex"} justifyContent={"space-between"} mt={3} mb={2}>
         <Typography variant="h6">Requirements</Typography>
@@ -358,7 +360,7 @@ const InspectionRequirements: React.FC<InspectionRequirementsProps> = ({
           )}
         </>
       )}
-    </Box>
+    </DynamicHeightBox>
   );
 };
 
