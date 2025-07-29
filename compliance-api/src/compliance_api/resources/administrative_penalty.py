@@ -6,6 +6,7 @@ from flask import request
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
+from compliance_api.exceptions import BadRequestError
 from compliance_api.schemas.administrative_penalty import (
     AdministrativePenaltyCreateSchema, AdministrativePenaltySchema, AdministrativePenaltyUpdateSchema)
 from compliance_api.services.administrative_penalty import AdministrativePenaltyService
@@ -57,6 +58,8 @@ class AdministrativePenalties(Resource):
     def get():
         """Fetch all administrative penalties."""
         inspection_id = request.args.get("inspection_id")
+        if not inspection_id:
+            raise BadRequestError("inspection_id is required")
         administrative_penalties = AdministrativePenaltyService.get_all(inspection_id)
         administrative_penalty_list_schema = AdministrativePenaltySchema(many=True)
         return (

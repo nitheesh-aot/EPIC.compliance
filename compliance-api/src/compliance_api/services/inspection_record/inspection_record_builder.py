@@ -580,7 +580,9 @@ class InspectionRecordDataBuilder:
                 grouped_requirements[req_source_name].append({"number": number})
             for source_name, reqs in grouped_requirements.items():
                 # Filter out None values before joining
-                valid_numbers = [req["number"] for req in reqs if req["number"] is not None]
+                valid_numbers = [
+                    req["number"] for req in reqs if req["number"] is not None
+                ]
                 if valid_numbers:
                     numbers = ", ".join(valid_numbers)
                     condition_lines.append(f"{numbers} of {source_name}")

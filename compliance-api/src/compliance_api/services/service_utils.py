@@ -321,14 +321,14 @@ class ServiceUtils:
                 if EnforcementActionOptionEnum.ORDER.value in [
                     action.id for action in enforcement_actions
                 ]:
-                    order_maps = (
+                    order_map = (
                         OrderInspectionRequirementMapModel.get_by_requirement_id(
                             requirement.id
                         )
                     )
-                    if any(
-                        order_map.order.order_progress == OrderProgressEnum.ISSUED
-                        for order_map in order_maps
+                    if (
+                        order_map
+                        and order_map.order.order_progress == OrderProgressEnum.ISSUED
                     ):
                         result = "Order"
                     else:

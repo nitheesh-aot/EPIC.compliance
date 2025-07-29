@@ -67,7 +67,7 @@ class AdministrativePenaltyService:
 
         # Generate administrative penalty number if not provided
         if not administrative_penalty_data.get("administrative_penalty_number"):
-            project_id = inspection.project_id
+            project_id = inspection.case_file.project_id
             case_file_id = inspection.case_file_id
             administrative_penalty_data["administrative_penalty_number"] = (
                 _create_administrative_penalty_number(project_id, case_file_id)

@@ -36,6 +36,9 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
     queryClient.invalidateQueries({
       queryKey: ["continuation-reports", inspectionData?.case_file_id],
     });
+    queryClient.invalidateQueries({
+      queryKey: ["inspection-requirements", inspectionData?.id],
+    });
     notify.success("Inspection status updated");
     setClose();
   }, [fileNumber, inspectionData, queryClient, setClose]);
@@ -92,8 +95,7 @@ const InspectionFileActions: React.FC<InspectionFileActionsProps> = ({
                 updateInspectionInspection({
                   id: inspectionData?.id ?? 0,
                   inspectionStatus: {
-                    status: "CLOSED",
-                    alt_status_text: "Closed as note to file",
+                    status: "CLOSE_AS_NOTE",
                   },
                 });
               }}

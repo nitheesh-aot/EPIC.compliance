@@ -21,7 +21,7 @@ class AdministrativePenaltyUpdateSchema(
     )
     referral_status = EnumField(
         ReferralStatusEnum,
-        by_value=True,
+        by_value=False,
         allow_none=True,
         metadata={"description": "The referral status of the administrative penalty"},
     )
@@ -43,7 +43,7 @@ class AdministrativePenaltyUpdateSchema(
     )
     decision = EnumField(
         DecisionEnum,
-        by_value=True,
+        by_value=False,
         allow_none=True,
         metadata={"description": "The decision on the administrative penalty"},
     )
@@ -61,8 +61,7 @@ class AdministrativePenaltyUpdateSchema(
     )
 
     @validates_schema
-    @staticmethod
-    def validate_penalty_amount(data):
+    def validate_penalty_amount(self, data, **kwargs):  # pylint: disable=no-self-use, unused-argument
         """Validate that penalty_amount is required when decision is present."""
         if data.get("decision") and not data.get("penalty_amount"):
             raise ValidationError(
@@ -117,14 +116,20 @@ class AdministrativePenaltySchema(AutoSchemaBase):  # pylint: disable=too-many-a
     )
 
     @post_dump
-    def transform_data(self, data, **kwargs):
+    def transform_data(self, data, many, **kwargs):  # pylint: disable=no-self-use, unused-argument
         """Transform data after serialization."""
         # Convert enum values to their string representation
         if "referral_status" in data and data["referral_status"]:
-            data["referral_status"] = data["referral_status"]["value"]
+            data["referral_status"] = {
+                "id": ReferralStatusEnum(data["referral_status"]).name,
+                "value": ReferralStatusEnum(data["referral_status"]).value,
+            }
 
         if "decision" in data and data["decision"]:
-            data["decision"] = data["decision"]["value"]
+            data["decision"] = {
+                "id": DecisionEnum(data["decision"]).name,
+                "value": DecisionEnum(data["decision"]).value,
+            }
 
         return data
 
@@ -140,7 +145,7 @@ class ReferralStatusSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     )
 
     @post_dump
-    def extract_status_value(self, data, **kwargs):
+    def extract_status_value(self, data, many, **kwargs):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of the status enum."""
         if "referral_status" in data and data["referral_status"]:
             data["referral_status"] = data["referral_status"]["value"]
@@ -171,7 +176,7 @@ class DecisionSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     )
 
     @post_dump
-    def extract_decision_value(self, data, **kwargs):
+    def extract_decision_value(self, data, many, **kwargs):  # pylint: disable=no-self-use, unused-argument
         """Extract the value of the decision enum."""
         if "decision" in data and data["decision"]:
             data["decision"] = data["decision"]["value"]
