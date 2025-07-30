@@ -14,11 +14,7 @@ import {
   InspectionRequirementGrid,
   InspectionRequirementGridQueryParams,
 } from "@/models/InspectionRequirementGrid";
-import {
-  APPROVAL_STATUS,
-  APPROVAL_STATUS_TEXT,
-  STAFF_USER_POSITION,
-} from "@/utils/constants";
+import { APPROVAL_STATUS, APPROVAL_STATUS_TEXT } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import {
   ChevronLeftRounded,
@@ -43,7 +39,6 @@ import { downloadFile } from "@/utils/appUtils";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { cachedFiltersStore } from "@/store/cachedFiltersStore";
 import { AppConfig } from "@/utils/config";
-import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/requirements/"
@@ -59,23 +54,7 @@ function Requirements() {
   const { data: enforcementActions } = useEnforcementActionsData();
   const { data: requirementSources } = useRequirementSourcesData();
   const { data: staffUsers } = useStaffUsersData();
-  const { user: currentUser } = useAuth();
   const [showOnlyMyRequirements, setShowOnlyMyRequirements] = useState(false);
-
-  // Find current user from staff list
-  const currentUserStaff = useMemo(() => {
-    return staffUsers?.find(
-      (staff) =>
-        staff.auth_user_guid === currentUser?.profile?.preferred_username
-    );
-  }, [staffUsers, currentUser?.profile?.preferred_username]);
-
-  // Check if current user is a deputy director
-  const isCurrentUserDeputy = useMemo(() => {
-    return (
-      currentUserStaff?.position_id === STAFF_USER_POSITION.DEPUTY_DIRECTOR
-    );
-  }, [currentUserStaff?.position_id]);
 
   const approvalStatusOptions = Object.entries(APPROVAL_STATUS_TEXT).map(
     ([id, name]) => ({
@@ -161,38 +140,6 @@ function Requirements() {
     isInitialLoad.current = false;
     setIsRestored(true);
   }, [cachedColumnFilters, cachedExternalFilters]);
-
-  // Apply column filters for deputy directors when switch state is restored
-  useEffect(() => {
-    if (isRestored && showOnlyMyRequirements && isCurrentUserDeputy && currentUserStaff) {
-      // Apply column filters for deputy directors when restored
-      const currentUserStaffName = currentUserStaff.name;
-      const deputyFilters = [
-        {
-          id: "reviewer",
-          value: [currentUserStaffName],
-        },
-        {
-          id: "approval_status",
-          value: [APPROVAL_STATUS.APPROVAL_PENDING],
-        },
-      ];
-
-      // Remove existing user-specific filters and add new ones
-      const filteredFilters = columnFilters.filter(
-        (filter) =>
-          filter.id !== "reviewer" && filter.id !== "approval_status"
-      );
-      setColumnFilters([...filteredFilters, ...deputyFilters]);
-    } else if (isRestored && !showOnlyMyRequirements) {
-      // Remove user-specific filters when switch is turned off
-      const filteredFilters = columnFilters.filter(
-        (filter) =>
-          filter.id !== "reviewer" && filter.id !== "approval_status"
-      );
-      setColumnFilters(filteredFilters);
-    }
-  }, [isRestored, showOnlyMyRequirements, isCurrentUserDeputy, currentUserStaff, columnFilters]);
 
   // Cache all filters when they change (but not during initial load)
   useEffect(() => {
@@ -305,9 +252,7 @@ function Requirements() {
                 : value;
               break;
             case "approval_status":
-              params.apprv_sts = Array.isArray(value)
-                ? value.join(",")
-                : value;
+              params.apprv_sts = Array.isArray(value) ? value.join(",") : value;
               break;
             case "inspection_status":
               params.insp_sts = Array.isArray(value) ? value.join(",") : value;
@@ -433,71 +378,27 @@ function Requirements() {
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   }, []);
 
-  // Helper function to apply user-specific column filters for UI display
-  const applyUserSpecificColumnFilters = useCallback(
-    (checked: boolean, staffId?: number) => {
-      if (checked && staffId && isCurrentUserDeputy) {
-        // For deputy directors, apply both reviewer and approval status filters for UI display
-        const currentUserStaff = staffUsers?.find(staff => staff.id === staffId);
-        const deputyFilters = [
-          {
-            id: "reviewer",
-            value: [currentUserStaff?.name || ""],
-          },
-          {
-            id: "approval_status",
-            value: [APPROVAL_STATUS.APPROVAL_PENDING],
-          },
-        ];
-
-        // Remove existing user-specific filters and add new ones
-        const filteredFilters = columnFilters.filter(
-          (filter) =>
-            filter.id !== "reviewer" && filter.id !== "approval_status"
-        );
-        setColumnFilters([...filteredFilters, ...deputyFilters]);
-      } else if (!checked) {
-        // Remove user-specific filters when turning off
-        const filteredFilters = columnFilters.filter(
-          (filter) =>
-            filter.id !== "reviewer" && filter.id !== "approval_status"
-        );
-        setColumnFilters(filteredFilters);
-      }
-    },
-    [columnFilters, isCurrentUserDeputy, staffUsers]
-  );
-
-  // Handler for the switch
-  const handleShowOnlyMyRequirementsChange = useCallback(
-    (checked: boolean, staffId?: number) => {
-      setShowOnlyMyRequirements(checked);
-      
-      // Apply column filters for deputy directors
-      applyUserSpecificColumnFilters(checked, staffId);
+    // Handler for the switch filter changes
+  const handleShowOnlyMyRequirementsFiltersChange = useCallback(
+    (filters: {
+      checked: boolean;
+      externalFilters: Record<string, string[] | string>;
+      columnFilters?: MRT_TableState<InspectionRequirementGrid>["columnFilters"];
+    }) => {
+      setShowOnlyMyRequirements(filters.checked);
       
       // Apply external filters
-      setExternalFilters((prev) => {
-        const newFilters = { ...prev };
-        if (checked && staffId) {
-          if (isCurrentUserDeputy) {
-            // For deputy directors, filter by both reviewer and approval status
-            newFilters.reviewer_ids = [staffId.toString()];
-            newFilters.approval_status = [APPROVAL_STATUS.APPROVAL_PENDING];
-          } else {
-            // For regular users, filter by primary officer
-            newFilters.primary_officer_id = [staffId.toString()];
-          }
-        } else {
-          delete newFilters.primary_officer_id;
-          delete newFilters.reviewer_ids;
-          delete newFilters.approval_status;
-        }
-        return newFilters;
+      Object.entries(filters.externalFilters).forEach(([key, value]) => {
+        setExternalFilters((prev) => ({
+          ...prev,
+          [key]: value,
+        }));
       });
+      
+      // Reset pagination
       setPagination((prev) => ({ ...prev, pageIndex: 0 }));
     },
-    [isCurrentUserDeputy, applyUserSpecificColumnFilters]
+    []
   );
 
   const columns = useMemo<MRT_ColumnDef<InspectionRequirementGrid>[]>(
@@ -587,20 +488,6 @@ function Requirements() {
         size: 100,
       },
       {
-        accessorKey: "approved_by_id",
-        header: "Approved By ID",
-        enableHiding: true,
-        enableColumnFilter: true,
-        filterVariant: "multi-select",
-        accessorFn: (row) => row.approved_by_id?.toString() ?? "",
-        muiTableHeadCellProps: {
-          sx: { display: "none" },
-        },
-        muiTableBodyCellProps: {
-          sx: { display: "none" },
-        },
-      },
-      {
         accessorKey: "requirement_number",
         header: "Condition #",
         filterFn: "contains",
@@ -663,7 +550,6 @@ function Requirements() {
     <MasterDataTable
       columns={columns}
       data={requirementsList ?? []}
-
       initialState={{
         sorting: [{ id: "topic", desc: false }],
         columnFilters: isRestored ? columnFilters : [],
@@ -707,9 +593,11 @@ function Requirements() {
               Requirements
             </Typography>
             <ShowOnlyMyRequirementsSwitch
-              checked={showOnlyMyRequirements}
-              onChange={handleShowOnlyMyRequirementsChange}
-              disabled={isLoading || (isCurrentUserDeputy && !currentUserStaff)}
+              initialChecked={showOnlyMyRequirements}
+              onFiltersChange={handleShowOnlyMyRequirementsFiltersChange}
+              disabled={isLoading}
+              columnFilters={columnFilters}
+              onColumnFiltersChange={handleColumnFiltersChange}
             />
           </Box>
 

@@ -2,20 +2,48 @@ import { FormControlLabel, Typography, CircularProgress } from "@mui/material";
 import CustomSwitch from "@/components/Shared/Controlled/CustomSwitch";
 import { useAuth } from "react-oidc-context";
 import { useStaffUsersData } from "@/hooks/useStaff";
-import { useMemo } from "react";
-import { STAFF_USER_POSITION } from "@/utils/constants";
+import { useMemo, useCallback, useState, useEffect } from "react";
+import { STAFF_USER_POSITION, APPROVAL_STATUS } from "@/utils/constants";
+import { MRT_TableState } from "material-react-table";
+import { InspectionRequirementGrid } from "@/models/InspectionRequirementGrid";
 
 interface ShowOnlyMyRequirementsSwitchProps {
-  checked: boolean;
-  onChange: (checked: boolean, staffId?: number) => void;
   disabled?: boolean;
+  onFiltersChange?: (filters: {
+    checked: boolean;
+    externalFilters: Record<string, string[] | string>;
+    columnFilters?: MRT_TableState<InspectionRequirementGrid>["columnFilters"];
+  }) => void;
+  initialChecked?: boolean;
+  columnFilters?: MRT_TableState<InspectionRequirementGrid>["columnFilters"];
+  onColumnFiltersChange?: (
+    updater:
+      | MRT_TableState<InspectionRequirementGrid>["columnFilters"]
+      | ((
+          old: MRT_TableState<InspectionRequirementGrid>["columnFilters"]
+        ) => MRT_TableState<InspectionRequirementGrid>["columnFilters"])
+  ) => void;
 }
 
 const ShowOnlyMyRequirementsSwitch: React.FC<
   ShowOnlyMyRequirementsSwitchProps
-> = ({ checked, onChange, disabled = false }) => {
+> = ({ 
+  disabled = false,
+  onFiltersChange,
+  initialChecked = false,
+  columnFilters = [],
+  onColumnFiltersChange
+}) => {
   const { user: currentUser, isLoading: authLoading } = useAuth();
   const { data: staffUsers, isLoading: staffLoading } = useStaffUsersData();
+  
+  // Internal state management
+  const [checked, setChecked] = useState(initialChecked);
+
+  // Update internal state when initialChecked changes (for restoration)
+  useEffect(() => {
+    setChecked(initialChecked);
+  }, [initialChecked]);
 
   // Find current user in staff list
   const currentStaff = useMemo(() => {
@@ -45,6 +73,83 @@ const ShowOnlyMyRequirementsSwitch: React.FC<
     }
   }, [isCurrentUserDeputy, currentUser?.profile?.given_name]);
 
+  // Generate external filters based on current state
+  const generateExternalFilters = useCallback((isChecked: boolean): Record<string, string[] | string> => {
+    if (!isChecked || !currentStaff?.id) {
+      return {
+        primary_officer_id: [],
+        reviewer_ids: [],
+        approval_status: [],
+      };
+    }
+
+    if (isCurrentUserDeputy) {
+      // For deputy directors, filter by both reviewer and approval status
+      return {
+        reviewer_ids: [currentStaff.id.toString()],
+        approval_status: [APPROVAL_STATUS.APPROVAL_PENDING],
+      };
+    } else {
+      // For regular users, filter by primary officer
+      return {
+        primary_officer_id: [currentStaff.id.toString()],
+      };
+    }
+  }, [currentStaff?.id, isCurrentUserDeputy]);
+
+  // Generate column filters for UI display (deputy directors only)
+  const generateColumnFilters = useCallback((isChecked: boolean): MRT_TableState<InspectionRequirementGrid>["columnFilters"] => {
+    if (!isChecked || !isCurrentUserDeputy || !currentStaff) {
+      return [];
+    }
+
+    const currentUserStaff = staffUsers?.find(staff => staff.id === currentStaff.id);
+    return [
+      {
+        id: "reviewer",
+        value: [currentUserStaff?.name || ""],
+      },
+      {
+        id: "approval_status",
+        value: [APPROVAL_STATUS.APPROVAL_PENDING],
+      },
+    ];
+  }, [isCurrentUserDeputy, currentStaff, staffUsers]);
+
+  // Handle switch change
+  const handleSwitchChange = useCallback((newChecked: boolean) => {
+    setChecked(newChecked);
+    
+    const externalFilters = generateExternalFilters(newChecked);
+    const columnFilters = generateColumnFilters(newChecked);
+    
+    // Notify parent of filter changes
+    onFiltersChange?.({
+      checked: newChecked,
+      externalFilters,
+      columnFilters,
+    });
+    
+    // Update column filters for UI display if callback provided
+    if (onColumnFiltersChange) {
+      if (newChecked && isCurrentUserDeputy) {
+        // Remove existing user-specific filters and add new ones
+        const filteredFilters = columnFilters.filter(
+          (filter) =>
+            filter.id !== "reviewer" && filter.id !== "approval_status"
+        );
+        onColumnFiltersChange([...filteredFilters, ...generateColumnFilters(true)]);
+      } else {
+        // Remove user-specific filters when turning off
+        const filteredFilters = columnFilters.filter(
+          (filter) =>
+            filter.id !== "reviewer" && filter.id !== "approval_status"
+        );
+        onColumnFiltersChange(filteredFilters);
+      }
+    }
+  }, [generateExternalFilters, generateColumnFilters, onFiltersChange, onColumnFiltersChange, isCurrentUserDeputy, columnFilters]);
+
   if (authLoading || staffLoading) {
     return <CircularProgress size={24} />;
   }
@@ -54,7 +159,7 @@ const ShowOnlyMyRequirementsSwitch: React.FC<
       control={
         <CustomSwitch
           checked={checked}
-          onChange={(_, value) => onChange(value, currentStaff?.id)}
+          onChange={(_, value) => handleSwitchChange(value)}
           size="small"
           disabled={isSwitchDisabled}
         />
