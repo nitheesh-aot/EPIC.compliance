@@ -14,11 +14,7 @@ import {
   InspectionRequirementGrid,
   InspectionRequirementGridQueryParams,
 } from "@/models/InspectionRequirementGrid";
-import {
-  APPROVAL_STATUS,
-  APPROVAL_STATUS_TEXT,
-  DEFAULT_PAGE_SIZE,
-} from "@/utils/constants";
+import { APPROVAL_STATUS, APPROVAL_STATUS_TEXT } from "@/utils/constants";
 import dateUtils from "@/utils/dateUtils";
 import {
   ChevronLeftRounded,
@@ -42,6 +38,7 @@ import ShowOnlyMyRequirementsSwitch from "@/components/App/RequirementsGrid/Show
 import { downloadFile } from "@/utils/appUtils";
 import { useStaffUsersData } from "@/hooks/useStaff";
 import { cachedFiltersStore } from "@/store/cachedFiltersStore";
+import { AppConfig } from "@/utils/config";
 
 export const Route = createFileRoute(
   "/_authenticated/ce-database/requirements/"
@@ -67,7 +64,7 @@ function Requirements() {
   );
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: DEFAULT_PAGE_SIZE,
+    pageSize: AppConfig.defaultPageSize,
   });
 
   const [columnFilters, setColumnFilters] = useState<
@@ -80,6 +77,20 @@ function Requirements() {
 
   // Track if we're in the initial load phase to prevent caching during restoration
   const isInitialLoad = useRef(true);
+  const [isRestored, setIsRestored] = useState(false);
+
+  // Track previous values to prevent unnecessary caching
+  const prevFilters = useRef<{
+    columnFilters: MRT_TableState<InspectionRequirementGrid>["columnFilters"];
+    externalFilters: Record<string, string[] | string>;
+    showOnlyMyRequirements: boolean;
+    globalFilter: string;
+  }>({
+    columnFilters: [],
+    externalFilters: {},
+    showOnlyMyRequirements: false,
+    globalFilter: "",
+  });
 
   // Get cached filters store methods
   const { getFilters, getExternalFilters } = cachedFiltersStore();
@@ -92,7 +103,7 @@ function Requirements() {
   useEffect(() => {
     // Reset the initial load flag on every mount
     isInitialLoad.current = true;
-    
+
     if (cachedColumnFilters.length > 0) {
       setColumnFilters(cachedColumnFilters);
     }
@@ -113,23 +124,38 @@ function Requirements() {
         setGlobalFilter(restoredExternalFilters.globalFilter as string);
       }
     }
-    
-    // Mark initial load as complete after a short delay to allow state updates to settle
-    setTimeout(() => {
-      isInitialLoad.current = false;
-    }, 100);
+
+    // Mark restoration as complete and initial load as complete
+    isInitialLoad.current = false;
+    setIsRestored(true);
   }, [cachedColumnFilters, cachedExternalFilters]);
 
-  // Cache filters when they change (but not during initial load)
+  // Cache all filters when they change (but not during initial load)
   useEffect(() => {
     if (!isInitialLoad.current) {
-      cachedFiltersStore
-        .getState()
-        .setFilters(requirementsColumnFiltersCacheKey, columnFilters, {
-          ...externalFilters,
-          showOnlyMyRequirements,
-          globalFilter,
-        });
+      // Check if any values have actually changed
+      const currentFilters = {
+        columnFilters,
+        externalFilters,
+        showOnlyMyRequirements,
+        globalFilter,
+      };
+
+      const hasChanged =
+        JSON.stringify(currentFilters) !== JSON.stringify(prevFilters.current);
+
+      if (hasChanged) {
+        cachedFiltersStore
+          .getState()
+          .setFilters(requirementsColumnFiltersCacheKey, columnFilters, {
+            ...externalFilters,
+            showOnlyMyRequirements,
+            globalFilter,
+          });
+
+        // Update previous values
+        prevFilters.current = currentFilters;
+      }
     }
   }, [columnFilters, externalFilters, showOnlyMyRequirements, globalFilter]);
 
@@ -501,7 +527,7 @@ function Requirements() {
     ]
   );
 
-  return isLoading ? (
+  return isLoading || !isRestored ? (
     <Box
       display="flex"
       justifyContent="center"
@@ -516,7 +542,7 @@ function Requirements() {
       data={requirementsList ?? []}
       initialState={{
         sorting: [{ id: "topic", desc: false }],
-        columnFilters: cachedColumnFilters,
+        columnFilters: isRestored ? columnFilters : [],
       }}
       state={{
         isLoading,
