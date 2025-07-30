@@ -53,6 +53,16 @@ const RequirementsExternalFilters: React.FC<
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
       <ExternalTableFilter
+        filterId="project_id"
+        filterOptions={projectOptions}
+        onFilterChange={onFilterChange}
+        placeholder="Project"
+        variant="inline-standalone"
+        isMulti={true}
+        name="projectFilter"
+        currentValue={externalFilters.project_id}
+      />
+      <ExternalTableFilter
         filterId="primary_officer_id"
         filterOptions={primaryOfficerOptions}
         onFilterChange={onFilterChange}
@@ -71,16 +81,6 @@ const RequirementsExternalFilters: React.FC<
         isMulti={true}
         name="inspectionStatusFilter"
         currentValue={externalFilters.inspection_status}
-      />
-      <ExternalTableFilter
-        filterId="project_id"
-        filterOptions={projectOptions}
-        onFilterChange={onFilterChange}
-        placeholder="Project"
-        variant="inline-standalone"
-        isMulti={true}
-        name="projectFilter"
-        currentValue={externalFilters.project_id}
       />
       {hasActiveFilters && (
         <Button variant="outlined" size="small" onClick={onClearAll}>
