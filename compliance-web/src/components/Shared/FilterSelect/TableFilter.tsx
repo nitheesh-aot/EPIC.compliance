@@ -62,7 +62,7 @@ const makeTableFilter =
         options={options}
         filterAppliedCallback={filterAppliedCallback}
         filterClearedCallback={filterClearedCallback}
-        defaultValue={handleValues(column.getFilterValue())}
+        value={handleValues(column.getFilterValue())}
       />
     );
   });
