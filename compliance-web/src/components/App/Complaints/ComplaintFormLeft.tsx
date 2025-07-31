@@ -5,12 +5,24 @@ import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAut
 import { BCDesignTokens } from "epic.theme";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
+import { Topic } from "@/models/Topic";
+import RequirementSourceForm from "./RequirementSourceForm";
+import { RequirementSource } from "@/models/RequirementSource";
+import { InspectionOrder } from "@/models/InspectionOrder";
 
 type ComplaintFormLeftProps = {
   staffUsersList: StaffUser[];
+  topicsList: Topic[];
+  requirementSourceList: RequirementSource[];
+  orderList: InspectionOrder[];
 };
 
-const ComplaintFormLeft: FC<ComplaintFormLeftProps> = ({ staffUsersList }) => {
+const ComplaintFormLeft: FC<ComplaintFormLeftProps> = ({
+  staffUsersList,
+  topicsList,
+  requirementSourceList,
+  orderList,
+}) => {
   return (
     <>
       <Box
@@ -29,6 +41,18 @@ const ComplaintFormLeft: FC<ComplaintFormLeftProps> = ({ staffUsersList }) => {
           multiline
           fullWidth
           minRows={2}
+          isRequired={true}
+        />
+        <ControlledAutoComplete
+          name="topic"
+          label="Topic"
+          options={topicsList}
+          getOptionLabel={(option) => option.name}
+          getOptionKey={(option) => option.id}
+          isOptionEqualToValue={(option, value) =>
+            option.id.toString() === value.id.toString()
+          }
+          fullWidth
           isRequired={true}
         />
         <ControlledTextField
@@ -58,6 +82,10 @@ const ComplaintFormLeft: FC<ComplaintFormLeftProps> = ({ staffUsersList }) => {
             isRequired={true}
           />
         </Stack>
+        <RequirementSourceForm
+          requirementSourceList={requirementSourceList ?? []}
+          orderList={orderList ?? []}
+        />
       </Box>
     </>
   );

@@ -5,26 +5,20 @@ import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAut
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import { RequirementSource } from "@/models/RequirementSource";
-import { Topic } from "@/models/Topic";
 import { useDrawer } from "@/store/drawerStore";
 import { useModal } from "@/store/modalStore";
 import { RequirementSourceEnum } from "@/utils/constants";
 import { Box } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
 import { FC, useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 
 type RequirementSourceFormProps = {
   requirementSourceList: RequirementSource[];
-  topicsList: Topic[];
   orderList: InspectionOrder[];
 };
 
-const sectionPadding = "1rem 2rem 0rem 1rem";
-
 const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
   requirementSourceList,
-  topicsList,
   orderList,
 }) => {
   const { isOpen } = useDrawer();
@@ -153,6 +147,8 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
     ],
     [RequirementSourceEnum.EACA]: [sharedRequirementSourceField()],
     [RequirementSourceEnum.ORDER]: [],
+    [RequirementSourceEnum.REGULATION]: [sharedRequirementSourceField()],
+    [RequirementSourceEnum.EXEMPTION_ORDER]: [sharedRequirementSourceField()],
   };
 
   const isRequirementSourceSelected = Object.values(
@@ -161,7 +157,7 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
 
   return (
     <>
-      <Box p={sectionPadding} pt={0}>
+      <Box>
         <ControlledAutoComplete
           name="requirementSource"
           label="Requirement Source"
@@ -174,11 +170,7 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
         />
       </Box>
       {isRequirementSourceSelected && (
-        <Box
-          p={sectionPadding}
-          mb={"1.5rem"}
-          bgcolor={BCDesignTokens.surfaceColorBackgroundLightBlue}
-        >
+        <Box mb={"1.5rem"}>
           {dynamicFieldConfigRequirementSource[
             selectedRequirementSource.id as RequirementSourceEnum
           ]?.map((config) => (
@@ -199,18 +191,6 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
               isRequired={true}
             />
           )}
-          <ControlledAutoComplete
-            name="topic"
-            label="Topic"
-            options={topicsList}
-            getOptionLabel={(option) => option.name}
-            getOptionKey={(option) => option.id}
-            isOptionEqualToValue={(option, value) =>
-              option.id.toString() === value.id.toString()
-            }
-            fullWidth
-            isRequired={true}
-          />
         </Box>
       )}
     </>

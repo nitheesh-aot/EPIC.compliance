@@ -25,7 +25,6 @@ import { useAgenciesData } from "@/hooks/useAgencies";
 import { useFirstNationsData } from "@/hooks/useFirstNations";
 import { useTopicsData } from "@/hooks/useTopics";
 import ComplaintSourceForm from "./ComplaintSourceForm";
-import RequirementSourceForm from "./RequirementSourceForm";
 import { StaffUser } from "@/models/Staff";
 import dayjs from "dayjs";
 import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
@@ -184,7 +183,12 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
           height={`calc(100vh - ${appHeaderHeight + 129}px)`} // 64px (DrawerTitleBar height) + 65px (DrawerActionBar height)
           direction="row"
         >
-          <ComplaintFormLeft staffUsersList={staffUserList ?? []} />
+          <ComplaintFormLeft
+            staffUsersList={staffUserList ?? []}
+            topicsList={topicsList ?? []}
+            requirementSourceList={requirementSourceList ?? []}
+            orderList={orderList ?? []}
+          />
           <Box
             sx={{
               width: "399px",
@@ -196,11 +200,6 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
               complaintSourceList={complaintSourceList ?? []}
               agenciesList={agenciesList ?? []}
               firstNationsList={firstNationsList ?? []}
-            />
-            <RequirementSourceForm
-              requirementSourceList={requirementSourceList ?? []}
-              topicsList={topicsList ?? []}
-              orderList={orderList ?? []}
             />
           </Box>
         </Stack>

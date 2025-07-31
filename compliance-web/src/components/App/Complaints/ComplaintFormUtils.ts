@@ -27,6 +27,10 @@ export const ComplaintFormSchema = yup.object().shape({
     .nullable()
     .required("Concern Description is required"),
   locationDescription: yup.string().nullable(),
+  topic: yup
+    .object<Topic>()
+    .nullable()
+    .required("Topic is required"),
   primaryOfficer: yup.object<StaffUser>().nullable().required("Primary is required"),
   dateReceived: yup.mixed<Dayjs>().nullable().required("Date Received is required"),
   complaintSource: yup
@@ -86,14 +90,6 @@ export const ComplaintFormSchema = yup.object().shape({
   }),
   description: yup.string().nullable(),
   conditionDescription: yup.string().nullable(),
-  topic: yup
-    .object<Topic>()
-    .nullable()
-    .when("requirementSource", {
-      is: (reqSource: RequirementSource) => !!reqSource,
-      then: (schema) => schema.required("Topic is required"),
-      otherwise: (schema) => schema.notRequired(),
-    }),
 });
 
 export type ComplaintSchemaType = yup.InferType<typeof ComplaintFormSchema>;
