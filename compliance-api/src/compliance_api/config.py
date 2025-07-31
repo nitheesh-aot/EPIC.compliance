@@ -66,7 +66,11 @@ class _Config:  # pylint: disable=too-few-public-methods
     SQLALCHEMY_DATABASE_URI = (
         f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{int(DB_PORT)}/{DB_NAME}"
     )
-    SQLALCHEMY_ECHO = False
+    SQLALCHEMY_ECHO = os.getenv("SQLALCHEMY_ECHO", "False").lower() in (
+        "true",
+        "1",
+        "yes",
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
 

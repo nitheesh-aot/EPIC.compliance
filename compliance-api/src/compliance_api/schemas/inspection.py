@@ -432,15 +432,11 @@ class InspectionSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
         metadata={"description": "The approval status of the inspection record"},
         allow_none=True,
     )
-    approved_by_id = fields.Int(
+    approved_by = fields.Nested(
+        StaffUserSchema,
         metadata={
             "description": "The ID of the user who approved the inspection record"
         },
-        allow_none=True,
-    )
-    approved_by = fields.Nested(
-        StaffUserSchema,
-        only=("id", "first_name", "last_name", "name", "auth_user_guid", "position"),
         allow_none=True,
     )
     requirement_details = fields.Nested(InspectionRequirementDetails, many=True)
