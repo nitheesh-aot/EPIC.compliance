@@ -75,6 +75,13 @@ const ComplaintGeneralInformation: React.FC<
           name: "Condition Description",
           value: complaintData.requirement_detail?.description ?? "",
         });
+        break;
+      case RequirementSourceEnum.ORDER:
+        generalProperties.push({
+          name: "Order",
+          value: complaintData.requirement_detail?.additional_details?.order_number ?? "",
+        });
+        break;
     }
     generalProperties.push({
       name: "Topic",
