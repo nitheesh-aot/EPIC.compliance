@@ -180,12 +180,12 @@ def _create_or_update_requirement_details(
     )
     #  creating details for the first time
     created_requirement_detail = None
-    if not requirement_detail and complaint_data.get("requirement_source_id", None):
+    if not requirement_detail and complaint_data.get("requirement_source_id", None) and requirement_source_obj:
         created_requirement_detail = ComplaintRequirementDetailModel.create_detail(
             requirement_source_obj, session=session
         )
     #  detail exists and trying to update
-    elif requirement_detail and complaint_data.get("requirement_source_id", None):
+    elif requirement_detail and complaint_data.get("requirement_source_id", None) and requirement_source_obj:
         created_requirement_detail = ComplaintRequirementDetailModel.update_detail(
             complaint.id, requirement_source_obj, session=session
         )
@@ -204,7 +204,7 @@ def _create_or_update_requirement_details(
             not complaint.requirement_source_id
         ):  # delete only when requirement_source_id is removed
             ComplaintRequirementDetailModel.delete_by_id(requirement_detail.id, session)
-        if source_mapping.get(old_requirement_source_id, None):
+        if source_mapping.get(old_requirement_source_id, None) and created_requirement_detail:
             #  Deleting additional details if any
             source_mapping[old_requirement_source_id].delete_details(
                 created_requirement_detail.id, session
@@ -220,12 +220,13 @@ def _create_or_update_requirement_details(
         more_detail_obj = _create_requirement_source_more_detail_obj(
             complaint_data, created_requirement_detail.id
         )
-        if more_detail:
-            more_detail_class.update_details(
-                created_requirement_detail.id, more_detail_obj, session=session
-            )
-        else:
-            more_detail_class.create(more_detail_obj, session=session)
+        if more_detail_obj:  # Only proceed if more_detail_obj is not None
+            if more_detail:
+                more_detail_class.update_details(
+                    created_requirement_detail.id, more_detail_obj, session=session
+                )
+            else:
+                more_detail_class.create(more_detail_obj, session=session)
 
 
 def _access_check_create(complaint_data: dict):
@@ -273,9 +274,17 @@ def _create_requirement_source_detail_obj(complaint_data: dict, complaint_id):
     requirement_source_info = complaint_data.get("requirement_source_details", None)
     if not requirement_source_info:
         return {}
+    
+    # Get topic_id from complaint level
+    topic_id = complaint_data.get("topic_id")
+    
+    # Only create the object if we have a topic_id
+    if topic_id is None:
+        return {}
+        
     return {
         "complaint_id": complaint_id,
-        "topic_id": requirement_source_info.get("topic_id"),
+        "topic_id": topic_id,
         "description": requirement_source_info.get("description", None),
     }
 
@@ -303,6 +312,8 @@ def _create_complaint_update_object(complaint_data: dict):
         "primary_officer_id": complaint_data.get("primary_officer_id", None),
         "date_received": complaint_data.get("date_received"),
         "requirement_source_id": complaint_data.get("requirement_source_id", None),
+        "requirement_source_description": complaint_data.get("requirement_source_description", None),
+        "topic_id": complaint_data.get("topic_id", None),
         "source_type_id": complaint_data.get("source_type_id"),
         "source_agency_id": complaint_data.get("source_agency_id", None),
         "source_first_nation_id": complaint_data.get("source_first_nation_id", None),

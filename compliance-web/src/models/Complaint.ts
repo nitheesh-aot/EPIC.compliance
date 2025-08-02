@@ -7,6 +7,7 @@ import { Contact } from "./Contact";
 import { Dayjs } from "dayjs";
 import { Agency } from "./Agency";
 import { FirstNation } from "./FirstNation";
+import { Topic } from "./Topic";
 
 export interface Complaint {
   id: number;
@@ -18,7 +19,9 @@ export interface Complaint {
   location_description: string;
   primary_officer_id: number;
   date_received: string;
+  topic_id?: number;
   requirement_source_id: number;
+  requirement_source_description?: string;
   source_type_id: number;
   source_agency_id: number;
   source_first_nation_id: number;
@@ -26,6 +29,7 @@ export interface Complaint {
   case_file: CaseFile;
   primary_officer: StaffUser;
   project: Project;
+  topic: Topic;
   source_type: ComplaintSource;
   requirement_source: RequirementSource;
   source_contact: Contact;
@@ -54,6 +58,7 @@ export interface ComplaintAPIData {
   concern_description: string;
   location_description?: string;
   primary_officer_id?: number;
+  topic_id?: number;
   case_file_id?: number;
   date_received: string;
   source_type_id: string;
@@ -61,6 +66,7 @@ export interface ComplaintAPIData {
   source_agency_id?: number;
   source_first_nation_id?: number;
   requirement_source_id?: string;
+  requirement_source_description?: string;
   requirement_source_details?: {
     topic_id?: number;
     description?: string;

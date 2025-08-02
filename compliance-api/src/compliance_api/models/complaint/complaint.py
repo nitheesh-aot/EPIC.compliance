@@ -82,6 +82,15 @@ class Complaint(BaseModelVersioned):
         nullable=True,
         comment="The selected requirement source of the complaint",
     )
+    requirement_source_description = Column(
+        String, nullable=True, comment="The requirement source description of the complaint"
+    )
+    topic_id = Column(
+        Integer,
+        ForeignKey("topics.id", name="complaints_topic_id_topics_id"),
+        nullable=True,
+        comment="The topic of the complaint",
+    )
     source_type_id = Column(
         Integer,
         ForeignKey(
@@ -117,6 +126,7 @@ class Complaint(BaseModelVersioned):
         "StaffUser", foreign_keys=[primary_officer_id], lazy="joined"
     )
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
+    topic = relationship("Topic", foreign_keys=[topic_id], lazy="joined")
     requirement_detail = relationship(
         "ComplaintRequirementDetail",
         back_populates="complaint",

@@ -79,6 +79,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
         concernDescription: complaint.concern_description,
         locationDescription: complaint.location_description,
         primaryOfficer: complaint.primary_officer,
+        topic: complaint.topic,
         dateReceived: dayjs(complaint.date_received),
         complaintSource: complaint.source_type,
         contactFullName: complaint.source_contact.full_name ?? "",
@@ -93,18 +94,8 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
         ),
         otherDescription: complaint.source_contact?.description ?? "",
         requirementSource: complaint.requirement_source,
-        topic: complaint.requirement_detail.topic,
-        conditionNumber:
-          complaint.requirement_detail?.additional_details?.condition_number ??
-          "",
-        conditionDescription: complaint.requirement_detail?.description ?? "",
-        description: complaint.requirement_detail?.description ?? "",
-        amendmentNumber:
-          complaint.requirement_detail?.additional_details?.amendment_number ??
-          "",
-        amendmentConditionNumber:
-          complaint.requirement_detail?.additional_details
-            ?.amendment_condition_number ?? "",
+        requirementSourceDescription:
+          complaint.requirement_source_description ?? "",
         order: orderList?.find(
           (order) =>
             order.order_number ===

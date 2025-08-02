@@ -1,7 +1,5 @@
-import DynamicInputField, {
-  DynamicInputFieldConfig,
-} from "@/components/App/DynamicInputField";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
+import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import ConfirmationModal from "@/components/Shared/Popups/ConfirmationModal";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import { RequirementSource } from "@/models/RequirementSource";
@@ -9,7 +7,7 @@ import { useDrawer } from "@/store/drawerStore";
 import { useModal } from "@/store/modalStore";
 import { RequirementSourceEnum } from "@/utils/constants";
 import { Box } from "@mui/material";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useMemo, useCallback } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 
 type RequirementSourceFormProps = {
@@ -38,18 +36,20 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
     }
   }, [isOpen, setValue]);
 
-  const getSelectedFieldNamesReqSource = (): string[] => {
-    const dynamicFields =
-      dynamicFieldConfigRequirementSource[
-        selectedRequirementSource?.id as RequirementSourceEnum
-      ];
-    const fieldNames: string[] =
-      dynamicFields?.map((field) => field.name) ?? [];
-    fieldNames.push("topic");
-    return fieldNames;
-  };
+  // Memoize the field names to avoid recalculation
+  const selectedFieldNames = useMemo(() => {
+    if (selectedRequirementSource?.id === RequirementSourceEnum.ORDER) {
+      return ["order"];
+    }
+    return ["requirementSourceDescription"];
+  }, [selectedRequirementSource?.id]);
 
-  const handleRequirementSourceChange = (
+  // Memoize the reset function
+  const resetFields = useCallback(() => {
+    selectedFieldNames.forEach((fieldName) => resetField(fieldName));
+  }, [selectedFieldNames, resetField]);
+
+  const handleRequirementSourceChange = useCallback((
     _event: React.SyntheticEvent,
     newValue: RequirementSource | RequirementSource[] | null
   ) => {
@@ -61,10 +61,13 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
       setValue("requirementSource", newValue);
       return;
     }
-    const isDynamicFieldsNotEmpty = getSelectedFieldNamesReqSource().some(
+
+    // Check if current fields have values
+    const hasFieldValues = selectedFieldNames.some(
       (fieldName) => !!getValues(fieldName)
     );
-    if (isDynamicFieldsNotEmpty) {
+
+    if (hasFieldValues) {
       // If dynamic fields contain values, prompt user
       setOpen({
         content: (
@@ -75,7 +78,7 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
             confirmButtonText="Yes"
             cancelButtonText="No"
             onConfirm={() => {
-              resetFieldForReqSource();
+              resetFields();
               setClose();
             }}
             onCancel={() => {
@@ -87,73 +90,13 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
     } else {
       // If dynamic fields are empty, proceed with the change
       setValue("requirementSource", newValue);
-      resetFieldForReqSource();
+      resetFields();
     }
-  };
+  }, [selectedRequirementSource, selectedFieldNames, getValues, setValue, setOpen, setClose, resetFields]);
 
-  const resetFieldForReqSource = () => {
-    getSelectedFieldNamesReqSource().forEach((fieldName) =>
-      resetField(fieldName)
-    );
-  };
-
-  const sharedRequirementSourceField = (
-    name?: string,
-    label?: string
-  ): DynamicInputFieldConfig => {
-    return {
-      type: "text",
-      name: name ?? "conditionDescription",
-      label: `${label ?? "Condition Description"}`,
-      required: false,
-    };
-  };
-
-  const dynamicFieldConfigRequirementSource: Record<
-    RequirementSourceEnum,
-    DynamicInputFieldConfig[]
-  > = {
-    [RequirementSourceEnum.SCHEDULE_B]: [
-      {
-        type: "text",
-        name: "conditionNumber",
-        label: "Condition #",
-        required: true,
-      },
-    ],
-    [RequirementSourceEnum.EAC]: [
-      {
-        type: "text",
-        name: "amendmentNumber",
-        label: "Amendment #",
-        required: false,
-      },
-      {
-        type: "text",
-        name: "amendmentConditionNumber",
-        label: "Amendment Condition #",
-        required: false,
-      },
-      sharedRequirementSourceField(),
-    ],
-    [RequirementSourceEnum.CPD]: [sharedRequirementSourceField()],
-    [RequirementSourceEnum.ACT2018]: [sharedRequirementSourceField()],
-    [RequirementSourceEnum.COMPLAINCE_AGREEMENT]: [
-      sharedRequirementSourceField(),
-    ],
-    [RequirementSourceEnum.ACT2022]: [sharedRequirementSourceField()],
-    [RequirementSourceEnum.OTHER]: [
-      sharedRequirementSourceField("description", "Description"),
-    ],
-    [RequirementSourceEnum.EACA]: [sharedRequirementSourceField()],
-    [RequirementSourceEnum.ORDER]: [],
-    [RequirementSourceEnum.REGULATION]: [sharedRequirementSourceField()],
-    [RequirementSourceEnum.EXEMPTION_ORDER]: [sharedRequirementSourceField()],
-  };
-
-  const isRequirementSourceSelected = Object.values(
-    RequirementSourceEnum
-  ).includes(selectedRequirementSource?.id as RequirementSourceEnum);
+  // Simplified check for requirement source selection
+  const isRequirementSourceSelected = selectedRequirementSource?.id && 
+    Object.values(RequirementSourceEnum).includes(selectedRequirementSource.id as RequirementSourceEnum);
 
   return (
     <>
@@ -171,13 +114,7 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
       </Box>
       {isRequirementSourceSelected && (
         <Box mb={"1.5rem"}>
-          {dynamicFieldConfigRequirementSource[
-            selectedRequirementSource.id as RequirementSourceEnum
-          ]?.map((config) => (
-            <DynamicInputField key={config.name} config={config} />
-          ))}
-
-          {selectedRequirementSource.id === RequirementSourceEnum.ORDER && (
+          {selectedRequirementSource.id === RequirementSourceEnum.ORDER ? (
             <ControlledAutoComplete
               name="order"
               label="Order"
@@ -189,6 +126,14 @@ const RequirementSourceForm: FC<RequirementSourceFormProps> = ({
               }
               fullWidth
               isRequired={true}
+            />
+          ) : (
+            <ControlledTextField
+              name="requirementSourceDescription"
+              label="Requirement Details"
+              fullWidth
+              multiline
+              minRows={2}
             />
           )}
         </Box>

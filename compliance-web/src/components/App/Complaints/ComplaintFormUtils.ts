@@ -74,22 +74,13 @@ export const ComplaintFormSchema = yup.object().shape({
     otherwise: (schema) => schema.notRequired(),
   }),
   requirementSource: yup.object<RequirementSource>().nullable(),
-  conditionNumber: yup.string().when("requirementSource", {
-    is: (reqSource: RequirementSource) =>
-      reqSource?.id === RequirementSourceEnum.SCHEDULE_B,
-    then: (schema) => schema.required("Condition Number is required"),
-    otherwise: (schema) => schema.notRequired(),
-  }),
-  amendmentNumber: yup.string().nullable(),
-  amendmentConditionNumber: yup.string().nullable(),
+  requirementSourceDescription: yup.string().nullable(),
   order: yup.object<InspectionOrder>().when("requirementSource", {
     is: (reqSource: RequirementSource) =>
       reqSource?.id === RequirementSourceEnum.ORDER,
     then: (schema) => schema.required("Order is required"),
     otherwise: (schema) => schema.notRequired(),
   }),
-  description: yup.string().nullable(),
-  conditionDescription: yup.string().nullable(),
 });
 
 export type ComplaintSchemaType = yup.InferType<typeof ComplaintFormSchema>;
@@ -106,6 +97,7 @@ export const formatComplaintData = (
     primary_officer_id: (formData.primaryOfficer as StaffUser).id,
     location_description: formData.locationDescription ?? "",
     concern_description: formData.concernDescription ?? "",
+    topic_id: (formData.topic as Topic)?.id,
     date_received: dateUtils.dateToISO(formData.dateReceived),
     source_type_id: sourceId,
     requirement_source_id: reqSourceId,
@@ -133,37 +125,13 @@ export const formatComplaintData = (
     }
   }
   if (reqSourceId) {
-    complaintData.requirement_source_details = {
-      topic_id: (formData.topic as Topic)?.id,
-    };
-    switch (reqSourceId) {
-      case RequirementSourceEnum.SCHEDULE_B:
-        complaintData.requirement_source_details.condition_number =
-          formData.conditionNumber ?? "";
-        break;
-      case RequirementSourceEnum.EAC:
-        complaintData.requirement_source_details.amendment_condition_number =
-          formData.amendmentConditionNumber ?? "";
-        complaintData.requirement_source_details.amendment_number =
-          formData.amendmentNumber ?? "";
-        complaintData.requirement_source_details.description =
-          formData.conditionDescription ?? "";
-        break;
-      case RequirementSourceEnum.ORDER:
-        complaintData.requirement_source_details.order_number =
-          (formData.order as InspectionOrder)?.order_number ?? "";
-        break;
-      case RequirementSourceEnum.OTHER:
-        complaintData.requirement_source_details.description =
-          formData.description ?? "";
-        break;
-      case RequirementSourceEnum.ACT2018:
-      case RequirementSourceEnum.ACT2022:
-      case RequirementSourceEnum.CPD:
-      case RequirementSourceEnum.COMPLAINCE_AGREEMENT:
-        complaintData.requirement_source_details.description =
-          formData.conditionDescription ?? "";
-        break;
+    if (reqSourceId === RequirementSourceEnum.ORDER && formData.order) {
+      complaintData.requirement_source_details = {
+        order_number: (formData.order as InspectionOrder)?.order_number ?? "",
+      };
+    } else {
+      complaintData.requirement_source_description =
+        formData.requirementSourceDescription ?? "";
     }
   }
   complaintData.case_file_id = caseFileId ?? undefined; // map the fields only for create new record, and case file id is available

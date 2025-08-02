@@ -109,6 +109,10 @@ class ComplaintUpdateSchema(BaseSchema):
         metadata={"description": "The location details of the complaint."},
         allow_none=True,
     )
+    topic_id = fields.Int(
+        metadata={"description": "The unique identifier of the topic"},
+        allow_none=True,
+    )
     primary_officer_id = fields.Int(
         metadata={
             "description": "The unique identifier of the primary officer who created the complaint."
@@ -130,6 +134,10 @@ class ComplaintUpdateSchema(BaseSchema):
     complaint_source_contact = fields.Nested(ContactCreateSchema)
     requirement_source_id = fields.Int(
         metadata={"description": "The unique identifier of requirement source"},
+        allow_none=True,
+    )
+    requirement_source_description = fields.Str(
+        metadata={"description": "The requirement source description of the complaint"},
         allow_none=True,
     )
     requirement_source_details = fields.Nested(RequirementSourceCreateSchema)
@@ -156,20 +164,6 @@ class ComplaintCreateSchema(ComplaintUpdateSchema):
     )
 
     @validates_schema
-    def validate_topic_and_description(
-        self, data, **kwargs
-    ):  # pylint: disable=no-self-use, unused-argument
-        """Ensure that the topic is selected if requirement source is added."""
-        requirement_source_id = data.get("requirement_source_id", [])
-        requirement_source_details = data.get("requirement_source_details", {})
-        if requirement_source_id:
-            if not requirement_source_details.get("topic_id", None):
-                raise ValidationError(
-                    "Topic is required when requirement_source is selected",
-                    field_name="requirement_source_details.topic_id",
-                )
-
-    @validates_schema
     def validate_order(
         self, data, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
@@ -185,22 +179,6 @@ class ComplaintCreateSchema(ComplaintUpdateSchema):
                 field_name="requirement_source_details.order_number",
             )
 
-    @validates_schema
-    def validate_condition_number(
-        self, data, **kwargs
-    ):  # pylint: disable=no-self-use, unused-argument
-        """Ensure that the condition number is selected if requirement source is SCHEDULEB."""
-        requirement_source_id = data.get("requirement_source_id", [])
-        requirement_source_details = data.get("requirement_source_details", {})
-        if (
-            requirement_source_id == RequirementSourceEnum.SCHEDULE_B.value
-            and not requirement_source_details.get("condition_number", None)
-        ):
-            raise ValidationError(
-                f"Condition number is required when requirement_source "
-                f"{RequirementSourceEnum.SCHEDULE_B.name}",
-                field_name="requirement_source_details.condition_number",
-            )
 
     @validates_schema
     def validate_contact_description(
@@ -241,6 +219,7 @@ class ComplaintSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     agency = fields.Nested(KeyValueSchema)
     first_nation = fields.Nested(KeyValueSchema)
     requirement_source = fields.Nested(KeyValueSchema)
+    topic = fields.Nested(KeyValueSchema)
     requirement_detail = fields.Nested(RequirementSourceDetailSchema, only=["topic"])
 
     @post_dump
