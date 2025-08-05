@@ -8,9 +8,7 @@ from compliance_api.auth import auth
 from compliance_api.exceptions import PermissionDeniedError, ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.complaint import Complaint as ComplaintModel
-from compliance_api.models.complaint import ComplaintReqEACDetail as ComplaintReqEACDetailModel
 from compliance_api.models.complaint import ComplaintReqOrderDetail as ComplaintReqOrderDetailModel
-from compliance_api.models.complaint import ComplaintReqScheduleBDetail as ComplaintReqScheduleBDetailModel
 from compliance_api.models.complaint import ComplaintRequirementDetail as ComplaintRequirementDetailModel
 from compliance_api.models.complaint import ComplaintRequirementSourceEnum
 from compliance_api.models.complaint import ComplaintSource as ComplaintSourceModel
@@ -67,9 +65,7 @@ class ComplaintService:
             return None
         requirement = ComplaintRequirementDetailModel.get_by_complaint(complaint_id)
         source_mapping = {
-            ComplaintRequirementSourceEnum.EAC_CERTIFICATE.value: ComplaintReqEACDetailModel.get_by_requirement,
             ComplaintRequirementSourceEnum.ORDER.value: ComplaintReqOrderDetailModel.get_by_requirement,
-            ComplaintRequirementSourceEnum.SCHEDULE_B.value: ComplaintReqScheduleBDetailModel.get_by_requirement,
         }
 
         data = None
@@ -190,9 +186,7 @@ def _create_or_update_requirement_details(
             complaint.id, requirement_source_obj, session=session
         )
     source_mapping = {
-        ComplaintRequirementSourceEnum.EAC_CERTIFICATE.value: ComplaintReqEACDetailModel,
         ComplaintRequirementSourceEnum.ORDER.value: ComplaintReqOrderDetailModel,
-        ComplaintRequirementSourceEnum.SCHEDULE_B.value: ComplaintReqScheduleBDetailModel,
     }
     #  requirement details source changed, the old has to be deleted
     if (
@@ -259,11 +253,9 @@ def _create_requirement_source_more_detail_obj(complaint_data: dict, requirement
     obj = None
     if requirement_source_id:
         obj_creator_map = {
-            ComplaintRequirementSourceEnum.SCHEDULE_B.value: _create_schedule_b_detail_obj,
             ComplaintRequirementSourceEnum.ORDER.value: _create_order_detail_obj,
-            ComplaintRequirementSourceEnum.EAC_CERTIFICATE.value: _create_eac_detail_obj,
         }
-        creator_fn = obj_creator_map[requirement_source_id]
+        creator_fn = obj_creator_map.get(requirement_source_id)
         if creator_fn:
             obj = creator_fn(complaint_data, requirement_id)
     return obj
@@ -362,31 +354,12 @@ def _get_project_abbreviation(
     return UNAPPROVED_PROJECT_CODE
 
 
-def _create_eac_detail_obj(complaint_data: dict, requirement_id):
-    """Create requirement source eac detail obj."""
-    req_info = complaint_data.get("requirement_source_details", {})
-    return {
-        "req_id": requirement_id,
-        "amendment_number": req_info.get("amendment_number", None),
-        "amendment_condition_number": req_info.get("amendment_condition_number", None),
-    }
-
-
 def _create_order_detail_obj(complaint_data: dict, requirement_id):
     """Create requirement source order detail obj."""
     req_info = complaint_data.get("requirement_source_details", {})
     return {
         "req_id": requirement_id,
         "order_number": req_info.get("order_number", None),
-    }
-
-
-def _create_schedule_b_detail_obj(complaint_data: dict, requirement_id):
-    """Create requirement source schedule b detail obj."""
-    req_info = complaint_data.get("requirement_source_details", {})
-    return {
-        "req_id": requirement_id,
-        "condition_number": req_info.get("condition_number"),
     }
 
 

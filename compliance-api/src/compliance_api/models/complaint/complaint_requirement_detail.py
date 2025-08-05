@@ -8,9 +8,7 @@ from compliance_api.utils.constant import DELETE_DIC_PARAMS
 from ..base_model import BaseModelVersioned
 from ..complaint.complaint import Complaint as ComplaintModel
 from ..utils import with_session
-from .complaint_req_eac_detail import ComplaintReqEACDetail as ComplaintReqEACDetailModel
 from .complaint_req_order_detail import ComplaintReqOrderDetail as ComplaintReqOrderDetailModel
-from .complaint_req_schedule_b_detail import ComplaintReqScheduleBDetail as ComplaintReqScheduleBDetailModel
 
 
 class ComplaintRequirementDetail(BaseModelVersioned):
@@ -152,17 +150,9 @@ def _delete_details(detail_query: Query, cls, session=None):
 
         # Process related models
         process_related_records(
-            detail_query, ComplaintReqEACDetailModel, ComplaintReqEACDetailModel.req_id
-        )
-        process_related_records(
             detail_query,
             ComplaintReqOrderDetailModel,
             ComplaintReqOrderDetailModel.req_id,
-        )
-        process_related_records(
-            detail_query,
-            ComplaintReqScheduleBDetailModel,
-            ComplaintReqScheduleBDetailModel.req_id,
         )
 
     session.flush()
