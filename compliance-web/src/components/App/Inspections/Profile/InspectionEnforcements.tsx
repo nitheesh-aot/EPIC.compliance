@@ -197,7 +197,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             inspectionData={inspectionData}
             requirementsList={nonProceededAPRequirements}
             requirement={requirement}
-            onSubmit={(data) => {
+            onSubmit={() => {
               // TODO: Add AdministrativePenalty drawer when available
               setModalClose();
             }}
@@ -288,7 +288,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
         <AdministrativePenaltyUpdateModal
           administrativePenalty={administrativePenalty}
           inspectionData={inspectionData}
-          onSuccess={(updatedData) => {
+          onSuccess={() => {
             // Refresh the administrative penalties data
             queryClient.invalidateQueries({
               queryKey: ["inspection-administrative-penalties", inspectionData.id],

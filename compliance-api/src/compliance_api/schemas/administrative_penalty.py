@@ -50,6 +50,7 @@ class AdministrativePenaltyUpdateSchema(
     penalty_amount = fields.Decimal(
         places=2,
         allow_none=True,
+        as_string=True,
         metadata={"description": "The penalty amount"},
     )
     inspection_requirement_ids = fields.List(
@@ -111,6 +112,14 @@ class AdministrativePenaltySchema(AutoSchemaBase):  # pylint: disable=too-many-a
         model = AdministrativePenalty
         include_fk = True
 
+    # Override penalty_amount to ensure proper JSON serialization
+    penalty_amount = fields.Decimal(
+        places=2,
+        allow_none=True,
+        as_string=True,
+        metadata={"description": "The penalty amount"},
+    )
+    
     administrative_penalty_requirement_maps = fields.Nested(
         AdministrativePenaltyInspectionRequirementMapSchema(),
         many=True,
@@ -178,6 +187,7 @@ class DecisionSchema(BaseSchema):  # pylint: disable=too-many-ancestors
     penalty_amount = fields.Decimal(
         places=2,
         required=True,
+        as_string=True,
         metadata={"description": "The penalty amount"},
     )
 
