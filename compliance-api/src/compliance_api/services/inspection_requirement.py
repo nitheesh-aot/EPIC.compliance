@@ -9,7 +9,7 @@ from typing import List
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from sqlalchemy import and_, func, or_
+from sqlalchemy import String, and_, case, cast, func, nullslast, or_
 from sqlalchemy.orm import aliased
 
 from compliance_api.exceptions import BadRequestError, ResourceNotFoundError, UnprocessableEntityError
@@ -22,18 +22,20 @@ from compliance_api.models import InspectionReqEnforcementMap as InspectionReqEn
 from compliance_api.models import InspectionReqSourceDetail as InspectionReqSourceDetailModel
 from compliance_api.models import InspectionRequirement as InspectionRequirementModel
 from compliance_api.models import InspectionRequirementImage as InspectionRequirementImageModel
+from compliance_api.models import InspectionStatusEnum
 from compliance_api.models import WarningLetter as WarningLetterModel
 from compliance_api.models import WarningLetterProgressEnum
-from compliance_api.models.case_file import CaseFile as CaseFileModel
+from compliance_api.models.compliance_finding import ComplianceFindingOption as ComplianceFindingOptionModel
 from compliance_api.models.db import db, session_scope
 from compliance_api.models.inspection_record import InspectionRecord as InspectionRecordModel
-from compliance_api.models.inspection_record_approval import InspectionRecordApproval as InspectionRecordApprovalModel
 from compliance_api.models.order import Order as OrderModel
 from compliance_api.models.order import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
 from compliance_api.models.order import OrderProgressEnum
 from compliance_api.models.order_approval import OrderApproval as OrderApprovalModel
 from compliance_api.models.project import Project as ProjectModel
+from compliance_api.models.requirement_source import RequirementSource as RequirementSourceOptionModel
 from compliance_api.models.staff_user import StaffUser as StaffUserModel
+from compliance_api.models.topic import Topic as TopicModel
 from compliance_api.models.warning_letter import \
     WarningLetterInspectionRequirementMap as WarningLetterInspectionRequirementMapModel
 from compliance_api.models.warning_letter_approval import WarningLetterApproval as WarningLetterApprovalModel
@@ -50,7 +52,7 @@ class InspectionRequirementService:
     @classmethod
     def get_all_inspection_requirements(cls, args):
         """Get all inspection requirements with filtering and pagination."""
-        paginated_query, total_count = _build_inspection_requirements_base_query(
+        paginated_query, total_count = _build_inspection_requirements_query(
             args, enable_pagination=True
         )
         query_results = paginated_query.all()
@@ -66,31 +68,50 @@ class InspectionRequirementService:
     @classmethod
     def generate_inspection_requirements_excel(cls, args):
         """Generate inspection requirements excel."""
-        base_query = _build_inspection_requirements_base_query(args)
-        query_results = base_query.all()
-
-        # Process the results to include primary officer name and project name
+        # Get and process query results
+        paginated_query, _ = _build_inspection_requirements_query(
+            args, enable_pagination=False
+        )
+        query_results = paginated_query.all()
         processed_requirements = _process_inspection_requirement_query_results(
             query_results
         )
 
-        # Create final formatted response and convert to pandas DataFrame
+        # Convert to DataFrame
         requirement_details = _make_requirement_detail_object(processed_requirements)
         requirements_data = InspectionRequirementGridItemSchema(many=True).dump(
             requirement_details
         )
-
-        # Use json_normalize to flatten nested structures
         data_frame = pd.json_normalize(requirements_data)
 
-        # Create Excel file in memory
-        output = BytesIO()
+        # Create Excel file
+        return cls._create_excel_from_dataframe(data_frame)
 
+    @classmethod
+    def _create_excel_from_dataframe(cls, data_frame):
+        """Create Excel file from DataFrame with proper column formatting."""
         # Print columns for debugging
         print(f"Available columns: {data_frame.columns.tolist()}")
 
-        # Preferred columns and their display names (headers)
-        # We'll only use columns that actually exist in the dataframe
+        # Get existing columns and headers
+        existing_columns, headers = cls._get_excel_columns_and_headers(data_frame)
+
+        # Create Excel file in memory
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+            data_frame.to_excel(
+                writer,
+                sheet_name="Inspection Requirements",
+                columns=existing_columns,
+                header=headers,
+                index=False,
+            )
+        output.seek(0)
+        return output.getvalue()
+
+    @classmethod
+    def _get_excel_columns_and_headers(cls, data_frame):
+        """Get existing columns and their headers for Excel export."""
         preferred_columns = [
             ("topic.name", "Topic"),
             ("summary", "Summary"),
@@ -110,23 +131,12 @@ class InspectionRequirementService:
         # Filter for columns that actually exist in the DataFrame
         existing_columns = []
         headers = []
-
         for col, header in preferred_columns:
             if col in data_frame.columns:
                 existing_columns.append(col)
                 headers.append(header)
 
-        # Create Excel writer and export the data
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            data_frame.to_excel(
-                writer,
-                sheet_name="Inspection Requirements",
-                columns=existing_columns,
-                header=headers,
-                index=False,
-            )
-        output.seek(0)
-        return output.getvalue()
+        return existing_columns, headers
 
     @classmethod
     def get_all(cls, inspection_id):
@@ -402,22 +412,6 @@ class InspectionRequirementService:
                     )
 
 
-def _get_latest_approval_sub_query():
-    """Get latest approval sub query."""
-    return (
-        db.session.query(
-            InspectionRecordApprovalModel.inspection_record_id,
-            func.max(InspectionRecordApprovalModel.id).label("max_id"),
-        )
-        .filter(
-            InspectionRecordApprovalModel.is_active.is_(True),
-            InspectionRecordApprovalModel.is_deleted.is_(False),
-        )
-        .group_by(InspectionRecordApprovalModel.inspection_record_id)
-        .subquery("latest_approval")
-    )
-
-
 def _get_first_requirement_source_sub_query():
     """Get first requirement source sub query."""
     return (
@@ -477,323 +471,546 @@ def _get_requirement_warning_letter_sub_query():
     )
 
 
-def _build_inspection_requirements_base_query(
-    args: dict, enable_pagination: bool = False
-):  # pylint: disable=too-many-locals
-    """Build inspection requirements base query."""
-    # Gets the latest inspection approval entry
-    latest_approval_subq = _get_latest_approval_sub_query()
-    # Gets the first requirement source entry
-    first_requirement_source_subq = _get_first_requirement_source_sub_query()
-    # Gets the requirement order entries
-    requirement_order_subq = _get_requirement_order_sub_query()
-    # Gets the requirement warning letter entries
-    requirement_warning_letter_subq = _get_requirement_warning_letter_sub_query()
+def _create_model_aliases():
+    """Create and return all model aliases needed for the query."""
+    return {
+        # Core models
+        "topic": aliased(TopicModel),
+        "cmp_finding": aliased(ComplianceFindingOptionModel),
+        "req_source_option": aliased(RequirementSourceOptionModel),
+        "req": aliased(InspectionRequirementModel),
+        "insp": aliased(InspectionModel),
+        "enf_map": aliased(InspectionReqEnforcementMapModel),
+        "insp_rec": aliased(InspectionRecordModel),
+        "req_source": aliased(InspectionReqSourceDetailModel),
+        "enf_action": aliased(EnforcementActionOptionModel),
+        "staff": aliased(StaffUserModel),
+        "approved_by_staff": aliased(StaffUserModel),
+        "project": aliased(ProjectModel),
+        "order_app": aliased(OrderApprovalModel),
+        "warning_app": aliased(WarningLetterApprovalModel),
+        "order": aliased(OrderModel),
+        "warning_letter": aliased(WarningLetterModel),
+    }
 
-    # Create aliases for clarity
-    req = aliased(InspectionRequirementModel)
-    insp = aliased(InspectionModel)
-    enf_map = aliased(InspectionReqEnforcementMapModel)
-    insp_rec = aliased(InspectionRecordModel)
-    approval = aliased(InspectionRecordApprovalModel)
-    req_source = aliased(InspectionReqSourceDetailModel)
-    enf_action = aliased(EnforcementActionOptionModel)
-    staff = aliased(StaffUserModel)
-    approved_by_staff = aliased(StaffUserModel)
-    case_file = aliased(CaseFileModel)
-    project = aliased(ProjectModel)
-    order_app = aliased(OrderApprovalModel)
-    warning_app = aliased(WarningLetterApprovalModel)
-    order = aliased(OrderModel)
 
-    # Build a more explicit query with distinct rows
+def _build_inspection_requirements_query(args, enable_pagination=True):
+    """Build the query for inspection requirements.
+
+    Args:
+        args: Query arguments
+        enable_pagination: Whether to enable pagination
+    """
+    # Get subqueries
+    subqueries = {
+        "first_requirement_source": _get_first_requirement_source_sub_query(),
+        "requirement_order": _get_requirement_order_sub_query(),
+        "requirement_warning_letter": _get_requirement_warning_letter_sub_query(),
+    }
+
+    # Create model aliases
+    models = _create_model_aliases()
+
+    # Build the base query with all necessary joins
     base_query = (
         db.session.query(
-            req,
-            approval.approved_by_id,
-            insp.ir_number,
-            insp_rec.date_issued,
-            enf_map.enforcement_action_id,
-            enf_action.name.label("enforcement_action_name"),
-            staff.id,
-            staff.first_name,
-            staff.last_name,
-            staff.auth_user_guid,
-            project.id,
-            project.name,
-            insp.inspection_status,
-            order_app.approval_status,
-            warning_app.approval_status,
-            approved_by_staff.id,
-            approved_by_staff.first_name,
-            approved_by_staff.last_name,
-            approved_by_staff.auth_user_guid,
+            models["req"],
+            models["insp"].ir_number.label("ir_number"),
+            models["insp_rec"].date_issued.label("date_issued"),
+            models["enf_map"].enforcement_action_id.label("enforcement_action_id"),
+            models["enf_action"].name.label("enforcement_action_name"),
+            models["staff"].id.label("staff_id"),
+            models["staff"].first_name.label("staff_first_name"),
+            models["staff"].last_name.label("staff_last_name"),
+            models["staff"].auth_user_guid.label("staff_auth_user_guid"),
+            models["project"].id.label("project_id"),
+            models["project"].name.label("project_name"),
+            models["insp"].inspection_status.label("inspection_status"),
+            models["order_app"].approval_status.label("order_approval_status"),
+            models["warning_app"].approval_status.label("warning_approval_status"),
+            models["approved_by_staff"].id.label("approver_id"),
+            models["approved_by_staff"].first_name.label("approver_first_name"),
+            models["approved_by_staff"].last_name.label("approver_last_name"),
+            models["approved_by_staff"].auth_user_guid.label("approver_auth_user_guid"),
+            models["topic"].name.label("topic_name"),
+            models["cmp_finding"].name.label("compliance_finding"),
+            models["req_source_option"].name.label("requirement_source_option"),
         )
         .join(
-            insp,
+            models["topic"],
+            models["topic"].id == models["req"].topic_id,
+        )
+        .join(
+            models["cmp_finding"],
+            models["cmp_finding"].id == models["req"].compliance_finding_id,
+        )
+        .join(
+            models["insp"],
             and_(
-                insp.id == req.inspection_id,
-                insp.is_deleted.is_(False),
-                insp.is_active.is_(True),
+                models["req"].inspection_id == models["insp"].id,
+                models["insp"].is_deleted.is_(False),
+                models["insp"].is_active.is_(True),
             ),
         )
         .join(
-            enf_map,
+            models["enf_map"],
             and_(
-                enf_map.requirement_id == req.id,
-                enf_map.is_deleted.is_(False),
-                enf_map.is_active.is_(True),
+                models["req"].id == models["enf_map"].requirement_id,
+                models["enf_map"].is_deleted.is_(False),
+                models["enf_map"].is_active.is_(True),
             ),
         )
         .join(
-            enf_action,
+            models["enf_action"],
+            models["enf_map"].enforcement_action_id == models["enf_action"].id,
+        )
+        .join(
+            models["staff"],
+            models["insp"].primary_officer_id == models["staff"].id,
+        )
+        .outerjoin(
+            models["insp_rec"],
+            models["insp"].id == models["insp_rec"].inspection_id,
+        )
+        .outerjoin(
+            models["project"],
+            models["insp"].project_id == models["project"].id,
+        )
+        .outerjoin(
+            subqueries["first_requirement_source"],
+            models["req"].id == subqueries["first_requirement_source"].c.requirement_id,
+        )
+        .outerjoin(
+            models["req_source"],
             and_(
-                enf_action.id == enf_map.enforcement_action_id,
-                enf_action.is_deleted.is_(False),
-                enf_action.is_active.is_(True),
+                models["req_source"].requirement_id == models["req"].id,
+                models["req_source"].id
+                == subqueries["first_requirement_source"].c.min_id,
+            ),
+        )
+        .join(
+            models["req_source_option"],
+            models["req_source"].requirement_source_id
+            == models["req_source_option"].id,
+        )
+        .outerjoin(
+            subqueries["requirement_order"],
+            subqueries["requirement_order"].c.inspection_requirement_id
+            == models["req"].id,
+        )
+        .outerjoin(
+            models["order"],
+            and_(
+                models["order"].id == subqueries["requirement_order"].c.order_id,
+                models["order"].is_deleted.is_(False),
+                models["order"].is_active.is_(True),
             ),
         )
         .outerjoin(
-            insp_rec,
+            models["order_app"],
             and_(
-                insp_rec.inspection_id == req.inspection_id,
-                insp_rec.is_deleted.is_(False),
-                insp_rec.is_active.is_(True),
+                models["order_app"].order_id
+                == subqueries["requirement_order"].c.order_id,
+                models["enf_map"].enforcement_action_id
+                == EnforcementActionOptionEnum.ORDER.value,
+                models["order_app"].is_deleted.is_(False),
+                models["order_app"].is_active.is_(True),
             ),
         )
         .outerjoin(
-            latest_approval_subq,
-            latest_approval_subq.c.inspection_record_id == insp_rec.id,
+            subqueries["requirement_warning_letter"],
+            subqueries["requirement_warning_letter"].c.inspection_requirement_id
+            == models["req"].id,
         )
         .outerjoin(
-            approval,
+            models["warning_letter"],
             and_(
-                approval.inspection_record_id == insp_rec.id,
-                approval.id == latest_approval_subq.c.max_id,
-                approval.is_deleted.is_(False),
-                approval.is_active.is_(True),
+                models["warning_letter"].id
+                == subqueries["requirement_warning_letter"].c.warning_letter_id,
+                models["warning_letter"].is_deleted.is_(False),
+                models["warning_letter"].is_active.is_(True),
             ),
         )
         .outerjoin(
-            approved_by_staff,
+            models["warning_app"],
             and_(
-                approved_by_staff.id == approval.approved_by_id,
-                approved_by_staff.is_deleted.is_(False),
-                approved_by_staff.is_active.is_(True),
+                models["warning_app"].warning_letter_id
+                == subqueries["requirement_warning_letter"].c.warning_letter_id,
+                models["enf_map"].enforcement_action_id
+                == EnforcementActionOptionEnum.WARNING.value,
+                models["warning_app"].is_deleted.is_(False),
+                models["warning_app"].is_active.is_(True),
             ),
         )
         .outerjoin(
-            first_requirement_source_subq,
-            first_requirement_source_subq.c.requirement_id == req.id,
-        )
-        .outerjoin(
-            req_source,
-            and_(
-                req_source.requirement_id == req.id,
-                req_source.id == first_requirement_source_subq.c.min_id,
-                req_source.is_deleted.is_(False),
-                req_source.is_active.is_(True),
+            models["approved_by_staff"],
+            or_(
+                models["approved_by_staff"].id == models["order_app"].approved_by_id,
+                models["approved_by_staff"].id == models["warning_app"].approved_by_id,
             ),
         )
-        .outerjoin(
-            requirement_order_subq,
-            requirement_order_subq.c.inspection_requirement_id == req.id,
-        )
-        .outerjoin(
-            order,
-            order.id == requirement_order_subq.c.order_id,
-        )
-        .outerjoin(
-            order_app,
-            and_(
-                order_app.order_id == requirement_order_subq.c.order_id,
-                order_app.is_deleted.is_(False),
-                order_app.is_active.is_(True),
-            ),
-        )
-        .outerjoin(
-            requirement_warning_letter_subq,
-            requirement_warning_letter_subq.c.inspection_requirement_id == req.id,
-        )
-        .outerjoin(
-            warning_app,
-            and_(
-                warning_app.warning_letter_id
-                == requirement_warning_letter_subq.c.warning_letter_id,
-                warning_app.is_deleted.is_(False),
-                warning_app.is_active.is_(True),
-            ),
-        )
-        .outerjoin(
-            staff,
-            and_(
-                staff.id == insp.primary_officer_id,
-                staff.is_deleted.is_(False),
-                staff.is_active.is_(True),
-            ),
-        )
-        .outerjoin(
-            case_file,
-            and_(
-                case_file.id == insp.case_file_id,
-                case_file.is_deleted.is_(False),
-                case_file.is_active.is_(True),
-            ),
-        )
-        .outerjoin(
-            project,
-            and_(
-                project.id == case_file.project_id,
-                project.is_deleted.is_(False),
-                project.is_active.is_(True),
-            ),
-        )
-        .filter(req.is_active.is_(True), req.is_deleted.is_(False))
+        .filter(models["req"].is_active.is_(True), models["req"].is_deleted.is_(False))
+        .order_by(models["req"].id, models["enf_map"].enforcement_action_id)
     )
 
     # Apply filters based on query parameters
-    base_query = _apply_filters(
-        base_query,
-        args,
-        req,
-        insp,
-        enf_map,
-        req_source,
-        insp_rec,
-        order_app,
-        warning_app,
-        order,
-        approval,
-    )
+    base_query = _apply_filters(base_query, args, **models)
+
     # Apply pagination if requested
     if enable_pagination:
-        return _apply_pagination(base_query, args, req, enf_map)
+        return _apply_pagination(base_query, args, **models)
     return base_query
 
 
-def _apply_filters(
-    query, args, req, insp, enf_map, req_source, insp_rec, order_app, warning_app, order, approval
-):  # pylint: disable=too-many-arguments
-    """Apply filters to the query based on arguments.
-
-    Args:
-        query: The SQLAlchemy query to filter
-        args: Query arguments containing filter parameters
-        req, insp, enf_map, req_source, insp_rec, order_app, warning_app, order, approval: Model aliases
-
-    Returns:
-        Filtered SQLAlchemy query
-    """
+def _apply_requirement_filters(query, args, **kwargs):
+    """Apply requirement-related filters."""
     # Topic IDs filter
     if args.get("tpc_ids"):
-        query = query.filter(req.topic_id.in_(args["tpc_ids"].split(",")))
+        query = query.filter(kwargs.get("req").topic_id.in_(args["tpc_ids"].split(",")))
 
     # Summary text search filter
     if args.get("summary"):
         search_term = args["summary"].lower().strip()
-        query = query.filter(func.lower(req.summary).contains(search_term))
+        query = query.filter(
+            func.lower(kwargs.get("req").summary).contains(search_term)
+        )
 
     # Compliance finding IDs filter
     if args.get("cmd_fnd_ids"):
         query = query.filter(
-            req.compliance_finding_id.in_(args["cmd_fnd_ids"].split(","))
+            kwargs.get("req").compliance_finding_id.in_(args["cmd_fnd_ids"].split(","))
         )
 
     # Enforcement action IDs filter
     if args.get("enf_actn_ids"):
         query = query.filter(
-            enf_map.enforcement_action_id.in_(args["enf_actn_ids"].split(","))
+            kwargs.get("enf_map").enforcement_action_id.in_(
+                args["enf_actn_ids"].split(",")
+            )
         )
 
     # Requirement source IDs filter
     if args.get("req_src_ids"):
         query = query.filter(
-            req_source.requirement_source_id.in_(args["req_src_ids"].split(","))
-        )
-
-    # IR number filter
-    if args.get("ir_no") and args.get("ir_no").strip():
-        query = query.filter(insp.ir_number.ilike(f'%{args["ir_no"]}%'))
-
-    # Approval status filter
-    if args.get("apprv_sts"):
-        approval_status = [st.upper().strip() for st in args["apprv_sts"].split(",")]
-        query = query.filter(
-            or_(
-                order_app.approval_status.in_(approval_status),
-                warning_app.approval_status.in_(approval_status),
+            kwargs.get("req_source").requirement_source_id.in_(
+                args["req_src_ids"].split(",")
             )
         )
+    return query
+
+
+def _apply_inspection_filters(query, args, **kwargs):
+    """Apply inspection-related filters."""
+    # IR number filter
+    if args.get("ir_no") and args.get("ir_no").strip():
+        query = query.filter(kwargs.get("insp").ir_number.ilike(f'%{args["ir_no"]}%'))
 
     # Primary officer IDs filter
     if args.get("prm_offc_ids"):
         query = query.filter(
-            insp.primary_officer_id.in_(args["prm_offc_ids"].split(","))
+            kwargs.get("insp").primary_officer_id.in_(args["prm_offc_ids"].split(","))
         )
 
     # Inspection status filter
     if args.get("insp_sts"):
         inspection_status = [st.upper().strip() for st in args["insp_sts"].split(",")]
-        query = query.filter(insp.inspection_status.in_(inspection_status))
+        query = query.filter(
+            kwargs.get("insp").inspection_status.in_(inspection_status)
+        )
 
     # Project IDs filter
     if args.get("project_ids"):
-        query = query.filter(insp.project_id.in_(args["project_ids"].split(",")))
+        query = query.filter(
+            kwargs.get("insp").project_id.in_(args["project_ids"].split(","))
+        )
 
     # Date issued filter
     if args.get("date_issued"):
-        # Extract only the date part from the datetime field
-        query = query.filter(func.date(insp_rec.date_issued) == args["date_issued"])
+        query = query.filter(
+            func.date(kwargs.get("insp_rec").date_issued) == args["date_issued"]
+        )
+    return query
+
+
+def _apply_approval_and_source_filters(query, args, **kwargs):
+    """Apply approval and source-related filters."""
+    # Approval status filter
+    if args.get("apprv_sts"):
+        approval_status = [st.upper().strip() for st in args["apprv_sts"].split(",")]
+        query = query.filter(
+            or_(
+                kwargs.get("order_app").approval_status.in_(approval_status),
+                kwargs.get("warning_app").approval_status.in_(approval_status),
+            )
+        )
 
     # Requirement source number filter
     if args.get("req_src_num"):
         query = query.filter(
             or_(
-                req_source.section_number.in_(args["req_src_num"].split(",")),
-                req_source.clause_number.in_(args["req_src_num"].split(",")),
-                req_source.condition_number.in_(args["req_src_num"].split(",")),
-                order.order_number.in_(args["req_src_num"].split(",")),
+                kwargs.get("req_source").section_number.in_(
+                    args["req_src_num"].split(",")
+                ),
+                kwargs.get("req_source").clause_number.in_(
+                    args["req_src_num"].split(",")
+                ),
+                kwargs.get("req_source").condition_number.in_(
+                    args["req_src_num"].split(",")
+                ),
+                kwargs.get("order").order_number.in_(args["req_src_num"].split(",")),
             )
         )
 
-    # Reviewer IDs filter
-    if args.get("reviewer_ids"):
+    # Approver IDs filter
+    if args.get("approver_ids"):
         query = query.filter(
-            approval.approved_by_id.in_(args["reviewer_ids"].split(","))
+            or_(
+                kwargs.get("order_app").approved_by_id.in_(
+                    args["approver_ids"].split(",")
+                ),
+                kwargs.get("warning_app").approved_by_id.in_(
+                    args["approver_ids"].split(",")
+                ),
+            )
         )
+    return query
+
+
+def _apply_filters(query, args, **kwargs):  # pylint: disable=too-many-arguments
+    """Apply filters to the query based on arguments.
+
+    Args:
+        query: The SQLAlchemy query to filter
+        args: Query arguments containing filter parameters
+        **kwargs: Model aliases
+
+    Returns:
+        Filtered SQLAlchemy query
+    """
+    # Apply requirement-related filters
+    query = _apply_requirement_filters(query, args, **kwargs)
+
+    # Apply inspection-related filters
+    query = _apply_inspection_filters(query, args, **kwargs)
+
+    # Apply approval and source-related filters
+    query = _apply_approval_and_source_filters(query, args, **kwargs)
 
     return query
 
 
-def _apply_pagination(query, args, req, enf_map):
+def _apply_pagination(query, args, **kwargs):
     """Apply pagination to the query.
 
     Args:
         query: The SQLAlchemy query to paginate
         args: Query arguments containing pagination parameters
-        req: InspectionRequirement model alias
-        enf_map: InspectionReqEnforcementMap model alias
+        **kwargs: Model aliases
 
     Returns:
         Tuple of (paginated_query, total_count)
     """
-    page = int(args.get("page_no", 1))
-    per_page = int(args.get("page_size", 15))
+    # Extract pagination parameters
+    pg_params = {
+        "page": int(args.get("page_no", 1)),
+        "per_page": int(args.get("page_size", 15)),
+    }
+
+    # Group core model references
+    core_models = {
+        "req": kwargs.get("req"),
+        "enf_map": kwargs.get("enf_map"),
+        "insp": kwargs.get("insp"),
+        "insp_rec": kwargs.get("insp_rec"),
+    }
+
+    # Group approval-related models
+    approval_models = {
+        "order_app": kwargs.get("order_app"),
+        "warning_app": kwargs.get("warning_app"),
+        "approved_by_staff": kwargs.get("approved_by_staff"),
+    }
+
+    # Group reference data models
+    reference_models = {
+        "staff": kwargs.get("staff"),
+        "project": kwargs.get("project"),
+        "enf_action": kwargs.get("enf_action"),
+        "topic": kwargs.get("topic"),
+        "cmp_finding": kwargs.get("cmp_finding"),
+        "req_source_option": kwargs.get("req_source_option"),
+        "req_source": kwargs.get("req_source"),
+        "order": kwargs.get("order"),
+    }
 
     # Get distinct count by requirement ID to avoid duplicates
     distinct_count_query = query.with_entities(
-        req.id, enf_map.enforcement_action_id
+        core_models["req"].id, core_models["enf_map"].enforcement_action_id
     ).distinct()
     total_count = distinct_count_query.count()
 
-    # Apply pagination with distinct to avoid duplicate requirements
-    paginated_query = (
-        query.distinct(req.id, enf_map.enforcement_action_id)
-        .order_by(req.id)
-        .offset((page - 1) * per_page)
-        .limit(per_page)
+    # Create distinct query with all required columns
+    distinct_query = query.with_entities(
+        core_models["req"],
+        core_models["insp"].ir_number.label("ir_number"),
+        core_models["insp_rec"].date_issued.label("date_issued"),
+        core_models["enf_map"].enforcement_action_id.label("enforcement_action_id"),
+        reference_models["enf_action"].name.label("enforcement_action_name"),
+        reference_models["staff"].id.label("staff_id"),
+        reference_models["staff"].first_name.label("staff_first_name"),
+        reference_models["staff"].last_name.label("staff_last_name"),
+        reference_models["staff"].auth_user_guid.label("staff_auth_user_guid"),
+        reference_models["project"].id.label("project_id"),
+        reference_models["project"].name.label("project_name"),
+        core_models["insp"].inspection_status.label("inspection_status"),
+        approval_models["order_app"].approval_status.label("order_approval_status"),
+        approval_models["warning_app"].approval_status.label("warning_approval_status"),
+        approval_models["approved_by_staff"].id.label("approver_id"),
+        approval_models["approved_by_staff"].first_name.label("approver_first_name"),
+        approval_models["approved_by_staff"].last_name.label("approver_last_name"),
+        approval_models["approved_by_staff"].auth_user_guid.label(
+            "approver_auth_user_guid"
+        ),
+        reference_models["topic"].name.label("topic_name"),
+        reference_models["cmp_finding"].name.label("compliance_finding"),
+        reference_models["req_source_option"].name.label("requirement_source_option"),
+    ).distinct(core_models["req"].id, core_models["enf_map"].enforcement_action_id)
+    subq = distinct_query.subquery("distinct_q")
+
+    # Create final query by joining with subquery
+    final_query = db.session.query(
+        core_models["req"],
+        subq.c.ir_number.label("ir_number"),
+        subq.c.date_issued.label("date_issued"),
+        subq.c.enforcement_action_id.label("enforcement_action_id"),
+        subq.c.enforcement_action_name.label("enforcement_action_name"),
+        subq.c.staff_id.label("staff_id"),
+        subq.c.staff_first_name.label("staff_first_name"),
+        subq.c.staff_last_name.label("staff_last_name"),
+        subq.c.staff_auth_user_guid.label("staff_auth_user_guid"),
+        subq.c.project_id.label("project_id"),
+        subq.c.project_name.label("project_name"),
+        subq.c.inspection_status.label("inspection_status"),
+        subq.c.order_approval_status.label("order_approval_status"),
+        subq.c.warning_approval_status.label("warning_approval_status"),
+        subq.c.approver_id.label("approver_id"),
+        subq.c.approver_first_name.label("approver_first_name"),
+        subq.c.approver_last_name.label("approver_last_name"),
+        subq.c.approver_auth_user_guid.label("approver_auth_user_guid"),
+        subq.c.topic_name.label("topic_name"),
+        subq.c.compliance_finding.label("compliance_finding"),
+        subq.c.requirement_source_option.label("requirement_source_option"),
+    ).join(
+        subq,
+        core_models["req"].id == subq.c.id,
     )
+    # Apply sorting with all model references
+    all_models = {**core_models, **approval_models, **reference_models}
+    sorted_query = _apply_sort(final_query, args, subq=subq, **all_models)
+    # Apply pagination
+    paginated_query = sorted_query.offset((pg_params["page"] - 1) * pg_params["per_page"]).limit(pg_params["per_page"])
     return paginated_query, total_count
+
+
+def _apply_sort(query, args, subq, **kwargs):
+    """Apply sorting to the query based on arguments."""
+    if not (args.get("sort_by") and args.get("sort_order", "asc")):
+        return query
+
+    sort_field, sort_order = args["sort_by"], args["sort_order"]
+
+    # Group related model references
+    models = {
+        "order_app": kwargs.get("order_app"),
+        "warning_app": kwargs.get("warning_app"),
+        "order": kwargs.get("order"),
+        "req_source": kwargs.get("req_source"),
+    }
+
+    # Field mapping for simple column sorts
+    field_map = {
+        "tpc": "topic_name",
+        "summary": "summary",
+        "cmd_fnd": "compliance_finding",
+        "enf_actn": "enforcement_action_name",
+        "req_src": "requirement_source_option",
+        "ir_no": "ir_number",
+        "prm_offc": "staff_first_name",
+        "project": "project_name",
+        "date_issued": "date_issued",
+        "approver": "approver_first_name",
+    }
+
+    # When using DISTINCT in a query with ORDER BY, PostgreSQL requires that
+    # all ORDER BY expressions must appear in the SELECT list.
+    # To work around this, we need to ensure our query includes the columns we're sorting by
+
+    # Handle special case for approval status which could be in either order_app or warning_app
+    if sort_field == "apprv_sts":
+        whens = [
+            (
+                models["order_app"].approval_status.isnot(None),
+                cast(models["order_app"].approval_status, String),
+            ),
+            (
+                models["warning_app"].approval_status.isnot(None),
+                cast(models["warning_app"].approval_status, String),
+            ),
+        ]
+        approval_status_expr = case(
+            *whens,
+            else_=None,
+        ).label("approval_status_sort")
+        query = query.add_columns(approval_status_expr)
+
+        custom_order = (
+            approval_status_expr.asc()
+            if sort_order == "asc"
+            else approval_status_expr.desc()
+        )
+        return query.order_by(custom_order)
+
+    if sort_field == "req_src_num":
+        req_src_num_expr = func.coalesce(
+            models["req_source"].section_number,
+            models["req_source"].clause_number,
+            models["req_source"].condition_number,
+            models["order"].order_number,
+            "",  # fallback
+        ).label("req_src_num_sort")
+        query = query.add_columns(req_src_num_expr)
+
+        custom_order = (
+            nullslast(req_src_num_expr.asc())
+            if sort_order == "asc"
+            else nullslast(req_src_num_expr.desc())
+        )
+        return query.order_by(custom_order)
+
+    if sort_field == "insp_sts":
+        status_order = list(reversed([e.name for e in InspectionStatusEnum]))
+        inspection_status_case = case(
+            {status: idx for idx, status in enumerate(status_order)},
+            value=cast(subq.c.inspection_status, String),
+            else_=len(status_order),
+        ).label("inspection_status_order")
+
+        query = query.add_columns(inspection_status_case)
+        custom_order = (
+            inspection_status_case.asc()
+            if sort_order == "asc"
+            else inspection_status_case.desc()
+        )
+        return query.order_by(custom_order)
+
+    if field_map.get(sort_field):
+        sort_column = getattr(subq.c, field_map[sort_field])
+        query = query.add_columns(sort_column.label(f"{sort_field}_sort"))
+
+        custom_order = sort_column.asc() if sort_order == "asc" else sort_column.desc()
+        return query.order_by(custom_order)
+
+    return query
 
 
 def _process_inspection_requirement_query_results(query_results):
@@ -811,34 +1028,36 @@ def _process_inspection_requirement_query_results(query_results):
             "requirement_source_details": requirement.requirement_source_details,
         }
         # Add additional attributes to the requirement object
-        item["approved_by_id"] = result[1]
-        item["ir_number"] = result[2]
-        item["date_issued"] = result[3]
+        item["ir_number"] = result.ir_number
+        item["date_issued"] = result.date_issued
         # Create a simple dict with enforcement action data
-        item["enforcement_action"] = {"id": result[4], "name": result[5]}
+        item["enforcement_action"] = {
+            "id": result.enforcement_action_id,
+            "name": result.enforcement_action_name,
+        }
 
         # Add primary officer full name
         item["primary_officer"] = {
-            "id": result[6],
-            "first_name": result[7] or "",
-            "last_name": result[8] or "",
-            "auth_user_guid": result[9],
+            "id": result.staff_id,
+            "first_name": result.staff_first_name or "",
+            "last_name": result.staff_last_name or "",
+            "auth_user_guid": result.staff_auth_user_guid,
         }
 
         # Add project name
         item["project"] = {
-            "id": result[10],
-            "name": result[11],
+            "id": result.project_id,
+            "name": result.project_name,
         }
-        item["inspection_status"] = result[12]
-        item["order_approval_status"] = result[13]
-        item["warning_letter_approval_status"] = result[14]
+        item["inspection_status"] = result.inspection_status
+        item["order_approval_status"] = result.order_approval_status
+        item["warning_letter_approval_status"] = result.warning_approval_status
 
         # Structure approved_by as a StaffUser object from individual fields
-        approved_by_id = result[15]
-        approved_by_first_name = result[16]
-        approved_by_last_name = result[17]
-        approved_by_auth_guid = result[18]
+        approved_by_id = result.approver_id
+        approved_by_first_name = result.approver_first_name
+        approved_by_last_name = result.approver_last_name
+        approved_by_auth_guid = result.approver_auth_user_guid
 
         if approved_by_id:
             item["approved_by"] = {
@@ -862,7 +1081,6 @@ def _make_requirement_detail_object(requirements: list):
             "id": requirement["id"],
             "topic": requirement["topic"],
             "summary": requirement["summary"],
-            "approved_by_id": requirement["approved_by_id"],
             "approved_by": requirement["approved_by"],
             "sort_order": requirement["sort_order"],
             "ir_number": requirement["ir_number"],

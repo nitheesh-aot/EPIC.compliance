@@ -67,7 +67,7 @@ describe("InspectionFileActions Component", () => {
     cy.contains("button", "Actions").click();
 
     cy.contains("Cancel Inspection").should("exist");
-    cy.contains("Close as note to file").should("exist");
+    cy.contains("Close as Note to File").should("exist");
     cy.contains("Close").should("exist");
     cy.contains("Delete Inspection").should("exist");
   });
@@ -77,7 +77,7 @@ describe("InspectionFileActions Component", () => {
     cy.contains("button", "Actions").click();
 
     cy.contains("Cancel Inspection").should("not.exist");
-    cy.contains("Close as note to file").should("not.exist");
+    cy.contains("Close as Note to File").should("not.exist");
     cy.contains("Close").should("not.exist");
     cy.contains("Delete Inspection").should("exist");
   });
@@ -87,7 +87,7 @@ describe("InspectionFileActions Component", () => {
     cy.contains("button", "Actions").click();
 
     cy.contains("Cancel Inspection").should("not.exist");
-    cy.contains("Close as note to file").should("not.exist");
+    cy.contains("Close as Note to File").should("not.exist");
     cy.contains("Close").should("not.exist");
     cy.contains("Delete Inspection").should("exist");
   });
@@ -106,10 +106,10 @@ describe("InspectionFileActions Component", () => {
     cy.contains("button", "Cancel").should("exist").click();
   });
 
-  it("handles Closed as note to file click", () => {
+  it("handles Closed as Note to File click", () => {
     mountComponent("open");
     cy.contains("button", "Actions").click();
-    cy.get("li[id='Close as note to file']").click();
+    cy.get("li[id='Close as Note to File']").click();
 
     // Verify the confirmation dialog opens
     cy.contains("Close Inspection as Note to File?").should("exist");
