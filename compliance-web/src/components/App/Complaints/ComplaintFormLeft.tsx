@@ -8,20 +8,23 @@ import ControlledDateField from "@/components/Shared/Controlled/ControlledDateFi
 import { Topic } from "@/models/Topic";
 import RequirementSourceForm from "./RequirementSourceForm";
 import { RequirementSource } from "@/models/RequirementSource";
-import { InspectionOrder } from "@/models/InspectionOrder";
+
+import { Complaint } from "@/models/Complaint";
 
 type ComplaintFormLeftProps = {
   staffUsersList: StaffUser[];
   topicsList: Topic[];
   requirementSourceList: RequirementSource[];
-  orderList: InspectionOrder[];
+  complaint?: Complaint;
+  caseFileId: number;
 };
 
 const ComplaintFormLeft: FC<ComplaintFormLeftProps> = ({
   staffUsersList,
   topicsList,
   requirementSourceList,
-  orderList,
+  complaint,
+  caseFileId,
 }) => {
   return (
     <>
@@ -84,7 +87,8 @@ const ComplaintFormLeft: FC<ComplaintFormLeftProps> = ({
         </Stack>
         <RequirementSourceForm
           requirementSourceList={requirementSourceList ?? []}
-          orderList={orderList ?? []}
+          complaint={complaint}
+          caseFileId={caseFileId}
         />
       </Box>
     </>

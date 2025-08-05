@@ -31,7 +31,7 @@ import DrawerActionBarTop from "@/components/Shared/Drawer/DrawerActionBarTop";
 import DrawerActionBarBottom from "@/components/Shared/Drawer/DrawerActionBarBottom";
 import { CaseFile } from "@/models/CaseFile";
 import { useCurrentLoggedInUser } from "@/hooks/useAuthorization";
-import { useInspectionOrdersProjectwiseData } from "@/hooks/useInspectionOrders";
+
 
 type ComplaintDrawerProps = {
   onSubmit: (submitMsg: string) => void;
@@ -44,6 +44,8 @@ const initFormData: ComplaintFormData = {
   dateReceived: undefined,
   primaryOfficer: undefined,
   complaintSource: undefined,
+  requirementSource: undefined,
+  order: undefined,
 };
 
 const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
@@ -58,7 +60,7 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
   const { data: agenciesList } = useAgenciesData();
   const { data: firstNationsList } = useFirstNationsData();
   const { data: topicsList } = useTopicsData();
-  const { data: orderList } = useInspectionOrdersProjectwiseData(caseFile.id);
+
   const currentUser = useCurrentLoggedInUser();
 
   const staffUserList = Array.from(
@@ -96,11 +98,6 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
         requirementSource: complaint.requirement_source,
         requirementSourceDescription:
           complaint.requirement_source_description ?? "",
-        order: orderList?.find(
-          (order) =>
-            order.order_number ===
-            complaint.requirement_detail?.additional_details?.order_number
-        ),
       };
     }
     const selectedOfficer = staffUserList.find(
@@ -118,7 +115,6 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
     caseFile,
     staffUserList,
     currentUser,
-    orderList,
   ]);
 
   const methods = useForm<ComplaintSchemaType>({
@@ -168,7 +164,10 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <DrawerTitleBar title="Create Complaint" isFormDirtyCheck />
+        <DrawerTitleBar
+          title={complaint ? complaint.complaint_number : "Create Complaint"}
+          isFormDirtyCheck
+        />
         <DrawerActionBarTop isShowActionBar={!complaint} />
         <Stack
           height={`calc(100vh - ${appHeaderHeight + 129}px)`} // 64px (DrawerTitleBar height) + 65px (DrawerActionBar height)
@@ -178,7 +177,8 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
             staffUsersList={staffUserList ?? []}
             topicsList={topicsList ?? []}
             requirementSourceList={requirementSourceList ?? []}
-            orderList={orderList ?? []}
+            complaint={complaint}
+            caseFileId={caseFile.id}
           />
           <Box
             sx={{

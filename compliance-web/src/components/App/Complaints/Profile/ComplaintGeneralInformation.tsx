@@ -46,9 +46,7 @@ const ComplaintGeneralInformation: React.FC<
     if (complaintData.requirement_source.id === RequirementSourceEnum.ORDER) {
       generalProperties.push({
         name: "Order Number",
-        value:
-          complaintData.requirement_detail?.additional_details?.order_number ??
-          "",
+        value: complaintData.requirement_detail?.order_number ?? "",
       });
     } else {
       generalProperties.push({

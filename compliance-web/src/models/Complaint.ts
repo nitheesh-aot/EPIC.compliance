@@ -8,6 +8,7 @@ import { Dayjs } from "dayjs";
 import { Agency } from "./Agency";
 import { FirstNation } from "./FirstNation";
 import { Topic } from "./Topic";
+import { InspectionOrder } from "./InspectionOrder";
 
 export interface Complaint {
   id: number;
@@ -51,6 +52,7 @@ export interface ComplaintFormData {
   locationDescription?: string;
   complaintSource?: ComplaintSource;
   requirementSource?: RequirementSource;
+  order?: InspectionOrder;
 }
 
 export interface ComplaintAPIData {
@@ -68,12 +70,7 @@ export interface ComplaintAPIData {
   requirement_source_id?: string;
   requirement_source_description?: string;
   requirement_source_details?: {
-    topic_id?: number;
-    description?: string;
     order_number?: string;
-    amendment_number?: string;
-    amendment_condition_number?: string;
-    condition_number?: string;
   };
   project_description?: string;
   unapproved_project_authorization?: string;
