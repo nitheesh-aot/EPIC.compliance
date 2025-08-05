@@ -1,3 +1,4 @@
+import { AdministrativePenalty } from "@/models/AdministrativePenalty";
 import { InspectionOrder } from "@/models/InspectionOrder";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
 import {
@@ -6,6 +7,7 @@ import {
   OrderStatusEnum,
   VARIANT_COLORS,
   WarningLetterProgressEnum,
+  ReferralStatusEnum,
 } from "@/utils/constants";
 import { Chip } from "@mui/material";
 import { useMemo } from "react";
@@ -13,9 +15,11 @@ import { useMemo } from "react";
 const EnforcementStatusFlag = ({
   order,
   warningLetter,
+  administrativePenalty,
 }: {
   order?: InspectionOrder;
   warningLetter?: InspectionWarningLetter;
+  administrativePenalty?: AdministrativePenalty;
 }) => {
   const flagStatus = useMemo(() => {
     let status: {
@@ -74,8 +78,22 @@ const EnforcementStatusFlag = ({
         status.color = "error";
       }
     }
+    else if (administrativePenalty) {
+      status = {
+        name: administrativePenalty.referral_status.value,
+      };
+      if (administrativePenalty.referral_status.id === ReferralStatusEnum.DEPUTY_REVIEW) {
+        status.color = "warning";
+      }  else if (administrativePenalty.referral_status.id  === ReferralStatusEnum.CEB_NOT_PROCEEDING) {
+        status.color = "error";
+      }
+       else if (administrativePenalty.referral_status.id  === ReferralStatusEnum.REFERRED_TO_DM) {
+        status.color = "success";
+      }
+    }
+
     return status;
-  }, [order, warningLetter]);
+  }, [order, warningLetter,administrativePenalty]);
 
   return flagStatus.name ? (
     <Chip

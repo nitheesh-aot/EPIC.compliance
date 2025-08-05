@@ -150,6 +150,17 @@ export enum EnforcementActionEnum {
   WARNING = "11",
 }
 
+export enum ReferralStatusEnum {
+    DRAFTING = "Drafting",
+    DEPUTY_REVIEW = "Deputy Review",
+    CEB_NOT_PROCEEDING = "CEB Not Proceeding",
+    REFERRED_TO_DM = "Referred to DM",
+}
+
+export enum APDecisionEnum {
+AP_ISSUED = "AP Issued",
+AP_NOT_PROCEEDING  = "AP Not Proceeding"
+}
 export const DEFAULT_PAGE_SIZE = 15;
 
 export type VARIANT_COLORS = "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning";

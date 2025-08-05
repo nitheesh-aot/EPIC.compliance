@@ -13,25 +13,30 @@ import {
   getApprovedByDate,
   getApproverName,
 } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
+import { AdministrativePenalty } from "@/models/AdministrativePenalty";
 
 const EnforcementCard = ({
   order,
   warningLetter,
   requirementEnforcements,
+  administrativePenalty,
 }: {
   order?: InspectionOrder;
   warningLetter?: InspectionWarningLetter;
   requirementEnforcements: InspectionRequirement[];
+  administrativePenalty? :AdministrativePenalty
 }) => {
   // Use utility functions instead of complex useMemo and useCallback logic
   const requirementSummaryFormatted = formatRequirementSummary(
     order,
-    warningLetter
+    warningLetter,
+    administrativePenalty
   );
   const requirementSourcesFormatted = formatRequirementSources(
     requirementEnforcements,
     order,
-    warningLetter
+    warningLetter,
+    administrativePenalty
   );
   const sentForReviewDate = getSentForReviewDate(order, warningLetter);
   const approvedByDate = getApprovedByDate(order, warningLetter);
@@ -64,9 +69,9 @@ const EnforcementCard = ({
             variant="body1"
             color={BCDesignTokens.typographyColorLink}
           >
-            {order?.order_number ?? warningLetter?.warning_letter_number}
+            {order?.order_number ?? warningLetter?.warning_letter_number ?? administrativePenalty?.administrative_penalty_number}
           </Typography>
-          <EnforcementStatusFlag order={order} warningLetter={warningLetter} />
+          <EnforcementStatusFlag order={order} warningLetter={warningLetter} administrativePenalty={administrativePenalty} />
         </Stack>
         <Stack>
           {requirementSourcesFormatted?.map((source, index) => {
@@ -89,6 +94,8 @@ const EnforcementCard = ({
             value={requirementSummaryFormatted}
             multiline
           />
+           {(order || warningLetter) && (
+            <>  
           <GridLabelValuePair
             label="Deputy Director, Compliance & Enforcement Operations"
             value={approverName}
@@ -114,6 +121,27 @@ const EnforcementCard = ({
             }
             gridProps={{ xs: 6 }}
           />
+          </>
+    )}
+         {administrativePenalty  && (
+            <>
+              <GridLabelValuePair
+                label="Date Referred to Decision Make"
+                value={administrativePenalty.date_referred ? dateUtils.formatDate(administrativePenalty.date_referred) : ""}
+                gridProps={{ xs: 3 }}
+              />
+              <GridLabelValuePair
+                label="Decision Date"
+                value={administrativePenalty.decision_date ? dateUtils.formatDate(administrativePenalty.decision_date) : ""}
+                gridProps={{ xs: 3 }}
+              />
+              <GridLabelValuePair
+                label="Decision"
+                value={administrativePenalty.decision}
+               
+              />
+            </>
+          )}
         </Grid>
       </Box>
     </Box>
