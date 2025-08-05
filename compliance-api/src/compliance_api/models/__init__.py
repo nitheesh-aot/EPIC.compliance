@@ -21,7 +21,7 @@ from .appendix import Appendix
 from .case_file import (
     CaseFile, CaseFileInitiationEnum, CaseFileInitiationOption, CaseFileLink, CaseFileOfficer, CaseFileStatusEnum)
 from .complaint import (
-    Complaint, ComplaintReqOrderDetail, ComplaintRequirementDetail, ComplaintSource,
+    Complaint, ComplaintReqOrderDetail, ComplaintSource,
     ComplaintSourceContact, ComplaintStatusEnum)
 from .compliance_finding import ComplianceFindingOption, ComplianceFindingOptionEnum
 from .continuation_report import ContinuationReport, ContinuationReportKey

@@ -15,7 +15,7 @@
 from marshmallow import EXCLUDE, ValidationError, fields, post_dump, post_load, validates_schema
 from marshmallow_enum import EnumField
 
-from compliance_api.models import Complaint, ComplaintRequirementDetail, ComplaintSourceContact, ComplaintStatusEnum
+from compliance_api.models import Complaint, ComplaintSourceContact, ComplaintStatusEnum
 from compliance_api.models.complaint import ComplaintSourceEnum
 from compliance_api.models.requirement_source import RequirementSourceEnum
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
@@ -26,20 +26,12 @@ from .common import KeyValueSchema
 from .staff_user import StaffUserSchema
 
 
-class RequirementSourceDetailSchema(
-    AutoSchemaBase
-):  # pylint: disable=too-many-ancestors
+class RequirementSourceDetailSchema(BaseSchema):
     """RequirementSourceDetailSchema."""
 
-    class Meta(AutoSchemaBase.Meta):  # pylint: disable=too-few-public-methods
-        """Meta."""
-
-        unknown = EXCLUDE
-        model = ComplaintRequirementDetail
-        include_fk = True
-
-    topic = fields.Nested(KeyValueSchema)
-    additional_details = fields.Raw()
+    id = fields.Int(metadata={"description": "The unique identifier"})
+    complaint_id = fields.Int(metadata={"description": "The complaint id"})
+    order_number = fields.Str(metadata={"description": "The order number"}, allow_none=True)
 
 
 class ComplaintSourceContactSchema(
@@ -220,7 +212,7 @@ class ComplaintSchema(AutoSchemaBase):  # pylint: disable=too-many-ancestors
     first_nation = fields.Nested(KeyValueSchema)
     requirement_source = fields.Nested(KeyValueSchema)
     topic = fields.Nested(KeyValueSchema)
-    requirement_detail = fields.Nested(RequirementSourceDetailSchema, only=["topic"])
+    requirement_detail = fields.Nested(RequirementSourceDetailSchema)
 
     @post_dump
     def post_dump_actions(

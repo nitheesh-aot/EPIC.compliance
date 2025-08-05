@@ -127,8 +127,9 @@ class Complaint(BaseModelVersioned):
     )
     case_file = relationship("CaseFile", foreign_keys=[case_file_id], lazy="joined")
     topic = relationship("Topic", foreign_keys=[topic_id], lazy="joined")
-    requirement_detail = relationship(
-        "ComplaintRequirementDetail",
+    order_detail = relationship(
+        "ComplaintReqOrderDetail",
+        foreign_keys="ComplaintReqOrderDetail.complaint_id",
         back_populates="complaint",
         lazy="joined",
         uselist=False,
