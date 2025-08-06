@@ -62,7 +62,7 @@ class ComplaintService:
         complaint = ComplaintModel.find_by_id(complaint_id)
         if not complaint:
             return None
-        
+
         # Get order details directly if the complaint has ORDER requirement source
         if complaint.requirement_source_id == ComplaintRequirementSourceEnum.ORDER.value:
             order_detail = ComplaintReqOrderDetailModel.get_by_complaint(complaint_id)
@@ -172,13 +172,13 @@ def _create_or_update_requirement_details(
     # Only handle ORDER requirement source
     if complaint.requirement_source_id != ComplaintRequirementSourceEnum.ORDER.value:
         return
-    
+
     # Check if order details already exist
     existing_order_detail = ComplaintReqOrderDetailModel.get_by_complaint(complaint.id)
-    
+
     # Create order detail object
     order_detail_obj = _create_order_detail_obj(complaint_data, complaint.id)
-    
+
     if order_detail_obj:
         if existing_order_detail:
             # Update existing order details
@@ -188,7 +188,7 @@ def _create_or_update_requirement_details(
         else:
             # Create new order details
             ComplaintReqOrderDetailModel.create(order_detail_obj, session=session)
-    
+
     # Handle requirement source change - delete old order details if source changed
     if (
         existing_order_detail
@@ -220,9 +220,6 @@ def _access_check_update(complaint):
         raise PermissionDeniedError(
             "You don't have the correct permission to perform this operation."
         )
-
-
-
 
 
 def _create_source_type_contact_object(complaint_data: dict, complaint_id):

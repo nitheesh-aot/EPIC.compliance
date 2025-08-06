@@ -171,7 +171,6 @@ class ComplaintCreateSchema(ComplaintUpdateSchema):
                 field_name="requirement_source_details.order_number",
             )
 
-
     @validates_schema
     def validate_contact_description(
         self, data, **kwargs
