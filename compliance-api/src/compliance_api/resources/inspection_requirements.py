@@ -103,6 +103,17 @@ class InspectionRequirements(Resource):
                 "type": "string",
                 "required": False,
             },
+            "sort_by": {
+                "description": "The sort by field of the inspection requirement",
+                "type": "string",
+                "required": False,
+            },
+            "sort_order": {
+                "description": "The sort order of the inspection requirement",
+                "type": "string",
+                "enum": ["asc", "desc"],
+                "required": False,
+            },
             "page_no": {
                 "description": "The page number of the inspection requirement",
                 "type": "integer",
