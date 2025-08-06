@@ -140,11 +140,7 @@ class OrderService:
             raise UnprocessableEntityError(
                 "Order cannot be deleted as it is in OPEN status"
             )
-        if order.order_progress in [
-            OrderProgressEnum.ISSUED,
-            OrderProgressEnum.DEPUTY_REVIEW,
-            OrderProgressEnum.APPROVED,
-        ]:
+        if order.order_progress == OrderProgressEnum.ISSUED:
             raise UnprocessableEntityError(
                 f"Order cannot be deleted as it is in {order.order_progress.value} progress"
             )

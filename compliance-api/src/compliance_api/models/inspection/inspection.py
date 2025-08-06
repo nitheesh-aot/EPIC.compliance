@@ -265,8 +265,10 @@ class Inspection(BaseModelVersioned):
             .add_columns(
                 InspectionRecord.ir_progress,
                 InspectionRecordApproval.approval_status,
-                InspectionRecordApproval.approved_by_id,
-                StaffUser,
+                StaffUser.auth_user_guid,
+                StaffUser.first_name,
+                StaffUser.last_name,
+                StaffUser.id,
             )
         )
 
@@ -276,8 +278,13 @@ class Inspection(BaseModelVersioned):
             inspection = result[0]
             inspection.ir_progress = result[1]
             inspection.approval_status = result[2]
-            inspection.approved_by_id = result[3]
-            inspection.approved_by = result[4]
+            if result[3] is not None:
+                inspection.approved_by = {
+                    "auth_user_guid": result[3],
+                    "first_name": result[4],
+                    "last_name": result[5],
+                    "id": result[6],
+                }
             results.append(inspection)
 
         return results

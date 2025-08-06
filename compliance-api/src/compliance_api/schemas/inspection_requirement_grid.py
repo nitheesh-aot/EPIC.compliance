@@ -1,6 +1,6 @@
 """Schema for the inspection requirements grid."""
 
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
 from .base_schema import BaseSchema
 from .common import KeyValueSchema
@@ -34,10 +34,11 @@ class InspectionRequirementGridItemSchema(Schema):
         KeyValueSchema,
         metadata={"description": "The approval status of the inspection requirement"},
     )
-    approved_by_id = fields.Int(metadata={"description": "The ID of the approved by"})
     approved_by = fields.Nested(
         StaffUserSchema,
-        metadata={"description": "The staff user who approved the inspection requirement"},
+        metadata={
+            "description": "The staff user who approved the inspection requirement"
+        },
         allow_none=True,
     )
     sort_order = fields.Int(
@@ -134,9 +135,35 @@ class InspectionRequirementFilterSchema(BaseSchema):
             "description": "The comma separated list of project ids of the inspection requirement"
         },
     )
-    reviewer_ids = fields.String(
+    approver_ids = fields.String(
         required=False,
         metadata={
-            "description": "The comma separated list of reviewer ids of the inspection requirement"
+            "description": "The comma separated list of approver ids of the inspection requirement"
         },
+    )
+    sort_by = fields.String(
+        required=False,
+        validate=validate.OneOf(
+            [
+                "tpc",
+                "summary",
+                "cmd_fnd",
+                "enf_actn",
+                "apprv_sts",
+                "req_src",
+                "req_src_num",
+                "ir_no",
+                "date_issued",
+                "prm_offc",
+                "insp_sts",
+                "project",
+                "approver",
+            ]
+        ),
+        metadata={"description": "The sort by field of the inspection requirement"},
+    )
+    sort_order = fields.String(
+        required=False,
+        validate=validate.OneOf(["asc", "desc"]),
+        metadata={"description": "The sort order of the inspection requirement"},
     )
