@@ -62,7 +62,7 @@ export const useConvertFiltersToQueryParams = (
             break;
           case "approver":
             if (Array.isArray(filter.value) && filter.value.length > 0) {
-              params.reviewer_ids = filter.value.join(",");
+              params.approver_ids = filter.value.join(",");
             }
             break;
           case "req_src_num":
@@ -103,8 +103,8 @@ export const useConvertFiltersToQueryParams = (
                 ? value.join(",")
                 : value;
               break;
-            case "reviewer_ids":
-              params.reviewer_ids = Array.isArray(value)
+            case "approver_ids":
+              params.approver_ids = Array.isArray(value)
                 ? value.join(",")
                 : value;
               break;

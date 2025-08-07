@@ -27,7 +27,7 @@ export interface InspectionRequirementGridQueryParams {
   cmd_fnd_ids?: string;
   enf_actn_ids?: string;
   apprv_sts?: string;
-  reviewer_ids?: string;
+  approver_ids?: string;
   req_src_ids?: string;
   req_src_num?: string;
   ir_no?: string;

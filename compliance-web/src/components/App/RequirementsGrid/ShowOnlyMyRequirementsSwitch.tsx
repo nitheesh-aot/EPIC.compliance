@@ -76,7 +76,7 @@ const ShowOnlyMyRequirementsSwitch: React.FC<
     if (!isChecked || !currentStaff?.id) {
       return {
         primary_officer_id: [],
-        reviewer_ids: [],
+        approver_ids: [],
         approval_status: [],
       };
     }
@@ -84,7 +84,7 @@ const ShowOnlyMyRequirementsSwitch: React.FC<
     if (isCurrentUserDeputy) {
       // For deputy directors, filter by both reviewer and approval status
       return {
-        reviewer_ids: [currentStaff.id.toString()],
+        approver_ids: [currentStaff.id.toString()],
         approval_status: [APPROVAL_STATUS.APPROVAL_PENDING],
       };
     } else {

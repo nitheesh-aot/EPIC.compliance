@@ -88,11 +88,12 @@ function Requirements() {
   });
 
   // Get cached filters store methods
-  const { getFilters, getExternalFilters } = cachedFiltersStore();
+  const { getFilters, getExternalFilters, getSorting } = cachedFiltersStore();
   const cachedColumnFilters = getFilters(requirementsColumnFiltersCacheKey);
   const cachedExternalFilters = getExternalFilters(
     requirementsColumnFiltersCacheKey
   );
+  const cachedSorting = getSorting(requirementsColumnFiltersCacheKey);
 
   // Restore cached filters on component mount
   useEffect(() => {
@@ -118,10 +119,10 @@ function Requirements() {
         }
       } else if (
         restoredExternalFilters.primary_officer_id ||
-        restoredExternalFilters.reviewer_ids ||
+        restoredExternalFilters.approver_ids ||
         restoredExternalFilters.approval_status
       ) {
-        // Legacy support - if primary_officer_id, reviewer_ids, or approval_status exists, set showOnlyMyRequirements to true
+        // Legacy support - if primary_officer_id, approver_ids, or approval_status exists, set showOnlyMyRequirements to true
         setShowOnlyMyRequirements(true);
       }
 
@@ -129,21 +130,20 @@ function Requirements() {
       if (restoredExternalFilters.globalFilter) {
         setGlobalFilter(restoredExternalFilters.globalFilter as string);
       }
-      
-      // Restore sorting if it was cached
-      if (restoredExternalFilters.sorting && Array.isArray(restoredExternalFilters.sorting)) {
-        const sortingData = restoredExternalFilters.sorting as unknown as MRT_SortingState;
-        // Validate that it has the expected structure
-        if (sortingData.length > 0 && sortingData[0]?.id) {
-          setSorting(sortingData);
-        }
+    }
+
+    // Restore sorting if it was cached
+    if (cachedSorting && Array.isArray(cachedSorting)) {
+      // Validate that it has the expected structure
+      if (cachedSorting.length > 0 && cachedSorting[0]?.id) {
+        setSorting(cachedSorting);
       }
     }
 
     // Mark restoration as complete and initial load as complete
     isInitialLoad.current = false;
     setIsRestored(true);
-  }, [cachedColumnFilters, cachedExternalFilters]);
+  }, [cachedColumnFilters, cachedExternalFilters, cachedSorting]);
 
   // Cache all filters when they change (but not during initial load)
   useEffect(() => {
@@ -163,12 +163,16 @@ function Requirements() {
       if (hasChanged) {
         cachedFiltersStore
           .getState()
-          .setFilters(requirementsColumnFiltersCacheKey, columnFilters, {
-            ...externalFilters,
-            showOnlyMyRequirements,
-            globalFilter,
-            sorting,
-          });
+          .setFilters(
+            requirementsColumnFiltersCacheKey, 
+            columnFilters, 
+            {
+              ...externalFilters,
+              showOnlyMyRequirements,
+              globalFilter,
+            },
+            sorting
+          );
 
         // Update previous values
         prevFilters.current = currentFilters;
@@ -302,6 +306,9 @@ function Requirements() {
     setShowOnlyMyRequirements(false);
     setSorting([{ id: "tpc", desc: false }]); // Reset to default sorting
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    
+    // Clear cached filters
+    cachedFiltersStore.getState().clearFilters(requirementsColumnFiltersCacheKey);
   }, []);
 
   // Handler for the switch filter changes
