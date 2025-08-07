@@ -47,7 +47,7 @@ const makeTableFilter =
     }, [column.columnDef.filterSelectOptions, toOptionType]);
 
     const handleValues = useCallback((value: string | string[]) => {
-      if (!value) return value;
+      if (!value) return [];
       if (Array.isArray(value)) {
         return value.map((val) => {
           return toOptionType(val);
