@@ -32,7 +32,6 @@ from compliance_api.models.order import Order as OrderModel
 from compliance_api.models.order import OrderInspectionRequirementMap as OrderInspectionRequirementMapModel
 from compliance_api.models.order import OrderProgressEnum
 from compliance_api.models.order_approval import OrderApproval as OrderApprovalModel
-from compliance_api.models.project import Project as ProjectModel
 from compliance_api.models.requirement_source import RequirementSource as RequirementSourceOptionModel
 from compliance_api.models.staff_user import StaffUser as StaffUserModel
 from compliance_api.models.topic import Topic as TopicModel
@@ -486,7 +485,6 @@ def _create_model_aliases():
         "enf_action": aliased(EnforcementActionOptionModel),
         "staff": aliased(StaffUserModel),
         "approved_by_staff": aliased(StaffUserModel),
-        "project": aliased(ProjectModel),
         "order_app": aliased(OrderApprovalModel),
         "warning_app": aliased(WarningLetterApprovalModel),
         "order": aliased(OrderModel),
@@ -523,8 +521,6 @@ def _build_inspection_requirements_query(args, enable_pagination=True):
             models["staff"].first_name.label("staff_first_name"),
             models["staff"].last_name.label("staff_last_name"),
             models["staff"].auth_user_guid.label("staff_auth_user_guid"),
-            models["project"].id.label("project_id"),
-            models["project"].name.label("project_name"),
             models["insp"].inspection_status.label("inspection_status"),
             models["order_app"].approval_status.label("order_approval_status"),
             models["warning_app"].approval_status.label("warning_approval_status"),
@@ -535,6 +531,11 @@ def _build_inspection_requirements_query(args, enable_pagination=True):
             models["topic"].name.label("topic_name"),
             models["cmp_finding"].name.label("compliance_finding"),
             models["req_source_option"].name.label("requirement_source_option"),
+            models["req_source"].section_number.label("section_number"),
+            models["req_source"].condition_number.label("condition_number"),
+            models["req_source"].clause_number.label("clause_number"),
+            models["order"].order_number.label("order_number"),
+            models["warning_letter"].warning_letter_number.label("warning_letter_number"),
         )
         .join(
             models["topic"],
@@ -571,10 +572,6 @@ def _build_inspection_requirements_query(args, enable_pagination=True):
         .outerjoin(
             models["insp_rec"],
             models["insp"].id == models["insp_rec"].inspection_id,
-        )
-        .outerjoin(
-            models["project"],
-            models["insp"].project_id == models["project"].id,
         )
         .outerjoin(
             subqueries["first_requirement_source"],
@@ -841,6 +838,7 @@ def _apply_pagination(query, args, **kwargs):
         "req_source_option": kwargs.get("req_source_option"),
         "req_source": kwargs.get("req_source"),
         "order": kwargs.get("order"),
+        "warning_letter": kwargs.get("warning_letter"),
     }
 
     # Get distinct count by requirement ID to avoid duplicates
@@ -860,8 +858,6 @@ def _apply_pagination(query, args, **kwargs):
         reference_models["staff"].first_name.label("staff_first_name"),
         reference_models["staff"].last_name.label("staff_last_name"),
         reference_models["staff"].auth_user_guid.label("staff_auth_user_guid"),
-        reference_models["project"].id.label("project_id"),
-        reference_models["project"].name.label("project_name"),
         core_models["insp"].inspection_status.label("inspection_status"),
         approval_models["order_app"].approval_status.label("order_approval_status"),
         approval_models["warning_app"].approval_status.label("warning_approval_status"),
@@ -874,6 +870,11 @@ def _apply_pagination(query, args, **kwargs):
         reference_models["topic"].name.label("topic_name"),
         reference_models["cmp_finding"].name.label("compliance_finding"),
         reference_models["req_source_option"].name.label("requirement_source_option"),
+        reference_models["req_source"].section_number.label("section_number"),
+        reference_models["req_source"].condition_number.label("condition_number"),
+        reference_models["req_source"].clause_number.label("clause_number"),
+        reference_models["order"].order_number.label("order_number"),
+        reference_models["warning_letter"].warning_letter_number.label("warning_letter_number"),
     ).distinct(core_models["req"].id, core_models["enf_map"].enforcement_action_id)
     subq = distinct_query.subquery("distinct_q")
 
@@ -888,8 +889,6 @@ def _apply_pagination(query, args, **kwargs):
         subq.c.staff_first_name.label("staff_first_name"),
         subq.c.staff_last_name.label("staff_last_name"),
         subq.c.staff_auth_user_guid.label("staff_auth_user_guid"),
-        subq.c.project_id.label("project_id"),
-        subq.c.project_name.label("project_name"),
         subq.c.inspection_status.label("inspection_status"),
         subq.c.order_approval_status.label("order_approval_status"),
         subq.c.warning_approval_status.label("warning_approval_status"),
@@ -900,6 +899,11 @@ def _apply_pagination(query, args, **kwargs):
         subq.c.topic_name.label("topic_name"),
         subq.c.compliance_finding.label("compliance_finding"),
         subq.c.requirement_source_option.label("requirement_source_option"),
+        subq.c.section_number.label("section_number"),
+        subq.c.condition_number.label("condition_number"),
+        subq.c.clause_number.label("clause_number"),
+        subq.c.order_number.label("order_number"),
+        subq.c.warning_letter_number.label("warning_letter_number"),
     ).join(
         subq,
         core_models["req"].id == subq.c.id,
@@ -918,14 +922,6 @@ def _apply_sort(query, args, subq, **kwargs):
         return query
 
     sort_field, sort_order = args["sort_by"], args["sort_order"]
-
-    # Group related model references
-    models = {
-        "order_app": kwargs.get("order_app"),
-        "warning_app": kwargs.get("warning_app"),
-        "order": kwargs.get("order"),
-        "req_source": kwargs.get("req_source"),
-    }
 
     # Field mapping for simple column sorts
     field_map = {
@@ -949,12 +945,12 @@ def _apply_sort(query, args, subq, **kwargs):
     if sort_field == "apprv_sts":
         whens = [
             (
-                models["order_app"].approval_status.isnot(None),
-                cast(models["order_app"].approval_status, String),
+                subq.c.order_approval_status.isnot(None),
+                cast(subq.c.order_approval_status, String),
             ),
             (
-                models["warning_app"].approval_status.isnot(None),
-                cast(models["warning_app"].approval_status, String),
+                subq.c.warning_approval_status.isnot(None),
+                cast(subq.c.warning_approval_status, String),
             ),
         ]
         approval_status_expr = case(
@@ -972,10 +968,11 @@ def _apply_sort(query, args, subq, **kwargs):
 
     if sort_field == "req_src_num":
         req_src_num_expr = func.coalesce(
-            models["req_source"].section_number,
-            models["req_source"].clause_number,
-            models["req_source"].condition_number,
-            models["order"].order_number,
+            subq.c.section_number,
+            subq.c.clause_number,
+            subq.c.condition_number,
+            subq.c.order_number,
+            subq.c.warning_letter_number,
             "",  # fallback
         ).label("req_src_num_sort")
         query = query.add_columns(req_src_num_expr)
@@ -1044,11 +1041,6 @@ def _process_inspection_requirement_query_results(query_results):
             "auth_user_guid": result.staff_auth_user_guid,
         }
 
-        # Add project name
-        item["project"] = {
-            "id": result.project_id,
-            "name": result.project_name,
-        }
         item["inspection_status"] = result.inspection_status
         item["order_approval_status"] = result.order_approval_status
         item["warning_letter_approval_status"] = result.warning_approval_status
@@ -1092,7 +1084,6 @@ def _make_requirement_detail_object(requirements: list):
             "compliance_finding": requirement["compliance_finding"],
             "enforcement_action": requirement["enforcement_action"],
             "primary_officer": requirement["primary_officer"],
-            "project": requirement["project"],
             "inspection_status": {
                 "id": requirement["inspection_status"].name,
                 "name": requirement["inspection_status"].value,
