@@ -35,7 +35,7 @@ export const useConvertFiltersToQueryParams = (
 
       filters.forEach((filter) => {
         switch (filter.id) {
-          case "topic":
+          case "tpc":
             if (Array.isArray(filter.value) && filter.value.length > 0) {
               params.tpc_ids = filter.value.join(",");
             }
@@ -45,37 +45,37 @@ export const useConvertFiltersToQueryParams = (
               params.summary = filter.value.trim();
             }
             break;
-          case "compliance_finding":
+          case "cmd_fnd":
             if (Array.isArray(filter.value) && filter.value.length > 0) {
               params.cmd_fnd_ids = filter.value.join(",");
             }
             break;
-          case "enforcement_action":
+          case "enf_actn":
             if (Array.isArray(filter.value) && filter.value.length > 0) {
               params.enf_actn_ids = filter.value.join(",");
             }
             break;
-          case "approval_status":
+          case "apprv_sts":
             if (Array.isArray(filter.value) && filter.value.length > 0) {
               params.apprv_sts = filter.value.join(",");
             }
             break;
-          case "reviewer":
+          case "approver":
             if (Array.isArray(filter.value) && filter.value.length > 0) {
               params.reviewer_ids = filter.value.join(",");
             }
             break;
-          case "requirement_number":
+          case "req_src_num":
             if (typeof filter.value === "string" && filter.value.trim()) {
               params.req_src_num = filter.value.trim();
             }
             break;
-          case "requirement_source":
+          case "req_src":
             if (Array.isArray(filter.value) && filter.value.length > 0) {
               params.req_src_ids = filter.value.join(",");
             }
             break;
-          case "ir_number":
+          case "ir_no":
             if (typeof filter.value === "string" && filter.value.trim()) {
               params.ir_no = filter.value.trim();
             }
@@ -91,7 +91,6 @@ export const useConvertFiltersToQueryParams = (
               }
             }
             break;
-          // requirement_number is not in the query params interface, so skip it
         }
       });
 
@@ -109,7 +108,7 @@ export const useConvertFiltersToQueryParams = (
                 ? value.join(",")
                 : value;
               break;
-            case "approval_status":
+            case "apprv_sts":
               params.apprv_sts = Array.isArray(value) ? value.join(",") : value;
               break;
             case "inspection_status":
@@ -146,7 +145,7 @@ export const useRequirementsGridColumns = (
   return [
     {
       accessorFn: (row) => row.topic?.name,
-      id: "topic",
+      id: "tpc",
       header: "Topic",
       filterVariant: "multi-select",
       filterSelectOptions:
@@ -164,7 +163,7 @@ export const useRequirementsGridColumns = (
     },
     {
       accessorFn: (row) => row.compliance_finding?.name,
-      id: "compliance_finding",
+      id: "cmd_fnd",
       header: "Compliance Finding",
       filterVariant: "multi-select",
       filterSelectOptions:
@@ -176,7 +175,7 @@ export const useRequirementsGridColumns = (
     },
     {
       accessorFn: (row) => row.enforcement_action?.name,
-      id: "enforcement_action",
+      id: "enf_actn",
       header: "Enforcement Action",
       filterVariant: "multi-select",
       filterSelectOptions:
@@ -187,7 +186,7 @@ export const useRequirementsGridColumns = (
       size: 150,
     },
     {
-      accessorKey: "approval_status",
+      accessorKey: "apprv_sts",
       header: "Approval Status",
       Cell: ({ row }) => {
         return row.original.approval_status ? (
@@ -218,7 +217,7 @@ export const useRequirementsGridColumns = (
     },
     {
       accessorFn: (row) => row.approved_by?.name,
-      id: "reviewer",
+      id: "approver",
       header: "Reviewer",
       filterVariant: "multi-select",
       filterSelectOptions:
@@ -229,14 +228,15 @@ export const useRequirementsGridColumns = (
       size: 100,
     },
     {
-      accessorKey: "requirement_number",
+      accessorFn: (row) => row.requirement_number,
+      accessorKey: "req_src_num",
       header: "Condition #",
       filterFn: "contains",
       size: 80,
     },
     {
       accessorFn: (row) => row.requirement_source?.name,
-      id: "requirement_source",
+      id: "req_src",
       header: "Source",
       filterVariant: "multi-select",
       filterSelectOptions:
@@ -247,7 +247,7 @@ export const useRequirementsGridColumns = (
       size: 100,
     },
     {
-      accessorKey: "ir_number",
+      accessorKey: "ir_no",
       header: "IR #",
       filterFn: "contains",
       Cell: ({ row }) => (

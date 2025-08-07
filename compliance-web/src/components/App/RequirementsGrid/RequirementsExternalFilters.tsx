@@ -42,11 +42,14 @@ const RequirementsExternalFilters: React.FC<
     [projects]
   );
 
-  // Check if any filters are applied
+  // Check if any filters are applied (excluding sorting and showOnlyMyRequirements)
   const hasActiveFilters = useMemo(() => {
-    return Object.values(externalFilters).some(
-      (value) =>
-        value && (Array.isArray(value) ? value.length > 0 : value !== "")
+    return Object.entries(externalFilters).some(
+      ([key, value]) =>
+        key !== "sorting" &&
+        key !== "showOnlyMyRequirements" &&
+        value &&
+        (Array.isArray(value) ? value.length > 0 : value !== "")
     );
   }, [externalFilters]);
 

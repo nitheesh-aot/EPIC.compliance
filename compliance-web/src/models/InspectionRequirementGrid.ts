@@ -35,6 +35,8 @@ export interface InspectionRequirementGridQueryParams {
   prm_offc_ids?: string;
   insp_sts?: string;
   project_ids?: string;
+  sort_by?: string;
+  sort_order?: "asc" | "desc";
   page_no?: number;
   page_size?: number;
 }

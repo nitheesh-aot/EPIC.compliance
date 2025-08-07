@@ -15,7 +15,6 @@ interface ShowOnlyMyRequirementsSwitchProps {
     columnFilters?: MRT_TableState<InspectionRequirementGrid>["columnFilters"];
   }) => void;
   initialChecked?: boolean;
-  columnFilters?: MRT_TableState<InspectionRequirementGrid>["columnFilters"];
   onColumnFiltersChange?: (
     updater:
       | MRT_TableState<InspectionRequirementGrid>["columnFilters"]
@@ -31,7 +30,6 @@ const ShowOnlyMyRequirementsSwitch: React.FC<
   disabled = false,
   onFiltersChange,
   initialChecked = false,
-  columnFilters = [],
   onColumnFiltersChange
 }) => {
   const { user: currentUser, isLoading: authLoading } = useAuth();
@@ -106,11 +104,11 @@ const ShowOnlyMyRequirementsSwitch: React.FC<
     const currentUserStaff = staffUsers?.find(staff => staff.id === currentStaff.id);
     return [
       {
-        id: "reviewer",
+        id: "approver",
         value: [currentUserStaff?.name || ""],
       },
       {
-        id: "approval_status",
+        id: "apprv_sts",
         value: [APPROVAL_STATUS.APPROVAL_PENDING],
       },
     ];
@@ -136,19 +134,19 @@ const ShowOnlyMyRequirementsSwitch: React.FC<
         // Remove existing user-specific filters and add new ones
         const filteredFilters = columnFilters.filter(
           (filter) =>
-            filter.id !== "reviewer" && filter.id !== "approval_status"
+            filter.id !== "approver" && filter.id !== "apprv_sts"
         );
         onColumnFiltersChange([...filteredFilters, ...generateColumnFilters(true)]);
       } else {
         // Remove user-specific filters when turning off
         const filteredFilters = columnFilters.filter(
           (filter) =>
-            filter.id !== "reviewer" && filter.id !== "approval_status"
+            filter.id !== "approver" && filter.id !== "apprv_sts"
         );
         onColumnFiltersChange(filteredFilters);
       }
     }
-  }, [generateExternalFilters, generateColumnFilters, onFiltersChange, onColumnFiltersChange, isCurrentUserDeputy, columnFilters]);
+  }, [generateExternalFilters, generateColumnFilters, onFiltersChange, onColumnFiltersChange, isCurrentUserDeputy]);
 
   if (authLoading || staffLoading) {
     return <CircularProgress size={24} />;

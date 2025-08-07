@@ -16,7 +16,7 @@ import { APPROVAL_STATUS_TEXT } from "@/utils/constants";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
-import { MRT_TableState } from "material-react-table";
+import { MRT_TableState, MRT_SortingState } from "material-react-table";
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import RequirementsExternalFilters from "@/components/App/RequirementsGrid/RequirementsExternalFilters";
 import ShowOnlyMyRequirementsSwitch from "@/components/App/RequirementsGrid/ShowOnlyMyRequirementsSwitch";
@@ -45,6 +45,9 @@ function Requirements() {
   const { data: requirementSources } = useRequirementSourcesData();
   const { data: staffUsers } = useStaffUsersData();
   const [showOnlyMyRequirements, setShowOnlyMyRequirements] = useState(false);
+  const [sorting, setSorting] = useState<MRT_SortingState>([
+    { id: "tpc", desc: false }
+  ]);
 
   const approvalStatusOptions = Object.entries(APPROVAL_STATUS_TEXT).map(
     ([id, name]) => ({
@@ -75,11 +78,13 @@ function Requirements() {
     externalFilters: Record<string, string[] | string>;
     showOnlyMyRequirements: boolean;
     globalFilter: string;
+    sorting: MRT_SortingState;
   }>({
     columnFilters: [],
     externalFilters: {},
     showOnlyMyRequirements: false,
     globalFilter: "",
+    sorting: [{ id: "tpc", desc: false }],
   });
 
   // Get cached filters store methods
@@ -124,6 +129,15 @@ function Requirements() {
       if (restoredExternalFilters.globalFilter) {
         setGlobalFilter(restoredExternalFilters.globalFilter as string);
       }
+      
+      // Restore sorting if it was cached
+      if (restoredExternalFilters.sorting && Array.isArray(restoredExternalFilters.sorting)) {
+        const sortingData = restoredExternalFilters.sorting as unknown as MRT_SortingState;
+        // Validate that it has the expected structure
+        if (sortingData.length > 0 && sortingData[0]?.id) {
+          setSorting(sortingData);
+        }
+      }
     }
 
     // Mark restoration as complete and initial load as complete
@@ -140,6 +154,7 @@ function Requirements() {
         externalFilters,
         showOnlyMyRequirements,
         globalFilter,
+        sorting,
       };
 
       const hasChanged =
@@ -152,33 +167,39 @@ function Requirements() {
             ...externalFilters,
             showOnlyMyRequirements,
             globalFilter,
+            sorting,
           });
 
         // Update previous values
         prevFilters.current = currentFilters;
       }
     }
-  }, [columnFilters, externalFilters, showOnlyMyRequirements, globalFilter]);
+  }, [columnFilters, externalFilters, showOnlyMyRequirements, globalFilter, sorting]);
 
   // Use the extracted utility function
   const convertFiltersToQueryParams =
     useConvertFiltersToQueryParams(externalFilters);
 
-  const queryParams: InspectionRequirementGridQueryParams = useMemo(
-    () => ({
+  const queryParams: InspectionRequirementGridQueryParams = useMemo(() => {
+    // Extract sorting information from the sorting state
+    const currentSort = sorting[0]; // Material React Table supports multiple sorts, but we'll use the first one
+    
+    return {
       page_no: pagination.pageIndex + 1,
       page_size: pagination.pageSize,
       ...convertFiltersToQueryParams(columnFilters),
-      ...(globalFilter && { global_search: globalFilter }),
-    }),
-    [
-      pagination.pageIndex,
-      pagination.pageSize,
-      columnFilters,
-      globalFilter,
-      convertFiltersToQueryParams,
-    ]
-  );
+      ...(currentSort && { 
+        sort_by: currentSort.id, 
+        sort_order: currentSort.desc ? "desc" : "asc" 
+      }),
+    };
+  }, [
+    pagination.pageIndex,
+    pagination.pageSize,
+    columnFilters,
+    convertFiltersToQueryParams,
+    sorting,
+  ]);
 
   const { data, isLoading } = useInspectionRequirementsGrid(queryParams);
   const requirementsList = useMemo(() => data?.items ?? [], [data]);
@@ -194,6 +215,26 @@ function Requirements() {
       setPagination(updater);
     },
     []
+  );
+
+  const handleSortingChange = useCallback(
+    (
+      updater:
+        | MRT_SortingState
+        | ((old: MRT_SortingState) => MRT_SortingState)
+    ) => {
+      const newSorting = typeof updater === "function" ? updater(sorting) : updater;
+      
+      // Only reset pagination if sorting actually changed
+      const sortingChanged = JSON.stringify(newSorting) !== JSON.stringify(sorting);
+      
+      setSorting(updater);
+      
+      if (sortingChanged) {
+        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+      }
+    },
+    [sorting]
   );
 
   const handleColumnFiltersChange = useCallback(
@@ -259,6 +300,7 @@ function Requirements() {
     setColumnFilters([]);
     setGlobalFilter("");
     setShowOnlyMyRequirements(false);
+    setSorting([{ id: "tpc", desc: false }]); // Reset to default sorting
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   }, []);
 
@@ -309,7 +351,7 @@ function Requirements() {
       columns={columns}
       data={requirementsList ?? []}
       initialState={{
-        sorting: [{ id: "topic", desc: false }],
+        sorting: sorting,
         columnFilters: isRestored ? columnFilters : [],
       }}
       state={{
@@ -318,11 +360,12 @@ function Requirements() {
         pagination,
         columnFilters,
         globalFilter,
+        sorting,
       }}
       titleToolbarProps={{
         tableTitle: "Requirements",
       }}
-      enableSorting={false}
+      enableSorting={true}
       enablePagination={false}
       hideFilterToggle={true}
       renderTopToolbarCustomActions={({ table }) => (
@@ -354,7 +397,6 @@ function Requirements() {
               initialChecked={showOnlyMyRequirements}
               onFiltersChange={handleShowOnlyMyRequirementsFiltersChange}
               disabled={isLoading}
-              columnFilters={columnFilters}
               onColumnFiltersChange={handleColumnFiltersChange}
             />
           </Box>
@@ -392,6 +434,7 @@ function Requirements() {
         onPaginationChange: handlePaginationChange,
         onColumnFiltersChange: handleColumnFiltersChange,
         onGlobalFilterChange: handleGlobalFilterChange,
+        onSortingChange: handleSortingChange,
       }}
     />
   );
