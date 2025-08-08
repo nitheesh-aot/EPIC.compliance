@@ -432,7 +432,7 @@ def _create_where_as_and_now_therefore(
 
 def _create_order_number(project_id: int, case_file_id: int) -> str:
     """Generate the order number."""
-    project_code = _get_project_abbreviation(project_id)
+    project_code = ServiceUtils.get_project_abbreviation(project_id)
     case_file = CaseFileModel.find_by_id(case_file_id)
     if not case_file:
         raise ResourceNotFoundError("Given case file doesn't exist")
@@ -442,13 +442,3 @@ def _create_order_number(project_id: int, case_file_id: int) -> str:
     count = OrderModel.get_count_by_project_nd_case_file_id(project_id, case_file_id)
     serial_number = f"{count + 1:03}"
     return f"{project_code}_{case_file.case_file_number}_OR{serial_number}"
-
-
-def _get_project_abbreviation(
-    project_id: int,
-):  # pylint: disable=inconsistent-return-statements
-    """Return the project abbreviation."""
-    if project_id:
-        project = TrackService.get_project_by_id(project_id)
-        return project.get("abbreviation")
-    return UNAPPROVED_PROJECT_CODE

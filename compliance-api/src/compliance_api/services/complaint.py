@@ -16,8 +16,9 @@ from compliance_api.models.complaint import ComplaintStatusEnum
 from compliance_api.models.db import session_scope
 from compliance_api.services.case_file import CaseFileService
 from compliance_api.services.epic_track_service.track_service import TrackService
-from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE
 from compliance_api.utils.enum import ContextEnum, PermissionEnum
+
+from .service_utils import ServiceUtils
 
 
 class ComplaintService:
@@ -64,7 +65,10 @@ class ComplaintService:
             return None
 
         # Get order details directly if the complaint has ORDER requirement source
-        if complaint.requirement_source_id == ComplaintRequirementSourceEnum.ORDER.value:
+        if (
+            complaint.requirement_source_id
+            == ComplaintRequirementSourceEnum.ORDER.value
+        ):
             order_detail = ComplaintReqOrderDetailModel.get_by_complaint(complaint_id)
             if order_detail:
                 return order_detail
@@ -128,8 +132,13 @@ class ComplaintService:
             # Delete order details for complaints in this case file
             complaints = ComplaintModel.get_by_params({"case_file_id": case_file_id})
             for complaint in complaints:
-                if complaint.requirement_source_id == ComplaintRequirementSourceEnum.ORDER.value:
-                    ComplaintReqOrderDetailModel.delete_details(complaint.id, ho_session or session)
+                if (
+                    complaint.requirement_source_id
+                    == ComplaintRequirementSourceEnum.ORDER.value
+                ):
+                    ComplaintReqOrderDetailModel.delete_details(
+                        complaint.id, ho_session or session
+                    )
 
     @classmethod
     def delete_complaint(cls, complaint_id):
@@ -142,7 +151,10 @@ class ComplaintService:
             ComplaintModel.delete_complaint(complaint_id, session)
             ComplaintSourceContactModel.delete_by_complaint(complaint_id, session)
             # Delete order details if they exist
-            if complaint.requirement_source_id == ComplaintRequirementSourceEnum.ORDER.value:
+            if (
+                complaint.requirement_source_id
+                == ComplaintRequirementSourceEnum.ORDER.value
+            ):
                 ComplaintReqOrderDetailModel.delete_details(complaint_id, session)
         return complaint
 
@@ -193,7 +205,8 @@ def _create_or_update_requirement_details(
     if (
         existing_order_detail
         and old_requirement_source_id == ComplaintRequirementSourceEnum.ORDER.value
-        and complaint.requirement_source_id != ComplaintRequirementSourceEnum.ORDER.value
+        and complaint.requirement_source_id
+        != ComplaintRequirementSourceEnum.ORDER.value
     ):
         ComplaintReqOrderDetailModel.delete_details(complaint.id, session)
 
@@ -245,7 +258,9 @@ def _create_complaint_update_object(complaint_data: dict):
         "primary_officer_id": complaint_data.get("primary_officer_id", None),
         "date_received": complaint_data.get("date_received"),
         "requirement_source_id": complaint_data.get("requirement_source_id", None),
-        "requirement_source_description": complaint_data.get("requirement_source_description", None),
+        "requirement_source_description": complaint_data.get(
+            "requirement_source_description", None
+        ),
         "topic_id": complaint_data.get("topic_id", None),
         "source_type_id": complaint_data.get("source_type_id"),
         "source_agency_id": complaint_data.get("source_agency_id", None),
@@ -271,7 +286,7 @@ def _create_complaint_number(
     case_file_id,
 ):  # pylint: disable=inconsistent-return-statements
     """Generate the complaint number."""
-    project_code = _get_project_abbreviation(project_id)
+    project_code = ServiceUtils.get_project_abbreviation(project_id)
     case_file = CaseFileService.get_by_id(case_file_id)
     if not case_file:
         raise ResourceNotFoundError("Given case file doesn't exist")
@@ -283,16 +298,6 @@ def _create_complaint_number(
     )
     serial_number = f"{count + 1:03}"
     return f"{project_code}_{case_file.case_file_number}_CM{serial_number}"
-
-
-def _get_project_abbreviation(
-    project_id: int,
-):  # pylint: disable=inconsistent-return-statements
-    """Return the project abbreviation."""
-    if project_id:
-        project = TrackService.get_project_by_id(project_id)
-        return project.get("abbreviation")
-    return UNAPPROVED_PROJECT_CODE
 
 
 def _create_order_detail_obj(complaint_data: dict, complaint_id):

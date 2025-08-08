@@ -113,6 +113,16 @@ class InspectionRequirement(BaseModelVersioned):
         order_by="WarningLetterInspectionRequirementMap.id.asc()",
     )
 
+    violation_ticket_requirement_maps = relationship(
+        "ViolationTicketInspectionRequirementMap",
+        back_populates="inspection_requirement",
+        lazy="select",
+        primaryjoin="and_(ViolationTicketInspectionRequirementMap.inspection_requirement_id == InspectionRequirement.id, "
+        "ViolationTicketInspectionRequirementMap.is_active == True, "
+        "ViolationTicketInspectionRequirementMap.is_deleted == False)",
+        order_by="ViolationTicketInspectionRequirementMap.id.asc()",
+    )
+
     @classmethod
     @with_session
     def create_requirement(cls, requirement_obj, session=None):

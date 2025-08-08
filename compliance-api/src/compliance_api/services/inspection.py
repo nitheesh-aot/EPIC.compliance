@@ -654,7 +654,7 @@ def _create_inspection_record_number(
     project_id: int, case_file_id
 ):  # pylint: disable=inconsistent-return-statements
     """Generate the inspection record number."""
-    project_code = _get_project_abbreviation(project_id)
+    project_code = ServiceUtils.get_project_abbreviation(project_id)
     case_file = CaseFileModel.find_by_id(case_file_id)
     if not case_file:
         raise ResourceNotFoundError("Given case file doesn't exist")
@@ -666,16 +666,6 @@ def _create_inspection_record_number(
     )
     serial_number = f"{count + 1:03}"
     return f"{project_code}_{case_file.case_file_number}_IR{serial_number}"
-
-
-def _get_project_abbreviation(
-    project_id: int,
-):  # pylint: disable=inconsistent-return-statements
-    """Return the project abbreviation."""
-    if project_id:
-        project = TrackService.get_project_by_id(project_id)
-        return project.get("abbreviation")
-    return UNAPPROVED_PROJECT_CODE
 
 
 def _create_inspection_other_attendance_object(
