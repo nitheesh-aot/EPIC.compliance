@@ -66,9 +66,11 @@ class AdministrativePenaltyUpdateSchema(
         self, data, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
         """Validate that penalty_amount is required when decision is present."""
-        if (data.get("decision") and
-                data.get("decision") != DecisionEnum.AP_NOT_PROCEEDING and
-                not data.get("penalty_amount")):
+        if (
+            data.get("decision")
+            and data.get("decision") != DecisionEnum.AP_NOT_PROCEEDING
+            and not data.get("penalty_amount")
+        ):
             raise ValidationError(
                 "Penalty amount is required when a decision is provided",
                 "penalty_amount",
@@ -113,6 +115,7 @@ class AdministrativePenaltySchema(AutoSchemaBase):  # pylint: disable=too-many-a
         unknown = EXCLUDE
         model = AdministrativePenalty
         include_fk = True
+
     penalty_amount = fields.Decimal(
         places=2,
         allow_none=True,
