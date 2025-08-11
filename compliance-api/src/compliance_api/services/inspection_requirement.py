@@ -982,7 +982,9 @@ def _apply_approval_status_sort(query, subq, sort_order):
     ).label("approval_status_sort")
     query = query.add_columns(approval_status_expr)
     return query.order_by(
-        approval_status_expr.asc() if sort_order == "asc" else approval_status_expr.desc()
+        approval_status_expr.asc()
+        if sort_order == "asc"
+        else approval_status_expr.desc()
     )
 
 
@@ -994,11 +996,13 @@ def _apply_requirement_source_number_sort(query, subq, sort_order):
         null_if_empty(subq.c.condition_number),
         null_if_empty(subq.c.order_number),
         null_if_empty(subq.c.warning_letter_number),
-    ).label("req_src_num_sort")    
+    ).label("req_src_num_sort")
     query = query.add_columns(req_src_num_expr)
     order_key = func.natural_sort_key(req_src_num_expr)
     return query.order_by(
-        nullslast(order_key.asc()) if sort_order == "asc" else nullslast(order_key.desc())
+        nullslast(order_key.asc())
+        if sort_order == "asc"
+        else nullslast(order_key.desc())
     )
 
 
@@ -1013,7 +1017,9 @@ def _apply_inspection_status_sort(query, subq, sort_order):
 
     query = query.add_columns(inspection_status_case)
     return query.order_by(
-        inspection_status_case.asc() if sort_order == "asc" else inspection_status_case.desc()
+        inspection_status_case.asc()
+        if sort_order == "asc"
+        else inspection_status_case.desc()
     )
 
 

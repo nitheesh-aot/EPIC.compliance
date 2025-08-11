@@ -4,7 +4,7 @@ from http import HTTPStatus
 
 from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models.administrative_penalty import (
-    AdministrativePenalty, AdministrativePenaltyInspectionRequirementMap)
+    AdministrativePenalty, AdministrativePenaltyInspectionRequirementMap, DecisionEnum, ReferralStatusEnum)
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import session_scope
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
@@ -65,27 +65,21 @@ class AdministrativePenaltyService:
             EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY_RECOMMENDATION.value,
         )
 
-        # Generate administrative penalty number if not provided
-        if not administrative_penalty_data.get("administrative_penalty_number"):
-            project_id = inspection.case_file.project_id
-            case_file_id = inspection.case_file_id
-            administrative_penalty_data["administrative_penalty_number"] = (
-                _create_administrative_penalty_number(project_id, case_file_id)
-            )
-
         # Check if administrative penalty already exists for the given requirements
         if AdministrativePenalty.does_administrative_penalty_exists_by_requirement_ids(
-            requirement_ids
+            administrative_penalty_data.get("inspection_requirement_ids", []),
         ):
             raise UnprocessableEntityError(
                 "Administrative Penalty already exists for these requirements."
             )
-
+        administrative_penalty_obj = _create_ap_object(
+            inspection, administrative_penalty_data
+        )
         # Create administrative penalty with session scope
         with session_scope() as session:
             administrative_penalty = (
                 AdministrativePenalty.create_administrative_penalty(
-                    administrative_penalty_data, session
+                    administrative_penalty_obj, session
                 )
             )
             cls.insert_or_update_inspection_requirements(
@@ -133,7 +127,11 @@ class AdministrativePenaltyService:
             )
 
         # Validate penalty_amount if decision is provided
-        if update_data.get("decision") and not update_data.get("penalty_amount"):
+        if (
+            update_data.get("decision")
+            and update_data.get("decision") != DecisionEnum.AP_NOT_PROCEEDING
+            and not update_data.get("penalty_amount")
+        ):
             if not administrative_penalty.penalty_amount:
                 raise UnprocessableEntityError(
                     "Penalty amount is required when a decision is provided."
@@ -214,6 +212,27 @@ class AdministrativePenaltyService:
                     list(requirement_ids_to_be_added),
                     session,
                 )
+
+
+def _create_ap_object(inspection, administrative_penalty_data):
+    """Create administrative penalty object."""
+    # Generate administrative penalty number if not provided
+    ap_number = administrative_penalty_data.get("administrative_penalty_number")
+    if not ap_number:
+        project_id = inspection.case_file.project_id
+        case_file_id = inspection.case_file_id
+        ap_number = _create_administrative_penalty_number(project_id, case_file_id)
+    return {
+        "administrative_penalty_number": ap_number,
+        "inspection_id": inspection.id,
+        "referral_status": administrative_penalty_data.get(
+            "referral_status", ReferralStatusEnum.DRAFTING
+        ),
+        "date_referred": administrative_penalty_data.get("date_referred", None),
+        "decision_date": administrative_penalty_data.get("decision_date", None),
+        "decision": administrative_penalty_data.get("decision", None),
+        "penalty_amount": administrative_penalty_data.get("penalty_amount", None),
+    }
 
 
 def _create_administrative_penalty_number(project_id: int, case_file_id: int) -> str:
