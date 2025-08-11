@@ -123,7 +123,7 @@ def created_case_file(created_staff):
     """Create a case file for testing."""
     case_file_data = copy.copy(CasefileScenario.default_value.value)
     case_file_data["primary_officer_id"] = created_staff.id
-    case_file_data["case_file_number"] = f"CF{fake.random_number(digits=4)}"
+    case_file_data["case_file_number"] = f"CF{fake.random_number(digits=4)}{int(datetime.now().timestamp())}"
     case_file = CaseFileModel.create_case_file(case_file_data)
     return case_file
 
