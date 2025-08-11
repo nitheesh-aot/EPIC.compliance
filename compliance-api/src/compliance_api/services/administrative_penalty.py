@@ -4,11 +4,7 @@ from http import HTTPStatus
 
 from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models.administrative_penalty import (
-    AdministrativePenalty,
-    AdministrativePenaltyInspectionRequirementMap,
-    ReferralStatusEnum,
-    DecisionEnum,
-)
+    AdministrativePenalty, AdministrativePenaltyInspectionRequirementMap, DecisionEnum, ReferralStatusEnum)
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import session_scope
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
