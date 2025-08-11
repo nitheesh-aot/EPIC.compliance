@@ -112,17 +112,15 @@ class AdministrativePenaltyInspectionRequirementMap(BaseModelVersioned):
         """Insert inspection requirements per administrative penalty."""
         administrative_penalty_inspection_requirement_map_data = [
             AdministrativePenaltyInspectionRequirementMap(
-                administrative_penalty_id=administrative_penalty_id,
-                inspection_requirement_id=inspection_requirement_id,
+                **{
+                    "administrative_penalty_id": administrative_penalty_id,
+                    "inspection_requirement_id": inspection_requirement_id,
+                }
             )
             for inspection_requirement_id in inspection_requirement_ids
         ]
-        if session:
-            session.add_all(administrative_penalty_inspection_requirement_map_data)
-            session.flush()
-        else:
-            for map_data in administrative_penalty_inspection_requirement_map_data:
-                map_data.save()
+        session.add_all(administrative_penalty_inspection_requirement_map_data)
+        session.flush()
         return administrative_penalty_inspection_requirement_map_data
 
 
@@ -192,20 +190,9 @@ class AdministrativePenalty(BaseModelVersioned):
     @with_session
     def create_administrative_penalty(cls, administrative_penalty_data, session=None):
         """Create the administrative penalty."""
-        inspection_requirement_ids = administrative_penalty_data.pop(
-            "inspection_requirement_ids", []
-        )
         administrative_penalty = AdministrativePenalty(**administrative_penalty_data)
-        if session:
-            session.add(administrative_penalty)
-            session.flush()
-        else:
-            administrative_penalty.save()
-
-        if inspection_requirement_ids:
-            AdministrativePenaltyInspectionRequirementMap.bulk_insert(
-                administrative_penalty.id, inspection_requirement_ids, session
-            )
+        session.add(administrative_penalty)
+        session.flush()
         return administrative_penalty
 
     @classmethod
