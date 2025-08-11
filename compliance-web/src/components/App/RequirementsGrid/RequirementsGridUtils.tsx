@@ -229,9 +229,12 @@ export const useRequirementsGridColumns = (
     },
     {
       accessorFn: (row) => row.requirement_number,
-      accessorKey: "req_src_num",
+      id: "req_src_num",
       header: "Condition #",
       filterFn: "contains",
+      enableSorting: true,
+      sortingFn: "alphanumeric",
+      sortDescFirst: false,
       size: 80,
     },
     {

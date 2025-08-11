@@ -41,6 +41,7 @@ from compliance_api.models.warning_letter_approval import WarningLetterApproval 
 from compliance_api.schemas.inspection_requirement_grid import InspectionRequirementGridItemSchema
 from compliance_api.services.document_service.doc_service import DocService
 from compliance_api.services.document_service.doc_service_enum import ActionOnFileEnum
+from compliance_api.utils.sql_alchemy_utils import null_if_empty
 
 from .service_utils import ServiceUtils
 
@@ -535,7 +536,9 @@ def _build_inspection_requirements_query(args, enable_pagination=True):
             models["req_source"].condition_number.label("condition_number"),
             models["req_source"].clause_number.label("clause_number"),
             models["order"].order_number.label("order_number"),
-            models["warning_letter"].warning_letter_number.label("warning_letter_number"),
+            models["warning_letter"].warning_letter_number.label(
+                "warning_letter_number"
+            ),
         )
         .join(
             models["topic"],
@@ -874,7 +877,9 @@ def _apply_pagination(query, args, **kwargs):
         reference_models["req_source"].condition_number.label("condition_number"),
         reference_models["req_source"].clause_number.label("clause_number"),
         reference_models["order"].order_number.label("order_number"),
-        reference_models["warning_letter"].warning_letter_number.label("warning_letter_number"),
+        reference_models["warning_letter"].warning_letter_number.label(
+            "warning_letter_number"
+        ),
     ).distinct(core_models["req"].id, core_models["enf_map"].enforcement_action_id)
     subq = distinct_query.subquery("distinct_q")
 
@@ -912,7 +917,9 @@ def _apply_pagination(query, args, **kwargs):
     all_models = {**core_models, **approval_models, **reference_models}
     sorted_query = _apply_sort(final_query, args, subq=subq, **all_models)
     # Apply pagination
-    paginated_query = sorted_query.offset((pg_params["page"] - 1) * pg_params["per_page"]).limit(pg_params["per_page"])
+    paginated_query = sorted_query.offset(
+        (pg_params["page"] - 1) * pg_params["per_page"]
+    ).limit(pg_params["per_page"])
     return paginated_query, total_count
 
 
@@ -968,21 +975,21 @@ def _apply_sort(query, args, subq, **kwargs):
 
     if sort_field == "req_src_num":
         req_src_num_expr = func.coalesce(
-            subq.c.section_number,
-            subq.c.clause_number,
-            subq.c.condition_number,
-            subq.c.order_number,
-            subq.c.warning_letter_number,
-            "",  # fallback
+            null_if_empty(subq.c.section_number),
+            null_if_empty(subq.c.clause_number),
+            null_if_empty(subq.c.condition_number),
+            null_if_empty(subq.c.order_number),
+            null_if_empty(subq.c.warning_letter_number),
         ).label("req_src_num_sort")
         query = query.add_columns(req_src_num_expr)
 
-        custom_order = (
-            nullslast(req_src_num_expr.asc())
+        order_key = func.natural_sort_key(req_src_num_expr)
+        order = (
+            nullslast(order_key.asc())
             if sort_order == "asc"
-            else nullslast(req_src_num_expr.desc())
+            else nullslast(order_key.desc())
         )
-        return query.order_by(custom_order)
+        return query.order_by(order)
 
     if sort_field == "insp_sts":
         status_order = list(reversed([e.name for e in InspectionStatusEnum]))

@@ -194,7 +194,7 @@ function Requirements() {
       ...convertFiltersToQueryParams(columnFilters),
       ...(currentSort && { 
         sort_by: currentSort.id, 
-        sort_order: currentSort.desc ? "desc" : "asc" 
+        sort_order: (currentSort.desc ? "desc" : "asc") as "desc" | "asc"
       }),
     };
   }, [
@@ -369,10 +369,15 @@ function Requirements() {
         globalFilter,
         sorting,
       }}
+      onSortingChange={handleSortingChange}
+      onColumnFiltersChange={handleColumnFiltersChange}
+      onPaginationChange={handlePaginationChange}
       titleToolbarProps={{
         tableTitle: "Requirements",
       }}
       enableSorting={true}
+      enableMultiSort={false}
+      isMultiSortEvent={() => false}
       enablePagination={false}
       hideFilterToggle={true}
       renderTopToolbarCustomActions={({ table }) => (
