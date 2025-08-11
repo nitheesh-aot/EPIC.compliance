@@ -88,7 +88,7 @@ class AdministrativePenaltyService:
             )
 
         return administrative_penalty
-    
+
     @classmethod
     def update_administrative_penalty(cls, administrative_penalty_id, update_data):
         """Update an administrative penalty."""
@@ -126,11 +126,13 @@ class AdministrativePenaltyService:
             )
 
         # Validate penalty_amount if decision is provided
-        if update_data.get("decision") and update_data.get("decision") != DecisionEnum.AP_NOT_PROCEEDING and not update_data.get("penalty_amount"):
-            if not administrative_penalty.penalty_amount:
-                raise UnprocessableEntityError(
-                    "Penalty amount is required when a decision is provided."
-                )
+        if (update_data.get("decision") and
+            update_data.get("decision") != DecisionEnum.AP_NOT_PROCEEDING and
+            not update_data.get("penalty_amount")):
+                if not administrative_penalty.penalty_amount:
+                    raise UnprocessableEntityError(
+                        "Penalty amount is required when a decision is provided."
+                    )
 
         # Update administrative penalty with session scope
         with session_scope() as session:
@@ -226,6 +228,7 @@ def _create_ap_object(inspection, administrative_penalty_data):
         "decision": administrative_penalty_data.get("decision", None),
         "penalty_amount": administrative_penalty_data.get("penalty_amount", None),
     }
+
 
 def _create_administrative_penalty_number(project_id: int, case_file_id: int) -> str:
     """Generate the administrative penalty number."""

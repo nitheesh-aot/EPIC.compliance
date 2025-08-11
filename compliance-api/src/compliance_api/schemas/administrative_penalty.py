@@ -66,12 +66,13 @@ class AdministrativePenaltyUpdateSchema(
         self, data, **kwargs
     ):  # pylint: disable=no-self-use, unused-argument
         """Validate that penalty_amount is required when decision is present."""
-        if data.get("decision") and data.get("decision") != DecisionEnum.AP_NOT_PROCEEDING  and not data.get("penalty_amount"):
-            print(data)
-            raise ValidationError(
-                "Penalty amount is required when a decision is provided",
-                "penalty_amount",
-            )
+        if (data.get("decision") and
+            data.get("decision") != DecisionEnum.AP_NOT_PROCEEDING and
+            not data.get("penalty_amount")):
+                raise ValidationError(
+                    "Penalty amount is required when a decision is provided",
+                    "penalty_amount",
+                )
 
 
 class AdministrativePenaltyCreateSchema(
