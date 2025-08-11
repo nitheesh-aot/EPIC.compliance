@@ -913,9 +913,8 @@ def _apply_pagination(query, args, **kwargs):
         subq,
         core_models["req"].id == subq.c.id,
     )
-    # Apply sorting with all model references
-    all_models = {**core_models, **approval_models, **reference_models}
-    sorted_query = _apply_sort(final_query, args, subq=subq, **all_models)
+    # Apply sorting
+    sorted_query = _apply_sort(final_query, args, subq=subq)
     # Apply pagination
     paginated_query = sorted_query.offset(
         (pg_params["page"] - 1) * pg_params["per_page"]
@@ -923,12 +922,26 @@ def _apply_pagination(query, args, **kwargs):
     return paginated_query, total_count
 
 
-def _apply_sort(query, args, subq, **kwargs):
+def _apply_sort(query, args, subq):
     """Apply sorting to the query based on arguments."""
     if not (args.get("sort_by") and args.get("sort_order", "asc")):
         return query
 
     sort_field, sort_order = args["sort_by"], args["sort_order"]
+
+    # When using DISTINCT in a query with ORDER BY, PostgreSQL requires that
+    # all ORDER BY expressions must appear in the SELECT list.
+    # To work around this, we need to ensure our query includes the columns we're sorting by
+
+    # Handle special case for approval status which could be in either order_app or warning_app
+    if sort_field == "apprv_sts":
+        return _apply_approval_status_sort(query, subq, sort_order)
+
+    if sort_field == "req_src_num":
+        return _apply_requirement_source_number_sort(query, subq, sort_order)
+
+    if sort_field == "insp_sts":
+        return _apply_inspection_status_sort(query, subq, sort_order)
 
     # Field mapping for simple column sorts
     field_map = {
@@ -944,77 +957,64 @@ def _apply_sort(query, args, subq, **kwargs):
         "approver": "approver_first_name",
     }
 
-    # When using DISTINCT in a query with ORDER BY, PostgreSQL requires that
-    # all ORDER BY expressions must appear in the SELECT list.
-    # To work around this, we need to ensure our query includes the columns we're sorting by
-
-    # Handle special case for approval status which could be in either order_app or warning_app
-    if sort_field == "apprv_sts":
-        whens = [
-            (
-                subq.c.order_approval_status.isnot(None),
-                cast(subq.c.order_approval_status, String),
-            ),
-            (
-                subq.c.warning_approval_status.isnot(None),
-                cast(subq.c.warning_approval_status, String),
-            ),
-        ]
-        approval_status_expr = case(
-            *whens,
-            else_=None,
-        ).label("approval_status_sort")
-        query = query.add_columns(approval_status_expr)
-
-        custom_order = (
-            approval_status_expr.asc()
-            if sort_order == "asc"
-            else approval_status_expr.desc()
-        )
-        return query.order_by(custom_order)
-
-    if sort_field == "req_src_num":
-        req_src_num_expr = func.coalesce(
-            null_if_empty(subq.c.section_number),
-            null_if_empty(subq.c.clause_number),
-            null_if_empty(subq.c.condition_number),
-            null_if_empty(subq.c.order_number),
-            null_if_empty(subq.c.warning_letter_number),
-        ).label("req_src_num_sort")
-        query = query.add_columns(req_src_num_expr)
-
-        order_key = func.natural_sort_key(req_src_num_expr)
-        order = (
-            nullslast(order_key.asc())
-            if sort_order == "asc"
-            else nullslast(order_key.desc())
-        )
-        return query.order_by(order)
-
-    if sort_field == "insp_sts":
-        status_order = list(reversed([e.name for e in InspectionStatusEnum]))
-        inspection_status_case = case(
-            {status: idx for idx, status in enumerate(status_order)},
-            value=cast(subq.c.inspection_status, String),
-            else_=len(status_order),
-        ).label("inspection_status_order")
-
-        query = query.add_columns(inspection_status_case)
-        custom_order = (
-            inspection_status_case.asc()
-            if sort_order == "asc"
-            else inspection_status_case.desc()
-        )
-        return query.order_by(custom_order)
-
     if field_map.get(sort_field):
         sort_column = getattr(subq.c, field_map[sort_field])
         query = query.add_columns(sort_column.label(f"{sort_field}_sort"))
-
-        custom_order = sort_column.asc() if sort_order == "asc" else sort_column.desc()
-        return query.order_by(custom_order)
+        return query.order_by(
+            sort_column.asc() if sort_order == "asc" else sort_column.desc()
+        )
 
     return query
+
+
+def _apply_approval_status_sort(query, subq, sort_order):
+    """Apply approval status sorting logic."""
+    approval_status_expr = case(
+        (
+            subq.c.order_approval_status.isnot(None),
+            cast(subq.c.order_approval_status, String),
+        ),
+        (
+            subq.c.warning_approval_status.isnot(None),
+            cast(subq.c.warning_approval_status, String),
+        ),
+        else_=None,
+    ).label("approval_status_sort")
+    query = query.add_columns(approval_status_expr)
+    return query.order_by(
+        approval_status_expr.asc() if sort_order == "asc" else approval_status_expr.desc()
+    )
+
+
+def _apply_requirement_source_number_sort(query, subq, sort_order):
+    """Apply requirement source number sorting logic."""
+    req_src_num_expr = func.coalesce(
+        null_if_empty(subq.c.section_number),
+        null_if_empty(subq.c.clause_number),
+        null_if_empty(subq.c.condition_number),
+        null_if_empty(subq.c.order_number),
+        null_if_empty(subq.c.warning_letter_number),
+    ).label("req_src_num_sort")    
+    query = query.add_columns(req_src_num_expr)
+    order_key = func.natural_sort_key(req_src_num_expr)
+    return query.order_by(
+        nullslast(order_key.asc()) if sort_order == "asc" else nullslast(order_key.desc())
+    )
+
+
+def _apply_inspection_status_sort(query, subq, sort_order):
+    """Apply inspection status sorting logic."""
+    status_order = list(reversed([e.name for e in InspectionStatusEnum]))
+    inspection_status_case = case(
+        {status: idx for idx, status in enumerate(status_order)},
+        value=cast(subq.c.inspection_status, String),
+        else_=len(status_order),
+    ).label("inspection_status_order")
+
+    query = query.add_columns(inspection_status_case)
+    return query.order_by(
+        inspection_status_case.asc() if sort_order == "asc" else inspection_status_case.desc()
+    )
 
 
 def _process_inspection_requirement_query_results(query_results):
