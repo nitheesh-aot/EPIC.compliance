@@ -9,7 +9,8 @@ export interface AdministrativePenalty {
   decision_date: string;
   is_active: boolean;
   referral_status: APStatus;
-   decision?: string;
+  decision?: APStatus;
+  penalty_amount?: string;
 }
 
 

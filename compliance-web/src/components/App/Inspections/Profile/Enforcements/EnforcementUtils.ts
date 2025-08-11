@@ -86,7 +86,13 @@ export const prepNonProceededRequirements = (
         (enforcement) => enforcement.id === enforcementActionType
       )
   );
-  return nonProceededRequirements;
+  
+  return nonProceededRequirements.map(requirement => ({
+    ...requirement,
+    enforcement_action_data: requirement.enforcement_action_data?.filter(
+      (enforcement) => enforcement.id === enforcementActionType
+    ) || []
+  }));
 };
 
 export const formatRequirementSummary = (

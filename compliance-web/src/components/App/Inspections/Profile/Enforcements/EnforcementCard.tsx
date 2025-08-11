@@ -26,7 +26,6 @@ const EnforcementCard = ({
   requirementEnforcements: InspectionRequirement[];
   administrativePenalty? :AdministrativePenalty
 }) => {
-  // Use utility functions instead of complex useMemo and useCallback logic
   const requirementSummaryFormatted = formatRequirementSummary(
     order,
     warningLetter,
@@ -74,9 +73,9 @@ const EnforcementCard = ({
           <EnforcementStatusFlag order={order} warningLetter={warningLetter} administrativePenalty={administrativePenalty} />
         </Stack>
         <Stack>
-          {requirementSourcesFormatted?.map((source, index) => {
+          {requirementSourcesFormatted?.map((source) => {
             return (
-              <Typography key={index} variant="caption" component={"div"}>
+              <Typography key={source} variant="caption" component={"div"}>
                 {source}
               </Typography>
             );
@@ -126,7 +125,7 @@ const EnforcementCard = ({
          {administrativePenalty  && (
             <>
               <GridLabelValuePair
-                label="Date Referred to Decision Make"
+                label="Date Referred to Decision Maker"
                 value={administrativePenalty.date_referred ? dateUtils.formatDate(administrativePenalty.date_referred) : ""}
                 gridProps={{ xs: 3 }}
               />
@@ -137,9 +136,16 @@ const EnforcementCard = ({
               />
               <GridLabelValuePair
                 label="Decision"
-                value={administrativePenalty.decision}
+                value={administrativePenalty.decision?.value || ""}
                
               />
+              {administrativePenalty.penalty_amount && (
+                <GridLabelValuePair
+                  label="Penalty Amount"
+                  value={`$${administrativePenalty.penalty_amount}`}
+                  gridProps={{ xs: 6 }}
+                />
+              )}
             </>
           )}
         </Grid>

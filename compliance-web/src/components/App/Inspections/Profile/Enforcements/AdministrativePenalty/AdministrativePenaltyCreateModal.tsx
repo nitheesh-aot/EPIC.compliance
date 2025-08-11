@@ -21,7 +21,7 @@ import { notify } from "@/store/snackbarStore";
 import { useModal } from "@/store/modalStore";
 import AdministrativePenaltyUpdateModal from "./AdministrativePenaltyUpdateModal";
 
-// Schema for AdministrativePenalty form
+
 const administrativePenaltySchema = baseEnforcementSchema;
 
 type AdministrativePenaltyFormType = yup.InferType<typeof administrativePenaltySchema>;
@@ -42,7 +42,7 @@ const AdministrativePenaltyCreateModal: FC<AdministrativePenaltyCreateModalProps
   onSubmit,
 }) => {
   const queryClient = useQueryClient();
-  const { setOpen: setModalOpen } = useModal();
+  const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
 
   const defaultValues = useMemo(() => {
     return getDefaultFormValues(requirement, false, undefined);
@@ -66,18 +66,22 @@ const AdministrativePenaltyCreateModal: FC<AdministrativePenaltyCreateModalProps
     });
     notify.success(ENFORCEMENT_MESSAGES.ADMINISTRATIVE_PENALTY_CREATED(data.administrative_penalty_number || ""));
     
-    // Open the update modal
-    setModalOpen({
-      content: (
-        <AdministrativePenaltyUpdateModal
-          administrativePenalty={data}
-          inspectionData={inspectionData}
-          onSuccess={(updatedData) => {
-            onSubmit(updatedData);
-          }}
-        />
-      ),
-    });
+    setModalClose();
+    
+    setTimeout(() => {
+      setModalOpen({
+        content: (
+          <AdministrativePenaltyUpdateModal
+            administrativePenalty={data}
+            inspectionData={inspectionData}
+            onSuccess={(updatedData) => {
+              onSubmit(updatedData);
+            }}
+          />
+        ),
+        width: "640px"
+      });
+    }, 100);
   };
 
   const { mutate: createAdministrativePenalty, isPending: isPendingAdministrativePenalty } =

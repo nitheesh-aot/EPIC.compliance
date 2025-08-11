@@ -329,9 +329,9 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
               ...nonProceededOrderRequirements,
               ...nonProceededWarningLetterRequirements,
               ...nonProceededAPRequirements,
-            ].map((requirement) => (
+            ].map((requirement,index) => (
               <EnforcementNotificationCard
-                key={requirement.id}
+                key={index}
                 requirement={requirement}
                 openEnforcementModal={openEnforcementModal}
               />
