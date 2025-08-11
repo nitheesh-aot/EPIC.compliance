@@ -4,8 +4,11 @@ from http import HTTPStatus
 
 from compliance_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
 from compliance_api.models.administrative_penalty import (
-    AdministrativePenalty, AdministrativePenaltyInspectionRequirementMap,
-    ReferralStatusEnum, DecisionEnum)
+    AdministrativePenalty,
+    AdministrativePenaltyInspectionRequirementMap,
+    ReferralStatusEnum,
+    DecisionEnum,
+)
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import session_scope
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
@@ -127,12 +130,12 @@ class AdministrativePenaltyService:
 
         # Validate penalty_amount if decision is provided
         if (update_data.get("decision") and
-            update_data.get("decision") != DecisionEnum.AP_NOT_PROCEEDING and
-            not update_data.get("penalty_amount")):
-                if not administrative_penalty.penalty_amount:
-                    raise UnprocessableEntityError(
-                        "Penalty amount is required when a decision is provided."
-                    )
+                update_data.get("decision") != DecisionEnum.AP_NOT_PROCEEDING and
+                not update_data.get("penalty_amount")):
+            if not administrative_penalty.penalty_amount:
+                raise UnprocessableEntityError(
+                    "Penalty amount is required when a decision is provided."
+                )
 
         # Update administrative penalty with session scope
         with session_scope() as session:

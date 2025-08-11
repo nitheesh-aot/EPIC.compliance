@@ -67,12 +67,12 @@ class AdministrativePenaltyUpdateSchema(
     ):  # pylint: disable=no-self-use, unused-argument
         """Validate that penalty_amount is required when decision is present."""
         if (data.get("decision") and
-            data.get("decision") != DecisionEnum.AP_NOT_PROCEEDING and
-            not data.get("penalty_amount")):
-                raise ValidationError(
-                    "Penalty amount is required when a decision is provided",
-                    "penalty_amount",
-                )
+                data.get("decision") != DecisionEnum.AP_NOT_PROCEEDING and
+                not data.get("penalty_amount")):
+            raise ValidationError(
+                "Penalty amount is required when a decision is provided",
+                "penalty_amount",
+            )
 
 
 class AdministrativePenaltyCreateSchema(
@@ -126,7 +126,7 @@ class AdministrativePenaltySchema(AutoSchemaBase):  # pylint: disable=too-many-a
         as_string=True,
         metadata={"description": "The penalty amount"},
     )
-    
+
     administrative_penalty_requirement_maps = fields.Nested(
         AdministrativePenaltyInspectionRequirementMapSchema(),
         many=True,
