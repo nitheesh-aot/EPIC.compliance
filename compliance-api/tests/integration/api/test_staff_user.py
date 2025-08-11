@@ -1,7 +1,7 @@
 """Test suite for staff user."""
 
-import json
 from datetime import datetime
+import json
 from http import HTTPStatus
 from urllib.parse import urljoin
 
@@ -24,7 +24,7 @@ def test_create_staff_user_mandatory(
     )
     firstname = fake.word()
     lastname = fake.word()
-    username = fake.word()
+    username = f"{fake.word()}{datetime.now().timestamp()}"
     mock_get_user_by_guid.return_value = {
         "first_name": firstname,
         "last_name": lastname,

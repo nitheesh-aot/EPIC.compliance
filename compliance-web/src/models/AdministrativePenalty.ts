@@ -8,6 +8,9 @@ export interface AdministrativePenalty {
   date_referred: string;
   decision_date: string;
   is_active: boolean;
+  referral_status: APStatus;
+  decision?: APStatus;
+  penalty_amount?: string;
 }
 
 
@@ -23,9 +26,15 @@ interface AdministrativePenaltyRequirementMap {
 export interface AdministrativePenaltyAPIData {
   inspection_id: number;
   referral_status: string;
-  date_referred: string;
-  decision_date: string;
-  decision: string;
+  date_referred?: string;
+  decision_date?: string;
+  decision?: string;
+  penalty_amount?: number;
   inspection_requirement_ids: number[];
-  administrative_penalty_number: string;
+  administrative_penalty_number?: string;
+}
+
+export interface APStatus {
+  id: string;
+  value: string;
 }

@@ -4,6 +4,7 @@ import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
 import { EnforcementActionEnum } from "@/utils/constants";
 import * as yup from "yup";
 import dateUtils from "@/utils/dateUtils";
+import { AdministrativePenalty } from "@/models/AdministrativePenalty";
 
 // Base schema for all enforcement types
 export const baseEnforcementSchema = yup.object().shape({
@@ -85,12 +86,19 @@ export const prepNonProceededRequirements = (
         (enforcement) => enforcement.id === enforcementActionType
       )
   );
-  return nonProceededRequirements;
+  
+  return nonProceededRequirements.map(requirement => ({
+    ...requirement,
+    enforcement_action_data: requirement.enforcement_action_data?.filter(
+      (enforcement) => enforcement.id === enforcementActionType
+    ) || []
+  }));
 };
 
 export const formatRequirementSummary = (
   order?: InspectionOrder,
-  warningLetter?: InspectionWarningLetter
+  warningLetter?: InspectionWarningLetter,
+  administrativePenalty? :AdministrativePenalty
 ): string => {
   if (order?.order_requirement_maps) {
     return order.order_requirement_maps
@@ -102,13 +110,19 @@ export const formatRequirementSummary = (
       .map((map) => map.inspection_requirement.summary)
       .join(", ");
   }
+  if(administrativePenalty?.administrative_penalty_requirement_maps) {
+    return administrativePenalty.administrative_penalty_requirement_maps
+      .map((map) => map.inspection_requirement.summary)
+      .join(", ");
+  }
   return "No requirement summary available";
 };
 
 export const formatRequirementSources = (
   requirementEnforcements: InspectionRequirement[],
   order?: InspectionOrder,
-  warningLetter?: InspectionWarningLetter
+  warningLetter?: InspectionWarningLetter,
+  administrativePenalty?: AdministrativePenalty
 ): string[] => {
   const orderRequirementIds = order?.order_requirement_maps?.map(
     (map) => map.inspection_requirement_id
@@ -118,9 +132,14 @@ export const formatRequirementSources = (
       (map) => map.inspection_requirement_id
     );
 
+  const administrativePenaltyRequirementIds = administrativePenalty?.administrative_penalty_requirement_maps?.map(
+    (map) => map.inspection_requirement_id
+  );
+
   const requirementIds = [
     ...(orderRequirementIds || []),
     ...(warningLetterRequirementIds || []),
+    ...(administrativePenaltyRequirementIds || []),
   ];
 
   const requirements = requirementEnforcements.filter((requirement) =>
@@ -233,6 +252,7 @@ export const ENFORCEMENT_TYPES = {
 export const ENFORCEMENT_MESSAGES = {
   ORDER_CREATED: (orderNumber: string) => `Order ${orderNumber} created`,
   WARNING_LETTER_CREATED: (warningLetterNumber: string) => `Warning Letter ${warningLetterNumber} created`,
+  ADMINISTRATIVE_PENALTY_CREATED: (administrativePenaltyNumber: string) => `Administrative Penalty ${administrativePenaltyNumber} created`,
   ORDER_ISSUED: "Order issued",
   WARNING_LETTER_ISSUED: "Warning letter issued",
 } as const;

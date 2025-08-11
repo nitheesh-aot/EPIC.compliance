@@ -17,11 +17,14 @@ import { useDrawer } from "@/store/drawerStore";
 import { useInspectionWarningLettersData } from "@/hooks/useInspectionWarningLetters";
 import WarningLetterDrawer from "@/components/App/Inspections/Profile/Enforcements/WarningLetters/WarningLetterDrawer";
 import { InspectionWarningLetter } from "@/models/InspectionWarningLetter";
+import { AdministrativePenalty } from "@/models/AdministrativePenalty";
 import { AddRounded } from "@mui/icons-material";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import OrderCreateModal from "@/components/App/Inspections/Profile/Enforcements/Orders/OrderCreateModal";
 import WarningLetterCreateModal from "@/components/App/Inspections/Profile/Enforcements/WarningLetters/WarningLetterCreateModal";
+import AdministrativePenaltyCreateModal from "@/components/App/Inspections/Profile/Enforcements/AdministrativePenalty/AdministrativePenaltyCreateModal";
+import AdministrativePenaltyUpdateModal from "@/components/App/Inspections/Profile/Enforcements/AdministrativePenalty/AdministrativePenaltyUpdateModal";
 import { prepNonProceededRequirements } from "@/components/App/Inspections/Profile/Enforcements/EnforcementUtils";
 import { useAdministrativePenaltiesData } from "@/hooks/useAdministrativePenalties";
 import DynamicHeightBox from "@/components/Shared/DynamicHeightBox";
@@ -188,6 +191,19 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           />
         );
         break;
+      case EnforcementActionEnum.AP_RECOMMENDATION:
+        content = (
+          <AdministrativePenaltyCreateModal
+            inspectionData={inspectionData}
+            requirementsList={nonProceededAPRequirements}
+            requirement={requirement}
+            onSubmit={() => {
+              // TODO: Add AdministrativePenalty drawer when available
+              setModalClose();
+            }}
+          />
+        );
+        break;
     }
 
     setModalOpen({
@@ -206,7 +222,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     },
     {
       text: "Administrative Penalty Recommendation",
-      onClick: () => {},
+      onClick: () => openEnforcementModal(EnforcementActionEnum.AP_RECOMMENDATION),
     },
     {
       text: "Charge (Report to Crown Council)",
@@ -264,6 +280,26 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     });
   };
 
+  const openAdministrativePenaltyUpdateModal = (
+    administrativePenalty: AdministrativePenalty
+  ) => {
+    setModalOpen({
+      content: (
+        <AdministrativePenaltyUpdateModal
+          administrativePenalty={administrativePenalty}
+          inspectionData={inspectionData}
+          onSuccess={() => {
+            // Refresh the administrative penalties data
+            queryClient.invalidateQueries({
+              queryKey: ["inspection-administrative-penalties", inspectionData.id],
+            });
+          }}
+        />
+      ),
+        width: "640px",
+    });
+  };
+
   return (
     <DynamicHeightBox
       display={"flex"}
@@ -293,9 +329,9 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
               ...nonProceededOrderRequirements,
               ...nonProceededWarningLetterRequirements,
               ...nonProceededAPRequirements,
-            ].map((requirement) => (
+            ].map((requirement,index) => (
               <EnforcementNotificationCard
-                key={requirement.id}
+                key={index}
                 requirement={requirement}
                 openEnforcementModal={openEnforcementModal}
               />
@@ -318,6 +354,17 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             >
               <EnforcementCard
                 warningLetter={warningLetter}
+                requirementEnforcements={requirementEnforcements}
+              />
+            </Box>
+          ))}
+            {inspectionAdministrativePenaltiesData?.map((penality) => (
+            <Box
+              key={penality.id}
+              onClick={() => openAdministrativePenaltyUpdateModal(penality)}
+            >
+              <EnforcementCard
+                administrativePenalty={penality}
                 requirementEnforcements={requirementEnforcements}
               />
             </Box>
