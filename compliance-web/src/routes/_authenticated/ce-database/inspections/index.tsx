@@ -32,7 +32,7 @@ const inspectionsColumnFiltersCacheKey = "inspections-column-filters";
 
 export function Inspections() {
   const { data: inspectionsList, isLoading } = useInspectionsData();
-  const { data: staffList, isLoading: staffLoading } = useStaffUsersData(true);
+  const { data: staffList, isLoading: staffLoading } = useStaffUsersData();
   const { user: currentUser, isLoading: authLoading } = useAuth();
   const [showOnlyMyInspections, setShowOnlyMyInspections] = useState(false);
   const [tableInstance, setTableInstance] = useState<
