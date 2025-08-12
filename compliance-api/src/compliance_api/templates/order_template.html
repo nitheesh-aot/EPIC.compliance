@@ -148,7 +148,16 @@
     </style>
     <script>
         function stripStyles(html) {
-            return html.replace(/style="[^"]*"/g, '');
+            return html.replace(/style="([^"]*?)"/g, function(match, styleContent) {
+                // Check if the style contains padding-inline-start
+                if (styleContent.includes('padding-inline-start')) {
+                    // Keep only the padding-inline-start property
+                    const paddingInlineStart = styleContent.match(/padding-inline-start:\s*[^;]+/);
+                    return paddingInlineStart ? `style="${paddingInlineStart[0]}"` : '';
+                }
+                // Remove all styles if padding-inline-start is not present
+                return '';
+            });
         }
     </script>
 </head>
