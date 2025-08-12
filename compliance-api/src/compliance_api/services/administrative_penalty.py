@@ -8,9 +8,7 @@ from compliance_api.models.administrative_penalty import (
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import session_scope
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
-from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils
-from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE
 
 
 class AdministrativePenaltyService:

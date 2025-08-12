@@ -30,7 +30,6 @@ from compliance_api.models.enforcement_action import EnforcementActionOption as 
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
 from compliance_api.services.case_file import CaseFileService
 from compliance_api.services.service_utils import ServiceUtils
-from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE
 from compliance_api.utils.enum import PermissionEnum
 
 from .epic_track_service.track_service import TrackService

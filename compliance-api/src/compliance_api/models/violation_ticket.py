@@ -9,7 +9,7 @@ from compliance_api.utils.constant import DELETE_DIC_PARAMS
 
 from .base_model import BaseModelVersioned
 from .case_file import CaseFile as CaseFileModel
-from .project import Project as ProjectModel
+from .inspection import Inspection as InspectionModel
 from .utils import with_session
 
 
@@ -206,8 +206,6 @@ class ViolationTicket(BaseModelVersioned):
     @classmethod
     def get_count_by_project_and_case_file_id(cls, project_id: int, case_file_id: int):
         """Get count of violation tickets by project and case file id."""
-        from .inspection import Inspection as InspectionModel
-
         query = (
             cls.query.join(InspectionModel, cls.inspection_id == InspectionModel.id)
             .join(CaseFileModel, InspectionModel.case_file_id == CaseFileModel.id)
@@ -245,13 +243,13 @@ class ViolationTicket(BaseModelVersioned):
     @classmethod
     def get_by_inspection_id(cls, inspection_id):
         """Find all violation tickets by inspection id."""
-        return cls.get_by_params({"inspection_id": inspection_id}, default_filters=True)
+        return cls.query.filter(
+            cls.inspection_id == inspection_id, cls.is_deleted.is_(False)
+        ).all()
 
     @classmethod
     def get_violation_tickets_by_case_files(cls, case_file_ids: list[int]):
         """Get violation tickets by case file ids."""
-        from .inspection import Inspection as InspectionModel
-
         query = (
             cls.query.join(InspectionModel, cls.inspection_id == InspectionModel.id)
             .join(CaseFileModel, InspectionModel.case_file_id == CaseFileModel.id)

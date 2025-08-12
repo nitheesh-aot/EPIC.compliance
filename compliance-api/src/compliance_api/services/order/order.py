@@ -13,9 +13,8 @@ from compliance_api.models.order import OrderInspectionRequirementMap as OrderIn
 from compliance_api.models.order import OrderProgressEnum, OrderStatusEnum
 from compliance_api.models.section import Section as SectionModel
 from compliance_api.services.docgen_service.docgen_service import DocGenService
-from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils
-from compliance_api.utils.constant import OFFICE_BRANCH, OFFICE_NAME, UNAPPROVED_PROJECT_CODE
+from compliance_api.utils.constant import OFFICE_BRANCH, OFFICE_NAME
 from compliance_api.utils.datetime import convert_to_full_month_format
 from compliance_api.utils.template_renderer import render_template_with_data
 

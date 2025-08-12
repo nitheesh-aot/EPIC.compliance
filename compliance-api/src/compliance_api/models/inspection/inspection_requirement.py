@@ -117,7 +117,7 @@ class InspectionRequirement(BaseModelVersioned):
         "ViolationTicketInspectionRequirementMap",
         back_populates="inspection_requirement",
         lazy="select",
-        primaryjoin="and_(ViolationTicketInspectionRequirementMap.inspection_requirement_id == InspectionRequirement.id, "
+        primaryjoin="and_(ViolationTicketInspectionRequirementMap.inspection_requirement_id == InspectionRequirement.id, "  # noqa: E501
         "ViolationTicketInspectionRequirementMap.is_active == True, "
         "ViolationTicketInspectionRequirementMap.is_deleted == False)",
         order_by="ViolationTicketInspectionRequirementMap.id.asc()",

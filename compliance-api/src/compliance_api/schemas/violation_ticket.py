@@ -8,7 +8,6 @@ from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 from ..models.violation_ticket import (
     ViolationTicket, ViolationTicketInspectionRequirementMap, ViolationTicketStatusEnum)
 from .base_schema import AutoSchemaBase, BaseSchema
-from .common import KeyValueSchema
 from .inspection_requirement import InspectionRequirementSchema
 from .staff_user import StaffUserSchema
 
@@ -92,26 +91,33 @@ class ViolationTicketSchema(AutoSchemaBase):  # pylint: disable=too-many-ancesto
 
         model = ViolationTicket
         unknown = EXCLUDE
+        include_fk = True
 
     created_by = fields.Nested(
         StaffUserSchema(),
         only=("id", "first_name", "last_name", "name", "auth_user_guid"),
+    )
+    fine_amount = fields.Str(
+        metadata={"description": "The fine amount"},
     )
     violation_ticket_requirement_maps = fields.Nested(
         ViolationTicketInspectionRequirementMapSchema(),
         many=True,
         only=("id", "inspection_requirement_id", "inspection_requirement"),
     )
-    status = fields.Nested(
-        KeyValueSchema,
-        metadata={"description": "The status of the violation ticket"},
-    )
+    status = fields.Raw()
 
     @post_dump
-    def post_dump_actions(self, data, many, **kwargs):
+    def post_dump_actions(
+        self, data, many, **kwargs
+    ):  # pylint: disable=no-self-use, unused-argument
         """Convert the violation ticket status enum to KeyValueSchema format."""
-        if "status" in data and data["status"]:
-            data["status"] = {"id": data["status"].name, "name": data["status"].value}
+        if "status" in data and data["status"] is not None:
+            if not isinstance(data["status"], dict):
+                data["status"] = {
+                    "id": ViolationTicketStatusEnum(data["status"]).name,
+                    "name": ViolationTicketStatusEnum(data["status"]).value,
+                }
         return data
 
 
@@ -125,7 +131,7 @@ class ViolationTicketStatusSchema(BaseSchema):  # pylint: disable=too-many-ances
     )
 
     @post_load
-    def extract_status_value(self, data, **kwargs):
+    def extract_status_value(self, data, **kwargs):  # pylint: disable=unused-argument,no-self-use
         """Extract the value of the status enum."""
         if "status" in data and hasattr(data["status"], "value"):
             data["status"] = data["status"].value

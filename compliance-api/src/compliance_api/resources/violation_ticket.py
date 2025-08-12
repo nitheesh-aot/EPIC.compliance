@@ -6,7 +6,6 @@ from flask import request
 from flask_restx import Namespace, Resource
 
 from compliance_api.auth import auth
-from compliance_api.exceptions import ResourceNotFoundError
 from compliance_api.services.violation_ticket import ViolationTicketService
 
 from ..schemas import (
