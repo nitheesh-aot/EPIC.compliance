@@ -9,7 +9,10 @@ import ModalActions from "@/components/Shared/Modals/ModalActions";
 import ControlledTextField from "@/components/Shared/Controlled/ControlledTextField";
 import ControlledDateField from "@/components/Shared/Controlled/ControlledDateField";
 import ControlledAutoComplete from "@/components/Shared/Controlled/ControlledAutoComplete";
-import { useUpdateAdministrativePenalty, useDeleteAdministrativePenalty } from "@/hooks/useAdministrativePenalties";
+import {
+  useUpdateAdministrativePenalty,
+  useDeleteAdministrativePenalty,
+} from "@/hooks/useAdministrativePenalties";
 import {
   AdministrativePenalty,
   AdministrativePenaltyAPIData,
@@ -18,21 +21,32 @@ import { Inspection } from "@/models/Inspection";
 import { notify } from "@/store/snackbarStore";
 import { useModal } from "@/store/modalStore";
 import dayjs, { Dayjs } from "dayjs";
-import { ReferralStatusEnum, APDecisionEnum } from "@/utils/constants";
+import { ReferralStatus, APDecisionStatus } from "@/utils/constants";
 
 const administrativePenaltyUpdateSchema = yup.object().shape({
-  referral_status: yup.mixed<ReferralStatusOption>().required("Referral Status is required"),
+  referral_status: yup
+    .mixed<ReferralStatusOption>()
+    .required("Referral Status is required"),
   date_referred: yup.mixed<Dayjs>().nullable().typeError("Invalid date"),
   decision_date: yup.mixed<Dayjs>().nullable().typeError("Invalid date"),
   decision: yup.mixed<DecisionOption>().nullable(),
-  penalty_amount: yup.number().transform((value) => (isNaN(value) ? null : value)).nullable().when("decision", {
-    is: (decision: DecisionOption) => decision?.id === "AP_ISSUED",
-    then: (schema) => schema.required("Penalty Amount is required when AP is issued").min(0, "Penalty Amount must be positive"),
-    otherwise: (schema) => schema.nullable(),
-  }),
+  penalty_amount: yup
+    .number()
+    .transform((value) => (isNaN(value) ? undefined : value))
+    .optional()
+    .when("decision", {
+      is: (decision: DecisionOption) => decision?.id === "AP_ISSUED",
+      then: (schema) =>
+        schema
+          .required("Penalty Amount is required when AP is issued")
+          .min(0, "Penalty Amount must be positive"),
+      otherwise: (schema) => schema.optional(),
+    }),
 });
 
-type AdministrativePenaltyUpdateFormType = yup.InferType<typeof administrativePenaltyUpdateSchema>;
+type AdministrativePenaltyUpdateFormType = yup.InferType<
+  typeof administrativePenaltyUpdateSchema
+>;
 
 type ReferralStatusOption = {
   id: string;
@@ -44,17 +58,19 @@ type DecisionOption = {
   name: string;
 };
 
-const referralStatusOptions: ReferralStatusOption[] = [
-  { id: "DRAFTING", name: ReferralStatusEnum.DRAFTING },
-  { id: "DEPUTY_REVIEW", name: ReferralStatusEnum.DEPUTY_REVIEW },
-  { id: "CEB_NOT_PROCEEDING", name: ReferralStatusEnum.CEB_NOT_PROCEEDING },
-  { id: "REFERRED_TO_DM", name: ReferralStatusEnum.REFERRED_TO_DM },
-];
+const referralStatusOptions: ReferralStatusOption[] = Object.values(
+  ReferralStatus
+).map((status) => ({
+  id: status.id,
+  name: status.name,
+}));
 
-const decisionOptions: DecisionOption[] = [
-  { id: "AP_ISSUED", name: APDecisionEnum.AP_ISSUED },
-  { id: "AP_NOT_PROCEEDING", name: APDecisionEnum.AP_NOT_PROCEEDING },
-];
+const decisionOptions: DecisionOption[] = Object.values(APDecisionStatus).map(
+  (decision) => ({
+    id: decision.id,
+    name: decision.name,
+  })
+);
 
 type AdministrativePenaltyUpdateModalProps = {
   administrativePenalty: AdministrativePenalty;
@@ -62,27 +78,36 @@ type AdministrativePenaltyUpdateModalProps = {
   onSuccess?: (data: AdministrativePenalty) => void;
 };
 
-const AdministrativePenaltyUpdateModal: FC<AdministrativePenaltyUpdateModalProps> = ({
-  administrativePenalty,
-  inspectionData,
-  onSuccess,
-}) => {
+const AdministrativePenaltyUpdateModal: FC<
+  AdministrativePenaltyUpdateModalProps
+> = ({ administrativePenalty, inspectionData, onSuccess }) => {
   const queryClient = useQueryClient();
   const { setClose: setModalClose } = useModal();
 
   const defaultValues = useMemo(() => {
-    const currentReferralStatus = administrativePenalty.referral_status?.value || "DRAFTING";
-    const selectedReferralOption = referralStatusOptions.find(option => option.id === currentReferralStatus) || referralStatusOptions[0];
-    
+    const currentReferralStatus =
+      administrativePenalty.referral_status?.id || "DRAFTING";
+    const selectedReferralOption =
+      referralStatusOptions.find(
+        (option) => option.id === currentReferralStatus
+      ) || referralStatusOptions[0];
+
     const currentDecision = administrativePenalty.decision?.id || "";
-    const selectedDecisionOption = decisionOptions.find(option => option.id === currentDecision) || null;
-    
+    const selectedDecisionOption =
+      decisionOptions.find((option) => option.id === currentDecision) || null;
+
     return {
       referral_status: selectedReferralOption,
-      date_referred: administrativePenalty.date_referred ? dayjs(administrativePenalty.date_referred) : (undefined as unknown as Dayjs),
-      decision_date: administrativePenalty.decision_date ? dayjs(administrativePenalty.decision_date) : (undefined as unknown as Dayjs),
+      date_referred: administrativePenalty.date_referred
+        ? dayjs(administrativePenalty.date_referred)
+        : (undefined as unknown as Dayjs),
+      decision_date: administrativePenalty.decision_date
+        ? dayjs(administrativePenalty.decision_date)
+        : (undefined as unknown as Dayjs),
       decision: selectedDecisionOption,
-      penalty_amount: administrativePenalty.penalty_amount ? Number(administrativePenalty.penalty_amount) : null,
+      penalty_amount: administrativePenalty.penalty_amount
+        ? Number(administrativePenalty.penalty_amount)
+        : 0,
     };
   }, [administrativePenalty]);
 
@@ -99,10 +124,15 @@ const AdministrativePenaltyUpdateModal: FC<AdministrativePenaltyUpdateModalProps
     reset(defaultValues);
   }, [reset, defaultValues]);
 
-
   useEffect(() => {
     if (decision?.id === "AP_NOT_PROCEEDING") {
-      methods.setValue("penalty_amount", null);
+      methods.setValue("penalty_amount", 0);
+    } else if (decision?.id === "AP_ISSUED") {
+      // Ensure penalty_amount has a valid value when AP_ISSUED is selected
+      const currentValue = methods.getValues("penalty_amount");
+      if (currentValue === null || currentValue === undefined) {
+        methods.setValue("penalty_amount", 0);
+      }
     }
   }, [decision, methods]);
 
@@ -134,28 +164,40 @@ const AdministrativePenaltyUpdateModal: FC<AdministrativePenaltyUpdateModalProps
     (data: AdministrativePenaltyUpdateFormType) => {
       const updateData: AdministrativePenaltyAPIData = {
         inspection_id: inspectionData?.id ?? 0,
-        inspection_requirement_ids: administrativePenalty.administrative_penalty_requirement_maps.map(
-          (map) => map.inspection_requirement_id
-        ),
-        referral_status: typeof data.referral_status === 'string' ? data.referral_status : data.referral_status?.id || '',
+        inspection_requirement_ids:
+          administrativePenalty.administrative_penalty_requirement_maps.map(
+            (map) => map.inspection_requirement_id
+          ),
+        referral_status:
+          typeof data.referral_status === "string"
+            ? data.referral_status
+            : data.referral_status?.id || "",
       };
 
-  
       if (data.date_referred) {
-        updateData.date_referred = data.date_referred.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        updateData.date_referred = data.date_referred.format(
+          "YYYY-MM-DDTHH:mm:ss.SSS[Z]"
+        );
       }
-      
+
       if (data.decision_date) {
-        updateData.decision_date = data.decision_date.format("YYYY-MM-DDTHH:mm:ss.SSS[Z]");
+        updateData.decision_date = data.decision_date.format(
+          "YYYY-MM-DDTHH:mm:ss.SSS[Z]"
+        );
       }
-      
+
       if (data.decision) {
-        updateData.decision = typeof data.decision === 'string' ? data.decision : data.decision?.id || '';
+        updateData.decision =
+          typeof data.decision === "string"
+            ? data.decision
+            : data.decision?.id || "";
       }
-      
-  
+
       if (data.decision) {
-        const decisionId = typeof data.decision === 'string' ? data.decision : data.decision?.id || '';
+        const decisionId =
+          typeof data.decision === "string"
+            ? data.decision
+            : data.decision?.id || "";
         if (decisionId === "AP_ISSUED") {
           if (data.penalty_amount && !isNaN(Number(data.penalty_amount))) {
             updateData.penalty_amount = Number(data.penalty_amount);
@@ -195,24 +237,20 @@ const AdministrativePenaltyUpdateModal: FC<AdministrativePenaltyUpdateModalProps
             getOptionLabel={(option) => option.name}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             placeholder="Select referral status"
-            sx={{ mb: 2 }}
             fullWidth
           />
-          
           <Box sx={{ display: "flex", gap: 1 }}>
             <ControlledDateField
               name="date_referred"
               label="Date Referred to Decision Maker"
               sx={{ width: "100%" }}
             />
-            
             <ControlledDateField
               name="decision_date"
               label="Decision Date"
-               sx={{ width: "100%" }}
+              sx={{ width: "100%" }}
             />
           </Box>
-          
           <ControlledAutoComplete
             name="decision"
             label="DM Decision"
@@ -220,17 +258,14 @@ const AdministrativePenaltyUpdateModal: FC<AdministrativePenaltyUpdateModalProps
             getOptionLabel={(option) => option.name}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             placeholder="Select an option..."
-            sx={{ mb: 2 }}
             fullWidth
           />
-          
           {decision?.id === "AP_ISSUED" && (
             <ControlledTextField
               name="penalty_amount"
               label="Penalty Amount"
               placeholder="Enter penalty amount"
               type="number"
-              sx={{ mb: 2 }}
               fullWidth
             />
           )}
@@ -248,4 +283,4 @@ const AdministrativePenaltyUpdateModal: FC<AdministrativePenaltyUpdateModalProps
   );
 };
 
-export default AdministrativePenaltyUpdateModal; 
+export default AdministrativePenaltyUpdateModal;

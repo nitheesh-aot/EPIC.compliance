@@ -99,9 +99,17 @@ const ModalActions: FC<ModalActionsProps> = ({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            gap: "0.5rem",
           }}
         >
-          <Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              flexWrap: "wrap",
+              flex: 1,
+            }}
+          >
             <Typography variant="body1" fontWeight={"bold"}>
               Delete Confirmation
             </Typography>

@@ -24,7 +24,7 @@ const EnforcementCard = ({
   order?: InspectionOrder;
   warningLetter?: InspectionWarningLetter;
   requirementEnforcements: InspectionRequirement[];
-  administrativePenalty? :AdministrativePenalty
+  administrativePenalty?: AdministrativePenalty;
 }) => {
   const requirementSummaryFormatted = formatRequirementSummary(
     order,
@@ -68,9 +68,15 @@ const EnforcementCard = ({
             variant="body1"
             color={BCDesignTokens.typographyColorLink}
           >
-            {order?.order_number ?? warningLetter?.warning_letter_number ?? administrativePenalty?.administrative_penalty_number}
+            {order?.order_number ??
+              warningLetter?.warning_letter_number ??
+              administrativePenalty?.administrative_penalty_number}
           </Typography>
-          <EnforcementStatusFlag order={order} warningLetter={warningLetter} administrativePenalty={administrativePenalty} />
+          <EnforcementStatusFlag
+            order={order}
+            warningLetter={warningLetter}
+            administrativePenalty={administrativePenalty}
+          />
         </Stack>
         <Stack>
           {requirementSourcesFormatted?.map((source) => {
@@ -93,51 +99,59 @@ const EnforcementCard = ({
             value={requirementSummaryFormatted}
             multiline
           />
-           {(order || warningLetter) && (
-            <>  
-          <GridLabelValuePair
-            label="Deputy Director, Compliance & Enforcement Operations"
-            value={approverName}
-          />
-          <GridLabelValuePair
-            label="Sent for Review"
-            value={sentForReviewDate}
-            gridProps={{ xs: 3 }}
-          />
-          <GridLabelValuePair
-            label="Approved by Deputy"
-            value={approvedByDate}
-            gridProps={{ xs: 3 }}
-          />
-          <GridLabelValuePair
-            label="Date Issued"
-            value={
-              (order || warningLetter)?.date_issued
-                ? dateUtils.formatDate(
-                    (order || warningLetter)?.date_issued ?? ""
-                  )
-                : ""
-            }
-            gridProps={{ xs: 6 }}
-          />
-          </>
-    )}
-         {administrativePenalty  && (
+          {(order || warningLetter) && (
             <>
               <GridLabelValuePair
-                label="Date Referred to Decision Maker"
-                value={administrativePenalty.date_referred ? dateUtils.formatDate(administrativePenalty.date_referred) : ""}
+                label="Deputy Director, Compliance & Enforcement Operations"
+                value={approverName}
+              />
+              <GridLabelValuePair
+                label="Sent for Review"
+                value={sentForReviewDate}
                 gridProps={{ xs: 3 }}
               />
               <GridLabelValuePair
-                label="Decision Date"
-                value={administrativePenalty.decision_date ? dateUtils.formatDate(administrativePenalty.decision_date) : ""}
+                label="Approved by Deputy"
+                value={approvedByDate}
                 gridProps={{ xs: 3 }}
+              />
+              <GridLabelValuePair
+                label="Date Issued"
+                value={
+                  (order || warningLetter)?.date_issued
+                    ? dateUtils.formatDate(
+                        (order || warningLetter)?.date_issued ?? ""
+                      )
+                    : ""
+                }
+                gridProps={{ xs: 6 }}
+              />
+            </>
+          )}
+          {administrativePenalty && (
+            <>
+              <GridLabelValuePair
+                label="Date Referred to Decision Maker"
+                value={
+                  administrativePenalty.date_referred
+                    ? dateUtils.formatDate(administrativePenalty.date_referred)
+                    : ""
+                }
+                gridProps={{ xs: 6 }}
+              />
+              <GridLabelValuePair
+                label="Decision Date"
+                value={
+                  administrativePenalty.decision_date
+                    ? dateUtils.formatDate(administrativePenalty.decision_date)
+                    : ""
+                }
+                gridProps={{ xs: 6 }}
               />
               <GridLabelValuePair
                 label="Decision"
                 value={administrativePenalty.decision?.value || ""}
-               
+                gridProps={{ xs: 6 }}
               />
               {administrativePenalty.penalty_amount && (
                 <GridLabelValuePair

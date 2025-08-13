@@ -73,6 +73,10 @@ export const DRAWER_WIDTHS = {
   ENFORCEMENT_DRAWER: "1228px",
 };
 
+export const MODAL_WIDTHS = {
+  ADMINISTRATIVE_PENALTY: "520px",
+};
+
 export enum APPROVAL_STATUS {
   APPROVAL_PENDING = "APPROVAL_PENDING",
   APPROVED = "APPROVED",
@@ -150,17 +154,18 @@ export enum EnforcementActionEnum {
   WARNING = "11",
 }
 
-export enum ReferralStatusEnum {
-    DRAFTING = "Drafting",
-    DEPUTY_REVIEW = "Deputy Review",
-    CEB_NOT_PROCEEDING = "CEB Not Proceeding",
-    REFERRED_TO_DM = "Referred to DM",
+export const ReferralStatus = {
+  DRAFTING: { id: "DRAFTING", name: "Drafting" },
+  DEPUTY_REVIEW: { id: "DEPUTY_REVIEW", name: "Deputy Review" },
+  CEB_NOT_PROCEEDING: { id: "CEB_NOT_PROCEEDING", name: "CEB Not Proceeding" },
+  REFERRED_TO_DM: { id: "REFERRED_TO_DM", name: "Referred to DM" },
 }
 
-export enum APDecisionEnum {
-AP_ISSUED = "AP Issued",
-AP_NOT_PROCEEDING  = "AP Not Proceeding"
-}
+export const APDecisionStatus = {
+  AP_ISSUED: { id: "AP_ISSUED", name: "AP Issued" },
+  AP_NOT_PROCEEDING: { id: "AP_NOT_PROCEEDING", name: "AP Not Proceeding" },
+};
+
 export const DEFAULT_PAGE_SIZE = 15;
 
 export type VARIANT_COLORS = "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning";

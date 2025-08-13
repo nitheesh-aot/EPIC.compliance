@@ -7,7 +7,7 @@ import {
   OrderStatusEnum,
   VARIANT_COLORS,
   WarningLetterProgressEnum,
-  ReferralStatusEnum,
+  ReferralStatus,
 } from "@/utils/constants";
 import { Chip } from "@mui/material";
 import { useMemo } from "react";
@@ -77,23 +77,30 @@ const EnforcementStatusFlag = ({
         status.name = "Not Approved";
         status.color = "error";
       }
-    }
-    else if (administrativePenalty) {
+    } else if (administrativePenalty) {
       status = {
         name: administrativePenalty.referral_status.value,
       };
-      if (administrativePenalty.referral_status.id === ReferralStatusEnum.DEPUTY_REVIEW) {
+      if (
+        administrativePenalty.referral_status.id ===
+        ReferralStatus.DEPUTY_REVIEW.id
+      ) {
         status.color = "warning";
-      }  else if (administrativePenalty.referral_status.id  === ReferralStatusEnum.CEB_NOT_PROCEEDING) {
+      } else if (
+        administrativePenalty.referral_status.id ===
+        ReferralStatus.CEB_NOT_PROCEEDING.id
+      ) {
         status.color = "error";
-      }
-       else if (administrativePenalty.referral_status.id  === ReferralStatusEnum.REFERRED_TO_DM) {
+      } else if (
+        administrativePenalty.referral_status.id ===
+        ReferralStatus.REFERRED_TO_DM.id
+      ) {
         status.color = "success";
       }
     }
 
     return status;
-  }, [order, warningLetter,administrativePenalty]);
+  }, [order, warningLetter, administrativePenalty]);
 
   return flagStatus.name ? (
     <Chip
