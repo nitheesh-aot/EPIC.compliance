@@ -52,6 +52,8 @@ from .requirement_source import RequirementSourceSchema
 from .section import SectionSchema
 from .staff_user import StaffUserCreateSchema, StaffUserSchema, StaffUserUpdateSchema
 from .topic import TopicCreateSchema, TopicSchema
+from .violation_ticket import (
+    ViolationTicketCreateSchema, ViolationTicketSchema, ViolationTicketStatusSchema, ViolationTicketUpdateSchema)
 from .warning_letter import (
     ResetWarningLetterFieldSchema, WarningLetterCreateSchema, WarningLetterIssueSchema, WarningLetterSchema,
     WarningLetterStatusSchema, WarningLetterUpdateSchema)

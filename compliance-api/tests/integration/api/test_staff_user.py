@@ -1,7 +1,7 @@
 """Test suite for staff user."""
 
-from datetime import datetime
 import json
+from datetime import datetime
 from http import HTTPStatus
 from urllib.parse import urljoin
 

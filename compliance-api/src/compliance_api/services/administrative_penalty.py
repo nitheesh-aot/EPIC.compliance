@@ -8,9 +8,7 @@ from compliance_api.models.administrative_penalty import (
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import session_scope
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
-from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils
-from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE
 
 
 class AdministrativePenaltyService:
@@ -237,7 +235,7 @@ def _create_ap_object(inspection, administrative_penalty_data):
 
 def _create_administrative_penalty_number(project_id: int, case_file_id: int) -> str:
     """Generate the administrative penalty number."""
-    project_code = _get_project_abbreviation(project_id)
+    project_code = ServiceUtils.get_project_abbreviation(project_id)
     case_file = CaseFileModel.find_by_id(case_file_id)
     if not case_file:
         raise ResourceNotFoundError("Given case file doesn't exist")
@@ -249,11 +247,3 @@ def _create_administrative_penalty_number(project_id: int, case_file_id: int) ->
     )
     serial_number = f"{count + 1:03}"
     return f"{project_code}_{case_file.case_file_number}_AP{serial_number}"
-
-
-def _get_project_abbreviation(project_id: int):
-    """Return the project abbreviation."""
-    if project_id:
-        project = TrackService.get_project_by_id(project_id)
-        return project.get("abbreviation")
-    return UNAPPROVED_PROJECT_CODE

@@ -13,10 +13,9 @@ from compliance_api.models.warning_letter import \
     WarningLetterInspectionRequirementMap as WarningLetterInspectionRequirementMapModel
 from compliance_api.models.warning_letter import WarningLetterProgressEnum, WarningLetterStatusEnum
 from compliance_api.services.docgen_service.docgen_service import DocGenService
-from compliance_api.services.epic_track_service.track_service import TrackService
 from compliance_api.services.service_utils import ServiceUtils
 from compliance_api.services.warning_letter.warning_letter_template_constant import WARNING_LETTER_CONTENT
-from compliance_api.utils.constant import OFFICE_BRANCH, OFFICE_NAME, UNAPPROVED_PROJECT_CODE
+from compliance_api.utils.constant import OFFICE_BRANCH, OFFICE_NAME
 from compliance_api.utils.datetime import convert_to_full_month_format
 from compliance_api.utils.template_renderer import render_template_with_data
 
@@ -402,7 +401,7 @@ def _create_content(inspection, requirement_ids):
 
 def _create_warning_letter_number(project_id: int, case_file_id: int) -> str:
     """Generate the warning letter number."""
-    project_code = _get_project_abbreviation(project_id)
+    project_code = ServiceUtils.get_project_abbreviation(project_id)
     case_file = CaseFileModel.find_by_id(case_file_id)
     if not case_file:
         raise ResourceNotFoundError("Given case file doesn't exist")
@@ -414,13 +413,3 @@ def _create_warning_letter_number(project_id: int, case_file_id: int) -> str:
     )
     serial_number = f"{count + 1:03}"
     return f"{project_code}_{case_file.case_file_number}_WN{serial_number}"
-
-
-def _get_project_abbreviation(
-    project_id: int,
-):  # pylint: disable=inconsistent-return-statements
-    """Return the project abbreviation."""
-    if project_id:
-        project = TrackService.get_project_by_id(project_id)
-        return project.get("abbreviation")
-    return UNAPPROVED_PROJECT_CODE

@@ -16,8 +16,10 @@ from compliance_api.models.complaint import ComplaintStatusEnum
 from compliance_api.models.db import session_scope
 from compliance_api.services.case_file import CaseFileService
 from compliance_api.services.epic_track_service.track_service import TrackService
-from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT, UNAPPROVED_PROJECT_CODE
+from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 from compliance_api.utils.enum import ContextEnum, PermissionEnum
+
+from .service_utils import ServiceUtils
 
 
 class ComplaintService:
@@ -285,7 +287,7 @@ def _create_complaint_number(
     case_file_id,
 ):  # pylint: disable=inconsistent-return-statements
     """Generate the complaint number."""
-    project_code = _get_project_abbreviation(project_id)
+    project_code = ServiceUtils.get_project_abbreviation(project_id)
     case_file = CaseFileService.get_by_id(case_file_id)
     if not case_file:
         raise ResourceNotFoundError("Given case file doesn't exist")
@@ -297,16 +299,6 @@ def _create_complaint_number(
     )
     serial_number = f"{count + 1:03}"
     return f"{project_code}_{case_file.case_file_number}_CM{serial_number}"
-
-
-def _get_project_abbreviation(
-    project_id: int,
-):  # pylint: disable=inconsistent-return-statements
-    """Return the project abbreviation."""
-    if project_id:
-        project = TrackService.get_project_by_id(project_id)
-        return project.get("abbreviation")
-    return UNAPPROVED_PROJECT_CODE
 
 
 def _create_order_detail_obj(complaint_data: dict, complaint_id):

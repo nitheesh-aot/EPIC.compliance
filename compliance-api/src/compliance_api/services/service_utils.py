@@ -28,6 +28,7 @@ from compliance_api.models.project import Project as ProjectModel
 from compliance_api.models.requirement_source import RequirementSourceEnum
 from compliance_api.models.unapproved_project import UnapprovedProject as UnapprovedProjectModel
 from compliance_api.models.warning_letter import WarningLetter as WarningLetterModel
+from compliance_api.utils.constant import UNAPPROVED_PROJECT_CODE
 from compliance_api.utils.enum import PermissionEnum
 
 from .document_service.doc_service import DocService
@@ -536,3 +537,11 @@ class ServiceUtils:
                 auto_generated_number.index("_") + 1 :
             ]  # Return from the first underscore onwards
         return auto_generated_number  # Return original if no underscore found
+
+    @staticmethod
+    def get_project_abbreviation(project_id: int) -> str:
+        """Return the project abbreviation."""
+        if project_id:
+            project = TrackService.get_project_by_id(project_id)
+            return project.get("abbreviation")
+        return UNAPPROVED_PROJECT_CODE

@@ -116,12 +116,6 @@ class AdministrativePenaltySchema(AutoSchemaBase):  # pylint: disable=too-many-a
         model = AdministrativePenalty
         include_fk = True
 
-    penalty_amount = fields.Decimal(
-        places=2,
-        allow_none=True,
-        as_string=True,
-        metadata={"description": "The penalty amount"},
-    )
     # Override penalty_amount to ensure proper JSON serialization
     penalty_amount = fields.Decimal(
         places=2,
