@@ -20,13 +20,13 @@ import { InspectionRequirement } from "@/models/InspectionRequirement";
 import { notify } from "@/store/snackbarStore";
 import { useModal } from "@/store/modalStore";
 import AdministrativePenaltyUpdateModal from "./AdministrativePenaltyUpdateModal";
-
+import { MODAL_WIDTHS } from "@/utils/constants";
 
 const administrativePenaltySchema = baseEnforcementSchema;
 
-type AdministrativePenaltyFormType = yup.InferType<typeof administrativePenaltySchema>;
-
-
+type AdministrativePenaltyFormType = yup.InferType<
+  typeof administrativePenaltySchema
+>;
 
 type AdministrativePenaltyCreateModalProps = {
   inspectionData: Inspection;
@@ -35,12 +35,9 @@ type AdministrativePenaltyCreateModalProps = {
   onSubmit: (data: AdministrativePenalty) => void;
 };
 
-const AdministrativePenaltyCreateModal: FC<AdministrativePenaltyCreateModalProps> = ({
-  inspectionData,
-  requirementsList,
-  requirement,
-  onSubmit,
-}) => {
+const AdministrativePenaltyCreateModal: FC<
+  AdministrativePenaltyCreateModalProps
+> = ({ inspectionData, requirementsList, requirement, onSubmit }) => {
   const queryClient = useQueryClient();
   const { setOpen: setModalOpen, setClose: setModalClose } = useModal();
 
@@ -64,10 +61,14 @@ const AdministrativePenaltyCreateModal: FC<AdministrativePenaltyCreateModalProps
     queryClient.invalidateQueries({
       queryKey: ["inspection-administrative-penalties", inspectionData.id],
     });
-    notify.success(ENFORCEMENT_MESSAGES.ADMINISTRATIVE_PENALTY_CREATED(data.administrative_penalty_number || ""));
-    
+    notify.success(
+      ENFORCEMENT_MESSAGES.ADMINISTRATIVE_PENALTY_CREATED(
+        data.administrative_penalty_number || ""
+      )
+    );
+
     setModalClose();
-    
+
     setTimeout(() => {
       setModalOpen({
         content: (
@@ -79,13 +80,15 @@ const AdministrativePenaltyCreateModal: FC<AdministrativePenaltyCreateModalProps
             }}
           />
         ),
-        width: "640px"
+        width: MODAL_WIDTHS.ADMINISTRATIVE_PENALTY,
       });
     }, 100);
   };
 
-  const { mutate: createAdministrativePenalty, isPending: isPendingAdministrativePenalty } =
-    useCreateAdministrativePenalty(onSuccess);
+  const {
+    mutate: createAdministrativePenalty,
+    isPending: isPendingAdministrativePenalty,
+  } = useCreateAdministrativePenalty(onSuccess);
 
   const handleBaseSubmit = useCallback(
     (data: BaseEnforcementFormType) => {
@@ -117,4 +120,4 @@ const AdministrativePenaltyCreateModal: FC<AdministrativePenaltyCreateModalProps
   );
 };
 
-export default AdministrativePenaltyCreateModal; 
+export default AdministrativePenaltyCreateModal;

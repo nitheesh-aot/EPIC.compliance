@@ -6,7 +6,7 @@ import RequirementLoading from "@/components/App/Inspections/Profile/Requirement
 import MenuActionDropdown from "@/components/Shared/MenuActionDropdown";
 import EnforcementNotificationCard from "@/components/App/Inspections/Profile/Enforcements/EnforcementNotificationCard";
 import { InspectionRequirement } from "@/models/InspectionRequirement";
-import { DRAWER_WIDTHS, EnforcementActionEnum } from "@/utils/constants";
+import { DRAWER_WIDTHS, EnforcementActionEnum, MODAL_WIDTHS } from "@/utils/constants";
 import { useModal } from "@/store/modalStore";
 import { notify } from "@/store/snackbarStore";
 import EnforcementCard from "@/components/App/Inspections/Profile/Enforcements/EnforcementCard";
@@ -296,7 +296,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
           }}
         />
       ),
-        width: "640px",
+        width: MODAL_WIDTHS.ADMINISTRATIVE_PENALTY,
     });
   };
 
