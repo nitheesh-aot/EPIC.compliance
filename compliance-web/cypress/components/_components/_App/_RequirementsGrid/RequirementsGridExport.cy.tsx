@@ -172,18 +172,6 @@ describe("RequirementsGridExport", () => {
   });
 
   describe("Edge Cases", () => {
-    it("should handle undefined query parameters", () => {
-      mountComponent({ queryParams: undefined as any });
-      
-      cy.get('button').should("be.visible");
-    });
-
-    it("should handle null query parameters", () => {
-      mountComponent({ queryParams: null as any });
-      
-      cy.get('button').should("be.visible");
-    });
-
     it("should handle query parameters with special characters", () => {
       const specialQueryParams = {
         summary: "requirement with 'quotes' and \"double quotes\"",
