@@ -1,4 +1,5 @@
-import { Box } from "@mui/material";
+import { Box, DialogContent } from "@mui/material";
+import { AttachMoneyRounded } from "@mui/icons-material";
 import { FC, useCallback, useEffect, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -146,65 +147,66 @@ const ViolationTicketUpdateModal: FC<ViolationTicketUpdateModalProps> = ({
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(handleSubmitForm)}>
         <ModalTitleBar title="Violation Ticket" />
-        <Box sx={{ p: "1rem 1.5rem" }}>
+        <DialogContent dividers sx={{ p: 0 }}>
+          <Box sx={{ p: "1rem 1.5rem" }}>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <ControlledDateField
+                name="date_issued"
+                label="Date Issued"
+                sx={{ width: "50%" }}
+                isRequired={true}
+                disabled={isReadonlyMode}
+              />
+              <ControlledTextField
+                name="ticket_number"
+                label="Ticket #"
+                placeholder="Enter ticket number"
+                sx={{ width: "100%" }}
+                disabled
+              />
+            </Box>
 
-
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <ControlledDateField
-              name="date_issued"
-              label="Date Issued"
-              sx={{ width: "50%" }}
-              disabled={isReadonlyMode}
-            />
-            <ControlledTextField
-              name="ticket_number"
-              label="Ticket #"
-              placeholder="Enter ticket number"
-              sx={{ width: "100%" }}
-              disabled
-            />
-
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <ControlledTextField
+                name="fine_amount"
+                label="Fine Amount"
+                type="number"
+                sx={{ width: "100%" }}
+                inputProps={{
+                  min: 0,
+                  step: 0.01,
+                }}
+                InputProps={{
+                  startAdornment: <AttachMoneyRounded sx={{
+                    mr: 0.2,
+                    color: "#9F9D9C",
+                  }} />,
+                }}
+                isRequired={true}
+                disabled={isReadonlyMode}
+              />
+              <ControlledAutoComplete
+                name="status"
+                label="Status"
+                options={statusOptions}
+                getOptionLabel={(option) => option.name}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                placeholder="Select status"
+                sx={{ width: "100%" }}
+                disabled={isReadonlyMode}
+              />
+            </Box>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <ControlledDateField
+                name="status_date"
+                label="Status Date"
+                sx={{ width: "100%" }}
+                isRequired={true}
+                disabled={isReadonlyMode}
+              />
+            </Box>
           </Box>
-
-          <Box sx={{ display: "flex", gap: 1 }}>
-
-            <ControlledTextField
-              name="fine_amount"
-              label="Fine Amount"
-              type="number"
-              sx={{ width: "100%" }}
-              inputProps={{
-                min: 0,
-                step: 0.01,
-              }}
-              InputProps={{
-                startAdornment: <span style={{ color: 'rgba(0, 0, 0, 0.38)', marginRight: '2px' }}>$</span>,
-              }}
-              disabled={isReadonlyMode}
-            />
-            <ControlledAutoComplete
-              name="status"
-              label="Status"
-              options={statusOptions}
-              getOptionLabel={(option) => option.name}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              placeholder="Select status"
-              sx={{ width: "100%" }}
-              disabled={isReadonlyMode}
-            />
-
-          </Box>
-          <Box sx={{ display: "flex", gap: 1 }}>
-            <ControlledDateField
-              name="status_date"
-              label="Status Date"
-              sx={{ width: "100%" }}
-              disabled={isReadonlyMode}
-            />
-
-          </Box>
-
-        </Box>
+        </DialogContent>
         {!isReadonlyMode && (
           <ModalActions
             onSecondaryAction={handleCancel}
