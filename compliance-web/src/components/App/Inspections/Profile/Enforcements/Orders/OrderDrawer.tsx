@@ -221,7 +221,12 @@ const OrderDrawer: React.FC<OrderDrawerProps> = ({
         <DrawerTitleBar
           title={enforcementOrder.order_number || "Edit Order"}
           isFormDirtyCheck
-          statusFlag={<EnforcementStatusFlag order={enforcementOrder} />}
+          statusFlag={
+            <EnforcementStatusFlag
+              enforcementActionType={EnforcementActionEnum.ORDER}
+              order={enforcementOrder}
+            />
+          }
         />
         <Box
           sx={{
