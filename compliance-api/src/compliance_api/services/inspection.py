@@ -526,84 +526,6 @@ def _make_inspection_object(inspections):
     return results
 
 
-# def _make_requirement_detail_object(requirements: list, enforcement_actions: dict):
-#     """Make requirement detail object."""
-#     requirement_details = []
-#     for requirement in requirements:
-#         if not requirement.enforcement_actions:
-#             continue
-
-#         for action in requirement.enforcement_actions:
-#             item = {
-#                 "requirement_id": requirement.id,
-#                 "requirement_summary": requirement.summary,
-#                 "requirement_sort_order": requirement.sort_order,
-#                 "enforcement_action": {
-#                     "id": EnforcementActionOptionModel.find_by_id(
-#                         action.enforcement_action_id
-#                     ).id,
-#                     "name": EnforcementActionOptionModel.find_by_id(
-#                         action.enforcement_action_id
-#                     ).name,
-#                 },
-#             }
-#             if requirement.requirement_source_details:
-#                 first_requirement_details = requirement.requirement_source_details[0]
-#                 number_field = ServiceUtils.get_requirement_source_number_field(
-#                     first_requirement_details
-#                 )
-#                 item["requirement_number"] = (
-#                     number_field.split(" ")[1] if number_field else None
-#                 )
-#                 item["requirement_source_name"] = (
-#                     first_requirement_details.requirement_source.name
-#                 )
-
-#             action_type = EnforcementActionOptionEnum(action.enforcement_action_id)
-#             if action_type == EnforcementActionOptionEnum.ORDER:
-#                 item["enforcement_action"] = _set_order_enforcement_action_object(
-#                     item["enforcement_action"], enforcement_actions.get('orders', []), requirement
-#                 )
-
-#             elif action_type == EnforcementActionOptionEnum.WARNING_LETTER:
-#                 item["enforcement_action"] = (
-#                     _set_warning_letter_enforcement_action_object(
-#                         item["enforcement_action"], enforcement_actions.get('warning_letters', []), requirement
-#                     )
-#                 )
-#             elif action_type == EnforcementActionOptionEnum.VIOLATION_TICKET:
-#                 item["enforcement_action"] = (
-#                     _set_violation_ticket_enforcement_action_object(
-#                         item["enforcement_action"], enforcement_actions.get('violation_tickets', []), requirement
-#                     )
-#                 )
-#             elif (
-#                 action_type
-#                 == EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY_RECOMMENDATION
-#             ):
-#                 item["enforcement_action"] = (
-#                     _set_administrative_penalty_enforcement_action_object(
-#                         item["enforcement_action"],
-#                         enforcement_actions.get('administrative_penalties', []),
-#                         requirement,
-#                     )
-#                 )
-#             elif action_type == EnforcementActionOptionEnum.CHARGE_RECOMMENDATION:
-#                 item["enforcement_action"] = (
-#                     _set_charge_recommendation_enforcement_action_object(
-#                         item["enforcement_action"], enforcement_actions.get('charge_recommendations', []), requirement
-#                     )
-#                 )
-#             elif action_type == EnforcementActionOptionEnum.RESTORATIVE_JUSTICE:
-#                 item["enforcement_action"] = (
-#                     _set_restorative_justice_enforcement_action_object(
-#                         item["enforcement_action"], enforcement_actions.get('restorative_justice', []), requirement
-#                     )
-#                 )
-#             requirement_details.append(item)
-#     return requirement_details
-
-
 def _set_warning_letter_enforcement_action_object(
     enforcement_action: dict,
     warning_letters: list,
@@ -1212,7 +1134,9 @@ def _set_restorative_justice_enforcement_action_object(
             if restorative_justice_item.status
             else None
         )
-        enforcement_action["number"] = restorative_justice_item.restorative_justice_number
+        enforcement_action["number"] = (
+            restorative_justice_item.restorative_justice_number
+        )
 
     return enforcement_action
 
@@ -1262,7 +1186,9 @@ def _bulk_fetch_enforcement_actions(inspection_ids):
             .all()
         )
         for warning_letter in warning_letters:
-            enforcement_data[warning_letter.inspection_id]["warning_letters"].append(warning_letter)
+            enforcement_data[warning_letter.inspection_id]["warning_letters"].append(
+                warning_letter
+            )
 
         # Violation Tickets
         violation_tickets = (
@@ -1277,7 +1203,9 @@ def _bulk_fetch_enforcement_actions(inspection_ids):
             .all()
         )
         for violation_ticket in violation_tickets:
-            enforcement_data[violation_ticket.inspection_id]["violation_tickets"].append(violation_ticket)
+            enforcement_data[violation_ticket.inspection_id][
+                "violation_tickets"
+            ].append(violation_ticket)
 
         # Administrative Penalties
         admin_penalties = (
@@ -1292,7 +1220,9 @@ def _bulk_fetch_enforcement_actions(inspection_ids):
             .all()
         )
         for admin_penalty in admin_penalties:
-            enforcement_data[admin_penalty.inspection_id]["administrative_penalties"].append(admin_penalty)
+            enforcement_data[admin_penalty.inspection_id][
+                "administrative_penalties"
+            ].append(admin_penalty)
 
         # Charge Recommendations
         charge_recommendations = (
@@ -1307,9 +1237,9 @@ def _bulk_fetch_enforcement_actions(inspection_ids):
             .all()
         )
         for charge_recommendation in charge_recommendations:
-            enforcement_data[charge_recommendation.inspection_id]["charge_recommendations"].append(
-                charge_recommendation
-            )
+            enforcement_data[charge_recommendation.inspection_id][
+                "charge_recommendations"
+            ].append(charge_recommendation)
 
         # Restorative Justice
         restorative_justice_items = (
@@ -1324,9 +1254,9 @@ def _bulk_fetch_enforcement_actions(inspection_ids):
             .all()
         )
         for restorative_justice_item in restorative_justice_items:
-            enforcement_data[restorative_justice_item.inspection_id]["restorative_justice"].append(
-                restorative_justice_item
-            )
+            enforcement_data[restorative_justice_item.inspection_id][
+                "restorative_justice"
+            ].append(restorative_justice_item)
 
     return enforcement_data
 

@@ -62,10 +62,8 @@ class RestorativeJusticeService:
         )
         # Validate requirements if provided
         if inspection_requirement_ids is not None:
-            exists = (
-                RestorativeJusticeModel.does_restorative_justice_exists_by_requirement_ids(
-                    inspection_requirement_ids
-                )
+            exists = RestorativeJusticeModel.does_restorative_justice_exists_by_requirement_ids(
+                inspection_requirement_ids
             )
             if exists:
                 raise BadRequestError(
@@ -97,10 +95,8 @@ class RestorativeJusticeService:
 
         # Validate requirements if provided
         if inspection_requirement_ids is not None:
-            exists = (
-                RestorativeJusticeModel.does_restorative_justice_exists_by_requirement_ids(
-                    inspection_requirement_ids, restorative_justice_id
-                )
+            exists = RestorativeJusticeModel.does_restorative_justice_exists_by_requirement_ids(
+                inspection_requirement_ids, restorative_justice_id
             )
             if exists:
                 raise BadRequestError(
@@ -109,8 +105,11 @@ class RestorativeJusticeService:
 
         with session_scope() as session:
             # Update the restorative justice
-            updated_restorative_justice = RestorativeJusticeModel.update_restorative_justice(
-                restorative_justice_id, update_data, session
+            update_data = _extract_rj_data(update_data)
+            updated_restorative_justice = (
+                RestorativeJusticeModel.update_restorative_justice(
+                    restorative_justice_id, update_data, session
+                )
             )
 
             # Handle requirement mappings if provided
@@ -187,6 +186,20 @@ class RestorativeJusticeService:
                 )
 
 
+def _extract_rj_data(restorative_justice_data):
+    """Extract restorative justice data."""
+    return {
+        "restorative_justice_number": restorative_justice_data.get(
+            "restorative_justice_number"
+        ),
+        "inspection_id": restorative_justice_data.get("inspection_id"),
+        "restitution_details": restorative_justice_data.get("restitution_details"),
+        "date_restitution_complete": restorative_justice_data.get(
+            "date_restitution_complete"
+        ),
+    }
+
+
 def _create_rj_object(inspection, restorative_justice_data):
     """Create restorative justice object."""
     # Generate restorative justice number if not provided
@@ -198,11 +211,7 @@ def _create_rj_object(inspection, restorative_justice_data):
 
     return {
         "restorative_justice_number": rj_number,
-        "inspection_id": inspection.id,
-        "restitution_details": restorative_justice_data.get("restitution_details"),
-        "date_restitution_complete": restorative_justice_data.get(
-            "date_restitution_complete"
-        ),
+        **_extract_rj_data(restorative_justice_data),
     }
 
 
