@@ -1,5 +1,7 @@
 """Service for handle CaseFile."""
 
+# pylint: disable=too-many-lines
+
 from datetime import datetime
 from io import BytesIO
 
@@ -272,6 +274,12 @@ class CaseFileService:
         _access_check_for_update(case_file)
         case_file = CaseFileModel.find_by_id(case_file_id)
         status_enum = CaseFileStatusEnum(status_data.get("status"))
+        if status_enum == CaseFileStatusEnum.CLOSED:
+            close_check = cls.get_open_enforcement_actions(case_file_id)
+            if close_check and close_check.get("has_open_items"):
+                raise UnprocessableEntityError(
+                    "The case file contains open items."
+                )
         if status_enum == case_file.case_file_status:
             raise UnprocessableEntityError(
                 f"The case file is already in {status_enum.value} status."
