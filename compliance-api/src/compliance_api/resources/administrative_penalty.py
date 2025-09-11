@@ -8,8 +8,8 @@ from flask_restx import Namespace, Resource
 from compliance_api.auth import auth
 from compliance_api.exceptions import BadRequestError
 from compliance_api.schemas.administrative_penalty import (
-    AdministrativePenaltyCreateSchema, AdministrativePenaltyLinkCreateSchema, AdministrativePenaltySchema,
-    AdministrativePenaltyUpdateSchema)
+    AdministrativePenaltyCreateSchema, AdministrativePenaltyLinkCreateSchema, AdministrativePenaltyLinksResponseSchema,
+    AdministrativePenaltySchema, AdministrativePenaltyUpdateSchema)
 from compliance_api.services.administrative_penalty import AdministrativePenaltyService
 from compliance_api.utils.util import cors_preflight
 
@@ -35,6 +35,14 @@ administrative_penalty_update_model = ApiHelper.convert_ma_schema_to_restx_model
 
 administrative_penalty_link_create_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, AdministrativePenaltyLinkCreateSchema(), "AdministrativePenaltyLinkCreate"
+)
+
+administrative_penalty_links_response_model = (
+    ApiHelper.convert_ma_schema_to_restx_model(
+        API,
+        AdministrativePenaltyLinksResponseSchema(),
+        "AdministrativePenaltyLinksResponse",
+    )
 )
 
 
@@ -194,10 +202,24 @@ class AdministrativePenaltyById(Resource):
         API, endpoint_description="Delete an administrative penalty"
     )
     @API.response(code=204, description="NoContent")
+    @API.doc(
+        params={
+            "inspection_id": {
+                "description": "Optional inspection ID to validate deletion scope",
+                "type": "integer",
+                "required": True,
+            }
+        }
+    )
     def delete(administrative_penalty_id):
         """Delete an administrative penalty."""
+        #  This should be the inspection id under the scope of deletion
+        inspection_id = request.args.get("inspection_id")
+        if not inspection_id:
+            raise BadRequestError("inspection_id is required")
+
         return AdministrativePenaltyService.delete_administrative_penalty(
-            administrative_penalty_id
+            administrative_penalty_id, int(inspection_id)
         )
 
 
@@ -249,3 +271,34 @@ class AdministrativePenaltyLinks(Resource):
             administrative_penalty_id, link
         )
         return AdministrativePenaltySchema().dump(created_link), HTTPStatus.CREATED
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/<int:administrative_penalty_id>/links", methods=["GET", "OPTIONS"])
+class AdministrativePenaltyLinksById(Resource):
+    """Get inspection and requirements linked to an administrative penalty."""
+
+    @staticmethod
+    @auth.require
+    @API.response(400, "Bad Request")
+    @API.response(404, "Not Found")
+    @API.response(
+        code=200,
+        model=[administrative_penalty_links_response_model],
+        description="Success",
+    )
+    @ApiHelper.swagger_decorators(
+        API,
+        endpoint_description="Get inspection and requirements linked to an administrative penalty",
+    )
+    def get(administrative_penalty_id):
+        """Get inspection and requirements linked to an administrative penalty."""
+        linked_data = (
+            AdministrativePenaltyService.get_linked_inspections_and_requirements(
+                administrative_penalty_id
+            )
+        )
+        return (
+            AdministrativePenaltyLinksResponseSchema(many=True).dump(linked_data),
+            HTTPStatus.OK,
+        )

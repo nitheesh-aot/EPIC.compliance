@@ -8,6 +8,7 @@ from compliance_api.models.administrative_penalty import (
 from compliance_api.models.case_file import CaseFile as CaseFileModel
 from compliance_api.models.db import session_scope
 from compliance_api.models.enforcement_action import EnforcementActionOptionEnum
+from compliance_api.models.inspection import InspectionRequirement as InspectionRequirementModel
 from compliance_api.services.service_utils import ServiceUtils
 
 
@@ -32,6 +33,51 @@ class AdministrativePenaltyService:
                 f"Administrative Penalty with id: {administrative_penalty_id} not found"
             )
         return administrative_penalty
+
+    @staticmethod
+    def get_linked_inspections_and_requirements(administrative_penalty_id):
+        """Get inspection and requirements linked to an administrative penalty.
+
+        Args:
+            administrative_penalty_id: The ID of the administrative penalty
+
+        Returns:
+            Dict containing inspection and its linked requirements
+        """
+        # Get the administrative penalty
+        administrative_penalty = AdministrativePenalty.find_by_id(
+            administrative_penalty_id
+        )
+        if not administrative_penalty:
+            raise ResourceNotFoundError(
+                f"Administrative Penalty with id: {administrative_penalty_id} not found"
+            )
+
+        # Get all active requirement maps for this administrative penalty
+        requirement_maps = AdministrativePenaltyInspectionRequirementMap.query.filter(
+            AdministrativePenaltyInspectionRequirementMap.administrative_penalty_id
+            == administrative_penalty_id,
+            AdministrativePenaltyInspectionRequirementMap.is_active.is_(True),
+            AdministrativePenaltyInspectionRequirementMap.is_deleted.is_(False),
+        ).all()
+
+        # Group requirements by inspection
+        inspections_data = {}
+        for req_map in requirement_maps:
+            inspection = req_map.inspection_requirement.inspection
+            inspection_id = inspection.id
+
+            if inspection_id not in inspections_data:
+                inspections_data[inspection_id] = {
+                    "inspection": inspection,
+                    "requirements": [],
+                }
+
+            inspections_data[inspection_id]["requirements"].append(
+                req_map.inspection_requirement
+            )
+
+        return list(inspections_data.values())
 
     @staticmethod
     def get_projectwise_administrative_penalties(case_file_id: int):
@@ -175,8 +221,15 @@ class AdministrativePenaltyService:
         return updated_penalty
 
     @classmethod
-    def delete_administrative_penalty(cls, administrative_penalty_id):
-        """Delete an administrative penalty."""
+    def delete_administrative_penalty(
+        cls, administrative_penalty_id, inspection_id=None
+    ):
+        """Delete an administrative penalty.
+
+        Args:
+            administrative_penalty_id: ID of the administrative penalty to delete
+            inspection_id: Optional ID of the inspection to check
+        """
         administrative_penalty = AdministrativePenalty.find_by_id(
             administrative_penalty_id
         )
@@ -190,15 +243,35 @@ class AdministrativePenaltyService:
         )
         ServiceUtils.inspection_status_check(administrative_penalty.inspection)
 
-        with session_scope() as session:
-            AdministrativePenalty.update_administrative_penalty(
-                administrative_penalty_id,
-                {"is_deleted": True, "is_active": False},
-                session,
-            )
-            AdministrativePenaltyInspectionRequirementMap.delete_by_administrative_penalty(
-                administrative_penalty_id, session
-            )
+        # Check if the inspection belongs to the same inspection as the AP
+        ap_inspection_id = administrative_penalty.inspection_id
+
+        if inspection_id == ap_inspection_id:
+            # Safe to delete the entire AP
+            with session_scope() as session:
+                AdministrativePenalty.update_administrative_penalty(
+                    administrative_penalty_id,
+                    {"is_deleted": True, "is_active": False},
+                    session,
+                )
+                AdministrativePenaltyInspectionRequirementMap.delete_by_administrative_penalty(
+                    administrative_penalty_id, session
+                )
+        else:
+            # Different inspection - only delete the reference from the map
+            with session_scope() as session:
+                inspection_requirements = (
+                    InspectionRequirementModel.get_by_inspection_id(inspection_id)
+                )
+                requirement_ids_to_be_deleted = [
+                    req.id for req in inspection_requirements
+                ]
+                AdministrativePenaltyInspectionRequirementMap.bulk_delete(
+                    administrative_penalty_id,
+                    requirement_ids_to_be_deleted,
+                    session,
+                )
+
         return HTTPStatus.NO_CONTENT
 
     @classmethod
@@ -253,12 +326,19 @@ class AdministrativePenaltyService:
             requirement_ids,
             EnforcementActionOptionEnum.ADMINISTRATIVE_PENALTY_RECOMMENDATION.value,
         )
-
+        existing_requirements = AdministrativePenaltyInspectionRequirementMap.get_by_administrative_penalty_id(
+            administrative_penalty_id
+        )
+        if existing_requirements:
+            raise UnprocessableEntityError(
+                "Administrative penalty already linked to inspection requirements"
+            )
         # Create the links in the database
         with session_scope() as session:
             cls.insert_or_update_inspection_requirements(
                 administrative_penalty_id,
                 requirement_ids,
+                existing_requirements,
                 session,
             )
 
@@ -269,12 +349,18 @@ class AdministrativePenaltyService:
         cls,
         administrative_penalty_id: int,
         inspection_requirement_ids: list[int],
+        existing_requirements: list[
+            AdministrativePenaltyInspectionRequirementMap
+        ] = None,
         session=None,
     ):
         """Insert/Update inspection requirements associated with a given administrative penalty."""
         if inspection_requirement_ids is not None:
-            existing_requirements = AdministrativePenaltyInspectionRequirementMap.get_by_administrative_penalty_id(
-                administrative_penalty_id
+            existing_requirements = (
+                existing_requirements
+                or AdministrativePenaltyInspectionRequirementMap.get_by_administrative_penalty_id(
+                    administrative_penalty_id
+                )
             )
             existing_requirement_ids = {
                 req.inspection_requirement_id for req in existing_requirements
