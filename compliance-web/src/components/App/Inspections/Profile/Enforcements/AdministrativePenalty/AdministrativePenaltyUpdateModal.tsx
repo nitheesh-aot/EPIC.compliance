@@ -154,7 +154,7 @@ const AdministrativePenaltyUpdateModal: FC<
 
   const onDeleteSuccess = () => {
     queryClient.invalidateQueries({
-      queryKey: ["inspection-administrative-penalties", inspectionData.id],
+      queryKey: ["inspection-administrative-penalties"],
     });
     notify.success("Administrative Penalty deleted successfully");
     onSuccess?.(administrativePenalty);
