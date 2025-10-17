@@ -22,6 +22,7 @@ import { useCaseFileByNumber } from "@/hooks/useCaseFiles";
 import { formatAuthorization } from "@/utils/appUtils";
 import { RequirementImage } from "@/models/Image";
 import ImagesRequirementSource from "../Images/ImagesRequirementSource";
+import { useRequirementDetailImages } from "@/hooks/useInspectionRequirements";
 
 type RequirementSourceModalProps = {
   onSubmit: (data: RequirementSourceFormData) => void;
@@ -30,6 +31,8 @@ type RequirementSourceModalProps = {
   requirementSource?: RequirementSource;
   order?: InspectionOrder;
   appendixList?: Appendix[];
+  inspectionId: number;
+  requirementId: number;
   isSectionModal?: boolean;
 };
 
@@ -93,12 +96,21 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
   requirementSource,
   order,
   appendixList,
+  inspectionId,
+  requirementId,
   isSectionModal = false,
 }) => {
   const { data: requirementSourceList } = useRequirementSourcesData();
   const { data: orderList } = useInspectionOrdersProjectwiseData(caseFile.id);
   const { data: caseFileData } = useCaseFileByNumber(caseFile.case_file_number);
-
+  
+  // Fetch requirement detail images in edit mode (when requirementSourceFormData has an id)
+  const detailId = requirementSourceFormData?.id;
+  const { data: fetchedImages } = useRequirementDetailImages(
+    inspectionId,
+    requirementId,
+    detailId
+  );
   const defaultValues = useMemo<RequirementSourceFormData>(() => {
     return (
       requirementSourceFormData ?? {
@@ -227,6 +239,12 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
   const [uploadedImages, setUploadedImages] = useState<RequirementImage[]>(
     requirementSourceFormData?.images ?? []
   );
+  // Update uploadedImages when fetched images are available (edit mode)
+  useEffect(() => {
+    if (fetchedImages && detailId && uploadedImages.length == 0) {
+      setUploadedImages(fetchedImages);
+    }
+  }, [fetchedImages, detailId, uploadedImages]);
 
   const onSubmitHandler = (data: RequirementSourceSchemaType) => {
     const formData = data as RequirementSourceFormData;

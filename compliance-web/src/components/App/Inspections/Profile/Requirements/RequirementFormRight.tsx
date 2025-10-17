@@ -172,6 +172,8 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
           onSubmit={handleOnAddSubmit}
           caseFile={caseFile}
           appendixList={appendixList}
+          inspectionId={inspectionId}
+          requirementId={requirementId}
         />
       ),
       width: MODAL_WIDTHS.REQUIREMENT_SOURCE,
@@ -189,6 +191,8 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
           caseFile={caseFile}
           requirementSourceFormData={data}
           appendixList={appendixList}
+          inspectionId={inspectionId}
+          requirementId={requirementId}
           isSectionModal={index > 0}
         />
       ),
@@ -242,6 +246,8 @@ const RequirementFormRight: FC<RequirementFormRightProps> = ({
           requirementSource={data.requirementSource}
           order={data.order}
           appendixList={appendixList}
+          inspectionId={inspectionId}
+          requirementId={requirementId}
           isSectionModal={true}
         />
       ),
