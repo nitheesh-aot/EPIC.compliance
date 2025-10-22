@@ -16,11 +16,13 @@ import { useRequirementDocumentImages, useRequirementSourceImages } from "@/hook
 
 const DetailSection = ({
   title,
+  subTitle,
   content,
   appendixNo,
   detailSectionImages,
 }: {
   title: string;
+  subTitle?: string;
   content: string;
   appendixNo?: string;
   detailSectionImages?: RequirementImage[];
@@ -30,6 +32,11 @@ const DetailSection = ({
       <strong>{title}</strong>
       {appendixNo && ` (Appendix ${appendixNo})`}
     </Typography>
+    {subTitle && (
+      <Typography variant="body1" mb={0.5}>
+        <strong>{subTitle}</strong>
+      </Typography>
+    )}
     <Typography
       variant="body1"
       component={"div"}
@@ -142,8 +149,8 @@ const IRRequirement = ({
                 <DetailSection
                   title={`${groupIndex === 0 ? `Requirement ${requirementIndex + 1}:` : ""} 
                   ${reqSourceDetail.condition_number ? `Condition ${reqSourceDetail.condition_number}` : `Section ${reqSourceDetail.section_number}`}
-                  of ${reqSourceDetail.requirement_source?.name || ""}.
-                  ${reqSourceDetail.title ?? ""}`}
+                  of ${reqSourceDetail.source_title || ""}`}
+                  subTitle={reqSourceDetail.title || ""}
                   content={reqSourceDetail.description || ""}
                   appendixNo={reqSourceDetail.appendix?.appendix_no}
                   detailSectionImages={requirementSourceImages?.filter(image => image.req_detail_id === reqSourceDetail.id) ?? []}

@@ -99,7 +99,7 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
   requirementSourceImages,
   isSectionModal = false,
 }) => {
-  const { data: requirementSourceList } = useRequirementSourcesData();
+  const { data: requirementSourceDataList } = useRequirementSourcesData();
   const { data: orderList } = useInspectionOrdersProjectwiseData(caseFile.id);
   const { data: caseFileData } = useCaseFileByNumber(caseFile.case_file_number);
 
@@ -209,24 +209,42 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
         hasUserEditedTitle.current = false;
         currentRequirementSourceId.current = selectedRequirementSource.id;
 
-        let sourceTitle = selectedRequirementSource.source_title;
-        if (sourceTitle && sourceTitle.includes("${eac#}")) {
-          sourceTitle = sourceTitle.replace(
-            "${eac#}",
-            caseFileData?.authorization ?? ""
+        // Special handling for ORDER type
+        if (
+          selectedRequirementSource.id === RequirementSourceEnum.ORDER &&
+          selectedOrder
+        ) {
+          setValue(
+            "requirementSourceTitle",
+            requirementSourceFormData?.requirementSourceTitle
           );
+        } else {
+          // For other requirement source types, use the source_title
+          let sourceTitle = selectedRequirementSource.source_title;
+          if (sourceTitle && sourceTitle.includes("${eac#}")) {
+            sourceTitle = sourceTitle.replace(
+              "${eac#}",
+              caseFileData?.authorization ?? ""
+            );
+          }
+          if (sourceTitle && sourceTitle.includes("${eac_type}")) {
+            const eacType = formatAuthorization(
+              caseFileData?.authorization,
+              true
+            );
+            sourceTitle = sourceTitle.replace("${eac_type}", eacType);
+          }
+          setValue("requirementSourceTitle", sourceTitle);
         }
-        if (sourceTitle && sourceTitle.includes("${eac_type}")) {
-          const eacType = formatAuthorization(
-            caseFileData?.authorization,
-            true
-          );
-          sourceTitle = sourceTitle.replace("${eac_type}", eacType);
-        }
-        setValue("requirementSourceTitle", sourceTitle);
       }
     }
-  }, [selectedRequirementSource, setValue, caseFileData]);
+  }, [
+    selectedRequirementSource,
+    selectedOrder,
+    setValue,
+    caseFileData,
+    requirementSourceFormData,
+  ]);
 
   const [uploadedImages, setUploadedImages] = useState<RequirementImage[]>(
     requirementSourceImages ?? []
@@ -272,7 +290,7 @@ const RequirementSourceModal: React.FC<RequirementSourceModalProps> = ({
                 <ControlledAutoComplete
                   name="requirementSource"
                   label="Requirement Source"
-                  options={requirementSourceList ?? []}
+                  options={requirementSourceDataList ?? []}
                   getOptionLabel={(option) => option.name}
                   getOptionKey={(option) => option.id}
                   isOptionEqualToValue={(option, value) =>
