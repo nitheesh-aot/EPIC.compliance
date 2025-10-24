@@ -382,9 +382,9 @@ Changing it will delete the existing document so you can create a new one`;
         />
       )}
       <ControlledLexicalEditor
-        label="Findings"
+        label="Inspection Details"
         name="findings"
-        placeholder="Enter Findings..."
+        placeholder="Enter Inspection Details..."
         height={`calc(100vh - ${appHeaderHeight + 363}px)`}
         isAdvanced
         mentionsList={mentionDataList}

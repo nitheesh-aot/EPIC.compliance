@@ -16,7 +16,7 @@ export const baseRequirement: InspectionRequirement = {
   is_active: true,
   requirement_source_details: [
     {
-      requirement_source: { id: "1", name: "Test Source" },
+      requirement_source: { id: "1", name: "Test Source", source_title: "Test Source Title" },
       requirement_source_id: 1,
       section_number: "1.1",
       condition_number: null,
@@ -26,14 +26,24 @@ export const baseRequirement: InspectionRequirement = {
       is_active: true,
       id: 1,
       requirement_id: 1,
+      source_title: "Test Source Title",
+      appendix_id: 1,
+      appendix: { id: 1, appendix_no: "A", document_title: "Test Document Title", inspection_id: 1 },
+      images: [],
+      order_id: 1,
+      order: { id: 1, order_number: "1", inspection_id: 1, where_as: "Test Where As", now_therefore: "Test Now Therefore", is_active: true },
       documents: [
-        { id: 1, req_detail_id: 1, document_type: { id: "1", name: "Test Document" },
+        {
+          id: 1, req_detail_id: 1, document_type: { id: "1", name: "Test Document" },
           document_type_id: 1,
           document_title: "Test Document",
           section_number: "1.1",
           section_title: "Test Section",
           description: "Test Description",
           is_active: true,
+          appendix: { id: 1, appendix_no: "A", document_title: "Test Document Title", inspection_id: 1 },
+          appendix_id: 1,
+          images: [],
         },
       ],
     },
@@ -73,4 +83,5 @@ export const mockInspection: Inspection = {
   project_status: null,
   project: null,
   initiation: null,
+  debrief_date: "2021-01-01",
 };
