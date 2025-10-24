@@ -87,9 +87,9 @@ const InspectionDrawer: React.FC<InspectionDrawerProps> = ({
     if (inspection) {
       return {
         project: inspection.project,
-        startDate: dayjs(inspection.start_date),
-        endDate: dayjs(inspection.end_date),
-        debriefDate: dayjs(inspection.debrief_date),
+        startDate: inspection.start_date ? dayjs(inspection.start_date) : undefined,
+        endDate: inspection.end_date ? dayjs(inspection.end_date) : undefined,
+        debriefDate: inspection.debrief_date ? dayjs(inspection.debrief_date) : undefined,
         primaryOfficer: inspection.primary_officer,
         initiation: inspection.initiation,
         irTypes: inspection.types,

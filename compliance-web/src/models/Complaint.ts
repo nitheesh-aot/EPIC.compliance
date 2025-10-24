@@ -67,13 +67,22 @@ export interface ComplaintGridItems {
 }
 
 export interface ComplaintFormData {
-  project?: Project;
-  dateReceived?: Dayjs;
-  primaryOfficer?: StaffUser;
   concernDescription?: string;
   locationDescription?: string;
+  topic?: Topic;
+  primaryOfficer?: StaffUser;
+  dateReceived?: Dayjs;
   complaintSource?: ComplaintSource;
+  contactFullName?: string;
+  contactTitle?: string;
+  contactEmail?: string;
+  contactPhoneNumber?: string;
+  contactComments?: string;
+  agency?: Agency;
+  firstNation?: FirstNation;
+  otherDescription?: string;
   requirementSource?: RequirementSource;
+  requirementSourceDescription?: string;
   order?: InspectionOrder;
 }
 

@@ -32,12 +32,12 @@ const ControlledDateField: FC<IFormDateInputProps> = ({
     <Controller
       name={name}
       control={control}
-      defaultValue={null}
       render={({ field }) => (
         <DatePicker
           {...field}
           label={label}
           format={DATE_FORMAT}
+          value={field.value ?? null}
           onChange={(date: Dayjs | null) => {
             field.onChange(date);
           }}

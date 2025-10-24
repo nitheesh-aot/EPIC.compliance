@@ -84,7 +84,7 @@ const CaseFileDrawer: React.FC<CaseFileDrawerProps> = ({
     if (caseFile) {
       return {
         project: caseFile.project,
-        dateCreated: dayjs(caseFile.date_created),
+        dateCreated: caseFile.date_created ? dayjs(caseFile.date_created) : undefined,
         primaryOfficer: caseFile.primary_officer,
         officers: caseFile.officers,
         initiation: caseFile.initiation,
