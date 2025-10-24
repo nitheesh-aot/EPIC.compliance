@@ -39,11 +39,22 @@ type ComplaintDrawerProps = {
 };
 
 const initFormData: ComplaintFormData = {
-  project: undefined,
-  dateReceived: undefined,
+  concernDescription: "",
+  locationDescription: "",
+  topic: undefined,
   primaryOfficer: undefined,
+  dateReceived: undefined,
   complaintSource: undefined,
+  contactFullName: "",
+  contactTitle: "",
+  contactEmail: "",
+  contactPhoneNumber: "",
+  contactComments: "",
+  agency: undefined,
+  firstNation: undefined,
+  otherDescription: "",
   requirementSource: undefined,
+  requirementSourceDescription: "",
   order: undefined,
 };
 
@@ -81,7 +92,9 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
         locationDescription: complaint.location_description,
         primaryOfficer: complaint.primary_officer,
         topic: complaint.topic,
-        dateReceived: dayjs(complaint.date_received),
+        dateReceived: complaint.date_received
+          ? dayjs(complaint.date_received)
+          : undefined,
         complaintSource: complaint.source_type,
         contactFullName: complaint.source_contact.full_name ?? "",
         contactTitle: complaint.source_contact.title ?? "",
@@ -105,17 +118,9 @@ const ComplaintDrawer: React.FC<ComplaintDrawerProps> = ({
     );
     return {
       ...initFormData,
-      caseFileId: caseFile.id.toString(),
       primaryOfficer: selectedOfficer,
     };
-  }, [
-    agenciesList,
-    complaint,
-    firstNationsList,
-    caseFile,
-    staffUserList,
-    currentUser,
-  ]);
+  }, [agenciesList, complaint, firstNationsList, staffUserList, currentUser]);
 
   const methods = useForm<ComplaintSchemaType>({
     resolver: yupResolver(ComplaintFormSchema),
