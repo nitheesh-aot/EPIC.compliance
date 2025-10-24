@@ -17,7 +17,7 @@ const preparedByFormSchema = yup.object().shape({
   primaryOfficer: yup
     .object<StaffUser>()
     .nullable()
-    .required("Primary Officer is required"),
+    .required("Record Prepared By is required"),
 });
 
 type PreparedBySchemaType = yup.InferType<typeof preparedByFormSchema>;
@@ -79,8 +79,8 @@ const PreparedByPopover: React.FC<PreparedByPopoverProps> = ({
           <Box display="flex" flexDirection="column" px={2} pt={2}>
             <ControlledAutoComplete
               name="primaryOfficer"
-              label="Primary Officer"
-              placeholder="Select Primary Officer"
+              label="Record Prepared By"
+              placeholder="Select Record Prepared By"
               options={staffUserList ?? []}
               getOptionLabel={(option) => option.name}
               getOptionKey={(option) => option.id}
