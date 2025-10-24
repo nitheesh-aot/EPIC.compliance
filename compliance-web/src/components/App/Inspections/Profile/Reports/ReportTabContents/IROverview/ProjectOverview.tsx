@@ -116,6 +116,7 @@ const ProjectOverview = () => {
   const getApprovedBy = () => {
     const isApproved = [
       IRProgressEnum.PRELIMINARY_APPROVED,
+      IRProgressEnum.HOLDER_PRELIMINARY_REVIEW,
       IRProgressEnum.FINAL_APPROVED,
       IRProgressEnum.ISSUED,
     ].includes(inspectionReportsData?.ir_progress?.id as IRProgressEnum);

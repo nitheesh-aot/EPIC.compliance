@@ -121,12 +121,13 @@ const RegPartyResponse: React.FC<RegPartyResponseProps> = ({
           }}
         >
           {responseReceived === "yes" && (
-            <ControlledDateField
-              name="responseDate"
-              label="Preliminary IR Response Date"
-              height="2rem"
-              width="40%"
-            />
+            <Box maxWidth="270px">
+              <ControlledDateField
+                name="responseDate"
+                label="Preliminary IR Response Date"
+                height="2rem"
+              />
+            </Box>
           )}
           <Box
             sx={{
