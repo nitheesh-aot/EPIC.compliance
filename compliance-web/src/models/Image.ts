@@ -36,6 +36,7 @@ export interface ImageFormData {
   fileUrl?: string;
   caption?: string;
   takenBy?: StaffUser;
+  takenByOther?: string;
 }
 
 export interface ImageUploadAPIData {

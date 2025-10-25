@@ -13,13 +13,14 @@ import {
 } from "@/models/ContinuationReport";
 import dateUtils from "@/utils/dateUtils";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { DialogContent } from "@mui/material";
+import { Button, DialogContent, Stack } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { ContinuationReportContextType } from "./ContinuationReport";
 import ControlledLexicalEditor from "@/components/Shared/Controlled/ControlledLexicalEditor";
+import { AccessTimeRounded } from "@mui/icons-material";
 
 type ContinuationReportEntryModal = {
   onSubmit: (submitMsg: string) => void;
@@ -123,6 +124,10 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
     }
   };
 
+  const setCurrentTime = () => {
+    methods.setValue("dateOfEntry", dayjs());
+  };
+
   return (
     <>
       <FormProvider {...methods}>
@@ -131,13 +136,23 @@ const ContinuationReportEntryModal: React.FC<ContinuationReportEntryModal> = ({
             title={continuationReportEntry ? "Edit Entry" : "Add Entry"}
           />
           <DialogContent dividers>
-            <ControlledDateTimeField
-              name="dateOfEntry"
-              width="75%"
-              maxDate={maxSelectableDate}
-              isRequired={true}
-              useCurrentTimeOnEmpty ={true}
-            />
+            <Stack direction="row" spacing={2} alignItems="center">
+              <ControlledDateTimeField
+                name="dateOfEntry"
+                width="67%"
+                maxDate={maxSelectableDate}
+                isRequired={true}
+              />
+              <Button
+                color="secondary"
+                size="small"
+                sx={{ height: 40 }}
+                onClick={setCurrentTime}
+              >
+                <AccessTimeRounded sx={{ mr: 1 }} />
+                Set Current Time
+              </Button>
+            </Stack>
             <ControlledLexicalEditor
               label="Entry"
               name="entry"
