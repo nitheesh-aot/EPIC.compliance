@@ -3,6 +3,7 @@ import { IRProgress } from "./IRProgress";
 import { IRStatus } from "./IRStatus";
 import { StaffUser } from "./Staff";
 import { Position } from "./Position";
+import { Option } from "./common";
 
 export interface InspectionRecord {
   id?: number;
@@ -29,4 +30,14 @@ export interface InspectionRecord {
     finding_statement_changed?: boolean;
     preliminary_review_details_changed?: boolean;
   };
+}
+
+export interface IRReportDownload {
+  id: number;
+  inspection_record_id: number;
+  download_status: Option;
+  relative_url?: string;
+  generated_timestamp: string;
+  created_date: string;
+  created_by: string;
 }

@@ -1,6 +1,7 @@
 import { downloadFile } from "@/utils/appUtils";
 import {
   ArrowDropDownRounded,
+  DescriptionRounded,
   DownloadRounded,
   PictureAsPdfOutlined,
 } from "@mui/icons-material";
@@ -13,9 +14,16 @@ import {
   Popper,
   MenuList,
   MenuItem,
+  CircularProgress,
+  Typography,
+  Stack,
 } from "@mui/material";
-import { useMemo, useRef, useState } from "react";
-import { useInspectionRecordRender } from "@/hooks/useInspectionReports";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCreateDownloadRequest,
+  useFetchIRReportDownload,
+  useInspectionRecordRender,
+} from "@/hooks/useInspectionReports";
 import { useModal } from "@/store/modalStore";
 import { useReportStore } from "./reportStore";
 import ReportPreviewModal from "./ReportPreviewModal";
@@ -25,14 +33,23 @@ import {
   useCurrentLoggedInUser,
 } from "@/hooks/useAuthorization";
 import { useIsRolesAllowed } from "@/hooks/useAuthorization";
-import { InspectionStatusEnum } from "@/utils/constants";
+import {
+  InspectionStatusEnum,
+  IRReportDownloadStatus,
+} from "@/utils/constants";
 import { AxiosError } from "axios";
 import { notify } from "@/store/snackbarStore";
+import { useFetchPresignedGetURL } from "@/hooks/useImageUpload";
+import dateUtils from "@/utils/dateUtils";
+import { useQueryClient } from "@tanstack/react-query";
+import { IRReportDownload } from "@/models/InspectionRecord";
 
 const PreviewDownloadButton = () => {
+  const queryClient = useQueryClient();
   const { setOpen: setModalOpen } = useModal();
   const { inspectionData, inspectionReportsData } = useReportStore();
   const [previewClicked, setPreviewClicked] = useState(false);
+  const [downloadInProgress, setDownloadInProgress] = useState(false);
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
   const currentUser = useCurrentLoggedInUser();
@@ -56,7 +73,30 @@ const PreviewDownloadButton = () => {
     [isInspectionOpen, isUserPrimary, isSuperUser]
   );
 
-  const onSuccess = (data: { html: string } | Blob) => {
+  const { data: irReportDownloadData } = useFetchIRReportDownload(
+    inspectionData?.id ?? 0,
+    inspectionReportsData?.id ?? 0
+  );
+
+  useEffect(() => {
+    if (
+      [
+        IRReportDownloadStatus.NOT_STARTED,
+        IRReportDownloadStatus.PENDING,
+      ].includes(
+        irReportDownloadData?.download_status?.id as IRReportDownloadStatus
+      )
+    ) {
+      setDownloadInProgress(true);
+    } else if (
+      irReportDownloadData?.download_status?.id ===
+      IRReportDownloadStatus.GENERATED
+    ) {
+      setDownloadInProgress(false);
+    }
+  }, [irReportDownloadData]);
+
+  const onPreviewSuccess = (data: { html: string } | Blob) => {
     if ("html" in data) {
       setModalOpen({
         content: <ReportPreviewModal previewHtml={data.html ?? ""} />,
@@ -68,15 +108,27 @@ const PreviewDownloadButton = () => {
     setPreviewClicked(false);
   };
 
-  const onError = (error: AxiosError) => {
+  const onPreviewError = (error: AxiosError) => {
     notify.error(error.message ?? "Error processing report");
     setPreviewClicked(false);
   };
 
   const { mutate: mutateIrPreviewData } = useInspectionRecordRender(
-    onSuccess,
-    onError
+    onPreviewSuccess,
+    onPreviewError
   );
+
+  const onSuccess = (data: IRReportDownload) => {
+    queryClient.setQueryData(
+      ["ir-report-download", inspectionData?.id, inspectionReportsData?.id],
+      () => data
+    );
+    notify.success("Download request created successfully");
+    setOpen(false);
+  };
+
+  const { mutate: mutateCreateDownloadRequest } =
+    useCreateDownloadRequest(onSuccess);
 
   const handlePreviewClick = async () => {
     setPreviewClicked(true);
@@ -87,13 +139,20 @@ const PreviewDownloadButton = () => {
     });
   };
 
-  const handleDownloadClick = async (event: MouseEvent) => {
-    setPreviewClicked(true);
-    handleClose(event);
-    mutateIrPreviewData({
+  // const handleDownloadClick = async (event: MouseEvent) => {
+  //   setPreviewClicked(true);
+  //   handleClose(event);
+  //   mutateIrPreviewData({
+  //     inspectionId: inspectionData?.id ?? 0,
+  //     inspectionRecordId: inspectionReportsData?.id ?? 0,
+  //     outputFormat: "pdf",
+  //   });
+  // };
+
+  const handleGenerateReportClick = () => {
+    mutateCreateDownloadRequest({
       inspectionId: inspectionData?.id ?? 0,
       inspectionRecordId: inspectionReportsData?.id ?? 0,
-      outputFormat: "pdf",
     });
   };
 
@@ -110,6 +169,21 @@ const PreviewDownloadButton = () => {
     }
 
     setOpen(false);
+  };
+
+  const onPresignedUrlSuccess = (data: { presigned_url: string }) => {
+    window.open(data.presigned_url, "_blank");
+    setOpen(false);
+  };
+
+  const { mutate: mutateFetchPresignedGetURL } = useFetchPresignedGetURL(
+    onPresignedUrlSuccess
+  );
+
+  const handleDownloadReportFromURL = () => {
+    if (irReportDownloadData?.relative_url) {
+      mutateFetchPresignedGetURL(irReportDownloadData.relative_url);
+    }
   };
 
   return (
@@ -148,7 +222,7 @@ const PreviewDownloadButton = () => {
       </ButtonGroup>
       <Popper
         sx={{
-          zIndex: 1,
+          zIndex: 2,
         }}
         open={open}
         anchorEl={anchorRef.current}
@@ -164,22 +238,59 @@ const PreviewDownloadButton = () => {
                 placement === "bottom" ? "center top" : "center bottom",
             }}
           >
-            <Paper>
+            <Paper elevation={3} sx={{ pl: 1, pr: 2 }}>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>
                   <MenuItem
                     key="download-report-as-pdf"
-                    onClick={(e) =>
-                      handleDownloadClick(e as unknown as MouseEvent)
-                    }
-                    disabled={previewClicked}
+                    onClick={handleGenerateReportClick}
+                    disabled={downloadInProgress}
                     component="button"
+                    sx={{
+                      width: "100%",
+                    }}
                   >
-                    <DownloadRounded sx={{ mr: 1, fontSize: 20 }} />
-                    {previewClicked
-                      ? "Downloading..."
-                      : "Download Report as PDF"}
+                    {downloadInProgress ? (
+                      <CircularProgress
+                        size={20}
+                        color="inherit"
+                        sx={{ mr: 1 }}
+                      />
+                    ) : (
+                      <DownloadRounded sx={{ mr: 1, fontSize: 20 }} />
+                    )}
+                    {downloadInProgress
+                      ? "Generating report..."
+                      : "Generate Report as PDF"}
                   </MenuItem>
+                  {irReportDownloadData?.download_status?.id ===
+                    IRReportDownloadStatus.GENERATED &&
+                    irReportDownloadData?.relative_url && (
+                      <MenuItem
+                        key="downloaded-report"
+                        onClick={handleDownloadReportFromURL}
+                        component="button"
+                        sx={{
+                          width: "100%",
+                          alignItems: "flex-start",
+                        }}
+                      >
+                        <DescriptionRounded
+                          sx={{ mr: 1, mt: 0.5, fontSize: 20 }}
+                        />
+                        <Stack direction="column" alignItems="flex-start">
+                          <Typography variant="body1" fontWeight={700}>
+                            Download Generated Report
+                          </Typography>
+                          <Typography variant="caption">
+                            Generated on{" "}
+                            {dateUtils.formatDate(
+                              irReportDownloadData?.generated_timestamp ?? ""
+                            )}
+                          </Typography>
+                        </Stack>
+                      </MenuItem>
+                    )}
                 </MenuList>
               </ClickAwayListener>
             </Paper>

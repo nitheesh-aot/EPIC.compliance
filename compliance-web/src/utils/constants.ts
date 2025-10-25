@@ -238,3 +238,10 @@ export const DEFAULT_PAGE_SIZE = 15;
 
 export type ALERT_SEVERITY_COLORS = "error" | "info" | "success" | "warning";
 export type VARIANT_COLORS = "default" | "primary" | "secondary" | ALERT_SEVERITY_COLORS;
+
+export enum IRReportDownloadStatus {
+  NOT_STARTED = "NOT_STARTED",
+  PENDING = "PENDING",
+  GENERATED = "GENERATED",
+  DOWNLOADED = "DOWNLOADED",
+}

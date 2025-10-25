@@ -1,4 +1,4 @@
-import { InspectionRecord } from "@/models/InspectionRecord";
+import { InspectionRecord, IRReportDownload } from "@/models/InspectionRecord";
 import {
   InspectionRecordApprovalPayload,
   IRApproval,
@@ -180,6 +180,29 @@ const deleteInspectionRecord = ({
   });
 };
 
+const createDownloadRequest = ({
+  inspectionId,
+  inspectionRecordId,
+}: {
+  inspectionId: number;
+  inspectionRecordId: number;
+}) => {
+  return request({
+    url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/download-requests`,
+    method: "post",
+    data: {},
+  });
+};
+
+const fetchIRReportDownload = (
+  inspectionId: number,
+  inspectionRecordId: number
+): Promise<IRReportDownload> => {
+  return request({
+    url: `/inspections/${inspectionId}/inspection-records/${inspectionRecordId}/download-requests/latest`,
+  });
+};
+
 export const useInspectionReportsData = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-reports", inspectionId],
@@ -267,5 +290,25 @@ export const useDeleteInspectionRecord = (onSuccess: OnSuccessType) => {
   return useMutation({
     mutationFn: deleteInspectionRecord,
     onSuccess,
+  });
+};
+
+export const useCreateDownloadRequest = (onSuccess: OnSuccessType) => {
+  return useMutation({
+    mutationFn: createDownloadRequest,
+    onSuccess,
+  });
+};
+
+export const useFetchIRReportDownload = (
+  inspectionId: number,
+  inspectionRecordId: number
+) => {
+  return useQuery({
+    queryKey: ["ir-report-download", inspectionId, inspectionRecordId],
+    queryFn: () => fetchIRReportDownload(inspectionId, inspectionRecordId),
+    enabled: !!inspectionId && !!inspectionRecordId,
+    refetchOnMount: true,
+    refetchInterval: 15000,
   });
 };
