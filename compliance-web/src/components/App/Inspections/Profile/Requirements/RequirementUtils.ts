@@ -163,6 +163,7 @@ const formatImages = (images: RequirementImage[]): ImageAPIData[] => {
       original_file_name: image.original_file_name,
       date_taken: image.date_taken ? dateUtils.dateToISO(new Date(image.date_taken)) : undefined,
       taken_by_id: image.taken_by_id ?? undefined,
+      taken_by_text: image.taken_by_text ?? undefined,
       caption: image.caption ?? undefined,
       relative_url: image.relative_url,
       sort_order: image.sort_order ?? undefined,

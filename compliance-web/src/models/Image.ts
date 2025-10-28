@@ -7,6 +7,7 @@ export interface RequirementImage {
   caption?: string;
   taken_by_id?: number;
   taken_by?: StaffUser;
+  taken_by_text?: string;
   sort_order?: number;
   image_type?: string;
   original_file_name?: string;
@@ -36,6 +37,7 @@ export interface ImageFormData {
   fileUrl?: string;
   caption?: string;
   takenBy?: StaffUser;
+  takenByOther?: string;
 }
 
 export interface ImageUploadAPIData {
