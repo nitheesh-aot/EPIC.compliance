@@ -83,18 +83,21 @@ const ImageModal: React.FC<ImageModalProps> = ({
     return hasOther
       ? list
       : [
-          ...list,
           { id: OTHER_STAFF_ID, name: "Other", is_active: true } as StaffUser,
+          ...list,
         ];
   }, [isPhoto, staffUserList]);
   const defaultValues = useMemo<ImageFormData>(() => {
     return requirementImage
       ? {
-          takenBy: requirementImage.taken_by,
+          takenBy:
+            requirementImage.taken_by ??
+            staffOptions?.find((s) => s.id === OTHER_STAFF_ID),
+          takenByOther: requirementImage.taken_by_text ?? "",
           caption: requirementImage.caption,
         }
       : getInitFormData(primaryOfficer);
-  }, [requirementImage, primaryOfficer]);
+  }, [requirementImage, primaryOfficer, staffOptions]);
 
   const methods = useForm<ImageSchemaType>({
     resolver: yupResolver(imageFormSchema(isPhoto)),
@@ -122,14 +125,13 @@ const ImageModal: React.FC<ImageModalProps> = ({
       caption: getValues("caption"),
       taken_by: takenBy,
       taken_by_id: takenBy?.id,
+      taken_by_text: isOtherSelected ? getValues("takenByOther") : undefined,
       original_file_name: file?.name ?? "",
       date_taken: file?.lastModified
         ? dateUtils.dateToISO(dayjs(file.lastModified))
         : undefined,
       image_type: ImageTypeLabel,
     };
-    // eslint-disable-next-line no-console
-    console.log("Image uploaded successfully", imageFormData);
     onSubmit(imageFormData);
   };
 
@@ -155,6 +157,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
         caption: formData.caption,
         taken_by_id: takenBy?.id,
         taken_by: takenBy,
+        taken_by_text: isOtherSelected ? formData.takenByOther : undefined,
       });
     } else {
       uploadImage({
