@@ -1,9 +1,9 @@
 import { downloadFile } from "@/utils/appUtils";
 import {
   ArrowDropDownRounded,
-  DescriptionRounded,
   DownloadRounded,
-  PictureAsPdfOutlined,
+  PictureAsPdfRounded,
+  AutoAwesomeRounded,
 } from "@mui/icons-material";
 import {
   Button,
@@ -12,11 +12,10 @@ import {
   Grow,
   Paper,
   Popper,
-  MenuList,
-  MenuItem,
-  CircularProgress,
   Typography,
-  Stack,
+  Box,
+  Link,
+  CircularProgress,
 } from "@mui/material";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -200,8 +199,8 @@ const PreviewDownloadButton = () => {
           },
         }}
       >
-        <Button onClick={handlePreviewClick} disabled={previewClicked}>
-          <PictureAsPdfOutlined sx={{ mr: 1, fontSize: 20 }} />
+        <Button variant="contained" color="secondary" onClick={handlePreviewClick} disabled={previewClicked}>
+          <PictureAsPdfRounded sx={{ mr: 1, fontSize: 20 }} />
           {previewClicked ? "Loading..." : "Preview"}
         </Button>
         {isDownloadAllowed && (
@@ -210,6 +209,8 @@ const PreviewDownloadButton = () => {
             aria-expanded={open ? "true" : undefined}
             aria-label="download report"
             aria-haspopup="menu"
+            variant="contained"
+            color="secondary"
             onClick={handleToggle}
             sx={{
               padding: "0.5rem 0 !important",
@@ -238,65 +239,49 @@ const PreviewDownloadButton = () => {
                 placement === "bottom" ? "center top" : "center bottom",
             }}
           >
-            <Paper elevation={3} sx={{ pl: 1, pr: 2 }}>
+            <Paper elevation={3} sx={{ pt: 1, pb: 2 }}>
               <ClickAwayListener onClickAway={handleClose}>
-                <MenuList id="split-button-menu" autoFocusItem>
-                  <MenuItem
-                    key="download-report-as-pdf"
-                    onClick={handleGenerateReportClick}
-                    disabled={downloadInProgress}
-                    component="button"
-                    sx={{
-                      width: "100%",
-                    }}
-                  >
-                    {downloadInProgress ? (
-                      <CircularProgress
-                        size={20}
-                        color="inherit"
-                        sx={{ mr: 1 }}
-                      />
-                    ) : (
-                      <DownloadRounded sx={{ mr: 1, fontSize: 20 }} />
-                    )}
-                    {downloadInProgress
-                      ? "Generating report..."
-                      : "Generate Report as PDF"}
-                  </MenuItem>
-                  {irReportDownloadData?.download_status?.id ===
-                    IRReportDownloadStatus.GENERATED &&
-                    irReportDownloadData?.relative_url && (
-                      <MenuItem
-                        key="downloaded-report"
-                        onClick={handleDownloadReportFromURL}
-                        component="button"
-                        sx={{
-                          width: "100%",
-                          alignItems: "flex-start",
-                        }}
-                      >
-                        <DescriptionRounded
-                          sx={{ mr: 1, mt: 0.5, fontSize: 20 }}
-                        />
-                        <Stack direction="column" alignItems="flex-start">
-                          <Typography variant="body1" fontWeight={700}>
-                            Download Generated Report
+                <>
+                  <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1 }}>
+                    <Button variant="text" onClick={handleGenerateReportClick} disabled={downloadInProgress} fullWidth sx={{ justifyContent: "flex-start" }}>
+                      <AutoAwesomeRounded sx={{ mr: 1, fontSize: 20 }} />
+                      {downloadInProgress ? "Generating report..." : "Generate Report as PDF"}
+                      {downloadInProgress && (
+                        <CircularProgress size={20} color="primary" sx={{ ml: 1 }} />
+                      )}
+                    </Button>
+                    {irReportDownloadData?.download_status?.id ===
+                      IRReportDownloadStatus.GENERATED &&
+                      irReportDownloadData?.relative_url ? (
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 1, width: "100%" }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 0.25, pl: 2 }}>
+                          <Typography variant="caption" color={BCDesignTokens.typographyColorPlaceholder}>
+                            Last Generated:
                           </Typography>
-                          <Typography variant="caption">
-                            Generated on{" "}
+                          <Typography variant="caption" color={BCDesignTokens.typographyColorPrimary}>
                             {dateUtils.formatDate(
-                              irReportDownloadData?.generated_timestamp ?? ""
+                              irReportDownloadData?.generated_timestamp ?? "",
+                              "MMM D, YYYY hh:mm A"
                             )}
                           </Typography>
-                        </Stack>
-                      </MenuItem>
+                        </Box>
+                        <Link onClick={handleDownloadReportFromURL} sx={{ display: "flex", alignItems: "flex-end", cursor: "pointer", pr: 2, fontSize: 14 }}>
+                          <DownloadRounded sx={{ mr: 0.5, fontSize: 16 }} />
+                          Download
+                        </Link>
+                      </Box>
+                    ) : (
+                      <Typography variant="caption" px={2}>
+                        Nothing generated yet.
+                      </Typography>
                     )}
-                </MenuList>
+                  </Box>
+                </>
               </ClickAwayListener>
             </Paper>
           </Grow>
         )}
-      </Popper>
+      </Popper >
     </>
   );
 };
