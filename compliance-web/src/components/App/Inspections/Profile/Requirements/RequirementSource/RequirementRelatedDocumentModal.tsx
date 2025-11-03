@@ -1,4 +1,4 @@
-import { Box, DialogContent, Typography } from "@mui/material";
+import { Box, Collapse, DialogContent, Typography } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
 import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
@@ -25,6 +25,7 @@ import { Appendix } from "@/models/Appendix";
 import { requirementSourceNumberType } from "@/components/App/Inspections/Profile/Requirements/RequirementUtils";
 import ImagesRequirementSource from "../Images/ImagesRequirementSource";
 import { RequirementImage } from "@/models/Image";
+import { ExpandMoreRounded } from "@mui/icons-material";
 import { MQ } from "@/styles/responsive";
 
 type RequirementRelatedDocumentModalProps = {
@@ -32,10 +33,12 @@ type RequirementRelatedDocumentModalProps = {
   requirementSourceData: RequirementSourceFormData;
   relatedDocumentData?: RequirementRelatedDocumentData;
   relatedDocumentSectionData?: RequirementRelatedDocumentSectionData;
+  documentTitle?: string;
   appendixList?: Appendix[];
   isEditSection?: boolean;
   inspectionId: number;
   relatedDocumentImages?: RequirementImage[];
+  isSectionModal?: boolean;
 };
 
 const relatedDocumentFormSchema = yup.object().shape({
@@ -60,6 +63,35 @@ type RequirementRelatedDocumentSchemaType = yup.InferType<
   typeof relatedDocumentFormSchema
 >;
 
+const DocumentTitleInfo = () => {
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
+
+  return (
+    <Box
+      sx={{ display: "flex", gap: 1, cursor: "pointer" }}
+      onClick={() => setIsInfoExpanded(!isInfoExpanded)}
+    >
+      <ExpandMoreRounded
+        sx={{
+          marginTop: "-0.125rem",
+          fontSize: "1.25rem",
+          transform: isInfoExpanded ? "rotate(180deg)" : "rotate(270deg)",
+        }}
+      />
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Typography variant="caption">How to record Document Plan Title</Typography>
+        <Collapse in={isInfoExpanded}>
+          <Typography variant="caption">
+            Record the Document Plan Title in the format of [Plan
+            Name], [Version], [Date], ex., Water Management Plan,
+            Rev3, Dec.21, 2023.
+          </Typography>
+        </Collapse>
+      </Box>
+    </Box>
+  );
+};
+
 const RequirementRelatedDocumentModal: React.FC<
   RequirementRelatedDocumentModalProps
 > = ({
@@ -67,13 +99,14 @@ const RequirementRelatedDocumentModal: React.FC<
   requirementSourceData,
   relatedDocumentData,
   relatedDocumentSectionData,
+  documentTitle,
   appendixList,
   isEditSection,
   inspectionId,
   relatedDocumentImages,
+  isSectionModal,
 }) => {
     const { data: documentTypeList } = useDocumentTypesData();
-
     const [uploadedImages, setUploadedImages] = useState<RequirementImage[]>(
       relatedDocumentImages ?? []
     );
@@ -92,7 +125,7 @@ const RequirementRelatedDocumentModal: React.FC<
     const defaultValues =
       useMemo<RequirementRelatedDocumentSectionFormData>(() => {
         const defaultData: RequirementRelatedDocumentSectionFormData = {
-          documentTitle: "",
+          documentTitle: documentTitle,
           sectionNumber: "",
           sectionTitle: "",
           description: undefined,
@@ -127,6 +160,7 @@ const RequirementRelatedDocumentModal: React.FC<
         documentTypeList,
         isEditSection,
         relatedDocumentSectionData,
+        documentTitle,
       ]);
 
     const methods = useForm<RequirementRelatedDocumentSchemaType>({
@@ -183,7 +217,6 @@ const RequirementRelatedDocumentModal: React.FC<
       }
       onSubmit(reqRelatedDocumentData);
     };
-
     return (
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmitHandler)}>
@@ -268,19 +301,12 @@ const RequirementRelatedDocumentModal: React.FC<
                 <ControlledTextField
                   name="documentTitle"
                   label="Document Title"
+                  placeholder="Document Title change for Management Plan and Other Document"
                   multiline
                   fullWidth
+                  disabled={isSectionModal}
                 />
-                <ControlledAutoComplete
-                  name="appendix"
-                  label="Inspection Record Appendix #"
-                  options={appendixList ?? []}
-                  getOptionLabel={(option) =>
-                    `Appendix ${option.appendix_no}: ${option.document_title}`
-                  }
-                  getOptionKey={(option) => option.id ?? ""}
-                  isOptionEqualToValue={(option, value) => option.id === value.id}
-                />
+                <DocumentTitleInfo />
                 <ControlledTextField
                   name="sectionNumber"
                   label="Section #"
@@ -291,6 +317,16 @@ const RequirementRelatedDocumentModal: React.FC<
                   label="Section Title"
                   fullWidth
                   multiline
+                />
+                <ControlledAutoComplete
+                  name="appendix"
+                  label="Inspection Record Appendix #"
+                  options={appendixList ?? []}
+                  getOptionLabel={(option) =>
+                    `Appendix ${option.appendix_no}: ${option.document_title}`
+                  }
+                  getOptionKey={(option) => option.id ?? ""}
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
                 />
               </Box>
               <Box
