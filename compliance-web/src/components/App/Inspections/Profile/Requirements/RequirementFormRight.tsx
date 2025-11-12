@@ -174,9 +174,8 @@ const syncRequirementSourceTitle = (allItems: RequirementSourceFormData[], requi
         }
         return item;
       });
-      const updated = syncDocumentTitles(mapped, requirementSourceId, sectionNumber);
-      onDataChange(updated);
-      return updated;
+      onDataChange(mapped);
+      return mapped;
     });
     closeModal();
   };
