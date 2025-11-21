@@ -6,6 +6,7 @@ from marshmallow_enum import EnumField
 
 from compliance_api.models.inspection_record_approval import InspectionRecordApproval as InspectionRecordApprovalModel
 from compliance_api.models.inspection_record_approval import IRApprovalStatusEnum
+from compliance_api.schemas.common import KeyValueSchema
 from compliance_api.utils.constant import INPUT_DATE_TIME_FORMAT
 
 from .base_schema import AutoSchemaBase, BaseSchema
