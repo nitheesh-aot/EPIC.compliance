@@ -976,10 +976,11 @@ def _create_inspection_record_number(
     if case_file.project_id != project_id:
         raise UnprocessableEntityError("Given project and case file doesn't match")
 
-    count = InspectionModel.get_count_by_project_nd_case_file_id(
-        project_id, case_file_id
+    pattern = rf"^{project_code}_{case_file.case_file_number}_IR[0-9]{{3}}$"
+    count = InspectionModel.get_latest_ir_number_count(
+        case_file_id, project_id, pattern
     )
-    serial_number = f"{count + 1:03}"
+    serial_number = f"{count:03}"
     return f"{project_code}_{case_file.case_file_number}_IR{serial_number}"
 
 
@@ -1245,16 +1246,30 @@ def _build_query_for_enforcement_actions_and_requirement_details(inspection_ids)
         .filter(InspectionRequirementModel.inspection_id.in_(inspection_ids))
         .outerjoin(
             enforcement_action_map_alias,
-            enforcement_action_map_alias.requirement_id == InspectionRequirementModel.id,
+            and_(
+                enforcement_action_map_alias.requirement_id
+                == InspectionRequirementModel.id,
+                enforcement_action_map_alias.is_active.is_(True),
+                enforcement_action_map_alias.is_deleted.is_(False),
+            ),
         )
         .outerjoin(
             enforcement_action_option_alias,
-            enforcement_action_option_alias.id
-            == enforcement_action_map_alias.enforcement_action_id,
+            and_(
+                enforcement_action_option_alias.id
+                == enforcement_action_map_alias.enforcement_action_id,
+                enforcement_action_option_alias.is_active.is_(True),
+                enforcement_action_option_alias.is_deleted.is_(False),
+            ),
         )
         .outerjoin(
             order_map_alias,
-            order_map_alias.inspection_requirement_id == InspectionRequirementModel.id,
+            and_(
+                order_map_alias.inspection_requirement_id
+                == InspectionRequirementModel.id,
+                order_map_alias.is_active.is_(True),
+                order_map_alias.is_deleted.is_(False),
+            ),
         )
         .outerjoin(
             order_alias,
@@ -1266,8 +1281,12 @@ def _build_query_for_enforcement_actions_and_requirement_details(inspection_ids)
         )
         .outerjoin(
             warning_letter_map_alias,
-            warning_letter_map_alias.inspection_requirement_id
-            == InspectionRequirementModel.id,
+            and_(
+                warning_letter_map_alias.inspection_requirement_id
+                == InspectionRequirementModel.id,
+                warning_letter_map_alias.is_active.is_(True),
+                warning_letter_map_alias.is_deleted.is_(False),
+            ),
         )
         .outerjoin(
             warning_letter_alias,
@@ -1279,21 +1298,30 @@ def _build_query_for_enforcement_actions_and_requirement_details(inspection_ids)
         )
         .outerjoin(
             violation_ticket_map_alias,
-            violation_ticket_map_alias.inspection_requirement_id
-            == InspectionRequirementModel.id,
+            and_(
+                violation_ticket_map_alias.inspection_requirement_id
+                == InspectionRequirementModel.id,
+                violation_ticket_map_alias.is_active.is_(True),
+                violation_ticket_map_alias.is_deleted.is_(False),
+            ),
         )
         .outerjoin(
             violation_ticket_alias,
             and_(
-                violation_ticket_alias.id == violation_ticket_map_alias.violation_ticket_id,
+                violation_ticket_alias.id
+                == violation_ticket_map_alias.violation_ticket_id,
                 violation_ticket_alias.is_active.is_(True),
                 violation_ticket_alias.is_deleted.is_(False),
             ),
         )
         .outerjoin(
             administrative_penalty_map_alias,
-            administrative_penalty_map_alias.inspection_requirement_id
-            == InspectionRequirementModel.id,
+            and_(
+                administrative_penalty_map_alias.inspection_requirement_id
+                == InspectionRequirementModel.id,
+                administrative_penalty_map_alias.is_active.is_(True),
+                administrative_penalty_map_alias.is_deleted.is_(False),
+            ),
         )
         .outerjoin(
             administrative_penalty_alias,
@@ -1306,8 +1334,12 @@ def _build_query_for_enforcement_actions_and_requirement_details(inspection_ids)
         )
         .outerjoin(
             charge_recommendation_map_alias,
-            charge_recommendation_map_alias.inspection_requirement_id
-            == InspectionRequirementModel.id,
+            and_(
+                charge_recommendation_map_alias.inspection_requirement_id
+                == InspectionRequirementModel.id,
+                charge_recommendation_map_alias.is_active.is_(True),
+                charge_recommendation_map_alias.is_deleted.is_(False),
+            ),
         )
         .outerjoin(
             charge_recommendation_alias,
@@ -1320,8 +1352,12 @@ def _build_query_for_enforcement_actions_and_requirement_details(inspection_ids)
         )
         .outerjoin(
             restorative_justice_map_alias,
-            restorative_justice_map_alias.inspection_requirement_id
-            == InspectionRequirementModel.id,
+            and_(
+                restorative_justice_map_alias.inspection_requirement_id
+                == InspectionRequirementModel.id,
+                restorative_justice_map_alias.is_active.is_(True),
+                restorative_justice_map_alias.is_deleted.is_(False),
+            ),
         )
         .outerjoin(
             restorative_justice_alias,

@@ -94,7 +94,6 @@ const AdministrativePenaltyUpdateModal: FC<
     }
     return !isPrimaryOfficerOrSuperUser;
   }, [administrativePenalty.is_closed, isPrimaryOfficerOrSuperUser, isSuperUser]);
-
   const defaultValues = useMemo(() => {
     const currentReferralStatus =
       administrativePenalty.referral_status?.id || "DRAFTING";

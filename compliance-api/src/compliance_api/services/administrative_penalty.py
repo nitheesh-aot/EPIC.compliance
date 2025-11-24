@@ -446,8 +446,9 @@ def _create_administrative_penalty_number(project_id: int, case_file_id: int) ->
     if case_file.project_id != project_id:
         raise UnprocessableEntityError("Given project and case file don't match")
 
-    count = AdministrativePenalty.get_count_by_project_nd_case_file_id(
-        project_id, case_file_id
+    pattern = rf"^{project_code}_{case_file.case_file_number}_AP[0-9]{{3}}$"
+    count = AdministrativePenalty.get_latest_administrative_penalty_number_count(
+        case_file_id, project_id, pattern
     )
-    serial_number = f"{count + 1:03}"
+    serial_number = f"{count:03}"
     return f"{project_code}_{case_file.case_file_number}_AP{serial_number}"

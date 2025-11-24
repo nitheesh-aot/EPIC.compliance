@@ -206,9 +206,9 @@ def _create_restorative_justice_number(project_id: int, case_file_id: int) -> st
         raise ResourceNotFoundError("Given case file doesn't exist")
     if case_file.project_id != project_id:
         raise UnprocessableEntityError("Given project and case file don't match")
-
-    count = RestorativeJusticeModel.get_count_by_project_nd_case_file_id(
-        project_id, case_file_id
+    pattern = rf"^{project_code}_{case_file.case_file_number}_RJ[0-9]{{3}}$"
+    count = RestorativeJusticeModel.get_latest_restorative_justice_number_count(
+        case_file_id, project_id, pattern
     )
-    serial_number = f"{count + 1:03}"
+    serial_number = f"{count:03}"
     return f"{project_code}_{case_file.case_file_number}_RJ{serial_number}"

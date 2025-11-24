@@ -100,7 +100,6 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
     data: inspectionRequirementsData,
     isLoading: isInspectionRequirementsLoading,
   } = useInspectionRequirementsData(inspectionData.id);
-
   const {
     data: inspectionOrdersData,
     isLoading: isInspectionOrdersLoading,
@@ -385,6 +384,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             inspectionData={inspectionData}
             requirementsList={allRequirementsForAP}
             requirement={requirement}
+            isPrimaryOfficerOrSuperUser={isPrimaryOfficerOrSuperUser}
             enforcementAction={modelType}
             nonProceededRequirements={nonProceededAPRequirements}
             onSubmit={() => {
@@ -399,6 +399,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             inspectionData={inspectionData}
             requirementsList={allRequirementsForChargeRecommendation}
             enforcementAction={modelType}
+            isPrimaryOfficerOrSuperUser={isPrimaryOfficerOrSuperUser}
             nonProceededRequirements={nonProceededChargeRecommendationRequirements}
             requirement={requirement}
             onSubmit={() => {
@@ -413,6 +414,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             inspectionData={inspectionData}
             requirementsList={allRequirementsForViolationTicket}
             nonProceededRequirements={nonProceededVTRequirements}
+            isPrimaryOfficerOrSuperUser={isPrimaryOfficerOrSuperUser}
             enforcementAction={modelType}
             requirement={requirement}
             onSubmit={() => {
@@ -427,6 +429,7 @@ const InspectionEnforcements: React.FC<InspectionEnforcementsProps> = ({
             inspectionData={inspectionData}
             requirementsList={allRequirementsForRestorativeJustice}
             requirement={requirement}
+            enforcementAction={modelType}
             onSubmit={() => {
               setModalClose();
             }}
