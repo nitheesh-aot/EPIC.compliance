@@ -36,16 +36,6 @@ const fetchInspectionRequirements = (
   return request({ url: `/inspections/${inspectionId}/requirements` });
 };
 
-const fetchInspectionRequirementImages2 = (
-  inspectionId: number,
-  requirementId: number,
-  imageType: "photos" | "figures"
-): Promise<RequirementImage[]> => {
-  return request({
-    url: `/inspections/${inspectionId}/requirements/${requirementId}/${imageType}`,
-  });
-};
-
 const fetchInspectionRequirementImages = (
   inspectionId: number
 ): Promise<RequirementImage[]> => {
@@ -184,32 +174,6 @@ export const useInspectionRequirementsData = (inspectionId: number) => {
     queryKey: ["inspection-requirements", inspectionId],
     queryFn: () => fetchInspectionRequirements(inspectionId),
     enabled: !!inspectionId,
-    staleTime: Infinity,
-  });
-};
-
-export const useInspectionRequirementImagesData = (
-  inspectionId: number,
-  requirementId: number,
-  imageType: "photos" | "figures"
-) => {
-  return useQuery({
-    queryKey: [
-      "inspection-requirement-images",
-      inspectionId,
-      requirementId,
-      imageType,
-    ],
-    queryFn: () =>
-      fetchInspectionRequirementImages2(inspectionId, requirementId, imageType),
-    select: (data: RequirementImage[]) => {
-      return data.map((image) => ({
-        ...image,
-        dbId: image.id,
-      }));
-    },
-    enabled: !!inspectionId && !!requirementId,
-    refetchOnWindowFocus: false,
     staleTime: Infinity,
   });
 };

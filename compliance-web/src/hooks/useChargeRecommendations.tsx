@@ -15,14 +15,6 @@ const fetchChargeRecommendations = (
   });
 };
 
-const fetchChargeRecommendationByNumber = (
-  chargeRecommendationNumber: string
-): Promise<ChargeRecommendation[]> => {
-  return request({
-    url: `/charge-recommendations/charge-recommendation-numbers/${chargeRecommendationNumber}`,
-  });
-};
-
 const createChargeRecommendation = ({
   chargeRecommendation,
 }: {
@@ -80,15 +72,6 @@ export const useChargeRecommendationsData = (
     queryFn: () => fetchChargeRecommendations(inspectionId),
     enabled: !!inspectionId,
     staleTime: isStaleInfinate ? Infinity : 0,
-  });
-};
-
-export const useFetchChargeRecommendationByNumber = (
-  onSuccess: OnSuccessType
-) => {
-  return useMutation({
-    mutationFn: fetchChargeRecommendationByNumber,
-    onSuccess,
   });
 };
 

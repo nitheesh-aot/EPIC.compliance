@@ -32,14 +32,6 @@ const fetchAdministrativePenaltiesByCaseFile = (
   });
 };
 
-const fetchAdministrativePenaltyByNumber = (
-  administrativePenaltyNumber: string
-): Promise<AdministrativePenalty[]> => {
-  return request({
-    url: `/administrative-penalties/administrative-penalty-numbers/${administrativePenaltyNumber}`,
-  });
-};
-
 const fetchAdministrativePenaltyLinks = (
   administrativePenaltyId: number
 ): Promise<AdministrativePenaltyLink[]> => {
@@ -142,15 +134,6 @@ export const useAdministrativePenaltiesByCaseFileData = (
     queryFn: () => fetchAdministrativePenaltiesByCaseFile(caseFileId, includeOpenAps),
     enabled: !!caseFileId,
     staleTime: isStaleInfinate ? Infinity : 0,
-  });
-};
-
-export const useFetchAdministrativePenaltyByNumber = (
-  onSuccess: OnSuccessType
-) => {
-  return useMutation({
-    mutationFn: fetchAdministrativePenaltyByNumber,
-    onSuccess,
   });
 };
 

@@ -15,14 +15,6 @@ const fetchRestorativeJustice = (
   });
 };
 
-const fetchRestorativeJusticeByNumber = (
-  restorativeJusticeNumber: string
-): Promise<RestorativeJustice[]> => {
-  return request({
-    url: `/restorative-justices/by-number/${restorativeJusticeNumber}`,
-  });
-};
-
 const createRestorativeJustice = ({
   restorativeJustice,
 }: {
@@ -63,29 +55,11 @@ const deleteRestorativeJustice = ({
 };
 
 // Hooks
-export const useFetchRestorativeJustice = (inspectionId: number) => {
-  return useQuery({
-    queryKey: ["inspection-restorative-justice", inspectionId],
-    queryFn: () => fetchRestorativeJustice(inspectionId),
-    enabled: !!inspectionId,
-  });
-};
-
 export const useRestorativeJusticeByInspection = (inspectionId: number) => {
   return useQuery({
     queryKey: ["inspection-restorative-justice", inspectionId],
     queryFn: () => fetchRestorativeJustice(inspectionId),
     enabled: !!inspectionId,
-  });
-};
-
-export const useFetchRestorativeJusticeByNumber = (
-  restorativeJusticeNumber: string
-) => {
-  return useQuery({
-    queryKey: ["restorative-justice-by-number", restorativeJusticeNumber],
-    queryFn: () => fetchRestorativeJusticeByNumber(restorativeJusticeNumber),
-    enabled: !!restorativeJusticeNumber,
   });
 };
 
