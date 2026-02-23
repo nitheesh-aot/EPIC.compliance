@@ -132,6 +132,39 @@ class TrackService:
                 f"Unable to parse First Nation information for ID {first_nation_id}"
             )
 
+    @staticmethod
+    def get_first_nations():
+        """Return firstnations."""
+        try:
+            first_nation_response = _request_track_service("indigenous-nations")
+            if first_nation_response.status_code != 200:
+                current_app.logger.error(
+                    f"EPIC.track returned status {first_nation_response.status_code} for GET first nations."
+                )
+                raise BadRequestError(
+                    "Unable to retrieve First Nation information at this time"
+                )
+
+            return first_nation_response.json()
+        except (RetryError, requests.exceptions.RequestException) as e:
+            current_app.logger.error(
+                f"EPIC.track service unavailable for GET first nations: {str(e)}",
+                exc_info=True
+            )
+            raise BadRequestError(
+                "The First Nation information service is temporarily unavailable. Please try again later."
+            )
+        except (ResourceNotFoundError, BadRequestError):
+            raise
+        except (KeyError, ValueError, TypeError) as e:
+            current_app.logger.error(
+                f"Error parsing first nation data for GET first nations: {str(e)}",
+                exc_info=True
+            )
+            raise BadRequestError(
+                "Unable to parse First Nation information for GET first nations"
+            )
+
 
 @retry(
     retry=retry_if_exception_type(requests.exceptions.RequestException),
