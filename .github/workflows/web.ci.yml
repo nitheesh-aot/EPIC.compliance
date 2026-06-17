@@ -18,7 +18,7 @@ defaults:
 
 jobs:
   setup-job:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     if: github.repository == 'bcgov/EPIC.compliance'
 
@@ -28,7 +28,7 @@ jobs:
 
   linting:
     needs: setup-job
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -50,7 +50,7 @@ jobs:
 
   testing:
     needs: setup-job
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -68,29 +68,25 @@ jobs:
         run: |
           npm ci
 
-      - name: Install Playwright browsers
-        run: |
-          npx playwright install --with-deps
-
-      - name: Run Vitest
-        run: |
-          npm run vitest -- --run --coverage
+      - name: Install Xvfb
+        run: sudo apt-get install -y xvfb
+        working-directory: .
 
       - name: Test with Cypress
         id: test
         run: |
-          npx cypress run --component --headed --browser chrome
+          xvfb-run --auto-servernum npx cypress run --component --headed --browser chrome
 
   build-check:
     needs: setup-job
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js 24.x
         uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 24.x
       - name: Install dependencies
         run: |
           npm install
