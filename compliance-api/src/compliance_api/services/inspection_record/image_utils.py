@@ -12,7 +12,14 @@ MAX_DOWNLOAD_SIZE = 50 * 1024 * 1024  # 50MB
 CHUNK_SIZE = 8192  # 8KB chunks for streaming
 TARGET_DPI = 300  # DPI for document images
 JPEG_QUALITY = 92  # Quality for JPEG compression
-Image.MAX_IMAGE_PIXELS = 200_000_000
+# Sanity ceiling on source pixels (width * height), checked against the image
+# header *before* decoding. This is a backstop against absurd decompression
+# bombs in formats that decode the full raster (PNG/TIFF). It is deliberately
+# generous so legitimate high-DPI scans (e.g. 1200-DPI Letter ~135M px) pass;
+# real memory safety comes from draft-mode decoding in optimize_image_for_docx,
+# which downscales JPEGs during decode so the full raster is never allocated.
+MAX_IMAGE_PIXELS = 250_000_000
+Image.MAX_IMAGE_PIXELS = MAX_IMAGE_PIXELS
 
 
 class ImageDownloadError(Exception):
@@ -101,14 +108,22 @@ def optimize_image_for_docx(
     with Image.open(image_stream) as img:
         original_width, original_height = img.size
 
-        # Only resize if image is larger than target
-        if original_width > target_width_px:
-            # Calculate proportional height
-            ratio = target_width_px / original_width
-            target_height_px = int(original_height * ratio)
+        # Backstop check against absurd images BEFORE decoding.
+        # img.size is available without a full raster decode. this
+        # rejects pathological non-JPEG bombs (worker OOM / DoS).
+        if original_width * original_height > MAX_IMAGE_PIXELS:
+            raise ImageTooLargeError(
+                f"Image dimensions {original_width}x{original_height} "
+                f"({original_width * original_height} pixels) exceed limit of "
+                f"{MAX_IMAGE_PIXELS} pixels"
+            )
 
-            # Use high-quality resampling
-            img = img.resize((target_width_px, target_height_px), Image.LANCZOS)
+        # Only resize if image is larger than target.
+        if original_width > target_width_px:
+            # thumbnail() shrinks in place preserving aspect ratio. For JPEG it
+            # downscales during decode so a large scan never materializes full-
+            # resolution in memory.
+            img.thumbnail((target_width_px, original_height), Image.LANCZOS)
 
         # Convert RGBA to RGB for JPEG compatibility (handles transparency)
         if img.mode in ('RGBA', 'P'):
