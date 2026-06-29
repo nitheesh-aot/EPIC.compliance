@@ -48,7 +48,7 @@ export function CaseFiles() {
   const { data: staffList, isLoading: staffLoading } = useStaffUsersData({ isActive: true, otherPositions: false });
   const { isLoading: authLoading } = useAuth();
   const { currentStaff } = useCurrentStaffUser();
-  
+
   const [sorting, setSorting] = useState<MRT_SortingState>([
     { id: "date_created", desc: true },
   ]);
@@ -81,6 +81,18 @@ export function CaseFiles() {
   );
   const cachedSorting = getSorting(caseFilesColumnFiltersCacheKey);
 
+  const isOnlyCurrentStaff = useCallback(
+    (officerValue: unknown): boolean => {
+      if (!currentStaff) return false;
+      const staffId = currentStaff.id.toString();
+      return (
+        Array.isArray(officerValue) &&
+        officerValue.length === 1 &&
+        String(officerValue[0]) === staffId
+      );
+    },
+    [currentStaff]
+  );
 
   // Restore cached filters on component mount
   useEffect(() => {
@@ -90,63 +102,32 @@ export function CaseFiles() {
 
     let restoredFilters = false;
 
-    // Restore column filters
-    if (cachedColumnFilters.length > 0) {
-      setColumnFilters(cachedColumnFilters);
-      restoredFilters = true;
-    }
-
     const hasCachedExternalFilters =
       cachedExternalFilters &&
       Object.keys(cachedExternalFilters).length > 0;
 
-    // Restore external filters
-    if (hasCachedExternalFilters) {
-      const restoredExternalFilters = cachedExternalFilters as Record<
+    // Restore cached filters
+    if (cachedColumnFilters.length > 0 || hasCachedExternalFilters) {
+      const restoredExternalFilters = (cachedExternalFilters ?? {}) as Record<
         string,
         string[] | string
       >;
-      setExternalFilters(restoredExternalFilters);
 
       // Restore global filter
       if (restoredExternalFilters.globalFilter) {
         setGlobalFilter(restoredExternalFilters.globalFilter as string);
       }
 
-      // Restore "My Files" switch state
-      if (restoredExternalFilters.myFilesChecked !== undefined) {
-        const restoredSwitchState = Boolean(
-          restoredExternalFilters.myFilesChecked
-        );
-        setMyFilesChecked(restoredSwitchState);
+      setColumnFilters(cachedColumnFilters);
+      setExternalFilters(restoredExternalFilters);
 
-        // Set up column filters for UI display if switch is ON
-        if (restoredSwitchState) {
-          setColumnFilters((prev) => {
-            const filtered = prev.filter((f) => f.id !== "primary_officer");
-            return [
-              ...filtered,
-              { id: "primary_officer", value: [currentStaff.id.toString()] },
-            ];
-          });
-        }
-      } else {
-        // Fallback: derive from primary_officer filter
-        const primaryOfficerFilter =
-          restoredExternalFilters.primary_officer_ids || [];
-        const derivedSwitchState = primaryOfficerFilter.length > 0;
-        setMyFilesChecked(derivedSwitchState);
+      // Derive the toggle from the filters: it is on if and only if the
+      // primary officer filter holds exactly the current user.
+      const officerFilter = cachedColumnFilters.find(
+        (f) => f.id === "primary_officer"
+      );
+      setMyFilesChecked(isOnlyCurrentStaff(officerFilter?.value));
 
-        if (derivedSwitchState) {
-          setColumnFilters((prev) => {
-            const filtered = prev.filter((f) => f.id !== "primary_officer");
-            return [
-              ...filtered,
-              { id: "primary_officer", value: [currentStaff.id.toString()] },
-            ];
-          });
-        }
-      }
       restoredFilters = true;
     }
 
@@ -156,7 +137,7 @@ export function CaseFiles() {
         STAFF_USER_POSITION.OFFICER,
         STAFF_USER_POSITION.SENIOR_OFFICER,
       ];
-      const defaultChecked = Boolean(currentStaff.position_id && 
+      const defaultChecked = Boolean(currentStaff.position_id &&
         officerPositions.includes(currentStaff.position_id));
 
       const defaultExternalFilters: Record<string, string[] | string> = defaultChecked
@@ -187,11 +168,12 @@ export function CaseFiles() {
     cachedSorting,
     currentStaff,
     hasHydrated,
+    isOnlyCurrentStaff,
   ]);
 
   // Cache after filters stabilize
   const cacheTimeoutRef = useRef<NodeJS.Timeout>();
-  
+
   useEffect(() => {
     // Don't cache until filters are initialized
     if (!filtersInitialized.current) return;
@@ -209,7 +191,6 @@ export function CaseFiles() {
         {
           ...externalFilters,
           globalFilter,
-          myFilesChecked,
         },
         sorting
       );
@@ -220,7 +201,7 @@ export function CaseFiles() {
         clearTimeout(cacheTimeoutRef.current);
       }
     };
-  }, [columnFilters, externalFilters, globalFilter, sorting, myFilesChecked]);
+  }, [columnFilters, externalFilters, globalFilter, sorting]);
 
   // Memoize external filters to prevent unnecessary recreations
   const memoizedExternalFilters = useMemo(
@@ -259,7 +240,7 @@ export function CaseFiles() {
   const { data, isLoading } = useCaseFilesData(
     filtersInitialized.current ? queryParams : undefined
   );
-  
+
   const caseFilesList = useMemo(() => data?.items ?? [], [data?.items]);
 
   // Use the custom hook for table handlers
@@ -281,29 +262,26 @@ export function CaseFiles() {
   // Column filter handler that enforces "My Files" toggle
   const handleColumnFiltersChange = useCallback(
     (updater: MRT_Updater<MRT_ColumnFiltersState>) => {
-      setColumnFilters((prevFilters) => {
-        const newFilters = typeof updater === 'function' ? updater(prevFilters) : updater;
-        
-        // If "My Files" is checked, ensure primary_officer_ids filter is present
-        if (myFilesChecked && currentStaff) {
-          const hasPrimaryOfficerFilter = newFilters.some(
-            (filter) => filter.id === "primary_officer"
-          );
-          
-          // If user removed the primary_officer_ids filter, re-add it
-          if (!hasPrimaryOfficerFilter) {
-            const primaryOfficerFilter = {
-              id: "primary_officer",
-              value: [currentStaff.id.toString()],
-            };
-            return [...newFilters, primaryOfficerFilter];
-          }
+      const newFilters =
+        typeof updater === "function" ? updater(columnFilters) : updater;
+      setColumnFilters(newFilters);
+
+      const officerFilter = newFilters.find(
+        (filter) => filter.id === "primary_officer"
+      );
+      setMyFilesChecked(isOnlyCurrentStaff(officerFilter?.value));
+
+      setExternalFilters((prev) => {
+        const next = { ...prev };
+        if (Array.isArray(officerFilter?.value) && officerFilter.value.length > 0) {
+          next.primary_officer_ids = officerFilter.value as string[];
+        } else {
+          delete next.primary_officer_ids;
         }
-        
-        return newFilters;
+        return next;
       });
     },
-    [myFilesChecked, currentStaff]
+    [columnFilters, isOnlyCurrentStaff]
   );
 
   // "My Files" switch handler

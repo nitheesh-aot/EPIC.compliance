@@ -85,15 +85,15 @@ export function Complaints() {
   const [columnFilters, setColumnFilters] = useState<
     MRT_TableState<Complaint>["columnFilters"]
   >([]);
-  
+
   const [globalFilter, setGlobalFilter] = useState<string>("");
-  
+
   const [externalFilters, setExternalFilters] = useState<
     Record<string, string[] | string>
   >({});
 
   const [myFilesChecked, setMyFilesChecked] = useState(false);
-  
+
   // Ref to track if filters have been initialized
   const filtersInitialized = useRef(false);
   const [isRestored, setIsRestored] = useState(false);
@@ -105,6 +105,18 @@ export function Complaints() {
   const cachedExternalFilters = getExternalFilters(complaintsColumnFiltersCacheKey);
   const cachedSorting = getSorting(complaintsColumnFiltersCacheKey);
 
+  const isOnlyCurrentStaff = useCallback(
+    (officerValue: unknown): boolean => {
+      if (!currentStaff) return false;
+      const staffId = currentStaff.id.toString();
+      return (
+        Array.isArray(officerValue) &&
+        officerValue.length === 1 &&
+        String(officerValue[0]) === staffId
+      );
+    },
+    [currentStaff]
+  );
 
   useEffect(() => {
     // Don't initialize if already done, or if it isn't loaded yet
@@ -125,29 +137,24 @@ export function Complaints() {
 
     if (hasCache) {
       // Restore from cache
-      if (cachedColumnFilters.length > 0) {
-        setColumnFilters(cachedColumnFilters);
-      }
-      
-      if (cachedExternalFilters) {
-        const restored = cachedExternalFilters as Record<string, string[] | string>;
-        setExternalFilters(restored);
+      const restored = (cachedExternalFilters ?? {}) as Record<
+        string,
+        string[] | string
+      >;
 
-        if (restored.globalFilter) {
-          setGlobalFilter(restored.globalFilter as string);
-        }
-
-        if (restored.myFilesChecked !== undefined) {
-          setMyFilesChecked(Boolean(restored.myFilesChecked));
-        } else {
-          // Get from primary officer filter
-          const primaryOfficer = restored.primary_officer_ids;
-          const derivedState =
-            Array.isArray(primaryOfficer) &&
-            primaryOfficer.some((id) => Boolean(id));
-          setMyFilesChecked(derivedState);
-        }
+      if (restored.globalFilter) {
+        setGlobalFilter(restored.globalFilter as string);
       }
+
+      setColumnFilters(cachedColumnFilters);
+      setExternalFilters(restored);
+
+      // Derive the toggle from the filters: it is on if and only if the
+      // primary officer filter holds exactly the current user.
+      const officerFilter = cachedColumnFilters.find(
+        (f) => f.id === "primary_officer_ids"
+      );
+      setMyFilesChecked(isOnlyCurrentStaff(officerFilter?.value));
 
       if (cachedSorting && Array.isArray(cachedSorting) && cachedSorting.length > 0) {
         if (cachedSorting[0]?.id) {
@@ -161,7 +168,7 @@ export function Complaints() {
         STAFF_USER_POSITION.SENIOR_OFFICER,
       ];
 
-      const defaultChecked = Boolean(currentStaff.position_id && 
+      const defaultChecked = Boolean(currentStaff.position_id &&
         officerPositions.includes(currentStaff.position_id));
       const defaults = createDefaultFilters(currentStaff.id.toString(), defaultChecked);
       setExternalFilters(defaults.externalFilters);
@@ -170,11 +177,11 @@ export function Complaints() {
     }
 
     setIsRestored(true);
-  }, [authLoading, currentStaffLoading, currentStaff, cachedColumnFilters, cachedExternalFilters, cachedSorting, hasHydrated]);
+  }, [authLoading, currentStaffLoading, currentStaff, cachedColumnFilters, cachedExternalFilters, cachedSorting, hasHydrated, isOnlyCurrentStaff]);
 
   // Debounced cache persistence - only after initialization
   const cacheTimeoutRef = useRef<NodeJS.Timeout>();
-  
+
   useEffect(() => {
     // Only cache after filters are initialized
     if (!filtersInitialized.current || !isRestored) return;
@@ -192,7 +199,6 @@ export function Complaints() {
         {
           ...externalFilters,
           globalFilter,
-          myFilesChecked,
         },
         sorting
       );
@@ -203,7 +209,7 @@ export function Complaints() {
         clearTimeout(cacheTimeoutRef.current);
       }
     };
-  }, [columnFilters, externalFilters, globalFilter, sorting, myFilesChecked, isRestored]);
+  }, [columnFilters, externalFilters, globalFilter, sorting, isRestored]);
 
   const convertFiltersToQueryParams = useConvertFiltersToQueryParams(externalFilters);
 
@@ -229,7 +235,7 @@ export function Complaints() {
 
   // Get data
   const { data, isLoading } = useComplaintsData(queryParams);
-  
+
   const complaintsList = useMemo(() => data?.items ?? [], [data?.items]);
 
   // Use the custom hook for table handlers
@@ -250,29 +256,30 @@ export function Complaints() {
   // Column filter handler that enforces "My Files" toggle
   const handleColumnFiltersChange = useCallback(
     (updater: MRT_Updater<MRT_ColumnFiltersState>) => {
-      setColumnFilters((prevFilters) => {
-        const newFilters = typeof updater === 'function' ? updater(prevFilters) : updater;
-        
-        // If "My Files" is checked, ensure primary_officer_ids filter is present
-        if (myFilesChecked && currentStaff) {
-          const hasPrimaryOfficerFilter = newFilters.some(
-            (filter) => filter.id === "primary_officer_ids"
-          );
-          
-          // If user removed the primary_officer_ids filter, re-add it
-          if (!hasPrimaryOfficerFilter) {
-            const primaryOfficerFilter = {
-              id: "primary_officer_ids",
-              value: [currentStaff.id.toString()],
-            };
-            return [...newFilters, primaryOfficerFilter];
-          }
+      const newFilters =
+        typeof updater === "function" ? updater(columnFilters) : updater;
+      setColumnFilters(newFilters);
+
+      // The filters are the source of truth: keep the toggle on only while the
+      // primary officer filter holds exactly the current user.
+      const officerFilter = newFilters.find(
+        (filter) => filter.id === "primary_officer_ids"
+      );
+      setMyFilesChecked(isOnlyCurrentStaff(officerFilter?.value));
+
+      // Mirror the officer column filter into the external filter so a stale
+      // external value can't override it when building the query params.
+      setExternalFilters((prev) => {
+        const next = { ...prev };
+        if (Array.isArray(officerFilter?.value) && officerFilter.value.length > 0) {
+          next.primary_officer_ids = officerFilter.value as string[];
+        } else {
+          delete next.primary_officer_ids;
         }
-        
-        return newFilters;
+        return next;
       });
     },
-    [myFilesChecked, currentStaff]
+    [columnFilters, isOnlyCurrentStaff]
   );
 
   const handleMyFilesSwitchChange = useCallback(
